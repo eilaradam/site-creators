@@ -298,13 +298,13 @@
         const authData = await Auth.checkAuth();
         if (!authData) return;
 
-        const role = await Auth.getRole(authData.user.id);
+        const role = await Auth.getRole();
         if (role !== 'admin') {
             window.location.href = 'login.html';
             return;
         }
 
-        const userInfo = await Auth.getUserInfo(authData.user.id);
+        const userInfo = await Auth.getUserInfo();
         document.getElementById('userName').textContent = userInfo ? userInfo.nome : '';
 
         loadCreators();

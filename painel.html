@@ -186,13 +186,13 @@
         const authData = await Auth.checkAuth();
         if (!authData) return;
 
-        const role = await Auth.getRole(authData.user.id);
+        const role = await Auth.getRole();
         if (!role || (role !== 'aluna' && role !== 'admin')) {
             window.location.href = 'login.html';
             return;
         }
 
-        currentUserInfo = await Auth.getUserInfo(authData.user.id);
+        currentUserInfo = await Auth.getUserInfo();
         document.getElementById('userName').textContent = currentUserInfo ? currentUserInfo.nome : '';
 
         await loadEstados();

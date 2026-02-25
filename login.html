@@ -81,7 +81,7 @@
         try {
             const { data: { session } } = await sb.auth.getSession();
             if (session) {
-                const role = await Auth.getRole(session.user.id);
+                const role = await Auth.getRole();
                 if (role) Auth.redirectByRole(role);
             }
         } catch (e) {}

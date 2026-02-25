@@ -25,17 +25,17 @@
         }
     }
 
-    /** Busca role e info do usuário na tabela usuarios. */
-    async function getUserInfo(userId) {
+    /** Busca role e info do usuário via função SECURITY DEFINER (bypassa RLS). */
+    async function getUserInfo() {
         if (!sb) return null;
-        const { data, error } = await sb.from('usuarios').select('*').eq('id', userId).single();
+        const { data, error } = await sb.rpc('get_my_role');
         if (error || !data) return null;
         return data;
     }
 
     /** Retorna só o role do usuário. */
-    async function getRole(userId) {
-        const info = await getUserInfo(userId);
+    async function getRole() {
+        const info = await getUserInfo();
         if (!info || !info.ativo) return null;
         return info.role;
     }
@@ -61,7 +61,7 @@
             if (error.message === 'Invalid login credentials') throw new Error('E-mail ou senha incorretos.');
             throw error;
         }
-        const role = await getRole(data.user.id);
+        const role = await getRole();
         if (!role) {
             await sb.auth.signOut();
             throw new Error('Acesso não autorizado. Entre em contato com a administradora.');
