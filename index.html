@@ -95,6 +95,13 @@
         .form-submit:hover { background: var(--accent-dark); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(212,87,42,0.3); }
         .form-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
         .form-footer { text-align: center; margin-top: 16px; font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+        .photo-upload { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 24px; }
+        .photo-preview { width: 96px; height: 96px; border-radius: 50%; background: var(--warm); border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; transition: all 0.3s; }
+        .photo-preview:hover { border-color: var(--accent); background: var(--accent-glow); }
+        .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .photo-preview .photo-icon { font-size: 28px; color: var(--text-muted); line-height: 1; }
+        .photo-label { font-size: 13px; color: var(--accent); font-weight: 600; cursor: pointer; }
+        .photo-label:hover { text-decoration: underline; }
         .form-error { background: rgba(196,69,60,0.08); border: 1px solid rgba(196,69,60,0.2); color: var(--error); padding: 12px 16px; border-radius: 10px; font-size: 13px; margin-bottom: 16px; display: none; }
         .form-error.show { display: block; }
         .success-state { display: none; text-align: center; padding: 40px 20px; }
@@ -178,6 +185,11 @@
                 <p class="form-subtitle">Preencha abaixo para entrar na nossa base e receber oportunidades de campanhas.</p>
                 <div class="form-error" id="formError"></div>
                 <form id="creatorForm">
+                    <div class="photo-upload">
+                        <div class="photo-preview" id="photoPreview" onclick="document.getElementById('fotoInput').click()"><span class="photo-icon">+</span></div>
+                        <label class="photo-label" onclick="document.getElementById('fotoInput').click()">Enviar foto de perfil</label>
+                        <input type="file" id="fotoInput" accept="image/*" style="display:none">
+                    </div>
                     <div class="field-row">
                         <div class="field-group"><label>Nome completo</label><input type="text" name="nome" required placeholder="Seu nome" id="nome"></div>
                         <div class="field-group"><label>WhatsApp (com DDD)</label><input type="tel" name="whatsapp" required placeholder="(00) 00000-0000" id="whatsapp"></div>
@@ -246,6 +258,18 @@
         document.querySelectorAll('.reveal:not(.visible)').forEach(el => el.classList.add('visible'));
     }, 3000);
 
+    /* ── Foto de perfil: preview ── */
+    document.getElementById('fotoInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 5 * 1024 * 1024) { alert('A foto deve ter no máximo 5MB.'); e.target.value = ''; return; }
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            document.getElementById('photoPreview').innerHTML = `<img src="${ev.target.result}" alt="Preview">`;
+        };
+        reader.readAsDataURL(file);
+    });
+
     document.getElementById('whatsapp').addEventListener('input', function(e) {
         let v = e.target.value.replace(/\D/g, '');
         if (v.length > 11) v = v.slice(0, 11);
@@ -308,6 +332,23 @@
         errorEl.classList.remove('show');
         btn.textContent = 'Enviando...';
         btn.disabled = true;
+
+        /* Upload foto de perfil */
+        let fotoUrl = null;
+        const fotoFile = document.getElementById('fotoInput').files[0];
+        if (fotoFile && sb) {
+            try {
+                const ext = fotoFile.name.split('.').pop().toLowerCase();
+                const fileName = `${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
+                const { data: uploadData, error: uploadError } = await sb.storage.from('fotos-perfil').upload(fileName, fotoFile, { cacheControl: '3600', upsert: false });
+                if (uploadError) throw uploadError;
+                const { data: urlData } = sb.storage.from('fotos-perfil').getPublicUrl(fileName);
+                fotoUrl = urlData.publicUrl;
+            } catch (uploadErr) {
+                console.warn('Erro no upload da foto:', uploadErr);
+            }
+        }
+
         const cidadeEl = document.getElementById('cidade');
         const cidadeValue = cidadeEl.tagName === 'SELECT' ? cidadeEl.value : cidadeEl.value.trim();
         const creatorData = {
@@ -325,6 +366,7 @@
             experiencia: document.getElementById('experiencia').value,
             portfolio: document.getElementById('portfolio').value.trim() || null,
             melhor_conteudo: document.getElementById('melhor_conteudo').value.trim() || null,
+            foto_perfil: fotoUrl,
             origem: 'site_recrutamento',
             status: 'novo'
         };
