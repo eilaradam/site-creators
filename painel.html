@@ -50,6 +50,9 @@
         .filters-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
         .filter-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 160px; }
         .filter-group.search { flex: 2; min-width: 240px; }
+        .filter-group.idade { flex: 0; min-width: auto; }
+        .idade-inputs { display: flex; gap: 6px; }
+        .idade-inputs input { width: 70px; text-align: center; padding: 12px 8px; }
         .filter-group label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); }
         .filter-group input, .filter-group select { padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; }
         .filter-group input:focus, .filter-group select:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
@@ -159,15 +162,12 @@
                     <option value="30k_mais">30k+</option>
                 </select>
             </div>
-            <div class="filter-group">
+            <div class="filter-group idade">
                 <label>Idade</label>
-                <select id="filterIdade">
-                    <option value="">Todos</option>
-                    <option value="18-24">18-24</option>
-                    <option value="25-34">25-34</option>
-                    <option value="35-44">35-44</option>
-                    <option value="45+">45+</option>
-                </select>
+                <div class="idade-inputs">
+                    <input type="number" id="filterIdadeDe" placeholder="De" min="18" max="99">
+                    <input type="number" id="filterIdadeAte" placeholder="Ate" min="18" max="99">
+                </div>
             </div>
             <div class="filters-actions">
                 <button class="btn-search" id="btnSearch">Pesquisar</button>
@@ -265,7 +265,8 @@
         const estado = document.getElementById('filterEstado').value;
         const nicho = document.getElementById('filterNicho').value;
         const seguidores = document.getElementById('filterSeguidores').value;
-        const idade = document.getElementById('filterIdade').value;
+        const idadeDe = parseInt(document.getElementById('filterIdadeDe').value) || 0;
+        const idadeAte = parseInt(document.getElementById('filterIdadeAte').value) || 0;
 
         try {
             /* Query com colunas limitadas - sem email, whatsapp, genero */
@@ -279,21 +280,20 @@
             if (seguidores) query = query.eq('seguidores', seguidores);
 
             /* Filtro por idade (calcula datas a partir de data_nascimento) */
-            if (idade) {
+            if (idadeDe || idadeAte) {
                 const today = new Date();
                 const y = today.getFullYear(), m = today.getMonth(), d = today.getDate();
                 const toStr = (dt) => dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
 
                 query = query.not('data_nascimento', 'is', null);
 
-                if (idade === '18-24') {
-                    query = query.gt('data_nascimento', toStr(new Date(y - 25, m, d))).lte('data_nascimento', toStr(new Date(y - 18, m, d)));
-                } else if (idade === '25-34') {
-                    query = query.gt('data_nascimento', toStr(new Date(y - 35, m, d))).lte('data_nascimento', toStr(new Date(y - 25, m, d)));
-                } else if (idade === '35-44') {
-                    query = query.gt('data_nascimento', toStr(new Date(y - 45, m, d))).lte('data_nascimento', toStr(new Date(y - 35, m, d)));
-                } else if (idade === '45+') {
-                    query = query.lte('data_nascimento', toStr(new Date(y - 45, m, d)));
+                if (idadeDe) {
+                    /* idade >= De → nasceu antes de (hoje - De anos) */
+                    query = query.lte('data_nascimento', toStr(new Date(y - idadeDe, m, d)));
+                }
+                if (idadeAte) {
+                    /* idade <= Ate → nasceu depois de (hoje - (Ate+1) anos) */
+                    query = query.gt('data_nascimento', toStr(new Date(y - (idadeAte + 1), m, d)));
                 }
             }
 
@@ -367,7 +367,8 @@
         document.getElementById('filterEstado').value = '';
         document.getElementById('filterNicho').value = '';
         document.getElementById('filterSeguidores').value = '';
-        document.getElementById('filterIdade').value = '';
+        document.getElementById('filterIdadeDe').value = '';
+        document.getElementById('filterIdadeAte').value = '';
         currentPage = 1;
         loadCreators();
     });
