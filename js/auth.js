@@ -29,6 +29,7 @@
     async function getUserInfo() {
         if (!sb) return null;
         const { data, error } = await sb.rpc('get_my_role');
+        console.log('RPC get_my_role - data:', data, 'error:', error, 'type:', typeof data);
         if (error || !data) return null;
         return data;
     }
