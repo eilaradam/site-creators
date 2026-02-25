@@ -262,7 +262,7 @@
     document.getElementById('fotoInput').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (!file) return;
-        if (file.size > 5 * 1024 * 1024) { alert('A foto deve ter no máximo 5MB.'); e.target.value = ''; return; }
+        if (file.size > 15 * 1024 * 1024) { alert('A foto deve ter no máximo 15MB.'); e.target.value = ''; return; }
         const reader = new FileReader();
         reader.onload = function(ev) {
             document.getElementById('photoPreview').innerHTML = `<img src="${ev.target.result}" alt="Preview">`;
