@@ -245,7 +245,7 @@
         }
 
         /* ═══════════════ SECTIONS ═══════════════ */
-        .section { padding: 100px 24px; }
+        .section { padding: 100px 24px; background: var(--cream); color: var(--text); }
 
         .section-header { text-align: center; margin-bottom: 64px; }
 
@@ -313,9 +313,10 @@
         .step-card p { font-size: 14px; color: var(--text-soft); line-height: 1.6; }
 
         /* ═══════════════ BENEFITS ═══════════════ */
-        .benefits { background: var(--black); color: var(--white); position: relative; }
-        .benefits .section-tag { color: var(--accent); }
-        .benefits h2 { color: var(--white); }
+        .benefits { background: #1A1816; color: #FAFAF9; position: relative; }
+        .benefits .section-tag { color: #D4572A; }
+        .benefits h2 { color: #FAFAF9; }
+        .benefits .benefit-item h4 { color: #FAFAF9; }
 
         .benefits-grid {
             display: grid;
@@ -350,9 +351,11 @@
         }
 
         .benefit-item h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-        .benefit-item p { font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.5; }
+        .benefit-item p { font-size: 13px; color: rgba(255,255,255,0.7); line-height: 1.5; }
 
         /* ═══════════════ FAQ ═══════════════ */
+        #faq { background: var(--card); }
+
         .faq-list {
             max-width: 680px;
             margin: 0 auto;
@@ -710,7 +713,7 @@
         .marcas-error.show { display: block; }
 
         /* ═══════════════ FOOTER ═══════════════ */
-        footer { padding: 48px 24px; text-align: center; }
+        footer { padding: 48px 24px; text-align: center; background: var(--cream); color: var(--text); }
         .footer-brand { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; }
         .footer-brand span { color: var(--accent); }
         footer p { font-size: 13px; color: var(--text-muted); }
@@ -728,12 +731,17 @@
         }
 
         .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal.animate {
             opacity: 0;
             transform: translateY(30px);
             transition: all 0.7s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
-        .reveal.visible { opacity: 1; transform: translateY(0); }
+        .reveal.animate.visible { opacity: 1; transform: translateY(0); }
 
         /* ═══════════════ RESPONSIVE ═══════════════ */
         @media (max-width: 768px) {
@@ -1024,7 +1032,12 @@
     const SUPABASE_URL = 'https://mfrmnquvwwuxraqgemyh.supabase.co';
     const SUPABASE_ANON_KEY = 'COLE_SUA_ANON_KEY_AQUI';
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let supabase;
+    try {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } catch(e) {
+        console.warn('Supabase não carregou:', e);
+    }
 
     // ══════════════════════════════════════════════
     // NAV SCROLL
@@ -1035,9 +1048,10 @@
     });
 
     // ══════════════════════════════════════════════
-    // REVEAL ON SCROLL
+    // REVEAL ON SCROLL (conteúdo visível por padrão, animação é progressiva)
     // ══════════════════════════════════════════════
     const reveals = document.querySelectorAll('.reveal');
+    reveals.forEach(el => el.classList.add('animate'));
     const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry, i) => {
             if (entry.isIntersecting) {
@@ -1144,6 +1158,12 @@
             return;
         }
 
+        if (!supabase) {
+            errorEl.textContent = 'Erro de conexão. Recarregue a página e tente novamente.';
+            errorEl.classList.add('show');
+            return;
+        }
+
         // Loading state
         btn.classList.add('loading');
         btn.querySelector('.btn-text').textContent = 'Enviando...';
@@ -1228,6 +1248,12 @@
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             errorEl.textContent = 'Informe um e-mail válido.';
+            errorEl.classList.add('show');
+            return;
+        }
+
+        if (!supabase) {
+            errorEl.textContent = 'Erro de conexão. Recarregue a página e tente novamente.';
             errorEl.classList.add('show');
             return;
         }
