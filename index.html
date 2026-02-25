@@ -333,71 +333,67 @@
         btn.textContent = 'Enviando...';
         btn.disabled = true;
 
-        /* Upload foto de perfil */
-        let fotoUrl = null;
-        let fotoErro = null;
-        const fotoFile = document.getElementById('fotoInput').files[0];
-        console.log('=== DEBUG FOTO ===');
-        console.log('Arquivo selecionado:', fotoFile);
-        console.log('Supabase client:', sb ? 'OK' : 'NULL');
-        if (fotoFile && sb) {
-            try {
-                const nomeArquivo = `${Date.now()}_${fotoFile.name}`;
-                console.log('Nome do arquivo para upload:', nomeArquivo);
-                const { data: uploadData, error: uploadError } = await sb.storage
-                    .from('fotos-perfil')
-                    .upload(nomeArquivo, fotoFile);
-                console.log('Upload result - data:', uploadData);
-                console.log('Upload result - error:', uploadError);
-                if (uploadError) throw uploadError;
-                const { data: urlData } = sb.storage
-                    .from('fotos-perfil')
-                    .getPublicUrl(nomeArquivo);
-                fotoUrl = urlData.publicUrl;
-                console.log('URL pública gerada:', fotoUrl);
-            } catch (uploadErr) {
-                console.error('ERRO no upload da foto:', uploadErr);
-                fotoErro = uploadErr.message || uploadErr.statusCode || JSON.stringify(uploadErr);
-            }
-        } else {
-            console.log('PULOU upload - fotoFile:', !!fotoFile, '| sb:', !!sb);
-            if (fotoFile && !sb) fotoErro = 'Conexão com servidor indisponível';
-        }
-        console.log('fotoUrl final:', fotoUrl);
-        console.log('fotoErro:', fotoErro);
-        console.log('=== FIM DEBUG FOTO ===');
-
-        const cidadeEl = document.getElementById('cidade');
-        const cidadeValue = cidadeEl.tagName === 'SELECT' ? cidadeEl.value : cidadeEl.value.trim();
-        const creatorData = {
-            nome: document.getElementById('nome').value.trim(),
-            email: document.getElementById('email').value.trim().toLowerCase(),
-            whatsapp: document.getElementById('whatsapp').value.trim(),
-            instagram: document.getElementById('instagram').value.trim().toLowerCase(),
-            tiktok: document.getElementById('tiktok').value.trim().toLowerCase() || null,
-            data_nascimento: document.getElementById('nascimento').value || null,
-            genero: document.getElementById('genero').value,
-            seguidores: document.getElementById('seguidores').value,
-            estado: document.getElementById('estado').value,
-            cidade: cidadeValue,
-            nicho: document.getElementById('nicho').value,
-            experiencia: document.getElementById('experiencia').value,
-            portfolio: document.getElementById('portfolio').value.trim() || null,
-            melhor_conteudo: document.getElementById('melhor_conteudo').value.trim() || null,
-            foto_perfil: fotoUrl,
-            origem: 'site_recrutamento',
-            status: 'novo'
-        };
         try {
             if (!sb) throw new Error('Conexão com o servidor indisponível. Tente novamente em alguns instantes.');
+
+            /* Upload foto de perfil */
+            let fotoUrl = null;
+            const fotoField = document.getElementById('fotoInput');
+            console.log('Campo foto encontrado:', fotoField);
+            console.log('Arquivos no campo:', fotoField ? fotoField.files : 'campo não existe');
+
+            if (fotoField && fotoField.files && fotoField.files[0]) {
+                const arquivo = fotoField.files[0];
+                const nomeArquivo = Date.now() + '_' + arquivo.name.replace(/[^a-zA-Z0-9.]/g, '_');
+                console.log('Fazendo upload de:', nomeArquivo);
+
+                const { data: uploadData, error: uploadError } = await sb.storage
+                    .from('fotos-perfil')
+                    .upload(nomeArquivo, arquivo, { cacheControl: '3600', upsert: false });
+
+                console.log('Resultado upload:', uploadData, uploadError);
+
+                if (!uploadError) {
+                    const { data: urlData } = sb.storage
+                        .from('fotos-perfil')
+                        .getPublicUrl(nomeArquivo);
+                    fotoUrl = urlData.publicUrl;
+                    console.log('URL da foto:', fotoUrl);
+                } else {
+                    console.error('Erro no upload:', uploadError);
+                }
+            }
+
+            /* Montar dados do creator */
+            const cidadeEl = document.getElementById('cidade');
+            const cidadeValue = cidadeEl.tagName === 'SELECT' ? cidadeEl.value : cidadeEl.value.trim();
+            const creatorData = {
+                nome: document.getElementById('nome').value.trim(),
+                email: document.getElementById('email').value.trim().toLowerCase(),
+                whatsapp: document.getElementById('whatsapp').value.trim(),
+                instagram: document.getElementById('instagram').value.trim().toLowerCase(),
+                tiktok: document.getElementById('tiktok').value.trim().toLowerCase() || null,
+                data_nascimento: document.getElementById('nascimento').value || null,
+                genero: document.getElementById('genero').value,
+                seguidores: document.getElementById('seguidores').value,
+                estado: document.getElementById('estado').value,
+                cidade: cidadeValue,
+                nicho: document.getElementById('nicho').value,
+                experiencia: document.getElementById('experiencia').value,
+                portfolio: document.getElementById('portfolio').value.trim() || null,
+                melhor_conteudo: document.getElementById('melhor_conteudo').value.trim() || null,
+                foto_perfil: fotoUrl,
+                origem: 'site_recrutamento',
+                status: 'novo'
+            };
+
+            console.log('creatorData.foto_perfil:', creatorData.foto_perfil);
+
+            /* Inserir no banco */
             const { data, error } = await sb.from('creators').insert([creatorData]);
             if (error) { if (error.code === '23505') throw new Error('Esse e-mail ou Instagram já está cadastrado na nossa base!'); throw error; }
             document.getElementById('formContent').style.display = 'none';
-            const successEl = document.getElementById('successState');
-            successEl.classList.add('show');
-            if (fotoErro) {
-                successEl.querySelector('p').innerHTML += '<br><br><span style="color:var(--error);font-size:13px">⚠ Foto não enviada: ' + fotoErro + '</span>';
-            }
+            document.getElementById('successState').classList.add('show');
         } catch (err) {
             errorEl.textContent = err.message || 'Erro ao enviar. Tente novamente.';
             errorEl.classList.add('show');
