@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/auth.js"></script>
     <style>
         :root {
             --black: #0A0A0A;
@@ -29,32 +30,24 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Outfit', sans-serif; background: var(--cream); color: var(--text); -webkit-font-smoothing: antialiased; min-height: 100vh; }
 
-        /* ── Header ── */
+        /* Header */
         .admin-header { background: var(--card); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
         .admin-logo { font-family: 'Fraunces', serif; font-weight: 700; font-size: 20px; color: var(--text); }
         .admin-logo span { color: var(--accent); }
         .admin-logo small { font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-left: 12px; text-transform: uppercase; letter-spacing: 2px; }
+        .header-right { display: flex; align-items: center; gap: 16px; }
+        .header-user { font-size: 14px; font-weight: 500; color: var(--text-soft); }
         .btn-logout { background: none; border: 1px solid var(--border); padding: 8px 20px; border-radius: 100px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.2s; }
         .btn-logout:hover { border-color: var(--error); color: var(--error); }
 
-        /* ── Login ── */
-        .login-wrapper { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
-        .login-box { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 48px 40px; max-width: 420px; width: 100%; box-shadow: 0 4px 24px rgba(0,0,0,0.04); position: relative; overflow: hidden; }
-        .login-box::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent), #E8784A, var(--accent)); }
-        .login-box h1 { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.5px; }
-        .login-box p { font-size: 14px; color: var(--text-soft); margin-bottom: 28px; line-height: 1.6; }
-        .login-field { margin-bottom: 16px; }
-        .login-field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
-        .login-field input { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 12px; font-family: 'Outfit', sans-serif; font-size: 15px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; }
-        .login-field input:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
-        .login-btn { width: 100%; margin-top: 8px; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 14px; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
-        .login-btn:hover { background: var(--accent-dark); transform: translateY(-1px); }
-        .login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-        .login-error { background: rgba(196,69,60,0.08); border: 1px solid rgba(196,69,60,0.2); color: var(--error); padding: 12px 16px; border-radius: 10px; font-size: 13px; margin-bottom: 16px; display: none; }
-        .login-error.show { display: block; }
+        /* Tabs */
+        .tabs { background: var(--card); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; gap: 0; }
+        .tab { padding: 14px 24px; font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; background: none; border-top: none; border-left: none; border-right: none; font-family: 'Outfit', sans-serif; }
+        .tab:hover { color: var(--text); }
+        .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-        /* ── Dashboard ── */
-        .dashboard { display: none; padding: 24px; max-width: 1400px; margin: 0 auto; }
+        /* Dashboard */
+        .dashboard { padding: 24px; max-width: 1400px; margin: 0 auto; display: none; }
         .dashboard.show { display: block; }
 
         /* Stat cards */
@@ -74,12 +67,12 @@
         .btn-clear-filters { padding: 10px 20px; background: none; border: 1px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.2s; align-self: end; white-space: nowrap; }
         .btn-clear-filters:hover { border-color: var(--accent); color: var(--accent); }
 
-        /* Contador de resultados */
+        /* Results info */
         .results-info { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
         .results-info strong { color: var(--text); }
 
-        /* Tabela (desktop) */
-        .table-container { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+        /* Tabela */
+        .table-container { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; overflow-x: auto; }
         .creators-table { width: 100%; border-collapse: collapse; }
         .creators-table th { background: var(--cream); padding: 12px 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; position: sticky; top: 0; }
         .creators-table td { padding: 14px 16px; font-size: 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
@@ -111,11 +104,44 @@
         .creator-card-links a { flex: 1; text-align: center; padding: 8px; border-radius: 8px; background: var(--cream); font-size: 12px; font-weight: 600; color: var(--accent); text-decoration: none; transition: all 0.2s; }
         .creator-card-links a:hover { background: var(--accent-glow); }
 
-        /* Empty state */
+        /* Alunas section */
+        .alunas-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .alunas-header h2 { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; }
+        .btn-add { padding: 10px 24px; background: var(--accent); color: white; border: none; border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .btn-add:hover { background: var(--accent-dark); }
+        .alunas-table { width: 100%; border-collapse: collapse; }
+        .alunas-table th { background: var(--cream); padding: 12px 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); text-align: left; border-bottom: 1px solid var(--border); }
+        .alunas-table td { padding: 14px 16px; font-size: 14px; border-bottom: 1px solid var(--border); }
+        .alunas-table tr:last-child td { border-bottom: none; }
+        .badge-ativo-user { background: rgba(45,122,79,0.1); color: var(--success); }
+        .badge-inativo { background: rgba(156,149,140,0.15); color: var(--text-muted); }
+        .btn-toggle { padding: 6px 16px; border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1px solid var(--border); background: var(--cream); color: var(--text-soft); }
+        .btn-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 100; display: none; align-items: center; justify-content: center; padding: 24px; }
+        .modal-overlay.show { display: flex; }
+        .modal { background: var(--card); border-radius: 24px; padding: 36px; max-width: 480px; width: 100%; position: relative; overflow: hidden; }
+        .modal::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent), #E8784A, var(--accent)); }
+        .modal h3 { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+        .modal p { font-size: 14px; color: var(--text-soft); margin-bottom: 24px; }
+        .modal .field { margin-bottom: 16px; }
+        .modal .field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+        .modal .field input { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; }
+        .modal .field input:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
+        .modal-actions { display: flex; gap: 12px; margin-top: 24px; }
+        .modal-actions .btn-cancel { flex: 1; padding: 14px; border: 1px solid var(--border); border-radius: 12px; background: none; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; color: var(--text-soft); cursor: pointer; }
+        .modal-actions .btn-confirm { flex: 1; padding: 14px; border: none; border-radius: 12px; background: var(--accent); color: white; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .modal-actions .btn-confirm:hover { background: var(--accent-dark); }
+        .modal-actions .btn-confirm:disabled { opacity: 0.6; cursor: not-allowed; }
+        .modal-error { background: rgba(196,69,60,0.08); border: 1px solid rgba(196,69,60,0.2); color: var(--error); padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 12px; display: none; }
+        .modal-error.show { display: block; }
+        .modal-success { background: rgba(45,122,79,0.08); border: 1px solid rgba(45,122,79,0.2); color: var(--success); padding: 14px; border-radius: 10px; font-size: 13px; line-height: 1.6; }
+        .modal-success strong { display: block; margin-bottom: 4px; }
+
+        /* Empty & loading */
         .empty-state { text-align: center; padding: 60px 24px; color: var(--text-muted); }
         .empty-state p { font-size: 15px; }
-
-        /* Loading */
         .loading { text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px; }
 
         @media (max-width: 1024px) {
@@ -129,179 +155,180 @@
             .stat-card .stat-value { font-size: 28px; }
             .filters-bar { flex-direction: column; }
             .filter-group { min-width: 100%; }
-            .login-box { padding: 36px 24px; }
+            .modal { padding: 28px 20px; }
         }
     </style>
 </head>
 <body>
 
-<!-- ── LOGIN ── -->
-<div id="loginView" class="login-wrapper">
-    <div class="login-box">
-        <h1>Painel Admin</h1>
-        <p>Acesso restrito para gestoras. Faça login para visualizar os creators cadastrados.</p>
-        <div class="login-error" id="loginError"></div>
-        <form id="loginForm">
-            <div class="login-field">
-                <label>E-mail</label>
-                <input type="email" id="loginEmail" required placeholder="seu@email.com" autocomplete="email">
-            </div>
-            <div class="login-field">
-                <label>Senha</label>
-                <input type="password" id="loginPassword" required placeholder="Sua senha" autocomplete="current-password">
-            </div>
-            <button type="submit" class="login-btn" id="loginBtn">Entrar</button>
-        </form>
+<header class="admin-header">
+    <div class="admin-logo">lara<span>.</span>dam <small>Admin</small></div>
+    <div class="header-right">
+        <span class="header-user" id="userName"></span>
+        <button class="btn-logout" id="logoutBtn">Sair</button>
+    </div>
+</header>
+
+<!-- Tabs -->
+<div class="tabs">
+    <button class="tab active" data-tab="creators">Creators</button>
+    <button class="tab" data-tab="alunas">Gerenciar Alunas</button>
+</div>
+
+<!-- ── TAB: CREATORS ── -->
+<div class="dashboard show" id="tabCreators">
+    <div class="stats-row">
+        <div class="stat-card accent"><div class="stat-value" id="statTotal">—</div><div class="stat-label">Total de creators</div></div>
+        <div class="stat-card"><div class="stat-value" id="statNovo">—</div><div class="stat-label">Novos</div></div>
+        <div class="stat-card"><div class="stat-value" id="statAprovado">—</div><div class="stat-label">Aprovados</div></div>
+        <div class="stat-card"><div class="stat-value" id="statAtivo">—</div><div class="stat-label">Ativos</div></div>
+    </div>
+
+    <div class="filters-bar">
+        <div class="filter-group" style="flex: 2;">
+            <label>Buscar</label>
+            <input type="text" id="filterSearch" placeholder="Nome, @instagram ou e-mail...">
+        </div>
+        <div class="filter-group">
+            <label>Status</label>
+            <select id="filterStatus"><option value="">Todos</option><option value="novo">Novo</option><option value="aprovado">Aprovado</option><option value="ativo">Ativo</option></select>
+        </div>
+        <div class="filter-group">
+            <label>Nicho</label>
+            <select id="filterNicho"><option value="">Todos</option><option value="lifestyle">Lifestyle</option><option value="saude_fitness">Saude / Fitness</option><option value="beleza">Beleza</option><option value="maternidade">Maternidade</option><option value="familia">Familia</option><option value="entretenimento">Entretenimento</option><option value="humor">Humor</option><option value="gastronomia">Gastronomia</option><option value="moda">Moda</option><option value="tecnologia">Tecnologia</option><option value="educacao">Educacao</option><option value="outro">Outro</option></select>
+        </div>
+        <div class="filter-group">
+            <label>Estado</label>
+            <select id="filterEstado"><option value="">Todos</option></select>
+        </div>
+        <div class="filter-group">
+            <label>Seguidores</label>
+            <select id="filterSeguidores"><option value="">Todos</option><option value="ate_1k">Ate 1.000</option><option value="1k_5k">1k-5k</option><option value="5k_10k">5k-10k</option><option value="10k_30k">10k-30k</option><option value="30k_mais">30k+</option></select>
+        </div>
+        <button class="btn-clear-filters" id="btnClearFilters">Limpar filtros</button>
+    </div>
+
+    <div class="results-info" id="resultsInfo"></div>
+
+    <div class="table-container">
+        <table class="creators-table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>WhatsApp</th>
+                    <th>Instagram</th>
+                    <th>TikTok</th>
+                    <th>Seguidores</th>
+                    <th>Estado</th>
+                    <th>Cidade</th>
+                    <th>Nicho</th>
+                    <th>Experiencia</th>
+                    <th>Links</th>
+                    <th>Status</th>
+                    <th>Cadastro</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <div class="cards-container" id="cardsContainer"></div>
+</div>
+
+<!-- ── TAB: ALUNAS ── -->
+<div class="dashboard" id="tabAlunas">
+    <div class="alunas-header">
+        <h2>Alunas do Manager Club</h2>
+        <button class="btn-add" id="btnAddAluna">+ Adicionar Aluna</button>
+    </div>
+
+    <div class="table-container">
+        <table class="alunas-table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Status</th>
+                    <th>Cadastro</th>
+                    <th>Acao</th>
+                </tr>
+            </thead>
+            <tbody id="alunasBody">
+                <tr><td colspan="5" class="loading">Carregando...</td></tr>
+            </tbody>
+        </table>
     </div>
 </div>
 
-<!-- ── DASHBOARD ── -->
-<div id="dashboardView">
-    <header class="admin-header">
-        <div class="admin-logo">lara<span>.</span>dam <small>Admin</small></div>
-        <button class="btn-logout" id="logoutBtn">Sair</button>
-    </header>
-    <div class="dashboard" id="dashboard">
-        <!-- Stats -->
-        <div class="stats-row">
-            <div class="stat-card accent"><div class="stat-value" id="statTotal">—</div><div class="stat-label">Total de creators</div></div>
-            <div class="stat-card"><div class="stat-value" id="statNovo">—</div><div class="stat-label">Novos</div></div>
-            <div class="stat-card"><div class="stat-value" id="statAprovado">—</div><div class="stat-label">Aprovados</div></div>
-            <div class="stat-card"><div class="stat-value" id="statAtivo">—</div><div class="stat-label">Ativos</div></div>
+<!-- Modal: Adicionar Aluna -->
+<div class="modal-overlay" id="modalAluna">
+    <div class="modal">
+        <h3>Adicionar Aluna</h3>
+        <p>Crie um acesso para uma aluna do Manager Club.</p>
+        <div class="modal-error" id="modalError"></div>
+        <div id="modalFormContent">
+            <div class="field">
+                <label>Nome da aluna</label>
+                <input type="text" id="alunaName" required placeholder="Nome completo">
+            </div>
+            <div class="field">
+                <label>E-mail</label>
+                <input type="email" id="alunaEmail" required placeholder="aluna@email.com">
+            </div>
+            <div class="field">
+                <label>Senha inicial</label>
+                <input type="text" id="alunaSenha" required placeholder="Ex: 5 primeiros digitos do CPF">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" id="btnCancelAluna">Cancelar</button>
+                <button class="btn-confirm" id="btnConfirmAluna">Cadastrar</button>
+            </div>
         </div>
-
-        <!-- Filtros -->
-        <div class="filters-bar">
-            <div class="filter-group" style="flex: 2;">
-                <label>Buscar</label>
-                <input type="text" id="filterSearch" placeholder="Nome ou @instagram...">
-            </div>
-            <div class="filter-group">
-                <label>Status</label>
-                <select id="filterStatus"><option value="">Todos</option><option value="novo">Novo</option><option value="aprovado">Aprovado</option><option value="ativo">Ativo</option></select>
-            </div>
-            <div class="filter-group">
-                <label>Nicho</label>
-                <select id="filterNicho"><option value="">Todos</option><option value="lifestyle">Lifestyle</option><option value="saude_fitness">Saúde / Fitness</option><option value="beleza">Beleza</option><option value="maternidade">Maternidade</option><option value="familia">Família</option><option value="entretenimento">Entretenimento</option><option value="humor">Humor</option><option value="gastronomia">Gastronomia</option><option value="moda">Moda</option><option value="tecnologia">Tecnologia</option><option value="educacao">Educação</option><option value="outro">Outro</option></select>
-            </div>
-            <div class="filter-group">
-                <label>Estado</label>
-                <select id="filterEstado"><option value="">Todos</option></select>
-            </div>
-            <div class="filter-group">
-                <label>Seguidores</label>
-                <select id="filterSeguidores"><option value="">Todos</option><option value="ate_1k">Até 1.000</option><option value="1k_5k">1k–5k</option><option value="5k_10k">5k–10k</option><option value="10k_30k">10k–30k</option><option value="30k_mais">30k+</option></select>
-            </div>
-            <button class="btn-clear-filters" id="btnClearFilters">Limpar filtros</button>
-        </div>
-
-        <div class="results-info" id="resultsInfo"></div>
-
-        <!-- Tabela Desktop -->
-        <div class="table-container">
-            <table class="creators-table">
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>WhatsApp</th>
-                        <th>Instagram</th>
-                        <th>TikTok</th>
-                        <th>Seguidores</th>
-                        <th>Estado</th>
-                        <th>Cidade</th>
-                        <th>Nicho</th>
-                        <th>Experiência</th>
-                        <th>Links</th>
-                        <th>Status</th>
-                        <th>Cadastro</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-            </table>
-        </div>
-
-        <!-- Cards Mobile -->
-        <div class="cards-container" id="cardsContainer"></div>
+        <div id="modalSuccessContent" style="display:none;"></div>
     </div>
 </div>
 
 <script>
-    /* ── Supabase ── */
-    let sb = null;
-    try {
-        const SUPABASE_URL = 'https://mfrmnquvwwuxraqgemyh.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mcm1ucXV2d3d1eHJhcWdlbXloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNDI1NDIsImV4cCI6MjA4NzYxODU0Mn0.zmsi08dV5L1IlXJSr34vOii71w0g0OsD5_5DKio5g-o';
-        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    } catch (err) {
-        console.error('Erro ao conectar Supabase:', err);
-    }
-
+    const { sb } = Auth;
     let allCreators = [];
-    const loginView = document.getElementById('loginView');
-    const dashboardView = document.getElementById('dashboardView');
-    const dashboard = document.getElementById('dashboard');
+    let allAlunas = [];
 
-    /* ── Auth: verificar sessão ── */
-    async function checkSession() {
-        if (!sb) return;
-        try {
-            const { data: { session } } = await sb.auth.getSession();
-            if (session) {
-                showDashboard();
-            } else {
-                showLogin();
-            }
-        } catch (err) {
-            showLogin();
+    /* ── Init: verificar auth + role ── */
+    (async function init() {
+        const authData = await Auth.checkAuth();
+        if (!authData) return;
+
+        const role = await Auth.getRole(authData.user.id);
+        if (role !== 'admin') {
+            window.location.href = 'login.html';
+            return;
         }
-    }
 
-    function showLogin() {
-        loginView.style.display = 'flex';
-        dashboardView.style.display = 'none';
-    }
+        const userInfo = await Auth.getUserInfo(authData.user.id);
+        document.getElementById('userName').textContent = userInfo ? userInfo.nome : '';
 
-    function showDashboard() {
-        loginView.style.display = 'none';
-        dashboardView.style.display = 'block';
-        dashboard.classList.add('show');
         loadCreators();
-    }
-
-    /* ── Login ── */
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const btn = document.getElementById('loginBtn');
-        const errorEl = document.getElementById('loginError');
-        errorEl.classList.remove('show');
-        btn.textContent = 'Entrando...';
-        btn.disabled = true;
-
-        try {
-            if (!sb) throw new Error('Conexão indisponível.');
-            const { data, error } = await sb.auth.signInWithPassword({
-                email: document.getElementById('loginEmail').value.trim(),
-                password: document.getElementById('loginPassword').value
-            });
-            if (error) throw error;
-            showDashboard();
-        } catch (err) {
-            errorEl.textContent = err.message === 'Invalid login credentials'
-                ? 'E-mail ou senha incorretos.'
-                : (err.message || 'Erro ao fazer login.');
-            errorEl.classList.add('show');
-            btn.textContent = 'Entrar';
-            btn.disabled = false;
-        }
-    });
+    })();
 
     /* ── Logout ── */
-    document.getElementById('logoutBtn').addEventListener('click', async function() {
-        if (sb) await sb.auth.signOut();
-        showLogin();
+    document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
+
+    /* ── Tabs ── */
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            const target = this.dataset.tab;
+            document.getElementById('tabCreators').classList.toggle('show', target === 'creators');
+            document.getElementById('tabAlunas').classList.toggle('show', target === 'alunas');
+            if (target === 'alunas') loadAlunas();
+        });
     });
 
-    /* ── Carregar creators ── */
+    /* ══════════════════════════════════════
+       CREATORS
+       ══════════════════════════════════════ */
+
     async function loadCreators() {
         const tableBody = document.getElementById('tableBody');
         tableBody.innerHTML = '<tr><td colspan="12" class="loading">Carregando creators...</td></tr>';
@@ -318,7 +345,6 @@
         }
     }
 
-    /* ── Stats ── */
     function updateStats() {
         document.getElementById('statTotal').textContent = allCreators.length;
         document.getElementById('statNovo').textContent = allCreators.filter(c => c.status === 'novo').length;
@@ -326,52 +352,43 @@
         document.getElementById('statAtivo').textContent = allCreators.filter(c => c.status === 'ativo').length;
     }
 
-    /* ── Popular filtro de estados ── */
     function populateEstadoFilter() {
         const estados = [...new Set(allCreators.map(c => c.estado).filter(Boolean))].sort();
         const select = document.getElementById('filterEstado');
         select.innerHTML = '<option value="">Todos</option>';
         estados.forEach(uf => {
             const opt = document.createElement('option');
-            opt.value = uf;
-            opt.textContent = uf;
+            opt.value = uf; opt.textContent = uf;
             select.appendChild(opt);
         });
     }
 
-    /* ── Helpers ── */
+    /* Helpers */
     function formatDate(dateStr) {
-        if (!dateStr) return '—';
-        const d = new Date(dateStr);
-        return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        if (!dateStr) return '-';
+        return new Date(dateStr).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
     }
-
     function formatSeguidores(val) {
-        const map = { 'ate_1k': 'Até 1k', '1k_5k': '1k–5k', '5k_10k': '5k–10k', '10k_30k': '10k–30k', '30k_mais': '30k+' };
-        return map[val] || val || '—';
+        const map = { 'ate_1k': 'Ate 1k', '1k_5k': '1k-5k', '5k_10k': '5k-10k', '10k_30k': '10k-30k', '30k_mais': '30k+' };
+        return map[val] || val || '-';
     }
-
     function formatNicho(val) {
-        const map = { 'lifestyle': 'Lifestyle', 'saude_fitness': 'Saúde/Fitness', 'beleza': 'Beleza', 'maternidade': 'Maternidade', 'familia': 'Família', 'entretenimento': 'Entretenimento', 'humor': 'Humor', 'gastronomia': 'Gastronomia', 'moda': 'Moda', 'tecnologia': 'Tecnologia', 'educacao': 'Educação', 'outro': 'Outro' };
-        return map[val] || val || '—';
+        const map = { 'lifestyle': 'Lifestyle', 'saude_fitness': 'Saude/Fitness', 'beleza': 'Beleza', 'maternidade': 'Maternidade', 'familia': 'Familia', 'entretenimento': 'Entretenimento', 'humor': 'Humor', 'gastronomia': 'Gastronomia', 'moda': 'Moda', 'tecnologia': 'Tecnologia', 'educacao': 'Educacao', 'outro': 'Outro' };
+        return map[val] || val || '-';
     }
-
     function formatExperiencia(val) {
-        const map = { 'sim': 'Sim', 'nao': 'Não', 'permuta': 'Só permuta' };
-        return map[val] || val || '—';
+        const map = { 'sim': 'Sim', 'nao': 'Nao', 'permuta': 'So permuta' };
+        return map[val] || val || '-';
     }
-
     function badgeClass(status) {
         return { 'novo': 'badge-novo', 'aprovado': 'badge-aprovado', 'ativo': 'badge-ativo' }[status] || 'badge-novo';
     }
-
     function escapeHtml(str) {
         if (!str) return '';
         const div = document.createElement('div');
         div.textContent = str;
         return div.innerHTML;
     }
-
     function avatarHtml(c, size) {
         const lg = size === 'lg';
         if (c.foto_perfil) return `<img src="${escapeHtml(c.foto_perfil)}" alt="" class="${lg ? 'avatar-lg' : 'avatar'}">`;
@@ -379,7 +396,7 @@
         return `<div class="${lg ? 'avatar-placeholder-lg' : 'avatar-placeholder'}">${initials}</div>`;
     }
 
-    /* ── Filtros ── */
+    /* Filtros */
     function applyFilters() {
         const search = document.getElementById('filterSearch').value.toLowerCase().trim();
         const status = document.getElementById('filterStatus').value;
@@ -401,7 +418,6 @@
         renderCards(filtered);
     }
 
-    /* ── Render tabela (desktop) ── */
     function renderTable(creators) {
         const tbody = document.getElementById('tableBody');
         if (creators.length === 0) {
@@ -413,16 +429,16 @@
                 <td><div class="name-cell">${avatarHtml(c)}<div><strong>${escapeHtml(c.nome)}</strong><br><span style="font-size:12px;color:var(--text-muted)">${escapeHtml(c.email)}</span></div></div></td>
                 <td style="white-space:nowrap">${escapeHtml(c.whatsapp)}</td>
                 <td>${escapeHtml(c.instagram)}</td>
-                <td>${escapeHtml(c.tiktok) || '—'}</td>
+                <td>${escapeHtml(c.tiktok) || '-'}</td>
                 <td>${formatSeguidores(c.seguidores)}</td>
-                <td>${escapeHtml(c.estado) || '—'}</td>
-                <td>${escapeHtml(c.cidade) || '—'}</td>
+                <td>${escapeHtml(c.estado) || '-'}</td>
+                <td>${escapeHtml(c.cidade) || '-'}</td>
                 <td>${formatNicho(c.nicho)}</td>
                 <td>${formatExperiencia(c.experiencia)}</td>
                 <td style="white-space:nowrap">
-                    ${c.portfolio ? `<a href="${escapeHtml(c.portfolio)}" target="_blank" rel="noopener">Portfólio</a>` : '—'}
+                    ${c.portfolio ? `<a href="${escapeHtml(c.portfolio)}" target="_blank" rel="noopener">Portfolio</a>` : '-'}
                     ${c.portfolio && c.melhor_conteudo ? ' · ' : ''}
-                    ${c.melhor_conteudo ? `<a href="${escapeHtml(c.melhor_conteudo)}" target="_blank" rel="noopener">Conteúdo</a>` : ''}
+                    ${c.melhor_conteudo ? `<a href="${escapeHtml(c.melhor_conteudo)}" target="_blank" rel="noopener">Conteudo</a>` : ''}
                 </td>
                 <td><span class="badge ${badgeClass(c.status)}">${escapeHtml(c.status)}</span></td>
                 <td style="white-space:nowrap;font-size:13px;color:var(--text-muted)">${formatDate(c.created_at)}</td>
@@ -430,7 +446,6 @@
         `).join('');
     }
 
-    /* ── Render cards (mobile) ── */
     function renderCards(creators) {
         const container = document.getElementById('cardsContainer');
         if (creators.length === 0) {
@@ -451,19 +466,19 @@
                     <span>Seguidores: ${formatSeguidores(c.seguidores)}</span>
                     <span>${escapeHtml(c.estado) || ''} ${c.estado && c.cidade ? '·' : ''} ${escapeHtml(c.cidade) || ''}</span>
                     <span>Nicho: ${formatNicho(c.nicho)}</span>
-                    <span>Experiência: ${formatExperiencia(c.experiencia)}</span>
+                    <span>Experiencia: ${formatExperiencia(c.experiencia)}</span>
                     <span>Cadastro: ${formatDate(c.created_at)}</span>
                 </div>
                 ${(c.portfolio || c.melhor_conteudo) ? `
                 <div class="creator-card-links">
-                    ${c.portfolio ? `<a href="${escapeHtml(c.portfolio)}" target="_blank" rel="noopener">Portfólio</a>` : ''}
-                    ${c.melhor_conteudo ? `<a href="${escapeHtml(c.melhor_conteudo)}" target="_blank" rel="noopener">Melhor conteúdo</a>` : ''}
+                    ${c.portfolio ? `<a href="${escapeHtml(c.portfolio)}" target="_blank" rel="noopener">Portfolio</a>` : ''}
+                    ${c.melhor_conteudo ? `<a href="${escapeHtml(c.melhor_conteudo)}" target="_blank" rel="noopener">Melhor conteudo</a>` : ''}
                 </div>` : ''}
             </div>
         `).join('');
     }
 
-    /* ── Event listeners dos filtros ── */
+    /* Filter events */
     document.getElementById('filterSearch').addEventListener('input', applyFilters);
     document.getElementById('filterStatus').addEventListener('change', applyFilters);
     document.getElementById('filterNicho').addEventListener('change', applyFilters);
@@ -478,9 +493,132 @@
         applyFilters();
     });
 
-    /* ── Init ── */
-    dashboardView.style.display = 'none';
-    checkSession();
+    /* ══════════════════════════════════════
+       ALUNAS
+       ══════════════════════════════════════ */
+
+    async function loadAlunas() {
+        const tbody = document.getElementById('alunasBody');
+        tbody.innerHTML = '<tr><td colspan="5" class="loading">Carregando alunas...</td></tr>';
+
+        try {
+            const { data, error } = await sb.from('usuarios').select('*').eq('role', 'aluna').order('created_at', { ascending: false });
+            if (error) throw error;
+            allAlunas = data || [];
+            renderAlunas();
+        } catch (err) {
+            tbody.innerHTML = `<tr><td colspan="5" class="loading" style="color:var(--error)">Erro: ${escapeHtml(err.message)}</td></tr>`;
+        }
+    }
+
+    function renderAlunas() {
+        const tbody = document.getElementById('alunasBody');
+        if (allAlunas.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><p>Nenhuma aluna cadastrada ainda.</p></td></tr>';
+            return;
+        }
+        tbody.innerHTML = allAlunas.map(a => `
+            <tr>
+                <td><strong>${escapeHtml(a.nome)}</strong></td>
+                <td>${escapeHtml(a.email)}</td>
+                <td><span class="badge ${a.ativo ? 'badge-ativo-user' : 'badge-inativo'}">${a.ativo ? 'Ativa' : 'Inativa'}</span></td>
+                <td style="font-size:13px;color:var(--text-muted)">${formatDate(a.created_at)}</td>
+                <td><button class="btn-toggle" onclick="toggleAluna('${a.id}', ${!a.ativo})">${a.ativo ? 'Desativar' : 'Ativar'}</button></td>
+            </tr>
+        `).join('');
+    }
+
+    async function toggleAluna(id, newStatus) {
+        try {
+            const { error } = await sb.from('usuarios').update({ ativo: newStatus }).eq('id', id);
+            if (error) throw error;
+            loadAlunas();
+        } catch (err) {
+            alert('Erro ao atualizar: ' + err.message);
+        }
+    }
+
+    /* Modal: Adicionar Aluna */
+    const modal = document.getElementById('modalAluna');
+    document.getElementById('btnAddAluna').addEventListener('click', () => {
+        document.getElementById('modalFormContent').style.display = 'block';
+        document.getElementById('modalSuccessContent').style.display = 'none';
+        document.getElementById('modalError').classList.remove('show');
+        document.getElementById('alunaName').value = '';
+        document.getElementById('alunaEmail').value = '';
+        document.getElementById('alunaSenha').value = '';
+        modal.classList.add('show');
+    });
+
+    document.getElementById('btnCancelAluna').addEventListener('click', () => modal.classList.remove('show'));
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('show'); });
+
+    document.getElementById('btnConfirmAluna').addEventListener('click', async function() {
+        const btn = this;
+        const errorEl = document.getElementById('modalError');
+        errorEl.classList.remove('show');
+
+        const nome = document.getElementById('alunaName').value.trim();
+        const email = document.getElementById('alunaEmail').value.trim();
+        const senha = document.getElementById('alunaSenha').value;
+
+        if (!nome || !email || !senha) {
+            errorEl.textContent = 'Preencha todos os campos.';
+            errorEl.classList.add('show');
+            return;
+        }
+        if (senha.length < 6) {
+            errorEl.textContent = 'A senha precisa ter pelo menos 6 caracteres.';
+            errorEl.classList.add('show');
+            return;
+        }
+
+        btn.textContent = 'Cadastrando...';
+        btn.disabled = true;
+
+        try {
+            /* Criar user no Auth usando client separado (para nao perder sessao do admin) */
+            const signupClient = Auth.createSignupClient();
+            const { data: signupData, error: signupError } = await signupClient.auth.signUp({
+                email: email,
+                password: senha
+            });
+            if (signupError) throw signupError;
+
+            const newUserId = signupData.user.id;
+
+            /* Inserir na tabela usuarios com role=aluna */
+            const { error: insertError } = await sb.from('usuarios').insert([{
+                id: newUserId,
+                email: email,
+                nome: nome,
+                role: 'aluna',
+                ativo: true
+            }]);
+            if (insertError) throw insertError;
+
+            /* Mostrar sucesso com credenciais para copiar */
+            document.getElementById('modalFormContent').style.display = 'none';
+            document.getElementById('modalSuccessContent').style.display = 'block';
+            document.getElementById('modalSuccessContent').innerHTML = `
+                <div class="modal-success">
+                    <strong>Aluna cadastrada com sucesso!</strong>
+                    Envie esses dados de acesso para a aluna:<br><br>
+                    <strong>Link:</strong> creators.laradam.com/login.html<br>
+                    <strong>E-mail:</strong> ${escapeHtml(email)}<br>
+                    <strong>Senha:</strong> ${escapeHtml(senha)}
+                </div>
+                <div class="modal-actions" style="margin-top:16px;">
+                    <button class="btn-confirm" onclick="document.getElementById('modalAluna').classList.remove('show'); loadAlunas();" style="flex:1;">Fechar</button>
+                </div>
+            `;
+        } catch (err) {
+            errorEl.textContent = err.message || 'Erro ao cadastrar aluna.';
+            errorEl.classList.add('show');
+            btn.textContent = 'Cadastrar';
+            btn.disabled = false;
+        }
+    });
 </script>
 </body>
 </html>

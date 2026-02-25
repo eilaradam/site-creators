@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel · Manager Club</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/auth.js"></script>
+    <style>
+        :root {
+            --black: #0A0A0A;
+            --white: #FAFAF9;
+            --cream: #F5F3EF;
+            --warm: #E8E4DD;
+            --accent: #D4572A;
+            --accent-dark: #B8461F;
+            --accent-glow: rgba(212,87,42,0.12);
+            --text: #1A1816;
+            --text-soft: #6B645C;
+            --text-muted: #9C958C;
+            --border: #DDD8D0;
+            --card: #FFFFFF;
+            --success: #2D7A4F;
+            --error: #C4453C;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background: var(--cream); color: var(--text); -webkit-font-smoothing: antialiased; min-height: 100vh; }
+
+        /* Header */
+        .header { background: var(--card); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .header-logo { font-family: 'Fraunces', serif; font-weight: 700; font-size: 20px; color: var(--text); }
+        .header-logo span { color: var(--accent); }
+        .header-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); background: var(--cream); padding: 4px 12px; border-radius: 100px; }
+        .header-right { display: flex; align-items: center; gap: 16px; }
+        .header-user { font-size: 14px; font-weight: 500; color: var(--text-soft); }
+        .btn-logout { background: none; border: 1px solid var(--border); padding: 8px 20px; border-radius: 100px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.2s; }
+        .btn-logout:hover { border-color: var(--error); color: var(--error); }
+
+        /* Main */
+        .main { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+        /* Filters */
+        .filters { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+        .filters-title { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+        .filters-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+        .filter-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 160px; }
+        .filter-group.search { flex: 2; min-width: 240px; }
+        .filter-group label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); }
+        .filter-group input, .filter-group select { padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; }
+        .filter-group input:focus, .filter-group select:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
+        .filter-group select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239C958C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; cursor: pointer; }
+        .filters-actions { display: flex; gap: 8px; align-self: end; }
+        .btn-search { padding: 12px 28px; background: var(--accent); color: white; border: none; border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .btn-search:hover { background: var(--accent-dark); }
+        .btn-clear { padding: 12px 20px; background: none; border: 1px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.2s; }
+        .btn-clear:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* Results info */
+        .results-info { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+        .results-info strong { color: var(--text); }
+
+        /* Cards grid */
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+        .creator-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; transition: all 0.3s; }
+        .creator-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.06); }
+        .card-top { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+        .card-avatar { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); flex-shrink: 0; }
+        .card-avatar-placeholder { width: 56px; height: 56px; border-radius: 50%; background: var(--warm); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; color: var(--text-muted); flex-shrink: 0; }
+        .card-name { font-size: 16px; font-weight: 700; line-height: 1.3; }
+        .card-location { font-size: 13px; color: var(--text-soft); }
+        .card-details { display: flex; flex-direction: column; gap: 8px; }
+        .card-detail { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-soft); }
+        .card-detail-label { font-weight: 600; color: var(--text); min-width: 75px; }
+        .card-social { display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+        .card-social a { flex: 1; text-align: center; padding: 8px; border-radius: 8px; background: var(--cream); font-size: 12px; font-weight: 600; color: var(--accent); text-decoration: none; transition: all 0.2s; }
+        .card-social a:hover { background: var(--accent-glow); }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; }
+        .badge-novo { background: rgba(212,87,42,0.1); color: var(--accent); }
+        .badge-aprovado { background: rgba(45,122,79,0.1); color: var(--success); }
+        .badge-ativo { background: rgba(26,24,22,0.08); color: var(--text); }
+
+        /* Pagination */
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 32px; padding: 20px 0; }
+        .pagination button { padding: 10px 24px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.2s; }
+        .pagination button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+        .pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+        .pagination span { font-size: 14px; color: var(--text-muted); }
+
+        /* Empty & loading */
+        .empty-state { text-align: center; padding: 60px 24px; color: var(--text-muted); }
+        .empty-state p { font-size: 15px; }
+        .loading { text-align: center; padding: 60px 24px; color: var(--text-muted); font-size: 14px; }
+
+        @media (max-width: 600px) {
+            .filters-row { flex-direction: column; }
+            .filter-group { min-width: 100%; }
+            .cards-grid { grid-template-columns: 1fr; }
+            .header-user { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="header-left">
+        <div class="header-logo">lara<span>.</span>dam</div>
+        <span class="header-tag">Manager Club</span>
+    </div>
+    <div class="header-right">
+        <span class="header-user" id="userName"></span>
+        <button class="btn-logout" id="logoutBtn">Sair</button>
+    </div>
+</header>
+
+<div class="main">
+    <div class="filters">
+        <div class="filters-title">Pesquisar Creators</div>
+        <div class="filters-row">
+            <div class="filter-group search">
+                <label>Buscar por nome</label>
+                <input type="text" id="filterSearch" placeholder="Nome do creator...">
+            </div>
+            <div class="filter-group">
+                <label>Estado</label>
+                <select id="filterEstado"><option value="">Todos</option></select>
+            </div>
+            <div class="filter-group">
+                <label>Nicho</label>
+                <select id="filterNicho">
+                    <option value="">Todos</option>
+                    <option value="lifestyle">Lifestyle</option>
+                    <option value="saude_fitness">Saude / Fitness</option>
+                    <option value="beleza">Beleza</option>
+                    <option value="maternidade">Maternidade</option>
+                    <option value="familia">Familia</option>
+                    <option value="entretenimento">Entretenimento</option>
+                    <option value="humor">Humor</option>
+                    <option value="gastronomia">Gastronomia</option>
+                    <option value="moda">Moda</option>
+                    <option value="tecnologia">Tecnologia</option>
+                    <option value="educacao">Educacao</option>
+                    <option value="outro">Outro</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Seguidores</label>
+                <select id="filterSeguidores">
+                    <option value="">Todos</option>
+                    <option value="ate_1k">Ate 1.000</option>
+                    <option value="1k_5k">1k-5k</option>
+                    <option value="5k_10k">5k-10k</option>
+                    <option value="10k_30k">10k-30k</option>
+                    <option value="30k_mais">30k+</option>
+                </select>
+            </div>
+            <div class="filters-actions">
+                <button class="btn-search" id="btnSearch">Pesquisar</button>
+                <button class="btn-clear" id="btnClear">Limpar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="results-info" id="resultsInfo"></div>
+    <div class="cards-grid" id="cardsGrid"><div class="loading">Carregando creators...</div></div>
+    <div class="pagination" id="pagination" style="display:none;">
+        <button id="btnPrev" disabled>Anterior</button>
+        <span id="pageInfo"></span>
+        <button id="btnNext">Proximo</button>
+    </div>
+</div>
+
+<script>
+    const { sb } = Auth;
+    const PER_PAGE = 20;
+    let currentPage = 1;
+    let totalCount = 0;
+    let currentUserInfo = null;
+
+    /* ── Init ── */
+    (async function init() {
+        const authData = await Auth.checkAuth();
+        if (!authData) return;
+
+        const role = await Auth.getRole(authData.user.id);
+        if (!role || (role !== 'aluna' && role !== 'admin')) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        currentUserInfo = await Auth.getUserInfo(authData.user.id);
+        document.getElementById('userName').textContent = currentUserInfo ? currentUserInfo.nome : '';
+
+        await loadEstados();
+        await loadCreators();
+    })();
+
+    /* ── Logout ── */
+    document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
+
+    /* ── Carregar estados dinamicamente ── */
+    async function loadEstados() {
+        try {
+            const res = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome');
+            const estados = await res.json();
+            const select = document.getElementById('filterEstado');
+            estados.forEach(e => {
+                const opt = document.createElement('option');
+                opt.value = e.sigla;
+                opt.textContent = e.sigla;
+                select.appendChild(opt);
+            });
+        } catch (e) {}
+    }
+
+    /* ── Helpers ── */
+    function escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    function formatSeguidores(val) {
+        const map = { 'ate_1k': 'Ate 1k', '1k_5k': '1k-5k', '5k_10k': '5k-10k', '10k_30k': '10k-30k', '30k_mais': '30k+' };
+        return map[val] || val || '-';
+    }
+
+    function formatNicho(val) {
+        const map = { 'lifestyle': 'Lifestyle', 'saude_fitness': 'Saude/Fitness', 'beleza': 'Beleza', 'maternidade': 'Maternidade', 'familia': 'Familia', 'entretenimento': 'Entretenimento', 'humor': 'Humor', 'gastronomia': 'Gastronomia', 'moda': 'Moda', 'tecnologia': 'Tecnologia', 'educacao': 'Educacao', 'outro': 'Outro' };
+        return map[val] || val || '-';
+    }
+
+    function badgeClass(status) {
+        return { 'novo': 'badge-novo', 'aprovado': 'badge-aprovado', 'ativo': 'badge-ativo' }[status] || 'badge-novo';
+    }
+
+    function avatarHtml(c) {
+        if (c.foto_perfil) return `<img src="${escapeHtml(c.foto_perfil)}" alt="" class="card-avatar">`;
+        const initials = (c.nome || '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+        return `<div class="card-avatar-placeholder">${initials}</div>`;
+    }
+
+    /* ── Carregar creators ── */
+    async function loadCreators() {
+        const grid = document.getElementById('cardsGrid');
+        grid.innerHTML = '<div class="loading">Carregando creators...</div>';
+
+        const search = document.getElementById('filterSearch').value.trim().toLowerCase();
+        const estado = document.getElementById('filterEstado').value;
+        const nicho = document.getElementById('filterNicho').value;
+        const seguidores = document.getElementById('filterSeguidores').value;
+
+        try {
+            /* Query com colunas limitadas - sem email, whatsapp, data_nascimento, genero */
+            let query = sb.from('creators')
+                .select('id, nome, foto_perfil, cidade, estado, nicho, seguidores, instagram, tiktok, status', { count: 'exact' })
+                .order('created_at', { ascending: false });
+
+            if (search) query = query.ilike('nome', `%${search}%`);
+            if (estado) query = query.eq('estado', estado);
+            if (nicho) query = query.eq('nicho', nicho);
+            if (seguidores) query = query.eq('seguidores', seguidores);
+
+            const from = (currentPage - 1) * PER_PAGE;
+            const to = from + PER_PAGE - 1;
+            query = query.range(from, to);
+
+            const { data, error, count } = await query;
+            if (error) throw error;
+
+            totalCount = count || 0;
+            renderCards(data || []);
+            renderPagination();
+        } catch (err) {
+            grid.innerHTML = `<div class="empty-state"><p style="color:var(--error)">Erro ao carregar: ${escapeHtml(err.message)}</p></div>`;
+        }
+    }
+
+    /* ── Render cards ── */
+    function renderCards(creators) {
+        const grid = document.getElementById('cardsGrid');
+        document.getElementById('resultsInfo').innerHTML = `Mostrando <strong>${creators.length}</strong> de <strong>${totalCount}</strong> creators`;
+
+        if (creators.length === 0) {
+            grid.innerHTML = '<div class="empty-state"><p>Nenhum creator encontrado.</p></div>';
+            return;
+        }
+
+        grid.innerHTML = creators.map(c => `
+            <div class="creator-card">
+                <div class="card-top">
+                    ${avatarHtml(c)}
+                    <div>
+                        <div class="card-name">${escapeHtml(c.nome)}</div>
+                        <div class="card-location">${escapeHtml(c.cidade) || ''} ${c.cidade && c.estado ? '·' : ''} ${escapeHtml(c.estado) || ''}</div>
+                    </div>
+                </div>
+                <div class="card-details">
+                    <div class="card-detail"><span class="card-detail-label">Nicho</span> ${formatNicho(c.nicho)}</div>
+                    <div class="card-detail"><span class="card-detail-label">Seguidores</span> ${formatSeguidores(c.seguidores)}</div>
+                    <div class="card-detail"><span class="card-detail-label">Status</span> <span class="badge ${badgeClass(c.status)}">${escapeHtml(c.status)}</span></div>
+                </div>
+                ${(c.instagram || c.tiktok) ? `
+                <div class="card-social">
+                    ${c.instagram ? `<a href="https://instagram.com/${c.instagram.replace('@','')}" target="_blank" rel="noopener">${escapeHtml(c.instagram)}</a>` : ''}
+                    ${c.tiktok ? `<a href="https://tiktok.com/${c.tiktok.replace('@','')}" target="_blank" rel="noopener">${escapeHtml(c.tiktok)}</a>` : ''}
+                </div>` : ''}
+            </div>
+        `).join('');
+    }
+
+    /* ── Pagination ── */
+    function renderPagination() {
+        const totalPages = Math.ceil(totalCount / PER_PAGE);
+        const pag = document.getElementById('pagination');
+
+        if (totalPages <= 1) { pag.style.display = 'none'; return; }
+
+        pag.style.display = 'flex';
+        document.getElementById('pageInfo').textContent = `Pagina ${currentPage} de ${totalPages}`;
+        document.getElementById('btnPrev').disabled = currentPage <= 1;
+        document.getElementById('btnNext').disabled = currentPage >= totalPages;
+    }
+
+    /* ── Events ── */
+    document.getElementById('btnSearch').addEventListener('click', () => { currentPage = 1; loadCreators(); });
+    document.getElementById('filterSearch').addEventListener('keydown', (e) => { if (e.key === 'Enter') { currentPage = 1; loadCreators(); } });
+    document.getElementById('btnClear').addEventListener('click', () => {
+        document.getElementById('filterSearch').value = '';
+        document.getElementById('filterEstado').value = '';
+        document.getElementById('filterNicho').value = '';
+        document.getElementById('filterSeguidores').value = '';
+        currentPage = 1;
+        loadCreators();
+    });
+    document.getElementById('btnPrev').addEventListener('click', () => { if (currentPage > 1) { currentPage--; loadCreators(); } });
+    document.getElementById('btnNext').addEventListener('click', () => { currentPage++; loadCreators(); });
+</script>
+</body>
+</html>
