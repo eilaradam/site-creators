@@ -339,28 +339,20 @@
             /* Upload foto de perfil */
             let fotoUrl = null;
             const fotoField = document.getElementById('fotoInput');
-            console.log('Campo foto encontrado:', fotoField);
-            console.log('Arquivos no campo:', fotoField ? fotoField.files : 'campo não existe');
 
             if (fotoField && fotoField.files && fotoField.files[0]) {
                 const arquivo = fotoField.files[0];
                 const nomeArquivo = Date.now() + '_' + arquivo.name.replace(/[^a-zA-Z0-9.]/g, '_');
-                console.log('Fazendo upload de:', nomeArquivo);
 
                 const { data: uploadData, error: uploadError } = await sb.storage
                     .from('fotos-perfil')
                     .upload(nomeArquivo, arquivo, { cacheControl: '3600', upsert: false });
-
-                console.log('Resultado upload:', uploadData, uploadError);
 
                 if (!uploadError) {
                     const { data: urlData } = sb.storage
                         .from('fotos-perfil')
                         .getPublicUrl(nomeArquivo);
                     fotoUrl = urlData.publicUrl;
-                    console.log('URL da foto:', fotoUrl);
-                } else {
-                    console.error('Erro no upload:', uploadError);
                 }
             }
 
@@ -386,8 +378,6 @@
                 origem: 'site_recrutamento',
                 status: 'novo'
             };
-
-            console.log('creatorData.foto_perfil:', creatorData.foto_perfil);
 
             /* Inserir no banco */
             const { data, error } = await sb.from('creators').insert([creatorData]);
