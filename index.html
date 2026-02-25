@@ -198,6 +198,8 @@
                     </div>
                     <div class="field-group"><label>Nicho principal do seu conteúdo</label><select name="nicho" required id="nicho"><option value="" disabled selected>Selecione</option><option value="lifestyle">Lifestyle</option><option value="saude_fitness">Saúde / Fitness</option><option value="beleza">Beleza</option><option value="maternidade">Maternidade</option><option value="familia">Família</option><option value="entretenimento">Entretenimento</option><option value="humor">Humor</option><option value="gastronomia">Gastronomia</option><option value="moda">Moda</option><option value="tecnologia">Tecnologia</option><option value="educacao">Educação</option><option value="outro">Outro</option></select></div>
                     <div class="field-group"><label>Já fez campanha paga para marcas?</label><select name="experiencia" id="experiencia"><option value="" disabled selected>Selecione</option><option value="sim">Sim, já fiz</option><option value="nao">Não, seria minha primeira</option><option value="permuta">Só permuta</option></select></div>
+                    <div class="field-group"><label>Link do portfólio <span style="color: var(--text-muted); font-weight: 400;">(Google Drive, Behance, site, etc.)</span></label><input type="url" name="portfolio" id="portfolio" placeholder="https://drive.google.com/..." required></div>
+                    <div class="field-group"><label>Link do seu melhor conteúdo <span style="color: var(--text-muted); font-weight: 400;">(Instagram, TikTok, YouTube, Drive...)</span></label><input type="url" name="melhor_conteudo" id="melhor_conteudo" placeholder="https://www.instagram.com/reel/..." required></div>
                     <button type="submit" class="form-submit" id="submitBtn">Quero receber oportunidades →</button>
                 </form>
                 <p class="form-footer">Ao se cadastrar, você aceita receber contato sobre campanhas.<br>Seus dados estão seguros.</p>
@@ -321,6 +323,8 @@
             cidade: cidadeValue,
             nicho: document.getElementById('nicho').value,
             experiencia: document.getElementById('experiencia').value,
+            portfolio: document.getElementById('portfolio').value.trim() || null,
+            melhor_conteudo: document.getElementById('melhor_conteudo').value.trim() || null,
             origem: 'site_recrutamento',
             status: 'novo'
         };
