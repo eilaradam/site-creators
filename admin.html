@@ -577,7 +577,11 @@
         btn.disabled = true;
 
         try {
-            /* Criar user no Auth usando client separado (para nao perder sessao do admin) */
+            /* 1. Salvar sessao do admin ANTES do signup */
+            const { data: { session: adminSession } } = await sb.auth.getSession();
+            if (!adminSession) throw new Error('Sessao do admin expirou. Faca login novamente.');
+
+            /* 2. Criar user no Auth usando client separado */
             const signupClient = Auth.createSignupClient();
             let newUserId;
 
@@ -603,13 +607,23 @@
                 newUserId = signupData.user.id;
             }
 
-            /* Inserir na tabela usuarios via RPC (bypassa RLS) */
+            /* 3. Garantir que a sessao do admin ainda esta ativa */
+            const { data: { session: checkSession } } = await sb.auth.getSession();
+            if (!checkSession) {
+                /* Sessao foi perdida - restaurar manualmente */
+                await sb.auth.setSession({
+                    access_token: adminSession.access_token,
+                    refresh_token: adminSession.refresh_token
+                });
+            }
+
+            /* 4. Inserir na tabela usuarios via RPC (bypassa RLS) */
             const { error: insertError } = await sb.rpc('admin_insert_aluna', {
                 p_id: newUserId,
                 p_email: email,
                 p_nome: nome
             });
-            if (insertError) throw insertError;
+            if (insertError) throw new Error('Erro ao salvar na tabela: ' + insertError.message);
 
             /* Mostrar sucesso com credenciais para copiar */
             document.getElementById('modalFormContent').style.display = 'none';
