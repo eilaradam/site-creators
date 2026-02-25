@@ -77,8 +77,9 @@
         .card-detail { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-soft); }
         .card-detail-label { font-weight: 600; color: var(--text); min-width: 75px; }
         .card-social { display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
-        .card-social a { flex: 1; text-align: center; padding: 8px; border-radius: 8px; background: var(--cream); font-size: 12px; font-weight: 600; color: var(--accent); text-decoration: none; transition: all 0.2s; }
+        .card-social a { flex: 1; text-align: center; padding: 8px; border-radius: 8px; background: var(--cream); font-size: 12px; font-weight: 600; color: var(--accent); text-decoration: none; transition: all 0.2s; border: 1px solid var(--border); }
         .card-social a:hover { background: var(--accent-glow); }
+        .card-social a.btn-tiktok { color: var(--black); }
         .badge { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; }
         .badge-novo { background: rgba(212,87,42,0.1); color: var(--accent); }
         .badge-aprovado { background: rgba(45,122,79,0.1); color: var(--success); }
@@ -156,6 +157,16 @@
                     <option value="5k_10k">5k-10k</option>
                     <option value="10k_30k">10k-30k</option>
                     <option value="30k_mais">30k+</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Idade</label>
+                <select id="filterIdade">
+                    <option value="">Todos</option>
+                    <option value="18-24">18-24</option>
+                    <option value="25-34">25-34</option>
+                    <option value="35-44">35-44</option>
+                    <option value="45+">45+</option>
                 </select>
             </div>
             <div class="filters-actions">
@@ -254,17 +265,37 @@
         const estado = document.getElementById('filterEstado').value;
         const nicho = document.getElementById('filterNicho').value;
         const seguidores = document.getElementById('filterSeguidores').value;
+        const idade = document.getElementById('filterIdade').value;
 
         try {
-            /* Query com colunas limitadas - sem email, whatsapp, data_nascimento, genero */
+            /* Query com colunas limitadas - sem email, whatsapp, genero */
             let query = sb.from('creators')
-                .select('id, nome, foto_perfil, cidade, estado, nicho, seguidores, instagram, tiktok, status', { count: 'exact' })
+                .select('id, nome, foto_perfil, cidade, estado, nicho, seguidores, instagram, tiktok, portfolio, status', { count: 'exact' })
                 .order('created_at', { ascending: false });
 
             if (search) query = query.ilike('nome', `%${search}%`);
             if (estado) query = query.eq('estado', estado);
             if (nicho) query = query.eq('nicho', nicho);
             if (seguidores) query = query.eq('seguidores', seguidores);
+
+            /* Filtro por idade (calcula datas a partir de data_nascimento) */
+            if (idade) {
+                const today = new Date();
+                const y = today.getFullYear(), m = today.getMonth(), d = today.getDate();
+                const toStr = (dt) => dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+
+                query = query.not('data_nascimento', 'is', null);
+
+                if (idade === '18-24') {
+                    query = query.gt('data_nascimento', toStr(new Date(y - 25, m, d))).lte('data_nascimento', toStr(new Date(y - 18, m, d)));
+                } else if (idade === '25-34') {
+                    query = query.gt('data_nascimento', toStr(new Date(y - 35, m, d))).lte('data_nascimento', toStr(new Date(y - 25, m, d)));
+                } else if (idade === '35-44') {
+                    query = query.gt('data_nascimento', toStr(new Date(y - 45, m, d))).lte('data_nascimento', toStr(new Date(y - 35, m, d)));
+                } else if (idade === '45+') {
+                    query = query.lte('data_nascimento', toStr(new Date(y - 45, m, d)));
+                }
+            }
 
             const from = (currentPage - 1) * PER_PAGE;
             const to = from + PER_PAGE - 1;
@@ -305,10 +336,11 @@
                     <div class="card-detail"><span class="card-detail-label">Seguidores</span> ${formatSeguidores(c.seguidores)}</div>
                     <div class="card-detail"><span class="card-detail-label">Status</span> <span class="badge ${badgeClass(c.status)}">${escapeHtml(c.status)}</span></div>
                 </div>
-                ${(c.instagram || c.tiktok) ? `
+                ${(c.instagram || c.tiktok || c.portfolio) ? `
                 <div class="card-social">
-                    ${c.instagram ? `<a href="https://instagram.com/${c.instagram.replace('@','')}" target="_blank" rel="noopener">${escapeHtml(c.instagram)}</a>` : ''}
-                    ${c.tiktok ? `<a href="https://tiktok.com/${c.tiktok.replace('@','')}" target="_blank" rel="noopener">${escapeHtml(c.tiktok)}</a>` : ''}
+                    ${c.instagram ? `<a href="https://instagram.com/${c.instagram.replace('@','')}" target="_blank" rel="noopener">Instagram</a>` : ''}
+                    ${c.tiktok ? `<a href="https://tiktok.com/${c.tiktok.replace('@','')}" target="_blank" rel="noopener" class="btn-tiktok">TikTok</a>` : ''}
+                    ${c.portfolio ? `<a href="${escapeHtml(c.portfolio)}" target="_blank" rel="noopener">Portfolio</a>` : ''}
                 </div>` : ''}
             </div>
         `).join('');
@@ -335,6 +367,7 @@
         document.getElementById('filterEstado').value = '';
         document.getElementById('filterNicho').value = '';
         document.getElementById('filterSeguidores').value = '';
+        document.getElementById('filterIdade').value = '';
         currentPage = 1;
         loadCreators();
     });
