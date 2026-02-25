@@ -8,14 +8,10 @@
     <meta property="og:title" content="Seja Creator UGC | Lara Dam">
     <meta property="og:description" content="Receba oportunidades de campanhas pagas com marcas de todo o Brasil.">
     <meta property="og:type" content="website">
-    <meta name="theme-color" content="#D4572A">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&display=swap" rel="stylesheet">
-
-    <!-- SUPABASE -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <style>
         :root {
             --black: #0A0A0A;
@@ -27,758 +23,117 @@
             --accent-glow: rgba(212,87,42,0.12);
             --text: #1A1816;
             --text-soft: #6B645C;
-            --text-muted: #807A72;
+            --text-muted: #9C958C;
             --border: #DDD8D0;
             --card: #FFFFFF;
             --success: #2D7A4F;
             --error: #C4453C;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
-
-        body {
-            font-family: 'Outfit', sans-serif;
-            background: var(--cream);
-            color: var(--text);
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* ═══════════════ NAV ═══════════════ */
-        nav {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 100;
-            padding: 16px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.4s;
-        }
-
-        nav.scrolled {
-            background: rgba(250,250,249,0.85);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
-            padding: 12px 24px;
-        }
-
-        .nav-logo {
-            font-family: 'Fraunces', serif;
-            font-weight: 700;
-            font-size: 20px;
-            color: var(--text);
-            text-decoration: none;
-            letter-spacing: -0.5px;
-        }
-
+        body { font-family: 'Outfit', sans-serif; background: var(--cream); color: var(--text); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        nav { position: fixed; top: 0; width: 100%; z-index: 100; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; transition: all 0.4s; }
+        nav.scrolled { background: rgba(250,250,249,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 12px 24px; }
+        .nav-logo { font-family: 'Fraunces', serif; font-weight: 700; font-size: 20px; color: var(--text); text-decoration: none; letter-spacing: -0.5px; transition: color 0.4s; }
         .nav-logo span { color: var(--accent); }
-
-        .nav-links { display: flex; align-items: center; gap: 24px; }
-
-        .nav-link {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-soft);
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-
-        .nav-link:hover { color: var(--accent); }
-
-        .nav-cta {
-            background: var(--black);
-            color: var(--white);
-            padding: 10px 24px;
-            border-radius: 100px;
-            font-size: 13px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s;
-            letter-spacing: 0.3px;
-        }
-
-        .nav-cta:hover {
-            background: var(--accent);
-            transform: translateY(-1px);
-        }
-
-        /* ═══════════════ HERO ═══════════════ */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 120px 24px 80px;
-            position: relative;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background:
-                radial-gradient(ellipse 80% 60% at 20% 20%, rgba(212,87,42,0.06) 0%, transparent 60%),
-                radial-gradient(ellipse 60% 80% at 80% 80%, rgba(212,87,42,0.04) 0%, transparent 60%);
-            pointer-events: none;
-        }
-
-        .hero-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            padding: 8px 20px 8px 12px;
-            border-radius: 100px;
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-soft);
-            margin-bottom: 32px;
-            animation: fadeDown 0.8s ease-out both;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-        }
-
-        .hero-pill .dot {
-            width: 8px; height: 8px;
-            background: var(--accent);
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(0.8); }
-        }
-
-        .hero h1 {
-            font-family: 'Fraunces', serif;
-            font-size: clamp(40px, 7vw, 80px);
-            font-weight: 800;
-            line-height: 1.05;
-            letter-spacing: -2px;
-            max-width: 800px;
-            margin-bottom: 24px;
-            animation: fadeUp 0.8s ease-out 0.1s both;
-        }
-
-        .hero h1 em {
-            font-style: italic;
-            color: var(--accent);
-            font-weight: 700;
-        }
-
-        .hero-sub {
-            font-size: clamp(16px, 2vw, 19px);
-            color: var(--text-soft);
-            max-width: 520px;
-            line-height: 1.7;
-            margin-bottom: 40px;
-            animation: fadeUp 0.8s ease-out 0.2s both;
-            font-weight: 400;
-        }
-
-        .hero-cta-group {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            animation: fadeUp 0.8s ease-out 0.3s both;
-        }
-
-        .btn-primary {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--accent);
-            color: white;
-            padding: 18px 40px;
-            border-radius: 100px;
-            font-family: 'Outfit', sans-serif;
-            font-size: 16px;
-            font-weight: 700;
-            text-decoration: none;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-primary:hover {
-            background: var(--accent-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(212,87,42,0.3);
-        }
-
-        .hero-note {
-            font-size: 13px;
-            color: var(--text-muted);
-        }
-
-        .hero-stats {
-            display: flex;
-            gap: 48px;
-            margin-top: 64px;
-            animation: fadeUp 0.8s ease-out 0.5s both;
-        }
-
+        .nav-cta { background: var(--black); color: var(--white); padding: 10px 24px; border-radius: 100px; font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.3s; letter-spacing: 0.3px; }
+        .nav-cta:hover { background: var(--accent); transform: translateY(-1px); }
+        nav.on-dark:not(.scrolled) .nav-logo { color: var(--white); }
+        nav.on-dark:not(.scrolled) .nav-cta { background: rgba(255,255,255,0.15); backdrop-filter: blur(4px); color: var(--white); border: 1px solid rgba(255,255,255,0.2); }
+        nav.on-dark:not(.scrolled) .nav-cta:hover { background: var(--accent); border-color: var(--accent); }
+        .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 120px 24px 80px; position: relative; }
+        .hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse 80% 60% at 20% 20%, rgba(212,87,42,0.06) 0%, transparent 60%), radial-gradient(ellipse 60% 80% at 80% 80%, rgba(212,87,42,0.04) 0%, transparent 60%); pointer-events: none; }
+        .hero-pill { display: inline-flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--border); padding: 8px 20px 8px 12px; border-radius: 100px; font-size: 13px; font-weight: 500; color: var(--text-soft); margin-bottom: 32px; animation: fadeDown 0.8s ease-out both; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+        .hero-pill .dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(0.8); } }
+        .hero h1 { font-family: 'Fraunces', serif; font-size: clamp(40px, 7vw, 80px); font-weight: 800; line-height: 1.05; letter-spacing: -2px; max-width: 800px; margin-bottom: 24px; animation: fadeUp 0.8s ease-out 0.1s both; }
+        .hero h1 em { font-style: italic; color: var(--accent); font-weight: 700; }
+        .hero-sub { font-size: clamp(16px, 2vw, 19px); color: var(--text-soft); max-width: 520px; line-height: 1.7; margin-bottom: 40px; animation: fadeUp 0.8s ease-out 0.2s both; font-weight: 400; }
+        .hero-cta-group { display: flex; flex-direction: column; align-items: center; gap: 12px; animation: fadeUp 0.8s ease-out 0.3s both; }
+        .btn-primary { display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: white; padding: 18px 40px; border-radius: 100px; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; text-decoration: none; border: none; cursor: pointer; transition: all 0.3s; }
+        .btn-primary:hover { background: var(--accent-dark); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(212,87,42,0.3); }
+        .hero-note { font-size: 13px; color: var(--text-muted); }
+        .hero-stats { display: flex; gap: 48px; margin-top: 64px; animation: fadeUp 0.8s ease-out 0.5s both; }
         .hero-stat { text-align: center; }
-
-        .hero-stat strong {
-            display: block;
-            font-family: 'Fraunces', serif;
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--text);
-            letter-spacing: -1px;
-        }
-
-        .hero-stat span {
-            font-size: 12px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-weight: 600;
-        }
-
-        /* ═══════════════ SECTIONS ═══════════════ */
-        .section { padding: 100px 24px; background: var(--cream); color: var(--text); }
-
+        .hero-stat strong { display: block; font-family: 'Fraunces', serif; font-size: 32px; font-weight: 700; color: var(--text); letter-spacing: -1px; }
+        .hero-stat span { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+        .section { padding: 100px 24px; }
         .section-header { text-align: center; margin-bottom: 64px; }
-
-        .section-tag {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: var(--accent);
-            margin-bottom: 16px;
-            display: block;
-        }
-
-        .section-header h2 {
-            font-family: 'Fraunces', serif;
-            font-size: clamp(28px, 4vw, 44px);
-            font-weight: 700;
-            letter-spacing: -1px;
-            line-height: 1.15;
-        }
-
-        /* ═══════════════ STEPS ═══════════════ */
-        .steps-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-            max-width: 960px;
-            margin: 0 auto;
-        }
-
-        .step-card {
-            background: var(--card);
-            border-radius: 20px;
-            padding: 36px 28px;
-            border: 1px solid var(--border);
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .step-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
-            background: var(--accent);
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.4s;
-        }
-
+        .section-tag { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; display: block; }
+        .section-header h2 { font-family: 'Fraunces', serif; font-size: clamp(28px, 4vw, 44px); font-weight: 700; letter-spacing: -1px; line-height: 1.15; }
+        .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 960px; margin: 0 auto; }
+        .step-card { background: var(--card); border-radius: 20px; padding: 36px 28px; border: 1px solid var(--border); transition: all 0.3s; position: relative; overflow: hidden; }
+        .step-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 0.4s; }
         .step-card:hover::before { transform: scaleX(1); }
         .step-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.06); }
-
-        .step-number {
-            font-family: 'Fraunces', serif;
-            font-size: 48px;
-            font-weight: 800;
-            color: var(--warm);
-            line-height: 1;
-            margin-bottom: 16px;
-        }
-
+        .step-number { font-family: 'Fraunces', serif; font-size: 48px; font-weight: 800; color: var(--warm); line-height: 1; margin-bottom: 16px; }
         .step-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
         .step-card p { font-size: 14px; color: var(--text-soft); line-height: 1.6; }
-
-        /* ═══════════════ BENEFITS ═══════════════ */
-        .benefits { background: #1A1816; color: #FAFAF9; position: relative; }
-        .benefits .section-tag { color: #D4572A; }
-        .benefits h2 { color: #FAFAF9; }
-        .benefits .benefit-item h4 { color: #FAFAF9; }
-
-        .benefits-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            max-width: 760px;
-            margin: 0 auto;
-        }
-
-        .benefit-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 16px;
-            padding: 24px;
-            border-radius: 16px;
-            border: 1px solid rgba(255,255,255,0.08);
-            background: rgba(255,255,255,0.03);
-            transition: all 0.3s;
-        }
-
+        .benefits { background: var(--black); color: var(--white); position: relative; }
+        .benefits .section-tag { color: var(--accent); }
+        .benefits h2 { color: var(--white); }
+        .benefits-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 760px; margin: 0 auto; }
+        .benefit-item { display: flex; align-items: flex-start; gap: 16px; padding: 24px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); transition: all 0.3s; }
         .benefit-item:hover { background: rgba(255,255,255,0.06); border-color: rgba(212,87,42,0.3); }
-
-        .benefit-icon {
-            width: 40px; height: 40px;
-            border-radius: 10px;
-            background: rgba(212,87,42,0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            flex-shrink: 0;
-        }
-
+        .benefit-icon { width: 40px; height: 40px; border-radius: 10px; background: rgba(212,87,42,0.15); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
         .benefit-item h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-        .benefit-item p { font-size: 13px; color: rgba(255,255,255,0.7); line-height: 1.5; }
-
-        /* ═══════════════ FAQ ═══════════════ */
-        #faq { background: var(--card); }
-
-        .faq-list {
-            max-width: 680px;
-            margin: 0 auto;
-        }
-
-        .faq-item {
-            border-bottom: 1px solid var(--border);
-        }
-
-        .faq-question {
-            width: 100%;
-            background: none;
-            border: none;
-            padding: 24px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            text-align: left;
-            font-family: 'Outfit', sans-serif;
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text);
-            gap: 16px;
-            transition: color 0.3s;
-        }
-
-        .faq-question:hover { color: var(--accent); }
-
-        .faq-icon {
-            width: 28px; height: 28px;
-            border-radius: 50%;
-            border: 1.5px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            color: var(--text-soft);
-            flex-shrink: 0;
-            transition: all 0.3s;
-        }
-
-        .faq-item.open .faq-icon {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: white;
-            transform: rotate(45deg);
-        }
-
-        .faq-answer {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.35s ease, padding 0.35s ease;
-        }
-
-        .faq-item.open .faq-answer { max-height: 200px; }
-
-        .faq-answer p {
-            padding: 0 0 24px;
-            font-size: 14px;
-            color: var(--text-soft);
-            line-height: 1.7;
-        }
-
-        /* ═══════════════ FORM ═══════════════ */
-        #cadastro { background: var(--cream); scroll-margin-top: 80px; }
-
+        .benefit-item p { font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.5; }
+        #cadastro { background: var(--cream); }
         .form-wrapper { max-width: 540px; margin: 0 auto; }
-
-        .form-box {
-            background: var(--card);
-            border-radius: 24px;
-            padding: 44px 36px;
-            border: 1px solid var(--border);
-            box-shadow: 0 4px 24px rgba(0,0,0,0.04);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .form-box::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--accent), #E8784A, var(--accent));
-        }
-
-        .form-title {
-            font-family: 'Fraunces', serif;
-            font-size: 26px;
-            font-weight: 700;
-            margin-bottom: 6px;
-            letter-spacing: -0.5px;
-        }
-
-        .form-subtitle {
-            font-size: 14px;
-            color: var(--text-soft);
-            margin-bottom: 32px;
-            line-height: 1.6;
-        }
-
+        .form-box { background: var(--card); border-radius: 24px; padding: 44px 36px; border: 1px solid var(--border); box-shadow: 0 4px 24px rgba(0,0,0,0.04); position: relative; overflow: hidden; }
+        .form-box::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent), #E8784A, var(--accent)); }
+        .form-title { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.5px; }
+        .form-subtitle { font-size: 14px; color: var(--text-soft); margin-bottom: 32px; line-height: 1.6; }
         .field-group { margin-bottom: 20px; }
-
-        .field-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: var(--text);
-        }
-
-        .field-group input,
-        .field-group select {
-            width: 100%;
-            padding: 14px 16px;
-            border: 1.5px solid var(--border);
-            border-radius: 12px;
-            font-family: 'Outfit', sans-serif;
-            font-size: 15px;
-            color: var(--text);
-            background: var(--cream);
-            outline: none;
-            transition: all 0.25s;
-        }
-
+        .field-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+        .field-group input, .field-group select { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 12px; font-family: 'Outfit', sans-serif; font-size: 15px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; }
         .field-group input::placeholder { color: var(--text-muted); }
-
-        .field-group input:focus,
-        .field-group select:focus {
-            border-color: var(--accent);
-            background: var(--card);
-            box-shadow: 0 0 0 4px var(--accent-glow);
-        }
-
-        .field-group input.field-error {
-            border-color: var(--error);
-            box-shadow: 0 0 0 4px rgba(196,69,60,0.08);
-        }
-
-        .field-group select {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239C958C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 14px center;
-            padding-right: 40px;
-            cursor: pointer;
-        }
-
-        .field-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .form-submit {
-            width: 100%;
-            margin-top: 8px;
-            padding: 16px;
-            background: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 14px;
-            font-family: 'Outfit', sans-serif;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .form-submit:hover {
-            background: var(--accent-dark);
-            transform: translateY(-1px);
-            box-shadow: 0 6px 24px rgba(212,87,42,0.3);
-        }
-
-        .form-submit:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .spinner {
-            width: 18px; height: 18px;
-            border: 2.5px solid rgba(255,255,255,0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.6s linear infinite;
-            display: none;
-        }
-
-        .form-submit.loading .spinner { display: block; }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .form-footer {
-            text-align: center;
-            margin-top: 16px;
-            font-size: 12px;
-            color: var(--text-muted);
-            line-height: 1.6;
-        }
-
-        .form-error {
-            background: rgba(196,69,60,0.08);
-            border: 1px solid rgba(196,69,60,0.2);
-            color: var(--error);
-            padding: 12px 16px;
-            border-radius: 10px;
-            font-size: 13px;
-            margin-bottom: 16px;
-            display: none;
-        }
-
+        .field-group input:focus, .field-group select:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
+        .field-group select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239C958C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 40px; cursor: pointer; }
+        .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-submit { width: 100%; margin-top: 8px; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 14px; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .form-submit:hover { background: var(--accent-dark); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(212,87,42,0.3); }
+        .form-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+        .form-footer { text-align: center; margin-top: 16px; font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+        .form-error { background: rgba(196,69,60,0.08); border: 1px solid rgba(196,69,60,0.2); color: var(--error); padding: 12px 16px; border-radius: 10px; font-size: 13px; margin-bottom: 16px; display: none; }
         .form-error.show { display: block; }
-
-        /* Success */
         .success-state { display: none; text-align: center; padding: 40px 20px; }
         .success-state.show { display: block; animation: fadeUp 0.5s ease-out; }
-
-        .success-check {
-            width: 72px; height: 72px;
-            border-radius: 50%;
-            background: rgba(45,122,79,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 32px;
-        }
-
-        .success-state h3 {
-            font-family: 'Fraunces', serif;
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .success-state p {
-            font-size: 14px;
-            color: var(--text-soft);
-            line-height: 1.7;
-            max-width: 380px;
-            margin: 0 auto;
-        }
-
-        /* ═══════════════ MARCAS CTA ═══════════════ */
-        .marcas-cta {
-            background: var(--card);
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-            padding: 64px 24px;
-            text-align: center;
-        }
-
-        .marcas-cta h2 {
-            font-family: 'Fraunces', serif;
-            font-size: clamp(24px, 3.5vw, 36px);
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            margin-bottom: 12px;
-        }
-
-        .marcas-cta p {
-            font-size: 15px;
-            color: var(--text-soft);
-            max-width: 480px;
-            margin: 0 auto 28px;
-            line-height: 1.6;
-        }
-
-        .marcas-form {
-            display: flex;
-            gap: 10px;
-            max-width: 520px;
-            margin: 0 auto;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .marcas-form input,
-        .marcas-form select {
-            padding: 14px 16px;
-            border: 1.5px solid var(--border);
-            border-radius: 12px;
-            font-family: 'Outfit', sans-serif;
-            font-size: 14px;
-            color: var(--text);
-            background: var(--cream);
-            outline: none;
-            transition: all 0.25s;
-            flex: 1;
-            min-width: 160px;
-        }
-
-        .marcas-form input:focus,
-        .marcas-form select:focus {
-            border-color: var(--accent);
-            background: var(--card);
-            box-shadow: 0 0 0 4px var(--accent-glow);
-        }
-
-        .marcas-form select {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239C958C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 14px center;
-            padding-right: 36px;
-            cursor: pointer;
-        }
-
-        .marcas-btn {
-            background: var(--black);
-            color: white;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 12px;
-            font-family: 'Outfit', sans-serif;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            white-space: nowrap;
-        }
-
-        .marcas-btn:hover {
-            background: var(--accent);
-            transform: translateY(-1px);
-        }
-
-        .marcas-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
-        .marcas-success {
-            display: none;
-            color: var(--success);
-            font-size: 14px;
-            font-weight: 600;
-            margin-top: 12px;
-        }
-
-        .marcas-success.show { display: block; animation: fadeUp 0.4s ease-out; }
-
-        .marcas-error {
-            display: none;
-            color: var(--error);
-            font-size: 13px;
-            margin-top: 8px;
-        }
-
-        .marcas-error.show { display: block; }
-
-        /* ═══════════════ FOOTER ═══════════════ */
-        footer { padding: 48px 24px; text-align: center; background: var(--cream); color: var(--text); }
+        .success-check { width: 72px; height: 72px; border-radius: 50%; background: rgba(45,122,79,0.1); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 32px; }
+        .success-state h3 { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+        .success-state p { font-size: 14px; color: var(--text-soft); line-height: 1.7; max-width: 380px; margin: 0 auto; }
+        .social-proof { background: var(--card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 48px 24px; text-align: center; }
+        .proof-numbers { display: flex; justify-content: center; gap: 64px; flex-wrap: wrap; }
+        .proof-item strong { display: block; font-family: 'Fraunces', serif; font-size: 36px; font-weight: 800; color: var(--accent); letter-spacing: -1px; }
+        .proof-item span { font-size: 13px; color: var(--text-soft); font-weight: 500; }
+        footer { padding: 48px 24px; text-align: center; }
         .footer-brand { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; }
         .footer-brand span { color: var(--accent); }
         footer p { font-size: 13px; color: var(--text-muted); }
         footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
-
-        /* ═══════════════ ANIMATIONS ═══════════════ */
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(24px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes fadeDown {
-            from { opacity: 0; transform: translateY(-16px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .reveal {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .reveal.animate {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.7s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-
-        .reveal.animate.visible { opacity: 1; transform: translateY(0); }
-
-        /* ═══════════════ RESPONSIVE ═══════════════ */
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeDown { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.7s cubic-bezier(0.23, 1, 0.32, 1); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
         @media (max-width: 768px) {
-            .nav-link { display: none; }
             .steps-grid { grid-template-columns: 1fr; max-width: 400px; }
             .benefits-grid { grid-template-columns: 1fr; max-width: 400px; }
             .hero-stats { gap: 32px; flex-wrap: wrap; justify-content: center; }
             .field-row { grid-template-columns: 1fr; }
             .form-box { padding: 32px 24px; }
-            .marcas-form { flex-direction: column; }
-            .marcas-form input,
-            .marcas-form select { min-width: 100%; }
+            .proof-numbers { gap: 32px; }
         }
     </style>
 </head>
 <body>
-
-<!-- NAV -->
 <nav id="nav">
     <a href="#" class="nav-logo">lara<span>.</span>dam</a>
-    <div class="nav-links">
-        <a href="#marcas" class="nav-link">Para marcas</a>
-        <a href="#cadastro" class="nav-cta">Quero ser creator</a>
-    </div>
+    <a href="#cadastro" class="nav-cta">Quero ser creator →</a>
 </nav>
-
-<!-- HERO -->
 <section class="hero">
-    <div class="hero-pill">
-        <span class="dot"></span>
-        Vagas abertas para creators UGC
-    </div>
+    <div class="hero-pill"><span class="dot"></span> Vagas abertas para creators UGC</div>
     <h1>Crie conteúdo.<br><em>Ganhe dinheiro.</em></h1>
-    <p class="hero-sub">
-        Cadastre-se na nossa base de creators UGC e nano influenciadores.
-        Receba oportunidades de campanhas pagas com marcas de todo o Brasil.
-    </p>
+    <p class="hero-sub">Cadastre-se na nossa base de creators UGC e nano influenciadores. Receba oportunidades de campanhas pagas com marcas de todo o Brasil.</p>
     <div class="hero-cta-group">
         <a href="#cadastro" class="btn-primary">Fazer meu cadastro gratuito</a>
         <span class="hero-note">Sem compromisso · Leva menos de 1 minuto</span>
@@ -789,304 +144,102 @@
         <div class="hero-stat"><strong>500+</strong><span>Vídeos entregues</span></div>
     </div>
 </section>
-
-<!-- HOW IT WORKS -->
 <section class="section">
-    <div class="section-header reveal">
-        <span class="section-tag">Como funciona</span>
-        <h2>Simples, direto e sem enrolação</h2>
-    </div>
+    <div class="section-header reveal"><span class="section-tag">Como funciona</span><h2>Simples, direto e sem enrolação</h2></div>
     <div class="steps-grid">
-        <div class="step-card reveal">
-            <div class="step-number">01</div>
-            <h3>Cadastre-se</h3>
-            <p>Preencha seus dados e perfil do Instagram em menos de 1 minuto. É gratuito.</p>
-        </div>
-        <div class="step-card reveal">
-            <div class="step-number">02</div>
-            <h3>Receba campanhas</h3>
-            <p>Quando surgirem campanhas compatíveis com seu perfil, entramos em contato.</p>
-        </div>
-        <div class="step-card reveal">
-            <div class="step-number">03</div>
-            <h3>Crie e ganhe</h3>
-            <p>Produza o conteúdo, entregue no prazo e receba seu pagamento via Pix.</p>
-        </div>
+        <div class="step-card reveal"><div class="step-number">01</div><h3>Cadastre-se</h3><p>Preencha seus dados e perfil do Instagram em menos de 1 minuto. É gratuito.</p></div>
+        <div class="step-card reveal"><div class="step-number">02</div><h3>Receba campanhas</h3><p>Quando surgirem campanhas compatíveis com seu perfil, entramos em contato.</p></div>
+        <div class="step-card reveal"><div class="step-number">03</div><h3>Crie e ganhe</h3><p>Produza o conteúdo, entregue no prazo e receba seu pagamento via Pix.</p></div>
     </div>
 </section>
-
-<!-- BENEFITS -->
-<section class="section benefits">
-    <div class="section-header reveal">
-        <span class="section-tag">Por que se cadastrar</span>
-        <h2>Oportunidades reais com<br>marcas reais</h2>
-    </div>
+<section class="section benefits" id="beneficios">
+    <div class="section-header reveal"><span class="section-tag">Por que se cadastrar</span><h2>Oportunidades reais com<br>marcas reais</h2></div>
     <div class="benefits-grid">
-        <div class="benefit-item reveal">
-            <div class="benefit-icon">💰</div>
-            <div><h4>Campanhas pagas</h4><p>Receba por cada conteúdo criado. Pagamento rápido via Pix.</p></div>
-        </div>
-        <div class="benefit-item reveal">
-            <div class="benefit-icon">🎯</div>
-            <div><h4>Marcas diversas</h4><p>Trabalhe com empresas de diferentes nichos e tamanhos.</p></div>
-        </div>
-        <div class="benefit-item reveal">
-            <div class="benefit-icon">📱</div>
-            <div><h4>Todo o Brasil</h4><p>Não importa onde você mora. As oportunidades são para todo o país.</p></div>
-        </div>
-        <div class="benefit-item reveal">
-            <div class="benefit-icon">⭐</div>
-            <div><h4>Gestão profissional</h4><p>Equipe experiente com +500 vídeos entregues e +200 marcas atendidas.</p></div>
-        </div>
+        <div class="benefit-item reveal"><div class="benefit-icon">💰</div><div><h4>Campanhas pagas</h4><p>Receba por cada conteúdo criado. Pagamento rápido via Pix.</p></div></div>
+        <div class="benefit-item reveal"><div class="benefit-icon">🎯</div><div><h4>Grandes marcas e nichos diferentes</h4><p>Trabalhe com empresas de diversos segmentos e tamanhos em todo o Brasil.</p></div></div>
+        <div class="benefit-item reveal"><div class="benefit-icon">📱</div><div><h4>Todo o Brasil</h4><p>Não importa onde você mora. As oportunidades são para todo o país.</p></div></div>
+        <div class="benefit-item reveal"><div class="benefit-icon">🔗</div><div><h4>Acesso à rede do Manager Club</h4><p>Seu perfil fica visível para gestoras UGC de todo o Brasil que recrutam direto da nossa base.</p></div></div>
     </div>
 </section>
-
-<!-- FAQ -->
-<section class="section" id="faq">
-    <div class="section-header reveal">
-        <span class="section-tag">Dúvidas frequentes</span>
-        <h2>Perguntas que todo<br>creator faz</h2>
+<div class="social-proof reveal">
+    <div class="proof-numbers">
+        <div class="proof-item"><strong>200+</strong><span>Empresas atendidas</span></div>
+        <div class="proof-item"><strong>1.200+</strong><span>Creators na base</span></div>
     </div>
-    <div class="faq-list reveal">
-        <div class="faq-item">
-            <button class="faq-question" aria-expanded="false">
-                Preciso ter quantos seguidores?
-                <span class="faq-icon">+</span>
-            </button>
-            <div class="faq-answer">
-                <p>Não existe mínimo! Trabalhamos com creators de todos os tamanhos. O mais importante é a qualidade do conteúdo e o engajamento do perfil, não o número de seguidores.</p>
-            </div>
-        </div>
-        <div class="faq-item">
-            <button class="faq-question" aria-expanded="false">
-                Quando e como vou receber?
-                <span class="faq-icon">+</span>
-            </button>
-            <div class="faq-answer">
-                <p>O pagamento é feito via Pix após a aprovação do conteúdo pela marca. O valor e prazo são combinados antes de cada campanha — sem surpresas.</p>
-            </div>
-        </div>
-        <div class="faq-item">
-            <button class="faq-question" aria-expanded="false">
-                Que tipo de conteúdo vou criar?
-                <span class="faq-icon">+</span>
-            </button>
-            <div class="faq-answer">
-                <p>Depende da campanha! Os formatos mais comuns são Reels, Stories e vídeos UGC para anúncios. Cada briefing detalha exatamente o que a marca precisa.</p>
-            </div>
-        </div>
-        <div class="faq-item">
-            <button class="faq-question" aria-expanded="false">
-                Preciso ter experiência com UGC?
-                <span class="faq-icon">+</span>
-            </button>
-            <div class="faq-answer">
-                <p>Não! Se você nunca fez UGC, tudo bem. Muitos creators da nossa base começaram do zero. O importante é ter vontade de aprender e se dedicar.</p>
-            </div>
-        </div>
-        <div class="faq-item">
-            <button class="faq-question" aria-expanded="false">
-                Posso participar de qualquer lugar do Brasil?
-                <span class="faq-icon">+</span>
-            </button>
-            <div class="faq-answer">
-                <p>Sim! A maioria das campanhas são remotas. Você cria o conteúdo de onde estiver e envia digitalmente. Algumas campanhas específicas podem pedir presença física, mas são a minoria.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- FORM CREATORS -->
+</div>
 <section class="section" id="cadastro">
-    <div class="section-header reveal">
-        <span class="section-tag">Cadastro rápido</span>
-        <h2>Entre pra nossa base<br>de creators</h2>
-    </div>
+    <div class="section-header reveal"><span class="section-tag">Cadastro rápido</span><h2>Entre pra nossa base<br>de creators</h2></div>
     <div class="form-wrapper reveal">
         <div class="form-box">
             <div id="formContent">
                 <h3 class="form-title">Seus dados</h3>
                 <p class="form-subtitle">Preencha abaixo para entrar na nossa base e receber oportunidades de campanhas.</p>
-
                 <div class="form-error" id="formError"></div>
-
-                <form id="creatorForm" novalidate>
+                <form id="creatorForm">
                     <div class="field-row">
-                        <div class="field-group">
-                            <label for="nome">Nome completo</label>
-                            <input type="text" name="nome" required placeholder="Seu nome" id="nome">
-                        </div>
-                        <div class="field-group">
-                            <label for="whatsapp">WhatsApp (com DDD)</label>
-                            <input type="tel" name="whatsapp" required placeholder="(00) 00000-0000" id="whatsapp">
-                        </div>
+                        <div class="field-group"><label>Nome completo</label><input type="text" name="nome" required placeholder="Seu nome" id="nome"></div>
+                        <div class="field-group"><label>WhatsApp (com DDD)</label><input type="tel" name="whatsapp" required placeholder="(00) 00000-0000" id="whatsapp"></div>
                     </div>
-
-                    <div class="field-group">
-                        <label for="email">E-mail</label>
-                        <input type="email" name="email" required placeholder="seuemail@exemplo.com" id="email">
-                    </div>
-
+                    <div class="field-group"><label>E-mail</label><input type="email" name="email" required placeholder="seuemail@exemplo.com" id="email"></div>
                     <div class="field-row">
-                        <div class="field-group">
-                            <label for="instagram">@ do Instagram</label>
-                            <input type="text" name="instagram" required placeholder="@seuperfil" id="instagram">
-                        </div>
-                        <div class="field-group">
-                            <label for="seguidores">Seguidores</label>
-                            <select name="seguidores" required id="seguidores">
-                                <option value="" disabled selected>Selecione</option>
-                                <option value="ate_1k">Até 1.000</option>
-                                <option value="1k_5k">1.000 a 5.000</option>
-                                <option value="5k_10k">5.000 a 10.000</option>
-                                <option value="10k_30k">10.000 a 30.000</option>
-                                <option value="30k_mais">Acima de 30.000</option>
-                            </select>
-                        </div>
+                        <div class="field-group"><label>Data de nascimento</label><input type="date" name="nascimento" required id="nascimento"></div>
+                        <div class="field-group"><label>Gênero</label><select name="genero" required id="genero"><option value="" disabled selected>Selecione</option><option value="feminino">Feminino</option><option value="masculino">Masculino</option><option value="nao_binario">Não-binário</option><option value="prefiro_nao_dizer">Prefiro não dizer</option></select></div>
                     </div>
-
-                    <div class="field-group">
-                        <label for="cidade">Cidade e Estado</label>
-                        <input type="text" name="cidade" required placeholder="Ex: São Paulo - SP" id="cidade">
+                    <div class="field-row">
+                        <div class="field-group"><label>@ do Instagram</label><input type="text" name="instagram" required placeholder="@seuperfil" id="instagram"></div>
+                        <div class="field-group"><label>@ do TikTok <span style="color: var(--text-muted); font-weight: 400;">(opcional)</span></label><input type="text" name="tiktok" placeholder="@seuperfil" id="tiktok"></div>
                     </div>
-
-                    <div class="field-group">
-                        <label for="nicho">Nicho principal do seu conteúdo</label>
-                        <select name="nicho" required id="nicho">
-                            <option value="" disabled selected>Selecione</option>
-                            <option value="lifestyle">Lifestyle</option>
-                            <option value="saude_fitness">Saúde / Fitness</option>
-                            <option value="beleza">Beleza</option>
-                            <option value="maternidade">Maternidade</option>
-                            <option value="familia">Família</option>
-                            <option value="entretenimento">Entretenimento</option>
-                            <option value="humor">Humor</option>
-                            <option value="gastronomia">Gastronomia</option>
-                            <option value="moda">Moda</option>
-                            <option value="tecnologia">Tecnologia</option>
-                            <option value="educacao">Educação</option>
-                            <option value="outro">Outro</option>
-                        </select>
+                    <div class="field-group"><label>Seguidores no Instagram</label><select name="seguidores" required id="seguidores"><option value="" disabled selected>Selecione</option><option value="ate_1k">Até 1.000</option><option value="1k_5k">1.000 a 5.000</option><option value="5k_10k">5.000 a 10.000</option><option value="10k_30k">10.000 a 30.000</option><option value="30k_mais">Acima de 30.000</option></select></div>
+                    <div class="field-row">
+                        <div class="field-group"><label>Estado</label><select name="estado" required id="estado"><option value="" disabled selected>Selecione o estado</option></select></div>
+                        <div class="field-group"><label>Cidade</label><select name="cidade" required id="cidade" disabled><option value="" disabled selected>Selecione o estado primeiro</option></select></div>
                     </div>
-
-                    <div class="field-group">
-                        <label for="experiencia">Já fez campanha paga para marcas?</label>
-                        <select name="experiencia" id="experiencia">
-                            <option value="" disabled selected>Selecione</option>
-                            <option value="sim">Sim, já fiz</option>
-                            <option value="nao">Não, seria minha primeira</option>
-                            <option value="permuta">Só permuta</option>
-                        </select>
-                    </div>
-
-                    <button type="submit" class="form-submit" id="submitBtn" aria-label="Enviar cadastro de creator">
-                        <span class="btn-text">Quero receber oportunidades</span>
-                        <span class="spinner"></span>
-                    </button>
+                    <div class="field-group"><label>Nicho principal do seu conteúdo</label><select name="nicho" required id="nicho"><option value="" disabled selected>Selecione</option><option value="lifestyle">Lifestyle</option><option value="saude_fitness">Saúde / Fitness</option><option value="beleza">Beleza</option><option value="maternidade">Maternidade</option><option value="familia">Família</option><option value="entretenimento">Entretenimento</option><option value="humor">Humor</option><option value="gastronomia">Gastronomia</option><option value="moda">Moda</option><option value="tecnologia">Tecnologia</option><option value="educacao">Educação</option><option value="outro">Outro</option></select></div>
+                    <div class="field-group"><label>Já fez campanha paga para marcas?</label><select name="experiencia" id="experiencia"><option value="" disabled selected>Selecione</option><option value="sim">Sim, já fiz</option><option value="nao">Não, seria minha primeira</option><option value="permuta">Só permuta</option></select></div>
+                    <button type="submit" class="form-submit" id="submitBtn">Quero receber oportunidades →</button>
                 </form>
-
-                <p class="form-footer">
-                    Ao se cadastrar, você aceita receber contato sobre campanhas.<br>
-                    Seus dados estão seguros. Sem spam, prometido.
-                </p>
+                <p class="form-footer">Ao se cadastrar, você aceita receber contato sobre campanhas.<br>Seus dados estão seguros.</p>
             </div>
-
             <div class="success-state" id="successState">
                 <div class="success-check">✓</div>
                 <h3>Cadastro feito!</h3>
-                <p>Você entrou pra nossa base de creators. Quando surgirem campanhas compatíveis com seu perfil, entraremos em contato pelo WhatsApp. Fique de olho!</p>
+                <p>Você entrou pra nossa base de creators. Quando surgirem campanhas compatíveis com seu perfil, entraremos em contato pelo WhatsApp. Fique de olho! 🚀</p>
             </div>
         </div>
     </div>
 </section>
-
-<!-- MARCAS / LEADS -->
-<section class="marcas-cta reveal" id="marcas">
-    <h2>Representa uma marca?</h2>
-    <p>Cadastre-se para receber informações sobre como contratar creators UGC para suas campanhas.</p>
-    <form class="marcas-form" id="leadForm">
-        <input type="text" placeholder="Seu nome" id="leadNome" required>
-        <input type="email" placeholder="Seu e-mail" id="leadEmail" required>
-        <select id="leadTipo" required>
-            <option value="" disabled selected>Você é...</option>
-            <option value="marca">Marca / Empresa</option>
-            <option value="gestor">Gestor de tráfego</option>
-            <option value="creator">Creator</option>
-        </select>
-        <button type="submit" class="marcas-btn" id="leadBtn">Quero saber mais</button>
-    </form>
-    <p class="marcas-success" id="leadSuccess">Cadastro recebido! Entraremos em contato em breve.</p>
-    <p class="marcas-error" id="leadError"></p>
-</section>
-
-<!-- FOOTER -->
 <footer>
     <div class="footer-brand">lara<span>.</span>dam</div>
-    <p>Gestão de Campanhas UGC · <a href="https://instagram.com/laradam" target="_blank" rel="noopener">@laradam</a></p>
+    <p>Gestão de Campanhas UGC · <a href="https://instagram.com/eilaradam" target="_blank">@eilaradam</a></p>
 </footer>
-
 <script>
-    // ══════════════════════════════════════════════
-    // SUPABASE CONFIG
-    // ══════════════════════════════════════════════
     const SUPABASE_URL = 'https://mfrmnquvwwuxraqgemyh.supabase.co';
     const SUPABASE_ANON_KEY = 'COLE_SUA_ANON_KEY_AQUI';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let supabase;
-    try {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    } catch(e) {
-        console.warn('Supabase não carregou:', e);
-    }
-
-    // ══════════════════════════════════════════════
-    // NAV SCROLL
-    // ══════════════════════════════════════════════
     const nav = document.getElementById('nav');
-    window.addEventListener('scroll', () => {
-        nav.classList.toggle('scrolled', window.scrollY > 60);
-    });
+    const darkSections = document.querySelectorAll('.benefits');
+    function updateNav() {
+        const scrolled = window.scrollY > 60;
+        nav.classList.toggle('scrolled', scrolled);
+        let onDark = false;
+        darkSections.forEach(section => {
+            const rect = section.getBoundingClientRect();
+            if (rect.top <= 60 && rect.bottom >= 60) onDark = true;
+        });
+        nav.classList.toggle('on-dark', onDark);
+    }
+    window.addEventListener('scroll', updateNav);
+    updateNav();
 
-    // ══════════════════════════════════════════════
-    // REVEAL ON SCROLL (conteúdo visível por padrão, animação é progressiva)
-    // ══════════════════════════════════════════════
     const reveals = document.querySelectorAll('.reveal');
-    reveals.forEach(el => el.classList.add('animate'));
     const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry, i) => {
-            if (entry.isIntersecting) {
-                setTimeout(() => entry.target.classList.add('visible'), i * 80);
-                observer.unobserve(entry.target);
-            }
+            if (entry.isIntersecting) { setTimeout(() => entry.target.classList.add('visible'), i * 80); observer.unobserve(entry.target); }
         });
     }, { threshold: 0.15 });
     reveals.forEach(el => observer.observe(el));
 
-    // ══════════════════════════════════════════════
-    // FAQ ACCORDION
-    // ══════════════════════════════════════════════
-    document.querySelectorAll('.faq-question').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const item = btn.parentElement;
-            const isOpen = item.classList.contains('open');
-
-            // Close all
-            document.querySelectorAll('.faq-item.open').forEach(el => {
-                el.classList.remove('open');
-                el.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
-            });
-
-            // Toggle current
-            if (!isOpen) {
-                item.classList.add('open');
-                btn.setAttribute('aria-expanded', 'true');
-            }
-        });
-    });
-
-    // ══════════════════════════════════════════════
-    // PHONE MASK
-    // ══════════════════════════════════════════════
     document.getElementById('whatsapp').addEventListener('input', function(e) {
         let v = e.target.value.replace(/\D/g, '');
         if (v.length > 11) v = v.slice(0, 11);
@@ -1096,212 +249,78 @@
         e.target.value = v;
     });
 
-    // ══════════════════════════════════════════════
-    // VALIDATION HELPERS
-    // ══════════════════════════════════════════════
-    function validateCreatorForm() {
-        const errors = [];
-        const nome = document.getElementById('nome');
-        const email = document.getElementById('email');
-        const whatsapp = document.getElementById('whatsapp');
-        const instagram = document.getElementById('instagram');
-
-        // Reset
-        [nome, email, whatsapp, instagram].forEach(el => el.classList.remove('field-error'));
-
-        if (nome.value.trim().length < 3) {
-            errors.push('Informe seu nome completo.');
-            nome.classList.add('field-error');
+    const estadoSelect = document.getElementById('estado');
+    const cidadeSelect = document.getElementById('cidade');
+    async function carregarEstados() {
+        try {
+            const res = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome');
+            const estados = await res.json();
+            estados.forEach(estado => { const opt = document.createElement('option'); opt.value = estado.sigla; opt.textContent = `${estado.nome} (${estado.sigla})`; estadoSelect.appendChild(opt); });
+        } catch (err) {
+            const ufs = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
+            ufs.forEach(uf => { const opt = document.createElement('option'); opt.value = uf; opt.textContent = uf; estadoSelect.appendChild(opt); });
         }
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email.value.trim())) {
-            errors.push('Informe um e-mail válido.');
-            email.classList.add('field-error');
-        }
-
-        const digits = whatsapp.value.replace(/\D/g, '');
-        if (digits.length < 10 || digits.length > 11) {
-            errors.push('Informe um WhatsApp válido com DDD.');
-            whatsapp.classList.add('field-error');
-        }
-
-        // Normalize instagram
-        let ig = instagram.value.trim();
-        if (ig && !ig.startsWith('@')) ig = '@' + ig;
-        instagram.value = ig;
-        if (ig.length < 2) {
-            errors.push('Informe seu @ do Instagram.');
-            instagram.classList.add('field-error');
-        }
-
-        return errors;
     }
+    estadoSelect.addEventListener('change', async function() {
+        const uf = this.value;
+        cidadeSelect.innerHTML = '<option value="" disabled selected>Carregando cidades...</option>';
+        cidadeSelect.disabled = true;
+        try {
+            const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios?orderBy=nome`);
+            const cidades = await res.json();
+            cidadeSelect.innerHTML = '<option value="" disabled selected>Selecione a cidade</option>';
+            cidades.forEach(cidade => { const opt = document.createElement('option'); opt.value = cidade.nome; opt.textContent = cidade.nome; cidadeSelect.appendChild(opt); });
+            cidadeSelect.disabled = false;
+        } catch (err) {
+            cidadeSelect.innerHTML = '';
+            const input = document.createElement('input');
+            input.type = 'text'; input.name = 'cidade'; input.id = 'cidade'; input.required = true; input.placeholder = 'Digite sua cidade';
+            cidadeSelect.replaceWith(input);
+        }
+    });
+    carregarEstados();
 
-    // ══════════════════════════════════════════════
-    // CREATOR FORM → SUPABASE (creators + leads)
-    // ══════════════════════════════════════════════
     document.getElementById('creatorForm').addEventListener('submit', async function(e) {
         e.preventDefault();
-
         const btn = document.getElementById('submitBtn');
         const errorEl = document.getElementById('formError');
-
-        // Reset error
         errorEl.classList.remove('show');
-
-        // Validate
-        const errors = validateCreatorForm();
-        if (errors.length > 0) {
-            errorEl.textContent = errors[0];
-            errorEl.classList.add('show');
-            return;
-        }
-
-        if (!supabase) {
-            errorEl.textContent = 'Erro de conexão. Recarregue a página e tente novamente.';
-            errorEl.classList.add('show');
-            return;
-        }
-
-        // Loading state
-        btn.classList.add('loading');
-        btn.querySelector('.btn-text').textContent = 'Enviando...';
+        btn.textContent = 'Enviando...';
         btn.disabled = true;
-
-        // Collect data aligned with schema
+        const cidadeEl = document.getElementById('cidade');
+        const cidadeValue = cidadeEl.tagName === 'SELECT' ? cidadeEl.value : cidadeEl.value.trim();
         const creatorData = {
             nome: document.getElementById('nome').value.trim(),
             email: document.getElementById('email').value.trim().toLowerCase(),
             whatsapp: document.getElementById('whatsapp').value.trim(),
             instagram: document.getElementById('instagram').value.trim().toLowerCase(),
+            tiktok: document.getElementById('tiktok').value.trim().toLowerCase() || null,
+            data_nascimento: document.getElementById('nascimento').value || null,
+            genero: document.getElementById('genero').value,
             seguidores: document.getElementById('seguidores').value,
-            cidade: document.getElementById('cidade').value.trim(),
+            estado: document.getElementById('estado').value,
+            cidade: cidadeValue,
             nicho: document.getElementById('nicho').value,
-            experiencia: document.getElementById('experiencia').value || null,
+            experiencia: document.getElementById('experiencia').value,
             origem: 'site_recrutamento',
             status: 'novo'
         };
-
         try {
-            // 1. Insert into creators
-            const { error: creatorError } = await supabase
-                .from('creators')
-                .insert([creatorData]);
-
-            if (creatorError) {
-                if (creatorError.code === '23505') {
-                    throw new Error('Esse e-mail ou Instagram já está cadastrado na nossa base!');
-                }
-                throw creatorError;
-            }
-
-            // 2. Also insert into leads (tipo: creator)
-            await supabase
-                .from('leads')
-                .insert([{
-                    nome: creatorData.nome,
-                    email: creatorData.email,
-                    whatsapp: creatorData.whatsapp,
-                    instagram: creatorData.instagram,
-                    tipo: 'creator',
-                    origem: 'site_recrutamento',
-                    status: 'capturado'
-                }]).catch(() => {}); // silently ignore if duplicate
-
-            // Success
+            const { data, error } = await supabase.from('creators').insert([creatorData]);
+            if (error) { if (error.code === '23505') throw new Error('Esse e-mail ou Instagram já está cadastrado na nossa base!'); throw error; }
             document.getElementById('formContent').style.display = 'none';
             document.getElementById('successState').classList.add('show');
-
         } catch (err) {
             errorEl.textContent = err.message || 'Erro ao enviar. Tente novamente.';
             errorEl.classList.add('show');
-            btn.classList.remove('loading');
-            btn.querySelector('.btn-text').textContent = 'Quero receber oportunidades';
+            btn.textContent = 'Quero receber oportunidades →';
             btn.disabled = false;
         }
     });
 
-    // ══════════════════════════════════════════════
-    // LEAD FORM (MARCAS) → SUPABASE (leads)
-    // ══════════════════════════════════════════════
-    document.getElementById('leadForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-
-        const btn = document.getElementById('leadBtn');
-        const errorEl = document.getElementById('leadError');
-        const successEl = document.getElementById('leadSuccess');
-
-        errorEl.classList.remove('show');
-        successEl.classList.remove('show');
-
-        const nome = document.getElementById('leadNome').value.trim();
-        const email = document.getElementById('leadEmail').value.trim().toLowerCase();
-        const tipo = document.getElementById('leadTipo').value;
-
-        if (!nome || !email || !tipo) {
-            errorEl.textContent = 'Preencha todos os campos.';
-            errorEl.classList.add('show');
-            return;
-        }
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            errorEl.textContent = 'Informe um e-mail válido.';
-            errorEl.classList.add('show');
-            return;
-        }
-
-        if (!supabase) {
-            errorEl.textContent = 'Erro de conexão. Recarregue a página e tente novamente.';
-            errorEl.classList.add('show');
-            return;
-        }
-
-        btn.textContent = 'Enviando...';
-        btn.disabled = true;
-
-        try {
-            const { error } = await supabase
-                .from('leads')
-                .insert([{
-                    nome,
-                    email,
-                    tipo,
-                    origem: 'site_recrutamento',
-                    status: 'capturado'
-                }]);
-
-            if (error) {
-                if (error.code === '23505') {
-                    throw new Error('Esse e-mail já está cadastrado!');
-                }
-                throw error;
-            }
-
-            // Success
-            document.getElementById('leadForm').style.display = 'none';
-            successEl.classList.add('show');
-
-        } catch (err) {
-            errorEl.textContent = err.message || 'Erro ao enviar. Tente novamente.';
-            errorEl.classList.add('show');
-            btn.textContent = 'Quero saber mais';
-            btn.disabled = false;
-        }
-    });
-
-    // ══════════════════════════════════════════════
-    // SMOOTH SCROLL
-    // ══════════════════════════════════════════════
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
+        anchor.addEventListener('click', function(e) { e.preventDefault(); const target = document.querySelector(this.getAttribute('href')); if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
     });
 </script>
-
 </body>
 </html>
