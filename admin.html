@@ -502,7 +502,7 @@
         tbody.innerHTML = '<tr><td colspan="5" class="loading">Carregando alunas...</td></tr>';
 
         try {
-            const { data, error } = await sb.from('usuarios').select('*').eq('role', 'aluna').order('created_at', { ascending: false });
+            const { data, error } = await sb.rpc('admin_load_alunas');
             if (error) throw error;
             allAlunas = data || [];
             renderAlunas();
@@ -530,7 +530,7 @@
 
     async function toggleAluna(id, newStatus) {
         try {
-            const { error } = await sb.from('usuarios').update({ ativo: newStatus }).eq('id', id);
+            const { error } = await sb.rpc('admin_toggle_aluna', { p_id: id, p_ativo: newStatus });
             if (error) throw error;
             loadAlunas();
         } catch (err) {
@@ -579,22 +579,36 @@
         try {
             /* Criar user no Auth usando client separado (para nao perder sessao do admin) */
             const signupClient = Auth.createSignupClient();
+            let newUserId;
+
             const { data: signupData, error: signupError } = await signupClient.auth.signUp({
                 email: email,
                 password: senha
             });
-            if (signupError) throw signupError;
 
-            const newUserId = signupData.user.id;
+            if (signupError) {
+                /* Se user ja existe no Auth (signup anterior falhou no INSERT), tenta login pra pegar UUID */
+                if (signupError.message && (signupError.message.includes('already') || signupError.message.includes('registered') || signupError.message.includes('existe'))) {
+                    const { data: loginData, error: loginError } = await signupClient.auth.signInWithPassword({
+                        email: email,
+                        password: senha
+                    });
+                    if (loginError) throw new Error('Usuaria ja existe no Auth mas a senha informada nao confere. Tente com a mesma senha usada antes, ou delete a usuaria no Supabase Auth e tente novamente.');
+                    newUserId = loginData.user.id;
+                    await signupClient.auth.signOut();
+                } else {
+                    throw signupError;
+                }
+            } else {
+                newUserId = signupData.user.id;
+            }
 
-            /* Inserir na tabela usuarios com role=aluna */
-            const { error: insertError } = await sb.from('usuarios').insert([{
-                id: newUserId,
-                email: email,
-                nome: nome,
-                role: 'aluna',
-                ativo: true
-            }]);
+            /* Inserir na tabela usuarios via RPC (bypassa RLS) */
+            const { error: insertError } = await sb.rpc('admin_insert_aluna', {
+                p_id: newUserId,
+                p_email: email,
+                p_nome: nome
+            });
             if (insertError) throw insertError;
 
             /* Mostrar sucesso com credenciais para copiar */

@@ -71,7 +71,14 @@
 
     /** Cria um novo Supabase client (para signUp sem perder sessão do admin). */
     function createSignupClient() {
-        return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: {
+                storageKey: 'sb-signup-token',
+                persistSession: false,
+                autoRefreshToken: false,
+                detectSessionInUrl: false
+            }
+        });
     }
 
     window.Auth = {
