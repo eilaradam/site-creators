@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin · Lara Dam</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --black: #0A0A0A;
+            --white: #FAFAF9;
+            --cream: #F5F3EF;
+            --warm: #E8E4DD;
+            --accent: #D4572A;
+            --accent-dark: #B8461F;
+            --accent-glow: rgba(212,87,42,0.12);
+            --text: #1A1816;
+            --text-soft: #6B645C;
+            --text-muted: #9C958C;
+            --border: #DDD8D0;
+            --card: #FFFFFF;
+            --success: #2D7A4F;
+            --error: #C4453C;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background: var(--cream); color: var(--text); -webkit-font-smoothing: antialiased; min-height: 100vh; }
+
+        /* ── Header ── */
+        .admin-header { background: var(--card); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
+        .admin-logo { font-family: 'Fraunces', serif; font-weight: 700; font-size: 20px; color: var(--text); }
+        .admin-logo span { color: var(--accent); }
+        .admin-logo small { font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-left: 12px; text-transform: uppercase; letter-spacing: 2px; }
+        .btn-logout { background: none; border: 1px solid var(--border); padding: 8px 20px; border-radius: 100px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.2s; }
+        .btn-logout:hover { border-color: var(--error); color: var(--error); }
+
+        /* ── Login ── */
+        .login-wrapper { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+        .login-box { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 48px 40px; max-width: 420px; width: 100%; box-shadow: 0 4px 24px rgba(0,0,0,0.04); position: relative; overflow: hidden; }
+        .login-box::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent), #E8784A, var(--accent)); }
+        .login-box h1 { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.5px; }
+        .login-box p { font-size: 14px; color: var(--text-soft); margin-bottom: 28px; line-height: 1.6; }
+        .login-field { margin-bottom: 16px; }
+        .login-field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+        .login-field input { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 12px; font-family: 'Outfit', sans-serif; font-size: 15px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; }
+        .login-field input:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
+        .login-btn { width: 100%; margin-top: 8px; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 14px; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .login-btn:hover { background: var(--accent-dark); transform: translateY(-1px); }
+        .login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .login-error { background: rgba(196,69,60,0.08); border: 1px solid rgba(196,69,60,0.2); color: var(--error); padding: 12px 16px; border-radius: 10px; font-size: 13px; margin-bottom: 16px; display: none; }
+        .login-error.show { display: block; }
+
+        /* ── Dashboard ── */
+        .dashboard { display: none; padding: 24px; max-width: 1400px; margin: 0 auto; }
+        .dashboard.show { display: block; }
+
+        /* Stat cards */
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px 24px; }
+        .stat-card .stat-value { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 700; letter-spacing: -1px; color: var(--text); }
+        .stat-card .stat-label { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
+        .stat-card.accent .stat-value { color: var(--accent); }
+
+        /* Filtros */
+        .filters-bar { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px 24px; margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+        .filter-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 160px; }
+        .filter-group label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); }
+        .filter-group input, .filter-group select { padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; }
+        .filter-group input:focus, .filter-group select:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
+        .filter-group select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239C958C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; cursor: pointer; }
+        .btn-clear-filters { padding: 10px 20px; background: none; border: 1px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.2s; align-self: end; white-space: nowrap; }
+        .btn-clear-filters:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* Contador de resultados */
+        .results-info { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+        .results-info strong { color: var(--text); }
+
+        /* Tabela (desktop) */
+        .table-container { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+        .creators-table { width: 100%; border-collapse: collapse; }
+        .creators-table th { background: var(--cream); padding: 12px 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; position: sticky; top: 0; }
+        .creators-table td { padding: 14px 16px; font-size: 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+        .creators-table tr:last-child td { border-bottom: none; }
+        .creators-table tr:hover td { background: rgba(212,87,42,0.03); }
+        .creators-table a { color: var(--accent); text-decoration: none; font-weight: 600; }
+        .creators-table a:hover { text-decoration: underline; }
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 600; }
+        .badge-novo { background: rgba(212,87,42,0.1); color: var(--accent); }
+        .badge-aprovado { background: rgba(45,122,79,0.1); color: var(--success); }
+        .badge-ativo { background: rgba(26,24,22,0.08); color: var(--text); }
+
+        /* Cards (mobile) */
+        .cards-container { display: none; }
+        .creator-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 12px; }
+        .creator-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .creator-card-name { font-size: 16px; font-weight: 700; }
+        .creator-card-meta { font-size: 13px; color: var(--text-soft); line-height: 1.8; }
+        .creator-card-meta span { display: block; }
+        .creator-card-meta a { color: var(--accent); text-decoration: none; font-weight: 600; }
+        .creator-card-links { display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+        .creator-card-links a { flex: 1; text-align: center; padding: 8px; border-radius: 8px; background: var(--cream); font-size: 12px; font-weight: 600; color: var(--accent); text-decoration: none; transition: all 0.2s; }
+        .creator-card-links a:hover { background: var(--accent-glow); }
+
+        /* Empty state */
+        .empty-state { text-align: center; padding: 60px 24px; color: var(--text-muted); }
+        .empty-state p { font-size: 15px; }
+
+        /* Loading */
+        .loading { text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px; }
+
+        @media (max-width: 1024px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .table-container { display: none; }
+            .cards-container { display: block; }
+        }
+        @media (max-width: 600px) {
+            .stats-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .stat-card { padding: 16px; }
+            .stat-card .stat-value { font-size: 28px; }
+            .filters-bar { flex-direction: column; }
+            .filter-group { min-width: 100%; }
+            .login-box { padding: 36px 24px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="loginView" class="login-wrapper">
+    <div class="login-box">
+        <h1>Painel Admin</h1>
+        <p>Acesso restrito para gestoras. Faça login para visualizar os creators cadastrados.</p>
+        <div class="login-error" id="loginError"></div>
+        <form id="loginForm">
+            <div class="login-field">
+                <label>E-mail</label>
+                <input type="email" id="loginEmail" required placeholder="seu@email.com" autocomplete="email">
+            </div>
+            <div class="login-field">
+                <label>Senha</label>
+                <input type="password" id="loginPassword" required placeholder="Sua senha" autocomplete="current-password">
+            </div>
+            <button type="submit" class="login-btn" id="loginBtn">Entrar</button>
+        </form>
+    </div>
+</div>
+
+<!-- ── DASHBOARD ── -->
+<div id="dashboardView">
+    <header class="admin-header">
+        <div class="admin-logo">lara<span>.</span>dam <small>Admin</small></div>
+        <button class="btn-logout" id="logoutBtn">Sair</button>
+    </header>
+    <div class="dashboard" id="dashboard">
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-card accent"><div class="stat-value" id="statTotal">—</div><div class="stat-label">Total de creators</div></div>
+            <div class="stat-card"><div class="stat-value" id="statNovo">—</div><div class="stat-label">Novos</div></div>
+            <div class="stat-card"><div class="stat-value" id="statAprovado">—</div><div class="stat-label">Aprovados</div></div>
+            <div class="stat-card"><div class="stat-value" id="statAtivo">—</div><div class="stat-label">Ativos</div></div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filters-bar">
+            <div class="filter-group" style="flex: 2;">
+                <label>Buscar</label>
+                <input type="text" id="filterSearch" placeholder="Nome ou @instagram...">
+            </div>
+            <div class="filter-group">
+                <label>Status</label>
+                <select id="filterStatus"><option value="">Todos</option><option value="novo">Novo</option><option value="aprovado">Aprovado</option><option value="ativo">Ativo</option></select>
+            </div>
+            <div class="filter-group">
+                <label>Nicho</label>
+                <select id="filterNicho"><option value="">Todos</option><option value="lifestyle">Lifestyle</option><option value="saude_fitness">Saúde / Fitness</option><option value="beleza">Beleza</option><option value="maternidade">Maternidade</option><option value="familia">Família</option><option value="entretenimento">Entretenimento</option><option value="humor">Humor</option><option value="gastronomia">Gastronomia</option><option value="moda">Moda</option><option value="tecnologia">Tecnologia</option><option value="educacao">Educação</option><option value="outro">Outro</option></select>
+            </div>
+            <div class="filter-group">
+                <label>Estado</label>
+                <select id="filterEstado"><option value="">Todos</option></select>
+            </div>
+            <div class="filter-group">
+                <label>Seguidores</label>
+                <select id="filterSeguidores"><option value="">Todos</option><option value="ate_1k">Até 1.000</option><option value="1k_5k">1k–5k</option><option value="5k_10k">5k–10k</option><option value="10k_30k">10k–30k</option><option value="30k_mais">30k+</option></select>
+            </div>
+            <button class="btn-clear-filters" id="btnClearFilters">Limpar filtros</button>
+        </div>
+
+        <div class="results-info" id="resultsInfo"></div>
+
+        <!-- Tabela Desktop -->
+        <div class="table-container">
+            <table class="creators-table">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>WhatsApp</th>
+                        <th>Instagram</th>
+                        <th>TikTok</th>
+                        <th>Seguidores</th>
+                        <th>Estado</th>
+                        <th>Cidade</th>
+                        <th>Nicho</th>
+                        <th>Experiência</th>
+                        <th>Links</th>
+                        <th>Status</th>
+                        <th>Cadastro</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Cards Mobile -->
+        <div class="cards-container" id="cardsContainer"></div>
+    </div>
+</div>
+
+<script>
+    /* ── Supabase ── */
+    let sb = null;
+    try {
+        const SUPABASE_URL = 'https://mfrmnquvwwuxraqgemyh.supabase.co';
+        const SUPABASE_ANON_KEY = 'COLE_SUA_ANON_KEY_AQUI';
+        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } catch (err) {
+        console.error('Erro ao conectar Supabase:', err);
+    }
+
+    let allCreators = [];
+    const loginView = document.getElementById('loginView');
+    const dashboardView = document.getElementById('dashboardView');
+    const dashboard = document.getElementById('dashboard');
+
+    /* ── Auth: verificar sessão ── */
+    async function checkSession() {
+        if (!sb) return;
+        try {
+            const { data: { session } } = await sb.auth.getSession();
+            if (session) {
+                showDashboard();
+            } else {
+                showLogin();
+            }
+        } catch (err) {
+            showLogin();
+        }
+    }
+
+    function showLogin() {
+        loginView.style.display = 'flex';
+        dashboardView.style.display = 'none';
+    }
+
+    function showDashboard() {
+        loginView.style.display = 'none';
+        dashboardView.style.display = 'block';
+        dashboard.classList.add('show');
+        loadCreators();
+    }
+
+    /* ── Login ── */
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('loginBtn');
+        const errorEl = document.getElementById('loginError');
+        errorEl.classList.remove('show');
+        btn.textContent = 'Entrando...';
+        btn.disabled = true;
+
+        try {
+            if (!sb) throw new Error('Conexão indisponível.');
+            const { data, error } = await sb.auth.signInWithPassword({
+                email: document.getElementById('loginEmail').value.trim(),
+                password: document.getElementById('loginPassword').value
+            });
+            if (error) throw error;
+            showDashboard();
+        } catch (err) {
+            errorEl.textContent = err.message === 'Invalid login credentials'
+                ? 'E-mail ou senha incorretos.'
+                : (err.message || 'Erro ao fazer login.');
+            errorEl.classList.add('show');
+            btn.textContent = 'Entrar';
+            btn.disabled = false;
+        }
+    });
+
+    /* ── Logout ── */
+    document.getElementById('logoutBtn').addEventListener('click', async function() {
+        if (sb) await sb.auth.signOut();
+        showLogin();
+    });
+
+    /* ── Carregar creators ── */
+    async function loadCreators() {
+        const tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = '<tr><td colspan="12" class="loading">Carregando creators...</td></tr>';
+
+        try {
+            const { data, error } = await sb.from('creators').select('*').order('created_at', { ascending: false });
+            if (error) throw error;
+            allCreators = data || [];
+            updateStats();
+            populateEstadoFilter();
+            applyFilters();
+        } catch (err) {
+            tableBody.innerHTML = `<tr><td colspan="12" class="loading" style="color:var(--error)">Erro ao carregar: ${err.message}</td></tr>`;
+        }
+    }
+
+    /* ── Stats ── */
+    function updateStats() {
+        document.getElementById('statTotal').textContent = allCreators.length;
+        document.getElementById('statNovo').textContent = allCreators.filter(c => c.status === 'novo').length;
+        document.getElementById('statAprovado').textContent = allCreators.filter(c => c.status === 'aprovado').length;
+        document.getElementById('statAtivo').textContent = allCreators.filter(c => c.status === 'ativo').length;
+    }
+
+    /* ── Popular filtro de estados ── */
+    function populateEstadoFilter() {
+        const estados = [...new Set(allCreators.map(c => c.estado).filter(Boolean))].sort();
+        const select = document.getElementById('filterEstado');
+        select.innerHTML = '<option value="">Todos</option>';
+        estados.forEach(uf => {
+            const opt = document.createElement('option');
+            opt.value = uf;
+            opt.textContent = uf;
+            select.appendChild(opt);
+        });
+    }
+
+    /* ── Helpers ── */
+    function formatDate(dateStr) {
+        if (!dateStr) return '—';
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
+    function formatSeguidores(val) {
+        const map = { 'ate_1k': 'Até 1k', '1k_5k': '1k–5k', '5k_10k': '5k–10k', '10k_30k': '10k–30k', '30k_mais': '30k+' };
+        return map[val] || val || '—';
+    }
+
+    function formatNicho(val) {
+        const map = { 'lifestyle': 'Lifestyle', 'saude_fitness': 'Saúde/Fitness', 'beleza': 'Beleza', 'maternidade': 'Maternidade', 'familia': 'Família', 'entretenimento': 'Entretenimento', 'humor': 'Humor', 'gastronomia': 'Gastronomia', 'moda': 'Moda', 'tecnologia': 'Tecnologia', 'educacao': 'Educação', 'outro': 'Outro' };
+        return map[val] || val || '—';
+    }
+
+    function formatExperiencia(val) {
+        const map = { 'sim': 'Sim', 'nao': 'Não', 'permuta': 'Só permuta' };
+        return map[val] || val || '—';
+    }
+
+    function badgeClass(status) {
+        return { 'novo': 'badge-novo', 'aprovado': 'badge-aprovado', 'ativo': 'badge-ativo' }[status] || 'badge-novo';
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    /* ── Filtros ── */
+    function applyFilters() {
+        const search = document.getElementById('filterSearch').value.toLowerCase().trim();
+        const status = document.getElementById('filterStatus').value;
+        const nicho = document.getElementById('filterNicho').value;
+        const estado = document.getElementById('filterEstado').value;
+        const seguidores = document.getElementById('filterSeguidores').value;
+
+        let filtered = allCreators.filter(c => {
+            if (search && !(c.nome || '').toLowerCase().includes(search) && !(c.instagram || '').toLowerCase().includes(search) && !(c.email || '').toLowerCase().includes(search)) return false;
+            if (status && c.status !== status) return false;
+            if (nicho && c.nicho !== nicho) return false;
+            if (estado && c.estado !== estado) return false;
+            if (seguidores && c.seguidores !== seguidores) return false;
+            return true;
+        });
+
+        document.getElementById('resultsInfo').innerHTML = `Mostrando <strong>${filtered.length}</strong> de <strong>${allCreators.length}</strong> creators`;
+        renderTable(filtered);
+        renderCards(filtered);
+    }
+
+    /* ── Render tabela (desktop) ── */
+    function renderTable(creators) {
+        const tbody = document.getElementById('tableBody');
+        if (creators.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="12" class="empty-state"><p>Nenhum creator encontrado.</p></td></tr>';
+            return;
+        }
+        tbody.innerHTML = creators.map(c => `
+            <tr>
+                <td><strong>${escapeHtml(c.nome)}</strong><br><span style="font-size:12px;color:var(--text-muted)">${escapeHtml(c.email)}</span></td>
+                <td style="white-space:nowrap">${escapeHtml(c.whatsapp)}</td>
+                <td>${escapeHtml(c.instagram)}</td>
+                <td>${escapeHtml(c.tiktok) || '—'}</td>
+                <td>${formatSeguidores(c.seguidores)}</td>
+                <td>${escapeHtml(c.estado) || '—'}</td>
+                <td>${escapeHtml(c.cidade) || '—'}</td>
+                <td>${formatNicho(c.nicho)}</td>
+                <td>${formatExperiencia(c.experiencia)}</td>
+                <td style="white-space:nowrap">
+                    ${c.portfolio ? `<a href="${escapeHtml(c.portfolio)}" target="_blank" rel="noopener">Portfólio</a>` : '—'}
+                    ${c.portfolio && c.melhor_conteudo ? ' · ' : ''}
+                    ${c.melhor_conteudo ? `<a href="${escapeHtml(c.melhor_conteudo)}" target="_blank" rel="noopener">Conteúdo</a>` : ''}
+                </td>
+                <td><span class="badge ${badgeClass(c.status)}">${escapeHtml(c.status)}</span></td>
+                <td style="white-space:nowrap;font-size:13px;color:var(--text-muted)">${formatDate(c.created_at)}</td>
+            </tr>
+        `).join('');
+    }
+
+    /* ── Render cards (mobile) ── */
+    function renderCards(creators) {
+        const container = document.getElementById('cardsContainer');
+        if (creators.length === 0) {
+            container.innerHTML = '<div class="empty-state"><p>Nenhum creator encontrado.</p></div>';
+            return;
+        }
+        container.innerHTML = creators.map(c => `
+            <div class="creator-card">
+                <div class="creator-card-header">
+                    <div class="creator-card-name">${escapeHtml(c.nome)}</div>
+                    <span class="badge ${badgeClass(c.status)}">${escapeHtml(c.status)}</span>
+                </div>
+                <div class="creator-card-meta">
+                    <span>${escapeHtml(c.email)}</span>
+                    <span>WhatsApp: ${escapeHtml(c.whatsapp)}</span>
+                    <span>Instagram: ${escapeHtml(c.instagram)}</span>
+                    ${c.tiktok ? `<span>TikTok: ${escapeHtml(c.tiktok)}</span>` : ''}
+                    <span>Seguidores: ${formatSeguidores(c.seguidores)}</span>
+                    <span>${escapeHtml(c.estado) || ''} ${c.estado && c.cidade ? '·' : ''} ${escapeHtml(c.cidade) || ''}</span>
+                    <span>Nicho: ${formatNicho(c.nicho)}</span>
+                    <span>Experiência: ${formatExperiencia(c.experiencia)}</span>
+                    <span>Cadastro: ${formatDate(c.created_at)}</span>
+                </div>
+                ${(c.portfolio || c.melhor_conteudo) ? `
+                <div class="creator-card-links">
+                    ${c.portfolio ? `<a href="${escapeHtml(c.portfolio)}" target="_blank" rel="noopener">Portfólio</a>` : ''}
+                    ${c.melhor_conteudo ? `<a href="${escapeHtml(c.melhor_conteudo)}" target="_blank" rel="noopener">Melhor conteúdo</a>` : ''}
+                </div>` : ''}
+            </div>
+        `).join('');
+    }
+
+    /* ── Event listeners dos filtros ── */
+    document.getElementById('filterSearch').addEventListener('input', applyFilters);
+    document.getElementById('filterStatus').addEventListener('change', applyFilters);
+    document.getElementById('filterNicho').addEventListener('change', applyFilters);
+    document.getElementById('filterEstado').addEventListener('change', applyFilters);
+    document.getElementById('filterSeguidores').addEventListener('change', applyFilters);
+    document.getElementById('btnClearFilters').addEventListener('click', function() {
+        document.getElementById('filterSearch').value = '';
+        document.getElementById('filterStatus').value = '';
+        document.getElementById('filterNicho').value = '';
+        document.getElementById('filterEstado').value = '';
+        document.getElementById('filterSeguidores').value = '';
+        applyFilters();
+    });
+
+    /* ── Init ── */
+    dashboardView.style.display = 'none';
+    checkSession();
+</script>
+</body>
+</html>
