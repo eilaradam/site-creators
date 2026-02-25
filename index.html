@@ -346,6 +346,9 @@
                 fotoUrl = urlData.publicUrl;
             } catch (uploadErr) {
                 console.warn('Erro no upload da foto:', uploadErr);
+                const errorEl = document.getElementById('formError');
+                errorEl.textContent = 'Não foi possível enviar a foto, mas seu cadastro será salvo sem ela.';
+                errorEl.classList.add('show');
             }
         }
 
