@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seja Creator UGC | Lara Dam</title>
+    <meta name="description" content="Cadastre-se na base de creators UGC da Lara Dam. Receba oportunidades de campanhas pagas com marcas de todo o Brasil.">
+    <meta property="og:title" content="Seja Creator UGC | Lara Dam">
+    <meta property="og:description" content="Receba oportunidades de campanhas pagas com marcas de todo o Brasil.">
+    <meta property="og:type" content="website">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&display=swap" rel="stylesheet">
+    
+    <!-- SUPABASE -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --black: #0A0A0A;
+            --white: #FAFAF9;
+            --cream: #F5F3EF;
+            --warm: #E8E4DD;
+            --accent: #D4572A;
+            --accent-dark: #B8461F;
+            --accent-glow: rgba(212,87,42,0.12);
+            --text: #1A1816;
+            --text-soft: #6B645C;
+            --text-muted: #9C958C;
+            --border: #DDD8D0;
+            --card: #FFFFFF;
+            --success: #2D7A4F;
+            --error: #C4453C;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--cream);
+            color: var(--text);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ═══════════════ NAV ═══════════════ */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.4s;
+        }
+
+        nav.scrolled {
+            background: rgba(250,250,249,0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 24px;
+        }
+
+        .nav-logo {
+            font-family: 'Fraunces', serif;
+            font-weight: 700;
+            font-size: 20px;
+            color: var(--text);
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-logo span { color: var(--accent); }
+
+        .nav-cta {
+            background: var(--black);
+            color: var(--white);
+            padding: 10px 24px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            letter-spacing: 0.3px;
+        }
+
+        .nav-cta:hover {
+            background: var(--accent);
+            transform: translateY(-1px);
+        }
+
+        /* ═══════════════ HERO ═══════════════ */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 120px 24px 80px;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 20%, rgba(212,87,42,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 80% at 80% 80%, rgba(212,87,42,0.04) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 8px 20px 8px 12px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-soft);
+            margin-bottom: 32px;
+            animation: fadeDown 0.8s ease-out both;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        }
+
+        .hero-pill .dot {
+            width: 8px; height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.8); }
+        }
+
+        .hero h1 {
+            font-family: 'Fraunces', serif;
+            font-size: clamp(40px, 7vw, 80px);
+            font-weight: 800;
+            line-height: 1.05;
+            letter-spacing: -2px;
+            max-width: 800px;
+            margin-bottom: 24px;
+            animation: fadeUp 0.8s ease-out 0.1s both;
+        }
+
+        .hero h1 em {
+            font-style: italic;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .hero-sub {
+            font-size: clamp(16px, 2vw, 19px);
+            color: var(--text-soft);
+            max-width: 520px;
+            line-height: 1.7;
+            margin-bottom: 40px;
+            animation: fadeUp 0.8s ease-out 0.2s both;
+            font-weight: 400;
+        }
+
+        .hero-cta-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            animation: fadeUp 0.8s ease-out 0.3s both;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent);
+            color: white;
+            padding: 18px 40px;
+            border-radius: 100px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(212,87,42,0.3);
+        }
+
+        .hero-note {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 48px;
+            margin-top: 64px;
+            animation: fadeUp 0.8s ease-out 0.5s both;
+        }
+
+        .hero-stat { text-align: center; }
+
+        .hero-stat strong {
+            display: block;
+            font-family: 'Fraunces', serif;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -1px;
+        }
+
+        .hero-stat span {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+        }
+
+        /* ═══════════════ SECTIONS ═══════════════ */
+        .section { padding: 100px 24px; }
+
+        .section-header { text-align: center; margin-bottom: 64px; }
+
+        .section-tag {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .section-header h2 {
+            font-family: 'Fraunces', serif;
+            font-size: clamp(28px, 4vw, 44px);
+            font-weight: 700;
+            letter-spacing: -1px;
+            line-height: 1.15;
+        }
+
+        /* ═══════════════ STEPS ═══════════════ */
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        .step-card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 36px 28px;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .step-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--accent);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s;
+        }
+
+        .step-card:hover::before { transform: scaleX(1); }
+        .step-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.06); }
+
+        .step-number {
+            font-family: 'Fraunces', serif;
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--warm);
+            line-height: 1;
+            margin-bottom: 16px;
+        }
+
+        .step-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+        .step-card p { font-size: 14px; color: var(--text-soft); line-height: 1.6; }
+
+        /* ═══════════════ BENEFITS ═══════════════ */
+        .benefits { background: var(--black); color: var(--white); position: relative; }
+        .benefits .section-tag { color: var(--accent); }
+        .benefits h2 { color: var(--white); }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 760px;
+            margin: 0 auto;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.03);
+            transition: all 0.3s;
+        }
+
+        .benefit-item:hover { background: rgba(255,255,255,0.06); border-color: rgba(212,87,42,0.3); }
+
+        .benefit-icon {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            background: rgba(212,87,42,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .benefit-item h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+        .benefit-item p { font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.5; }
+
+        /* ═══════════════ FORM ═══════════════ */
+        #cadastro { background: var(--cream); }
+
+        .form-wrapper { max-width: 540px; margin: 0 auto; }
+
+        .form-box {
+            background: var(--card);
+            border-radius: 24px;
+            padding: 44px 36px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-box::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), #E8784A, var(--accent));
+        }
+
+        .form-title {
+            font-family: 'Fraunces', serif;
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            letter-spacing: -0.5px;
+        }
+
+        .form-subtitle {
+            font-size: 14px;
+            color: var(--text-soft);
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .field-group { margin-bottom: 20px; }
+
+        .field-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+
+        .field-group input,
+        .field-group select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            color: var(--text);
+            background: var(--cream);
+            outline: none;
+            transition: all 0.25s;
+        }
+
+        .field-group input::placeholder { color: var(--text-muted); }
+
+        .field-group input:focus,
+        .field-group select:focus {
+            border-color: var(--accent);
+            background: var(--card);
+            box-shadow: 0 0 0 4px var(--accent-glow);
+        }
+
+        .field-group select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239C958C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 40px;
+            cursor: pointer;
+        }
+
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .form-submit {
+            width: 100%;
+            margin-top: 8px;
+            padding: 16px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .form-submit:hover {
+            background: var(--accent-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(212,87,42,0.3);
+        }
+
+        .form-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .form-error {
+            background: rgba(196,69,60,0.08);
+            border: 1px solid rgba(196,69,60,0.2);
+            color: var(--error);
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .form-error.show { display: block; }
+
+        /* Success */
+        .success-state { display: none; text-align: center; padding: 40px 20px; }
+        .success-state.show { display: block; animation: fadeUp 0.5s ease-out; }
+
+        .success-check {
+            width: 72px; height: 72px;
+            border-radius: 50%;
+            background: rgba(45,122,79,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 32px;
+        }
+
+        .success-state h3 {
+            font-family: 'Fraunces', serif;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .success-state p {
+            font-size: 14px;
+            color: var(--text-soft);
+            line-height: 1.7;
+            max-width: 380px;
+            margin: 0 auto;
+        }
+
+        /* ═══════════════ SOCIAL PROOF ═══════════════ */
+        .social-proof {
+            background: var(--card);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding: 48px 24px;
+            text-align: center;
+        }
+
+        .proof-numbers { display: flex; justify-content: center; gap: 64px; flex-wrap: wrap; }
+
+        .proof-item strong {
+            display: block;
+            font-family: 'Fraunces', serif;
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--accent);
+            letter-spacing: -1px;
+        }
+
+        .proof-item span { font-size: 13px; color: var(--text-soft); font-weight: 500; }
+
+        /* ═══════════════ FOOTER ═══════════════ */
+        footer { padding: 48px 24px; text-align: center; }
+        .footer-brand { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+        .footer-brand span { color: var(--accent); }
+        footer p { font-size: 13px; color: var(--text-muted); }
+        footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
+
+        /* ═══════════════ ANIMATIONS ═══════════════ */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* ═══════════════ RESPONSIVE ═══════════════ */
+        @media (max-width: 768px) {
+            .steps-grid { grid-template-columns: 1fr; max-width: 400px; }
+            .benefits-grid { grid-template-columns: 1fr; max-width: 400px; }
+            .hero-stats { gap: 32px; flex-wrap: wrap; justify-content: center; }
+            .field-row { grid-template-columns: 1fr; }
+            .form-box { padding: 32px 24px; }
+            .proof-numbers { gap: 32px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+    <a href="#" class="nav-logo">lara<span>.</span>dam</a>
+    <a href="#cadastro" class="nav-cta">Quero ser creator →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-pill">
+        <span class="dot"></span>
+        Vagas abertas para creators UGC
+    </div>
+    <h1>Crie conteúdo.<br><em>Ganhe dinheiro.</em></h1>
+    <p class="hero-sub">
+        Cadastre-se na nossa base de creators UGC e nano influenciadores.
+        Receba oportunidades de campanhas pagas com marcas de todo o Brasil.
+    </p>
+    <div class="hero-cta-group">
+        <a href="#cadastro" class="btn-primary">Fazer meu cadastro gratuito</a>
+        <span class="hero-note">Sem compromisso · Leva menos de 1 minuto</span>
+    </div>
+    <div class="hero-stats">
+        <div class="hero-stat"><strong>1.200+</strong><span>Creators</span></div>
+        <div class="hero-stat"><strong>200+</strong><span>Empresas</span></div>
+        <div class="hero-stat"><strong>500+</strong><span>Vídeos entregues</span></div>
+    </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section">
+    <div class="section-header reveal">
+        <span class="section-tag">Como funciona</span>
+        <h2>Simples, direto e sem enrolação</h2>
+    </div>
+    <div class="steps-grid">
+        <div class="step-card reveal">
+            <div class="step-number">01</div>
+            <h3>Cadastre-se</h3>
+            <p>Preencha seus dados e perfil do Instagram em menos de 1 minuto. É gratuito.</p>
+        </div>
+        <div class="step-card reveal">
+            <div class="step-number">02</div>
+            <h3>Receba campanhas</h3>
+            <p>Quando surgirem campanhas compatíveis com seu perfil, entramos em contato.</p>
+        </div>
+        <div class="step-card reveal">
+            <div class="step-number">03</div>
+            <h3>Crie e ganhe</h3>
+            <p>Produza o conteúdo, entregue no prazo e receba seu pagamento via Pix.</p>
+        </div>
+    </div>
+</section>
+
+<!-- BENEFITS -->
+<section class="section benefits">
+    <div class="section-header reveal">
+        <span class="section-tag">Por que se cadastrar</span>
+        <h2>Oportunidades reais com<br>marcas reais</h2>
+    </div>
+    <div class="benefits-grid">
+        <div class="benefit-item reveal">
+            <div class="benefit-icon">💰</div>
+            <div><h4>Campanhas pagas</h4><p>Receba por cada conteúdo criado. Pagamento rápido via Pix.</p></div>
+        </div>
+        <div class="benefit-item reveal">
+            <div class="benefit-icon">🎯</div>
+            <div><h4>Marcas diversas</h4><p>Trabalhe com empresas de diferentes nichos e tamanhos.</p></div>
+        </div>
+        <div class="benefit-item reveal">
+            <div class="benefit-icon">📱</div>
+            <div><h4>Todo o Brasil</h4><p>Não importa onde você mora. As oportunidades são para todo o país.</p></div>
+        </div>
+        <div class="benefit-item reveal">
+            <div class="benefit-icon">⭐</div>
+            <div><h4>Gestão profissional</h4><p>Equipe experiente com +500 vídeos entregues e +200 marcas atendidas.</p></div>
+        </div>
+    </div>
+</section>
+
+<!-- SOCIAL PROOF -->
+<div class="social-proof reveal">
+    <div class="proof-numbers">
+        <div class="proof-item"><strong>500+</strong><span>Vídeos UGC entregues</span></div>
+        <div class="proof-item"><strong>200+</strong><span>Empresas atendidas</span></div>
+        <div class="proof-item"><strong>1.200+</strong><span>Creators na base</span></div>
+    </div>
+</div>
+
+<!-- FORM -->
+<section class="section" id="cadastro">
+    <div class="section-header reveal">
+        <span class="section-tag">Cadastro rápido</span>
+        <h2>Entre pra nossa base<br>de creators</h2>
+    </div>
+    <div class="form-wrapper reveal">
+        <div class="form-box">
+            <div id="formContent">
+                <h3 class="form-title">Seus dados</h3>
+                <p class="form-subtitle">Preencha abaixo para entrar na nossa base e receber oportunidades de campanhas.</p>
+
+                <div class="form-error" id="formError"></div>
+
+                <form id="creatorForm">
+                    <div class="field-row">
+                        <div class="field-group">
+                            <label>Nome completo</label>
+                            <input type="text" name="nome" required placeholder="Seu nome" id="nome">
+                        </div>
+                        <div class="field-group">
+                            <label>WhatsApp (com DDD)</label>
+                            <input type="tel" name="whatsapp" required placeholder="(00) 00000-0000" id="whatsapp">
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label>E-mail</label>
+                        <input type="email" name="email" required placeholder="seuemail@exemplo.com" id="email">
+                    </div>
+
+                    <div class="field-row">
+                        <div class="field-group">
+                            <label>@ do Instagram</label>
+                            <input type="text" name="instagram" required placeholder="@seuperfil" id="instagram">
+                        </div>
+                        <div class="field-group">
+                            <label>Seguidores</label>
+                            <select name="seguidores" required id="seguidores">
+                                <option value="" disabled selected>Selecione</option>
+                                <option value="ate_1k">Até 1.000</option>
+                                <option value="1k_5k">1.000 a 5.000</option>
+                                <option value="5k_10k">5.000 a 10.000</option>
+                                <option value="10k_30k">10.000 a 30.000</option>
+                                <option value="30k_mais">Acima de 30.000</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label>Cidade e Estado</label>
+                        <input type="text" name="cidade" required placeholder="Ex: São Paulo - SP" id="cidade">
+                    </div>
+
+                    <div class="field-group">
+                        <label>Nicho principal do seu conteúdo</label>
+                        <select name="nicho" required id="nicho">
+                            <option value="" disabled selected>Selecione</option>
+                            <option value="lifestyle">Lifestyle</option>
+                            <option value="saude_fitness">Saúde / Fitness</option>
+                            <option value="beleza">Beleza</option>
+                            <option value="maternidade">Maternidade</option>
+                            <option value="familia">Família</option>
+                            <option value="entretenimento">Entretenimento</option>
+                            <option value="humor">Humor</option>
+                            <option value="gastronomia">Gastronomia</option>
+                            <option value="moda">Moda</option>
+                            <option value="tecnologia">Tecnologia</option>
+                            <option value="educacao">Educação</option>
+                            <option value="outro">Outro</option>
+                        </select>
+                    </div>
+
+                    <div class="field-group">
+                        <label>Já fez campanha paga para marcas?</label>
+                        <select name="experiencia" id="experiencia">
+                            <option value="" disabled selected>Selecione</option>
+                            <option value="sim">Sim, já fiz</option>
+                            <option value="nao">Não, seria minha primeira</option>
+                            <option value="permuta">Só permuta</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="form-submit" id="submitBtn">
+                        Quero receber oportunidades →
+                    </button>
+                </form>
+
+                <p class="form-footer">
+                    Ao se cadastrar, você aceita receber contato sobre campanhas.<br>
+                    Seus dados estão seguros. Sem spam, prometido.
+                </p>
+            </div>
+
+            <div class="success-state" id="successState">
+                <div class="success-check">✓</div>
+                <h3>Cadastro feito!</h3>
+                <p>Você entrou pra nossa base de creators. Quando surgirem campanhas compatíveis com seu perfil, entraremos em contato pelo WhatsApp. Fique de olho! 🚀</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-brand">lara<span>.</span>dam</div>
+    <p>Gestão de Campanhas UGC · <a href="https://instagram.com/laradam" target="_blank">@laradam</a></p>
+</footer>
+
+<script>
+    // ══════════════════════════════════════════════
+    // SUPABASE CONFIG — Substitua pelas suas chaves!
+    // ══════════════════════════════════════════════
+    const SUPABASE_URL = 'https://mfrmnquvwwuxraqgemyh.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_EyqBCAd1m8WwQyb0Fun5tQ_JC_BWvbf-ANON-KEY-AQUI';
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ══════════════════════════════════════════════
+    // NAV SCROLL
+    // ══════════════════════════════════════════════
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+        nav.classList.toggle('scrolled', window.scrollY > 60);
+    });
+
+    // ══════════════════════════════════════════════
+    // REVEAL ON SCROLL
+    // ══════════════════════════════════════════════
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, i) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => entry.target.classList.add('visible'), i * 80);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.15 });
+    reveals.forEach(el => observer.observe(el));
+
+    // ══════════════════════════════════════════════
+    // PHONE MASK
+    // ══════════════════════════════════════════════
+    document.getElementById('whatsapp').addEventListener('input', function(e) {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length > 11) v = v.slice(0, 11);
+        if (v.length > 6) v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
+        else if (v.length > 2) v = `(${v.slice(0,2)}) ${v.slice(2)}`;
+        else if (v.length > 0) v = `(${v}`;
+        e.target.value = v;
+    });
+
+    // ══════════════════════════════════════════════
+    // FORM SUBMIT → SUPABASE
+    // ══════════════════════════════════════════════
+    document.getElementById('creatorForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const btn = document.getElementById('submitBtn');
+        const errorEl = document.getElementById('formError');
+
+        // Reset error
+        errorEl.classList.remove('show');
+        btn.textContent = 'Enviando...';
+        btn.disabled = true;
+
+        // Collect data
+        const creatorData = {
+            nome: document.getElementById('nome').value.trim(),
+            email: document.getElementById('email').value.trim().toLowerCase(),
+            whatsapp: document.getElementById('whatsapp').value.trim(),
+            instagram: document.getElementById('instagram').value.trim().toLowerCase(),
+            seguidores: document.getElementById('seguidores').value,
+            cidade: document.getElementById('cidade').value.trim(),
+            nicho: document.getElementById('nicho').value,
+            experiencia: document.getElementById('experiencia').value,
+            origem: 'site_recrutamento',
+            status: 'novo'
+        };
+
+        try {
+            // Insert into Supabase
+            const { data, error } = await supabase
+                .from('creators')
+                .insert([creatorData]);
+
+            if (error) {
+                // Check for duplicate email
+                if (error.code === '23505') {
+                    throw new Error('Esse e-mail ou Instagram já está cadastrado na nossa base!');
+                }
+                throw error;
+            }
+
+            // Success!
+            document.getElementById('formContent').style.display = 'none';
+            document.getElementById('successState').classList.add('show');
+
+        } catch (err) {
+            errorEl.textContent = err.message || 'Erro ao enviar. Tente novamente.';
+            errorEl.classList.add('show');
+            btn.textContent = 'Quero receber oportunidades →';
+            btn.disabled = false;
+        }
+    });
+
+    // ══════════════════════════════════════════════
+    // SMOOTH SCROLL
+    // ══════════════════════════════════════════════
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+</script>
+
+</body>
+</html>
