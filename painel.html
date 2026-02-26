@@ -30,8 +30,24 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Outfit', sans-serif; background: var(--cream); color: var(--text); -webkit-font-smoothing: antialiased; min-height: 100vh; }
 
-        /* Header */
-        .header { background: var(--card); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
+        /* ── Sidebar (desktop) ── */
+        .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 240px; background: var(--card); border-right: 1px solid var(--border); z-index: 60; display: flex; flex-direction: column; overflow-y: auto; }
+        .sidebar-brand { padding: 24px 24px 20px; border-bottom: 1px solid var(--border); }
+        .sidebar-logo { font-family: 'Fraunces', serif; font-weight: 700; font-size: 22px; color: var(--text); margin-bottom: 4px; }
+        .sidebar-logo span { color: var(--accent); }
+        .sidebar-tag { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 2.5px; color: var(--text-muted); }
+        .sidebar-nav { padding: 12px; flex: 1; }
+        .sidebar-nav-item { display: flex; align-items: center; gap: 10px; padding: 11px 16px; border-radius: 10px; font-size: 14px; font-weight: 500; color: var(--text-soft); cursor: pointer; transition: all 0.2s; border: none; background: none; width: 100%; text-align: left; font-family: 'Outfit', sans-serif; border-left: 3px solid transparent; margin-bottom: 2px; }
+        .sidebar-nav-item:hover { background: var(--cream); color: var(--text); }
+        .sidebar-nav-item.active { background: var(--accent-glow); color: var(--accent); font-weight: 600; border-left-color: var(--accent); }
+        .sidebar-nav-icon { font-size: 16px; width: 22px; text-align: center; flex-shrink: 0; }
+        .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); }
+        .sidebar-user { font-size: 12px; font-weight: 500; color: var(--text-soft); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sidebar-logout { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s; border: none; background: none; width: 100%; text-align: left; font-family: 'Outfit', sans-serif; }
+        .sidebar-logout:hover { background: rgba(196,69,60,0.06); color: var(--error); }
+
+        /* Header + Tabs: hidden on desktop (sidebar replaces them) */
+        .header { background: var(--card); border-bottom: 1px solid var(--border); padding: 14px 20px; display: none; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
         .header-left { display: flex; align-items: center; gap: 12px; }
         .header-logo { font-family: 'Fraunces', serif; font-weight: 700; font-size: 18px; color: var(--text); }
         .header-logo span { color: var(--accent); }
@@ -52,14 +68,14 @@
         .tips-close { background: none; border: none; width: 28px; height: 28px; cursor: pointer; font-size: 18px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; transition: all 0.2s; margin-left: 4px; }
         .tips-close:hover { color: var(--error); }
 
-        /* Tabs */
-        .panel-tabs { background: var(--card); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; gap: 0; overflow-x: auto; }
+        /* Tabs (hidden on desktop, shown on mobile) */
+        .panel-tabs { background: var(--card); border-bottom: 1px solid var(--border); padding: 0 24px; display: none; gap: 0; overflow-x: auto; }
         .panel-tab { padding: 12px 24px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; border: none; border-bottom: 2px solid transparent; transition: all 0.2s; background: none; font-family: 'Outfit', sans-serif; white-space: nowrap; }
         .panel-tab:hover { color: var(--text); }
         .panel-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-        /* Main */
-        .main { max-width: 1200px; margin: 0 auto; padding: 24px; }
+        /* Main — offset by sidebar on desktop */
+        .main { max-width: 1200px; margin-left: 240px; padding: 24px 32px; }
 
         /* Tab content */
         .tab-content { display: none; }
@@ -299,19 +315,22 @@
 
         /* ══ MOBILE ══ */
         @media (max-width: 768px) {
+            /* Sidebar: hidden */
+            .sidebar { display: none; }
+
             /* Overflow fix */
             html, body { overflow-x: hidden; width: 100%; }
-            .main { max-width: 100vw; overflow-x: hidden; padding: 16px; }
+            .main { margin-left: 0; max-width: 100vw; overflow-x: hidden; padding: 16px; }
 
-            /* Header */
-            .header { padding: 10px 16px; }
+            /* Header: visible on mobile */
+            .header { display: flex; padding: 10px 16px; }
             .header-logo { font-size: 16px; }
             .header-tag { font-size: 9px; padding: 2px 8px; letter-spacing: 1.5px; }
             .header-user { display: none; }
             .btn-logout { padding: 6px 12px; font-size: 11px; }
 
-            /* Tabs: scrollable */
-            .panel-tabs { padding: 0 12px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+            /* Tabs: visible + scrollable on mobile */
+            .panel-tabs { display: flex; padding: 0 12px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
             .panel-tabs::-webkit-scrollbar { display: none; }
             .panel-tab { padding: 10px 14px; font-size: 12px; flex-shrink: 0; }
 
@@ -406,6 +425,31 @@
     </style>
 </head>
 <body>
+
+<!-- Sidebar (desktop) -->
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <div class="sidebar-logo">lara<span>.</span>dam</div>
+        <div class="sidebar-tag">Manager Club</div>
+    </div>
+    <nav class="sidebar-nav">
+        <button class="sidebar-nav-item active" data-tab="pesquisar">
+            <span class="sidebar-nav-icon">🔍</span> Pesquisar Creators
+        </button>
+        <button class="sidebar-nav-item" data-tab="salvos">
+            <span class="sidebar-nav-icon">📁</span> Minhas Listas
+        </button>
+        <button class="sidebar-nav-item" data-tab="calculadora">
+            <span class="sidebar-nav-icon">🧮</span> Calculadora
+        </button>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="sidebar-user" id="sidebarUserName"></div>
+        <button class="sidebar-logout" id="sidebarLogoutBtn">
+            <span>🚪</span> Sair
+        </button>
+    </div>
+</aside>
 
 <header class="header">
     <div class="header-left">
@@ -797,7 +841,9 @@
 
         currentUserId = authData.user.id;
         const userInfo = await Auth.getUserInfo();
-        document.getElementById('userName').textContent = userInfo ? userInfo.nome : '';
+        const uname = userInfo ? userInfo.nome : '';
+        document.getElementById('userName').textContent = uname;
+        document.getElementById('sidebarUserName').textContent = uname;
 
         await Promise.all([loadEstados(), loadSavedIds(), loadPopularity(), loadListas()]);
         await loadCreators();
@@ -806,24 +852,29 @@
         initCalculadora();
     })();
 
-    /* ── Logout ── */
+    /* ── Logout (header + sidebar) ── */
     document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
+    document.getElementById('sidebarLogoutBtn').addEventListener('click', () => Auth.logout());
 
-    /* ── Tabs ── */
+    /* ── Tab switching (shared logic for sidebar + mobile tabs) ── */
+    function switchTab(target) {
+        document.querySelectorAll('.panel-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === target));
+        document.querySelectorAll('.sidebar-nav-item').forEach(t => t.classList.toggle('active', t.dataset.tab === target));
+        document.getElementById('tabPesquisar').classList.toggle('show', target === 'pesquisar');
+        document.getElementById('tabSalvos').classList.toggle('show', target === 'salvos');
+        document.getElementById('tabCalculadora').classList.toggle('show', target === 'calculadora');
+        if (target === 'salvos') {
+            populateSavedEstados();
+            loadSavedCreators();
+            renderListas();
+        }
+    }
+
     document.querySelectorAll('.panel-tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-            document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            const target = this.dataset.tab;
-            document.getElementById('tabPesquisar').classList.toggle('show', target === 'pesquisar');
-            document.getElementById('tabSalvos').classList.toggle('show', target === 'salvos');
-            document.getElementById('tabCalculadora').classList.toggle('show', target === 'calculadora');
-            if (target === 'salvos') {
-                populateSavedEstados();
-                loadSavedCreators();
-                renderListas();
-            }
-        });
+        tab.addEventListener('click', function() { switchTab(this.dataset.tab); });
+    });
+    document.querySelectorAll('.sidebar-nav-item').forEach(item => {
+        item.addEventListener('click', function() { switchTab(this.dataset.tab); });
     });
 
     /* ══════════════════════════════════════
