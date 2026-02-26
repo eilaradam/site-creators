@@ -924,7 +924,7 @@
             const totalSalvos = popularityMap[c.id] || 0;
             return `
             <tr data-creator-id="${c.id}">
-                <td><div class="name-cell">${avatarHtml(c)}<div><strong>${escapeHtml(c.nome)}</strong> <span class="badge-slot">${premiumBadgeHtml(c.id)}</span><br><span style="font-size:12px;color:var(--text-muted)">${escapeHtml(c.email)}</span></div></div></td>
+                <td><div class="name-cell">${avatarHtml(c)}<div><strong>${escapeHtml(c.nome)}</strong> <span class="badge-slot">${premiumBadgeHtml(c.id)}</span><br><span style="font-size:12px;color:var(--text-muted)">${escapeHtml(c.email)} ${c.email_boas_vindas_enviado ? '<span title="E-mail de boas-vindas enviado" style="cursor:help">✉️</span>' : ''}</span></div></div></td>
                 <td style="white-space:nowrap">${escapeHtml(c.whatsapp)}</td>
                 <td><a href="${formatInstagramUrl(c.instagram)}" target="_blank" rel="noopener">${escapeHtml(c.instagram)}</a></td>
                 <td>${c.tiktok ? `<a href="${formatTiktokUrl(c.tiktok)}" target="_blank" rel="noopener">${escapeHtml(c.tiktok)}</a>` : '-'}</td>
@@ -960,7 +960,7 @@
                     <div class="name-cell">${avatarHtml(c, 'lg')}<div><div class="creator-card-name">${escapeHtml(c.nome)} <span class="badge-slot">${premiumBadgeHtml(c.id)}</span></div>${totalSalvos > 0 ? `<div class="salvos-count">Salvo por ${totalSalvos} gestora${totalSalvos > 1 ? 's' : ''}</div>` : ''}</div></div>
                 </div>
                 <div class="creator-card-meta">
-                    <span>${escapeHtml(c.email)}</span>
+                    <span>${escapeHtml(c.email)} ${c.email_boas_vindas_enviado ? '<span title="E-mail de boas-vindas enviado" style="cursor:help">✉️</span>' : ''}</span>
                     <span>WhatsApp: ${escapeHtml(c.whatsapp)}</span>
                     <span>Instagram: <a href="${formatInstagramUrl(c.instagram)}" target="_blank" rel="noopener">${escapeHtml(c.instagram)}</a></span>
                     ${c.tiktok ? `<span>TikTok: <a href="${formatTiktokUrl(c.tiktok)}" target="_blank" rel="noopener">${escapeHtml(c.tiktok)}</a></span>` : ''}

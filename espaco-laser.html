@@ -627,6 +627,21 @@
                 throw error;
             }
 
+            /* E-mail de boas-vindas (não bloqueia o cadastro) */
+            try {
+                const emailRes = await sb.functions.invoke('send-welcome-email', {
+                    body: { nome: creatorData.nome, email: creatorData.email }
+                });
+                if (!emailRes.error) {
+                    await sb.from('creators').update({
+                        email_boas_vindas_enviado: true,
+                        email_boas_vindas_data: new Date().toISOString()
+                    }).eq('email', creatorData.email);
+                }
+            } catch (emailErr) {
+                console.log('Erro ao enviar e-mail de boas-vindas:', emailErr);
+            }
+
             fecharModal();
             mostrarSucesso();
         } catch (err) {
