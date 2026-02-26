@@ -527,17 +527,22 @@
 
             /* E-mail de boas-vindas (não bloqueia o cadastro) */
             try {
+                console.log('Chamando send-welcome-email...');
                 const emailRes = await sb.functions.invoke('send-welcome-email', {
                     body: { nome: creatorData.nome, email: creatorData.email }
                 });
+                console.log('Resposta Edge Function:', JSON.stringify(emailRes));
                 if (!emailRes.error) {
                     await sb.from('creators').update({
                         email_boas_vindas_enviado: true,
                         email_boas_vindas_data: new Date().toISOString()
                     }).eq('email', creatorData.email);
+                    console.log('Email marcado como enviado no banco');
+                } else {
+                    console.error('Edge Function retornou erro:', emailRes.error);
                 }
             } catch (emailErr) {
-                console.log('Erro ao enviar e-mail de boas-vindas:', emailErr);
+                console.error('Erro ao chamar Edge Function:', emailErr);
             }
 
             document.getElementById('formContent').style.display = 'none';
