@@ -33,17 +33,17 @@
 
         /* Header */
         .admin-header { background: var(--card); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
-        .admin-logo { font-family: 'Fraunces', serif; font-weight: 700; font-size: 20px; color: var(--text); }
+        .admin-logo { font-family: 'Fraunces', serif; font-weight: 700; font-size: 18px; color: var(--text); }
         .admin-logo span { color: var(--accent); }
         .admin-logo small { font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-left: 12px; text-transform: uppercase; letter-spacing: 2px; }
         .header-right { display: flex; align-items: center; gap: 16px; }
-        .header-user { font-size: 14px; font-weight: 500; color: var(--text-soft); }
+        .header-user { font-size: 13px; font-weight: 500; color: var(--text-soft); }
         .btn-logout { background: none; border: 1px solid var(--border); padding: 8px 20px; border-radius: 100px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.2s; }
         .btn-logout:hover { border-color: var(--error); color: var(--error); }
 
         /* Tabs */
         .tabs { background: var(--card); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; gap: 0; }
-        .tab { padding: 14px 24px; font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; background: none; border-top: none; border-left: none; border-right: none; font-family: 'Outfit', sans-serif; }
+        .tab { padding: 12px 20px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; background: none; border-top: none; border-left: none; border-right: none; font-family: 'Outfit', sans-serif; }
         .tab:hover { color: var(--text); }
         .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
@@ -55,13 +55,13 @@
         .stats-row { display: flex; gap: 0; background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 20px; overflow: hidden; }
         .stat-card { flex: 1; padding: 14px 16px; text-align: center; border-right: 1px solid var(--border); }
         .stat-card:last-child { border-right: none; }
-        .stat-card .stat-value { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; color: var(--text); line-height: 1; }
+        .stat-card .stat-value { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; color: var(--text); line-height: 1; }
         .stat-card .stat-label { font-size: 10px; color: var(--text-muted); font-weight: 500; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
         .stat-card.accent .stat-value { color: var(--accent); }
 
         /* Dashboard tab */
         .dashboard-chart-container { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; }
-        .dashboard-chart-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px; }
+        .dashboard-chart-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px; }
         .dashboard-chart-canvas { width: 100%; max-height: 220px; }
         .secondary-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
         .metric-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
@@ -71,7 +71,7 @@
         .metric-list-item-label { color: var(--text); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; }
         .metric-list-item-value { font-family: 'Fraunces', serif; font-weight: 700; color: var(--accent); font-size: 13px; }
         .metric-card-big { display: flex; flex-direction: column; align-items: center; padding: 6px 0; }
-        .metric-card-big .stat-value { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
+        .metric-card-big .stat-value { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
         .metric-card-big .stat-label { font-size: 11px; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
         @media (max-width: 1200px) { .secondary-metrics { grid-template-columns: repeat(3, 1fr); } }
         @media (max-width: 900px) { .secondary-metrics { grid-template-columns: repeat(2, 1fr); } }
@@ -81,7 +81,7 @@
         .filters-bar { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px 24px; margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
         .filter-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 160px; }
         .filter-group label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); }
-        .filter-group input, .filter-group select { padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; }
+        .filter-group input, .filter-group select { padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; }
         .filter-group input:focus, .filter-group select:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
         .filter-group select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239C958C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; cursor: pointer; }
         .btn-clear-filters { padding: 10px 20px; background: none; border: 1px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.2s; align-self: end; white-space: nowrap; }
@@ -105,7 +105,7 @@
         .table-container { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; overflow-x: auto; }
         .creators-table { width: 100%; border-collapse: collapse; }
         .creators-table th { background: var(--cream); padding: 12px 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; position: sticky; top: 0; }
-        .creators-table td { padding: 14px 16px; font-size: 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+        .creators-table td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid var(--border); vertical-align: top; }
         .creators-table tr:last-child td { border-bottom: none; }
         .creators-table tr:hover td { background: rgba(212,87,42,0.03); }
         .creators-table a { color: var(--accent); text-decoration: none; font-weight: 600; }
@@ -129,17 +129,17 @@
 
         /* Avatar */
         .avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); flex-shrink: 0; }
-        .avatar-placeholder { width: 40px; height: 40px; border-radius: 50%; background: var(--warm); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: var(--text-muted); flex-shrink: 0; }
+        .avatar-placeholder { width: 40px; height: 40px; border-radius: 50%; background: var(--warm); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--text-muted); flex-shrink: 0; }
         .name-cell { display: flex; align-items: center; gap: 12px; }
         .avatar-lg { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); flex-shrink: 0; }
-        .avatar-placeholder-lg { width: 48px; height: 48px; border-radius: 50%; background: var(--warm); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: var(--text-muted); flex-shrink: 0; }
+        .avatar-placeholder-lg { width: 48px; height: 48px; border-radius: 50%; background: var(--warm); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: var(--text-muted); flex-shrink: 0; }
 
         /* Cards (mobile + saved tab) */
         .cards-container { display: none; }
         .creator-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 12px; position: relative; }
         .creator-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-        .creator-card-name { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-        .creator-card-meta { font-size: 13px; color: var(--text-soft); line-height: 1.8; }
+        .creator-card-name { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .creator-card-meta { font-size: 12px; color: var(--text-soft); line-height: 1.8; }
         .creator-card-meta span { display: block; }
         .creator-card-meta a { color: var(--accent); text-decoration: none; font-weight: 600; }
         .creator-card-links { display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
@@ -159,7 +159,7 @@
         .saved-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; transition: all 0.3s; position: relative; }
         .saved-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.06); }
         .saved-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-        .saved-card-name { font-size: 14px; font-weight: 700; line-height: 1.3; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .saved-card-name { font-size: 13px; font-weight: 700; line-height: 1.3; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
         .saved-card-location { font-size: 12px; color: var(--text-soft); }
         .saved-card-details { display: flex; flex-direction: column; gap: 6px; }
         .saved-card-detail { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-soft); }
@@ -172,12 +172,12 @@
 
         /* Alunas section */
         .alunas-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .alunas-header h2 { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; }
-        .btn-add { padding: 10px 24px; background: var(--accent); color: white; border: none; border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .alunas-header h2 { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 700; }
+        .btn-add { padding: 10px 24px; background: var(--accent); color: white; border: none; border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
         .btn-add:hover { background: var(--accent-dark); }
         .alunas-table { width: 100%; border-collapse: collapse; }
         .alunas-table th { background: var(--cream); padding: 12px 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); text-align: left; border-bottom: 1px solid var(--border); }
-        .alunas-table td { padding: 14px 16px; font-size: 14px; border-bottom: 1px solid var(--border); }
+        .alunas-table td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid var(--border); }
         .alunas-table tr:last-child td { border-bottom: none; }
         .badge-ativo-user { background: rgba(45,122,79,0.1); color: var(--success); }
         .badge-inativo { background: rgba(156,149,140,0.15); color: var(--text-muted); }
@@ -192,15 +192,15 @@
         .modal-overlay.show { display: flex; }
         .modal { background: var(--card); border-radius: 24px; padding: 36px; max-width: 480px; width: 100%; position: relative; overflow: hidden; }
         .modal::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent), #E8784A, var(--accent)); }
-        .modal h3 { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; margin-bottom: 4px; }
-        .modal p { font-size: 14px; color: var(--text-soft); margin-bottom: 24px; }
+        .modal h3 { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+        .modal p { font-size: 13px; color: var(--text-soft); margin-bottom: 24px; }
         .modal .field { margin-bottom: 16px; }
         .modal .field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
-        .modal .field input { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; }
+        .modal .field input { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; }
         .modal .field input:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
         .modal-actions { display: flex; gap: 12px; margin-top: 24px; }
-        .modal-actions .btn-cancel { flex: 1; padding: 14px; border: 1px solid var(--border); border-radius: 12px; background: none; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; color: var(--text-soft); cursor: pointer; }
-        .modal-actions .btn-confirm { flex: 1; padding: 14px; border: none; border-radius: 12px; background: var(--accent); color: white; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .modal-actions .btn-cancel { flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 12px; background: none; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; color: var(--text-soft); cursor: pointer; }
+        .modal-actions .btn-confirm { flex: 1; padding: 12px; border: none; border-radius: 12px; background: var(--accent); color: white; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
         .modal-actions .btn-confirm:hover { background: var(--accent-dark); }
         .modal-actions .btn-confirm:disabled { opacity: 0.6; cursor: not-allowed; }
         .modal-error { background: rgba(196,69,60,0.08); border: 1px solid rgba(196,69,60,0.2); color: var(--error); padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 12px; display: none; }
@@ -213,14 +213,14 @@
 
         /* Campanhas & E-mails */
         .camp-section { margin-bottom: 32px; }
-        .camp-section-title { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+        .camp-section-title { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 700; margin-bottom: 16px; }
         .camp-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
         .camp-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
-        .camp-card-title { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; }
+        .camp-card-title { font-family: 'Fraunces', serif; font-size: 15px; font-weight: 700; }
         .badge-recrutando { background: rgba(45,122,79,0.1); color: var(--success); border: 1px solid rgba(45,122,79,0.2); }
         .camp-stats { display: flex; gap: 24px; margin-bottom: 16px; }
         .camp-stat { display: flex; flex-direction: column; }
-        .camp-stat-value { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; color: var(--text); }
+        .camp-stat-value { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; color: var(--text); }
         .camp-stat-label { font-size: 12px; color: var(--text-muted); }
         .camp-stat.accent .camp-stat-value { color: var(--accent); }
         .btn-camp { padding: 10px 20px; background: var(--accent); color: white; border: none; border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
@@ -229,11 +229,11 @@
         .email-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
         .email-field { margin-bottom: 16px; }
         .email-field label { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 6px; }
-        .email-field input, .email-field select { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; }
+        .email-field input, .email-field select { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; }
         .email-field input:focus, .email-field select:focus, .email-field textarea:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
         .email-field select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239C958C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; cursor: pointer; }
-        .email-field textarea { width: 100%; padding: 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; resize: vertical; min-height: 160px; line-height: 1.6; }
-        .email-preview { background: var(--cream); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; font-size: 13px; color: var(--text-soft); margin-bottom: 16px; }
+        .email-field textarea { width: 100%; padding: 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; resize: vertical; min-height: 160px; line-height: 1.6; }
+        .email-preview { background: var(--cream); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; font-size: 12px; color: var(--text-soft); margin-bottom: 16px; }
         .email-preview strong { color: var(--accent); }
         .email-actions { display: flex; gap: 10px; flex-wrap: wrap; }
         .btn-copy { padding: 10px 20px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; color: var(--text); cursor: pointer; transition: all 0.25s; display: flex; align-items: center; gap: 6px; }
@@ -250,13 +250,13 @@
         .termos-toolbar { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
         .termos-toolbar button { padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--cream); font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.2s; }
         .termos-toolbar button:hover { border-color: var(--accent); color: var(--accent); }
-        .termos-textarea { width: 100%; min-height: 500px; padding: 16px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; resize: vertical; line-height: 1.7; }
+        .termos-textarea { width: 100%; min-height: 500px; padding: 16px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; resize: vertical; line-height: 1.7; }
         .termos-textarea:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
         .termos-actions { display: flex; gap: 12px; margin-top: 16px; align-items: center; }
-        .btn-save-termos { padding: 12px 28px; background: var(--accent); color: white; border: none; border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .btn-save-termos { padding: 10px 24px; background: var(--accent); color: white; border: none; border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
         .btn-save-termos:hover { background: var(--accent-dark); }
         .btn-save-termos:disabled { opacity: 0.6; cursor: not-allowed; }
-        .btn-preview-termos { padding: 12px 28px; border: 1px solid var(--border); border-radius: 10px; background: none; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.2s; text-decoration: none; }
+        .btn-preview-termos { padding: 10px 24px; border: 1px solid var(--border); border-radius: 10px; background: none; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.2s; text-decoration: none; }
         .btn-preview-termos:hover { border-color: var(--accent); color: var(--accent); }
         .termos-status { font-size: 13px; color: var(--success); margin-left: auto; display: none; }
 
@@ -293,8 +293,8 @@
 
         /* Empty & loading */
         .empty-state { text-align: center; padding: 60px 24px; color: var(--text-muted); }
-        .empty-state p { font-size: 15px; line-height: 1.6; }
-        .loading { text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px; }
+        .empty-state p { font-size: 13px; line-height: 1.6; }
+        .loading { text-align: center; padding: 40px; color: var(--text-muted); font-size: 13px; }
 
         @media (max-width: 1024px) {
             .stats-row { flex-wrap: wrap; }
@@ -304,13 +304,13 @@
         }
         @media (max-width: 600px) {
             .stat-card { min-width: 45%; padding: 10px 8px; }
-            .stat-card .stat-value { font-size: 18px; }
+            .stat-card .stat-value { font-size: 16px; }
             .filters-bar, .saved-filters { flex-direction: column; }
             .filter-group { min-width: 100%; }
             .modal { padding: 28px 20px; }
             .saved-cards-grid { grid-template-columns: 1fr; }
             .camp-stats { gap: 16px; }
-            .camp-stat-value { font-size: 22px; }
+            .camp-stat-value { font-size: 18px; }
             .email-actions { flex-direction: column; }
             .email-actions button { width: 100%; justify-content: center; }
         }
@@ -640,8 +640,8 @@
 <!-- ── TAB: TERMOS ── -->
 <div class="dashboard" id="tabTermos">
     <div class="termos-editor">
-        <h2 style="font-family:'Fraunces',serif;font-size:24px;font-weight:700;margin-bottom:4px;">Editor de Termos de Uso</h2>
-        <p style="font-size:14px;color:var(--text-soft);margin-bottom:20px;">Edite o conteudo dos termos abaixo em HTML. As alteracoes ficam visiveis publicamente ao salvar.</p>
+        <h2 style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:4px;">Editor de Termos de Uso</h2>
+        <p style="font-size:12px;color:var(--text-soft);margin-bottom:20px;">Edite o conteudo dos termos abaixo em HTML. As alteracoes ficam visiveis publicamente ao salvar.</p>
         <div class="termos-meta" id="termosMeta">Carregando...</div>
         <div class="termos-toolbar">
             <button onclick="insertTag('h2')">H2</button>
