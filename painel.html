@@ -41,9 +41,20 @@
         .btn-logout { background: none; border: 1px solid var(--border); padding: 6px 16px; border-radius: 100px; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.2s; }
         .btn-logout:hover { border-color: var(--error); color: var(--error); }
 
+        /* Tips banner */
+        .tips-banner { background: var(--accent-glow); border: 1px solid rgba(212,87,42,0.2); border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+        .tips-banner.hidden { display: none; }
+        .tips-icon { font-size: 20px; flex-shrink: 0; }
+        .tips-text { flex: 1; font-size: 13px; color: var(--text-soft); line-height: 1.5; }
+        .tips-nav { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+        .tips-arrow { background: none; border: 1px solid var(--border); width: 28px; height: 28px; border-radius: 8px; cursor: pointer; font-size: 16px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; transition: all 0.2s; font-family: 'Outfit', sans-serif; }
+        .tips-arrow:hover { border-color: var(--accent); color: var(--accent); }
+        .tips-close { background: none; border: none; width: 28px; height: 28px; cursor: pointer; font-size: 18px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; transition: all 0.2s; margin-left: 4px; }
+        .tips-close:hover { color: var(--error); }
+
         /* Tabs */
-        .panel-tabs { background: var(--card); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; gap: 0; }
-        .panel-tab { padding: 12px 24px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; border: none; border-bottom: 2px solid transparent; transition: all 0.2s; background: none; font-family: 'Outfit', sans-serif; }
+        .panel-tabs { background: var(--card); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; gap: 0; overflow-x: auto; }
+        .panel-tab { padding: 12px 24px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; border: none; border-bottom: 2px solid transparent; transition: all 0.2s; background: none; font-family: 'Outfit', sans-serif; white-space: nowrap; }
         .panel-tab:hover { color: var(--text); }
         .panel-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
@@ -60,18 +71,24 @@
         .filters-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
         .filter-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 150px; }
         .filter-group.search { flex: 2; min-width: 220px; }
-        .filter-group.idade { flex: 0; min-width: auto; }
-        .idade-inputs { display: flex; gap: 6px; }
-        .idade-inputs input { width: 65px; text-align: center; padding: 10px 6px; }
         .filter-group label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); }
         .filter-group input, .filter-group select { padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; }
         .filter-group input:focus, .filter-group select:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
         .filter-group select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239C958C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; cursor: pointer; }
+        .filter-group select:disabled { opacity: 0.5; cursor: not-allowed; }
         .filters-actions { display: flex; gap: 8px; align-self: end; }
         .btn-search { padding: 10px 24px; background: var(--accent); color: white; border: none; border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
         .btn-search:hover { background: var(--accent-dark); }
         .btn-clear { padding: 10px 16px; background: none; border: 1px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.2s; }
         .btn-clear:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* Range slider */
+        .range-slider { position: relative; height: 36px; display: flex; align-items: center; }
+        .range-slider input[type="range"] { position: absolute; width: 100%; pointer-events: none; appearance: none; -webkit-appearance: none; background: transparent; height: 36px; margin: 0; z-index: 2; }
+        .range-slider input[type="range"]::-webkit-slider-thumb { pointer-events: all; appearance: none; -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); border: 3px solid var(--card); box-shadow: 0 1px 4px rgba(0,0,0,0.2); cursor: pointer; position: relative; z-index: 3; }
+        .range-slider input[type="range"]::-moz-range-thumb { pointer-events: all; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); border: 3px solid var(--card); box-shadow: 0 1px 4px rgba(0,0,0,0.2); cursor: pointer; }
+        .range-track { position: absolute; height: 4px; background: var(--border); border-radius: 2px; width: 100%; z-index: 1; }
+        .range-track-active { position: absolute; height: 4px; background: var(--accent); border-radius: 2px; z-index: 1; }
 
         /* Results info */
         .results-info { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
@@ -126,6 +143,15 @@
         .btn-save .heart-outline { fill: none; stroke: var(--text-muted); stroke-width: 2; }
         .btn-save.saved .heart-outline { fill: var(--accent); stroke: var(--accent); }
 
+        /* Lista dropdown no save */
+        .lista-dropdown { position: absolute; top: 40px; right: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 10px; min-width: 180px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); z-index: 30; display: none; }
+        .lista-dropdown.show { display: block; }
+        .lista-dropdown-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px; }
+        .lista-dropdown-item { display: flex; align-items: center; gap: 8px; padding: 6px 4px; font-size: 13px; cursor: pointer; border-radius: 6px; transition: background 0.15s; }
+        .lista-dropdown-item:hover { background: var(--cream); }
+        .lista-dropdown-item input { accent-color: var(--accent); }
+        .lista-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
         /* Pagination */
         .pagination { display: flex; justify-content: center; align-items: center; gap: 14px; margin-top: 24px; padding: 16px 0; }
         .pagination button { padding: 8px 20px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.2s; }
@@ -138,6 +164,71 @@
         .empty-state p { font-size: 13px; line-height: 1.6; }
         .loading { text-align: center; padding: 40px 24px; color: var(--text-muted); font-size: 13px; }
 
+        /* Listas section */
+        .listas-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .listas-header h3 { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 700; }
+        .btn-nova-lista { padding: 8px 18px; background: var(--accent); color: white; border: none; border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .btn-nova-lista:hover { background: var(--accent-dark); }
+        .listas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-bottom: 24px; }
+        .lista-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; cursor: pointer; transition: all 0.3s; position: relative; }
+        .lista-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.06); }
+        .lista-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .lista-card-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+        .lista-card-name { font-size: 15px; font-weight: 700; }
+        .lista-card-count { font-size: 12px; color: var(--text-muted); }
+        .lista-card-actions { position: absolute; top: 14px; right: 14px; display: flex; gap: 4px; }
+        .lista-card-actions button { background: none; border: none; cursor: pointer; font-size: 14px; padding: 2px; color: var(--text-muted); transition: color 0.2s; }
+        .lista-card-actions button:hover { color: var(--accent); }
+        .lista-card-actions .btn-delete-lista:hover { color: var(--error); }
+
+        /* Modal lista */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 100; display: none; align-items: center; justify-content: center; padding: 24px; }
+        .modal-overlay.show { display: flex; }
+        .modal-box { background: var(--card); border-radius: 20px; padding: 32px; max-width: 400px; width: 100%; position: relative; }
+        .modal-box::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent), #E8784A, var(--accent)); border-radius: 20px 20px 0 0; }
+        .modal-box h3 { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+        .modal-field { margin-bottom: 16px; }
+        .modal-field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+        .modal-field input { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; outline: none; transition: all 0.25s; }
+        .modal-field input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
+        .cores-grid { display: flex; gap: 8px; flex-wrap: wrap; }
+        .cor-option { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: all 0.2s; }
+        .cor-option.selected { border-color: var(--text); transform: scale(1.15); }
+        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+        .modal-actions button { flex: 1; padding: 12px; border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+        .btn-modal-cancel { background: none; border: 1px solid var(--border); color: var(--text-soft); }
+        .btn-modal-confirm { background: var(--accent); border: none; color: white; }
+        .btn-modal-confirm:hover { background: var(--accent-dark); }
+
+        /* Calculadora */
+        .calc-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .calc-inputs { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
+        .calc-result { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; position: sticky; top: 80px; }
+        .calc-title { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+        .calc-field { margin-bottom: 18px; }
+        .calc-field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+        .calc-field select, .calc-field input { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; }
+        .calc-field select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239C958C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; cursor: pointer; }
+        .calc-field input:focus, .calc-field select:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
+        .calc-checkboxes { display: flex; flex-wrap: wrap; gap: 8px; }
+        .calc-check { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+        .calc-check:has(input:checked) { border-color: var(--accent); background: var(--accent-glow); }
+        .calc-check input { accent-color: var(--accent); cursor: pointer; }
+        .calc-valor { text-align: center; padding: 24px 0; }
+        .calc-valor-label { font-size: 13px; color: var(--text-muted); margin-bottom: 4px; }
+        .calc-valor-number { font-family: 'Fraunces', serif; font-size: 48px; font-weight: 700; color: var(--accent); letter-spacing: -2px; }
+        .calc-valor-total { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; color: var(--text); margin-top: 8px; }
+        .calc-breakdown { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+        .calc-breakdown-item { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; color: var(--text-soft); }
+        .calc-breakdown-item strong { color: var(--text); }
+        .calc-aviso { font-size: 11px; color: var(--text-muted); margin-top: 16px; padding: 10px; background: var(--cream); border-radius: 8px; line-height: 1.5; }
+        .btn-copiar { width: 100%; margin-top: 16px; padding: 14px; background: var(--accent); color: white; border: none; border-radius: 12px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .btn-copiar:hover { background: var(--accent-dark); }
+
+        @media (max-width: 768px) {
+            .calc-layout { grid-template-columns: 1fr; }
+            .calc-result { position: static; }
+        }
         @media (max-width: 600px) {
             .filters-row { flex-direction: column; }
             .filter-group { min-width: 100%; }
@@ -145,6 +236,7 @@
             .header-user { display: none; }
             .panel-tabs { padding: 0 16px; }
             .panel-tab { padding: 10px 16px; font-size: 12px; }
+            .listas-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -164,10 +256,22 @@
 <!-- Tabs -->
 <div class="panel-tabs">
     <button class="panel-tab active" data-tab="pesquisar">Pesquisar Creators</button>
-    <button class="panel-tab" data-tab="salvos">Perfis Salvos</button>
+    <button class="panel-tab" data-tab="salvos">Minhas Listas</button>
+    <button class="panel-tab" data-tab="calculadora">Calculadora</button>
 </div>
 
 <div class="main">
+    <!-- Tips Banner -->
+    <div class="tips-banner" id="tipsBanner">
+        <span class="tips-icon">💡</span>
+        <span class="tips-text" id="tipsText"></span>
+        <div class="tips-nav">
+            <button class="tips-arrow" id="tipsPrev">‹</button>
+            <button class="tips-arrow" id="tipsNext">›</button>
+            <button class="tips-close" id="tipsClose">×</button>
+        </div>
+    </div>
+
     <!-- ── TAB: PESQUISAR ── -->
     <div class="tab-content show" id="tabPesquisar">
         <div class="filters">
@@ -180,6 +284,10 @@
                 <div class="filter-group">
                     <label>Estado</label>
                     <select id="filterEstado"><option value="">Todos</option></select>
+                </div>
+                <div class="filter-group">
+                    <label>Cidade</label>
+                    <select id="filterCidade" disabled><option value="">Todas</option></select>
                 </div>
                 <div class="filter-group">
                     <label>Nicho</label>
@@ -200,12 +308,23 @@
                         <option value="30k_mais">30k+</option>
                     </select>
                 </div>
-                <div class="filter-group idade">
-                    <label>Idade</label>
-                    <div class="idade-inputs">
-                        <input type="number" id="filterIdadeDe" placeholder="De" min="18" max="99">
-                        <input type="number" id="filterIdadeAte" placeholder="Ate" min="18" max="99">
+                <div class="filter-group" style="min-width:180px">
+                    <label>Idade: <span id="idadeLabel">16 - 60</span></label>
+                    <div class="range-slider">
+                        <div class="range-track"></div>
+                        <div class="range-track-active" id="rangeTrackActive"></div>
+                        <input type="range" id="idadeMin" min="16" max="60" value="16">
+                        <input type="range" id="idadeMax" min="16" max="60" value="60">
                     </div>
+                </div>
+                <div class="filter-group">
+                    <label>Ordenar por</label>
+                    <select id="filterOrdem">
+                        <option value="recentes">Mais recentes</option>
+                        <option value="salvos">Mais salvos</option>
+                        <option value="seguidores">Mais seguidores</option>
+                        <option value="nome">Nome A-Z</option>
+                    </select>
                 </div>
                 <div class="filters-actions">
                     <button class="btn-search" id="btnSearch">Pesquisar</button>
@@ -223,10 +342,18 @@
         </div>
     </div>
 
-    <!-- ── TAB: PERFIS SALVOS ── -->
+    <!-- ── TAB: MINHAS LISTAS ── -->
     <div class="tab-content" id="tabSalvos">
+        <!-- Listas personalizadas -->
+        <div class="listas-header">
+            <h3>Minhas Listas</h3>
+            <button class="btn-nova-lista" id="btnNovaLista">+ Nova Lista</button>
+        </div>
+        <div class="listas-grid" id="listasGrid"></div>
+
+        <!-- Todos os salvos -->
         <div class="filters">
-            <div class="filters-title">Perfis Salvos</div>
+            <div class="filters-title">Todos os Salvos</div>
             <div class="filters-row">
                 <div class="filter-group search">
                     <label>Buscar por nome</label>
@@ -235,6 +362,10 @@
                 <div class="filter-group">
                     <label>Estado</label>
                     <select id="savedFilterEstado"><option value="">Todos</option></select>
+                </div>
+                <div class="filter-group">
+                    <label>Cidade</label>
+                    <select id="savedFilterCidade" disabled><option value="">Todas</option></select>
                 </div>
                 <div class="filter-group">
                     <label>Nicho</label>
@@ -255,13 +386,6 @@
                         <option value="30k_mais">30k+</option>
                     </select>
                 </div>
-                <div class="filter-group idade">
-                    <label>Idade</label>
-                    <div class="idade-inputs">
-                        <input type="number" id="savedFilterIdadeDe" placeholder="De" min="18" max="99">
-                        <input type="number" id="savedFilterIdadeAte" placeholder="Ate" min="18" max="99">
-                    </div>
-                </div>
                 <div class="filters-actions">
                     <button class="btn-search" id="btnSavedSearch">Pesquisar</button>
                     <button class="btn-clear" id="btnSavedClear">Limpar</button>
@@ -277,6 +401,98 @@
             <button id="btnSavedNext">Proximo</button>
         </div>
     </div>
+
+    <!-- ── TAB: CALCULADORA ── -->
+    <div class="tab-content" id="tabCalculadora">
+        <div class="calc-layout">
+            <div class="calc-inputs">
+                <div class="calc-title">Calculadora de Cache</div>
+                <div class="calc-field">
+                    <label>Tipo de conteudo</label>
+                    <select id="calcTipo">
+                        <option value="foto">Foto estatica</option>
+                        <option value="video_15s">Video ate 15s (Stories/Reels curto)</option>
+                        <option value="video_30s" selected>Video 15-30s (Reels/TikTok)</option>
+                        <option value="video_60s">Video 30-60s (Reels/TikTok longo)</option>
+                        <option value="video_longo">Video +60s (YouTube/Longo)</option>
+                        <option value="carrossel">Carrossel</option>
+                    </select>
+                </div>
+                <div class="calc-field">
+                    <label>Quantidade de pecas</label>
+                    <input type="number" id="calcQtd" value="1" min="1" max="20">
+                </div>
+                <div class="calc-field">
+                    <label>Plataformas de publicacao</label>
+                    <div class="calc-checkboxes">
+                        <label class="calc-check"><input type="checkbox" value="feed"> Feed</label>
+                        <label class="calc-check"><input type="checkbox" value="stories"> Stories</label>
+                        <label class="calc-check"><input type="checkbox" value="reels" checked> Reels</label>
+                        <label class="calc-check"><input type="checkbox" value="tiktok"> TikTok</label>
+                        <label class="calc-check"><input type="checkbox" value="youtube"> YouTube</label>
+                        <label class="calc-check"><input type="checkbox" value="ads"> Uso em Ads</label>
+                    </div>
+                </div>
+                <div class="calc-field">
+                    <label>Nivel da creator</label>
+                    <select id="calcNivel">
+                        <option value="iniciante">Iniciante (0-5k, pouca experiencia)</option>
+                        <option value="intermediaria" selected>Intermediaria (5k-50k, ja fez campanhas)</option>
+                        <option value="avancada">Avancada (50k-200k, portfolio robusto)</option>
+                        <option value="top">Top Creator (+200k ou referencia)</option>
+                    </select>
+                </div>
+                <div class="calc-field">
+                    <label>Direitos de uso</label>
+                    <select id="calcDireitos">
+                        <option value="nao">Nao (so organico)</option>
+                        <option value="30d">Sim, 30 dias</option>
+                        <option value="90d">Sim, 90 dias</option>
+                        <option value="6m">Sim, 6 meses</option>
+                        <option value="vitalicio">Sim, vitalicio</option>
+                    </select>
+                </div>
+                <div class="calc-field">
+                    <label>Exclusividade</label>
+                    <select id="calcExclusividade">
+                        <option value="nao">Sem exclusividade</option>
+                        <option value="segmento">Exclusividade no segmento (30 dias)</option>
+                        <option value="total">Exclusividade total (30 dias)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="calc-result">
+                <div class="calc-title">Resultado</div>
+                <div class="calc-valor">
+                    <div class="calc-valor-label">Valor por peca</div>
+                    <div class="calc-valor-number" id="calcValorPeca">R$ 700</div>
+                    <div class="calc-valor-total" id="calcValorTotal">Total: R$ 700</div>
+                </div>
+                <div class="calc-breakdown" id="calcBreakdown"></div>
+                <div class="calc-aviso">Valores sao referencias de mercado brasileiro UGC 2026. O valor final deve ser negociado entre as partes.</div>
+                <button class="btn-copiar" id="btnCopiarOrcamento">Copiar orcamento</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nova Lista -->
+<div class="modal-overlay" id="modalLista">
+    <div class="modal-box">
+        <h3 id="modalListaTitle">Nova Lista</h3>
+        <div class="modal-field">
+            <label>Nome da lista</label>
+            <input type="text" id="modalListaNome" placeholder="Ex: Campanha Verao 2026" maxlength="100">
+        </div>
+        <div class="modal-field">
+            <label>Cor</label>
+            <div class="cores-grid" id="coresGrid"></div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-modal-cancel" id="btnCancelLista">Cancelar</button>
+            <button class="btn-modal-confirm" id="btnConfirmLista">Criar</button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -289,6 +505,9 @@
     let currentUserId = null;
     let savedCreatorIds = new Set();
     let popularityMap = {};
+    let allListas = [];
+    let listaCreatorMap = {};
+    let editingListaId = null;
 
     /* ── Init ── */
     (async function init() {
@@ -305,8 +524,11 @@
         const userInfo = await Auth.getUserInfo();
         document.getElementById('userName').textContent = userInfo ? userInfo.nome : '';
 
-        await Promise.all([loadEstados(), loadSavedIds(), loadPopularity()]);
+        await Promise.all([loadEstados(), loadSavedIds(), loadPopularity(), loadListas()]);
         await loadCreators();
+        initTips();
+        initRangeSlider();
+        initCalculadora();
     })();
 
     /* ── Logout ── */
@@ -320,14 +542,82 @@
             const target = this.dataset.tab;
             document.getElementById('tabPesquisar').classList.toggle('show', target === 'pesquisar');
             document.getElementById('tabSalvos').classList.toggle('show', target === 'salvos');
+            document.getElementById('tabCalculadora').classList.toggle('show', target === 'calculadora');
             if (target === 'salvos') {
                 populateSavedEstados();
                 loadSavedCreators();
+                renderListas();
             }
         });
     });
 
-    /* ── Carregar estados dinamicamente ── */
+    /* ══════════════════════════════════════
+       TIPS BANNER
+       ══════════════════════════════════════ */
+    const tips = [
+        "Filtre por cidade pra encontrar creators perto da sua campanha regional",
+        "Creators com experiencia em campanhas pagas tendem a entregar com mais qualidade e menos ajustes",
+        "Crie listas separadas pra cada campanha — isso organiza seu processo de selecao",
+        "Olhe o portfolio e o melhor conteudo antes de entrar em contato — mostra profissionalismo",
+        "Prefira creators que tenham o 'Sobre' preenchido — geralmente sao mais dedicadas",
+        "Salve creators que te chamam atencao mesmo sem campanha aberta — quando precisar, ja tem sua lista pronta",
+        "Creators UGC + Influenciadora podem fazer conteudo pro perfil da marca E postar no proprio perfil",
+        "Nao escolha so por seguidores — qualidade do conteudo e fit com a marca importam mais",
+        "Ao abordar a creator, seja clara no briefing desde o primeiro contato",
+        "Use o filtro de nicho pra encontrar creators que ja produzem conteudo no segmento do seu cliente"
+    ];
+    let tipIndex = 0;
+    let tipInterval = null;
+
+    function initTips() {
+        if (sessionStorage.getItem('tipsClosed')) {
+            document.getElementById('tipsBanner').classList.add('hidden');
+            return;
+        }
+        tipIndex = Math.floor(Math.random() * tips.length);
+        showTip();
+        tipInterval = setInterval(() => { tipIndex = (tipIndex + 1) % tips.length; showTip(); }, 8000);
+
+        document.getElementById('tipsPrev').addEventListener('click', () => { tipIndex = (tipIndex - 1 + tips.length) % tips.length; showTip(); resetTipTimer(); });
+        document.getElementById('tipsNext').addEventListener('click', () => { tipIndex = (tipIndex + 1) % tips.length; showTip(); resetTipTimer(); });
+        document.getElementById('tipsClose').addEventListener('click', () => {
+            document.getElementById('tipsBanner').classList.add('hidden');
+            clearInterval(tipInterval);
+            sessionStorage.setItem('tipsClosed', '1');
+        });
+    }
+
+    function showTip() { document.getElementById('tipsText').textContent = tips[tipIndex]; }
+    function resetTipTimer() { clearInterval(tipInterval); tipInterval = setInterval(() => { tipIndex = (tipIndex + 1) % tips.length; showTip(); }, 8000); }
+
+    /* ══════════════════════════════════════
+       RANGE SLIDER (IDADE)
+       ══════════════════════════════════════ */
+    function initRangeSlider() {
+        const min = document.getElementById('idadeMin');
+        const max = document.getElementById('idadeMax');
+        const label = document.getElementById('idadeLabel');
+        const track = document.getElementById('rangeTrackActive');
+
+        function updateSlider() {
+            let lo = parseInt(min.value), hi = parseInt(max.value);
+            if (lo > hi) { if (this === min) max.value = lo; else min.value = hi; lo = parseInt(min.value); hi = parseInt(max.value); }
+            label.textContent = lo + ' - ' + hi;
+            const range = 60 - 16;
+            const leftPct = ((lo - 16) / range) * 100;
+            const rightPct = ((hi - 16) / range) * 100;
+            track.style.left = leftPct + '%';
+            track.style.width = (rightPct - leftPct) + '%';
+        }
+
+        min.addEventListener('input', updateSlider);
+        max.addEventListener('input', updateSlider);
+        updateSlider.call(min);
+    }
+
+    /* ══════════════════════════════════════
+       ESTADOS & CIDADES (IBGE)
+       ══════════════════════════════════════ */
     async function loadEstados() {
         try {
             const res = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome');
@@ -341,6 +631,31 @@
             });
         } catch (e) {}
     }
+
+    async function loadCidades(uf, cidadeSelectId) {
+        const select = document.getElementById(cidadeSelectId);
+        select.innerHTML = '<option value="">Todas</option>';
+        if (!uf) { select.disabled = true; return; }
+        select.disabled = false;
+        try {
+            const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios?orderBy=nome`);
+            const cidades = await res.json();
+            cidades.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.nome;
+                opt.textContent = c.nome;
+                select.appendChild(opt);
+            });
+        } catch (e) {}
+    }
+
+    document.getElementById('filterEstado').addEventListener('change', function() {
+        loadCidades(this.value, 'filterCidade');
+    });
+
+    document.getElementById('savedFilterEstado').addEventListener('change', function() {
+        loadCidades(this.value, 'savedFilterCidade');
+    });
 
     function populateSavedEstados() {
         const src = document.getElementById('filterEstado');
@@ -377,18 +692,15 @@
         if (!btn) return;
 
         if (savedCreatorIds.has(creatorId)) {
-            /* Remover */
             const { error } = await sb.from('perfis_salvos').delete().eq('usuario_id', currentUserId).eq('creator_id', creatorId);
             if (!error) {
                 savedCreatorIds.delete(creatorId);
                 btn.classList.remove('saved');
-                /* Atualizar popularidade local */
                 popularityMap[creatorId] = Math.max(0, (popularityMap[creatorId] || 1) - 1);
                 if (popularityMap[creatorId] === 0) delete popularityMap[creatorId];
                 updateBadgeInCard(creatorId);
             }
         } else {
-            /* Salvar */
             const { error } = await sb.from('perfis_salvos').insert({ usuario_id: currentUserId, creator_id: creatorId });
             if (!error) {
                 savedCreatorIds.add(creatorId);
@@ -406,12 +718,7 @@
     }
 
     /* ── Helpers ── */
-    function escapeHtml(str) {
-        if (!str) return '';
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
-    }
+    function escapeHtml(str) { if (!str) return ''; const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
 
     function safeUrl(url) {
         if (!url) return '#';
@@ -419,11 +726,6 @@
         if (!s) return '#';
         if (/^https?:\/\//i.test(s)) return escapeHtml(s);
         return escapeHtml('https://' + s);
-    }
-
-    function safeHandle(handle) {
-        if (!handle) return '';
-        return encodeURIComponent(handle.replace('@', ''));
     }
 
     function formatInstagramUrl(handle) {
@@ -447,13 +749,8 @@
     }
 
     function formatExpBadge(val) {
-        const map = {
-            'sim': { label: 'Sim', cls: 'exp-badge-sim' },
-            'nao': { label: 'Não', cls: 'exp-badge-nao' },
-            'permuta': { label: 'Só permuta', cls: 'exp-badge-permuta' }
-        };
-        const e = map[val];
-        if (!e) return '-';
+        const map = { 'sim': { label: 'Sim', cls: 'exp-badge-sim' }, 'nao': { label: 'Não', cls: 'exp-badge-nao' }, 'permuta': { label: 'Só permuta', cls: 'exp-badge-permuta' } };
+        const e = map[val]; if (!e) return '-';
         return '<span class="exp-badge ' + e.cls + '">' + e.label + '</span>';
     }
 
@@ -462,29 +759,11 @@
         return map[val] || val || '-';
     }
 
-    function formatNicho(val) {
-        if (!val || val === '-') return '-';
-        try {
-            const arr = JSON.parse(val);
-            if (Array.isArray(arr) && arr.length > 0) {
-                return arr.map(n => '<span class="nicho-badge">' + escapeHtml(n) + '</span>').join('');
-            }
-        } catch(e) {}
-        const map = { 'lifestyle': 'Lifestyle', 'saude_fitness': 'Saude/Fitness', 'beleza': 'Beleza', 'maternidade': 'Maternidade', 'familia': 'Familia', 'entretenimento': 'Entretenimento', 'humor': 'Humor', 'gastronomia': 'Gastronomia', 'moda': 'Moda', 'tecnologia': 'Tecnologia', 'educacao': 'Educacao', 'outro': 'Outro' };
-        const label = map[val] || val;
-        return '<span class="nicho-badge">' + escapeHtml(label) + '</span>';
-    }
-
     function formatTipoCreator(val) {
         if (!val) return '-';
         const map = { 'ugc_creator': 'UGC Creator', 'influenciadora': 'Influenciadora', 'ugc_influenciadora': 'UGC + Influenciadora' };
         const label = map[val] || val;
-        const cls = 'tipo-badge tipo-badge-' + val;
-        return '<span class="' + cls + '">' + escapeHtml(label) + '</span>';
-    }
-
-    function badgeClass(status) {
-        return { 'novo': 'badge-novo', 'aprovado': 'badge-aprovado', 'ativo': 'badge-ativo' }[status] || 'badge-novo';
+        return '<span class="tipo-badge tipo-badge-' + val + '">' + escapeHtml(label) + '</span>';
     }
 
     function avatarHtml(c) {
@@ -503,6 +782,15 @@
         if (total >= 6) return `<span class="badge-popular">🔥 Popular</span>`;
         if (total >= 3) return `<span class="badge-destaque">⭐ Destaque</span>`;
         return '';
+    }
+
+    const seguidoresValue = { 'ate_1k': 500, '1k_5k': 3000, '5k_10k': 7500, '10k_30k': 20000, '30k_mais': 50000 };
+
+    function sortCreators(data, ordem) {
+        if (ordem === 'salvos') return [...data].sort((a, b) => (popularityMap[b.id] || 0) - (popularityMap[a.id] || 0));
+        if (ordem === 'seguidores') return [...data].sort((a, b) => (seguidoresValue[b.seguidores] || 0) - (seguidoresValue[a.seguidores] || 0));
+        if (ordem === 'nome') return [...data].sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
+        return data;
     }
 
     function buildCardHtml(c) {
@@ -555,11 +843,15 @@
 
         const search = document.getElementById('filterSearch').value.trim().toLowerCase();
         const estado = document.getElementById('filterEstado').value;
+        const cidade = document.getElementById('filterCidade').value;
         const nicho = document.getElementById('filterNicho').value;
         const tipoCreator = document.getElementById('filterTipoCreator').value;
         const seguidores = document.getElementById('filterSeguidores').value;
-        const idadeDe = parseInt(document.getElementById('filterIdadeDe').value) || 0;
-        const idadeAte = parseInt(document.getElementById('filterIdadeAte').value) || 0;
+        const idadeMin = parseInt(document.getElementById('idadeMin').value);
+        const idadeMax = parseInt(document.getElementById('idadeMax').value);
+        const idadeDe = (idadeMin > 16) ? idadeMin : 0;
+        const idadeAte = (idadeMax < 60) ? idadeMax : 0;
+        const ordem = document.getElementById('filterOrdem').value;
 
         try {
             let query = sb.from('creators')
@@ -568,10 +860,13 @@
 
             if (search) query = query.ilike('nome', `%${search}%`);
             if (estado) query = query.eq('estado', estado);
+            if (cidade) query = query.eq('cidade', cidade);
             if (nicho) query = query.ilike('nicho', `%${nicho}%`);
             if (tipoCreator) query = query.eq('tipo_creator', tipoCreator);
             if (seguidores) query = query.eq('seguidores', seguidores);
             query = applyAgeFilter(query, idadeDe, idadeAte);
+
+            if (ordem === 'nome') query = query.order('nome', { ascending: true });
 
             const from = (currentPage - 1) * PER_PAGE;
             const to = from + PER_PAGE - 1;
@@ -581,13 +876,14 @@
             if (error) throw error;
 
             totalCount = count || 0;
-            const grid = document.getElementById('cardsGrid');
             document.getElementById('resultsInfo').innerHTML = `Mostrando <strong>${(data || []).length}</strong> de <strong>${totalCount}</strong> creators`;
 
-            if (!data || data.length === 0) {
+            const sorted = sortCreators(data || [], ordem);
+
+            if (!sorted || sorted.length === 0) {
                 grid.innerHTML = '<div class="empty-state"><p>Nenhum creator encontrado.</p></div>';
             } else {
-                grid.innerHTML = data.map(c => buildCardHtml(c)).join('');
+                grid.innerHTML = sorted.map(c => buildCardHtml(c)).join('');
             }
             renderPagination();
         } catch (err) {
@@ -611,11 +907,17 @@
     document.getElementById('btnClear').addEventListener('click', () => {
         document.getElementById('filterSearch').value = '';
         document.getElementById('filterEstado').value = '';
+        document.getElementById('filterCidade').innerHTML = '<option value="">Todas</option>';
+        document.getElementById('filterCidade').disabled = true;
         document.getElementById('filterNicho').value = '';
         document.getElementById('filterTipoCreator').value = '';
         document.getElementById('filterSeguidores').value = '';
-        document.getElementById('filterIdadeDe').value = '';
-        document.getElementById('filterIdadeAte').value = '';
+        document.getElementById('idadeMin').value = 16;
+        document.getElementById('idadeMax').value = 60;
+        document.getElementById('idadeLabel').textContent = '16 - 60';
+        document.getElementById('filterOrdem').value = 'recentes';
+        document.getElementById('rangeTrackActive').style.left = '0%';
+        document.getElementById('rangeTrackActive').style.width = '100%';
         currentPage = 1;
         loadCreators();
     });
@@ -632,14 +934,12 @@
 
         const search = document.getElementById('savedFilterSearch').value.trim().toLowerCase();
         const estado = document.getElementById('savedFilterEstado').value;
+        const cidade = document.getElementById('savedFilterCidade').value;
         const nicho = document.getElementById('savedFilterNicho').value;
         const tipoCreator = document.getElementById('savedFilterTipoCreator').value;
         const seguidores = document.getElementById('savedFilterSeguidores').value;
-        const idadeDe = parseInt(document.getElementById('savedFilterIdadeDe').value) || 0;
-        const idadeAte = parseInt(document.getElementById('savedFilterIdadeAte').value) || 0;
 
         try {
-            /* Buscar IDs salvos atualizados */
             await loadSavedIds();
 
             if (savedCreatorIds.size === 0) {
@@ -658,10 +958,10 @@
 
             if (search) query = query.ilike('nome', `%${search}%`);
             if (estado) query = query.eq('estado', estado);
+            if (cidade) query = query.eq('cidade', cidade);
             if (nicho) query = query.ilike('nicho', `%${nicho}%`);
             if (tipoCreator) query = query.eq('tipo_creator', tipoCreator);
             if (seguidores) query = query.eq('seguidores', seguidores);
-            query = applyAgeFilter(query, idadeDe, idadeAte);
 
             const from = (savedCurrentPage - 1) * PER_PAGE;
             const to = from + PER_PAGE - 1;
@@ -700,16 +1000,213 @@
     document.getElementById('btnSavedClear').addEventListener('click', () => {
         document.getElementById('savedFilterSearch').value = '';
         document.getElementById('savedFilterEstado').value = '';
+        document.getElementById('savedFilterCidade').innerHTML = '<option value="">Todas</option>';
+        document.getElementById('savedFilterCidade').disabled = true;
         document.getElementById('savedFilterNicho').value = '';
         document.getElementById('savedFilterTipoCreator').value = '';
         document.getElementById('savedFilterSeguidores').value = '';
-        document.getElementById('savedFilterIdadeDe').value = '';
-        document.getElementById('savedFilterIdadeAte').value = '';
         savedCurrentPage = 1;
         loadSavedCreators();
     });
     document.getElementById('btnSavedPrev').addEventListener('click', () => { if (savedCurrentPage > 1) { savedCurrentPage--; loadSavedCreators(); } });
     document.getElementById('btnSavedNext').addEventListener('click', () => { savedCurrentPage++; loadSavedCreators(); });
+
+    /* ══════════════════════════════════════
+       LISTAS PERSONALIZADAS
+       ══════════════════════════════════════ */
+    const listaCores = ['#D4572A','#2D7A4F','#1DA1F2','#8B6914','#9333EA','#E8784A','#C4453C','#6B645C'];
+
+    async function loadListas() {
+        try {
+            const { data } = await sb.from('listas').select('*, lista_creators(creator_id)').eq('usuario_id', currentUserId).order('created_at', { ascending: false });
+            allListas = data || [];
+            listaCreatorMap = {};
+            allListas.forEach(l => {
+                listaCreatorMap[l.id] = new Set((l.lista_creators || []).map(lc => lc.creator_id));
+            });
+        } catch (e) { allListas = []; }
+    }
+
+    function renderListas() {
+        const grid = document.getElementById('listasGrid');
+        if (allListas.length === 0) {
+            grid.innerHTML = '<div class="empty-state"><p>Crie sua primeira lista para organizar creators por campanha.</p></div>';
+            return;
+        }
+        grid.innerHTML = allListas.map(l => `
+            <div class="lista-card" onclick="openLista('${l.id}')">
+                <div class="lista-card-actions">
+                    <button onclick="event.stopPropagation();editLista('${l.id}')" title="Editar">✏️</button>
+                    <button class="btn-delete-lista" onclick="event.stopPropagation();deleteLista('${l.id}')" title="Excluir">🗑️</button>
+                </div>
+                <div class="lista-card-header">
+                    <div class="lista-card-dot" style="background:${escapeHtml(l.cor)}"></div>
+                    <div class="lista-card-name">${escapeHtml(l.nome)}</div>
+                </div>
+                <div class="lista-card-count">${(l.lista_creators || []).length} creator(s)</div>
+            </div>
+        `).join('');
+    }
+
+    async function openLista(listaId) {
+        const lista = allListas.find(l => l.id === listaId);
+        if (!lista) return;
+        const ids = (lista.lista_creators || []).map(lc => lc.creator_id);
+        const grid = document.getElementById('savedCardsGrid');
+
+        if (ids.length === 0) {
+            grid.innerHTML = '<div class="empty-state"><p>Esta lista ainda nao tem creators.</p></div>';
+            document.getElementById('savedResultsInfo').innerHTML = `<strong>${escapeHtml(lista.nome)}</strong> — 0 creators`;
+            return;
+        }
+
+        grid.innerHTML = '<div class="loading">Carregando...</div>';
+        try {
+            const { data } = await sb.from('creators').select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, whatsapp, status, experiencia').in('id', ids);
+            document.getElementById('savedResultsInfo').innerHTML = `<strong>${escapeHtml(lista.nome)}</strong> — ${(data || []).length} creator(s)`;
+            grid.innerHTML = (data || []).map(c => buildCardHtml(c)).join('');
+            document.getElementById('savedPagination').style.display = 'none';
+        } catch (e) {
+            grid.innerHTML = '<div class="empty-state"><p style="color:var(--error)">Erro ao carregar lista.</p></div>';
+        }
+    }
+
+    /* Modal lista */
+    let selectedCor = listaCores[0];
+
+    function openModalLista(editId) {
+        editingListaId = editId || null;
+        const modal = document.getElementById('modalLista');
+        document.getElementById('modalListaTitle').textContent = editId ? 'Editar Lista' : 'Nova Lista';
+        document.getElementById('btnConfirmLista').textContent = editId ? 'Salvar' : 'Criar';
+
+        if (editId) {
+            const lista = allListas.find(l => l.id === editId);
+            document.getElementById('modalListaNome').value = lista ? lista.nome : '';
+            selectedCor = lista ? lista.cor : listaCores[0];
+        } else {
+            document.getElementById('modalListaNome').value = '';
+            selectedCor = listaCores[0];
+        }
+
+        renderCores();
+        modal.classList.add('show');
+    }
+
+    function renderCores() {
+        document.getElementById('coresGrid').innerHTML = listaCores.map(c =>
+            `<div class="cor-option ${c === selectedCor ? 'selected' : ''}" style="background:${c}" onclick="selectedCor='${c}';renderCores()"></div>`
+        ).join('');
+    }
+
+    document.getElementById('btnNovaLista').addEventListener('click', () => openModalLista());
+    document.getElementById('btnCancelLista').addEventListener('click', () => document.getElementById('modalLista').classList.remove('show'));
+    document.getElementById('modalLista').addEventListener('click', (e) => { if (e.target.id === 'modalLista') e.target.classList.remove('show'); });
+
+    document.getElementById('btnConfirmLista').addEventListener('click', async () => {
+        const nome = document.getElementById('modalListaNome').value.trim();
+        if (!nome) return;
+
+        try {
+            if (editingListaId) {
+                await sb.from('listas').update({ nome, cor: selectedCor }).eq('id', editingListaId);
+            } else {
+                await sb.from('listas').insert({ usuario_id: currentUserId, nome, cor: selectedCor });
+            }
+            await loadListas();
+            renderListas();
+            document.getElementById('modalLista').classList.remove('show');
+        } catch (e) {
+            alert('Erro: ' + e.message);
+        }
+    });
+
+    async function editLista(id) { openModalLista(id); }
+
+    async function deleteLista(id) {
+        if (!confirm('Excluir esta lista?')) return;
+        try {
+            await sb.from('listas').delete().eq('id', id);
+            await loadListas();
+            renderListas();
+        } catch (e) { alert('Erro: ' + e.message); }
+    }
+
+    /* ══════════════════════════════════════
+       CALCULADORA DE CACHE
+       ══════════════════════════════════════ */
+    const valoresBase = {
+        foto: { iniciante: 150, intermediaria: 350, avancada: 700, top: 1500 },
+        video_15s: { iniciante: 200, intermediaria: 500, avancada: 1000, top: 2500 },
+        video_30s: { iniciante: 300, intermediaria: 700, avancada: 1500, top: 3500 },
+        video_60s: { iniciante: 450, intermediaria: 1000, avancada: 2200, top: 5000 },
+        video_longo: { iniciante: 600, intermediaria: 1500, avancada: 3000, top: 7000 },
+        carrossel: { iniciante: 200, intermediaria: 450, avancada: 900, top: 2000 }
+    };
+
+    const multDireitos = { 'nao': 1, '30d': 1.2, '90d': 1.4, '6m': 1.7, 'vitalicio': 2.0 };
+    const multExclusividade = { 'nao': 1, 'segmento': 1.3, 'total': 1.5 };
+    const labelDireitos = { 'nao': '-', '30d': '30 dias (+20%)', '90d': '90 dias (+40%)', '6m': '6 meses (+70%)', 'vitalicio': 'Vitalicio (+100%)' };
+    const labelExclusividade = { 'nao': '-', 'segmento': 'Segmento (+30%)', 'total': 'Total (+50%)' };
+    const labelTipo = { 'foto': 'Foto estatica', 'video_15s': 'Video ate 15s', 'video_30s': 'Video 15-30s', 'video_60s': 'Video 30-60s', 'video_longo': 'Video +60s', 'carrossel': 'Carrossel' };
+    const labelNivel = { 'iniciante': 'Iniciante', 'intermediaria': 'Intermediaria', 'avancada': 'Avancada', 'top': 'Top Creator' };
+
+    function calcularCache() {
+        const tipo = document.getElementById('calcTipo').value;
+        const qtd = Math.max(1, Math.min(20, parseInt(document.getElementById('calcQtd').value) || 1));
+        const nivel = document.getElementById('calcNivel').value;
+        const direitos = document.getElementById('calcDireitos').value;
+        const exclusividade = document.getElementById('calcExclusividade').value;
+        const usaAds = document.querySelector('.calc-checkboxes input[value="ads"]')?.checked;
+
+        let base = valoresBase[tipo]?.[nivel] || 300;
+        let mult = 1;
+        const breakdown = [];
+
+        breakdown.push({ label: 'Base (' + labelTipo[tipo] + ', ' + labelNivel[nivel] + ')', value: 'R$ ' + base.toLocaleString('pt-BR') });
+
+        if (usaAds) { mult *= 1.5; breakdown.push({ label: 'Uso em Ads', value: '+50%' }); }
+        if (direitos !== 'nao') { mult *= multDireitos[direitos]; breakdown.push({ label: 'Direitos: ' + labelDireitos[direitos], value: '' }); }
+        if (exclusividade !== 'nao') { mult *= multExclusividade[exclusividade]; breakdown.push({ label: 'Exclusividade: ' + labelExclusividade[exclusividade], value: '' }); }
+
+        let volumeMult = 1;
+        if (qtd >= 11) { volumeMult = 0.8; breakdown.push({ label: 'Desconto volume (11-20 pecas)', value: '-20%' }); }
+        else if (qtd >= 6) { volumeMult = 0.85; breakdown.push({ label: 'Desconto volume (6-10 pecas)', value: '-15%' }); }
+        else if (qtd >= 3) { volumeMult = 0.9; breakdown.push({ label: 'Desconto volume (3-5 pecas)', value: '-10%' }); }
+
+        const valorPeca = Math.round(base * mult * volumeMult);
+        const valorTotal = valorPeca * qtd;
+
+        document.getElementById('calcValorPeca').textContent = 'R$ ' + valorPeca.toLocaleString('pt-BR');
+        document.getElementById('calcValorTotal').textContent = 'Total: R$ ' + valorTotal.toLocaleString('pt-BR');
+
+        document.getElementById('calcBreakdown').innerHTML = breakdown.map(b =>
+            `<div class="calc-breakdown-item"><span>${b.label}</span><strong>${b.value}</strong></div>`
+        ).join('');
+
+        return { tipo, qtd, nivel, direitos, exclusividade, valorPeca, valorTotal };
+    }
+
+    function initCalculadora() {
+        ['calcTipo','calcQtd','calcNivel','calcDireitos','calcExclusividade'].forEach(id => {
+            document.getElementById(id).addEventListener('change', calcularCache);
+            document.getElementById(id).addEventListener('input', calcularCache);
+        });
+        document.querySelectorAll('.calc-checkboxes input').forEach(cb => cb.addEventListener('change', calcularCache));
+
+        document.getElementById('btnCopiarOrcamento').addEventListener('click', async () => {
+            const c = calcularCache();
+            const texto = `ORCAMENTO UGC\nTipo: ${labelTipo[c.tipo]}\nQuantidade: ${c.qtd} peca(s)\nNivel: ${labelNivel[c.nivel]}\nDireitos: ${labelDireitos[c.direitos]}\nExclusividade: ${labelExclusividade[c.exclusividade]}\n\nValor por peca: R$ ${c.valorPeca.toLocaleString('pt-BR')}\nValor total: R$ ${c.valorTotal.toLocaleString('pt-BR')}\n\n* Valores de referencia. Negociacao direta com a creator.`;
+            try {
+                await navigator.clipboard.writeText(texto);
+                const btn = document.getElementById('btnCopiarOrcamento');
+                btn.textContent = 'Copiado!';
+                setTimeout(() => { btn.textContent = 'Copiar orcamento'; }, 2500);
+            } catch(e) { alert('Erro ao copiar.'); }
+        });
+
+        calcularCache();
+    }
 </script>
 </body>
 </html>
