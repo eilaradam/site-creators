@@ -99,6 +99,14 @@
         .badge-aprovado { background: rgba(45,122,79,0.1); color: var(--success); }
         .badge-ativo { background: rgba(26,24,22,0.08); color: var(--text); }
 
+        /* Nicho badges (display) */
+        .nicho-badges { display: flex; flex-wrap: wrap; gap: 4px; }
+        .nicho-badge { display: inline-block; padding: 2px 8px; border-radius: 100px; font-size: 10px; font-weight: 600; background: rgba(212,87,42,0.08); color: var(--accent); white-space: nowrap; }
+        .tipo-badge { display: inline-block; padding: 2px 8px; border-radius: 100px; font-size: 10px; font-weight: 600; white-space: nowrap; }
+        .tipo-badge-ugc_creator { background: rgba(45,122,79,0.1); color: var(--success); }
+        .tipo-badge-influenciadora { background: rgba(139,105,20,0.1); color: #8B6914; }
+        .tipo-badge-ugc_influenciadora { background: rgba(212,87,42,0.1); color: var(--accent); }
+
         /* Premium badges */
         .badge-destaque { background: #FFF8E7; color: #B8860B; border: 1px solid #F0D68A; font-size: 10px; padding: 2px 8px; border-radius: 100px; font-weight: 600; white-space: nowrap; }
         .badge-popular { background: #FFF0EB; color: #D4572A; border: 1px solid #F0B8A0; font-size: 10px; padding: 2px 8px; border-radius: 100px; font-weight: 600; white-space: nowrap; }
@@ -169,21 +177,11 @@
                 </div>
                 <div class="filter-group">
                     <label>Nicho</label>
-                    <select id="filterNicho">
-                        <option value="">Todos</option>
-                        <option value="lifestyle">Lifestyle</option>
-                        <option value="saude_fitness">Saude / Fitness</option>
-                        <option value="beleza">Beleza</option>
-                        <option value="maternidade">Maternidade</option>
-                        <option value="familia">Familia</option>
-                        <option value="entretenimento">Entretenimento</option>
-                        <option value="humor">Humor</option>
-                        <option value="gastronomia">Gastronomia</option>
-                        <option value="moda">Moda</option>
-                        <option value="tecnologia">Tecnologia</option>
-                        <option value="educacao">Educacao</option>
-                        <option value="outro">Outro</option>
-                    </select>
+                    <select id="filterNicho"><option value="">Todos</option><optgroup label="Beleza & Cuidados Pessoais"><option>Skincare</option><option>Maquiagem</option><option>Cabelos</option><option>Unhas</option><option>Perfumaria</option><option>Corpo & Banho</option></optgroup><optgroup label="Moda & Estilo"><option>Roupas femininas</option><option>Roupas masculinas</option><option>Acessórios</option><option>Calçados</option><option>Moda sustentável</option><option>Moda plus size</option></optgroup><optgroup label="Saúde & Bem-estar"><option>Fitness</option><option>Nutrição</option><option>Suplementos</option><option>Yoga/Meditação</option><option>Saúde mental</option><option>Saúde feminina</option></optgroup><optgroup label="Alimentação"><option>Receitas saudáveis</option><option>Confeitaria</option><option>Drinks</option><option>Cozinha prática</option><option>Alimentação vegana/vegetariana</option></optgroup><optgroup label="Casa & Decoração"><option>Decoração</option><option>Organização</option><option>DIY/Faça você mesma</option><option>Jardinagem</option><option>Smart home</option></optgroup><optgroup label="Tecnologia"><option>Gadgets</option><option>Apps</option><option>Produtividade digital</option><option>Games</option></optgroup><optgroup label="Maternidade & Família"><option>Gestação</option><option>Bebês</option><option>Crianças</option><option>Família</option></optgroup><optgroup label="Pets"><option>Cachorros</option><option>Gatos</option><option>Pets exóticos</option></optgroup><optgroup label="Viagem & Turismo"><option>Viagens nacionais</option><option>Viagens internacionais</option><option>Turismo gastronômico</option><option>Viagem econômica</option></optgroup><optgroup label="Educação & Carreira"><option>Cursos/Mentorias</option><option>Empreendedorismo</option><option>Marketing digital</option><option>Finanças pessoais</option></optgroup><optgroup label="Entretenimento"><option>Humor</option><option>Música</option><option>Livros/Leitura</option><option>Filmes & Séries</option></optgroup><optgroup label="Lifestyle"><option>Dia a dia</option><option>Rotina</option><option>Minimalismo</option><option>Sustentabilidade</option></optgroup><optgroup label="Serviços & Locais"><option>Restaurantes</option><option>Clínicas de estética</option><option>Salões de beleza</option><option>Academias</option><option>Hotéis/Pousadas</option></optgroup><optgroup label="Automotivo"><option>Carros</option><option>Motos</option><option>Acessórios automotivos</option></optgroup><optgroup label="Categorias anteriores"><option value="lifestyle">Lifestyle (antigo)</option><option value="saude_fitness">Saude/Fitness (antigo)</option><option value="beleza">Beleza (antigo)</option><option value="maternidade">Maternidade (antigo)</option><option value="familia">Familia (antigo)</option><option value="entretenimento">Entretenimento (antigo)</option><option value="humor">Humor (antigo)</option><option value="gastronomia">Gastronomia (antigo)</option><option value="moda">Moda (antigo)</option><option value="tecnologia">Tecnologia (antigo)</option><option value="educacao">Educacao (antigo)</option><option value="outro">Outro (antigo)</option></optgroup></select>
+                </div>
+                <div class="filter-group">
+                    <label>Tipo Creator</label>
+                    <select id="filterTipoCreator"><option value="">Todos</option><option value="ugc_creator">UGC Creator</option><option value="influenciadora">Influenciadora</option><option value="ugc_influenciadora">UGC + Influenciadora</option></select>
                 </div>
                 <div class="filter-group">
                     <label>Seguidores</label>
@@ -234,21 +232,11 @@
                 </div>
                 <div class="filter-group">
                     <label>Nicho</label>
-                    <select id="savedFilterNicho">
-                        <option value="">Todos</option>
-                        <option value="lifestyle">Lifestyle</option>
-                        <option value="saude_fitness">Saude / Fitness</option>
-                        <option value="beleza">Beleza</option>
-                        <option value="maternidade">Maternidade</option>
-                        <option value="familia">Familia</option>
-                        <option value="entretenimento">Entretenimento</option>
-                        <option value="humor">Humor</option>
-                        <option value="gastronomia">Gastronomia</option>
-                        <option value="moda">Moda</option>
-                        <option value="tecnologia">Tecnologia</option>
-                        <option value="educacao">Educacao</option>
-                        <option value="outro">Outro</option>
-                    </select>
+                    <select id="savedFilterNicho"><option value="">Todos</option><optgroup label="Beleza & Cuidados Pessoais"><option>Skincare</option><option>Maquiagem</option><option>Cabelos</option><option>Unhas</option><option>Perfumaria</option><option>Corpo & Banho</option></optgroup><optgroup label="Moda & Estilo"><option>Roupas femininas</option><option>Roupas masculinas</option><option>Acessórios</option><option>Calçados</option><option>Moda sustentável</option><option>Moda plus size</option></optgroup><optgroup label="Saúde & Bem-estar"><option>Fitness</option><option>Nutrição</option><option>Suplementos</option><option>Yoga/Meditação</option><option>Saúde mental</option><option>Saúde feminina</option></optgroup><optgroup label="Alimentação"><option>Receitas saudáveis</option><option>Confeitaria</option><option>Drinks</option><option>Cozinha prática</option><option>Alimentação vegana/vegetariana</option></optgroup><optgroup label="Casa & Decoração"><option>Decoração</option><option>Organização</option><option>DIY/Faça você mesma</option><option>Jardinagem</option><option>Smart home</option></optgroup><optgroup label="Tecnologia"><option>Gadgets</option><option>Apps</option><option>Produtividade digital</option><option>Games</option></optgroup><optgroup label="Maternidade & Família"><option>Gestação</option><option>Bebês</option><option>Crianças</option><option>Família</option></optgroup><optgroup label="Pets"><option>Cachorros</option><option>Gatos</option><option>Pets exóticos</option></optgroup><optgroup label="Viagem & Turismo"><option>Viagens nacionais</option><option>Viagens internacionais</option><option>Turismo gastronômico</option><option>Viagem econômica</option></optgroup><optgroup label="Educação & Carreira"><option>Cursos/Mentorias</option><option>Empreendedorismo</option><option>Marketing digital</option><option>Finanças pessoais</option></optgroup><optgroup label="Entretenimento"><option>Humor</option><option>Música</option><option>Livros/Leitura</option><option>Filmes & Séries</option></optgroup><optgroup label="Lifestyle"><option>Dia a dia</option><option>Rotina</option><option>Minimalismo</option><option>Sustentabilidade</option></optgroup><optgroup label="Serviços & Locais"><option>Restaurantes</option><option>Clínicas de estética</option><option>Salões de beleza</option><option>Academias</option><option>Hotéis/Pousadas</option></optgroup><optgroup label="Automotivo"><option>Carros</option><option>Motos</option><option>Acessórios automotivos</option></optgroup><optgroup label="Categorias anteriores"><option value="lifestyle">Lifestyle (antigo)</option><option value="saude_fitness">Saude/Fitness (antigo)</option><option value="beleza">Beleza (antigo)</option><option value="maternidade">Maternidade (antigo)</option><option value="familia">Familia (antigo)</option><option value="entretenimento">Entretenimento (antigo)</option><option value="humor">Humor (antigo)</option><option value="gastronomia">Gastronomia (antigo)</option><option value="moda">Moda (antigo)</option><option value="tecnologia">Tecnologia (antigo)</option><option value="educacao">Educacao (antigo)</option><option value="outro">Outro (antigo)</option></optgroup></select>
+                </div>
+                <div class="filter-group">
+                    <label>Tipo Creator</label>
+                    <select id="savedFilterTipoCreator"><option value="">Todos</option><option value="ugc_creator">UGC Creator</option><option value="influenciadora">Influenciadora</option><option value="ugc_influenciadora">UGC + Influenciadora</option></select>
                 </div>
                 <div class="filter-group">
                     <label>Seguidores</label>
@@ -437,8 +425,24 @@
     }
 
     function formatNicho(val) {
+        if (!val || val === '-') return '-';
+        try {
+            const arr = JSON.parse(val);
+            if (Array.isArray(arr) && arr.length > 0) {
+                return arr.map(n => '<span class="nicho-badge">' + escapeHtml(n) + '</span>').join('');
+            }
+        } catch(e) {}
         const map = { 'lifestyle': 'Lifestyle', 'saude_fitness': 'Saude/Fitness', 'beleza': 'Beleza', 'maternidade': 'Maternidade', 'familia': 'Familia', 'entretenimento': 'Entretenimento', 'humor': 'Humor', 'gastronomia': 'Gastronomia', 'moda': 'Moda', 'tecnologia': 'Tecnologia', 'educacao': 'Educacao', 'outro': 'Outro' };
-        return map[val] || val || '-';
+        const label = map[val] || val;
+        return '<span class="nicho-badge">' + escapeHtml(label) + '</span>';
+    }
+
+    function formatTipoCreator(val) {
+        if (!val) return '-';
+        const map = { 'ugc_creator': 'UGC Creator', 'influenciadora': 'Influenciadora', 'ugc_influenciadora': 'UGC + Influenciadora' };
+        const label = map[val] || val;
+        const cls = 'tipo-badge tipo-badge-' + val;
+        return '<span class="' + cls + '">' + escapeHtml(label) + '</span>';
     }
 
     function badgeClass(status) {
@@ -476,9 +480,11 @@
                     </div>
                 </div>
                 <div class="card-details">
-                    <div class="card-detail"><span class="card-detail-label">Nicho</span> ${formatNicho(c.nicho)}</div>
+                    <div class="card-detail"><span class="card-detail-label">Nicho</span> <div class="nicho-badges" style="display:inline-flex">${formatNicho(c.nicho)}</div></div>
+                    <div class="card-detail"><span class="card-detail-label">Tipo</span> ${formatTipoCreator(c.tipo_creator)}</div>
                     <div class="card-detail"><span class="card-detail-label">Seguidores</span> ${formatSeguidores(c.seguidores)}</div>
                     <div class="card-detail"><span class="card-detail-label">Status</span> <span class="badge ${badgeClass(c.status)}">${escapeHtml(c.status)}</span></div>
+                    ${c.sobre ? `<div class="card-detail"><span class="card-detail-label">Sobre</span> <span style="color:var(--text-soft)">${escapeHtml(c.sobre)}</span></div>` : ''}
                 </div>
                 ${(c.instagram || c.tiktok || c.portfolio || c.whatsapp) ? `
                 <div class="card-social">
@@ -513,18 +519,20 @@
         const search = document.getElementById('filterSearch').value.trim().toLowerCase();
         const estado = document.getElementById('filterEstado').value;
         const nicho = document.getElementById('filterNicho').value;
+        const tipoCreator = document.getElementById('filterTipoCreator').value;
         const seguidores = document.getElementById('filterSeguidores').value;
         const idadeDe = parseInt(document.getElementById('filterIdadeDe').value) || 0;
         const idadeAte = parseInt(document.getElementById('filterIdadeAte').value) || 0;
 
         try {
             let query = sb.from('creators')
-                .select('id, nome, foto_perfil, cidade, estado, nicho, seguidores, instagram, tiktok, portfolio, whatsapp, status', { count: 'exact' })
+                .select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, whatsapp, status', { count: 'exact' })
                 .order('created_at', { ascending: false });
 
             if (search) query = query.ilike('nome', `%${search}%`);
             if (estado) query = query.eq('estado', estado);
-            if (nicho) query = query.eq('nicho', nicho);
+            if (nicho) query = query.ilike('nicho', `%${nicho}%`);
+            if (tipoCreator) query = query.eq('tipo_creator', tipoCreator);
             if (seguidores) query = query.eq('seguidores', seguidores);
             query = applyAgeFilter(query, idadeDe, idadeAte);
 
@@ -567,6 +575,7 @@
         document.getElementById('filterSearch').value = '';
         document.getElementById('filterEstado').value = '';
         document.getElementById('filterNicho').value = '';
+        document.getElementById('filterTipoCreator').value = '';
         document.getElementById('filterSeguidores').value = '';
         document.getElementById('filterIdadeDe').value = '';
         document.getElementById('filterIdadeAte').value = '';
@@ -587,6 +596,7 @@
         const search = document.getElementById('savedFilterSearch').value.trim().toLowerCase();
         const estado = document.getElementById('savedFilterEstado').value;
         const nicho = document.getElementById('savedFilterNicho').value;
+        const tipoCreator = document.getElementById('savedFilterTipoCreator').value;
         const seguidores = document.getElementById('savedFilterSeguidores').value;
         const idadeDe = parseInt(document.getElementById('savedFilterIdadeDe').value) || 0;
         const idadeAte = parseInt(document.getElementById('savedFilterIdadeAte').value) || 0;
@@ -605,13 +615,14 @@
             const idsArray = Array.from(savedCreatorIds);
 
             let query = sb.from('creators')
-                .select('id, nome, foto_perfil, cidade, estado, nicho, seguidores, instagram, tiktok, portfolio, whatsapp, status', { count: 'exact' })
+                .select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, whatsapp, status', { count: 'exact' })
                 .in('id', idsArray)
                 .order('created_at', { ascending: false });
 
             if (search) query = query.ilike('nome', `%${search}%`);
             if (estado) query = query.eq('estado', estado);
-            if (nicho) query = query.eq('nicho', nicho);
+            if (nicho) query = query.ilike('nicho', `%${nicho}%`);
+            if (tipoCreator) query = query.eq('tipo_creator', tipoCreator);
             if (seguidores) query = query.eq('seguidores', seguidores);
             query = applyAgeFilter(query, idadeDe, idadeAte);
 
@@ -653,6 +664,7 @@
         document.getElementById('savedFilterSearch').value = '';
         document.getElementById('savedFilterEstado').value = '';
         document.getElementById('savedFilterNicho').value = '';
+        document.getElementById('savedFilterTipoCreator').value = '';
         document.getElementById('savedFilterSeguidores').value = '';
         document.getElementById('savedFilterIdadeDe').value = '';
         document.getElementById('savedFilterIdadeAte').value = '';

@@ -90,6 +90,30 @@
         .field-group input::placeholder { color: var(--text-muted); }
         .field-group input:focus, .field-group select:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
         .field-group select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239C958C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 40px; cursor: pointer; }
+        .field-group textarea { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 12px; font-family: 'Outfit', sans-serif; font-size: 15px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; resize: vertical; min-height: 80px; line-height: 1.5; }
+        .field-group textarea::placeholder { color: var(--text-muted); }
+        .field-group textarea:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
+        .char-counter { font-size: 12px; color: var(--text-muted); text-align: right; margin-top: 4px; }
+        .char-counter.limit { color: var(--error); font-weight: 600; }
+        .nicho-picker { border: 1.5px solid var(--border); border-radius: 12px; background: var(--cream); padding: 16px; max-height: 320px; overflow-y: auto; transition: border-color 0.25s; }
+        .nicho-picker:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
+        .nicho-category { margin-bottom: 14px; }
+        .nicho-category:last-child { margin-bottom: 0; }
+        .nicho-category-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 8px; }
+        .nicho-options { display: flex; flex-wrap: wrap; gap: 6px; }
+        .nicho-chip { display: inline-flex; align-items: center; padding: 6px 14px; border-radius: 100px; border: 1.5px solid var(--border); background: var(--card); font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; color: var(--text-soft); cursor: pointer; transition: all 0.2s; user-select: none; }
+        .nicho-chip:hover { border-color: var(--accent); color: var(--accent); }
+        .nicho-chip.selected { background: var(--accent); border-color: var(--accent); color: white; font-weight: 600; }
+        .nicho-chip.disabled { opacity: 0.4; cursor: not-allowed; }
+        .nicho-chip.disabled:hover { border-color: var(--border); color: var(--text-soft); }
+        .nicho-counter { font-size: 12px; color: var(--text-muted); margin-top: 8px; text-align: right; }
+        .nicho-counter.limit { color: var(--accent); font-weight: 600; }
+        .tipo-creator-group { display: flex; gap: 8px; flex-wrap: wrap; }
+        .tipo-creator-option { flex: 1; min-width: 140px; }
+        .tipo-creator-option input[type="radio"] { display: none; }
+        .tipo-creator-option label { display: block; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 12px; background: var(--cream); font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 500; color: var(--text-soft); text-align: center; cursor: pointer; transition: all 0.25s; }
+        .tipo-creator-option label:hover { border-color: var(--accent); color: var(--accent); }
+        .tipo-creator-option input[type="radio"]:checked + label { background: var(--accent); border-color: var(--accent); color: white; font-weight: 700; }
         .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .form-submit { width: 100%; margin-top: 8px; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 14px; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
         .form-submit:hover { background: var(--accent-dark); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(212,87,42,0.3); }
@@ -212,7 +236,24 @@
                         <div class="field-group"><label>Estado</label><select name="estado" required id="estado"><option value="" disabled selected>Selecione o estado</option></select></div>
                         <div class="field-group"><label>Cidade</label><select name="cidade" required id="cidade" disabled><option value="" disabled selected>Selecione o estado primeiro</option></select></div>
                     </div>
-                    <div class="field-group"><label>Nicho principal do seu conteúdo</label><select name="nicho" required id="nicho"><option value="" disabled selected>Selecione</option><option value="lifestyle">Lifestyle</option><option value="saude_fitness">Saúde / Fitness</option><option value="beleza">Beleza</option><option value="maternidade">Maternidade</option><option value="familia">Família</option><option value="entretenimento">Entretenimento</option><option value="humor">Humor</option><option value="gastronomia">Gastronomia</option><option value="moda">Moda</option><option value="tecnologia">Tecnologia</option><option value="educacao">Educação</option><option value="outro">Outro</option></select></div>
+                    <div class="field-group">
+                        <label>Nichos do seu conteúdo <span style="color: var(--text-muted); font-weight: 400;">(selecione até 10)</span></label>
+                        <div class="nicho-picker" id="nichoPicker"></div>
+                        <div class="nicho-counter" id="nichoCounter">0 / 10 selecionados</div>
+                    </div>
+                    <div class="field-group">
+                        <label>Tipo de creator</label>
+                        <div class="tipo-creator-group">
+                            <div class="tipo-creator-option"><input type="radio" name="tipo_creator" id="tipo_ugc" value="ugc_creator"><label for="tipo_ugc">UGC Creator</label></div>
+                            <div class="tipo-creator-option"><input type="radio" name="tipo_creator" id="tipo_influenciadora" value="influenciadora"><label for="tipo_influenciadora">Influenciadora</label></div>
+                            <div class="tipo-creator-option"><input type="radio" name="tipo_creator" id="tipo_ambos" value="ugc_influenciadora"><label for="tipo_ambos">UGC + Influenciadora</label></div>
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <label>Sobre você <span style="color: var(--text-muted); font-weight: 400;">(opcional, máx 200 caracteres)</span></label>
+                        <textarea id="sobre" maxlength="200" placeholder="Conte um pouco sobre você, seu estilo de conteúdo e o que te diferencia..."></textarea>
+                        <div class="char-counter" id="sobreCounter">0 / 200</div>
+                    </div>
                     <div class="field-group"><label>Já fez campanha paga para marcas?</label><select name="experiencia" id="experiencia"><option value="" disabled selected>Selecione</option><option value="sim">Sim, já fiz</option><option value="nao">Não, seria minha primeira</option><option value="permuta">Só permuta</option></select></div>
                     <div class="field-group"><label>Link do portfólio <span style="color: var(--text-muted); font-weight: 400;">(Google Drive, Behance, site, etc.)</span></label><input type="url" name="portfolio" id="portfolio" placeholder="https://drive.google.com/..." required></div>
                     <div class="field-group"><label>Link do seu melhor conteúdo <span style="color: var(--text-muted); font-weight: 400;">(Instagram, TikTok, YouTube, Drive...)</span></label><input type="url" name="melhor_conteudo" id="melhor_conteudo" placeholder="https://www.instagram.com/reel/..." required></div>
@@ -323,6 +364,85 @@
     });
     carregarEstados();
 
+    /* ── Nicho Multi-Select ── */
+    const NICHO_CATEGORIES = {
+        'Beleza & Cuidados Pessoais': ['Skincare','Maquiagem','Cabelos','Unhas','Perfumaria','Corpo & Banho'],
+        'Moda & Estilo': ['Roupas femininas','Roupas masculinas','Acessórios','Calçados','Moda sustentável','Moda plus size'],
+        'Saúde & Bem-estar': ['Fitness','Nutrição','Suplementos','Yoga/Meditação','Saúde mental','Saúde feminina'],
+        'Alimentação': ['Receitas saudáveis','Confeitaria','Drinks','Cozinha prática','Alimentação vegana/vegetariana'],
+        'Casa & Decoração': ['Decoração','Organização','DIY/Faça você mesma','Jardinagem','Smart home'],
+        'Tecnologia': ['Gadgets','Apps','Produtividade digital','Games'],
+        'Maternidade & Família': ['Gestação','Bebês','Crianças','Família'],
+        'Pets': ['Cachorros','Gatos','Pets exóticos'],
+        'Viagem & Turismo': ['Viagens nacionais','Viagens internacionais','Turismo gastronômico','Viagem econômica'],
+        'Educação & Carreira': ['Cursos/Mentorias','Empreendedorismo','Marketing digital','Finanças pessoais'],
+        'Entretenimento': ['Humor','Música','Livros/Leitura','Filmes & Séries'],
+        'Lifestyle': ['Dia a dia','Rotina','Minimalismo','Sustentabilidade'],
+        'Serviços & Locais': ['Restaurantes','Clínicas de estética','Salões de beleza','Academias','Hotéis/Pousadas'],
+        'Automotivo': ['Carros','Motos','Acessórios automotivos']
+    };
+    const MAX_NICHOS = 10;
+    let selectedNichos = [];
+
+    function renderNichoPicker(containerId, counterId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        let html = '';
+        for (const [category, options] of Object.entries(NICHO_CATEGORIES)) {
+            html += '<div class="nicho-category"><div class="nicho-category-title">' + category + '</div><div class="nicho-options">';
+            options.forEach(opt => {
+                const escaped = opt.replace(/'/g, "\\'");
+                html += '<span class="nicho-chip" data-value="' + opt + '" onclick="toggleNicho(this,\'' + counterId + '\')">' + opt + '</span>';
+            });
+            html += '</div></div>';
+        }
+        container.innerHTML = html;
+    }
+
+    function toggleNicho(chip, counterId) {
+        const value = chip.dataset.value;
+        const idx = selectedNichos.indexOf(value);
+        if (idx > -1) {
+            selectedNichos.splice(idx, 1);
+            chip.classList.remove('selected');
+        } else {
+            if (selectedNichos.length >= MAX_NICHOS) return;
+            selectedNichos.push(value);
+            chip.classList.add('selected');
+        }
+        updateNichoCounter(counterId);
+        updateNichoChipStates();
+    }
+
+    function updateNichoCounter(counterId) {
+        const counter = document.getElementById(counterId);
+        if (!counter) return;
+        counter.textContent = selectedNichos.length + ' / ' + MAX_NICHOS + ' selecionados';
+        counter.classList.toggle('limit', selectedNichos.length >= MAX_NICHOS);
+    }
+
+    function updateNichoChipStates() {
+        const atLimit = selectedNichos.length >= MAX_NICHOS;
+        document.querySelectorAll('.nicho-chip').forEach(chip => {
+            if (!chip.classList.contains('selected')) {
+                chip.classList.toggle('disabled', atLimit);
+            }
+        });
+    }
+
+    renderNichoPicker('nichoPicker', 'nichoCounter');
+
+    /* ── Sobre: contador de caracteres ── */
+    const sobreField = document.getElementById('sobre');
+    if (sobreField) {
+        sobreField.addEventListener('input', function() {
+            const counter = document.getElementById('sobreCounter');
+            const len = this.value.length;
+            counter.textContent = len + ' / 200';
+            counter.classList.toggle('limit', len >= 200);
+        });
+    }
+
     /* ── Supabase (envolvido em try-catch para não travar a UI) ── */
     let sb = null;
     try {
@@ -343,6 +463,8 @@
 
         try {
             if (!sb) throw new Error('Conexão com o servidor indisponível. Tente novamente em alguns instantes.');
+            if (selectedNichos.length === 0) throw new Error('Selecione pelo menos 1 nicho do seu conteúdo.');
+            if (!document.querySelector('input[name="tipo_creator"]:checked')) throw new Error('Selecione o tipo de creator.');
 
             /* Upload foto de perfil */
             let fotoUrl = null;
@@ -378,7 +500,9 @@
                 seguidores: document.getElementById('seguidores').value,
                 estado: document.getElementById('estado').value,
                 cidade: cidadeValue,
-                nicho: document.getElementById('nicho').value,
+                nicho: JSON.stringify(selectedNichos),
+                tipo_creator: document.querySelector('input[name="tipo_creator"]:checked')?.value || null,
+                sobre: (document.getElementById('sobre')?.value || '').trim().substring(0, 200) || null,
                 experiencia: document.getElementById('experiencia').value,
                 portfolio: document.getElementById('portfolio').value.trim() || null,
                 melhor_conteudo: document.getElementById('melhor_conteudo').value.trim() || null,
