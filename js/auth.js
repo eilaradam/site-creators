@@ -66,7 +66,7 @@
             await sb.auth.signOut();
             throw new Error('Acesso não autorizado. Entre em contato com a administradora.');
         }
-        sb.rpc('track_login').then(() => console.log('track_login OK')).catch(err => console.error('track_login ERRO:', err));
+        try { await sb.rpc('track_login'); } catch(e) {}
         return { user: data.user, role };
     }
 
