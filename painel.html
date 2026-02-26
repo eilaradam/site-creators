@@ -96,8 +96,9 @@
 
         /* Cards grid */
         .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
-        .creator-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; transition: all 0.3s; position: relative; }
+        .creator-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; transition: all 0.3s; position: relative; overflow: visible; }
         .creator-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.06); }
+        .creator-card.dropdown-open { z-index: 31; }
         .card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
         .card-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); flex-shrink: 0; }
         .card-avatar-placeholder { width: 44px; height: 44px; border-radius: 50%; background: var(--warm); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: var(--text-muted); flex-shrink: 0; }
@@ -144,7 +145,7 @@
         .btn-save.saved .heart-outline { fill: var(--accent); stroke: var(--accent); }
 
         /* Lista dropdown no save */
-        .lista-dropdown { position: absolute; top: 40px; right: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 10px; min-width: 180px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); z-index: 30; display: none; }
+        .lista-dropdown { position: absolute; top: 40px; right: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; min-width: 200px; box-shadow: 0 8px 30px rgba(0,0,0,0.15); z-index: 100; display: none; }
         .lista-dropdown.show { display: block; }
         .lista-dropdown-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px; }
         .lista-dropdown-item { display: flex; align-items: center; gap: 8px; padding: 6px 4px; font-size: 13px; cursor: pointer; border-radius: 6px; transition: background 0.15s; }
@@ -844,16 +845,33 @@
     /* ── Lista dropdown ── */
     function showListaDropdown(creatorId) {
         // Fecha qualquer outro dropdown aberto
-        document.querySelectorAll('.lista-dropdown.show').forEach(d => d.classList.remove('show'));
+        document.querySelectorAll('.lista-dropdown.show').forEach(d => {
+            d.classList.remove('show');
+            d.closest('.creator-card')?.classList.remove('dropdown-open');
+        });
         const dd = document.getElementById('listaDropdown_' + creatorId);
-        if (!dd) return;
-        dd.classList.toggle('show');
+        if (!dd) {
+            alert('Crie uma lista primeiro na aba "Minhas Listas"');
+            return;
+        }
+        const card = dd.closest('.creator-card');
+        const isOpen = dd.classList.contains('show');
+        if (isOpen) {
+            dd.classList.remove('show');
+            card?.classList.remove('dropdown-open');
+        } else {
+            dd.classList.add('show');
+            card?.classList.add('dropdown-open');
+        }
     }
 
     // Fechar dropdown ao clicar fora
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.btn-lista') && !e.target.closest('.lista-dropdown')) {
-            document.querySelectorAll('.lista-dropdown.show').forEach(d => d.classList.remove('show'));
+            document.querySelectorAll('.lista-dropdown.show').forEach(d => {
+                d.classList.remove('show');
+                d.closest('.creator-card')?.classList.remove('dropdown-open');
+            });
         }
     });
 
