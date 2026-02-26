@@ -33,10 +33,15 @@
         return data;
     }
 
-    /** Retorna só o role do usuário. */
+    /** Retorna só o role do usuário. Verifica expiração para alunas. */
     async function getRole() {
         const info = await getUserInfo();
         if (!info || !info.ativo) return null;
+        if (info.role === 'aluna' && info.expira_em) {
+            if (new Date(info.expira_em) < new Date()) {
+                throw new Error('Seu acesso expirou. Entre em contato com a administradora para renovar.');
+            }
+        }
         return info.role;
     }
 
@@ -61,7 +66,13 @@
             if (error.message === 'Invalid login credentials') throw new Error('E-mail ou senha incorretos.');
             throw error;
         }
-        const role = await getRole();
+        let role;
+        try {
+            role = await getRole();
+        } catch (expErr) {
+            await sb.auth.signOut();
+            throw expErr;
+        }
         if (!role) {
             await sb.auth.signOut();
             throw new Error('Acesso não autorizado. Entre em contato com a administradora.');

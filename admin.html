@@ -412,13 +412,14 @@
                     <th>E-mail</th>
                     <th>Status</th>
                     <th>Cadastro</th>
+                    <th>Expira em</th>
                     <th>Último Login</th>
                     <th>Acessos</th>
                     <th>Ação</th>
                 </tr>
             </thead>
             <tbody id="alunasBody">
-                <tr><td colspan="7" class="loading">Carregando...</td></tr>
+                <tr><td colspan="8" class="loading">Carregando...</td></tr>
             </tbody>
         </table>
     </div>
@@ -1115,7 +1116,7 @@
 
     async function loadAlunas() {
         const tbody = document.getElementById('alunasBody');
-        tbody.innerHTML = '<tr><td colspan="7" class="loading">Carregando alunas...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="loading">Carregando alunas...</td></tr>';
 
         try {
             const { data, error } = await sb.rpc('admin_load_alunas');
@@ -1123,27 +1124,34 @@
             allAlunas = data || [];
             renderAlunas();
         } catch (err) {
-            tbody.innerHTML = `<tr><td colspan="7" class="loading" style="color:var(--error)">Erro: ${escapeHtml(err.message)}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" class="loading" style="color:var(--error)">Erro: ${escapeHtml(err.message)}</td></tr>`;
         }
     }
 
     function renderAlunas() {
         const tbody = document.getElementById('alunasBody');
         if (allAlunas.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><p>Nenhuma aluna cadastrada ainda.</p></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><p>Nenhuma aluna cadastrada ainda.</p></td></tr>';
             return;
         }
-        tbody.innerHTML = allAlunas.map(a => `
+        tbody.innerHTML = allAlunas.map(a => {
+            const expirada = a.expira_em && new Date(a.expira_em) < new Date();
+            const expiraLabel = a.expira_em ? formatDate(a.expira_em) : '-';
+            return `
             <tr>
                 <td><strong>${escapeHtml(a.nome)}</strong></td>
                 <td>${escapeHtml(a.email)}</td>
-                <td><span class="badge ${a.ativo ? 'badge-ativo-user' : 'badge-inativo'}">${a.ativo ? 'Ativa' : 'Inativa'}</span></td>
+                <td><span class="badge ${a.ativo ? (expirada ? 'badge-inativo' : 'badge-ativo-user') : 'badge-inativo'}">${a.ativo ? (expirada ? 'Expirada' : 'Ativa') : 'Inativa'}</span></td>
                 <td style="font-size:13px;color:var(--text-muted)">${formatDate(a.created_at)}</td>
+                <td style="font-size:13px;color:${expirada ? 'var(--error)' : 'var(--text-muted)'};font-weight:${expirada ? '600' : '400'}">${expiraLabel}</td>
                 <td style="font-size:13px;color:var(--text-muted)">${formatLoginDate(a.ultimo_login)}</td>
                 <td style="font-size:13px;text-align:center">${a.total_acessos || 0}</td>
-                <td><button class="btn-toggle" onclick="toggleAluna('${a.id}', ${!a.ativo})">${a.ativo ? 'Desativar' : 'Ativar'}</button></td>
-            </tr>
-        `).join('');
+                <td style="white-space:nowrap">
+                    <button class="btn-toggle" onclick="toggleAluna('${a.id}', ${!a.ativo})">${a.ativo ? 'Desativar' : 'Ativar'}</button>
+                    ${expirada ? `<button class="btn-toggle" style="margin-left:4px;background:var(--success);color:white;border-color:var(--success)" onclick="renovarAluna('${a.id}')">Renovar 1 ano</button>` : ''}
+                </td>
+            </tr>`;
+        }).join('');
     }
 
     async function toggleAluna(id, newStatus) {
@@ -1153,6 +1161,17 @@
             loadAlunas();
         } catch (err) {
             alert('Erro ao atualizar: ' + err.message);
+        }
+    }
+
+    async function renovarAluna(id) {
+        if (!confirm('Renovar acesso por mais 1 ano?')) return;
+        try {
+            const { error } = await sb.rpc('admin_renovar_aluna', { p_id: id });
+            if (error) throw error;
+            loadAlunas();
+        } catch (err) {
+            alert('Erro ao renovar: ' + err.message);
         }
     }
 
