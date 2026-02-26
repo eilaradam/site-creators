@@ -172,6 +172,39 @@
         /* Saved filters (admin) */
         .saved-filters { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px 24px; margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
 
+        /* Campanhas & E-mails */
+        .camp-section { margin-bottom: 32px; }
+        .camp-section-title { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+        .camp-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+        .camp-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+        .camp-card-title { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; }
+        .badge-recrutando { background: rgba(45,122,79,0.1); color: var(--success); border: 1px solid rgba(45,122,79,0.2); }
+        .camp-stats { display: flex; gap: 24px; margin-bottom: 16px; }
+        .camp-stat { display: flex; flex-direction: column; }
+        .camp-stat-value { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; color: var(--text); }
+        .camp-stat-label { font-size: 12px; color: var(--text-muted); }
+        .camp-stat.accent .camp-stat-value { color: var(--accent); }
+        .btn-camp { padding: 10px 20px; background: var(--accent); color: white; border: none; border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .btn-camp:hover { background: var(--accent-dark); }
+
+        .email-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+        .email-field { margin-bottom: 16px; }
+        .email-field label { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 6px; }
+        .email-field input, .email-field select { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; }
+        .email-field input:focus, .email-field select:focus, .email-field textarea:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
+        .email-field select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239C958C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; cursor: pointer; }
+        .email-field textarea { width: 100%; padding: 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; resize: vertical; min-height: 160px; line-height: 1.6; }
+        .email-preview { background: var(--cream); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; font-size: 13px; color: var(--text-soft); margin-bottom: 16px; }
+        .email-preview strong { color: var(--accent); }
+        .email-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn-copy { padding: 10px 20px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; color: var(--text); cursor: pointer; transition: all 0.25s; display: flex; align-items: center; gap: 6px; }
+        .btn-copy:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-copy.copied { background: rgba(45,122,79,0.08); border-color: var(--success); color: var(--success); }
+        .btn-copy svg { width: 16px; height: 16px; }
+        .btn-send { padding: 10px 20px; background: var(--text-muted); color: white; border: none; border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; cursor: not-allowed; opacity: 0.6; position: relative; }
+        .btn-send-tooltip { display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: var(--black); color: white; font-size: 11px; padding: 6px 12px; border-radius: 8px; white-space: nowrap; font-weight: 500; }
+        .btn-send:hover .btn-send-tooltip { display: block; }
+
         /* Empty & loading */
         .empty-state { text-align: center; padding: 60px 24px; color: var(--text-muted); }
         .empty-state p { font-size: 15px; line-height: 1.6; }
@@ -190,6 +223,10 @@
             .filter-group { min-width: 100%; }
             .modal { padding: 28px 20px; }
             .saved-cards-grid { grid-template-columns: 1fr; }
+            .camp-stats { gap: 16px; }
+            .camp-stat-value { font-size: 22px; }
+            .email-actions { flex-direction: column; }
+            .email-actions button { width: 100%; justify-content: center; }
         }
     </style>
 </head>
@@ -208,6 +245,7 @@
     <button class="tab active" data-tab="creators">Creators</button>
     <button class="tab" data-tab="salvos">Perfis Salvos</button>
     <button class="tab" data-tab="alunas">Gerenciar Alunas</button>
+    <button class="tab" data-tab="campanhas">Campanhas &amp; E-mails</button>
 </div>
 
 <!-- ── TAB: CREATORS ── -->
@@ -322,6 +360,73 @@
     </div>
 </div>
 
+<!-- ── TAB: CAMPANHAS & E-MAILS ── -->
+<div class="dashboard" id="tabCampanhas">
+    <!-- Campanha ativa -->
+    <div class="camp-section">
+        <div class="camp-section-title">Campanhas Ativas</div>
+        <div class="camp-card">
+            <div class="camp-card-header">
+                <div class="camp-card-title">Espaco Lazer — Depilacao a Laser</div>
+                <span class="badge badge-recrutando">Recrutando</span>
+            </div>
+            <div class="camp-stats">
+                <div class="camp-stat">
+                    <div class="camp-stat-value">300</div>
+                    <div class="camp-stat-label">Vagas</div>
+                </div>
+                <div class="camp-stat accent">
+                    <div class="camp-stat-value" id="statInteressadas">—</div>
+                    <div class="camp-stat-label">Creators interessadas</div>
+                </div>
+            </div>
+            <button class="btn-camp" id="btnVerInteressadas">Ver creators interessadas</button>
+        </div>
+    </div>
+
+    <!-- Disparar e-mail -->
+    <div class="camp-section">
+        <div class="camp-section-title">Disparar E-mail</div>
+        <div class="email-card">
+            <div class="email-field">
+                <label>Destinatarios</label>
+                <select id="emailTarget">
+                    <option value="todos">Todos os creators da base</option>
+                    <option value="espaco_lazer">So creators que aceitaram campanha Espaco Lazer</option>
+                    <option value="novo">So creators com status: Novo</option>
+                    <option value="aprovado">So creators com status: Aprovado</option>
+                    <option value="ativo">So creators com status: Ativo</option>
+                </select>
+            </div>
+            <div class="email-field">
+                <label>Assunto</label>
+                <input type="text" id="emailSubject" placeholder="Assunto do e-mail...">
+            </div>
+            <div class="email-field">
+                <label>Corpo do e-mail</label>
+                <textarea id="emailBody" placeholder="Escreva o conteudo do e-mail aqui..."></textarea>
+            </div>
+            <div class="email-preview" id="emailPreview">
+                Este e-mail sera enviado para <strong id="emailCount">0</strong> creators
+            </div>
+            <div class="email-actions">
+                <button class="btn-copy" id="btnCopyEmails" onclick="copyEmails()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    Copiar lista de e-mails
+                </button>
+                <button class="btn-copy" id="btnCopyWhatsapp" onclick="copyWhatsapps()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    Copiar lista de WhatsApp
+                </button>
+                <button class="btn-send" disabled>
+                    Enviar e-mail
+                    <span class="btn-send-tooltip">Em breve</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal: Adicionar Aluna -->
 <div class="modal-overlay" id="modalAluna">
     <div class="modal">
@@ -389,11 +494,13 @@
             document.getElementById('tabCreators').classList.toggle('show', target === 'creators');
             document.getElementById('tabSalvos').classList.toggle('show', target === 'salvos');
             document.getElementById('tabAlunas').classList.toggle('show', target === 'alunas');
+            document.getElementById('tabCampanhas').classList.toggle('show', target === 'campanhas');
             if (target === 'alunas') loadAlunas();
             if (target === 'salvos') {
                 populateSavedEstados();
                 loadSavedCreators();
             }
+            if (target === 'campanhas') updateCampanhaStats();
         });
     });
 
@@ -884,6 +991,85 @@
             btn.disabled = false;
         }
     });
+
+    /* ══════════════════════════════════════
+       CAMPANHAS & E-MAILS
+       ══════════════════════════════════════ */
+
+    function getFilteredCreators() {
+        const target = document.getElementById('emailTarget').value;
+        return allCreators.filter(c => {
+            if (target === 'espaco_lazer') return c.campanha_interesse === 'espaco_lazer';
+            if (target === 'novo') return c.status === 'novo';
+            if (target === 'aprovado') return c.status === 'aprovado';
+            if (target === 'ativo') return c.status === 'ativo';
+            return true;
+        });
+    }
+
+    function updateEmailCount() {
+        const filtered = getFilteredCreators();
+        document.getElementById('emailCount').textContent = filtered.length;
+    }
+
+    function updateCampanhaStats() {
+        const interessadas = allCreators.filter(c => c.campanha_interesse === 'espaco_lazer').length;
+        document.getElementById('statInteressadas').textContent = interessadas;
+        updateEmailCount();
+    }
+
+    document.getElementById('emailTarget').addEventListener('change', updateEmailCount);
+
+    /* Ver creators interessadas — muda pra aba Creators com filtro */
+    document.getElementById('btnVerInteressadas').addEventListener('click', function() {
+        /* Ativar aba Creators */
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelector('.tab[data-tab="creators"]').classList.add('active');
+        document.getElementById('tabCreators').classList.add('show');
+        document.getElementById('tabSalvos').classList.remove('show');
+        document.getElementById('tabAlunas').classList.remove('show');
+        document.getElementById('tabCampanhas').classList.remove('show');
+
+        /* Filtrar manualmente por campanha_interesse */
+        const interessadas = allCreators.filter(c => c.campanha_interesse === 'espaco_lazer');
+        document.getElementById('resultsInfo').innerHTML = `Mostrando <strong>${interessadas.length}</strong> creators interessadas na campanha Espaco Lazer`;
+        renderTable(interessadas);
+        renderCards(interessadas);
+    });
+
+    /* Copiar e-mails */
+    async function copyEmails() {
+        const btn = document.getElementById('btnCopyEmails');
+        const filtered = getFilteredCreators();
+        const emails = filtered.map(c => c.email).filter(Boolean).join(', ');
+
+        if (!emails) { alert('Nenhum e-mail encontrado para essa selecao.'); return; }
+
+        try {
+            await navigator.clipboard.writeText(emails);
+            const original = btn.innerHTML;
+            btn.classList.add('copied');
+            btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copiado!`;
+            setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 2000);
+        } catch (e) { alert('Erro ao copiar. Tente novamente.'); }
+    }
+
+    /* Copiar WhatsApps */
+    async function copyWhatsapps() {
+        const btn = document.getElementById('btnCopyWhatsapp');
+        const filtered = getFilteredCreators();
+        const whatsapps = filtered.map(c => c.whatsapp).filter(Boolean).join(', ');
+
+        if (!whatsapps) { alert('Nenhum WhatsApp encontrado para essa selecao.'); return; }
+
+        try {
+            await navigator.clipboard.writeText(whatsapps);
+            const original = btn.innerHTML;
+            btn.classList.add('copied');
+            btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copiado!`;
+            setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 2000);
+        } catch (e) { alert('Erro ao copiar. Tente novamente.'); }
+    }
 </script>
 </body>
 </html>
