@@ -385,8 +385,6 @@
     <div class="stats-row">
         <div class="stat-card accent"><div class="stat-value" id="statTotal">—</div><div class="stat-label">Total de creators</div></div>
         <div class="stat-card"><div class="stat-value" id="statNovo">—</div><div class="stat-label">Novos</div></div>
-        <div class="stat-card"><div class="stat-value" id="statAprovado">—</div><div class="stat-label">Aprovados</div></div>
-        <div class="stat-card"><div class="stat-value" id="statAtivo">—</div><div class="stat-label">Ativos</div></div>
     </div>
 
     <div class="filters-bar">
@@ -1242,8 +1240,6 @@
     function updateStats() {
         document.getElementById('statTotal').textContent = allCreators.length;
         document.getElementById('statNovo').textContent = allCreators.filter(c => c.status === 'novo').length;
-        document.getElementById('statAprovado').textContent = allCreators.filter(c => c.status === 'aprovado').length;
-        document.getElementById('statAtivo').textContent = allCreators.filter(c => c.status === 'ativo').length;
     }
 
     function populateEstadoFilter() {
