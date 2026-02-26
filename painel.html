@@ -30,21 +30,31 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Outfit', sans-serif; background: var(--cream); color: var(--text); -webkit-font-smoothing: antialiased; min-height: 100vh; }
 
-        /* ── Sidebar (desktop) ── */
-        .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 240px; background: var(--card); border-right: 1px solid var(--border); z-index: 60; display: flex; flex-direction: column; overflow-y: auto; }
-        .sidebar-brand { padding: 24px 24px 20px; border-bottom: 1px solid var(--border); }
-        .sidebar-logo { font-family: 'Fraunces', serif; font-weight: 700; font-size: 22px; color: var(--text); margin-bottom: 4px; }
+        /* ── Sidebar (desktop): collapsed 60px, expands to 240px on hover ── */
+        .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 60px; background: var(--card); border-right: 1px solid var(--border); z-index: 100; display: flex; flex-direction: column; overflow: hidden; transition: width 0.25s ease, box-shadow 0.25s ease; }
+        .sidebar:hover { width: 240px; box-shadow: 4px 0 16px rgba(0,0,0,0.08); }
+        .sidebar-brand { padding: 18px 0 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; min-height: 64px; padding-left: 16px; }
+        .sidebar-brand-icon { width: 28px; height: 28px; border-radius: 8px; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-weight: 700; font-size: 16px; flex-shrink: 0; }
+        .sidebar-brand-text { opacity: 0; transition: opacity 0.2s ease; white-space: nowrap; }
+        .sidebar:hover .sidebar-brand-text { opacity: 1; }
+        .sidebar-logo { font-family: 'Fraunces', serif; font-weight: 700; font-size: 18px; color: var(--text); line-height: 1.2; }
         .sidebar-logo span { color: var(--accent); }
-        .sidebar-tag { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 2.5px; color: var(--text-muted); }
-        .sidebar-nav { padding: 12px; flex: 1; }
-        .sidebar-nav-item { display: flex; align-items: center; gap: 10px; padding: 11px 16px; border-radius: 10px; font-size: 14px; font-weight: 500; color: var(--text-soft); cursor: pointer; transition: all 0.2s; border: none; background: none; width: 100%; text-align: left; font-family: 'Outfit', sans-serif; border-left: 3px solid transparent; margin-bottom: 2px; }
-        .sidebar-nav-item:hover { background: var(--cream); color: var(--text); }
+        .sidebar-tag { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); }
+        .sidebar-nav { padding: 10px 8px; flex: 1; }
+        .sidebar-nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 14px; font-weight: 500; color: var(--text-soft); cursor: pointer; transition: background 0.15s ease, color 0.15s ease; border: none; background: none; width: 100%; text-align: left; font-family: 'Outfit', sans-serif; border-left: 3px solid transparent; margin-bottom: 2px; white-space: nowrap; }
+        .sidebar-nav-item:hover { background: rgba(0,0,0,0.04); color: var(--text); }
         .sidebar-nav-item.active { background: var(--accent-glow); color: var(--accent); font-weight: 600; border-left-color: var(--accent); }
-        .sidebar-nav-icon { font-size: 16px; width: 22px; text-align: center; flex-shrink: 0; }
-        .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); }
-        .sidebar-user { font-size: 12px; font-weight: 500; color: var(--text-soft); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .sidebar-logout { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s; border: none; background: none; width: 100%; text-align: left; font-family: 'Outfit', sans-serif; }
+        .sidebar-nav-icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }
+        .sidebar-nav-text { opacity: 0; transition: opacity 0.2s ease; }
+        .sidebar:hover .sidebar-nav-text { opacity: 1; }
+        .sidebar-footer { padding: 12px 8px; border-top: 1px solid var(--border); }
+        .sidebar-user { font-size: 12px; font-weight: 500; color: var(--text-soft); margin-bottom: 8px; padding: 0 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0; transition: opacity 0.2s ease; height: 0; }
+        .sidebar:hover .sidebar-user { opacity: 1; height: auto; margin-bottom: 8px; }
+        .sidebar-logout { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s; border: none; background: none; width: 100%; text-align: left; font-family: 'Outfit', sans-serif; border-left: 3px solid transparent; white-space: nowrap; }
         .sidebar-logout:hover { background: rgba(196,69,60,0.06); color: var(--error); }
+        .sidebar-logout-icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }
+        .sidebar-logout-text { opacity: 0; transition: opacity 0.2s ease; }
+        .sidebar:hover .sidebar-logout-text { opacity: 1; }
 
         /* Header + Tabs: hidden on desktop (sidebar replaces them) */
         .header { background: var(--card); border-bottom: 1px solid var(--border); padding: 14px 20px; display: none; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
@@ -74,8 +84,8 @@
         .panel-tab:hover { color: var(--text); }
         .panel-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-        /* Main — offset by sidebar on desktop */
-        .main { max-width: 1200px; margin-left: 240px; padding: 24px 32px; }
+        /* Main — offset by collapsed sidebar (60px) */
+        .main { max-width: 1200px; margin-left: 60px; padding: 24px 32px; }
 
         /* Tab content */
         .tab-content { display: none; }
@@ -429,24 +439,31 @@
 <!-- Sidebar (desktop) -->
 <aside class="sidebar">
     <div class="sidebar-brand">
-        <div class="sidebar-logo">lara<span>.</span>dam</div>
-        <div class="sidebar-tag">Manager Club</div>
+        <div class="sidebar-brand-icon">L</div>
+        <div class="sidebar-brand-text">
+            <div class="sidebar-logo">lara<span>.</span>dam</div>
+            <div class="sidebar-tag">Manager Club</div>
+        </div>
     </div>
     <nav class="sidebar-nav">
         <button class="sidebar-nav-item active" data-tab="pesquisar">
-            <span class="sidebar-nav-icon">🔍</span> Pesquisar Creators
+            <span class="sidebar-nav-icon">🔍</span>
+            <span class="sidebar-nav-text">Pesquisar Creators</span>
         </button>
         <button class="sidebar-nav-item" data-tab="salvos">
-            <span class="sidebar-nav-icon">📁</span> Minhas Listas
+            <span class="sidebar-nav-icon">📁</span>
+            <span class="sidebar-nav-text">Minhas Listas</span>
         </button>
         <button class="sidebar-nav-item" data-tab="calculadora">
-            <span class="sidebar-nav-icon">🧮</span> Calculadora
+            <span class="sidebar-nav-icon">🧮</span>
+            <span class="sidebar-nav-text">Calculadora</span>
         </button>
     </nav>
     <div class="sidebar-footer">
         <div class="sidebar-user" id="sidebarUserName"></div>
         <button class="sidebar-logout" id="sidebarLogoutBtn">
-            <span>🚪</span> Sair
+            <span class="sidebar-logout-icon">🚪</span>
+            <span class="sidebar-logout-text">Sair</span>
         </button>
     </div>
 </aside>
