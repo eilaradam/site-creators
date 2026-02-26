@@ -383,6 +383,14 @@
                 <label>Já fez campanha paga?</label>
                 <select id="modalExperiencia"><option value="" disabled selected>Selecione</option><option value="sim">Sim, já fiz</option><option value="nao">Não, seria minha primeira</option><option value="permuta">Só permuta</option></select>
             </div>
+            <div class="field">
+                <label>Link do portfólio <span style="color:var(--text-muted);font-weight:400">(opcional — Google Drive, Behance, site, etc.)</span></label>
+                <input type="url" id="modalPortfolio" placeholder="https://seu-portfolio.com">
+            </div>
+            <div class="field">
+                <label>Link do seu melhor conteúdo <span style="color:var(--text-muted);font-weight:400">(opcional — Instagram, TikTok, YouTube, Drive...)</span></label>
+                <input type="url" id="modalMelhorConteudo" placeholder="https://link-do-conteudo.com">
+            </div>
             <div class="terms-checkbox">
                 <input type="checkbox" id="modalAceiteTermos" required>
                 <label for="modalAceiteTermos">Li e aceito os <a href="termos.html" target="_blank">Termos de Uso do Banco de Creators</a></label>
@@ -402,6 +410,15 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mcm1ucXV2d3d1eHJhcWdlbXloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNDI1NDIsImV4cCI6MjA4NzYxODU0Mn0.zmsi08dV5L1IlXJSr34vOii71w0g0OsD5_5DKio5g-o';
     let sb = null;
     try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch (e) { console.warn('Supabase não carregou:', e); }
+
+    /* ── formatUrl helper ── */
+    function formatUrl(url) {
+        if (!url) return null;
+        const s = url.trim();
+        if (!s) return null;
+        if (/^https?:\/\//i.test(s)) return s;
+        return 'https://' + s;
+    }
 
     /* ── WhatsApp mask ── */
     document.getElementById('modalWhatsapp').addEventListener('input', function(e) {
@@ -647,6 +664,8 @@
                 tipo_creator: document.querySelector('input[name="modal_tipo_creator"]:checked')?.value || null,
                 sobre: (document.getElementById('modalSobre')?.value || '').trim().substring(0, 200) || null,
                 experiencia: document.getElementById('modalExperiencia').value || null,
+                portfolio: formatUrl(document.getElementById('modalPortfolio').value),
+                melhor_conteudo: formatUrl(document.getElementById('modalMelhorConteudo').value),
                 foto_perfil: fotoUrl,
                 origem: 'campanha_espaco_laser',
                 status: 'novo',
