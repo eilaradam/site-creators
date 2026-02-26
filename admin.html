@@ -261,21 +261,26 @@
         .termos-status { font-size: 13px; color: var(--success); margin-left: auto; display: none; }
 
         /* Links tab */
-        .link-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
-        .link-item { padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+        .links-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; height: calc(100vh - 160px); }
+        .links-col { display: flex; flex-direction: column; overflow: hidden; }
+        .links-col-header { margin-bottom: 12px; }
+        .links-col-title { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 700; }
+        .links-col-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        .links-col-scroll { flex: 1; overflow-y: auto; }
+        .link-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+        .link-item { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 12px; }
         .link-item:last-child { border-bottom: none; }
-        .link-name { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
-        .link-desc { font-size: 13px; color: var(--text-muted); }
-        .link-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-        .link-url { font-size: 13px; color: var(--accent); text-decoration: none; font-weight: 600; }
-        .link-url:hover { text-decoration: underline; }
-        .btn-copy-link { padding: 6px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--cream); font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+        .link-name { font-size: 13px; font-weight: 600; color: var(--text); }
+        .link-desc { font-size: 11px; color: var(--text-muted); }
+        .link-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .link-url { font-size: 11px; color: var(--accent); text-decoration: none; font-weight: 600; display: none; }
+        .btn-copy-link { padding: 5px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--cream); font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.2s; white-space: nowrap; }
         .btn-copy-link:hover { border-color: var(--accent); color: var(--accent); }
         .btn-copy-link.copied { background: rgba(45,122,79,0.08); border-color: var(--success); color: var(--success); }
+        @media (max-width: 768px) { .links-grid { grid-template-columns: 1fr; height: auto; } .links-col-scroll { max-height: 50vh; } }
         @media (max-width: 600px) {
-            .link-item { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .link-item { flex-direction: column; align-items: flex-start; gap: 6px; }
             .link-actions { width: 100%; }
-            .link-url { font-size: 12px; }
         }
 
         /* Nicho badges (display) */
@@ -659,165 +664,39 @@
 
 <!-- ── TAB: LINKS ── -->
 <div class="dashboard" id="tabLinks">
-    <div style="max-width:600px;">
-        <h2 style="font-family:'Fraunces',serif;font-size:24px;font-weight:700;margin-bottom:4px;">Links da Plataforma</h2>
-        <p style="font-size:14px;color:var(--text-soft);margin-bottom:24px;">Acesso rapido a todas as paginas do site.</p>
-
-        <div class="link-card">
-            <div class="link-item">
-                <div class="link-info">
-                    <div class="link-name">Pagina de Cadastro</div>
-                    <div class="link-desc">Formulario principal de recrutamento de creators</div>
-                </div>
-                <div class="link-actions">
-                    <a href="https://creators.laradam.com/" target="_blank" rel="noopener" class="link-url">creators.laradam.com</a>
-                    <button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com/', this)">Copiar</button>
-                </div>
+    <div class="links-grid">
+        <div class="links-col">
+            <div class="links-col-header">
+                <div class="links-col-title">Links da Plataforma</div>
+                <div class="links-col-desc">Acesso rapido a todas as paginas do site.</div>
             </div>
-            <div class="link-item">
-                <div class="link-info">
-                    <div class="link-name">Campanha Espaco Laser</div>
-                    <div class="link-desc">Landing page da campanha de recrutamento</div>
-                </div>
-                <div class="link-actions">
-                    <a href="https://creators.laradam.com/espaco-laser.html" target="_blank" rel="noopener" class="link-url">creators.laradam.com/espaco-laser.html</a>
-                    <button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com/espaco-laser.html', this)">Copiar</button>
-                </div>
-            </div>
-            <div class="link-item">
-                <div class="link-info">
-                    <div class="link-name">Login</div>
-                    <div class="link-desc">Acesso para admin e alunas do Manager Club</div>
-                </div>
-                <div class="link-actions">
-                    <a href="https://creators.laradam.com/login.html" target="_blank" rel="noopener" class="link-url">creators.laradam.com/login.html</a>
-                    <button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com/login.html', this)">Copiar</button>
-                </div>
-            </div>
-            <div class="link-item">
-                <div class="link-info">
-                    <div class="link-name">Painel das Alunas</div>
-                    <div class="link-desc">Pesquisa e perfis salvos (Manager Club)</div>
-                </div>
-                <div class="link-actions">
-                    <a href="https://creators.laradam.com/painel.html" target="_blank" rel="noopener" class="link-url">creators.laradam.com/painel.html</a>
-                    <button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com/painel.html', this)">Copiar</button>
-                </div>
-            </div>
-            <div class="link-item">
-                <div class="link-info">
-                    <div class="link-name">Termos de Uso</div>
-                    <div class="link-desc">Pagina publica dos termos de uso</div>
-                </div>
-                <div class="link-actions">
-                    <a href="https://creators.laradam.com/termos.html" target="_blank" rel="noopener" class="link-url">creators.laradam.com/termos.html</a>
-                    <button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com/termos.html', this)">Copiar</button>
-                </div>
-            </div>
-            <div class="link-item">
-                <div class="link-info">
-                    <div class="link-name">Painel Admin</div>
-                    <div class="link-desc">Esta pagina (acesso restrito)</div>
-                </div>
-                <div class="link-actions">
-                    <a href="https://creators.laradam.com/admin.html" target="_blank" rel="noopener" class="link-url">creators.laradam.com/admin.html</a>
-                    <button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com/admin.html', this)">Copiar</button>
+            <div class="links-col-scroll">
+                <div class="link-card">
+                    <div class="link-item"><div class="link-info"><div class="link-name">Pagina de Cadastro</div><div class="link-desc">Formulario principal de recrutamento</div></div><div class="link-actions"><button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com/', this)">Copiar</button></div></div>
+                    <div class="link-item"><div class="link-info"><div class="link-name">Campanha Espaco Laser</div><div class="link-desc">Landing page da campanha</div></div><div class="link-actions"><button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com/espaco-laser.html', this)">Copiar</button></div></div>
+                    <div class="link-item"><div class="link-info"><div class="link-name">Login</div><div class="link-desc">Acesso para admin e alunas</div></div><div class="link-actions"><button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com/login.html', this)">Copiar</button></div></div>
+                    <div class="link-item"><div class="link-info"><div class="link-name">Painel das Alunas</div><div class="link-desc">Pesquisa e perfis salvos</div></div><div class="link-actions"><button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com/painel.html', this)">Copiar</button></div></div>
+                    <div class="link-item"><div class="link-info"><div class="link-name">Termos de Uso</div><div class="link-desc">Pagina publica dos termos</div></div><div class="link-actions"><button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com/termos.html', this)">Copiar</button></div></div>
+                    <div class="link-item"><div class="link-info"><div class="link-name">Painel Admin</div><div class="link-desc">Esta pagina (acesso restrito)</div></div><div class="link-actions"><button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com/admin.html', this)">Copiar</button></div></div>
                 </div>
             </div>
         </div>
-
-        <h2 style="font-family:'Fraunces',serif;font-size:24px;font-weight:700;margin-bottom:4px;margin-top:40px;">Links com UTM (Rastreamento)</h2>
-        <p style="font-size:14px;color:var(--text-soft);margin-bottom:24px;">Use esses links pra saber de onde cada creator veio. O campo <strong>utm_origem</strong> salva automaticamente no Supabase.</p>
-
-        <div class="link-card">
-            <div class="link-item">
-                <div class="link-info">
-                    <div class="link-name">Instagram Bio</div>
-                    <div class="link-desc">Link fixo na bio do Instagram</div>
-                </div>
-                <div class="link-actions">
-                    <a href="https://creators.laradam.com?utm=instagram-bio" target="_blank" rel="noopener" class="link-url">creators.laradam.com?utm=instagram-bio</a>
-                    <button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com?utm=instagram-bio', this)">Copiar</button>
-                </div>
+        <div class="links-col">
+            <div class="links-col-header">
+                <div class="links-col-title">Links com UTM (Rastreamento)</div>
+                <div class="links-col-desc">Use esses links pra saber de onde cada creator veio.</div>
             </div>
-            <div class="link-item">
-                <div class="link-info">
-                    <div class="link-name">Instagram Stories</div>
-                    <div class="link-desc">Link pra stories e posts</div>
-                </div>
-                <div class="link-actions">
-                    <a href="https://creators.laradam.com?utm=instagram-stories" target="_blank" rel="noopener" class="link-url">creators.laradam.com?utm=instagram-stories</a>
-                    <button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com?utm=instagram-stories', this)">Copiar</button>
-                </div>
-            </div>
-            <div class="link-item">
-                <div class="link-info">
-                    <div class="link-name">TikTok Bio</div>
-                    <div class="link-desc">Link fixo na bio do TikTok</div>
-                </div>
-                <div class="link-actions">
-                    <a href="https://creators.laradam.com?utm=tiktok-bio" target="_blank" rel="noopener" class="link-url">creators.laradam.com?utm=tiktok-bio</a>
-                    <button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com?utm=tiktok-bio', this)">Copiar</button>
-                </div>
-            </div>
-            <div class="link-item">
-                <div class="link-info">
-                    <div class="link-name">LinkedIn</div>
-                    <div class="link-desc">Posts e perfil no LinkedIn</div>
-                </div>
-                <div class="link-actions">
-                    <a href="https://creators.laradam.com?utm=linkedin" target="_blank" rel="noopener" class="link-url">creators.laradam.com?utm=linkedin</a>
-                    <button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com?utm=linkedin', this)">Copiar</button>
-                </div>
-            </div>
-            <div class="link-item">
-                <div class="link-info">
-                    <div class="link-name">Meta Ads</div>
-                    <div class="link-desc">Campanhas pagas no Instagram/Facebook</div>
-                </div>
-                <div class="link-actions">
-                    <a href="https://creators.laradam.com?utm=meta-ads" target="_blank" rel="noopener" class="link-url">creators.laradam.com?utm=meta-ads</a>
-                    <button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com?utm=meta-ads', this)">Copiar</button>
-                </div>
-            </div>
-            <div class="link-item">
-                <div class="link-info">
-                    <div class="link-name">Google Ads</div>
-                    <div class="link-desc">Campanhas pagas no Google</div>
-                </div>
-                <div class="link-actions">
-                    <a href="https://creators.laradam.com?utm=google-ads" target="_blank" rel="noopener" class="link-url">creators.laradam.com?utm=google-ads</a>
-                    <button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com?utm=google-ads', this)">Copiar</button>
-                </div>
-            </div>
-            <div class="link-item">
-                <div class="link-info">
-                    <div class="link-name">TikTok Ads</div>
-                    <div class="link-desc">Campanhas pagas no TikTok</div>
-                </div>
-                <div class="link-actions">
-                    <a href="https://creators.laradam.com?utm=tiktok-ads" target="_blank" rel="noopener" class="link-url">creators.laradam.com?utm=tiktok-ads</a>
-                    <button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com?utm=tiktok-ads', this)">Copiar</button>
-                </div>
-            </div>
-            <div class="link-item">
-                <div class="link-info">
-                    <div class="link-name">Email Marketing</div>
-                    <div class="link-desc">Campanhas por email</div>
-                </div>
-                <div class="link-actions">
-                    <a href="https://creators.laradam.com?utm=email" target="_blank" rel="noopener" class="link-url">creators.laradam.com?utm=email</a>
-                    <button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com?utm=email', this)">Copiar</button>
-                </div>
-            </div>
-            <div class="link-item">
-                <div class="link-info">
-                    <div class="link-name">WhatsApp Grupo</div>
-                    <div class="link-desc">Grupos e mensagens no WhatsApp</div>
-                </div>
-                <div class="link-actions">
-                    <a href="https://creators.laradam.com?utm=whatsapp-grupo" target="_blank" rel="noopener" class="link-url">creators.laradam.com?utm=whatsapp-grupo</a>
-                    <button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com?utm=whatsapp-grupo', this)">Copiar</button>
+            <div class="links-col-scroll">
+                <div class="link-card">
+                    <div class="link-item"><div class="link-info"><div class="link-name">Instagram Bio</div><div class="link-desc">Link fixo na bio do Instagram</div></div><div class="link-actions"><button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com?utm=instagram-bio', this)">Copiar</button></div></div>
+                    <div class="link-item"><div class="link-info"><div class="link-name">Instagram Stories</div><div class="link-desc">Link pra stories e posts</div></div><div class="link-actions"><button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com?utm=instagram-stories', this)">Copiar</button></div></div>
+                    <div class="link-item"><div class="link-info"><div class="link-name">TikTok Bio</div><div class="link-desc">Link fixo na bio do TikTok</div></div><div class="link-actions"><button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com?utm=tiktok-bio', this)">Copiar</button></div></div>
+                    <div class="link-item"><div class="link-info"><div class="link-name">LinkedIn</div><div class="link-desc">Posts e perfil no LinkedIn</div></div><div class="link-actions"><button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com?utm=linkedin', this)">Copiar</button></div></div>
+                    <div class="link-item"><div class="link-info"><div class="link-name">Meta Ads</div><div class="link-desc">Campanhas pagas Instagram/Facebook</div></div><div class="link-actions"><button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com?utm=meta-ads', this)">Copiar</button></div></div>
+                    <div class="link-item"><div class="link-info"><div class="link-name">Google Ads</div><div class="link-desc">Campanhas pagas no Google</div></div><div class="link-actions"><button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com?utm=google-ads', this)">Copiar</button></div></div>
+                    <div class="link-item"><div class="link-info"><div class="link-name">TikTok Ads</div><div class="link-desc">Campanhas pagas no TikTok</div></div><div class="link-actions"><button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com?utm=tiktok-ads', this)">Copiar</button></div></div>
+                    <div class="link-item"><div class="link-info"><div class="link-name">Email Marketing</div><div class="link-desc">Campanhas por email</div></div><div class="link-actions"><button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com?utm=email', this)">Copiar</button></div></div>
+                    <div class="link-item"><div class="link-info"><div class="link-name">WhatsApp Grupo</div><div class="link-desc">Grupos e mensagens no WhatsApp</div></div><div class="link-actions"><button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com?utm=whatsapp-grupo', this)">Copiar</button></div></div>
                 </div>
             </div>
         </div>
