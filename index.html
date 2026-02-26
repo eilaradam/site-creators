@@ -497,6 +497,18 @@
         console.warn('Supabase não carregou:', err);
     }
 
+    /* ── UTM e Indicação ── */
+    const _params = new URLSearchParams(window.location.search);
+    const utmOrigem = _params.get('utm') || 'direto';
+    const refCode = _params.get('ref') || null;
+
+    function gerarCodigoIndicacao() {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let code = '';
+        for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+        return code;
+    }
+
     document.getElementById('creatorForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const btn = document.getElementById('submitBtn');
@@ -552,13 +564,24 @@
                 melhor_conteudo: formatUrl(document.getElementById('melhor_conteudo').value),
                 foto_perfil: fotoUrl,
                 origem: 'site_recrutamento',
+                utm_origem: utmOrigem,
+                codigo_indicacao: gerarCodigoIndicacao(),
+                indicada_por: refCode,
                 status: 'novo',
                 aceite_termos: true,
                 data_aceite_termos: new Date().toISOString()
             };
 
-            /* Inserir no banco */
-            const { data, error } = await sb.from('creators').insert([creatorData]);
+            /* Inserir no banco (retry se codigo_indicacao colidir) */
+            let tentativas = 0;
+            let data, error;
+            do {
+                ({ data, error } = await sb.from('creators').insert([creatorData]));
+                if (error && error.message?.includes('codigo_indicacao') && tentativas < 3) {
+                    creatorData.codigo_indicacao = gerarCodigoIndicacao();
+                    tentativas++;
+                } else break;
+            } while (true);
             if (error) { if (error.code === '23505') throw new Error('Esse e-mail ou Instagram já está cadastrado na nossa base!'); throw error; }
 
             /* E-mail de boas-vindas (não bloqueia o cadastro) */

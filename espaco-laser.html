@@ -411,6 +411,18 @@
     let sb = null;
     try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch (e) { console.warn('Supabase não carregou:', e); }
 
+    /* ── UTM e Indicação ── */
+    const _params = new URLSearchParams(window.location.search);
+    const utmOrigem = _params.get('utm') || 'campanha-espaco-laser';
+    const refCode = _params.get('ref') || null;
+
+    function gerarCodigoIndicacao() {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let code = '';
+        for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+        return code;
+    }
+
     /* ── formatUrl helper ── */
     function formatUrl(url) {
         if (!url) return null;
@@ -668,14 +680,25 @@
                 melhor_conteudo: formatUrl(document.getElementById('modalMelhorConteudo').value),
                 foto_perfil: fotoUrl,
                 origem: 'campanha_espaco_laser',
+                utm_origem: utmOrigem,
+                codigo_indicacao: gerarCodigoIndicacao(),
+                indicada_por: refCode,
                 status: 'novo',
                 campanha_interesse: 'espaco_laser',
                 aceite_termos: true,
                 data_aceite_termos: new Date().toISOString()
             };
 
-            /* Inserir */
-            const { error } = await sb.from('creators').insert([creatorData]);
+            /* Inserir (retry se codigo_indicacao colidir) */
+            let tentativas = 0;
+            let error;
+            do {
+                ({ error } = await sb.from('creators').insert([creatorData]));
+                if (error && error.message?.includes('codigo_indicacao') && tentativas < 3) {
+                    creatorData.codigo_indicacao = gerarCodigoIndicacao();
+                    tentativas++;
+                } else break;
+            } while (true);
             if (error) {
                 if (error.code === '23505') throw new Error('Esse e-mail ou Instagram já está cadastrado!');
                 throw error;
