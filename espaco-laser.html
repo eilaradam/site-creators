@@ -112,25 +112,19 @@
 
         /* ── EXCHANGE ── */
         .exchange { padding: 96px 24px; background: #FFFFFF; }
-        .exchange-grid { max-width: 960px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .exchange-grid { max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
         .exchange-col { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 36px 32px; }
         .exchange-col-title { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; margin-bottom: 24px; display: flex; align-items: center; gap: 10px; }
         .exchange-col-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
         .exchange-col-icon.do { background: rgba(212,87,42,0.1); }
         .exchange-col-icon.get { background: rgba(45,122,79,0.1); }
+        .exchange-col-icon.req { background: rgba(45,122,79,0.1); }
         .exchange-list { list-style: none; display: flex; flex-direction: column; gap: 16px; }
         .exchange-list li { display: flex; align-items: flex-start; gap: 12px; font-size: 15px; color: var(--text-soft); line-height: 1.5; }
         .exchange-list li svg { width: 20px; height: 20px; flex-shrink: 0; margin-top: 2px; }
         .exchange-list .do-icon { color: var(--accent); }
         .exchange-list .get-icon { color: var(--success); }
 
-        /* ── REQUIREMENTS ── */
-        .requirements { padding: 80px 24px; background: var(--cream); }
-        .req-card { max-width: 640px; margin: 0 auto; background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 40px 36px; }
-        .req-list { list-style: none; display: flex; flex-direction: column; gap: 16px; }
-        .req-list li { display: flex; align-items: center; gap: 14px; font-size: 15px; color: var(--text); font-weight: 500; }
-        .req-check { width: 28px; height: 28px; border-radius: 50%; background: rgba(45,122,79,0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .req-check svg { width: 14px; height: 14px; color: var(--success); }
 
         /* ── FORM SECTION ── */
         .form-section { padding: 96px 24px; background: #FFFFFF; }
@@ -266,7 +260,7 @@
             .hero-proof { justify-content: center; }
             .steps { grid-template-columns: 1fr; max-width: 400px; }
             .steps::before { display: none; }
-            .exchange-grid { grid-template-columns: 1fr; }
+            .exchange-grid { grid-template-columns: 1fr; max-width: 480px; }
         }
         @media (max-width: 600px) {
             .nav { padding: 14px 16px; }
@@ -285,7 +279,6 @@
             .field-row { grid-template-columns: 1fr; }
             .modal-card { padding: 28px 20px; margin: 16px auto; }
             .exchange-col { padding: 28px 24px; }
-            .req-card { padding: 28px 24px; }
             .mobile-cta { display: block; }
             body { padding-bottom: 68px; }
         }
@@ -419,22 +412,18 @@
                 <li><svg class="get-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Experiência real pra agregar ao seu portfólio profissional</li>
             </ul>
         </div>
-    </div>
-</section>
-
-<!-- SEÇÃO 5 — QUEM PODE PARTICIPAR -->
-<section class="requirements">
-    <div class="section-header reveal">
-        <div class="section-tag">Requisitos</div>
-        <h2 class="section-title">Quem pode participar</h2>
-    </div>
-    <div class="req-card reveal">
-        <ul class="req-list">
-            <li><span class="req-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Perfil aberto e ativo no Instagram</li>
-            <li><span class="req-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Mínimo de 1.000 seguidores</li>
-            <li><span class="req-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Maiores de 18 anos</li>
-            <li><span class="req-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Disponibilidade para postar dentro do prazo</li>
-        </ul>
+        <div class="exchange-col reveal">
+            <div class="exchange-col-title">
+                <div class="exchange-col-icon req">✅</div>
+                Quem pode participar
+            </div>
+            <ul class="exchange-list">
+                <li><svg class="get-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Perfil aberto e ativo no Instagram</li>
+                <li><svg class="get-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Mínimo de 1.000 seguidores</li>
+                <li><svg class="get-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Maiores de 18 anos</li>
+                <li><svg class="get-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Disponibilidade para postar dentro do prazo</li>
+            </ul>
+        </div>
     </div>
 </section>
 
