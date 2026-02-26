@@ -384,7 +384,7 @@
         <div class="camp-section-title">Campanhas Ativas</div>
         <div class="camp-card">
             <div class="camp-card-header">
-                <div class="camp-card-title">Espaco Lazer — Depilacao a Laser</div>
+                <div class="camp-card-title">Espaço Laser — Depilação a Laser</div>
                 <span class="badge badge-recrutando">Recrutando</span>
             </div>
             <div class="camp-stats">
@@ -409,7 +409,7 @@
                 <label>Destinatarios</label>
                 <select id="emailTarget">
                     <option value="todos">Todos os creators da base</option>
-                    <option value="espaco_lazer">So creators que aceitaram campanha Espaco Lazer</option>
+                    <option value="espaco_laser">Só creators que aceitaram campanha Espaço Laser</option>
                     <option value="novo">So creators com status: Novo</option>
                     <option value="aprovado">So creators com status: Aprovado</option>
                     <option value="ativo">So creators com status: Ativo</option>
@@ -1043,7 +1043,7 @@
     function getFilteredCreators() {
         const target = document.getElementById('emailTarget').value;
         return allCreators.filter(c => {
-            if (target === 'espaco_lazer') return c.campanha_interesse === 'espaco_lazer';
+            if (target === 'espaco_laser') return c.campanha_interesse === 'espaco_laser';
             if (target === 'novo') return c.status === 'novo';
             if (target === 'aprovado') return c.status === 'aprovado';
             if (target === 'ativo') return c.status === 'ativo';
@@ -1057,7 +1057,7 @@
     }
 
     function updateCampanhaStats() {
-        const interessadas = allCreators.filter(c => c.campanha_interesse === 'espaco_lazer').length;
+        const interessadas = allCreators.filter(c => c.campanha_interesse === 'espaco_laser').length;
         document.getElementById('statInteressadas').textContent = interessadas;
         updateEmailCount();
     }
@@ -1075,8 +1075,8 @@
         document.getElementById('tabCampanhas').classList.remove('show');
 
         /* Filtrar manualmente por campanha_interesse */
-        const interessadas = allCreators.filter(c => c.campanha_interesse === 'espaco_lazer');
-        document.getElementById('resultsInfo').innerHTML = `Mostrando <strong>${interessadas.length}</strong> creators interessadas na campanha Espaco Lazer`;
+        const interessadas = allCreators.filter(c => c.campanha_interesse === 'espaco_laser');
+        document.getElementById('resultsInfo').innerHTML = `Mostrando <strong>${interessadas.length}</strong> creators interessadas na campanha Espaço Laser`;
         renderTable(interessadas);
         renderCards(interessadas);
     });

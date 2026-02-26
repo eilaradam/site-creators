@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campanha Espaço Lazer | Lara Dam</title>
-    <meta name="description" content="Participe da campanha Espaço Lazer — Depilação a Laser. 300 vagas para creators de todo o Brasil.">
-    <meta property="og:title" content="Campanha Espaço Lazer · Depilação a Laser">
+    <title>Campanha Espaço Laser | Lara Dam</title>
+    <meta name="description" content="Participe da campanha Espaço Laser — Depilação a Laser. 300 vagas para creators de todo o Brasil.">
+    <meta property="og:title" content="Campanha Espaço Laser · Depilação a Laser">
     <meta property="og:description" content="300 vagas para creators. Ganhe 5 sessões de depilação a laser.">
     <meta property="og:type" content="website">
     <meta name="robots" content="index, follow">
@@ -62,6 +62,7 @@
         .detail-card ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
         .detail-card li { font-size: 14px; color: var(--text-soft); line-height: 1.5; padding-left: 24px; position: relative; }
         .detail-card li::before { content: '✓'; position: absolute; left: 0; top: 0; font-size: 14px; font-weight: 700; color: var(--success); }
+        .detail-card.full-width { grid-column: 1 / -1; }
 
         /* Participate section */
         .participate { max-width: 480px; margin: 0 auto; padding: 0 24px 48px; }
@@ -157,9 +158,9 @@
 <!-- Hero -->
 <div class="hero">
     <div class="hero-badge"><span class="dot"></span> Campanha Aberta · 300 vagas</div>
-    <h1>Espaço <em>Lazer</em></h1>
+    <h1>Espaço <em>Laser</em></h1>
     <div class="hero-subtitle">Depilação a Laser</div>
-    <p>Estamos selecionando 300 creators de todo o Brasil para uma campanha de stories com o Espaço Lazer.</p>
+    <p>Estamos selecionando 300 creators de todo o Brasil para uma campanha de stories com o Espaço Laser, a maior rede de depilação a laser do país.</p>
 </div>
 
 <!-- Detalhes -->
@@ -168,8 +169,9 @@
         <div class="detail-card-icon">📋</div>
         <h3>O que você faz</h3>
         <ul>
-            <li>2 telas de stories</li>
-            <li>Com link + marcação do @espacolazer</li>
+            <li>2 telas de stories no seu Instagram</li>
+            <li>Com link direcionando para o Espaço Laser + marcação do @espacolaser</li>
+            <li>Conteúdo autêntico mostrando sua experiência real</li>
             <li>Prazo: 7 dias após aprovação</li>
         </ul>
     </div>
@@ -177,8 +179,20 @@
         <div class="detail-card-icon">🎁</div>
         <h3>O que você recebe</h3>
         <ul>
-            <li>5 sessões de depilação a laser</li>
+            <li>5 sessões de depilação a laser na região de sua escolha</li>
             <li>Válido em qualquer unidade do Brasil</li>
+            <li>Prioridade em futuras campanhas com a marca</li>
+            <li>Experiência real pra agregar ao seu portfólio profissional</li>
+        </ul>
+    </div>
+    <div class="detail-card full-width reveal">
+        <div class="detail-card-icon">✅</div>
+        <h3>Quem pode participar</h3>
+        <ul>
+            <li>Perfil aberto e ativo no Instagram</li>
+            <li>Mínimo de 1.000 seguidores</li>
+            <li>Maiores de 18 anos</li>
+            <li>Disponibilidade para postar dentro do prazo</li>
         </ul>
     </div>
 </div>
@@ -400,7 +414,7 @@
                 /* JA CADASTRADA — atualiza interesse */
                 const { error: updateErr } = await sb.rpc('update_campanha_interesse', {
                     p_email: email,
-                    p_campanha: 'espaco_lazer'
+                    p_campanha: 'espaco_laser'
                 });
                 if (updateErr) throw updateErr;
                 mostrarSucesso();
@@ -479,9 +493,9 @@
                 nicho: document.getElementById('modalNicho').value,
                 experiencia: document.getElementById('modalExperiencia').value || null,
                 foto_perfil: fotoUrl,
-                origem: 'campanha_espaco_lazer',
+                origem: 'campanha_espaco_laser',
                 status: 'novo',
-                campanha_interesse: 'espaco_lazer',
+                campanha_interesse: 'espaco_laser',
                 aceite_termos: true,
                 data_aceite_termos: new Date().toISOString()
             };
