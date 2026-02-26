@@ -588,6 +588,7 @@
                 <label for="modalAceiteTermos">Li e aceito os <a href="termos.html" target="_blank">Termos de Uso do Banco de Creators</a></label>
             </div>
             <button type="submit" class="btn-participate" id="btnCadastrar">Cadastrar e participar da campanha →</button>
+            <div class="form-error" id="modalErrorBottom" style="margin-top:14px;"></div>
         </form>
     </div>
 </div>
@@ -852,8 +853,9 @@
     document.getElementById('cadastroForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const btn = document.getElementById('btnCadastrar');
-        const errorEl = document.getElementById('modalError');
+        const errorEl = document.getElementById('modalErrorBottom');
         errorEl.classList.remove('show');
+        document.getElementById('modalError').classList.remove('show');
         btn.textContent = 'Cadastrando...';
         btn.disabled = true;
 
@@ -945,6 +947,7 @@
         } catch (err) {
             errorEl.textContent = err.message || 'Erro ao cadastrar. Tente novamente.';
             errorEl.classList.add('show');
+            errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
             btn.textContent = 'Cadastrar e participar da campanha →';
             btn.disabled = false;
         }

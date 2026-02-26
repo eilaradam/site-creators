@@ -289,6 +289,7 @@
                         <label for="aceiteTermos">Li e aceito os <a href="termos.html" target="_blank">Termos de Uso do Banco de Creators</a></label>
                     </div>
                     <button type="submit" class="form-submit" id="submitBtn">Quero receber oportunidades →</button>
+                    <div class="form-error" id="formErrorBottom" style="margin-top:14px;"></div>
                 </form>
                 <p class="form-footer">Ao se cadastrar, você aceita receber contato sobre campanhas.<br>Seus dados estão seguros.</p>
             </div>
@@ -520,8 +521,9 @@
     document.getElementById('creatorForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const btn = document.getElementById('submitBtn');
-        const errorEl = document.getElementById('formError');
+        const errorEl = document.getElementById('formErrorBottom');
         errorEl.classList.remove('show');
+        document.getElementById('formError').classList.remove('show');
         btn.textContent = 'Enviando...';
         btn.disabled = true;
 
@@ -616,6 +618,7 @@
         } catch (err) {
             errorEl.textContent = err.message || 'Erro ao enviar. Tente novamente.';
             errorEl.classList.add('show');
+            errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
             btn.textContent = 'Quero receber oportunidades →';
             btn.disabled = false;
         }
