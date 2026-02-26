@@ -321,6 +321,62 @@
         .tipo-badge-influenciadora { background: rgba(139,105,20,0.1); color: #8B6914; }
         .tipo-badge-ugc_influenciadora { background: rgba(212,87,42,0.1); color: var(--accent); }
 
+        /* Banners management */
+        .banners-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .banners-header h2 { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; }
+        .btn-add-banner { padding: 10px 20px; background: var(--accent); color: white; border: none; border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+        .btn-add-banner:hover { background: var(--accent-dark); }
+        .banner-list { display: flex; flex-direction: column; gap: 12px; }
+        .banner-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; align-items: stretch; transition: box-shadow 0.2s; }
+        .banner-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .banner-item-img { width: 200px; min-height: 80px; flex-shrink: 0; overflow: hidden; background: var(--cream); }
+        .banner-item-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .banner-item-info { flex: 1; padding: 14px 18px; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+        .banner-item-title { font-size: 14px; font-weight: 600; color: var(--text); }
+        .banner-item-link { font-size: 12px; color: var(--accent); text-decoration: none; word-break: break-all; }
+        .banner-item-meta { font-size: 11px; color: var(--text-muted); display: flex; gap: 12px; align-items: center; }
+        .banner-item-actions { display: flex; align-items: center; gap: 8px; padding: 14px 18px; flex-shrink: 0; }
+        .banner-status { padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; font-family: 'Outfit', sans-serif; }
+        .banner-status.active { background: rgba(45,122,79,0.1); color: var(--success); }
+        .banner-status.inactive { background: rgba(156,149,140,0.15); color: var(--text-muted); }
+        .banner-status:hover { opacity: 0.8; }
+        .btn-banner-edit, .btn-banner-del { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--cream); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .btn-banner-edit:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-banner-del:hover { border-color: var(--error); color: var(--error); }
+        .btn-banner-edit svg, .btn-banner-del svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .btn-banner-order { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--cream); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; font-family: 'Outfit', sans-serif; font-size: 16px; color: var(--text-muted); }
+        .btn-banner-order:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-banner-order:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        /* Banner modal */
+        .modal-banner-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; align-items: center; justify-content: center; padding: 24px; }
+        .modal-banner-overlay.show { display: flex; }
+        .modal-banner { background: var(--card); border-radius: 16px; padding: 28px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; }
+        .modal-banner h3 { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+        .modal-banner .field { margin-bottom: 16px; }
+        .modal-banner .field label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 6px; }
+        .modal-banner .field input { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--text); background: var(--cream); outline: none; transition: border-color 0.2s; }
+        .modal-banner .field input:focus { border-color: var(--accent); }
+        .banner-upload-area { border: 2px dashed var(--border); border-radius: 12px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--cream); }
+        .banner-upload-area:hover { border-color: var(--accent); background: var(--accent-glow); }
+        .banner-upload-area.has-image { padding: 0; border-style: solid; }
+        .banner-upload-area img { width: 100%; border-radius: 10px; display: block; }
+        .banner-upload-area p { font-size: 13px; color: var(--text-muted); margin-top: 8px; }
+        .banner-upload-area .upload-icon { font-size: 28px; color: var(--text-muted); }
+        .modal-banner-actions { display: flex; gap: 10px; margin-top: 20px; }
+        .modal-banner-actions button { flex: 1; padding: 12px; border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+        .btn-banner-cancel { background: var(--cream); border: 1px solid var(--border); color: var(--text-soft); }
+        .btn-banner-cancel:hover { border-color: var(--text-muted); }
+        .btn-banner-save { background: var(--accent); border: none; color: white; }
+        .btn-banner-save:hover { background: var(--accent-dark); }
+        .btn-banner-save:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        @media (max-width: 600px) {
+            .banner-item { flex-direction: column; }
+            .banner-item-img { width: 100%; min-height: 100px; max-height: 150px; }
+            .banner-item-actions { padding: 10px 14px; justify-content: flex-end; border-top: 1px solid var(--border); }
+        }
+
         /* Empty & loading */
         .empty-state { text-align: center; padding: 60px 24px; color: var(--text-muted); }
         .empty-state p { font-size: 13px; line-height: 1.6; }
@@ -369,6 +425,7 @@
     <button class="tab" data-tab="campanhas">Campanhas &amp; E-mails</button>
     <button class="tab" data-tab="termos">Termos</button>
     <button class="tab" data-tab="links">Links</button>
+    <button class="tab" data-tab="banners">Banners</button>
 </div>
 
 <!-- ── TAB: DASHBOARD ── -->
@@ -722,6 +779,44 @@
     </div>
 </div>
 
+<!-- ── TAB: BANNERS ── -->
+<div class="dashboard" id="tabBanners">
+    <div class="banners-header">
+        <h2>Gerenciar Banners</h2>
+        <button class="btn-add-banner" id="btnAddBanner">+ Novo Banner</button>
+    </div>
+    <div class="banner-list" id="bannerList">
+        <div class="loading">Carregando banners...</div>
+    </div>
+</div>
+
+<!-- Modal: Banner -->
+<div class="modal-banner-overlay" id="modalBanner">
+    <div class="modal-banner">
+        <h3 id="modalBannerTitle">Novo Banner</h3>
+        <div class="field">
+            <label>Titulo</label>
+            <input type="text" id="bannerTitulo" placeholder="Ex: Promo de verao" maxlength="100">
+        </div>
+        <div class="field">
+            <label>Imagem</label>
+            <div class="banner-upload-area" id="bannerUploadArea">
+                <div class="upload-icon">&#128247;</div>
+                <p>Clique para selecionar ou arraste uma imagem</p>
+            </div>
+            <input type="file" id="bannerFileInput" accept="image/*" style="display:none">
+        </div>
+        <div class="field">
+            <label>Link (opcional)</label>
+            <input type="text" id="bannerLinkUrl" placeholder="https://...">
+        </div>
+        <div class="modal-banner-actions">
+            <button class="btn-banner-cancel" id="btnBannerCancel">Cancelar</button>
+            <button class="btn-banner-save" id="btnBannerSave">Salvar</button>
+        </div>
+    </div>
+</div>
+
 <!-- Modal: Adicionar Aluna -->
 <div class="modal-overlay" id="modalAluna">
     <div class="modal">
@@ -794,9 +889,11 @@
             document.getElementById('tabCampanhas').classList.toggle('show', target === 'campanhas');
             document.getElementById('tabTermos').classList.toggle('show', target === 'termos');
             document.getElementById('tabLinks').classList.toggle('show', target === 'links');
+            document.getElementById('tabBanners').classList.toggle('show', target === 'banners');
             if (target === 'dashboard') loadDashboard();
             if (target === 'alunas') loadAlunas();
             if (target === 'termos') loadTermos();
+            if (target === 'banners') loadAdminBanners();
             if (target === 'salvos') {
                 populateSavedEstados();
                 loadSavedCreators();
@@ -1920,6 +2017,229 @@
         textarea.value = textarea.value.substring(0, start) + insertion + textarea.value.substring(end);
         textarea.focus();
         textarea.selectionStart = textarea.selectionEnd = start + insertion.length;
+    }
+
+    /* ══════════════════════════════════
+       BANNERS TAB
+       ══════════════════════════════════ */
+    let adminBanners = [];
+    let editingBannerId = null;
+    let bannerImageFile = null;
+
+    async function loadAdminBanners() {
+        const list = document.getElementById('bannerList');
+        list.innerHTML = '<div class="loading">Carregando banners...</div>';
+        try {
+            const { data, error } = await sb.from('banners').select('*').order('ordem', { ascending: true });
+            if (error) throw error;
+            adminBanners = data || [];
+            renderAdminBanners();
+        } catch (err) {
+            list.innerHTML = '<div class="empty-state"><p>Erro ao carregar banners.</p></div>';
+            console.error(err);
+        }
+    }
+
+    function renderAdminBanners() {
+        const list = document.getElementById('bannerList');
+        if (adminBanners.length === 0) {
+            list.innerHTML = '<div class="empty-state"><p>Nenhum banner cadastrado.<br>Clique em "+ Novo Banner" para adicionar.</p></div>';
+            return;
+        }
+        list.innerHTML = adminBanners.map((b, i) => `
+            <div class="banner-item" data-id="${b.id}">
+                <div class="banner-item-img">
+                    <img src="${b.imagem_url}" alt="${b.titulo || ''}" onerror="this.parentElement.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:12px\\'>Sem imagem</div>'">
+                </div>
+                <div class="banner-item-info">
+                    <div class="banner-item-title">${b.titulo || '(Sem titulo)'}</div>
+                    ${b.link_url ? `<a class="banner-item-link" href="${b.link_url}" target="_blank" rel="noopener">${b.link_url}</a>` : ''}
+                    <div class="banner-item-meta">
+                        <span>Ordem: ${b.ordem}</span>
+                    </div>
+                </div>
+                <div class="banner-item-actions">
+                    <button class="btn-banner-order" onclick="moveBanner('${b.id}', -1)" ${i === 0 ? 'disabled' : ''} title="Mover pra cima">&#8593;</button>
+                    <button class="btn-banner-order" onclick="moveBanner('${b.id}', 1)" ${i === adminBanners.length - 1 ? 'disabled' : ''} title="Mover pra baixo">&#8595;</button>
+                    <button class="banner-status ${b.ativo ? 'active' : 'inactive'}" onclick="toggleBannerStatus('${b.id}')">${b.ativo ? 'Ativo' : 'Inativo'}</button>
+                    <button class="btn-banner-edit" onclick="openEditBanner('${b.id}')" title="Editar"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                    <button class="btn-banner-del" onclick="deleteBanner('${b.id}')" title="Excluir"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Modal open/close
+    document.getElementById('btnAddBanner').addEventListener('click', () => {
+        editingBannerId = null;
+        bannerImageFile = null;
+        document.getElementById('modalBannerTitle').textContent = 'Novo Banner';
+        document.getElementById('bannerTitulo').value = '';
+        document.getElementById('bannerLinkUrl').value = '';
+        const area = document.getElementById('bannerUploadArea');
+        area.classList.remove('has-image');
+        area.innerHTML = '<div class="upload-icon">&#128247;</div><p>Clique para selecionar ou arraste uma imagem</p>';
+        document.getElementById('modalBanner').classList.add('show');
+    });
+
+    document.getElementById('btnBannerCancel').addEventListener('click', () => {
+        document.getElementById('modalBanner').classList.remove('show');
+    });
+
+    document.getElementById('modalBanner').addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('show');
+    });
+
+    // Upload area click + drag
+    document.getElementById('bannerUploadArea').addEventListener('click', () => {
+        document.getElementById('bannerFileInput').click();
+    });
+
+    document.getElementById('bannerUploadArea').addEventListener('dragover', e => {
+        e.preventDefault();
+        e.currentTarget.style.borderColor = 'var(--accent)';
+    });
+
+    document.getElementById('bannerUploadArea').addEventListener('dragleave', e => {
+        e.currentTarget.style.borderColor = '';
+    });
+
+    document.getElementById('bannerUploadArea').addEventListener('drop', e => {
+        e.preventDefault();
+        e.currentTarget.style.borderColor = '';
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) handleBannerFile(file);
+    });
+
+    document.getElementById('bannerFileInput').addEventListener('change', function() {
+        if (this.files[0]) handleBannerFile(this.files[0]);
+    });
+
+    function handleBannerFile(file) {
+        bannerImageFile = file;
+        const area = document.getElementById('bannerUploadArea');
+        const reader = new FileReader();
+        reader.onload = e => {
+            area.classList.add('has-image');
+            area.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Save banner
+    document.getElementById('btnBannerSave').addEventListener('click', async function() {
+        const titulo = document.getElementById('bannerTitulo').value.trim();
+        const linkUrl = document.getElementById('bannerLinkUrl').value.trim();
+        const btn = this;
+        btn.disabled = true;
+        btn.textContent = 'Salvando...';
+
+        try {
+            let imagemUrl = '';
+
+            // If editing and no new image, keep old one
+            if (editingBannerId && !bannerImageFile) {
+                const existing = adminBanners.find(b => b.id === editingBannerId);
+                imagemUrl = existing ? existing.imagem_url : '';
+            }
+
+            // Upload new image
+            if (bannerImageFile) {
+                const ext = bannerImageFile.name.split('.').pop();
+                const fileName = `banner_${Date.now()}.${ext}`;
+                const { data: uploadData, error: uploadErr } = await sb.storage
+                    .from('banners')
+                    .upload(fileName, bannerImageFile, { cacheControl: '3600', upsert: true });
+                if (uploadErr) throw uploadErr;
+                const { data: urlData } = sb.storage.from('banners').getPublicUrl(fileName);
+                imagemUrl = urlData.publicUrl;
+            }
+
+            if (!imagemUrl) {
+                alert('Selecione uma imagem para o banner.');
+                btn.disabled = false;
+                btn.textContent = 'Salvar';
+                return;
+            }
+
+            if (editingBannerId) {
+                const { error } = await sb.from('banners').update({
+                    titulo, imagem_url: imagemUrl, link_url: linkUrl || null
+                }).eq('id', editingBannerId);
+                if (error) throw error;
+            } else {
+                const maxOrdem = adminBanners.length > 0 ? Math.max(...adminBanners.map(b => b.ordem)) + 1 : 0;
+                const { error } = await sb.from('banners').insert({
+                    titulo, imagem_url: imagemUrl, link_url: linkUrl || null, ordem: maxOrdem, ativo: true
+                });
+                if (error) throw error;
+            }
+
+            document.getElementById('modalBanner').classList.remove('show');
+            await loadAdminBanners();
+        } catch (err) {
+            alert('Erro ao salvar banner: ' + err.message);
+            console.error(err);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Salvar';
+        }
+    });
+
+    function openEditBanner(id) {
+        const b = adminBanners.find(x => x.id === id);
+        if (!b) return;
+        editingBannerId = id;
+        bannerImageFile = null;
+        document.getElementById('modalBannerTitle').textContent = 'Editar Banner';
+        document.getElementById('bannerTitulo').value = b.titulo || '';
+        document.getElementById('bannerLinkUrl').value = b.link_url || '';
+        const area = document.getElementById('bannerUploadArea');
+        area.classList.add('has-image');
+        area.innerHTML = `<img src="${b.imagem_url}" alt="Preview">`;
+        document.getElementById('modalBanner').classList.add('show');
+    }
+
+    async function toggleBannerStatus(id) {
+        const b = adminBanners.find(x => x.id === id);
+        if (!b) return;
+        try {
+            const { error } = await sb.from('banners').update({ ativo: !b.ativo }).eq('id', id);
+            if (error) throw error;
+            await loadAdminBanners();
+        } catch (err) {
+            alert('Erro ao atualizar status: ' + err.message);
+        }
+    }
+
+    async function deleteBanner(id) {
+        if (!confirm('Excluir este banner?')) return;
+        try {
+            const { error } = await sb.from('banners').delete().eq('id', id);
+            if (error) throw error;
+            await loadAdminBanners();
+        } catch (err) {
+            alert('Erro ao excluir: ' + err.message);
+        }
+    }
+
+    async function moveBanner(id, direction) {
+        const idx = adminBanners.findIndex(b => b.id === id);
+        const swapIdx = idx + direction;
+        if (swapIdx < 0 || swapIdx >= adminBanners.length) return;
+
+        const a = adminBanners[idx];
+        const b = adminBanners[swapIdx];
+
+        try {
+            await Promise.all([
+                sb.from('banners').update({ ordem: b.ordem }).eq('id', a.id),
+                sb.from('banners').update({ ordem: a.ordem }).eq('id', b.id)
+            ]);
+            await loadAdminBanners();
+        } catch (err) {
+            alert('Erro ao reordenar: ' + err.message);
+        }
     }
 </script>
 </body>

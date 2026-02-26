@@ -70,6 +70,21 @@
         .btn-logout { background: none; border: 1px solid var(--border); padding: 6px 16px; border-radius: 100px; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.2s; }
         .btn-logout:hover { border-color: var(--error); color: var(--error); }
 
+        /* Banner carousel */
+        .banner-carousel { position: relative; border-radius: 16px; overflow: hidden; margin-bottom: 20px; background: var(--card); border: 1px solid var(--border); }
+        .banner-carousel.hidden { display: none; }
+        .banner-track { display: flex; transition: transform 0.4s ease; }
+        .banner-slide { min-width: 100%; position: relative; }
+        .banner-slide img { width: 100%; display: block; aspect-ratio: 3.5 / 1; object-fit: cover; }
+        .banner-slide a { display: block; }
+        .banner-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.85); border: 1px solid var(--border); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; z-index: 2; font-size: 18px; color: var(--text); font-family: 'Outfit', sans-serif; backdrop-filter: blur(4px); }
+        .banner-nav:hover { background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .banner-nav.prev { left: 12px; }
+        .banner-nav.next { right: 12px; }
+        .banner-dots { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 2; }
+        .banner-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.5); border: 1px solid rgba(0,0,0,0.1); cursor: pointer; transition: all 0.2s; }
+        .banner-dot.active { background: white; transform: scale(1.2); }
+
         /* Tips banner */
         .tips-banner { background: var(--accent-glow); border: 1px solid rgba(212,87,42,0.2); border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
         .tips-banner.hidden { display: none; }
@@ -378,6 +393,14 @@
             .panel-tabs::-webkit-scrollbar { display: none; }
             .panel-tab { padding: 10px 14px; font-size: 12px; flex-shrink: 0; }
 
+            /* Banner carousel */
+            .banner-carousel { border-radius: 12px; margin-bottom: 12px; }
+            .banner-slide img { aspect-ratio: 2.5 / 1; }
+            .banner-nav { width: 30px; height: 30px; font-size: 15px; }
+            .banner-nav.prev { left: 8px; }
+            .banner-nav.next { right: 8px; }
+            .banner-dot { width: 6px; height: 6px; }
+
             /* Tips banner */
             .tips-banner { padding: 8px 12px; margin-bottom: 14px; gap: 8px; border-radius: 10px; }
             .tips-icon { font-size: 16px; }
@@ -538,6 +561,14 @@
             <button class="tips-arrow" id="tipsNext">›</button>
             <button class="tips-close" id="tipsClose">×</button>
         </div>
+    </div>
+
+    <!-- Banner Carousel -->
+    <div class="banner-carousel hidden" id="bannerCarousel">
+        <div class="banner-track" id="bannerTrack"></div>
+        <button class="banner-nav prev" id="bannerPrev">&#8249;</button>
+        <button class="banner-nav next" id="bannerNext">&#8250;</button>
+        <div class="banner-dots" id="bannerDots"></div>
     </div>
 
     <!-- ── TAB: PESQUISAR ── -->
@@ -957,6 +988,7 @@
         initTips();
         initRangeSlider();
         initCalculadora();
+        loadBanners();
     })();
 
     /* ── Logout (header + sidebar) ── */
@@ -985,6 +1017,80 @@
     document.querySelectorAll('.sidebar-nav-item').forEach(item => {
         item.addEventListener('click', function() { switchTab(this.dataset.tab); });
     });
+
+    /* ══════════════════════════════════════
+       BANNER CAROUSEL
+       ══════════════════════════════════════ */
+    let bannerSlides = [];
+    let bannerIndex = 0;
+    let bannerInterval = null;
+
+    async function loadBanners() {
+        try {
+            const { data, error } = await sb.from('banners')
+                .select('*')
+                .eq('ativo', true)
+                .order('ordem', { ascending: true });
+            if (error) throw error;
+            if (!data || data.length === 0) return;
+
+            bannerSlides = data;
+            const track = document.getElementById('bannerTrack');
+            const dots = document.getElementById('bannerDots');
+            const carousel = document.getElementById('bannerCarousel');
+
+            track.innerHTML = data.map(b => {
+                const img = `<img src="${b.imagem_url}" alt="${b.titulo || ''}" onerror="this.parentElement.style.display='none'">`;
+                return `<div class="banner-slide">${b.link_url ? `<a href="${b.link_url}" target="_blank" rel="noopener">${img}</a>` : img}</div>`;
+            }).join('');
+
+            dots.innerHTML = data.map((_, i) =>
+                `<span class="banner-dot${i === 0 ? ' active' : ''}" data-i="${i}"></span>`
+            ).join('');
+
+            carousel.classList.remove('hidden');
+
+            if (data.length <= 1) {
+                document.getElementById('bannerPrev').style.display = 'none';
+                document.getElementById('bannerNext').style.display = 'none';
+                dots.style.display = 'none';
+                return;
+            }
+
+            document.getElementById('bannerPrev').addEventListener('click', () => goToBanner(bannerIndex - 1));
+            document.getElementById('bannerNext').addEventListener('click', () => goToBanner(bannerIndex + 1));
+            dots.addEventListener('click', e => {
+                if (e.target.classList.contains('banner-dot')) goToBanner(+e.target.dataset.i);
+            });
+
+            // Swipe support
+            let touchStartX = 0;
+            carousel.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+            carousel.addEventListener('touchend', e => {
+                const diff = touchStartX - e.changedTouches[0].clientX;
+                if (Math.abs(diff) > 50) goToBanner(bannerIndex + (diff > 0 ? 1 : -1));
+            });
+
+            // Auto-rotate every 5s
+            startBannerRotation();
+            carousel.addEventListener('mouseenter', () => clearInterval(bannerInterval));
+            carousel.addEventListener('mouseleave', startBannerRotation);
+        } catch (err) {
+            console.warn('Banners load error:', err);
+        }
+    }
+
+    function goToBanner(i) {
+        if (bannerSlides.length === 0) return;
+        bannerIndex = ((i % bannerSlides.length) + bannerSlides.length) % bannerSlides.length;
+        document.getElementById('bannerTrack').style.transform = `translateX(-${bannerIndex * 100}%)`;
+        document.querySelectorAll('.banner-dot').forEach((d, idx) => d.classList.toggle('active', idx === bannerIndex));
+    }
+
+    function startBannerRotation() {
+        clearInterval(bannerInterval);
+        bannerInterval = setInterval(() => goToBanner(bannerIndex + 1), 5000);
+    }
 
     /* ══════════════════════════════════════
        TIPS BANNER
