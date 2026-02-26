@@ -809,15 +809,15 @@
         btn.disabled = true;
 
         try {
-            const { data: creator, error } = await sb.from('creators').select('id, nome, email, codigo_indicacao').eq('email', email).maybeSingle();
+            /* RPC com SECURITY DEFINER — bypassa RLS para verificar se já existe */
+            const { data: result, error } = await sb.rpc('verificar_e_participar', {
+                p_email: email,
+                p_campanha: 'espaco_laser'
+            });
+            if (error) throw error;
 
-            if (creator) {
-                const { error: updateErr } = await sb.rpc('update_campanha_interesse', {
-                    p_email: email,
-                    p_campanha: 'espaco_laser'
-                });
-                if (updateErr) throw updateErr;
-                mostrarSucesso(creator.codigo_indicacao);
+            if (result && result.encontrado) {
+                mostrarSucesso(result.codigo_indicacao);
             } else {
                 abrirModal(email, instagram);
                 btn.textContent = 'Confirmar participação →';
