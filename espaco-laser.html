@@ -504,7 +504,7 @@
         <form id="cadastroForm">
             <div class="photo-upload">
                 <div class="photo-preview" id="photoPreview" onclick="document.getElementById('fotoInput').click()"><span class="photo-icon">+</span></div>
-                <label class="photo-label" onclick="document.getElementById('fotoInput').click()">Enviar foto de perfil</label>
+                <label class="photo-label" onclick="document.getElementById('fotoInput').click()">Enviar foto de perfil (obrigatório)</label>
                 <input type="file" id="fotoInput" accept="image/*" style="display:none">
             </div>
             <div class="field">
@@ -862,9 +862,10 @@
             if (selectedNichos.length === 0) throw new Error('Selecione pelo menos 1 nicho do seu conteúdo.');
             if (!document.querySelector('input[name="modal_tipo_creator"]:checked')) throw new Error('Selecione o tipo de creator.');
 
-            /* Upload foto */
-            let fotoUrl = null;
+            /* Upload foto (obrigatório) */
             const fotoField = document.getElementById('fotoInput');
+            if (!fotoField || !fotoField.files || !fotoField.files[0]) throw new Error('Envie sua foto de perfil.');
+            let fotoUrl = null;
             if (fotoField && fotoField.files && fotoField.files[0]) {
                 const arquivo = fotoField.files[0];
                 const nomeArquivo = Date.now() + '_' + arquivo.name.replace(/[^a-zA-Z0-9.]/g, '_');
