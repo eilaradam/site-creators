@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="this.onerror=null;this.src='https://unpkg.com/@supabase/supabase-js@2'"></script>
     <style>
         :root {
             --black: #0A0A0A;
@@ -496,15 +496,16 @@
         return 'https://' + s;
     }
 
-    /* ── Supabase (envolvido em try-catch para não travar a UI) ── */
+    /* ── Supabase (com retry automático) ── */
+    const SUPABASE_URL = 'https://mfrmnquvwwuxraqgemyh.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mcm1ucXV2d3d1eHJhcWdlbXloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNDI1NDIsImV4cCI6MjA4NzYxODU0Mn0.zmsi08dV5L1IlXJSr34vOii71w0g0OsD5_5DKio5g-o';
     let sb = null;
-    try {
-        const SUPABASE_URL = 'https://mfrmnquvwwuxraqgemyh.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mcm1ucXV2d3d1eHJhcWdlbXloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNDI1NDIsImV4cCI6MjA4NzYxODU0Mn0.zmsi08dV5L1IlXJSr34vOii71w0g0OsD5_5DKio5g-o';
-        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    } catch (err) {
-        console.warn('Supabase não carregou:', err);
+    function initSb() {
+        if (sb) return sb;
+        try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch (e) {}
+        return sb;
     }
+    initSb();
 
     /* ── UTM e Indicação ── */
     const _params = new URLSearchParams(window.location.search);
@@ -528,7 +529,7 @@
         btn.disabled = true;
 
         try {
-            if (!sb) throw new Error('Conexão com o servidor indisponível. Tente novamente em alguns instantes.');
+            if (!initSb()) throw new Error('Erro de conexão. Por favor, recarregue a página e tente novamente.');
             if (selectedNichos.length === 0) throw new Error('Selecione pelo menos 1 nicho do seu conteúdo.');
             if (!document.querySelector('input[name="tipo_creator"]:checked')) throw new Error('Selecione o tipo de creator.');
 

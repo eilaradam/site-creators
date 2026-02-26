@@ -6,11 +6,12 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mcm1ucXV2d3d1eHJhcWdlbXloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNDI1NDIsImV4cCI6MjA4NzYxODU0Mn0.zmsi08dV5L1IlXJSr34vOii71w0g0OsD5_5DKio5g-o';
 
     let sb = null;
-    try {
-        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    } catch (err) {
-        console.error('Erro ao conectar Supabase:', err);
+    function initSb() {
+        if (sb) return sb;
+        try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch (e) {}
+        return sb;
     }
+    initSb();
 
     /** Verifica sessão ativa. Retorna { session, user } ou redireciona para login. */
     async function checkAuth() {
@@ -60,7 +61,7 @@
 
     /** Login com email e senha. Retorna { user, role } ou throw Error. */
     async function login(email, password) {
-        if (!sb) throw new Error('Conexão indisponível.');
+        if (!initSb()) throw new Error('Erro de conexão. Por favor, recarregue a página e tente novamente.');
         const { data, error } = await sb.auth.signInWithPassword({ email, password });
         if (error) {
             if (error.message === 'Invalid login credentials') throw new Error('E-mail ou senha incorretos.');
