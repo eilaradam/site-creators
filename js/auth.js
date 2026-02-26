@@ -29,11 +29,8 @@
     async function getUserInfo() {
         if (!sb) return null;
         const { data, error } = await sb.rpc('get_my_role');
-        console.log('get_my_role raw:', JSON.stringify({ data, error }));
         if (error || !data) return null;
-        const result = Array.isArray(data) ? data[0] : data;
-        console.log('get_my_role result:', JSON.stringify(result));
-        return result;
+        return Array.isArray(data) ? data[0] : data;
     }
 
     /** Retorna só o role do usuário. Verifica expiração para alunas. */
