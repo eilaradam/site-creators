@@ -419,6 +419,18 @@
         return div.innerHTML;
     }
 
+    function safeUrl(url) {
+        if (!url) return '#';
+        const s = url.trim();
+        if (/^https?:\/\//i.test(s)) return escapeHtml(s);
+        return '#';
+    }
+
+    function safeHandle(handle) {
+        if (!handle) return '';
+        return encodeURIComponent(handle.replace('@', ''));
+    }
+
     function formatSeguidores(val) {
         const map = { 'ate_1k': 'Ate 1k', '1k_5k': '1k-5k', '5k_10k': '5k-10k', '10k_30k': '10k-30k', '30k_mais': '30k+' };
         return map[val] || val || '-';
@@ -470,10 +482,10 @@
                 </div>
                 ${(c.instagram || c.tiktok || c.portfolio || c.whatsapp) ? `
                 <div class="card-social">
-                    ${c.instagram ? `<a href="https://instagram.com/${c.instagram.replace('@','')}" target="_blank" rel="noopener">Instagram</a>` : ''}
-                    ${c.tiktok ? `<a href="https://tiktok.com/${c.tiktok.replace('@','')}" target="_blank" rel="noopener" class="btn-tiktok">TikTok</a>` : ''}
-                    ${c.portfolio ? `<a href="${escapeHtml(c.portfolio)}" target="_blank" rel="noopener">Portfolio</a>` : ''}
-                    ${c.whatsapp ? `<a href="https://wa.me/55${c.whatsapp.replace(/[\\s()\\-]/g,'')}" target="_blank" rel="noopener" class="btn-whatsapp">WhatsApp</a>` : ''}
+                    ${c.instagram ? `<a href="https://instagram.com/${safeHandle(c.instagram)}" target="_blank" rel="noopener">Instagram</a>` : ''}
+                    ${c.tiktok ? `<a href="https://tiktok.com/${safeHandle(c.tiktok)}" target="_blank" rel="noopener" class="btn-tiktok">TikTok</a>` : ''}
+                    ${c.portfolio ? `<a href="${safeUrl(c.portfolio)}" target="_blank" rel="noopener">Portfolio</a>` : ''}
+                    ${c.whatsapp ? `<a href="https://wa.me/55${encodeURIComponent(c.whatsapp.replace(/[\\s()\\-]/g,''))}" target="_blank" rel="noopener" class="btn-whatsapp">WhatsApp</a>` : ''}
                 </div>` : ''}
             </div>`;
     }

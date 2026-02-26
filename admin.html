@@ -643,6 +643,18 @@
         div.textContent = str;
         return div.innerHTML;
     }
+
+    function safeUrl(url) {
+        if (!url) return '#';
+        const s = url.trim();
+        if (/^https?:\/\//i.test(s)) return escapeHtml(s);
+        return '#';
+    }
+
+    function safeHandle(handle) {
+        if (!handle) return '';
+        return encodeURIComponent(handle.replace('@', ''));
+    }
     function avatarHtml(c, size) {
         const lg = size === 'lg';
         if (c.foto_perfil) return `<img src="${escapeHtml(c.foto_perfil)}" alt="" class="${lg ? 'avatar-lg' : 'avatar'}">`;
@@ -676,7 +688,7 @@
             populateEstadoFilter();
             applyFilters();
         } catch (err) {
-            tableBody.innerHTML = `<tr><td colspan="13" class="loading" style="color:var(--error)">Erro ao carregar: ${err.message}</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="13" class="loading" style="color:var(--error)">Erro ao carregar: ${escapeHtml(err.message)}</td></tr>`;
         }
     }
 
@@ -740,9 +752,9 @@
                 <td>${formatNicho(c.nicho)}</td>
                 <td>${formatExperiencia(c.experiencia)}</td>
                 <td style="white-space:nowrap">
-                    ${c.portfolio ? `<a href="${escapeHtml(c.portfolio)}" target="_blank" rel="noopener">Portfolio</a>` : '-'}
+                    ${c.portfolio ? `<a href="${safeUrl(c.portfolio)}" target="_blank" rel="noopener">Portfolio</a>` : '-'}
                     ${c.portfolio && c.melhor_conteudo ? ' · ' : ''}
-                    ${c.melhor_conteudo ? `<a href="${escapeHtml(c.melhor_conteudo)}" target="_blank" rel="noopener">Conteudo</a>` : ''}
+                    ${c.melhor_conteudo ? `<a href="${safeUrl(c.melhor_conteudo)}" target="_blank" rel="noopener">Conteudo</a>` : ''}
                 </td>
                 <td><span class="badge ${badgeClass(c.status)}">${escapeHtml(c.status)}</span></td>
                 <td style="white-space:nowrap;text-align:center"><span class="salvos-count">${totalSalvos > 0 ? `Salvo por ${totalSalvos} gestora${totalSalvos > 1 ? 's' : ''}` : '-'}</span></td>
@@ -779,8 +791,8 @@
                 </div>
                 ${(c.portfolio || c.melhor_conteudo) ? `
                 <div class="creator-card-links">
-                    ${c.portfolio ? `<a href="${escapeHtml(c.portfolio)}" target="_blank" rel="noopener">Portfolio</a>` : ''}
-                    ${c.melhor_conteudo ? `<a href="${escapeHtml(c.melhor_conteudo)}" target="_blank" rel="noopener">Melhor conteudo</a>` : ''}
+                    ${c.portfolio ? `<a href="${safeUrl(c.portfolio)}" target="_blank" rel="noopener">Portfolio</a>` : ''}
+                    ${c.melhor_conteudo ? `<a href="${safeUrl(c.melhor_conteudo)}" target="_blank" rel="noopener">Melhor conteudo</a>` : ''}
                 </div>` : ''}
                 <div style="margin-top:12px;text-align:right"><button class="btn-delete" onclick="deleteCreator('${c.id}', '${escapeHtml(c.nome).replace(/'/g, "\\'")}')">Excluir</button></div>
             </div>`;
@@ -882,10 +894,10 @@
                     ${totalSalvos > 0 ? `<div class="salvos-count" style="margin-top:8px">Salvo por ${totalSalvos} gestora${totalSalvos > 1 ? 's' : ''}</div>` : ''}
                     ${(c.instagram || c.tiktok || c.portfolio || c.whatsapp) ? `
                     <div class="saved-card-social">
-                        ${c.instagram ? `<a href="https://instagram.com/${(c.instagram || '').replace('@','')}" target="_blank" rel="noopener">Instagram</a>` : ''}
-                        ${c.tiktok ? `<a href="https://tiktok.com/${(c.tiktok || '').replace('@','')}" target="_blank" rel="noopener" class="btn-tiktok">TikTok</a>` : ''}
-                        ${c.portfolio ? `<a href="${escapeHtml(c.portfolio)}" target="_blank" rel="noopener">Portfolio</a>` : ''}
-                        ${c.whatsapp ? `<a href="https://wa.me/55${(c.whatsapp || '').replace(/[\\s()\\-]/g,'')}" target="_blank" rel="noopener" class="btn-whatsapp">WhatsApp</a>` : ''}
+                        ${c.instagram ? `<a href="https://instagram.com/${safeHandle(c.instagram)}" target="_blank" rel="noopener">Instagram</a>` : ''}
+                        ${c.tiktok ? `<a href="https://tiktok.com/${safeHandle(c.tiktok)}" target="_blank" rel="noopener" class="btn-tiktok">TikTok</a>` : ''}
+                        ${c.portfolio ? `<a href="${safeUrl(c.portfolio)}" target="_blank" rel="noopener">Portfolio</a>` : ''}
+                        ${c.whatsapp ? `<a href="https://wa.me/55${encodeURIComponent((c.whatsapp || '').replace(/[\\s()\\-]/g,''))}" target="_blank" rel="noopener" class="btn-whatsapp">WhatsApp</a>` : ''}
                     </div>` : ''}
                 </div>`;
             }).join('');
