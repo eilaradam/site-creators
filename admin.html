@@ -84,6 +84,8 @@
         .filter-group select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239C958C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; cursor: pointer; }
         .btn-clear-filters { padding: 10px 20px; background: none; border: 1px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.2s; align-self: end; white-space: nowrap; }
         .btn-clear-filters:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-export-csv { padding: 8px 18px; background: var(--accent); color: white; border: none; border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+        .btn-export-csv:hover { background: #B8461F; }
 
         /* Range Slider (dual) */
         .range-slider { position: relative; height: 32px; display: flex; align-items: center; }
@@ -335,6 +337,7 @@
         <div class="stat-card"><div class="stat-value" id="dashHoje">--</div><div class="stat-label">Cadastros Hoje</div></div>
         <div class="stat-card"><div class="stat-value" id="dash7d">--</div><div class="stat-label">Últimos 7 Dias</div></div>
         <div class="stat-card"><div class="stat-value" id="dashEmails">--</div><div class="stat-label">E-mails Enviados</div></div>
+        <div class="stat-card"><div class="stat-value" id="dashIndicadas">--</div><div class="stat-label">Vieram por Indicação</div></div>
     </div>
     <div class="dashboard-chart-container">
         <div class="dashboard-chart-title">Cadastros por dia (últimos 30 dias)</div>
@@ -356,6 +359,14 @@
         <div class="metric-card">
             <div class="metric-card-title">Por Campanha</div>
             <ul class="metric-list" id="dashCampanhas"><li class="metric-list-item"><span style="color:var(--text-muted)">Carregando...</span></li></ul>
+        </div>
+        <div class="metric-card">
+            <div class="metric-card-title">Top Origens (UTM)</div>
+            <ul class="metric-list" id="dashUtms"><li class="metric-list-item"><span style="color:var(--text-muted)">Carregando...</span></li></ul>
+        </div>
+        <div class="metric-card">
+            <div class="metric-card-title">Top Indicadoras</div>
+            <ul class="metric-list" id="dashIndicadoras"><li class="metric-list-item"><span style="color:var(--text-muted)">Carregando...</span></li></ul>
         </div>
         <div class="metric-card">
             <div class="metric-card-title">Alunas Manager Club</div>
@@ -421,10 +432,25 @@
                 <option value="nome">Nome A-Z</option>
             </select>
         </div>
+        <div class="filter-group">
+            <label>Origem (UTM)</label>
+            <select id="filterUtm"><option value="">Todas</option></select>
+        </div>
+        <div class="filter-group">
+            <label>Indicação</label>
+            <select id="filterIndicacao">
+                <option value="">Todas</option>
+                <option value="indicadas">Só indicadas</option>
+                <option value="indicadoras">Só quem indicou</option>
+            </select>
+        </div>
         <button class="btn-clear-filters" id="btnClearFilters">Limpar filtros</button>
     </div>
 
-    <div class="results-info" id="resultsInfo"></div>
+    <div class="results-info" id="resultsInfo" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <span id="resultsText"></span>
+        <button class="btn-export-csv" id="btnExportCsv" style="display:none">Exportar CSV</button>
+    </div>
 
     <div class="table-container">
         <table class="creators-table">
@@ -961,6 +987,31 @@
         el.innerHTML = items.map(item => `<li class="metric-list-item"><span class="metric-list-item-label">${escapeHtml(item.label || '-')}</span><span class="metric-list-item-value">${item.total}</span></li>`).join('');
     }
 
+    function updateDashboardUtmIndicacoes() {
+        /* Stat: indicadas */
+        const totalIndicadas = allCreators.filter(c => c.indicada_por).length;
+        document.getElementById('dashIndicadas').textContent = totalIndicadas;
+
+        /* Top UTMs */
+        const utmCount = {};
+        allCreators.forEach(c => {
+            const utm = c.utm_origem || 'direto';
+            utmCount[utm] = (utmCount[utm] || 0) + 1;
+        });
+        const utmRanking = Object.entries(utmCount).sort((a, b) => b[1] - a[1]).slice(0, 7).map(([label, total]) => ({ label, total }));
+        renderMetricList('dashUtms', utmRanking);
+
+        /* Top Indicadoras */
+        const indRanking = Object.entries(indicacoesMap)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 7)
+            .map(([codigo, total]) => {
+                const creator = allCreators.find(c => c.codigo_indicacao === codigo);
+                return { label: creator ? creator.nome : codigo, total };
+            });
+        renderMetricList('dashIndicadoras', indRanking.length > 0 ? indRanking : []);
+    }
+
     /* ── Carregar IDs salvos do admin ── */
     async function loadSavedIds() {
         try {
@@ -1159,6 +1210,8 @@
             buildIndicacoesMap();
             updateStats();
             populateEstadoFilter();
+            populateUtmFilter();
+            updateDashboardUtmIndicacoes();
             applyFilters();
         } catch (err) {
             tableBody.innerHTML = `<tr><td colspan="18" class="loading" style="color:var(--error)">Erro ao carregar: ${escapeHtml(err.message)}</td></tr>`;
@@ -1196,6 +1249,17 @@
         estados.forEach(uf => {
             const opt = document.createElement('option');
             opt.value = uf; opt.textContent = uf;
+            select.appendChild(opt);
+        });
+    }
+
+    function populateUtmFilter() {
+        const utms = [...new Set(allCreators.map(c => c.utm_origem).filter(Boolean))].sort();
+        const select = document.getElementById('filterUtm');
+        select.innerHTML = '<option value="">Todas</option>';
+        utms.forEach(u => {
+            const opt = document.createElement('option');
+            opt.value = u; opt.textContent = u;
             select.appendChild(opt);
         });
     }
@@ -1291,6 +1355,8 @@
         const idadeMin = parseInt(document.getElementById('idadeMin').value);
         const idadeMax = parseInt(document.getElementById('idadeMax').value);
         const ordem = document.getElementById('filterOrdem').value;
+        const utm = document.getElementById('filterUtm').value;
+        const indicacao = document.getElementById('filterIndicacao').value;
         const isIdadeDefault = idadeMin === 16 && idadeMax === 60;
 
         let filtered = allCreators.filter(c => {
@@ -1301,6 +1367,9 @@
             if (estado && c.estado !== estado) return false;
             if (cidade && c.cidade !== cidade) return false;
             if (seguidores && c.seguidores !== seguidores) return false;
+            if (utm && c.utm_origem !== utm) return false;
+            if (indicacao === 'indicadas' && !c.indicada_por) return false;
+            if (indicacao === 'indicadoras' && !indicacoesMap[c.codigo_indicacao]) return false;
             if (!isIdadeDefault && c.data_nascimento) {
                 const age = calcularIdade(c.data_nascimento);
                 if (age !== null && (age < idadeMin || age > idadeMax)) return false;
@@ -1310,7 +1379,9 @@
 
         filtered = sortCreators(filtered, ordem);
 
-        document.getElementById('resultsInfo').innerHTML = `Mostrando <strong>${filtered.length}</strong> de <strong>${allCreators.length}</strong> creators`;
+        document.getElementById('resultsText').innerHTML = `Mostrando <strong>${filtered.length}</strong> de <strong>${allCreators.length}</strong> creators`;
+        document.getElementById('btnExportCsv').style.display = filtered.length > 0 ? 'inline-block' : 'none';
+        lastFiltered = filtered;
         renderTable(filtered);
         renderCards(filtered);
     }
@@ -1409,6 +1480,7 @@
     }
 
     /* Filter events */
+    let lastFiltered = [];
     document.getElementById('filterSearch').addEventListener('input', applyFilters);
     document.getElementById('filterStatus').addEventListener('change', applyFilters);
     document.getElementById('filterNicho').addEventListener('change', applyFilters);
@@ -1419,6 +1491,8 @@
     });
     document.getElementById('filterCidade').addEventListener('change', applyFilters);
     document.getElementById('filterSeguidores').addEventListener('change', applyFilters);
+    document.getElementById('filterUtm').addEventListener('change', applyFilters);
+    document.getElementById('filterIndicacao').addEventListener('change', applyFilters);
     document.getElementById('filterOrdem').addEventListener('change', applyFilters);
     setupRangeSlider('idadeMin', 'idadeMax', 'idadeLabel', 'idadeTrack', applyFilters);
 
@@ -1432,12 +1506,49 @@
         document.getElementById('filterCidade').disabled = true;
         document.getElementById('filterSeguidores').value = '';
         document.getElementById('filterOrdem').value = 'recentes';
+        document.getElementById('filterUtm').value = '';
+        document.getElementById('filterIndicacao').value = '';
         document.getElementById('idadeMin').value = 16;
         document.getElementById('idadeMax').value = 60;
         document.getElementById('idadeLabel').textContent = '16 - 60';
         const track = document.getElementById('idadeTrack');
         track.style.left = '0%'; track.style.width = '100%';
         applyFilters();
+    });
+
+    /* ── Exportar CSV ── */
+    document.getElementById('btnExportCsv').addEventListener('click', function() {
+        if (lastFiltered.length === 0) return;
+        const headers = ['Nome','Email','WhatsApp','Instagram','TikTok','Seguidores','Estado','Cidade','Tipo Creator','Experiencia','Sobre','Status','UTM Origem','Codigo Indicacao','Indicada Por','Indicacoes Feitas','Portfolio','Melhor Conteudo','Cadastro'];
+        const rows = lastFiltered.map(c => [
+            c.nome || '',
+            c.email || '',
+            c.whatsapp || '',
+            c.instagram || '',
+            c.tiktok || '',
+            c.seguidores || '',
+            c.estado || '',
+            c.cidade || '',
+            c.tipo_creator || '',
+            c.experiencia || '',
+            (c.sobre || '').replace(/"/g, '""'),
+            c.status || '',
+            c.utm_origem || '',
+            c.codigo_indicacao || '',
+            c.indicada_por ? getIndicadoraNome(c.indicada_por) : '',
+            indicacoesMap[c.codigo_indicacao] || 0,
+            c.portfolio || '',
+            c.melhor_conteudo || '',
+            c.created_at ? new Date(c.created_at).toLocaleDateString('pt-BR') : ''
+        ]);
+        const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'creators_' + new Date().toISOString().slice(0,10) + '.csv';
+        a.click();
+        URL.revokeObjectURL(url);
     });
 
     /* ══════════════════════════════════════
