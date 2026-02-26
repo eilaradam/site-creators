@@ -128,6 +128,10 @@
         .share-btn:hover { transform: translateY(-1px); }
         .share-btn-whatsapp { background: #25D366; color: white; }
         .share-btn-whatsapp:hover { box-shadow: 0 6px 24px rgba(37,211,102,0.3); }
+        .ref-link-box { display: flex; gap: 8px; margin: 12px 0; }
+        .ref-link-input { flex: 1; padding: 10px 14px; font-size: 13px; font-family: 'Outfit', sans-serif; border: 1px solid var(--border); border-radius: 10px; background: var(--cream); color: var(--text); outline: none; }
+        .btn-copy-ref { padding: 10px 18px; font-size: 13px; font-weight: 600; font-family: 'Outfit', sans-serif; border: none; border-radius: 10px; background: var(--accent); color: white; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+        .btn-copy-ref:hover { background: #B8461F; }
         .share-btn-copy { background: var(--cream); border: 1.5px solid var(--border); color: var(--text); }
         .share-btn-copy:hover { border-color: var(--accent); color: var(--accent); }
         .share-btn-twitter { background: var(--cream); border: 1.5px solid var(--border); color: var(--text); }
@@ -271,10 +275,14 @@
                 <p class="success-small">Enviamos um e-mail de confirmação — confira sua caixa de entrada.</p>
             </div>
             <div class="success-block share-section">
-                <div class="share-label">Conhece outras creators? Compartilha com elas!</div>
-                <div class="share-sublabel">Quanto mais creators no banco, mais oportunidades pra todo mundo.</div>
+                <div class="share-label">Indique para uma amiga!</div>
+                <div class="share-sublabel">Compartilhe seu link exclusivo. Quando ela se cadastrar, saberemos que foi sua indicacao.</div>
+                <div class="ref-link-box" id="refLinkBox" style="display:none;">
+                    <input type="text" id="refLinkInput" readonly class="ref-link-input">
+                    <button class="btn-copy-ref" id="btnCopyRef">Copiar</button>
+                </div>
                 <div class="share-buttons">
-                    <button class="share-btn share-btn-whatsapp" id="shareBtn">Compartilhar</button>
+                    <button class="share-btn share-btn-whatsapp" id="shareBtn">Enviar por WhatsApp</button>
                 </div>
             </div>
             <div class="success-block follow-section">
@@ -588,7 +596,7 @@
 
         try {
             /* Busca pelo e-mail na tabela creators */
-            const { data: creator, error } = await sb.from('creators').select('id, nome, email').eq('email', email).maybeSingle();
+            const { data: creator, error } = await sb.from('creators').select('id, nome, email, codigo_indicacao').eq('email', email).maybeSingle();
 
             if (creator) {
                 /* JA CADASTRADA — atualiza interesse */
@@ -597,7 +605,7 @@
                     p_campanha: 'espaco_laser'
                 });
                 if (updateErr) throw updateErr;
-                mostrarSucesso();
+                mostrarSucesso(creator.codigo_indicacao);
             } else {
                 /* NAO CADASTRADA — abre modal */
                 abrirModal(email, instagram);
@@ -691,9 +699,9 @@
 
             /* Inserir (retry se codigo_indicacao colidir) */
             let tentativas = 0;
-            let error;
+            let insertData, error;
             do {
-                ({ error } = await sb.from('creators').insert([creatorData]));
+                ({ data: insertData, error } = await sb.from('creators').insert([creatorData]).select('codigo_indicacao').single());
                 if (error && error.message?.includes('codigo_indicacao') && tentativas < 3) {
                     creatorData.codigo_indicacao = gerarCodigoIndicacao();
                     tentativas++;
@@ -703,6 +711,7 @@
                 if (error.code === '23505') throw new Error('Esse e-mail ou Instagram já está cadastrado!');
                 throw error;
             }
+            const codigoRef = insertData?.codigo_indicacao || creatorData.codigo_indicacao;
 
             /* E-mail de boas-vindas (não bloqueia o cadastro) */
             try {
@@ -720,7 +729,7 @@
             }
 
             fecharModal();
-            mostrarSucesso();
+            mostrarSucesso(codigoRef);
         } catch (err) {
             errorEl.textContent = err.message || 'Erro ao cadastrar. Tente novamente.';
             errorEl.classList.add('show');
@@ -730,10 +739,10 @@
     });
 
     /* ── Sucesso ── */
-    function mostrarSucesso() {
+    function mostrarSucesso(codigoRef) {
         document.getElementById('participateForm').style.display = 'none';
         document.getElementById('successState').classList.add('show');
-        setupShareButtons();
+        setupShareButtons(codigoRef);
         launchConfetti();
     }
 
@@ -758,24 +767,36 @@
     }
 
     /* ── Share ── */
-    const SHARE_URL = 'https://creators.laradam.com/espaco-laser.html';
-    const SHARE_TEXT = 'Oi! Estou participando da campanha Espaço Laser com a Lara Dam. 300 vagas para creators! Se inscreve:';
+    function setupShareButtons(codigoRef) {
+        const refUrl = codigoRef ? 'https://creators.laradam.com?ref=' + codigoRef : 'https://creators.laradam.com';
+        const shareText = 'Oi! Me cadastrei no Banco de Creators da Lara Dam — é gratuito e conecta creators com oportunidades de campanhas UGC. Se cadastra também: ' + refUrl;
 
-    function setupShareButtons() {
+        /* Mostrar link de indicação */
+        const refBox = document.getElementById('refLinkBox');
+        const refInput = document.getElementById('refLinkInput');
+        if (refBox && refInput && codigoRef) {
+            refInput.value = refUrl;
+            refBox.style.display = 'flex';
+        }
+
+        /* Botão copiar link */
+        const btnCopy = document.getElementById('btnCopyRef');
+        if (btnCopy) {
+            btnCopy.addEventListener('click', async function() {
+                try {
+                    await navigator.clipboard.writeText(refUrl);
+                    this.textContent = 'Copiado!';
+                    setTimeout(() => { this.textContent = 'Copiar'; }, 2500);
+                } catch(e) {}
+            });
+        }
+
+        /* Botão WhatsApp */
         const btn = document.getElementById('shareBtn');
         if (!btn) return;
-        btn.addEventListener('click', async function() {
-            if (navigator.share) {
-                try {
-                    await navigator.share({ title: 'Campanha Espaço Laser', text: SHARE_TEXT, url: SHARE_URL });
-                } catch(e) {}
-            } else {
-                try {
-                    await navigator.clipboard.writeText(SHARE_URL);
-                    this.textContent = 'Link copiado!';
-                    setTimeout(() => { this.textContent = 'Compartilhar'; }, 2500);
-                } catch(e) { alert('Erro ao copiar link.'); }
-            }
+        btn.addEventListener('click', function() {
+            const waUrl = 'https://wa.me/?text=' + encodeURIComponent(shareText);
+            window.open(waUrl, '_blank');
         });
     }
 
