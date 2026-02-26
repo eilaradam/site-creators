@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campanha Espaco Lazer | Lara Dam</title>
-    <meta name="description" content="Participe da campanha Espaco Lazer — Depilacao a Laser. 300 vagas para creators de todo o Brasil.">
-    <meta property="og:title" content="Campanha Espaco Lazer · Depilacao a Laser">
-    <meta property="og:description" content="300 vagas para creators. Ganhe 5 sessoes de depilacao a laser.">
+    <title>Campanha Espaço Lazer | Lara Dam</title>
+    <meta name="description" content="Participe da campanha Espaço Lazer — Depilação a Laser. 300 vagas para creators de todo o Brasil.">
+    <meta property="og:title" content="Campanha Espaço Lazer · Depilação a Laser">
+    <meta property="og:description" content="300 vagas para creators. Ganhe 5 sessões de depilação a laser.">
     <meta property="og:type" content="website">
     <meta name="robots" content="index, follow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -40,8 +40,9 @@
         .header-logo span { color: var(--accent); }
 
         /* Hero */
-        .hero { text-align: center; padding: 48px 24px 40px; max-width: 640px; margin: 0 auto; }
-        .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--border); padding: 8px 20px 8px 14px; border-radius: 100px; font-size: 13px; font-weight: 600; color: var(--text-soft); margin-bottom: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); animation: fadeIn 0.6s ease-out both; }
+        .hero { text-align: center; padding: 56px 24px 48px; max-width: 640px; margin: 0 auto; position: relative; }
+        .hero::before { content: ''; position: absolute; top: -80px; left: -200px; right: -200px; bottom: -80px; background: radial-gradient(ellipse 80% 60% at 20% 20%, rgba(212,87,42,0.06) 0%, transparent 60%), radial-gradient(ellipse 60% 80% at 80% 80%, rgba(212,87,42,0.04) 0%, transparent 60%); pointer-events: none; z-index: -1; }
+        .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--border); padding: 8px 20px 8px 14px; border-radius: 100px; font-size: 13px; font-weight: 600; color: var(--text-soft); margin-bottom: 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); animation: fadeIn 0.6s ease-out both; }
         .hero-badge .dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(0.8); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -51,20 +52,24 @@
         .hero p { font-size: 16px; color: var(--text-soft); line-height: 1.7; max-width: 480px; margin: 0 auto; animation: fadeIn 0.6s ease-out 0.2s both; }
 
         /* Details cards */
-        .details { max-width: 640px; margin: 0 auto; padding: 0 24px 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .detail-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; animation: fadeIn 0.6s ease-out 0.3s both; }
-        .detail-card-icon { font-size: 24px; margin-bottom: 12px; }
-        .detail-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 12px; }
-        .detail-card ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-        .detail-card li { font-size: 14px; color: var(--text-soft); line-height: 1.5; padding-left: 20px; position: relative; }
-        .detail-card li::before { content: ''; position: absolute; left: 0; top: 7px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+        .details { max-width: 640px; margin: 0 auto; padding: 0 24px 48px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .detail-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .detail-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 0.4s; }
+        .detail-card:hover::before { transform: scaleX(1); }
+        .detail-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.06); }
+        .detail-card-icon { font-size: 32px; margin-bottom: 14px; }
+        .detail-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 14px; }
+        .detail-card ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+        .detail-card li { font-size: 14px; color: var(--text-soft); line-height: 1.5; padding-left: 24px; position: relative; }
+        .detail-card li::before { content: '✓'; position: absolute; left: 0; top: 0; font-size: 14px; font-weight: 700; color: var(--success); }
 
         /* Participate section */
         .participate { max-width: 480px; margin: 0 auto; padding: 0 24px 48px; }
-        .participate-box { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 32px 28px; box-shadow: 0 4px 24px rgba(0,0,0,0.04); position: relative; overflow: hidden; animation: fadeIn 0.6s ease-out 0.4s both; }
+        .participate-box { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 36px 28px; box-shadow: 0 8px 40px rgba(0,0,0,0.07); position: relative; overflow: hidden; }
         .participate-box::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent), #E8784A, var(--accent)); }
         .participate-title { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; margin-bottom: 6px; }
         .participate-sub { font-size: 13px; color: var(--text-soft); margin-bottom: 24px; line-height: 1.5; }
+        .participate-urgency { display: inline-flex; align-items: center; gap: 6px; background: rgba(212,87,42,0.08); border: 1px solid rgba(212,87,42,0.15); padding: 6px 14px; border-radius: 100px; font-size: 12px; font-weight: 600; color: var(--accent); margin-bottom: 20px; }
         .field { margin-bottom: 16px; }
         .field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
         .field input, .field select { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 12px; font-family: 'Outfit', sans-serif; font-size: 15px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; }
@@ -109,10 +114,21 @@
         .modal-error { background: rgba(196,69,60,0.08); border: 1px solid rgba(196,69,60,0.2); color: var(--error); padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 14px; display: none; }
         .modal-error.show { display: block; }
 
+        /* Social proof */
+        .social-proof { background: var(--card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 40px 24px; text-align: center; }
+        .proof-numbers { display: flex; justify-content: center; gap: 56px; flex-wrap: wrap; }
+        .proof-item { text-align: center; }
+        .proof-item strong { display: block; font-family: 'Fraunces', serif; font-size: 32px; font-weight: 800; color: var(--accent); letter-spacing: -1px; }
+        .proof-item span { font-size: 12px; color: var(--text-soft); font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
+
         /* Footer */
-        .page-footer { text-align: center; padding: 32px 24px; border-top: 1px solid var(--border); }
+        .page-footer { text-align: center; padding: 32px 24px; }
         .page-footer p { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
         .page-footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
+
+        /* Scroll reveal */
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.7s cubic-bezier(0.23, 1, 0.32, 1); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
 
         @media (max-width: 600px) {
             .details { grid-template-columns: 1fr; }
@@ -121,8 +137,12 @@
             .participate { padding: 0 16px 40px; }
             .participate-box { padding: 28px 20px; }
             .modal-card { padding: 28px 20px; margin: 16px auto; }
+            .proof-numbers { gap: 28px; }
         }
+
+        noscript .reveal, .no-js .reveal { opacity: 1 !important; transform: none !important; }
     </style>
+    <noscript><style>.reveal{opacity:1!important;transform:none!important;}</style></noscript>
 </head>
 <body>
 
@@ -133,38 +153,39 @@
 <!-- Hero -->
 <div class="hero">
     <div class="hero-badge"><span class="dot"></span> Campanha Aberta · 300 vagas</div>
-    <h1>Espaco <em>Lazer</em></h1>
-    <div class="hero-subtitle">Depilacao a Laser</div>
-    <p>Estamos selecionando 300 creators de todo o Brasil para uma campanha de stories com o Espaco Lazer.</p>
+    <h1>Espaço <em>Lazer</em></h1>
+    <div class="hero-subtitle">Depilação a Laser</div>
+    <p>Estamos selecionando 300 creators de todo o Brasil para uma campanha de stories com o Espaço Lazer.</p>
 </div>
 
 <!-- Detalhes -->
 <div class="details">
-    <div class="detail-card">
+    <div class="detail-card reveal">
         <div class="detail-card-icon">📋</div>
-        <h3>O que voce faz</h3>
+        <h3>O que você faz</h3>
         <ul>
             <li>2 telas de stories</li>
-            <li>Com link + marcacao do @espacolazer</li>
-            <li>Prazo: 7 dias apos aprovacao</li>
+            <li>Com link + marcação do @espacolazer</li>
+            <li>Prazo: 7 dias após aprovação</li>
         </ul>
     </div>
-    <div class="detail-card">
+    <div class="detail-card reveal">
         <div class="detail-card-icon">🎁</div>
-        <h3>O que voce recebe</h3>
+        <h3>O que você recebe</h3>
         <ul>
-            <li>5 sessoes de depilacao a laser</li>
-            <li>Valido em qualquer unidade do Brasil</li>
+            <li>5 sessões de depilação a laser</li>
+            <li>Válido em qualquer unidade do Brasil</li>
         </ul>
     </div>
 </div>
 
 <!-- Participar -->
-<div class="participate">
+<div class="participate reveal">
     <div class="participate-box">
         <div id="participateForm">
             <div class="participate-title">Quero participar!</div>
             <p class="participate-sub">Digite seu e-mail e Instagram pra confirmar ou se cadastrar.</p>
+            <div class="participate-urgency">🔥 Vagas limitadas — garanta a sua!</div>
             <div class="form-error" id="formError"></div>
             <div class="field">
                 <label>E-mail</label>
@@ -174,24 +195,42 @@
                 <label>@ do Instagram</label>
                 <input type="text" id="inputInstagram" required placeholder="@seuperfil">
             </div>
-            <button class="btn-participate" id="btnParticipate">Confirmar participacao →</button>
-            <p class="participate-note">Se voce ja e cadastrada, so confirmar. Se ainda nao e, vamos te cadastrar rapidinho.</p>
+            <button class="btn-participate" id="btnParticipate">Confirmar participação →</button>
+            <p class="participate-note">Se você já é cadastrada, só confirmar. Se ainda não é, vamos te cadastrar rapidinho.</p>
         </div>
         <div class="success-state" id="successState">
             <div class="success-check">✓</div>
-            <h3>Voce esta na campanha! 🎉</h3>
-            <p>Entraremos em contato pelo WhatsApp com o briefing e os proximos passos. Fique de olho nas mensagens!</p>
+            <h3>Você está na campanha! 🎉</h3>
+            <p>Entraremos em contato pelo WhatsApp com o briefing e os próximos passos. Fique de olho nas mensagens!</p>
             <a href="https://instagram.com/eilaradam" target="_blank" class="btn-secondary">Conhecer mais sobre a Lara Dam →</a>
         </div>
     </div>
 </div>
 
-<!-- Modal: Cadastro Rapido -->
+<!-- Social proof -->
+<div class="social-proof reveal">
+    <div class="proof-numbers">
+        <div class="proof-item">
+            <strong>300</strong>
+            <span>Vagas</span>
+        </div>
+        <div class="proof-item">
+            <strong>5</strong>
+            <span>Sessões grátis</span>
+        </div>
+        <div class="proof-item">
+            <strong>100%</strong>
+            <span>Brasil</span>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Cadastro Rápido -->
 <div class="modal-overlay" id="modalCadastro">
     <div class="modal-card">
         <button class="modal-close" id="modalClose">✕</button>
-        <div class="modal-title">Quase la! Complete seu cadastro rapidinho 🚀</div>
-        <p class="modal-sub">Preencha seus dados pra se cadastrar e ja garantir sua vaga na campanha.</p>
+        <div class="modal-title">Quase lá! Complete seu cadastro rapidinho 🚀</div>
+        <p class="modal-sub">Preencha seus dados pra se cadastrar e já garantir sua vaga na campanha.</p>
         <div class="modal-error" id="modalError"></div>
         <form id="cadastroForm">
             <div class="photo-upload">
@@ -223,8 +262,8 @@
             </div>
             <div class="field-row">
                 <div class="field">
-                    <label>Genero</label>
-                    <select id="modalGenero" required><option value="" disabled selected>Selecione</option><option value="feminino">Feminino</option><option value="masculino">Masculino</option><option value="nao_binario">Nao-binario</option><option value="prefiro_nao_dizer">Prefiro nao dizer</option></select>
+                    <label>Gênero</label>
+                    <select id="modalGenero" required><option value="" disabled selected>Selecione</option><option value="feminino">Feminino</option><option value="masculino">Masculino</option><option value="nao_binario">Não-binário</option><option value="prefiro_nao_dizer">Prefiro não dizer</option></select>
                 </div>
                 <div class="field">
                     <label>@ do TikTok <span style="color:var(--text-muted);font-weight:400">(opcional)</span></label>
@@ -233,7 +272,7 @@
             </div>
             <div class="field">
                 <label>Seguidores no Instagram</label>
-                <select id="modalSeguidores" required><option value="" disabled selected>Selecione</option><option value="ate_1k">Ate 1.000</option><option value="1k_5k">1.000 a 5.000</option><option value="5k_10k">5.000 a 10.000</option><option value="10k_30k">10.000 a 30.000</option><option value="30k_mais">Acima de 30.000</option></select>
+                <select id="modalSeguidores" required><option value="" disabled selected>Selecione</option><option value="ate_1k">Até 1.000</option><option value="1k_5k">1.000 a 5.000</option><option value="5k_10k">5.000 a 10.000</option><option value="10k_30k">10.000 a 30.000</option><option value="30k_mais">Acima de 30.000</option></select>
             </div>
             <div class="field-row">
                 <div class="field">
@@ -247,11 +286,11 @@
             </div>
             <div class="field">
                 <label>Nicho principal</label>
-                <select id="modalNicho" required><option value="" disabled selected>Selecione</option><option value="lifestyle">Lifestyle</option><option value="saude_fitness">Saude / Fitness</option><option value="beleza">Beleza</option><option value="maternidade">Maternidade</option><option value="familia">Familia</option><option value="entretenimento">Entretenimento</option><option value="humor">Humor</option><option value="gastronomia">Gastronomia</option><option value="moda">Moda</option><option value="tecnologia">Tecnologia</option><option value="educacao">Educacao</option><option value="outro">Outro</option></select>
+                <select id="modalNicho" required><option value="" disabled selected>Selecione</option><option value="lifestyle">Lifestyle</option><option value="saude_fitness">Saúde / Fitness</option><option value="beleza">Beleza</option><option value="maternidade">Maternidade</option><option value="familia">Família</option><option value="entretenimento">Entretenimento</option><option value="humor">Humor</option><option value="gastronomia">Gastronomia</option><option value="moda">Moda</option><option value="tecnologia">Tecnologia</option><option value="educacao">Educação</option><option value="outro">Outro</option></select>
             </div>
             <div class="field">
-                <label>Ja fez campanha paga?</label>
-                <select id="modalExperiencia"><option value="" disabled selected>Selecione</option><option value="sim">Sim, ja fiz</option><option value="nao">Nao, seria minha primeira</option><option value="permuta">So permuta</option></select>
+                <label>Já fez campanha paga?</label>
+                <select id="modalExperiencia"><option value="" disabled selected>Selecione</option><option value="sim">Sim, já fiz</option><option value="nao">Não, seria minha primeira</option><option value="permuta">Só permuta</option></select>
             </div>
             <button type="submit" class="btn-participate" id="btnCadastrar">Cadastrar e participar da campanha →</button>
         </form>
@@ -259,7 +298,7 @@
 </div>
 
 <footer class="page-footer">
-    <p>Campanha gerenciada por Lara Dam · Gestao de Campanhas UGC<br><a href="https://instagram.com/eilaradam" target="_blank">@eilaradam</a></p>
+    <p>Campanha gerenciada por Lara Dam · Gestão de Campanhas UGC<br><a href="https://instagram.com/eilaradam" target="_blank">@eilaradam</a></p>
 </footer>
 
 <script>
@@ -267,7 +306,7 @@
     const SUPABASE_URL = 'https://mfrmnquvwwuxraqgemyh.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mcm1ucXV2d3d1eHJhcWdlbXloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNDI1NDIsImV4cCI6MjA4NzYxODU0Mn0.zmsi08dV5L1IlXJSr34vOii71w0g0OsD5_5DKio5g-o';
     let sb = null;
-    try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch (e) { console.warn('Supabase nao carregou:', e); }
+    try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch (e) { console.warn('Supabase não carregou:', e); }
 
     /* ── WhatsApp mask ── */
     document.getElementById('modalWhatsapp').addEventListener('input', function(e) {
@@ -326,7 +365,7 @@
 
     carregarEstados();
 
-    /* ── Confirmar participacao ── */
+    /* ── Confirmar participação ── */
     document.getElementById('btnParticipate').addEventListener('click', async function() {
         const btn = this;
         const errorEl = document.getElementById('formError');
@@ -340,7 +379,7 @@
             errorEl.classList.add('show');
             return;
         }
-        if (!sb) { errorEl.textContent = 'Conexao indisponivel. Tente novamente.'; errorEl.classList.add('show'); return; }
+        if (!sb) { errorEl.textContent = 'Conexão indisponível. Tente novamente.'; errorEl.classList.add('show'); return; }
 
         btn.textContent = 'Verificando...';
         btn.disabled = true;
@@ -360,13 +399,13 @@
             } else {
                 /* NAO CADASTRADA — abre modal */
                 abrirModal(email, instagram);
-                btn.textContent = 'Confirmar participacao →';
+                btn.textContent = 'Confirmar participação →';
                 btn.disabled = false;
             }
         } catch (err) {
             errorEl.textContent = err.message || 'Erro ao verificar. Tente novamente.';
             errorEl.classList.add('show');
-            btn.textContent = 'Confirmar participacao →';
+            btn.textContent = 'Confirmar participação →';
             btn.disabled = false;
         }
     });
@@ -398,7 +437,7 @@
         btn.disabled = true;
 
         try {
-            if (!sb) throw new Error('Conexao indisponivel.');
+            if (!sb) throw new Error('Conexão indisponível.');
 
             /* Upload foto */
             let fotoUrl = null;
@@ -440,7 +479,7 @@
             /* Inserir */
             const { error } = await sb.from('creators').insert([creatorData]);
             if (error) {
-                if (error.code === '23505') throw new Error('Esse e-mail ou Instagram ja esta cadastrado!');
+                if (error.code === '23505') throw new Error('Esse e-mail ou Instagram já está cadastrado!');
                 throw error;
             }
 
@@ -458,6 +497,22 @@
     function mostrarSucesso() {
         document.getElementById('participateForm').style.display = 'none';
         document.getElementById('successState').classList.add('show');
+    }
+
+    /* ── Scroll Reveal ── */
+    const revealEls = document.querySelectorAll('.reveal');
+    if ('IntersectionObserver' in window) {
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.15 });
+        revealEls.forEach(el => revealObserver.observe(el));
+    } else {
+        revealEls.forEach(el => el.classList.add('visible'));
     }
 </script>
 </body>
