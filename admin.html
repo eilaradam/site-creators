@@ -152,11 +152,11 @@
         .col-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
         .col-card-header { display: flex; align-items: center; gap: 12px; padding: 10px 16px; cursor: pointer; user-select: none; }
         .col-card-header:hover { background: rgba(212,87,42,0.02); }
-        .col-card-name-area { display: flex; align-items: center; gap: 10px; min-width: 180px; flex-shrink: 0; }
-        .col-card-name { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
-        .col-card-tags { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+        .col-card-name-area { display: flex; align-items: center; gap: 10px; flex: 3; min-width: 0; }
+        .col-card-name { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .col-card-tags { display: flex; align-items: center; gap: 12px; flex: 7; min-width: 0; }
         .col-card-tag { font-size: 12px; color: var(--text-soft); white-space: nowrap; }
-        .col-card-chevron { width: 18px; height: 18px; color: var(--text-muted); transition: transform 0.25s ease; flex-shrink: 0; margin-left: auto; }
+        .col-card-chevron { width: 18px; height: 18px; color: var(--text-muted); transition: transform 0.25s ease; flex-shrink: 0; margin-left: 12px; }
         .col-card.expanded .col-card-chevron { transform: rotate(180deg); }
         .col-card-body { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
         .col-card.expanded .col-card-body { max-height: 500px; }
@@ -171,10 +171,10 @@
         /* Column header */
         .col-list-header { display: flex; align-items: center; gap: 12px; padding: 8px 16px; background: var(--cream); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 4px; position: sticky; top: 53px; z-index: 10; }
         .col-list-h-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); white-space: nowrap; }
-        .col-w-loc { min-width: 120px; }
-        .col-w-tipo { min-width: 100px; }
-        .col-w-seg { min-width: 60px; }
-        .col-w-exp { min-width: 65px; }
+        .col-w-loc { flex: 3; min-width: 0; }
+        .col-w-tipo { flex: 2.5; min-width: 0; }
+        .col-w-seg { flex: 2; min-width: 0; }
+        .col-w-exp { flex: 1.5; min-width: 0; }
 
         /* Save button (heart) - admin */
         .btn-save { position: absolute; top: 16px; right: 16px; background: none; border: none; cursor: pointer; padding: 4px; transition: all 0.25s ease; line-height: 1; z-index: 5; }
@@ -498,7 +498,7 @@
             <span class="col-list-h-label" style="width:40px;text-align:center">Foto</span>
             <span class="col-list-h-label">Nome</span>
         </div>
-        <div class="col-card-tags" style="flex-wrap:nowrap">
+        <div class="col-card-tags">
             <span class="col-list-h-label col-w-loc">Local</span>
             <span class="col-list-h-label col-w-tipo">Tipo</span>
             <span class="col-list-h-label col-w-seg">Seg.</span>
