@@ -48,6 +48,13 @@
         .login-error.show { display: block; }
         .login-footer { text-align: center; margin-top: 24px; font-size: 13px; color: var(--text-muted); }
         .login-footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
+        .login-link { text-align: right; margin-top: -8px; margin-bottom: 16px; }
+        .login-link a { font-size: 13px; color: var(--accent); text-decoration: none; font-weight: 500; cursor: pointer; }
+        .login-link a:hover { text-decoration: underline; }
+        .login-success { background: rgba(45,122,79,0.08); border: 1px solid rgba(45,122,79,0.2); color: var(--success); padding: 12px 16px; border-radius: 10px; font-size: 13px; margin-bottom: 16px; display: none; }
+        .login-success.show { display: block; }
+        .login-back { text-align: center; margin-top: 16px; }
+        .login-back a { font-size: 13px; color: var(--accent); text-decoration: none; font-weight: 600; cursor: pointer; }
         @media (max-width: 480px) { .login-box { padding: 36px 24px; } }
     </style>
 </head>
@@ -67,8 +74,19 @@
                     <label>Senha</label>
                     <input type="password" id="loginPassword" required placeholder="Sua senha" autocomplete="current-password">
                 </div>
+                <div class="login-link"><a href="#" id="forgotLink">Esqueci minha senha</a></div>
                 <button type="submit" class="login-btn" id="loginBtn">Entrar</button>
             </form>
+            <div id="recoveryForm" style="display:none;">
+                <div class="login-error" id="recoveryError"></div>
+                <div class="login-success" id="recoverySuccess"></div>
+                <div class="field">
+                    <label>E-mail</label>
+                    <input type="email" id="recoveryEmail" required placeholder="seu@email.com" autocomplete="email">
+                </div>
+                <button type="button" class="login-btn" id="recoveryBtn">Enviar link de recuperacao</button>
+                <div class="login-back"><a href="#" id="backToLogin">← Voltar ao login</a></div>
+            </div>
         </div>
         <div class="login-footer"><a href="index.html">← Voltar ao site</a></div>
     </div>
@@ -105,6 +123,58 @@
             errorEl.textContent = err.message || 'Erro ao fazer login.';
             errorEl.classList.add('show');
             btn.textContent = 'Entrar';
+            btn.disabled = false;
+        }
+    });
+
+    /* Esqueci minha senha */
+    document.getElementById('forgotLink').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('recoveryForm').style.display = 'block';
+        document.getElementById('loginError').classList.remove('show');
+        const loginEmail = document.getElementById('loginEmail').value.trim();
+        if (loginEmail) document.getElementById('recoveryEmail').value = loginEmail;
+    });
+
+    document.getElementById('backToLogin').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('recoveryForm').style.display = 'none';
+        document.getElementById('loginForm').style.display = 'block';
+        document.getElementById('recoveryError').classList.remove('show');
+        document.getElementById('recoverySuccess').classList.remove('show');
+    });
+
+    document.getElementById('recoveryBtn').addEventListener('click', async function() {
+        const btn = this;
+        const errorEl = document.getElementById('recoveryError');
+        const successEl = document.getElementById('recoverySuccess');
+        errorEl.classList.remove('show');
+        successEl.classList.remove('show');
+
+        const email = document.getElementById('recoveryEmail').value.trim();
+        if (!email) {
+            errorEl.textContent = 'Informe seu e-mail.';
+            errorEl.classList.add('show');
+            return;
+        }
+
+        btn.textContent = 'Enviando...';
+        btn.disabled = true;
+
+        try {
+            const { error } = await Auth.sb.auth.resetPasswordForEmail(email, {
+                redirectTo: 'https://creators.laradam.com/redefinir-senha.html'
+            });
+            if (error) throw error;
+            successEl.textContent = 'Se este e-mail estiver cadastrado, voce recebera um link para redefinir sua senha. Verifique sua caixa de entrada.';
+            successEl.classList.add('show');
+            btn.style.display = 'none';
+        } catch (err) {
+            errorEl.textContent = 'Erro ao enviar. Tente novamente.';
+            errorEl.classList.add('show');
+        } finally {
+            btn.textContent = 'Enviar link de recuperacao';
             btn.disabled = false;
         }
     });

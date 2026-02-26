@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redefinir Senha · Manager Club</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="this.onerror=null;this.src='https://unpkg.com/@supabase/supabase-js@2'"></script>
+    <script src="js/auth.js"></script>
+    <style>
+        :root {
+            --black: #0A0A0A;
+            --white: #FAFAF9;
+            --cream: #F5F3EF;
+            --warm: #E8E4DD;
+            --accent: #D4572A;
+            --accent-dark: #B8461F;
+            --accent-glow: rgba(212,87,42,0.12);
+            --text: #1A1816;
+            --text-soft: #6B645C;
+            --text-muted: #9C958C;
+            --border: #DDD8D0;
+            --card: #FFFFFF;
+            --success: #2D7A4F;
+            --error: #C4453C;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background: var(--cream); color: var(--text); -webkit-font-smoothing: antialiased; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+        .login-wrapper { width: 100%; max-width: 420px; }
+        .login-logo { text-align: center; margin-bottom: 32px; }
+        .login-logo a { font-family: 'Fraunces', serif; font-weight: 700; font-size: 28px; color: var(--text); text-decoration: none; }
+        .login-logo a span { color: var(--accent); }
+        .login-box { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 48px 40px; box-shadow: 0 4px 24px rgba(0,0,0,0.04); position: relative; overflow: hidden; }
+        .login-box::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent), #E8784A, var(--accent)); }
+        .login-box h1 { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.5px; }
+        .login-box p { font-size: 14px; color: var(--text-soft); margin-bottom: 28px; line-height: 1.6; }
+        .field { margin-bottom: 16px; position: relative; }
+        .field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+        .field input { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 12px; font-family: 'Outfit', sans-serif; font-size: 15px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; padding-right: 44px; }
+        .field input:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
+        .toggle-pw { position: absolute; right: 12px; top: 36px; background: none; border: none; cursor: pointer; padding: 4px; }
+        .toggle-pw svg { width: 18px; height: 18px; stroke: var(--text-muted); stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.2s; }
+        .login-btn { width: 100%; margin-top: 8px; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 14px; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; display: block; text-align: center; text-decoration: none; }
+        .login-btn:hover { background: var(--accent-dark); transform: translateY(-1px); }
+        .login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .login-error { background: rgba(196,69,60,0.08); border: 1px solid rgba(196,69,60,0.2); color: var(--error); padding: 12px 16px; border-radius: 10px; font-size: 13px; margin-bottom: 16px; display: none; }
+        .login-error.show { display: block; }
+        .login-success { background: rgba(45,122,79,0.08); border: 1px solid rgba(45,122,79,0.2); color: var(--success); padding: 12px 16px; border-radius: 10px; font-size: 13px; margin-bottom: 16px; display: none; }
+        .login-success.show { display: block; }
+        .login-footer { text-align: center; margin-top: 24px; font-size: 13px; color: var(--text-muted); }
+        .login-footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
+        @media (max-width: 480px) { .login-box { padding: 36px 24px; } }
+    </style>
+</head>
+<body>
+    <div class="login-wrapper">
+        <div class="login-logo"><a href="index.html">lara<span>.</span>dam</a></div>
+        <div class="login-box">
+            <!-- State 1: Loading -->
+            <div id="loadingState">
+                <h1>Redefinir senha</h1>
+                <p>Verificando seu link...</p>
+            </div>
+            <!-- State 2: Form -->
+            <div id="formState" style="display:none;">
+                <h1>Nova senha</h1>
+                <p>Escolha uma nova senha para sua conta.</p>
+                <div class="login-error" id="resetError"></div>
+                <div class="field">
+                    <label>Nova senha</label>
+                    <input type="password" id="newPassword" required placeholder="Minimo 6 caracteres" autocomplete="new-password">
+                    <button type="button" class="toggle-pw" onclick="togglePw(this)"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                </div>
+                <div class="field">
+                    <label>Confirmar nova senha</label>
+                    <input type="password" id="confirmPassword" required placeholder="Repita a nova senha" autocomplete="new-password">
+                    <button type="button" class="toggle-pw" onclick="togglePw(this)"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                </div>
+                <button type="button" class="login-btn" id="resetBtn">Redefinir senha</button>
+            </div>
+            <!-- State 3: Success -->
+            <div id="successState" style="display:none;">
+                <h1>Pronto!</h1>
+                <div class="login-success show">Senha redefinida com sucesso! Redirecionando...</div>
+            </div>
+            <!-- State 4: Invalid link -->
+            <div id="errorState" style="display:none;">
+                <h1>Link invalido</h1>
+                <p>Este link expirou ou ja foi utilizado.</p>
+                <a href="login.html" class="login-btn" style="margin-top: 16px;">Ir para o login</a>
+            </div>
+        </div>
+        <div class="login-footer"><a href="login.html">← Voltar ao login</a></div>
+    </div>
+
+<script>
+    function togglePw(btn) {
+        const input = btn.parentElement.querySelector('input');
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+        btn.querySelector('svg').style.stroke = isPassword ? 'var(--accent)' : 'var(--text-muted)';
+    }
+
+    (async function() {
+        const { sb } = Auth;
+        if (!sb) {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'block';
+            return;
+        }
+
+        let recoveryDetected = false;
+
+        sb.auth.onAuthStateChange((event, session) => {
+            if (event === 'PASSWORD_RECOVERY') {
+                recoveryDetected = true;
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('formState').style.display = 'block';
+            }
+        });
+
+        // Timeout: if no recovery event after 3s, show error
+        setTimeout(() => {
+            if (!recoveryDetected) {
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('errorState').style.display = 'block';
+            }
+        }, 3000);
+
+        document.getElementById('resetBtn').addEventListener('click', async function() {
+            const btn = this;
+            const errorEl = document.getElementById('resetError');
+            errorEl.classList.remove('show');
+
+            const newPw = document.getElementById('newPassword').value;
+            const confirmPw = document.getElementById('confirmPassword').value;
+
+            if (newPw.length < 6) {
+                errorEl.textContent = 'A senha deve ter no minimo 6 caracteres.';
+                errorEl.classList.add('show');
+                return;
+            }
+            if (newPw !== confirmPw) {
+                errorEl.textContent = 'As senhas nao conferem.';
+                errorEl.classList.add('show');
+                return;
+            }
+
+            btn.textContent = 'Salvando...';
+            btn.disabled = true;
+
+            try {
+                const { error } = await sb.auth.updateUser({ password: newPw });
+                if (error) throw error;
+                document.getElementById('formState').style.display = 'none';
+                document.getElementById('successState').style.display = 'block';
+                setTimeout(() => { window.location.href = 'painel.html'; }, 2000);
+            } catch (err) {
+                errorEl.textContent = 'Erro ao redefinir senha: ' + (err.message || 'Tente novamente.');
+                errorEl.classList.add('show');
+                btn.textContent = 'Redefinir senha';
+                btn.disabled = false;
+            }
+        });
+    })();
+</script>
+</body>
+</html>

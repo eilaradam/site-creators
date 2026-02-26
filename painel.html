@@ -906,13 +906,6 @@
             <div class="profile-separator"></div>
             <div class="profile-section-title">Alterar senha</div>
             <div class="profile-field">
-                <label>Senha atual</label>
-                <div class="input-wrap">
-                    <input type="password" id="profileSenhaAtual" placeholder="Sua senha atual" autocomplete="current-password">
-                    <button type="button" class="toggle-pw" onclick="togglePwVisibility(this)"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-                </div>
-            </div>
-            <div class="profile-field">
                 <label>Nova senha</label>
                 <div class="input-wrap">
                     <input type="password" id="profileSenhaNova" placeholder="Minimo 6 caracteres" autocomplete="new-password">
@@ -2250,23 +2243,16 @@
         msgEl.classList.remove('show');
 
         try {
-            const senhaAtual = document.getElementById('profileSenhaAtual').value;
             const senhaNova = document.getElementById('profileSenhaNova').value;
             const senhaConfirm = document.getElementById('profileSenhaConfirm').value;
 
-            if (!senhaAtual && !senhaNova && !senhaConfirm) throw new Error('Preencha os campos de senha para alterar.');
-            if (!senhaAtual) throw new Error('Informe a senha atual.');
+            if (!senhaNova && !senhaConfirm) throw new Error('Preencha os campos de senha para alterar.');
             if (senhaNova.length < 6) throw new Error('A nova senha deve ter no minimo 6 caracteres.');
             if (senhaNova !== senhaConfirm) throw new Error('A confirmacao nao confere com a nova senha.');
-
-            const email = document.getElementById('profileEmail').value;
-            const { error: loginErr } = await sb.auth.signInWithPassword({ email, password: senhaAtual });
-            if (loginErr) throw new Error('Senha atual incorreta.');
 
             const { error: pwErr } = await sb.auth.updateUser({ password: senhaNova });
             if (pwErr) throw new Error('Erro ao alterar senha: ' + pwErr.message);
 
-            document.getElementById('profileSenhaAtual').value = '';
             document.getElementById('profileSenhaNova').value = '';
             document.getElementById('profileSenhaConfirm').value = '';
 
@@ -2274,7 +2260,7 @@
         } catch (err) {
             showProfileMsg(err.message, 'error');
         } finally {
-            btn.textContent = 'Salvar';
+            btn.textContent = 'Alterar senha';
             btn.disabled = false;
         }
     });

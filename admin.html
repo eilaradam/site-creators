@@ -821,7 +821,7 @@
 <div class="modal-overlay" id="modalAluna">
     <div class="modal">
         <h3>Adicionar Aluna</h3>
-        <p>Crie um acesso para uma aluna do Manager Club.</p>
+        <p>A aluna recebera um e-mail para criar sua senha.</p>
         <div class="modal-error" id="modalError"></div>
         <div id="modalFormContent">
             <div class="field">
@@ -831,10 +831,6 @@
             <div class="field">
                 <label>E-mail</label>
                 <input type="email" id="alunaEmail" required placeholder="aluna@email.com">
-            </div>
-            <div class="field">
-                <label>Senha inicial</label>
-                <input type="text" id="alunaSenha" required placeholder="Ex: 5 primeiros digitos do CPF">
             </div>
             <div class="modal-actions">
                 <button class="btn-cancel" id="btnCancelAluna">Cancelar</button>
@@ -1739,7 +1735,6 @@
         document.getElementById('modalError').classList.remove('show');
         document.getElementById('alunaName').value = '';
         document.getElementById('alunaEmail').value = '';
-        document.getElementById('alunaSenha').value = '';
         modal.classList.add('show');
     });
 
@@ -1753,15 +1748,9 @@
 
         const nome = document.getElementById('alunaName').value.trim();
         const email = document.getElementById('alunaEmail').value.trim();
-        const senha = document.getElementById('alunaSenha').value;
 
-        if (!nome || !email || !senha) {
+        if (!nome || !email) {
             errorEl.textContent = 'Preencha todos os campos.';
-            errorEl.classList.add('show');
-            return;
-        }
-        if (senha.length < 6) {
-            errorEl.textContent = 'A senha precisa ter pelo menos 6 caracteres.';
             errorEl.classList.add('show');
             return;
         }
@@ -1774,30 +1763,26 @@
             const { data: { session: adminSession } } = await sb.auth.getSession();
             if (!adminSession) throw new Error('Sessao do admin expirou. Faca login novamente.');
 
-            /* 2. Criar user no Auth usando client separado */
+            /* 2. Criar user no Auth usando client separado (senha aleatoria) */
             const signupClient = Auth.createSignupClient();
-            let newUserId;
+            const randomPassword = crypto.randomUUID() + 'A1!';
 
             const { data: signupData, error: signupError } = await signupClient.auth.signUp({
                 email: email,
-                password: senha
+                password: randomPassword,
+                options: {
+                    emailRedirectTo: 'https://creators.laradam.com/login.html'
+                }
             });
 
             if (signupError) {
                 if (signupError.message && (signupError.message.includes('already') || signupError.message.includes('registered') || signupError.message.includes('existe'))) {
-                    const { data: loginData, error: loginError } = await signupClient.auth.signInWithPassword({
-                        email: email,
-                        password: senha
-                    });
-                    if (loginError) throw new Error('Usuaria ja existe no Auth mas a senha informada nao confere. Tente com a mesma senha usada antes, ou delete a usuaria no Supabase Auth e tente novamente.');
-                    newUserId = loginData.user.id;
-                    await signupClient.auth.signOut();
-                } else {
-                    throw signupError;
+                    throw new Error('Este e-mail ja esta cadastrado. Verifique a lista de alunas.');
                 }
-            } else {
-                newUserId = signupData.user.id;
+                throw signupError;
             }
+
+            const newUserId = signupData.user.id;
 
             /* 3. Garantir que a sessao do admin ainda esta ativa */
             const { data: { session: checkSession } } = await sb.auth.getSession();
@@ -1816,16 +1801,14 @@
             });
             if (insertError) throw new Error('Erro ao salvar na tabela: ' + insertError.message);
 
-            /* Mostrar sucesso com credenciais para copiar */
+            /* Mostrar sucesso */
             document.getElementById('modalFormContent').style.display = 'none';
             document.getElementById('modalSuccessContent').style.display = 'block';
             document.getElementById('modalSuccessContent').innerHTML = `
                 <div class="modal-success">
-                    <strong>Aluna cadastrada com sucesso!</strong>
-                    Envie esses dados de acesso para a aluna:<br><br>
-                    <strong>Link:</strong> creators.laradam.com/login.html<br>
-                    <strong>E-mail:</strong> ${escapeHtml(email)}<br>
-                    <strong>Senha:</strong> ${escapeHtml(senha)}
+                    <strong>Convite enviado!</strong><br><br>
+                    A aluna recebera um e-mail em <strong>${escapeHtml(email)}</strong> para ativar seu acesso.<br><br>
+                    Apos confirmar o e-mail, ela pode usar <strong>"Esqueci minha senha"</strong> na tela de login para criar sua senha.
                 </div>
                 <div class="modal-actions" style="margin-top:16px;">
                     <button class="btn-confirm" onclick="document.getElementById('modalAluna').classList.remove('show'); loadAlunas();" style="flex:1;">Fechar</button>
