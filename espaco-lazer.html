@@ -113,6 +113,10 @@
         .modal-sub { font-size: 13px; color: var(--text-soft); margin-bottom: 24px; line-height: 1.5; }
         .modal-error { background: rgba(196,69,60,0.08); border: 1px solid rgba(196,69,60,0.2); color: var(--error); padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 14px; display: none; }
         .modal-error.show { display: block; }
+        .terms-checkbox { display: flex; align-items: flex-start; gap: 10px; margin: 24px 0 8px; padding: 16px; background: rgba(212,87,42,0.04); border-radius: 10px; border: 1px solid var(--border); }
+        .terms-checkbox input[type="checkbox"] { accent-color: var(--accent); width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; cursor: pointer; }
+        .terms-checkbox label { font-size: 13px; color: var(--text-soft); line-height: 1.5; cursor: pointer; }
+        .terms-checkbox a { color: var(--accent); font-weight: 600; text-decoration: underline; }
 
         /* Social proof */
         .social-proof { background: var(--card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 40px 24px; text-align: center; }
@@ -291,6 +295,10 @@
             <div class="field">
                 <label>Já fez campanha paga?</label>
                 <select id="modalExperiencia"><option value="" disabled selected>Selecione</option><option value="sim">Sim, já fiz</option><option value="nao">Não, seria minha primeira</option><option value="permuta">Só permuta</option></select>
+            </div>
+            <div class="terms-checkbox">
+                <input type="checkbox" id="modalAceiteTermos" required>
+                <label for="modalAceiteTermos">Li e aceito os <a href="termos.html" target="_blank">Termos de Uso e Política de Privacidade</a></label>
             </div>
             <button type="submit" class="btn-participate" id="btnCadastrar">Cadastrar e participar da campanha →</button>
         </form>
@@ -473,7 +481,9 @@
                 foto_perfil: fotoUrl,
                 origem: 'campanha_espaco_lazer',
                 status: 'novo',
-                campanha_interesse: 'espaco_lazer'
+                campanha_interesse: 'espaco_lazer',
+                aceite_termos: true,
+                data_aceite_termos: new Date().toISOString()
             };
 
             /* Inserir */

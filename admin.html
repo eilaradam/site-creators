@@ -205,6 +205,22 @@
         .btn-send-tooltip { display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: var(--black); color: white; font-size: 11px; padding: 6px 12px; border-radius: 8px; white-space: nowrap; font-weight: 500; }
         .btn-send:hover .btn-send-tooltip { display: block; }
 
+        /* Termos editor */
+        .termos-editor { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
+        .termos-meta { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+        .termos-toolbar { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+        .termos-toolbar button { padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--cream); font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.2s; }
+        .termos-toolbar button:hover { border-color: var(--accent); color: var(--accent); }
+        .termos-textarea { width: 100%; min-height: 500px; padding: 16px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; resize: vertical; line-height: 1.7; }
+        .termos-textarea:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
+        .termos-actions { display: flex; gap: 12px; margin-top: 16px; align-items: center; }
+        .btn-save-termos { padding: 12px 28px; background: var(--accent); color: white; border: none; border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .btn-save-termos:hover { background: var(--accent-dark); }
+        .btn-save-termos:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-preview-termos { padding: 12px 28px; border: 1px solid var(--border); border-radius: 10px; background: none; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.2s; text-decoration: none; }
+        .btn-preview-termos:hover { border-color: var(--accent); color: var(--accent); }
+        .termos-status { font-size: 13px; color: var(--success); margin-left: auto; display: none; }
+
         /* Empty & loading */
         .empty-state { text-align: center; padding: 60px 24px; color: var(--text-muted); }
         .empty-state p { font-size: 15px; line-height: 1.6; }
@@ -246,6 +262,7 @@
     <button class="tab" data-tab="salvos">Perfis Salvos</button>
     <button class="tab" data-tab="alunas">Gerenciar Alunas</button>
     <button class="tab" data-tab="campanhas">Campanhas &amp; E-mails</button>
+    <button class="tab" data-tab="termos">Termos</button>
 </div>
 
 <!-- ── TAB: CREATORS ── -->
@@ -427,6 +444,31 @@
     </div>
 </div>
 
+<!-- ── TAB: TERMOS ── -->
+<div class="dashboard" id="tabTermos">
+    <div class="termos-editor">
+        <h2 style="font-family:'Fraunces',serif;font-size:24px;font-weight:700;margin-bottom:4px;">Editor de Termos de Uso</h2>
+        <p style="font-size:14px;color:var(--text-soft);margin-bottom:20px;">Edite o conteudo dos termos abaixo em HTML. As alteracoes ficam visiveis publicamente ao salvar.</p>
+        <div class="termos-meta" id="termosMeta">Carregando...</div>
+        <div class="termos-toolbar">
+            <button onclick="insertTag('h2')">H2</button>
+            <button onclick="insertTag('h3')">H3</button>
+            <button onclick="insertTag('p')">Paragrafo</button>
+            <button onclick="insertTag('strong')">Negrito</button>
+            <button onclick="insertTag('em')">Italico</button>
+            <button onclick="insertTag('ul')">Lista</button>
+            <button onclick="insertTag('li')">Item</button>
+            <button onclick="insertTag('a')">Link</button>
+        </div>
+        <textarea class="termos-textarea" id="termosEditor" placeholder="Conteudo HTML dos termos..."></textarea>
+        <div class="termos-actions">
+            <button class="btn-save-termos" id="btnSaveTermos">Salvar alteracoes</button>
+            <a href="termos.html" target="_blank" class="btn-preview-termos">Visualizar pagina</a>
+            <span class="termos-status" id="termosStatus">Salvo com sucesso!</span>
+        </div>
+    </div>
+</div>
+
 <!-- Modal: Adicionar Aluna -->
 <div class="modal-overlay" id="modalAluna">
     <div class="modal">
@@ -495,7 +537,9 @@
             document.getElementById('tabSalvos').classList.toggle('show', target === 'salvos');
             document.getElementById('tabAlunas').classList.toggle('show', target === 'alunas');
             document.getElementById('tabCampanhas').classList.toggle('show', target === 'campanhas');
+            document.getElementById('tabTermos').classList.toggle('show', target === 'termos');
             if (target === 'alunas') loadAlunas();
+            if (target === 'termos') loadTermos();
             if (target === 'salvos') {
                 populateSavedEstados();
                 loadSavedCreators();
@@ -1069,6 +1113,74 @@
             btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copiado!`;
             setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 2000);
         } catch (e) { alert('Erro ao copiar. Tente novamente.'); }
+    }
+
+    /* ══════════════════════════════════════
+       TERMOS
+       ══════════════════════════════════════ */
+
+    let termosLoaded = false;
+
+    async function loadTermos() {
+        if (termosLoaded) return;
+        try {
+            const { data, error } = await sb.from('configuracoes').select('conteudo, updated_at').eq('id', 'termos_de_uso').single();
+            if (error) throw error;
+            document.getElementById('termosEditor').value = data.conteudo || '';
+            if (data.updated_at) {
+                const date = new Date(data.updated_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                document.getElementById('termosMeta').textContent = 'Ultima atualizacao: ' + date;
+            }
+            termosLoaded = true;
+        } catch (err) {
+            document.getElementById('termosMeta').textContent = 'Erro ao carregar termos: ' + err.message;
+        }
+    }
+
+    document.getElementById('btnSaveTermos').addEventListener('click', async function() {
+        const btn = this;
+        const content = document.getElementById('termosEditor').value;
+        const statusEl = document.getElementById('termosStatus');
+        statusEl.style.display = 'none';
+        btn.textContent = 'Salvando...';
+        btn.disabled = true;
+
+        try {
+            const { error } = await sb.from('configuracoes').update({
+                conteudo: content,
+                updated_at: new Date().toISOString()
+            }).eq('id', 'termos_de_uso');
+            if (error) throw error;
+
+            const now = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            document.getElementById('termosMeta').textContent = 'Ultima atualizacao: ' + now;
+            statusEl.style.display = 'inline';
+            setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
+        } catch (err) {
+            alert('Erro ao salvar: ' + err.message);
+        }
+        btn.textContent = 'Salvar alteracoes';
+        btn.disabled = false;
+    });
+
+    function insertTag(tag) {
+        const textarea = document.getElementById('termosEditor');
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const selected = textarea.value.substring(start, end);
+        let insertion;
+
+        if (tag === 'ul') {
+            insertion = '<ul>\n<li>' + (selected || 'Item') + '</li>\n</ul>';
+        } else if (tag === 'a') {
+            insertion = '<a href="URL">' + (selected || 'texto do link') + '</a>';
+        } else {
+            insertion = '<' + tag + '>' + (selected || '') + '</' + tag + '>';
+        }
+
+        textarea.value = textarea.value.substring(0, start) + insertion + textarea.value.substring(end);
+        textarea.focus();
+        textarea.selectionStart = textarea.selectionEnd = start + insertion.length;
     }
 </script>
 </body>

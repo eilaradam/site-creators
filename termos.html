@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termos de Uso e Política de Privacidade | Lara Dam</title>
+    <meta name="robots" content="index, follow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --black: #0A0A0A;
+            --white: #FAFAF9;
+            --cream: #F5F3EF;
+            --warm: #E8E4DD;
+            --accent: #D4572A;
+            --accent-dark: #B8461F;
+            --text: #1A1816;
+            --text-soft: #6B645C;
+            --text-muted: #9C958C;
+            --border: #DDD8D0;
+            --card: #FFFFFF;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Outfit', sans-serif; background: var(--cream); color: var(--text); -webkit-font-smoothing: antialiased; min-height: 100vh; }
+
+        .header { background: var(--card); border-bottom: 1px solid var(--border); padding: 16px 24px; text-align: center; position: sticky; top: 0; z-index: 50; }
+        .header-logo { font-family: 'Fraunces', serif; font-weight: 700; font-size: 20px; color: var(--text); text-decoration: none; }
+        .header-logo span { color: var(--accent); }
+
+        .termos-container { max-width: 720px; margin: 40px auto; padding: 0 24px 60px; }
+
+        .termos-card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 48px 40px; box-shadow: 0 4px 24px rgba(0,0,0,0.04); position: relative; overflow: hidden; }
+        .termos-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent), #E8784A, var(--accent)); }
+
+        .termos-header { margin-bottom: 36px; }
+        .termos-header h1 { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 800; letter-spacing: -1px; margin-bottom: 6px; }
+        .termos-header .subtitle { font-size: 15px; color: var(--text-soft); margin-bottom: 12px; }
+        .termos-header .updated { font-size: 13px; color: var(--text-muted); font-style: italic; }
+
+        .termos-content { line-height: 1.8; font-size: 15px; color: var(--text); }
+        .termos-content h2 { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; margin-top: 36px; margin-bottom: 12px; color: var(--text); }
+        .termos-content h3 { font-size: 16px; font-weight: 700; margin-top: 20px; margin-bottom: 8px; color: var(--text); }
+        .termos-content p { margin-bottom: 14px; color: var(--text-soft); }
+        .termos-content ul { margin: 12px 0 14px 24px; }
+        .termos-content li { margin-bottom: 8px; color: var(--text-soft); }
+        .termos-content a { color: var(--accent); text-decoration: underline; font-weight: 600; }
+        .termos-content strong { color: var(--text); }
+
+        .termos-footer { text-align: center; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border); }
+        .btn-back { display: inline-flex; align-items: center; gap: 8px; padding: 14px 32px; background: var(--accent); color: white; border: none; border-radius: 100px; font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700; text-decoration: none; transition: all 0.3s; }
+        .btn-back:hover { background: var(--accent-dark); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(212,87,42,0.3); }
+
+        .loading-state { text-align: center; padding: 60px 24px; color: var(--text-muted); font-size: 15px; }
+
+        .page-footer { text-align: center; padding: 32px 24px; }
+        .page-footer p { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+        .page-footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
+
+        @media (max-width: 600px) {
+            .termos-card { padding: 32px 20px; }
+            .termos-container { margin: 20px auto; }
+            .termos-header h1 { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <a href="index.html" class="header-logo">lara<span>.</span>dam</a>
+</header>
+
+<div class="termos-container">
+    <div class="termos-card">
+        <div class="termos-header">
+            <h1>Termos de Uso e Política de Privacidade</h1>
+            <div class="subtitle">Plataforma de Recrutamento de Creators — Lara Dam</div>
+            <div class="updated" id="updatedDate"></div>
+        </div>
+        <div class="termos-content" id="termosContent">
+            <div class="loading-state">Carregando termos...</div>
+        </div>
+        <div class="termos-footer">
+            <a href="index.html" class="btn-back">← Voltar ao cadastro</a>
+        </div>
+    </div>
+</div>
+
+<footer class="page-footer">
+    <p>Gestão de Campanhas UGC · <a href="https://instagram.com/eilaradam" target="_blank">@eilaradam</a></p>
+</footer>
+
+<script>
+    const SUPABASE_URL = 'https://mfrmnquvwwuxraqgemyh.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mcm1ucXV2d3d1eHJhcWdlbXloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNDI1NDIsImV4cCI6MjA4NzYxODU0Mn0.zmsi08dV5L1IlXJSr34vOii71w0g0OsD5_5DKio5g-o';
+
+    (async function loadTermos() {
+        try {
+            const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            const { data, error } = await sb.from('configuracoes').select('conteudo, updated_at').eq('id', 'termos_de_uso').single();
+
+            if (error || !data) throw new Error('Termos não encontrados');
+
+            document.getElementById('termosContent').innerHTML = data.conteudo;
+
+            if (data.updated_at) {
+                const date = new Date(data.updated_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+                document.getElementById('updatedDate').textContent = 'Última atualização: ' + date;
+            }
+        } catch (err) {
+            document.getElementById('termosContent').innerHTML = '<p style="color: var(--text-muted); text-align: center;">Não foi possível carregar os termos. Tente novamente mais tarde.</p>';
+        }
+    })();
+</script>
+</body>
+</html>
