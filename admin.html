@@ -224,6 +224,24 @@
         .btn-preview-termos:hover { border-color: var(--accent); color: var(--accent); }
         .termos-status { font-size: 13px; color: var(--success); margin-left: auto; display: none; }
 
+        /* Links tab */
+        .link-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+        .link-item { padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+        .link-item:last-child { border-bottom: none; }
+        .link-name { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+        .link-desc { font-size: 13px; color: var(--text-muted); }
+        .link-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+        .link-url { font-size: 13px; color: var(--accent); text-decoration: none; font-weight: 600; }
+        .link-url:hover { text-decoration: underline; }
+        .btn-copy-link { padding: 6px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--cream); font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+        .btn-copy-link:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-copy-link.copied { background: rgba(45,122,79,0.08); border-color: var(--success); color: var(--success); }
+        @media (max-width: 600px) {
+            .link-item { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .link-actions { width: 100%; }
+            .link-url { font-size: 12px; }
+        }
+
         /* Empty & loading */
         .empty-state { text-align: center; padding: 60px 24px; color: var(--text-muted); }
         .empty-state p { font-size: 15px; line-height: 1.6; }
@@ -266,6 +284,7 @@
     <button class="tab" data-tab="alunas">Gerenciar Alunas</button>
     <button class="tab" data-tab="campanhas">Campanhas &amp; E-mails</button>
     <button class="tab" data-tab="termos">Termos</button>
+    <button class="tab" data-tab="links">Links</button>
 </div>
 
 <!-- ── TAB: CREATORS ── -->
@@ -473,6 +492,77 @@
     </div>
 </div>
 
+<!-- ── TAB: LINKS ── -->
+<div class="dashboard" id="tabLinks">
+    <div style="max-width:600px;">
+        <h2 style="font-family:'Fraunces',serif;font-size:24px;font-weight:700;margin-bottom:4px;">Links da Plataforma</h2>
+        <p style="font-size:14px;color:var(--text-soft);margin-bottom:24px;">Acesso rapido a todas as paginas do site.</p>
+
+        <div class="link-card">
+            <div class="link-item">
+                <div class="link-info">
+                    <div class="link-name">Pagina de Cadastro</div>
+                    <div class="link-desc">Formulario principal de recrutamento de creators</div>
+                </div>
+                <div class="link-actions">
+                    <a href="https://creators.laradam.com/" target="_blank" rel="noopener" class="link-url">creators.laradam.com</a>
+                    <button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com/')">Copiar</button>
+                </div>
+            </div>
+            <div class="link-item">
+                <div class="link-info">
+                    <div class="link-name">Campanha Espaco Laser</div>
+                    <div class="link-desc">Landing page da campanha de recrutamento</div>
+                </div>
+                <div class="link-actions">
+                    <a href="https://creators.laradam.com/espaco-laser.html" target="_blank" rel="noopener" class="link-url">creators.laradam.com/espaco-laser.html</a>
+                    <button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com/espaco-laser.html')">Copiar</button>
+                </div>
+            </div>
+            <div class="link-item">
+                <div class="link-info">
+                    <div class="link-name">Login</div>
+                    <div class="link-desc">Acesso para admin e alunas do Manager Club</div>
+                </div>
+                <div class="link-actions">
+                    <a href="https://creators.laradam.com/login.html" target="_blank" rel="noopener" class="link-url">creators.laradam.com/login.html</a>
+                    <button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com/login.html')">Copiar</button>
+                </div>
+            </div>
+            <div class="link-item">
+                <div class="link-info">
+                    <div class="link-name">Painel das Alunas</div>
+                    <div class="link-desc">Pesquisa e perfis salvos (Manager Club)</div>
+                </div>
+                <div class="link-actions">
+                    <a href="https://creators.laradam.com/painel.html" target="_blank" rel="noopener" class="link-url">creators.laradam.com/painel.html</a>
+                    <button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com/painel.html')">Copiar</button>
+                </div>
+            </div>
+            <div class="link-item">
+                <div class="link-info">
+                    <div class="link-name">Termos de Uso</div>
+                    <div class="link-desc">Pagina publica dos termos de uso</div>
+                </div>
+                <div class="link-actions">
+                    <a href="https://creators.laradam.com/termos.html" target="_blank" rel="noopener" class="link-url">creators.laradam.com/termos.html</a>
+                    <button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com/termos.html')">Copiar</button>
+                </div>
+            </div>
+            <div class="link-item">
+                <div class="link-info">
+                    <div class="link-name">Painel Admin</div>
+                    <div class="link-desc">Esta pagina (acesso restrito)</div>
+                </div>
+                <div class="link-actions">
+                    <a href="https://creators.laradam.com/admin.html" target="_blank" rel="noopener" class="link-url">creators.laradam.com/admin.html</a>
+                    <button class="btn-copy-link" onclick="copyLink('https://creators.laradam.com/admin.html')">Copiar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal: Adicionar Aluna -->
 <div class="modal-overlay" id="modalAluna">
     <div class="modal">
@@ -542,6 +632,7 @@
             document.getElementById('tabAlunas').classList.toggle('show', target === 'alunas');
             document.getElementById('tabCampanhas').classList.toggle('show', target === 'campanhas');
             document.getElementById('tabTermos').classList.toggle('show', target === 'termos');
+            document.getElementById('tabLinks').classList.toggle('show', target === 'links');
             if (target === 'alunas') loadAlunas();
             if (target === 'termos') loadTermos();
             if (target === 'salvos') {
@@ -1198,6 +1289,21 @@
         btn.textContent = 'Salvar alteracoes';
         btn.disabled = false;
     });
+
+    /* ══════════════════════════════════════
+       LINKS
+       ══════════════════════════════════════ */
+
+    async function copyLink(url) {
+        try {
+            await navigator.clipboard.writeText(url);
+            const btn = event.target;
+            const original = btn.textContent;
+            btn.textContent = 'Copiado!';
+            btn.classList.add('copied');
+            setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 2000);
+        } catch (e) { alert('Erro ao copiar.'); }
+    }
 
     function insertTag(tag) {
         const textarea = document.getElementById('termosEditor');
