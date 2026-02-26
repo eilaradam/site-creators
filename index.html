@@ -582,16 +582,16 @@
 
             /* Inserir no banco (retry se codigo_indicacao colidir) */
             let tentativas = 0;
-            let data, error;
+            let error;
             do {
-                ({ data, error } = await sb.from('creators').insert([creatorData]).select('codigo_indicacao').single());
+                ({ error } = await sb.from('creators').insert([creatorData]));
                 if (error && error.message?.includes('codigo_indicacao') && tentativas < 3) {
                     creatorData.codigo_indicacao = gerarCodigoIndicacao();
                     tentativas++;
                 } else break;
             } while (true);
             if (error) { if (error.code === '23505') throw new Error('Esse e-mail ou Instagram já está cadastrado na nossa base!'); throw error; }
-            const codigoRef = data?.codigo_indicacao || creatorData.codigo_indicacao;
+            const codigoRef = creatorData.codigo_indicacao;
 
             /* E-mail de boas-vindas (não bloqueia o cadastro) */
             try {
