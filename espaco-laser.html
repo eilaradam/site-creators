@@ -112,10 +112,33 @@
 
         /* Success */
         .success-state { display: none; text-align: center; padding: 20px 0; }
-        .success-state.show { display: block; }
-        .success-check { width: 64px; height: 64px; border-radius: 50%; background: rgba(45,122,79,0.1); display: flex; align-items: center; justify-content: center; font-size: 28px; color: var(--success); margin: 0 auto 20px; animation: fadeIn 0.5s ease-out both; }
-        .success-state h3 { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; margin-bottom: 12px; }
-        .success-state p { font-size: 14px; color: var(--text-soft); line-height: 1.7; margin-bottom: 24px; }
+        .success-state.show { display: block; animation: fadeIn 0.5s ease-out; }
+        @keyframes checkPop { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 1; } }
+        .success-check-animated { width: 80px; height: 80px; border-radius: 50%; background: rgba(45,122,79,0.1); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 36px; animation: checkPop 0.6s cubic-bezier(0.175,0.885,0.32,1.275) both; }
+        .success-title { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .success-subtitle { font-size: 14px; color: var(--text-soft); line-height: 1.7; max-width: 380px; margin: 0 auto 6px; }
+        .success-small { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+        .success-block { margin-bottom: 28px; }
+        .success-block:last-child { margin-bottom: 0; }
+        .share-section { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--border); }
+        .share-label { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+        .share-sublabel { font-size: 13px; color: var(--text-muted); margin-bottom: 14px; }
+        .share-buttons { display: flex; flex-direction: column; gap: 10px; }
+        .share-btn { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 20px; border-radius: 12px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; }
+        .share-btn:hover { transform: translateY(-1px); }
+        .share-btn-whatsapp { background: #25D366; color: white; }
+        .share-btn-whatsapp:hover { box-shadow: 0 6px 24px rgba(37,211,102,0.3); }
+        .share-btn-copy { background: var(--cream); border: 1.5px solid var(--border); color: var(--text); }
+        .share-btn-copy:hover { border-color: var(--accent); color: var(--accent); }
+        .share-btn-twitter { background: var(--cream); border: 1.5px solid var(--border); color: var(--text); }
+        .share-btn-twitter:hover { border-color: #1DA1F2; color: #1DA1F2; }
+        .follow-section { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+        .follow-link { font-size: 13px; color: var(--text-muted); text-decoration: none; font-weight: 500; transition: color 0.2s; }
+        .follow-link:hover { color: var(--accent); }
+        .follow-link strong { font-weight: 700; color: var(--text-soft); }
+        .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 200; overflow: hidden; }
+        .confetti-piece { position: absolute; width: 10px; height: 10px; top: -10px; border-radius: 2px; animation: confettiFall linear forwards; }
+        @keyframes confettiFall { 0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
         .btn-secondary { display: inline-flex; align-items: center; gap: 6px; padding: 12px 28px; border: 1px solid var(--border); border-radius: 100px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; color: var(--text-soft); text-decoration: none; transition: all 0.2s; }
         .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
 
@@ -241,10 +264,24 @@
             <p class="participate-note">Se você já é cadastrada, só confirmar. Se ainda não é, vamos te cadastrar rapidinho.</p>
         </div>
         <div class="success-state" id="successState">
-            <div class="success-check">✓</div>
-            <h3>Você está na campanha! 🎉</h3>
-            <p>Entraremos em contato pelo WhatsApp com o briefing e os próximos passos. Fique de olho nas mensagens!</p>
-            <a href="https://instagram.com/eilaradam" target="_blank" class="btn-secondary">Conhecer mais sobre a Lara Dam →</a>
+            <div class="success-block">
+                <div class="success-check-animated">✓</div>
+                <h3 class="success-title">Você está na campanha! 🎉</h3>
+                <p class="success-subtitle">Entraremos em contato pelo WhatsApp com o briefing e os próximos passos. Fique de olho nas mensagens!</p>
+                <p class="success-small">Enviamos um e-mail de confirmação — confira sua caixa de entrada.</p>
+            </div>
+            <div class="success-block share-section">
+                <div class="share-label">Conhece outras creators? Compartilha com elas!</div>
+                <div class="share-sublabel">Quanto mais creators no banco, mais oportunidades pra todo mundo.</div>
+                <div class="share-buttons">
+                    <a href="#" id="shareWhatsapp" target="_blank" rel="noopener" class="share-btn share-btn-whatsapp">Compartilhar no WhatsApp</a>
+                    <button class="share-btn share-btn-copy" id="shareCopy">Copiar link para Instagram</button>
+                    <a href="#" id="shareTwitter" target="_blank" rel="noopener" class="share-btn share-btn-twitter">Compartilhar no Twitter/X</a>
+                </div>
+            </div>
+            <div class="success-block follow-section">
+                <a href="https://instagram.com/eilaradam" target="_blank" rel="noopener" class="follow-link">Acompanhe novidades: <strong>@eilaradam</strong> no Instagram</a>
+            </div>
         </div>
     </div>
 </div>
@@ -656,6 +693,50 @@
     function mostrarSucesso() {
         document.getElementById('participateForm').style.display = 'none';
         document.getElementById('successState').classList.add('show');
+        setupShareButtons();
+        launchConfetti();
+    }
+
+    /* ── Confetti ── */
+    function launchConfetti() {
+        const container = document.createElement('div');
+        container.className = 'confetti-container';
+        document.body.appendChild(container);
+        const colors = ['#D4572A','#E8784A','#2D7A4F','#F5C842','#B8461F','#6B645C'];
+        for (let i = 0; i < 60; i++) {
+            const p = document.createElement('div');
+            p.className = 'confetti-piece';
+            p.style.left = Math.random() * 100 + '%';
+            p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            p.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            p.style.animationDelay = (Math.random() * 1.5) + 's';
+            p.style.width = (Math.random() * 8 + 6) + 'px';
+            p.style.height = (Math.random() * 8 + 6) + 'px';
+            container.appendChild(p);
+        }
+        setTimeout(() => container.remove(), 5000);
+    }
+
+    /* ── Share buttons ── */
+    const SHARE_URL = 'https://creators.laradam.com/espaco-laser.html';
+    const SHARE_TEXT_WA = 'Oi! Estou participando da campanha Espaço Laser com a Lara Dam. 300 vagas para creators! Se inscreve: ' + SHARE_URL;
+    const SHARE_TEXT_TW = 'Acabei de entrar na campanha Espaço Laser pela @eilaradam! 300 vagas para creators. Se inscreve: ' + SHARE_URL;
+
+    function setupShareButtons() {
+        const waBtn = document.getElementById('shareWhatsapp');
+        if (waBtn) waBtn.href = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(SHARE_TEXT_WA);
+
+        const cpBtn = document.getElementById('shareCopy');
+        if (cpBtn) cpBtn.addEventListener('click', async function() {
+            try {
+                await navigator.clipboard.writeText(SHARE_URL);
+                this.textContent = 'Link copiado!';
+                setTimeout(() => { this.textContent = 'Copiar link para Instagram'; }, 2500);
+            } catch(e) { alert('Erro ao copiar link.'); }
+        });
+
+        const twBtn = document.getElementById('shareTwitter');
+        if (twBtn) twBtn.href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(SHARE_TEXT_TW);
     }
 
     /* ── Scroll Reveal ── */

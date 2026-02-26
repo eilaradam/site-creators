@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <script src="js/auth.js"></script>
     <style>
         :root {
@@ -56,6 +57,23 @@
         .stat-card .stat-value { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 700; letter-spacing: -1px; color: var(--text); }
         .stat-card .stat-label { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
         .stat-card.accent .stat-value { color: var(--accent); }
+
+        /* Dashboard tab */
+        .dashboard-chart-container { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+        .dashboard-chart-title { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+        .dashboard-chart-canvas { width: 100%; max-height: 300px; }
+        .secondary-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .metric-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px 24px; }
+        .metric-card-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 12px; }
+        .metric-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+        .metric-list-item { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+        .metric-list-item-label { color: var(--text); font-weight: 500; }
+        .metric-list-item-value { font-family: 'Fraunces', serif; font-weight: 700; color: var(--accent); font-size: 16px; }
+        .metric-card-big { display: flex; flex-direction: column; align-items: center; padding: 12px 0; }
+        .metric-card-big .stat-value { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 700; color: var(--text); letter-spacing: -1px; }
+        .metric-card-big .stat-label { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
+        @media (max-width: 1024px) { .secondary-metrics { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .secondary-metrics { grid-template-columns: 1fr; } }
 
         /* Filtros */
         .filters-bar { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px 24px; margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
@@ -293,7 +311,8 @@
 
 <!-- Tabs -->
 <div class="tabs">
-    <button class="tab active" data-tab="creators">Creators</button>
+    <button class="tab active" data-tab="dashboard">Dashboard</button>
+    <button class="tab" data-tab="creators">Creators</button>
     <button class="tab" data-tab="salvos">Perfis Salvos</button>
     <button class="tab" data-tab="alunas">Gerenciar Alunas</button>
     <button class="tab" data-tab="campanhas">Campanhas &amp; E-mails</button>
@@ -301,8 +320,45 @@
     <button class="tab" data-tab="links">Links</button>
 </div>
 
+<!-- ── TAB: DASHBOARD ── -->
+<div class="dashboard show" id="tabDashboard">
+    <div class="stats-row">
+        <div class="stat-card accent"><div class="stat-value" id="dashTotal">--</div><div class="stat-label">Total de Creators</div></div>
+        <div class="stat-card"><div class="stat-value" id="dashHoje">--</div><div class="stat-label">Cadastros Hoje</div></div>
+        <div class="stat-card"><div class="stat-value" id="dash7d">--</div><div class="stat-label">Últimos 7 Dias</div></div>
+        <div class="stat-card"><div class="stat-value" id="dashEmails">--</div><div class="stat-label">E-mails Enviados</div></div>
+    </div>
+    <div class="dashboard-chart-container">
+        <div class="dashboard-chart-title">Cadastros por dia (últimos 30 dias)</div>
+        <canvas id="chartCadastros" class="dashboard-chart-canvas"></canvas>
+    </div>
+    <div class="secondary-metrics">
+        <div class="metric-card">
+            <div class="metric-card-title">Top 5 Estados</div>
+            <ul class="metric-list" id="dashEstados"><li class="metric-list-item"><span style="color:var(--text-muted)">Carregando...</span></li></ul>
+        </div>
+        <div class="metric-card">
+            <div class="metric-card-title">Top 5 Nichos</div>
+            <ul class="metric-list" id="dashNichos"><li class="metric-list-item"><span style="color:var(--text-muted)">Carregando...</span></li></ul>
+        </div>
+        <div class="metric-card">
+            <div class="metric-card-title">Por Tipo de Creator</div>
+            <ul class="metric-list" id="dashTipos"><li class="metric-list-item"><span style="color:var(--text-muted)">Carregando...</span></li></ul>
+        </div>
+        <div class="metric-card">
+            <div class="metric-card-title">Por Campanha</div>
+            <ul class="metric-list" id="dashCampanhas"><li class="metric-list-item"><span style="color:var(--text-muted)">Carregando...</span></li></ul>
+        </div>
+        <div class="metric-card">
+            <div class="metric-card-title">Alunas Manager Club</div>
+            <div class="metric-card-big"><div class="stat-value" id="dashTotalAlunas">--</div><div class="stat-label">Total de alunas</div></div>
+            <div class="metric-card-big" style="margin-top:8px"><div class="stat-value" id="dashAlunasAtivas">--</div><div class="stat-label">Ativas nos últimos 7 dias</div></div>
+        </div>
+    </div>
+</div>
+
 <!-- ── TAB: CREATORS ── -->
-<div class="dashboard show" id="tabCreators">
+<div class="dashboard" id="tabCreators">
     <div class="stats-row">
         <div class="stat-card accent"><div class="stat-value" id="statTotal">—</div><div class="stat-label">Total de creators</div></div>
         <div class="stat-card"><div class="stat-value" id="statNovo">—</div><div class="stat-label">Novos</div></div>
@@ -641,6 +697,7 @@
 
         await Promise.all([loadSavedIds(), loadPopularity()]);
         loadCreators();
+        loadDashboard();
     })();
 
     /* ── Logout ── */
@@ -652,12 +709,14 @@
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             this.classList.add('active');
             const target = this.dataset.tab;
+            document.getElementById('tabDashboard').classList.toggle('show', target === 'dashboard');
             document.getElementById('tabCreators').classList.toggle('show', target === 'creators');
             document.getElementById('tabSalvos').classList.toggle('show', target === 'salvos');
             document.getElementById('tabAlunas').classList.toggle('show', target === 'alunas');
             document.getElementById('tabCampanhas').classList.toggle('show', target === 'campanhas');
             document.getElementById('tabTermos').classList.toggle('show', target === 'termos');
             document.getElementById('tabLinks').classList.toggle('show', target === 'links');
+            if (target === 'dashboard') loadDashboard();
             if (target === 'alunas') loadAlunas();
             if (target === 'termos') loadTermos();
             if (target === 'salvos') {
@@ -667,6 +726,88 @@
             if (target === 'campanhas') updateCampanhaStats();
         });
     });
+
+    /* ══════════════════════════════════
+       DASHBOARD TAB
+       ══════════════════════════════════ */
+    let dashboardChart = null;
+    let dashboardLoaded = false;
+
+    async function loadDashboard() {
+        if (dashboardLoaded) return;
+        try {
+            const { data, error } = await sb.rpc('admin_dashboard_stats');
+            if (error) throw error;
+            const stats = typeof data === 'string' ? JSON.parse(data) : data;
+
+            document.getElementById('dashTotal').textContent = stats.total_creators || 0;
+            document.getElementById('dashHoje').textContent = stats.hoje || 0;
+            document.getElementById('dash7d').textContent = stats.ultimos_7_dias || 0;
+            document.getElementById('dashEmails').textContent = stats.emails_enviados || 0;
+
+            /* Gráfico */
+            const porDia = stats.por_dia || [];
+            const labels = porDia.map(d => {
+                const date = new Date(d.dia + 'T00:00:00');
+                return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+            });
+            const values = porDia.map(d => d.total);
+
+            const ctx = document.getElementById('chartCadastros').getContext('2d');
+            if (dashboardChart) dashboardChart.destroy();
+            dashboardChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Cadastros',
+                        data: values,
+                        backgroundColor: 'rgba(212,87,42,0.7)',
+                        borderColor: '#D4572A',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        maxBarThickness: 40
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { backgroundColor: '#1A1816', titleFont: { family: 'Outfit' }, bodyFont: { family: 'Outfit' }, cornerRadius: 8, padding: 10 }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'Outfit', size: 12 }, color: '#9C958C' }, grid: { color: 'rgba(221,216,208,0.5)' } },
+                        x: { ticks: { font: { family: 'Outfit', size: 11 }, color: '#9C958C', maxRotation: 45 }, grid: { display: false } }
+                    }
+                }
+            });
+
+            /* Métricas secundárias */
+            renderMetricList('dashEstados', (stats.por_estado || []).map(i => ({ label: i.estado, total: i.total })));
+            renderMetricList('dashNichos', (stats.por_nicho || []).map(i => ({ label: i.nicho_item, total: i.total })));
+
+            const tipoLabels = { 'ugc_creator': 'UGC Creator', 'influenciadora': 'Influenciadora', 'ugc_influenciadora': 'UGC + Influenciadora' };
+            renderMetricList('dashTipos', (stats.por_tipo || []).map(i => ({ label: tipoLabels[i.tipo_creator] || i.tipo_creator, total: i.total })));
+            renderMetricList('dashCampanhas', (stats.por_campanha || []).map(i => ({ label: i.campanha_interesse, total: i.total })));
+
+            document.getElementById('dashTotalAlunas').textContent = stats.total_alunas || 0;
+            document.getElementById('dashAlunasAtivas').textContent = stats.alunas_ativas_7d || 0;
+
+            dashboardLoaded = true;
+        } catch (err) {
+            console.error('Erro ao carregar dashboard:', err);
+        }
+    }
+
+    function renderMetricList(elementId, items) {
+        const el = document.getElementById(elementId);
+        if (!items || items.length === 0) {
+            el.innerHTML = '<li class="metric-list-item"><span style="color:var(--text-muted)">Sem dados</span></li>';
+            return;
+        }
+        el.innerHTML = items.map(item => `<li class="metric-list-item"><span class="metric-list-item-label">${escapeHtml(item.label || '-')}</span><span class="metric-list-item-value">${item.total}</span></li>`).join('');
+    }
 
     /* ── Carregar IDs salvos do admin ── */
     async function loadSavedIds() {
