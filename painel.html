@@ -83,6 +83,7 @@
         .card-social a { flex: 1; text-align: center; padding: 6px; border-radius: 8px; background: var(--cream); font-size: 11px; font-weight: 600; color: var(--accent); text-decoration: none; transition: all 0.2s; border: 1px solid var(--border); }
         .card-social a:hover { background: var(--accent-glow); }
         .card-social a.btn-tiktok { color: var(--black); }
+        .card-social a.btn-whatsapp { color: #25D366; }
         .badge { display: inline-block; padding: 2px 8px; border-radius: 100px; font-size: 10px; font-weight: 600; }
         .badge-novo { background: rgba(212,87,42,0.1); color: var(--accent); }
         .badge-aprovado { background: rgba(45,122,79,0.1); color: var(--success); }
@@ -271,7 +272,7 @@
         try {
             /* Query com colunas limitadas - sem email, whatsapp, genero */
             let query = sb.from('creators')
-                .select('id, nome, foto_perfil, cidade, estado, nicho, seguidores, instagram, tiktok, portfolio, status', { count: 'exact' })
+                .select('id, nome, foto_perfil, cidade, estado, nicho, seguidores, instagram, tiktok, portfolio, whatsapp, status', { count: 'exact' })
                 .order('created_at', { ascending: false });
 
             if (search) query = query.ilike('nome', `%${search}%`);
@@ -336,11 +337,12 @@
                     <div class="card-detail"><span class="card-detail-label">Seguidores</span> ${formatSeguidores(c.seguidores)}</div>
                     <div class="card-detail"><span class="card-detail-label">Status</span> <span class="badge ${badgeClass(c.status)}">${escapeHtml(c.status)}</span></div>
                 </div>
-                ${(c.instagram || c.tiktok || c.portfolio) ? `
+                ${(c.instagram || c.tiktok || c.portfolio || c.whatsapp) ? `
                 <div class="card-social">
                     ${c.instagram ? `<a href="https://instagram.com/${c.instagram.replace('@','')}" target="_blank" rel="noopener">Instagram</a>` : ''}
                     ${c.tiktok ? `<a href="https://tiktok.com/${c.tiktok.replace('@','')}" target="_blank" rel="noopener" class="btn-tiktok">TikTok</a>` : ''}
                     ${c.portfolio ? `<a href="${escapeHtml(c.portfolio)}" target="_blank" rel="noopener">Portfolio</a>` : ''}
+                    ${c.whatsapp ? `<a href="https://wa.me/55${c.whatsapp.replace(/[\s()\-]/g,'')}" target="_blank" rel="noopener" class="btn-whatsapp">WhatsApp</a>` : ''}
                 </div>` : ''}
             </div>
         `).join('');
