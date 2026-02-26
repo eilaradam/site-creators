@@ -299,9 +299,7 @@
                     <div class="share-label">Conhece outras creators? Compartilha com elas!</div>
                     <div class="share-sublabel">Quanto mais creators no banco, mais oportunidades pra todo mundo.</div>
                     <div class="share-buttons">
-                        <a href="#" id="shareWhatsapp" target="_blank" rel="noopener" class="share-btn share-btn-whatsapp">Compartilhar no WhatsApp</a>
-                        <button class="share-btn share-btn-copy" id="shareCopy">Copiar link para Instagram</button>
-                        <a href="#" id="shareTwitter" target="_blank" rel="noopener" class="share-btn share-btn-twitter">Compartilhar no Twitter/X</a>
+                        <button class="share-btn share-btn-whatsapp" id="shareBtn">Compartilhar</button>
                     </div>
                 </div>
                 <div class="success-block follow-section">
@@ -610,26 +608,26 @@
         setTimeout(() => container.remove(), 5000);
     }
 
-    /* ── Share buttons ── */
+    /* ── Share ── */
     const SHARE_URL = 'https://creators.laradam.com';
-    const SHARE_TEXT_WA = 'Oi! Me cadastrei no Banco de Creators da Lara Dam — é gratuito e conecta creators com oportunidades de campanhas UGC. Se cadastra também: ' + SHARE_URL;
-    const SHARE_TEXT_TW = 'Me cadastrei no Banco de Creators da @eilaradam 🚀 Cadastro gratuito pra creators de todo o Brasil: ' + SHARE_URL;
+    const SHARE_TEXT = 'Oi! Me cadastrei no Banco de Creators da Lara Dam — é gratuito e conecta creators com oportunidades de campanhas UGC. Se cadastra também:';
 
     function setupShareButtons() {
-        const waBtn = document.getElementById('shareWhatsapp');
-        if (waBtn) waBtn.href = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(SHARE_TEXT_WA);
-
-        const cpBtn = document.getElementById('shareCopy');
-        if (cpBtn) cpBtn.addEventListener('click', async function() {
-            try {
-                await navigator.clipboard.writeText(SHARE_URL);
-                this.textContent = 'Link copiado!';
-                setTimeout(() => { this.textContent = 'Copiar link para Instagram'; }, 2500);
-            } catch(e) { alert('Erro ao copiar link.'); }
+        const btn = document.getElementById('shareBtn');
+        if (!btn) return;
+        btn.addEventListener('click', async function() {
+            if (navigator.share) {
+                try {
+                    await navigator.share({ title: 'Banco de Creators', text: SHARE_TEXT, url: SHARE_URL });
+                } catch(e) {}
+            } else {
+                try {
+                    await navigator.clipboard.writeText(SHARE_URL);
+                    this.textContent = 'Link copiado!';
+                    setTimeout(() => { this.textContent = 'Compartilhar'; }, 2500);
+                } catch(e) { alert('Erro ao copiar link.'); }
+            }
         });
-
-        const twBtn = document.getElementById('shareTwitter');
-        if (twBtn) twBtn.href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(SHARE_TEXT_TW);
     }
 </script>
 </body>
