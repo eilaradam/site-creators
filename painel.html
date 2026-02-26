@@ -351,6 +351,27 @@
         .profile-avatar-ph:hover { opacity: 0.8; }
         .profile-avatar-label { font-size: 12px; color: var(--accent); font-weight: 600; margin-top: 8px; cursor: pointer; }
         .profile-avatar-label:hover { text-decoration: underline; }
+        .profile-name-status { font-size: 11px; color: var(--text-muted); margin-top: 4px; opacity: 0; transition: opacity 0.3s; }
+        .profile-name-status.show { opacity: 1; }
+        .profile-name-status.saved { color: var(--success); }
+
+        /* Crop modal */
+        .crop-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 300; align-items: center; justify-content: center; padding: 24px; }
+        .crop-overlay.show { display: flex; }
+        .crop-box { background: var(--card); border-radius: 16px; padding: 24px; width: 100%; max-width: 400px; text-align: center; }
+        .crop-box h3 { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+        .crop-container { position: relative; width: 280px; height: 280px; margin: 0 auto; overflow: hidden; border-radius: 50%; border: 3px solid var(--border); background: var(--cream); cursor: grab; touch-action: none; }
+        .crop-container:active { cursor: grabbing; }
+        .crop-container img { position: absolute; user-select: none; -webkit-user-drag: none; }
+        .crop-zoom { width: 100%; margin: 16px 0 8px; accent-color: var(--accent); }
+        .crop-zoom-label { font-size: 11px; color: var(--text-muted); margin-bottom: 12px; display: block; }
+        .crop-actions { display: flex; gap: 10px; }
+        .crop-actions button { flex: 1; padding: 12px; border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+        .btn-crop-cancel { background: var(--cream); border: 1px solid var(--border); color: var(--text-soft); }
+        .btn-crop-cancel:hover { border-color: var(--text-muted); }
+        .btn-crop-save { background: var(--accent); border: none; color: white; }
+        .btn-crop-save:hover { background: var(--accent-dark); }
+        .btn-crop-save:disabled { opacity: 0.6; cursor: not-allowed; }
         .profile-field { margin-bottom: 18px; }
         .profile-field label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 6px; }
         .profile-field input { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; }
@@ -492,6 +513,10 @@
             /* Profile */
             .profile-card { padding: 20px; border-radius: 14px; }
             .profile-avatar, .profile-avatar-ph { width: 80px; height: 80px; font-size: 28px; }
+
+            /* Crop modal */
+            .crop-box { padding: 20px; }
+            .crop-container { width: 240px; height: 240px; }
         }
 
     </style>
@@ -867,7 +892,8 @@
             </div>
             <div class="profile-field">
                 <label>Nome</label>
-                <input type="text" id="profileNome" placeholder="Seu nome">
+                <input type="text" id="profileNome" placeholder="Seu nome" autocomplete="off">
+                <div class="profile-name-status" id="profileNameStatus"></div>
             </div>
             <div class="profile-field">
                 <label>E-mail</label>
@@ -900,7 +926,23 @@
                     <button type="button" class="toggle-pw" onclick="togglePwVisibility(this)"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
                 </div>
             </div>
-            <button class="profile-save" id="profileSaveBtn">Salvar</button>
+            <button class="profile-save" id="profileSaveBtn">Alterar senha</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Crop foto -->
+<div class="crop-overlay" id="cropOverlay">
+    <div class="crop-box">
+        <h3>Ajustar foto</h3>
+        <div class="crop-container" id="cropContainer">
+            <img id="cropImage" src="" alt="">
+        </div>
+        <input type="range" class="crop-zoom" id="cropZoom" min="1" max="3" step="0.02" value="1">
+        <span class="crop-zoom-label">Arraste a foto para posicionar e use o zoom para ajustar</span>
+        <div class="crop-actions">
+            <button class="btn-crop-cancel" id="btnCropCancel">Cancelar</button>
+            <button class="btn-crop-save" id="btnCropSave">Salvar foto</button>
         </div>
     </div>
 </div>
@@ -2022,7 +2064,7 @@
        PERFIL
        ══════════════════════════════════════ */
     let profileLoaded = false;
-    let pendingPhotoFile = null;
+
 
     function togglePwVisibility(btn) {
         const input = btn.parentElement.querySelector('input');
@@ -2063,37 +2105,141 @@
         }
     }
 
-    function compressImage(file, maxSize, quality) {
-        return new Promise((resolve) => {
-            const img = new Image();
-            img.onload = function() {
-                let w = img.width, h = img.height;
-                if (w > maxSize || h > maxSize) {
-                    const ratio = Math.min(maxSize / w, maxSize / h);
-                    w = Math.round(w * ratio);
-                    h = Math.round(h * ratio);
-                }
-                const canvas = document.createElement('canvas');
-                canvas.width = w;
-                canvas.height = h;
-                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                canvas.toBlob(resolve, 'image/jpeg', quality);
-            };
-            img.src = URL.createObjectURL(file);
-        });
+    /* ── Crop modal logic ── */
+    let cropState = { imgEl: null, naturalW: 0, naturalH: 0, scale: 1, x: 0, y: 0, dragging: false, startX: 0, startY: 0 };
+
+    function openCropModal(file) {
+        const url = URL.createObjectURL(file);
+        const overlay = document.getElementById('cropOverlay');
+        const img = document.getElementById('cropImage');
+        const zoom = document.getElementById('cropZoom');
+        zoom.value = 1;
+        img.onload = function() {
+            cropState.naturalW = img.naturalWidth;
+            cropState.naturalH = img.naturalHeight;
+            cropState.scale = 1;
+            cropState.x = 0;
+            cropState.y = 0;
+            applyCropTransform();
+            overlay.classList.add('show');
+        };
+        img.src = url;
     }
 
-    document.getElementById('profilePhotoInput').addEventListener('change', async function(e) {
+    function applyCropTransform() {
+        const img = document.getElementById('cropImage');
+        const size = document.getElementById('cropContainer').offsetWidth || 280;
+        const s = cropState.scale;
+        const aspect = cropState.naturalW / cropState.naturalH;
+        let w, h;
+        if (aspect >= 1) { h = size * s; w = h * aspect; }
+        else { w = size * s; h = w / aspect; }
+        img.style.width = w + 'px';
+        img.style.height = h + 'px';
+        const maxX = Math.max(0, (w - size) / 2);
+        const maxY = Math.max(0, (h - size) / 2);
+        cropState.x = Math.max(-maxX, Math.min(maxX, cropState.x));
+        cropState.y = Math.max(-maxY, Math.min(maxY, cropState.y));
+        img.style.left = ((size - w) / 2 + cropState.x) + 'px';
+        img.style.top = ((size - h) / 2 + cropState.y) + 'px';
+    }
+
+    document.getElementById('cropZoom').addEventListener('input', function() {
+        cropState.scale = parseFloat(this.value);
+        applyCropTransform();
+    });
+
+    // Drag: mouse
+    const cropContainer = document.getElementById('cropContainer');
+    cropContainer.addEventListener('mousedown', e => { cropState.dragging = true; cropState.startX = e.clientX - cropState.x; cropState.startY = e.clientY - cropState.y; });
+    window.addEventListener('mousemove', e => { if (!cropState.dragging) return; cropState.x = e.clientX - cropState.startX; cropState.y = e.clientY - cropState.startY; applyCropTransform(); });
+    window.addEventListener('mouseup', () => { cropState.dragging = false; });
+    // Drag: touch
+    cropContainer.addEventListener('touchstart', e => { const t = e.touches[0]; cropState.dragging = true; cropState.startX = t.clientX - cropState.x; cropState.startY = t.clientY - cropState.y; }, { passive: true });
+    window.addEventListener('touchmove', e => { if (!cropState.dragging) return; const t = e.touches[0]; cropState.x = t.clientX - cropState.startX; cropState.y = t.clientY - cropState.startY; applyCropTransform(); }, { passive: true });
+    window.addEventListener('touchend', () => { cropState.dragging = false; });
+
+    document.getElementById('btnCropCancel').addEventListener('click', () => {
+        document.getElementById('cropOverlay').classList.remove('show');
+    });
+    document.getElementById('cropOverlay').addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('show');
+    });
+
+    document.getElementById('btnCropSave').addEventListener('click', async function() {
+        const btn = this;
+        btn.disabled = true;
+        btn.textContent = 'Salvando...';
+        try {
+            const img = document.getElementById('cropImage');
+            const size = document.getElementById('cropContainer').offsetWidth || 280;
+            const canvas = document.createElement('canvas');
+            canvas.width = 400;
+            canvas.height = 400;
+            const ctx = canvas.getContext('2d');
+            // Calculate source rect from current crop
+            const aspect = cropState.naturalW / cropState.naturalH;
+            let dispW, dispH;
+            if (aspect >= 1) { dispH = size * cropState.scale; dispW = dispH * aspect; }
+            else { dispW = size * cropState.scale; dispH = dispW / aspect; }
+            const dispLeft = (size - dispW) / 2 + cropState.x;
+            const dispTop = (size - dispH) / 2 + cropState.y;
+            // Map display coords to source coords
+            const sx = (-dispLeft / dispW) * cropState.naturalW;
+            const sy = (-dispTop / dispH) * cropState.naturalH;
+            const sw = (size / dispW) * cropState.naturalW;
+            const sh = (size / dispH) * cropState.naturalH;
+            ctx.drawImage(img, sx, sy, sw, sh, 0, 0, 400, 400);
+
+            const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.85));
+            const path = `${currentUserId}/avatar.jpg`;
+            const { error: upErr } = await sb.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
+            if (upErr) throw new Error('Erro ao enviar foto: ' + upErr.message);
+            const { data: urlData } = sb.storage.from('avatars').getPublicUrl(path);
+            const fotoUrl = urlData.publicUrl + '?t=' + Date.now();
+            const { error: updErr } = await sb.from('usuarios').update({ foto_url: fotoUrl }).eq('id', currentUserId);
+            if (updErr) throw updErr;
+
+            renderProfileAvatar(fotoUrl, document.getElementById('profileNome').value);
+            document.getElementById('cropOverlay').classList.remove('show');
+            showProfileMsg('Foto atualizada!', 'success');
+        } catch (err) {
+            showProfileMsg(err.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Salvar foto';
+        }
+    });
+
+    document.getElementById('profilePhotoInput').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (!file) return;
-        try {
-            const compressed = await compressImage(file, 400, 0.8);
-            pendingPhotoFile = new File([compressed], 'avatar.jpg', { type: 'image/jpeg' });
-            const container = document.getElementById('profileAvatarContainer');
-            container.innerHTML = `<img src="${URL.createObjectURL(compressed)}" alt="" class="profile-avatar" onclick="document.getElementById('profilePhotoInput').click()">`;
-        } catch (err) {
-            showProfileMsg('Erro ao processar a foto.', 'error');
-        }
+        openCropModal(file);
+        this.value = '';
+    });
+
+    /* ── Auto-save nome com debounce ── */
+    let nameTimer = null;
+    document.getElementById('profileNome').addEventListener('input', function() {
+        const statusEl = document.getElementById('profileNameStatus');
+        statusEl.textContent = 'Salvando...';
+        statusEl.className = 'profile-name-status show';
+        clearTimeout(nameTimer);
+        nameTimer = setTimeout(async () => {
+            const nome = this.value.trim();
+            if (!nome) { statusEl.textContent = 'O nome nao pode ficar vazio'; statusEl.className = 'profile-name-status show'; return; }
+            try {
+                const { error } = await sb.from('usuarios').update({ nome }).eq('id', currentUserId);
+                if (error) throw error;
+                document.getElementById('userName').textContent = nome;
+                statusEl.textContent = 'Salvo!';
+                statusEl.className = 'profile-name-status show saved';
+                setTimeout(() => { statusEl.className = 'profile-name-status'; }, 2000);
+            } catch (err) {
+                statusEl.textContent = 'Erro ao salvar';
+                statusEl.className = 'profile-name-status show';
+            }
+        }, 800);
     });
 
     document.getElementById('profileSaveBtn').addEventListener('click', async function() {
@@ -2104,54 +2250,27 @@
         msgEl.classList.remove('show');
 
         try {
-            const nome = document.getElementById('profileNome').value.trim();
-            if (!nome) throw new Error('O nome nao pode ficar vazio.');
-
-            /* Upload foto se alterada */
-            let fotoUrl = null;
-            if (pendingPhotoFile) {
-                const path = `${currentUserId}/avatar.jpg`;
-                const { error: upErr } = await sb.storage.from('avatars').upload(path, pendingPhotoFile, { upsert: true, contentType: pendingPhotoFile.type });
-                if (upErr) throw new Error('Erro ao enviar foto: ' + upErr.message);
-                const { data: urlData } = sb.storage.from('avatars').getPublicUrl(path);
-                fotoUrl = urlData.publicUrl + '?t=' + Date.now();
-            }
-
-            /* Atualizar nome (e foto se houver) na tabela usuarios */
-            const updateData = { nome };
-            if (fotoUrl) updateData.foto_url = fotoUrl;
-            const { error: updErr } = await sb.from('usuarios').update(updateData).eq('id', currentUserId);
-            if (updErr) throw new Error('Erro ao salvar perfil: ' + updErr.message);
-
-            /* Alterar senha se preenchida */
             const senhaAtual = document.getElementById('profileSenhaAtual').value;
             const senhaNova = document.getElementById('profileSenhaNova').value;
             const senhaConfirm = document.getElementById('profileSenhaConfirm').value;
-            if (senhaNova || senhaConfirm || senhaAtual) {
-                if (!senhaAtual) throw new Error('Informe a senha atual.');
-                if (senhaNova.length < 6) throw new Error('A nova senha deve ter no minimo 6 caracteres.');
-                if (senhaNova !== senhaConfirm) throw new Error('A confirmacao nao confere com a nova senha.');
 
-                /* Verificar senha atual fazendo login novamente */
-                const email = document.getElementById('profileEmail').value;
-                const { error: loginErr } = await sb.auth.signInWithPassword({ email, password: senhaAtual });
-                if (loginErr) throw new Error('Senha atual incorreta.');
+            if (!senhaAtual && !senhaNova && !senhaConfirm) throw new Error('Preencha os campos de senha para alterar.');
+            if (!senhaAtual) throw new Error('Informe a senha atual.');
+            if (senhaNova.length < 6) throw new Error('A nova senha deve ter no minimo 6 caracteres.');
+            if (senhaNova !== senhaConfirm) throw new Error('A confirmacao nao confere com a nova senha.');
 
-                const { error: pwErr } = await sb.auth.updateUser({ password: senhaNova });
-                if (pwErr) throw new Error('Erro ao alterar senha: ' + pwErr.message);
+            const email = document.getElementById('profileEmail').value;
+            const { error: loginErr } = await sb.auth.signInWithPassword({ email, password: senhaAtual });
+            if (loginErr) throw new Error('Senha atual incorreta.');
 
-                document.getElementById('profileSenhaAtual').value = '';
-                document.getElementById('profileSenhaNova').value = '';
-                document.getElementById('profileSenhaConfirm').value = '';
-            }
+            const { error: pwErr } = await sb.auth.updateUser({ password: senhaNova });
+            if (pwErr) throw new Error('Erro ao alterar senha: ' + pwErr.message);
 
-            /* Atualizar nome no header */
-            document.getElementById('userName').textContent = nome;
+            document.getElementById('profileSenhaAtual').value = '';
+            document.getElementById('profileSenhaNova').value = '';
+            document.getElementById('profileSenhaConfirm').value = '';
 
-            pendingPhotoFile = null;
-            profileLoaded = false;
-            loadProfile();
-            showProfileMsg('Perfil atualizado com sucesso!', 'success');
+            showProfileMsg('Senha alterada com sucesso!', 'success');
         } catch (err) {
             showProfileMsg(err.message, 'error');
         } finally {
