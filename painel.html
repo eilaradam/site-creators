@@ -41,8 +41,18 @@
         .btn-logout { background: none; border: 1px solid var(--border); padding: 6px 16px; border-radius: 100px; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.2s; }
         .btn-logout:hover { border-color: var(--error); color: var(--error); }
 
+        /* Tabs */
+        .panel-tabs { background: var(--card); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; gap: 0; }
+        .panel-tab { padding: 12px 24px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; border: none; border-bottom: 2px solid transparent; transition: all 0.2s; background: none; font-family: 'Outfit', sans-serif; }
+        .panel-tab:hover { color: var(--text); }
+        .panel-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
         /* Main */
         .main { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+        /* Tab content */
+        .tab-content { display: none; }
+        .tab-content.show { display: block; }
 
         /* Filters */
         .filters { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 20px; }
@@ -69,12 +79,12 @@
 
         /* Cards grid */
         .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
-        .creator-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; transition: all 0.3s; }
+        .creator-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; transition: all 0.3s; position: relative; }
         .creator-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.06); }
         .card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
         .card-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); flex-shrink: 0; }
         .card-avatar-placeholder { width: 44px; height: 44px; border-radius: 50%; background: var(--warm); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: var(--text-muted); flex-shrink: 0; }
-        .card-name { font-size: 14px; font-weight: 700; line-height: 1.3; }
+        .card-name { font-size: 14px; font-weight: 700; line-height: 1.3; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
         .card-location { font-size: 12px; color: var(--text-soft); }
         .card-details { display: flex; flex-direction: column; gap: 6px; }
         .card-detail { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-soft); }
@@ -89,6 +99,19 @@
         .badge-aprovado { background: rgba(45,122,79,0.1); color: var(--success); }
         .badge-ativo { background: rgba(26,24,22,0.08); color: var(--text); }
 
+        /* Premium badges */
+        .badge-destaque { background: #FFF8E7; color: #B8860B; border: 1px solid #F0D68A; font-size: 10px; padding: 2px 8px; border-radius: 100px; font-weight: 600; white-space: nowrap; }
+        .badge-popular { background: #FFF0EB; color: #D4572A; border: 1px solid #F0B8A0; font-size: 10px; padding: 2px 8px; border-radius: 100px; font-weight: 600; white-space: nowrap; }
+        .badge-premium { background: linear-gradient(135deg, #FFF8E7, #FFF0EB); color: #8B6914; border: 1px solid #D4A844; font-size: 10px; padding: 2px 8px; border-radius: 100px; font-weight: 600; white-space: nowrap; }
+
+        /* Save button (heart) */
+        .btn-save { position: absolute; top: 14px; right: 14px; background: none; border: none; cursor: pointer; padding: 4px; transition: all 0.25s ease; line-height: 1; }
+        .btn-save:hover { transform: scale(1.15); }
+        .btn-save:active { transform: scale(0.95); }
+        .btn-save svg { width: 22px; height: 22px; transition: all 0.25s ease; }
+        .btn-save .heart-outline { fill: none; stroke: var(--text-muted); stroke-width: 2; }
+        .btn-save.saved .heart-outline { fill: var(--accent); stroke: var(--accent); }
+
         /* Pagination */
         .pagination { display: flex; justify-content: center; align-items: center; gap: 14px; margin-top: 24px; padding: 16px 0; }
         .pagination button { padding: 8px 20px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.2s; }
@@ -98,7 +121,7 @@
 
         /* Empty & loading */
         .empty-state { text-align: center; padding: 40px 24px; color: var(--text-muted); }
-        .empty-state p { font-size: 13px; }
+        .empty-state p { font-size: 13px; line-height: 1.6; }
         .loading { text-align: center; padding: 40px 24px; color: var(--text-muted); font-size: 13px; }
 
         @media (max-width: 600px) {
@@ -106,6 +129,8 @@
             .filter-group { min-width: 100%; }
             .cards-grid { grid-template-columns: 1fr; }
             .header-user { display: none; }
+            .panel-tabs { padding: 0 16px; }
+            .panel-tab { padding: 10px 16px; font-size: 12px; }
         }
     </style>
 </head>
@@ -122,67 +147,141 @@
     </div>
 </header>
 
+<!-- Tabs -->
+<div class="panel-tabs">
+    <button class="panel-tab active" data-tab="pesquisar">Pesquisar Creators</button>
+    <button class="panel-tab" data-tab="salvos">Perfis Salvos</button>
+</div>
+
 <div class="main">
-    <div class="filters">
-        <div class="filters-title">Pesquisar Creators</div>
-        <div class="filters-row">
-            <div class="filter-group search">
-                <label>Buscar por nome</label>
-                <input type="text" id="filterSearch" placeholder="Nome do creator...">
-            </div>
-            <div class="filter-group">
-                <label>Estado</label>
-                <select id="filterEstado"><option value="">Todos</option></select>
-            </div>
-            <div class="filter-group">
-                <label>Nicho</label>
-                <select id="filterNicho">
-                    <option value="">Todos</option>
-                    <option value="lifestyle">Lifestyle</option>
-                    <option value="saude_fitness">Saude / Fitness</option>
-                    <option value="beleza">Beleza</option>
-                    <option value="maternidade">Maternidade</option>
-                    <option value="familia">Familia</option>
-                    <option value="entretenimento">Entretenimento</option>
-                    <option value="humor">Humor</option>
-                    <option value="gastronomia">Gastronomia</option>
-                    <option value="moda">Moda</option>
-                    <option value="tecnologia">Tecnologia</option>
-                    <option value="educacao">Educacao</option>
-                    <option value="outro">Outro</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>Seguidores</label>
-                <select id="filterSeguidores">
-                    <option value="">Todos</option>
-                    <option value="ate_1k">Ate 1.000</option>
-                    <option value="1k_5k">1k-5k</option>
-                    <option value="5k_10k">5k-10k</option>
-                    <option value="10k_30k">10k-30k</option>
-                    <option value="30k_mais">30k+</option>
-                </select>
-            </div>
-            <div class="filter-group idade">
-                <label>Idade</label>
-                <div class="idade-inputs">
-                    <input type="number" id="filterIdadeDe" placeholder="De" min="18" max="99">
-                    <input type="number" id="filterIdadeAte" placeholder="Ate" min="18" max="99">
+    <!-- ── TAB: PESQUISAR ── -->
+    <div class="tab-content show" id="tabPesquisar">
+        <div class="filters">
+            <div class="filters-title">Pesquisar Creators</div>
+            <div class="filters-row">
+                <div class="filter-group search">
+                    <label>Buscar por nome</label>
+                    <input type="text" id="filterSearch" placeholder="Nome do creator...">
+                </div>
+                <div class="filter-group">
+                    <label>Estado</label>
+                    <select id="filterEstado"><option value="">Todos</option></select>
+                </div>
+                <div class="filter-group">
+                    <label>Nicho</label>
+                    <select id="filterNicho">
+                        <option value="">Todos</option>
+                        <option value="lifestyle">Lifestyle</option>
+                        <option value="saude_fitness">Saude / Fitness</option>
+                        <option value="beleza">Beleza</option>
+                        <option value="maternidade">Maternidade</option>
+                        <option value="familia">Familia</option>
+                        <option value="entretenimento">Entretenimento</option>
+                        <option value="humor">Humor</option>
+                        <option value="gastronomia">Gastronomia</option>
+                        <option value="moda">Moda</option>
+                        <option value="tecnologia">Tecnologia</option>
+                        <option value="educacao">Educacao</option>
+                        <option value="outro">Outro</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Seguidores</label>
+                    <select id="filterSeguidores">
+                        <option value="">Todos</option>
+                        <option value="ate_1k">Ate 1.000</option>
+                        <option value="1k_5k">1k-5k</option>
+                        <option value="5k_10k">5k-10k</option>
+                        <option value="10k_30k">10k-30k</option>
+                        <option value="30k_mais">30k+</option>
+                    </select>
+                </div>
+                <div class="filter-group idade">
+                    <label>Idade</label>
+                    <div class="idade-inputs">
+                        <input type="number" id="filterIdadeDe" placeholder="De" min="18" max="99">
+                        <input type="number" id="filterIdadeAte" placeholder="Ate" min="18" max="99">
+                    </div>
+                </div>
+                <div class="filters-actions">
+                    <button class="btn-search" id="btnSearch">Pesquisar</button>
+                    <button class="btn-clear" id="btnClear">Limpar</button>
                 </div>
             </div>
-            <div class="filters-actions">
-                <button class="btn-search" id="btnSearch">Pesquisar</button>
-                <button class="btn-clear" id="btnClear">Limpar</button>
-            </div>
+        </div>
+
+        <div class="results-info" id="resultsInfo"></div>
+        <div class="cards-grid" id="cardsGrid"><div class="loading">Carregando creators...</div></div>
+        <div class="pagination" id="pagination" style="display:none;">
+            <button id="btnPrev" disabled>Anterior</button>
+            <span id="pageInfo"></span>
+            <button id="btnNext">Proximo</button>
         </div>
     </div>
 
-    <div class="results-info" id="resultsInfo"></div>
-    <div class="cards-grid" id="cardsGrid"><div class="loading">Carregando creators...</div></div>
-    <div class="pagination" id="pagination" style="display:none;">
-        <button id="btnPrev" disabled>Anterior</button>
-        <span id="pageInfo"></span>
-        <button id="btnNext">Proximo</button>
+    <!-- ── TAB: PERFIS SALVOS ── -->
+    <div class="tab-content" id="tabSalvos">
+        <div class="filters">
+            <div class="filters-title">Perfis Salvos</div>
+            <div class="filters-row">
+                <div class="filter-group search">
+                    <label>Buscar por nome</label>
+                    <input type="text" id="savedFilterSearch" placeholder="Nome do creator...">
+                </div>
+                <div class="filter-group">
+                    <label>Estado</label>
+                    <select id="savedFilterEstado"><option value="">Todos</option></select>
+                </div>
+                <div class="filter-group">
+                    <label>Nicho</label>
+                    <select id="savedFilterNicho">
+                        <option value="">Todos</option>
+                        <option value="lifestyle">Lifestyle</option>
+                        <option value="saude_fitness">Saude / Fitness</option>
+                        <option value="beleza">Beleza</option>
+                        <option value="maternidade">Maternidade</option>
+                        <option value="familia">Familia</option>
+                        <option value="entretenimento">Entretenimento</option>
+                        <option value="humor">Humor</option>
+                        <option value="gastronomia">Gastronomia</option>
+                        <option value="moda">Moda</option>
+                        <option value="tecnologia">Tecnologia</option>
+                        <option value="educacao">Educacao</option>
+                        <option value="outro">Outro</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Seguidores</label>
+                    <select id="savedFilterSeguidores">
+                        <option value="">Todos</option>
+                        <option value="ate_1k">Ate 1.000</option>
+                        <option value="1k_5k">1k-5k</option>
+                        <option value="5k_10k">5k-10k</option>
+                        <option value="10k_30k">10k-30k</option>
+                        <option value="30k_mais">30k+</option>
+                    </select>
+                </div>
+                <div class="filter-group idade">
+                    <label>Idade</label>
+                    <div class="idade-inputs">
+                        <input type="number" id="savedFilterIdadeDe" placeholder="De" min="18" max="99">
+                        <input type="number" id="savedFilterIdadeAte" placeholder="Ate" min="18" max="99">
+                    </div>
+                </div>
+                <div class="filters-actions">
+                    <button class="btn-search" id="btnSavedSearch">Pesquisar</button>
+                    <button class="btn-clear" id="btnSavedClear">Limpar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-info" id="savedResultsInfo"></div>
+        <div class="cards-grid" id="savedCardsGrid"><div class="loading">Carregando perfis salvos...</div></div>
+        <div class="pagination" id="savedPagination" style="display:none;">
+            <button id="btnSavedPrev" disabled>Anterior</button>
+            <span id="savedPageInfo"></span>
+            <button id="btnSavedNext">Proximo</button>
+        </div>
     </div>
 </div>
 
@@ -191,7 +290,11 @@
     const PER_PAGE = 20;
     let currentPage = 1;
     let totalCount = 0;
-    let currentUserInfo = null;
+    let savedCurrentPage = 1;
+    let savedTotalCount = 0;
+    let currentUserId = null;
+    let savedCreatorIds = new Set();
+    let popularityMap = {};
 
     /* ── Init ── */
     (async function init() {
@@ -204,15 +307,31 @@
             return;
         }
 
-        currentUserInfo = await Auth.getUserInfo();
-        document.getElementById('userName').textContent = currentUserInfo ? currentUserInfo.nome : '';
+        currentUserId = authData.user.id;
+        const userInfo = await Auth.getUserInfo();
+        document.getElementById('userName').textContent = userInfo ? userInfo.nome : '';
 
-        await loadEstados();
+        await Promise.all([loadEstados(), loadSavedIds(), loadPopularity()]);
         await loadCreators();
     })();
 
     /* ── Logout ── */
     document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
+
+    /* ── Tabs ── */
+    document.querySelectorAll('.panel-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            const target = this.dataset.tab;
+            document.getElementById('tabPesquisar').classList.toggle('show', target === 'pesquisar');
+            document.getElementById('tabSalvos').classList.toggle('show', target === 'salvos');
+            if (target === 'salvos') {
+                populateSavedEstados();
+                loadSavedCreators();
+            }
+        });
+    });
 
     /* ── Carregar estados dinamicamente ── */
     async function loadEstados() {
@@ -227,6 +346,69 @@
                 select.appendChild(opt);
             });
         } catch (e) {}
+    }
+
+    function populateSavedEstados() {
+        const src = document.getElementById('filterEstado');
+        const dest = document.getElementById('savedFilterEstado');
+        if (dest.options.length > 1) return;
+        for (let i = 1; i < src.options.length; i++) {
+            const opt = document.createElement('option');
+            opt.value = src.options[i].value;
+            opt.textContent = src.options[i].textContent;
+            dest.appendChild(opt);
+        }
+    }
+
+    /* ── Carregar IDs salvos do usuario ── */
+    async function loadSavedIds() {
+        try {
+            const { data } = await sb.from('perfis_salvos').select('creator_id').eq('usuario_id', currentUserId);
+            savedCreatorIds = new Set((data || []).map(r => r.creator_id));
+        } catch (e) { savedCreatorIds = new Set(); }
+    }
+
+    /* ── Carregar popularidade ── */
+    async function loadPopularity() {
+        try {
+            const { data } = await sb.from('v_creators_popularidade').select('creator_id, total_salvos');
+            popularityMap = {};
+            (data || []).forEach(r => { popularityMap[r.creator_id] = r.total_salvos; });
+        } catch (e) { popularityMap = {}; }
+    }
+
+    /* ── Toggle salvar/remover ── */
+    async function toggleSave(creatorId) {
+        const btn = document.querySelector(`.btn-save[data-id="${creatorId}"]`);
+        if (!btn) return;
+
+        if (savedCreatorIds.has(creatorId)) {
+            /* Remover */
+            const { error } = await sb.from('perfis_salvos').delete().eq('usuario_id', currentUserId).eq('creator_id', creatorId);
+            if (!error) {
+                savedCreatorIds.delete(creatorId);
+                btn.classList.remove('saved');
+                /* Atualizar popularidade local */
+                popularityMap[creatorId] = Math.max(0, (popularityMap[creatorId] || 1) - 1);
+                if (popularityMap[creatorId] === 0) delete popularityMap[creatorId];
+                updateBadgeInCard(creatorId);
+            }
+        } else {
+            /* Salvar */
+            const { error } = await sb.from('perfis_salvos').insert({ usuario_id: currentUserId, creator_id: creatorId });
+            if (!error) {
+                savedCreatorIds.add(creatorId);
+                btn.classList.add('saved');
+                popularityMap[creatorId] = (popularityMap[creatorId] || 0) + 1;
+                updateBadgeInCard(creatorId);
+            }
+        }
+    }
+
+    function updateBadgeInCard(creatorId) {
+        document.querySelectorAll(`.creator-card[data-creator-id="${creatorId}"] .badge-slot`).forEach(slot => {
+            slot.innerHTML = premiumBadgeHtml(creatorId);
+        });
     }
 
     /* ── Helpers ── */
@@ -257,78 +439,27 @@
         return `<div class="card-avatar-placeholder">${initials}</div>`;
     }
 
-    /* ── Carregar creators ── */
-    async function loadCreators() {
-        const grid = document.getElementById('cardsGrid');
-        grid.innerHTML = '<div class="loading">Carregando creators...</div>';
-
-        const search = document.getElementById('filterSearch').value.trim().toLowerCase();
-        const estado = document.getElementById('filterEstado').value;
-        const nicho = document.getElementById('filterNicho').value;
-        const seguidores = document.getElementById('filterSeguidores').value;
-        const idadeDe = parseInt(document.getElementById('filterIdadeDe').value) || 0;
-        const idadeAte = parseInt(document.getElementById('filterIdadeAte').value) || 0;
-
-        try {
-            /* Query com colunas limitadas - sem email, whatsapp, genero */
-            let query = sb.from('creators')
-                .select('id, nome, foto_perfil, cidade, estado, nicho, seguidores, instagram, tiktok, portfolio, whatsapp, status', { count: 'exact' })
-                .order('created_at', { ascending: false });
-
-            if (search) query = query.ilike('nome', `%${search}%`);
-            if (estado) query = query.eq('estado', estado);
-            if (nicho) query = query.eq('nicho', nicho);
-            if (seguidores) query = query.eq('seguidores', seguidores);
-
-            /* Filtro por idade (calcula datas a partir de data_nascimento) */
-            if (idadeDe || idadeAte) {
-                const today = new Date();
-                const y = today.getFullYear(), m = today.getMonth(), d = today.getDate();
-                const toStr = (dt) => dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
-
-                query = query.not('data_nascimento', 'is', null);
-
-                if (idadeDe) {
-                    /* idade >= De → nasceu antes de (hoje - De anos) */
-                    query = query.lte('data_nascimento', toStr(new Date(y - idadeDe, m, d)));
-                }
-                if (idadeAte) {
-                    /* idade <= Ate → nasceu depois de (hoje - (Ate+1) anos) */
-                    query = query.gt('data_nascimento', toStr(new Date(y - (idadeAte + 1), m, d)));
-                }
-            }
-
-            const from = (currentPage - 1) * PER_PAGE;
-            const to = from + PER_PAGE - 1;
-            query = query.range(from, to);
-
-            const { data, error, count } = await query;
-            if (error) throw error;
-
-            totalCount = count || 0;
-            renderCards(data || []);
-            renderPagination();
-        } catch (err) {
-            grid.innerHTML = `<div class="empty-state"><p style="color:var(--error)">Erro ao carregar: ${escapeHtml(err.message)}</p></div>`;
-        }
+    function heartSvg() {
+        return `<svg viewBox="0 0 24 24"><path class="heart-outline" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`;
     }
 
-    /* ── Render cards ── */
-    function renderCards(creators) {
-        const grid = document.getElementById('cardsGrid');
-        document.getElementById('resultsInfo').innerHTML = `Mostrando <strong>${creators.length}</strong> de <strong>${totalCount}</strong> creators`;
+    function premiumBadgeHtml(creatorId) {
+        const total = popularityMap[creatorId] || 0;
+        if (total >= 10) return `<span class="badge-premium">💎 Premium</span>`;
+        if (total >= 6) return `<span class="badge-popular">🔥 Popular</span>`;
+        if (total >= 3) return `<span class="badge-destaque">⭐ Destaque</span>`;
+        return '';
+    }
 
-        if (creators.length === 0) {
-            grid.innerHTML = '<div class="empty-state"><p>Nenhum creator encontrado.</p></div>';
-            return;
-        }
-
-        grid.innerHTML = creators.map(c => `
-            <div class="creator-card">
+    function buildCardHtml(c) {
+        const isSaved = savedCreatorIds.has(c.id);
+        return `
+            <div class="creator-card" data-creator-id="${c.id}">
+                <button class="btn-save ${isSaved ? 'saved' : ''}" data-id="${c.id}" onclick="toggleSave('${c.id}')">${heartSvg()}</button>
                 <div class="card-top">
                     ${avatarHtml(c)}
                     <div>
-                        <div class="card-name">${escapeHtml(c.nome)}</div>
+                        <div class="card-name">${escapeHtml(c.nome)} <span class="badge-slot">${premiumBadgeHtml(c.id)}</span></div>
                         <div class="card-location">${escapeHtml(c.cidade) || ''} ${c.cidade && c.estado ? '·' : ''} ${escapeHtml(c.estado) || ''}</div>
                     </div>
                 </div>
@@ -342,26 +473,82 @@
                     ${c.instagram ? `<a href="https://instagram.com/${c.instagram.replace('@','')}" target="_blank" rel="noopener">Instagram</a>` : ''}
                     ${c.tiktok ? `<a href="https://tiktok.com/${c.tiktok.replace('@','')}" target="_blank" rel="noopener" class="btn-tiktok">TikTok</a>` : ''}
                     ${c.portfolio ? `<a href="${escapeHtml(c.portfolio)}" target="_blank" rel="noopener">Portfolio</a>` : ''}
-                    ${c.whatsapp ? `<a href="https://wa.me/55${c.whatsapp.replace(/[\s()\-]/g,'')}" target="_blank" rel="noopener" class="btn-whatsapp">WhatsApp</a>` : ''}
+                    ${c.whatsapp ? `<a href="https://wa.me/55${c.whatsapp.replace(/[\\s()\\-]/g,'')}" target="_blank" rel="noopener" class="btn-whatsapp">WhatsApp</a>` : ''}
                 </div>` : ''}
-            </div>
-        `).join('');
+            </div>`;
     }
 
-    /* ── Pagination ── */
+    /* ── Age filter helper ── */
+    function applyAgeFilter(query, idadeDe, idadeAte) {
+        if (!idadeDe && !idadeAte) return query;
+        const today = new Date();
+        const y = today.getFullYear(), m = today.getMonth(), d = today.getDate();
+        const toStr = (dt) => dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+        query = query.not('data_nascimento', 'is', null);
+        if (idadeDe) query = query.lte('data_nascimento', toStr(new Date(y - idadeDe, m, d)));
+        if (idadeAte) query = query.gt('data_nascimento', toStr(new Date(y - (idadeAte + 1), m, d)));
+        return query;
+    }
+
+    /* ══════════════════════════════════════
+       TAB: PESQUISAR CREATORS
+       ══════════════════════════════════════ */
+
+    async function loadCreators() {
+        const grid = document.getElementById('cardsGrid');
+        grid.innerHTML = '<div class="loading">Carregando creators...</div>';
+
+        const search = document.getElementById('filterSearch').value.trim().toLowerCase();
+        const estado = document.getElementById('filterEstado').value;
+        const nicho = document.getElementById('filterNicho').value;
+        const seguidores = document.getElementById('filterSeguidores').value;
+        const idadeDe = parseInt(document.getElementById('filterIdadeDe').value) || 0;
+        const idadeAte = parseInt(document.getElementById('filterIdadeAte').value) || 0;
+
+        try {
+            let query = sb.from('creators')
+                .select('id, nome, foto_perfil, cidade, estado, nicho, seguidores, instagram, tiktok, portfolio, whatsapp, status', { count: 'exact' })
+                .order('created_at', { ascending: false });
+
+            if (search) query = query.ilike('nome', `%${search}%`);
+            if (estado) query = query.eq('estado', estado);
+            if (nicho) query = query.eq('nicho', nicho);
+            if (seguidores) query = query.eq('seguidores', seguidores);
+            query = applyAgeFilter(query, idadeDe, idadeAte);
+
+            const from = (currentPage - 1) * PER_PAGE;
+            const to = from + PER_PAGE - 1;
+            query = query.range(from, to);
+
+            const { data, error, count } = await query;
+            if (error) throw error;
+
+            totalCount = count || 0;
+            const grid = document.getElementById('cardsGrid');
+            document.getElementById('resultsInfo').innerHTML = `Mostrando <strong>${(data || []).length}</strong> de <strong>${totalCount}</strong> creators`;
+
+            if (!data || data.length === 0) {
+                grid.innerHTML = '<div class="empty-state"><p>Nenhum creator encontrado.</p></div>';
+            } else {
+                grid.innerHTML = data.map(c => buildCardHtml(c)).join('');
+            }
+            renderPagination();
+        } catch (err) {
+            grid.innerHTML = `<div class="empty-state"><p style="color:var(--error)">Erro ao carregar: ${escapeHtml(err.message)}</p></div>`;
+        }
+    }
+
     function renderPagination() {
         const totalPages = Math.ceil(totalCount / PER_PAGE);
         const pag = document.getElementById('pagination');
-
         if (totalPages <= 1) { pag.style.display = 'none'; return; }
-
         pag.style.display = 'flex';
         document.getElementById('pageInfo').textContent = `Pagina ${currentPage} de ${totalPages}`;
         document.getElementById('btnPrev').disabled = currentPage <= 1;
         document.getElementById('btnNext').disabled = currentPage >= totalPages;
     }
 
-    /* ── Events ── */
+    /* Events - Pesquisar */
     document.getElementById('btnSearch').addEventListener('click', () => { currentPage = 1; loadCreators(); });
     document.getElementById('filterSearch').addEventListener('keydown', (e) => { if (e.key === 'Enter') { currentPage = 1; loadCreators(); } });
     document.getElementById('btnClear').addEventListener('click', () => {
@@ -376,6 +563,92 @@
     });
     document.getElementById('btnPrev').addEventListener('click', () => { if (currentPage > 1) { currentPage--; loadCreators(); } });
     document.getElementById('btnNext').addEventListener('click', () => { currentPage++; loadCreators(); });
+
+    /* ══════════════════════════════════════
+       TAB: PERFIS SALVOS
+       ══════════════════════════════════════ */
+
+    async function loadSavedCreators() {
+        const grid = document.getElementById('savedCardsGrid');
+        grid.innerHTML = '<div class="loading">Carregando perfis salvos...</div>';
+
+        const search = document.getElementById('savedFilterSearch').value.trim().toLowerCase();
+        const estado = document.getElementById('savedFilterEstado').value;
+        const nicho = document.getElementById('savedFilterNicho').value;
+        const seguidores = document.getElementById('savedFilterSeguidores').value;
+        const idadeDe = parseInt(document.getElementById('savedFilterIdadeDe').value) || 0;
+        const idadeAte = parseInt(document.getElementById('savedFilterIdadeAte').value) || 0;
+
+        try {
+            /* Buscar IDs salvos atualizados */
+            await loadSavedIds();
+
+            if (savedCreatorIds.size === 0) {
+                grid.innerHTML = '<div class="empty-state"><p>Voce ainda nao salvou nenhum creator.<br>Pesquise e salve os perfis que mais gostar!</p></div>';
+                document.getElementById('savedResultsInfo').innerHTML = '';
+                document.getElementById('savedPagination').style.display = 'none';
+                return;
+            }
+
+            const idsArray = Array.from(savedCreatorIds);
+
+            let query = sb.from('creators')
+                .select('id, nome, foto_perfil, cidade, estado, nicho, seguidores, instagram, tiktok, portfolio, whatsapp, status', { count: 'exact' })
+                .in('id', idsArray)
+                .order('created_at', { ascending: false });
+
+            if (search) query = query.ilike('nome', `%${search}%`);
+            if (estado) query = query.eq('estado', estado);
+            if (nicho) query = query.eq('nicho', nicho);
+            if (seguidores) query = query.eq('seguidores', seguidores);
+            query = applyAgeFilter(query, idadeDe, idadeAte);
+
+            const from = (savedCurrentPage - 1) * PER_PAGE;
+            const to = from + PER_PAGE - 1;
+            query = query.range(from, to);
+
+            const { data, error, count } = await query;
+            if (error) throw error;
+
+            savedTotalCount = count || 0;
+            document.getElementById('savedResultsInfo').innerHTML = `Mostrando <strong>${(data || []).length}</strong> de <strong>${savedTotalCount}</strong> salvos`;
+
+            if (!data || data.length === 0) {
+                grid.innerHTML = '<div class="empty-state"><p>Nenhum creator encontrado com esses filtros.</p></div>';
+            } else {
+                grid.innerHTML = data.map(c => buildCardHtml(c)).join('');
+            }
+            renderSavedPagination();
+        } catch (err) {
+            grid.innerHTML = `<div class="empty-state"><p style="color:var(--error)">Erro ao carregar: ${escapeHtml(err.message)}</p></div>`;
+        }
+    }
+
+    function renderSavedPagination() {
+        const totalPages = Math.ceil(savedTotalCount / PER_PAGE);
+        const pag = document.getElementById('savedPagination');
+        if (totalPages <= 1) { pag.style.display = 'none'; return; }
+        pag.style.display = 'flex';
+        document.getElementById('savedPageInfo').textContent = `Pagina ${savedCurrentPage} de ${totalPages}`;
+        document.getElementById('btnSavedPrev').disabled = savedCurrentPage <= 1;
+        document.getElementById('btnSavedNext').disabled = savedCurrentPage >= totalPages;
+    }
+
+    /* Events - Salvos */
+    document.getElementById('btnSavedSearch').addEventListener('click', () => { savedCurrentPage = 1; loadSavedCreators(); });
+    document.getElementById('savedFilterSearch').addEventListener('keydown', (e) => { if (e.key === 'Enter') { savedCurrentPage = 1; loadSavedCreators(); } });
+    document.getElementById('btnSavedClear').addEventListener('click', () => {
+        document.getElementById('savedFilterSearch').value = '';
+        document.getElementById('savedFilterEstado').value = '';
+        document.getElementById('savedFilterNicho').value = '';
+        document.getElementById('savedFilterSeguidores').value = '';
+        document.getElementById('savedFilterIdadeDe').value = '';
+        document.getElementById('savedFilterIdadeAte').value = '';
+        savedCurrentPage = 1;
+        loadSavedCreators();
+    });
+    document.getElementById('btnSavedPrev').addEventListener('click', () => { if (savedCurrentPage > 1) { savedCurrentPage--; loadSavedCreators(); } });
+    document.getElementById('btnSavedNext').addEventListener('click', () => { savedCurrentPage++; loadSavedCreators(); });
 </script>
 </body>
 </html>
