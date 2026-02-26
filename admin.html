@@ -52,27 +52,29 @@
         .dashboard.show { display: block; }
 
         /* Stat cards */
-        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-        .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px 24px; }
-        .stat-card .stat-value { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 700; letter-spacing: -1px; color: var(--text); }
-        .stat-card .stat-label { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
+        .stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
+        .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+        .stat-card .stat-value { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; color: var(--text); line-height: 1.2; }
+        .stat-card .stat-label { font-size: 11px; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
+        .stat-card.accent { border-color: var(--accent); }
         .stat-card.accent .stat-value { color: var(--accent); }
 
         /* Dashboard tab */
-        .dashboard-chart-container { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
-        .dashboard-chart-title { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; margin-bottom: 16px; }
-        .dashboard-chart-canvas { width: 100%; max-height: 300px; }
-        .secondary-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-        .metric-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px 24px; }
-        .metric-card-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 12px; }
-        .metric-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-        .metric-list-item { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
-        .metric-list-item-label { color: var(--text); font-weight: 500; }
-        .metric-list-item-value { font-family: 'Fraunces', serif; font-weight: 700; color: var(--accent); font-size: 16px; }
-        .metric-card-big { display: flex; flex-direction: column; align-items: center; padding: 12px 0; }
-        .metric-card-big .stat-value { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 700; color: var(--text); letter-spacing: -1px; }
-        .metric-card-big .stat-label { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
-        @media (max-width: 1024px) { .secondary-metrics { grid-template-columns: repeat(2, 1fr); } }
+        .dashboard-chart-container { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; }
+        .dashboard-chart-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px; }
+        .dashboard-chart-canvas { width: 100%; max-height: 220px; }
+        .secondary-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .metric-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+        .metric-card-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 10px; }
+        .metric-list { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+        .metric-list-item { display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+        .metric-list-item-label { color: var(--text); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; }
+        .metric-list-item-value { font-family: 'Fraunces', serif; font-weight: 700; color: var(--accent); font-size: 13px; }
+        .metric-card-big { display: flex; flex-direction: column; align-items: center; padding: 6px 0; }
+        .metric-card-big .stat-value { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
+        .metric-card-big .stat-label { font-size: 11px; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
+        @media (max-width: 1200px) { .secondary-metrics { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 900px) { .secondary-metrics { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 600px) { .secondary-metrics { grid-template-columns: 1fr; } }
 
         /* Filtros */
@@ -290,14 +292,14 @@
         .loading { text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px; }
 
         @media (max-width: 1024px) {
-            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .stats-row { grid-template-columns: repeat(3, 1fr); }
             .table-container { display: none; }
             .cards-container { display: block; }
         }
         @media (max-width: 600px) {
-            .stats-row { grid-template-columns: 1fr 1fr; gap: 10px; }
-            .stat-card { padding: 16px; }
-            .stat-card .stat-value { font-size: 28px; }
+            .stats-row { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .stat-card { padding: 12px; }
+            .stat-card .stat-value { font-size: 20px; }
             .filters-bar, .saved-filters { flex-direction: column; }
             .filter-group { min-width: 100%; }
             .modal { padding: 28px 20px; }
@@ -370,8 +372,10 @@
         </div>
         <div class="metric-card">
             <div class="metric-card-title">Alunas Manager Club</div>
-            <div class="metric-card-big"><div class="stat-value" id="dashTotalAlunas">--</div><div class="stat-label">Total de alunas</div></div>
-            <div class="metric-card-big" style="margin-top:8px"><div class="stat-value" id="dashAlunasAtivas">--</div><div class="stat-label">Ativas nos últimos 7 dias</div></div>
+            <ul class="metric-list">
+                <li class="metric-list-item"><span class="metric-list-item-label">Total</span><span class="metric-list-item-value" id="dashTotalAlunas">--</span></li>
+                <li class="metric-list-item"><span class="metric-list-item-label">Ativas (7 dias)</span><span class="metric-list-item-value" id="dashAlunasAtivas">--</span></li>
+            </ul>
         </div>
     </div>
 </div>
