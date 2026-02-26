@@ -151,6 +151,12 @@
         .lista-dropdown-item:hover { background: var(--cream); }
         .lista-dropdown-item input { accent-color: var(--accent); }
         .lista-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .btn-lista { position: absolute; top: 14px; right: 44px; background: none; border: none; cursor: pointer; padding: 4px; transition: all 0.25s ease; line-height: 1; opacity: 0.5; }
+        .btn-lista:hover { transform: scale(1.15); opacity: 1; }
+        .btn-lista svg { width: 20px; height: 20px; }
+        .btn-lista.has-lista { opacity: 1; }
+        .btn-lista.has-lista svg path { fill: var(--accent); stroke: var(--accent); }
+        .lista-dropdown-divider { height: 1px; background: var(--border); margin: 6px 0; }
 
         /* Pagination */
         .pagination { display: flex; justify-content: center; align-items: center; gap: 14px; margin-top: 24px; padding: 16px 0; }
@@ -835,6 +841,53 @@
         });
     }
 
+    /* ── Lista dropdown ── */
+    function showListaDropdown(creatorId) {
+        // Fecha qualquer outro dropdown aberto
+        document.querySelectorAll('.lista-dropdown.show').forEach(d => d.classList.remove('show'));
+        const dd = document.getElementById('listaDropdown_' + creatorId);
+        if (!dd) return;
+        dd.classList.toggle('show');
+    }
+
+    // Fechar dropdown ao clicar fora
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.btn-lista') && !e.target.closest('.lista-dropdown')) {
+            document.querySelectorAll('.lista-dropdown.show').forEach(d => d.classList.remove('show'));
+        }
+    });
+
+    async function toggleCreatorLista(creatorId, listaId, add) {
+        try {
+            if (add) {
+                await sb.from('lista_creators').insert({ lista_id: listaId, creator_id: creatorId });
+                if (!listaCreatorMap[listaId]) listaCreatorMap[listaId] = new Set();
+                listaCreatorMap[listaId].add(creatorId);
+            } else {
+                await sb.from('lista_creators').delete().eq('lista_id', listaId).eq('creator_id', creatorId);
+                if (listaCreatorMap[listaId]) listaCreatorMap[listaId].delete(creatorId);
+            }
+            // Atualizar visual do botão pasta
+            const btnLista = document.querySelector(`.creator-card[data-creator-id="${creatorId}"] .btn-lista`);
+            if (btnLista) {
+                if (creatorInAnyLista(creatorId)) btnLista.classList.add('has-lista');
+                else btnLista.classList.remove('has-lista');
+            }
+            // Atualizar allListas para manter contagem sincronizada
+            const lista = allListas.find(l => l.id === listaId);
+            if (lista) {
+                if (!lista.lista_creators) lista.lista_creators = [];
+                if (add) {
+                    lista.lista_creators.push({ creator_id: creatorId });
+                } else {
+                    lista.lista_creators = lista.lista_creators.filter(lc => lc.creator_id !== creatorId);
+                }
+            }
+        } catch (e) {
+            console.error('Erro ao atualizar lista:', e);
+        }
+    }
+
     /* ── Helpers ── */
     function escapeHtml(str) { if (!str) return ''; const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
 
@@ -911,10 +964,37 @@
         return data;
     }
 
+    function folderSvg() {
+        return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>`;
+    }
+
+    function creatorInAnyLista(creatorId) {
+        return allListas.some(l => (listaCreatorMap[l.id] || new Set()).has(creatorId));
+    }
+
+    function buildListaDropdown(creatorId) {
+        if (allListas.length === 0) return '';
+        const items = allListas.map(l => {
+            const checked = (listaCreatorMap[l.id] || new Set()).has(creatorId) ? 'checked' : '';
+            return `<label class="lista-dropdown-item" onclick="event.stopPropagation()">
+                <input type="checkbox" ${checked} onchange="toggleCreatorLista('${creatorId}','${l.id}', this.checked)">
+                <span class="lista-dot" style="background:${escapeHtml(l.cor)}"></span>
+                ${escapeHtml(l.nome)}
+            </label>`;
+        }).join('');
+        return `<div class="lista-dropdown" id="listaDropdown_${creatorId}">
+            <div class="lista-dropdown-title">Adicionar à lista</div>
+            ${items}
+        </div>`;
+    }
+
     function buildCardHtml(c) {
         const isSaved = savedCreatorIds.has(c.id);
+        const hasLista = creatorInAnyLista(c.id);
         return `
             <div class="creator-card" data-creator-id="${c.id}">
+                <button class="btn-lista ${hasLista ? 'has-lista' : ''}" data-id="${c.id}" onclick="event.stopPropagation();showListaDropdown('${c.id}')" title="Adicionar à lista">${folderSvg()}</button>
+                ${buildListaDropdown(c.id)}
                 <button class="btn-save ${isSaved ? 'saved' : ''}" data-id="${c.id}" onclick="toggleSave('${c.id}')">${heartSvg()}</button>
                 <div class="card-top">
                     ${avatarHtml(c)}
