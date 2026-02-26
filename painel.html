@@ -95,23 +95,23 @@
         .results-info strong { color: var(--text); }
 
         /* Cards grid */
-        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
-        .creator-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; transition: all 0.3s; position: relative; overflow: visible; }
-        .creator-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.06); }
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
+        .creator-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; transition: all 0.25s; position: relative; overflow: visible; cursor: pointer; display: flex; flex-direction: column; }
+        .creator-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); border-color: rgba(212,87,42,0.3); }
         .creator-card.dropdown-open { z-index: 31; }
-        .card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-        .card-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); flex-shrink: 0; }
-        .card-avatar-placeholder { width: 44px; height: 44px; border-radius: 50%; background: var(--warm); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: var(--text-muted); flex-shrink: 0; }
-        .card-name { font-size: 14px; font-weight: 700; line-height: 1.3; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-        .card-location { font-size: 12px; color: var(--text-soft); }
-        .card-details { display: flex; flex-direction: column; gap: 6px; }
-        .card-detail { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-soft); }
-        .card-detail-label { font-weight: 600; color: var(--text); min-width: 68px; }
-        .card-social { display: flex; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
-        .card-social a { flex: 1; text-align: center; padding: 6px; border-radius: 8px; background: var(--cream); font-size: 11px; font-weight: 600; color: var(--accent); text-decoration: none; transition: all 0.2s; border: 1px solid var(--border); }
+        .card-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+        .card-avatar { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); flex-shrink: 0; }
+        .card-avatar-placeholder { width: 52px; height: 52px; border-radius: 50%; background: var(--warm); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: var(--text-muted); flex-shrink: 0; }
+        .card-info { min-width: 0; flex: 1; }
+        .card-name { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; line-height: 1.3; }
+        .card-name-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-location { font-size: 12px; color: var(--text-soft); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-badges { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+        .seg-badge { display: inline-block; padding: 2px 8px; border-radius: 100px; font-size: 10px; font-weight: 600; background: rgba(156,149,140,0.12); color: var(--text-soft); white-space: nowrap; }
+        .card-social { display: flex; gap: 6px; margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border); }
+        .card-social a { flex: 1; text-align: center; padding: 7px 4px; border-radius: 8px; background: var(--cream); font-size: 11px; font-weight: 600; color: var(--accent); text-decoration: none; transition: all 0.2s; }
         .card-social a:hover { background: var(--accent-glow); }
         .card-social a.btn-tiktok { color: var(--black); }
-        .card-social a.btn-whatsapp { color: #25D366; }
         .badge { display: inline-block; padding: 2px 8px; border-radius: 100px; font-size: 10px; font-weight: 600; }
         .badge-novo { background: rgba(212,87,42,0.1); color: var(--accent); }
         .badge-aprovado { background: rgba(45,122,79,0.1); color: var(--success); }
@@ -207,6 +207,33 @@
         .btn-modal-confirm { background: var(--accent); border: none; color: white; }
         .btn-modal-confirm:hover { background: var(--accent-dark); }
 
+        /* Drawer perfil */
+        .drawer-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 200; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .drawer-overlay.show { opacity: 1; visibility: visible; }
+        .drawer { position: fixed; top: 0; right: -440px; bottom: 0; width: 420px; max-width: 100vw; background: var(--card); box-shadow: -8px 0 40px rgba(0,0,0,0.12); z-index: 201; overflow-y: auto; transition: right 0.35s ease; }
+        .drawer-overlay.show .drawer { right: 0; }
+        .drawer-close { position: sticky; top: 0; float: right; background: var(--card); border: none; font-size: 28px; color: var(--text-muted); cursor: pointer; padding: 12px 16px; z-index: 5; line-height: 1; }
+        .drawer-close:hover { color: var(--text); }
+        .drawer-header { padding: 8px 28px 20px; text-align: center; border-bottom: 1px solid var(--border); clear: both; }
+        .drawer-avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--border); margin-bottom: 12px; }
+        .drawer-avatar-placeholder { width: 80px; height: 80px; border-radius: 50%; background: var(--warm); display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; color: var(--text-muted); margin: 0 auto 12px; }
+        .drawer-name { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+        .drawer-location { font-size: 13px; color: var(--text-soft); margin-bottom: 12px; }
+        .drawer-tags { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+        .drawer-exp { font-size: 13px; color: var(--text-soft); }
+        .drawer-section { padding: 16px 28px; border-bottom: 1px solid var(--border); }
+        .drawer-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 8px; }
+        .drawer-text { font-size: 14px; color: var(--text-soft); line-height: 1.7; }
+        .drawer-nichos { display: flex; flex-wrap: wrap; gap: 6px; }
+        .drawer-links { display: flex; flex-direction: column; gap: 8px; }
+        .drawer-links a { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 10px; background: var(--cream); font-size: 13px; font-weight: 600; color: var(--accent); text-decoration: none; transition: all 0.2s; }
+        .drawer-links a:hover { background: var(--accent-glow); }
+        .drawer-links a.drawer-whatsapp { color: #25D366; }
+        .drawer-actions { padding: 20px 28px; display: flex; gap: 10px; }
+        .drawer-btn { flex: 1; padding: 12px; border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; text-align: center; border: 1.5px solid var(--border); background: none; color: var(--text-soft); }
+        .drawer-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .drawer-btn.saved { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
+
         /* Calculadora de Campanha UGC */
         .calc { max-width: 680px; margin: 0 auto; }
         .calc-header { text-align: center; margin-bottom: 28px; }
@@ -280,6 +307,10 @@
             .filters-row { flex-direction: column; }
             .filter-group { min-width: 100%; }
             .cards-grid { grid-template-columns: 1fr; }
+            .drawer { width: 100vw; right: -100vw; }
+            .drawer-header { padding: 8px 20px 16px; }
+            .drawer-section { padding: 14px 20px; }
+            .drawer-actions { padding: 16px 20px; }
             .header-user { display: none; }
             .panel-tabs { padding: 0 16px; }
             .panel-tab { padding: 10px 16px; font-size: 12px; }
@@ -620,6 +651,14 @@
     </div>
 </div>
 
+<!-- Drawer perfil creator -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()">
+    <div class="drawer" id="drawerPanel" onclick="event.stopPropagation()">
+        <button class="drawer-close" onclick="closeDrawer()">&times;</button>
+        <div id="drawerContent"></div>
+    </div>
+</div>
+
 <script>
     const { sb } = Auth;
     const PER_PAGE = 20;
@@ -633,6 +672,7 @@
     let allListas = [];
     let listaCreatorMap = {};
     let editingListaId = null;
+    let creatorsCache = {};
 
     /* ── Init ── */
     (async function init() {
@@ -969,6 +1009,21 @@
         return `<div class="card-avatar-placeholder">${initials}</div>`;
     }
 
+    function avatarHtmlDrawer(c) {
+        if (c.foto_perfil) return `<img src="${escapeHtml(c.foto_perfil)}" alt="" class="drawer-avatar">`;
+        const initials = (c.nome || '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+        return `<div class="drawer-avatar-placeholder">${initials}</div>`;
+    }
+
+    function formatNicho(val) {
+        if (!val || val === '-') return '';
+        try {
+            const arr = JSON.parse(val);
+            if (Array.isArray(arr) && arr.length > 0) return arr.map(n => '<span class="nicho-badge">' + escapeHtml(n) + '</span>').join('');
+        } catch(e) {}
+        return '<span class="nicho-badge">' + escapeHtml(val) + '</span>';
+    }
+
     function heartSvg() {
         return `<svg viewBox="0 0 24 24"><path class="heart-outline" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`;
     }
@@ -1017,33 +1072,112 @@
     function buildCardHtml(c) {
         const isSaved = savedCreatorIds.has(c.id);
         const hasLista = creatorInAnyLista(c.id);
+        creatorsCache[c.id] = c;
         return `
-            <div class="creator-card" data-creator-id="${c.id}">
+            <div class="creator-card" data-creator-id="${c.id}" onclick="openDrawer('${c.id}')">
                 <button class="btn-lista ${hasLista ? 'has-lista' : ''}" data-id="${c.id}" onclick="event.stopPropagation();showListaDropdown('${c.id}')" title="Adicionar à lista">${folderSvg()}</button>
                 ${buildListaDropdown(c.id)}
-                <button class="btn-save ${isSaved ? 'saved' : ''}" data-id="${c.id}" onclick="toggleSave('${c.id}')">${heartSvg()}</button>
+                <button class="btn-save ${isSaved ? 'saved' : ''}" data-id="${c.id}" onclick="event.stopPropagation();toggleSave('${c.id}')">${heartSvg()}</button>
                 <div class="card-top">
                     ${avatarHtml(c)}
-                    <div>
-                        <div class="card-name">${escapeHtml(c.nome)} <span class="badge-slot">${premiumBadgeHtml(c.id)}</span></div>
+                    <div class="card-info">
+                        <div class="card-name"><span class="card-name-text" title="${escapeHtml(c.nome)}">${escapeHtml(c.nome)}</span> ${premiumBadgeHtml(c.id)}</div>
                         <div class="card-location">${escapeHtml(c.cidade) || ''} ${c.cidade && c.estado ? '·' : ''} ${escapeHtml(c.estado) || ''}</div>
                     </div>
                 </div>
-                <div class="card-details">
-                    <div class="card-detail"><span class="card-detail-label">Tipo</span> ${formatTipoCreator(c.tipo_creator)}</div>
-                    <div class="card-detail"><span class="card-detail-label">Seguidores</span> ${formatSeguidores(c.seguidores)}</div>
-                    <div class="card-detail"><span class="card-detail-label">Experiência</span> ${formatExpBadge(c.experiencia)}</div>
-                    ${c.sobre ? `<div class="card-detail"><span class="card-detail-label">Sobre</span> <span style="color:var(--text-soft)">${escapeHtml(c.sobre)}</span></div>` : ''}
+                <div class="card-badges">
+                    ${formatTipoCreator(c.tipo_creator)}
+                    <span class="seg-badge">${formatSeguidores(c.seguidores)}</span>
                 </div>
-                ${(c.instagram || c.tiktok || c.portfolio || c.whatsapp) ? `
+                ${(c.instagram || c.tiktok || c.portfolio) ? `
                 <div class="card-social">
-                    ${c.instagram ? `<a href="${formatInstagramUrl(c.instagram)}" target="_blank" rel="noopener">Instagram</a>` : ''}
-                    ${c.tiktok ? `<a href="${formatTiktokUrl(c.tiktok)}" target="_blank" rel="noopener" class="btn-tiktok">TikTok</a>` : ''}
-                    ${c.portfolio ? `<a href="${safeUrl(c.portfolio)}" target="_blank" rel="noopener">Portfolio</a>` : ''}
-                    ${c.whatsapp ? `<a href="${formatWhatsappUrl(c.whatsapp)}" target="_blank" rel="noopener" class="btn-whatsapp">Contato</a>` : ''}
+                    ${c.instagram ? `<a href="${formatInstagramUrl(c.instagram)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Instagram</a>` : ''}
+                    ${c.tiktok ? `<a href="${formatTiktokUrl(c.tiktok)}" target="_blank" rel="noopener" class="btn-tiktok" onclick="event.stopPropagation()">TikTok</a>` : ''}
+                    ${c.portfolio ? `<a href="${safeUrl(c.portfolio)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Portfolio</a>` : ''}
                 </div>` : ''}
             </div>`;
     }
+
+    /* ── Drawer perfil ── */
+    function openDrawer(creatorId) {
+        const c = creatorsCache[creatorId];
+        if (!c) return;
+        const overlay = document.getElementById('drawerOverlay');
+        const content = document.getElementById('drawerContent');
+        const isSaved = savedCreatorIds.has(c.id);
+        const loc = [escapeHtml(c.cidade), escapeHtml(c.estado)].filter(Boolean).join(' · ');
+        const nichoHtml = formatNicho(c.nicho);
+
+        content.innerHTML = `
+            <div class="drawer-header">
+                ${avatarHtmlDrawer(c)}
+                <div class="drawer-name">${escapeHtml(c.nome)} ${premiumBadgeHtml(c.id)}</div>
+                ${loc ? `<div class="drawer-location">${loc}</div>` : ''}
+                <div class="drawer-tags">
+                    ${formatTipoCreator(c.tipo_creator)}
+                    <span class="seg-badge">${formatSeguidores(c.seguidores)}</span>
+                </div>
+                <div class="drawer-exp">Experiência: ${formatExpBadge(c.experiencia)}</div>
+            </div>
+            ${c.sobre ? `<div class="drawer-section">
+                <div class="drawer-section-title">Sobre</div>
+                <p class="drawer-text">${escapeHtml(c.sobre)}</p>
+            </div>` : ''}
+            ${nichoHtml ? `<div class="drawer-section">
+                <div class="drawer-section-title">Nichos</div>
+                <div class="drawer-nichos">${nichoHtml}</div>
+            </div>` : ''}
+            <div class="drawer-section">
+                <div class="drawer-section-title">Links</div>
+                <div class="drawer-links">
+                    ${c.instagram ? `<a href="${formatInstagramUrl(c.instagram)}" target="_blank" rel="noopener">📸 Instagram — ${escapeHtml(c.instagram)}</a>` : ''}
+                    ${c.tiktok ? `<a href="${formatTiktokUrl(c.tiktok)}" target="_blank" rel="noopener">🎵 TikTok — ${escapeHtml(c.tiktok)}</a>` : ''}
+                    ${c.portfolio ? `<a href="${safeUrl(c.portfolio)}" target="_blank" rel="noopener">🔗 Portfolio</a>` : ''}
+                    ${c.melhor_conteudo ? `<a href="${safeUrl(c.melhor_conteudo)}" target="_blank" rel="noopener">⭐ Melhor conteúdo</a>` : ''}
+                    ${c.whatsapp ? `<a href="${formatWhatsappUrl(c.whatsapp)}" target="_blank" rel="noopener" class="drawer-whatsapp">💬 WhatsApp — ${escapeHtml(c.whatsapp)}</a>` : ''}
+                </div>
+            </div>
+            <div class="drawer-actions">
+                <button class="drawer-btn ${isSaved ? 'saved' : ''}" id="drawerBtnSave" onclick="toggleSaveDrawer('${c.id}')">♡ ${isSaved ? 'Salvo' : 'Salvar'}</button>
+                <button class="drawer-btn" onclick="showListaDropdownDrawer('${c.id}')">📁 Lista</button>
+            </div>
+            ${buildListaDropdown(c.id)}
+        `;
+        overlay.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDrawer() {
+        document.getElementById('drawerOverlay').classList.remove('show');
+        document.body.style.overflow = '';
+    }
+
+    async function toggleSaveDrawer(creatorId) {
+        await toggleSave(creatorId);
+        const btn = document.getElementById('drawerBtnSave');
+        if (btn) {
+            const isSaved = savedCreatorIds.has(creatorId);
+            btn.className = 'drawer-btn' + (isSaved ? ' saved' : '');
+            btn.innerHTML = '♡ ' + (isSaved ? 'Salvo' : 'Salvar');
+        }
+    }
+
+    function showListaDropdownDrawer(creatorId) {
+        const dd = document.querySelector('#drawerContent .lista-dropdown');
+        if (!dd) {
+            alert('Crie uma lista primeiro na aba "Minhas Listas"');
+            return;
+        }
+        dd.classList.toggle('show');
+        dd.style.position = 'relative';
+        dd.style.top = 'auto';
+        dd.style.right = 'auto';
+        dd.style.marginTop = '10px';
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeDrawer();
+    });
 
     /* ── Age filter helper ── */
     function applyAgeFilter(query, idadeDe, idadeAte) {
@@ -1079,7 +1213,7 @@
 
         try {
             let query = sb.from('creators')
-                .select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, whatsapp, status, experiencia', { count: 'exact' })
+                .select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, melhor_conteudo, whatsapp, status, experiencia', { count: 'exact' })
                 .order('created_at', { ascending: false });
 
             if (search) query = query.ilike('nome', `%${search}%`);
@@ -1176,7 +1310,7 @@
             const idsArray = Array.from(savedCreatorIds);
 
             let query = sb.from('creators')
-                .select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, whatsapp, status, experiencia', { count: 'exact' })
+                .select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, melhor_conteudo, whatsapp, status, experiencia', { count: 'exact' })
                 .in('id', idsArray)
                 .order('created_at', { ascending: false });
 
@@ -1286,7 +1420,7 @@
 
         grid.innerHTML = '<div class="loading">Carregando...</div>';
         try {
-            const { data } = await sb.from('creators').select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, whatsapp, status, experiencia').in('id', ids);
+            const { data } = await sb.from('creators').select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, melhor_conteudo, whatsapp, status, experiencia').in('id', ids);
             document.getElementById('savedResultsInfo').innerHTML = `<strong>${escapeHtml(lista.nome)}</strong> — ${(data || []).length} creator(s)`;
             grid.innerHTML = (data || []).map(c => buildCardHtml(c)).join('');
             document.getElementById('savedPagination').style.display = 'none';
