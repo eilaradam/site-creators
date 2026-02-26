@@ -981,6 +981,14 @@
         return encodeURIComponent(handle.replace('@', ''));
     }
 
+    function formatWhatsappUrl(val) {
+        if (!val) return '';
+        const num = val.replace(/\D/g, '');
+        if (!num) return '';
+        const full = num.startsWith('55') ? num : '55' + num;
+        return 'https://wa.me/' + full;
+    }
+
     function formatInstagramUrl(handle) {
         if (!handle) return '';
         let h = handle.trim();
@@ -1387,7 +1395,7 @@
                         ${c.instagram ? `<a href="https://instagram.com/${safeHandle(c.instagram)}" target="_blank" rel="noopener">Instagram</a>` : ''}
                         ${c.tiktok ? `<a href="https://tiktok.com/${safeHandle(c.tiktok)}" target="_blank" rel="noopener" class="btn-tiktok">TikTok</a>` : ''}
                         ${c.portfolio ? `<a href="${safeUrl(c.portfolio)}" target="_blank" rel="noopener">Portfolio</a>` : ''}
-                        ${c.whatsapp ? `<a href="https://wa.me/55${encodeURIComponent((c.whatsapp || '').replace(/[\\s()\\-]/g,''))}" target="_blank" rel="noopener" class="btn-whatsapp">WhatsApp</a>` : ''}
+                        ${c.whatsapp ? `<a href="${formatWhatsappUrl(c.whatsapp)}" target="_blank" rel="noopener" class="btn-whatsapp">Contato</a>` : ''}
                     </div>` : ''}
                 </div>`;
             }).join('');
