@@ -87,8 +87,8 @@
         .panel-tab:hover { color: var(--text); }
         .panel-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-        /* Main — offset by collapsed sidebar (60px) */
-        .main { max-width: 1200px; margin-left: 60px; padding: 24px 32px; }
+        /* Main — offset by collapsed sidebar (60px), centered */
+        .main { max-width: 1400px; margin: 0 auto; padding: 24px 48px 24px calc(60px + 48px); }
 
         /* Tab content */
         .tab-content { display: none; }
@@ -364,7 +364,7 @@
 
             /* Overflow fix */
             html, body { overflow-x: hidden; width: 100%; }
-            .main { margin-left: 0; max-width: 100vw; overflow-x: hidden; padding: 16px; }
+            .main { margin: 0; max-width: 100vw; overflow-x: hidden; padding: 16px; }
 
             /* Header: visible on mobile */
             .header { display: flex; padding: 10px 16px; }
