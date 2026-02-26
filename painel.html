@@ -107,6 +107,12 @@
         .tipo-badge-influenciadora { background: rgba(139,105,20,0.1); color: #8B6914; }
         .tipo-badge-ugc_influenciadora { background: rgba(212,87,42,0.1); color: var(--accent); }
 
+        /* Experiencia badges */
+        .exp-badge { display: inline-block; padding: 2px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+        .exp-badge-sim { background: rgba(45,122,79,0.12); color: #2D7A4F; }
+        .exp-badge-nao { background: rgba(156,149,140,0.15); color: #6B645C; }
+        .exp-badge-permuta { background: rgba(217,169,56,0.15); color: #8B6914; }
+
         /* Premium badges */
         .badge-destaque { background: #FFF8E7; color: #B8860B; border: 1px solid #F0D68A; font-size: 10px; padding: 2px 8px; border-radius: 100px; font-weight: 600; white-space: nowrap; }
         .badge-popular { background: #FFF0EB; color: #D4572A; border: 1px solid #F0B8A0; font-size: 10px; padding: 2px 8px; border-radius: 100px; font-weight: 600; white-space: nowrap; }
@@ -410,13 +416,45 @@
     function safeUrl(url) {
         if (!url) return '#';
         const s = url.trim();
+        if (!s) return '#';
         if (/^https?:\/\//i.test(s)) return escapeHtml(s);
-        return '#';
+        return escapeHtml('https://' + s);
     }
 
     function safeHandle(handle) {
         if (!handle) return '';
         return encodeURIComponent(handle.replace('@', ''));
+    }
+
+    function formatInstagramUrl(handle) {
+        if (!handle) return '';
+        let h = handle.trim();
+        const m = h.match(/(?:https?:\/\/)?(?:www\.)?instagram\.com\/([^\/\?]+)/i);
+        if (m) h = m[1];
+        h = h.replace(/^@/, '');
+        if (!h) return '';
+        return 'https://www.instagram.com/' + encodeURIComponent(h);
+    }
+
+    function formatTiktokUrl(handle) {
+        if (!handle) return '';
+        let h = handle.trim();
+        const m = h.match(/(?:https?:\/\/)?(?:www\.)?tiktok\.com\/@?([^\/\?]+)/i);
+        if (m) h = m[1];
+        h = h.replace(/^@/, '');
+        if (!h) return '';
+        return 'https://www.tiktok.com/@' + encodeURIComponent(h);
+    }
+
+    function formatExpBadge(val) {
+        const map = {
+            'sim': { label: 'Sim', cls: 'exp-badge-sim' },
+            'nao': { label: 'Não', cls: 'exp-badge-nao' },
+            'permuta': { label: 'Só permuta', cls: 'exp-badge-permuta' }
+        };
+        const e = map[val];
+        if (!e) return '-';
+        return '<span class="exp-badge ' + e.cls + '">' + e.label + '</span>';
     }
 
     function formatSeguidores(val) {
@@ -480,16 +518,15 @@
                     </div>
                 </div>
                 <div class="card-details">
-                    <div class="card-detail"><span class="card-detail-label">Nicho</span> <div class="nicho-badges" style="display:inline-flex">${formatNicho(c.nicho)}</div></div>
                     <div class="card-detail"><span class="card-detail-label">Tipo</span> ${formatTipoCreator(c.tipo_creator)}</div>
                     <div class="card-detail"><span class="card-detail-label">Seguidores</span> ${formatSeguidores(c.seguidores)}</div>
-                    <div class="card-detail"><span class="card-detail-label">Status</span> <span class="badge ${badgeClass(c.status)}">${escapeHtml(c.status)}</span></div>
+                    <div class="card-detail"><span class="card-detail-label">Experiência</span> ${formatExpBadge(c.experiencia)}</div>
                     ${c.sobre ? `<div class="card-detail"><span class="card-detail-label">Sobre</span> <span style="color:var(--text-soft)">${escapeHtml(c.sobre)}</span></div>` : ''}
                 </div>
                 ${(c.instagram || c.tiktok || c.portfolio || c.whatsapp) ? `
                 <div class="card-social">
-                    ${c.instagram ? `<a href="https://instagram.com/${safeHandle(c.instagram)}" target="_blank" rel="noopener">Instagram</a>` : ''}
-                    ${c.tiktok ? `<a href="https://tiktok.com/${safeHandle(c.tiktok)}" target="_blank" rel="noopener" class="btn-tiktok">TikTok</a>` : ''}
+                    ${c.instagram ? `<a href="${formatInstagramUrl(c.instagram)}" target="_blank" rel="noopener">Instagram</a>` : ''}
+                    ${c.tiktok ? `<a href="${formatTiktokUrl(c.tiktok)}" target="_blank" rel="noopener" class="btn-tiktok">TikTok</a>` : ''}
                     ${c.portfolio ? `<a href="${safeUrl(c.portfolio)}" target="_blank" rel="noopener">Portfolio</a>` : ''}
                     ${c.whatsapp ? `<a href="https://wa.me/55${encodeURIComponent(c.whatsapp.replace(/[\\s()\\-]/g,''))}" target="_blank" rel="noopener" class="btn-whatsapp">WhatsApp</a>` : ''}
                 </div>` : ''}
@@ -526,7 +563,7 @@
 
         try {
             let query = sb.from('creators')
-                .select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, whatsapp, status', { count: 'exact' })
+                .select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, whatsapp, status, experiencia', { count: 'exact' })
                 .order('created_at', { ascending: false });
 
             if (search) query = query.ilike('nome', `%${search}%`);
@@ -615,7 +652,7 @@
             const idsArray = Array.from(savedCreatorIds);
 
             let query = sb.from('creators')
-                .select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, whatsapp, status', { count: 'exact' })
+                .select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, whatsapp, status, experiencia', { count: 'exact' })
                 .in('id', idsArray)
                 .order('created_at', { ascending: false });
 

@@ -85,6 +85,12 @@
         .badge-aprovado { background: rgba(45,122,79,0.1); color: var(--success); }
         .badge-ativo { background: rgba(26,24,22,0.08); color: var(--text); }
 
+        /* Experiencia badges */
+        .exp-badge { display: inline-block; padding: 2px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+        .exp-badge-sim { background: rgba(45,122,79,0.12); color: #2D7A4F; }
+        .exp-badge-nao { background: rgba(156,149,140,0.15); color: #6B645C; }
+        .exp-badge-permuta { background: rgba(217,169,56,0.15); color: #8B6914; }
+
         /* Premium badges */
         .badge-destaque { background: #FFF8E7; color: #B8860B; border: 1px solid #F0D68A; font-size: 11px; padding: 3px 10px; border-radius: 100px; font-weight: 600; white-space: nowrap; }
         .badge-popular { background: #FFF0EB; color: #D4572A; border: 1px solid #F0B8A0; font-size: 11px; padding: 3px 10px; border-radius: 100px; font-weight: 600; white-space: nowrap; }
@@ -345,12 +351,10 @@
                     <th>Seguidores</th>
                     <th>Estado</th>
                     <th>Cidade</th>
-                    <th>Nicho</th>
                     <th>Tipo Creator</th>
                     <th>Sobre</th>
                     <th>Experiencia</th>
                     <th>Links</th>
-                    <th>Status</th>
                     <th>Salvos</th>
                     <th>Cadastro</th>
                     <th>Ações</th>
@@ -408,11 +412,13 @@
                     <th>E-mail</th>
                     <th>Status</th>
                     <th>Cadastro</th>
-                    <th>Acao</th>
+                    <th>Último Login</th>
+                    <th>Acessos</th>
+                    <th>Ação</th>
                 </tr>
             </thead>
             <tbody id="alunasBody">
-                <tr><td colspan="5" class="loading">Carregando...</td></tr>
+                <tr><td colspan="7" class="loading">Carregando...</td></tr>
             </tbody>
         </table>
     </div>
@@ -771,14 +777,54 @@
     function safeUrl(url) {
         if (!url) return '#';
         const s = url.trim();
+        if (!s) return '#';
         if (/^https?:\/\//i.test(s)) return escapeHtml(s);
-        return '#';
+        return escapeHtml('https://' + s);
     }
 
     function safeHandle(handle) {
         if (!handle) return '';
         return encodeURIComponent(handle.replace('@', ''));
     }
+
+    function formatInstagramUrl(handle) {
+        if (!handle) return '';
+        let h = handle.trim();
+        const m = h.match(/(?:https?:\/\/)?(?:www\.)?instagram\.com\/([^\/\?]+)/i);
+        if (m) h = m[1];
+        h = h.replace(/^@/, '');
+        if (!h) return '';
+        return 'https://www.instagram.com/' + encodeURIComponent(h);
+    }
+
+    function formatTiktokUrl(handle) {
+        if (!handle) return '';
+        let h = handle.trim();
+        const m = h.match(/(?:https?:\/\/)?(?:www\.)?tiktok\.com\/@?([^\/\?]+)/i);
+        if (m) h = m[1];
+        h = h.replace(/^@/, '');
+        if (!h) return '';
+        return 'https://www.tiktok.com/@' + encodeURIComponent(h);
+    }
+
+    function formatExpBadge(val) {
+        const map = {
+            'sim': { label: 'Sim', cls: 'exp-badge-sim' },
+            'nao': { label: 'Não', cls: 'exp-badge-nao' },
+            'permuta': { label: 'Só permuta', cls: 'exp-badge-permuta' }
+        };
+        const e = map[val];
+        if (!e) return '-';
+        return '<span class="exp-badge ' + e.cls + '">' + e.label + '</span>';
+    }
+
+    function formatLoginDate(dateStr) {
+        if (!dateStr) return '<span style="color:var(--text-muted)">Nunca acessou</span>';
+        const d = new Date(dateStr);
+        const pad = n => String(n).padStart(2, '0');
+        return pad(d.getDate()) + '/' + pad(d.getMonth()+1) + '/' + d.getFullYear() + ' às ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+    }
+
     function avatarHtml(c, size) {
         const lg = size === 'lg';
         if (c.foto_perfil) return `<img src="${escapeHtml(c.foto_perfil)}" alt="" class="${lg ? 'avatar-lg' : 'avatar'}">`;
@@ -802,7 +848,7 @@
 
     async function loadCreators() {
         const tableBody = document.getElementById('tableBody');
-        tableBody.innerHTML = '<tr><td colspan="16" class="loading">Carregando creators...</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="14" class="loading">Carregando creators...</td></tr>';
 
         try {
             const { data, error } = await sb.from('creators').select('*').order('created_at', { ascending: false });
@@ -812,7 +858,7 @@
             populateEstadoFilter();
             applyFilters();
         } catch (err) {
-            tableBody.innerHTML = `<tr><td colspan="16" class="loading" style="color:var(--error)">Erro ao carregar: ${escapeHtml(err.message)}</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="14" class="loading" style="color:var(--error)">Erro ao carregar: ${escapeHtml(err.message)}</td></tr>`;
         }
     }
 
@@ -871,7 +917,7 @@
     function renderTable(creators) {
         const tbody = document.getElementById('tableBody');
         if (creators.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="16" class="empty-state"><p>Nenhum creator encontrado.</p></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="14" class="empty-state"><p>Nenhum creator encontrado.</p></td></tr>';
             return;
         }
         tbody.innerHTML = creators.map(c => {
@@ -880,21 +926,19 @@
             <tr data-creator-id="${c.id}">
                 <td><div class="name-cell">${avatarHtml(c)}<div><strong>${escapeHtml(c.nome)}</strong> <span class="badge-slot">${premiumBadgeHtml(c.id)}</span><br><span style="font-size:12px;color:var(--text-muted)">${escapeHtml(c.email)}</span></div></div></td>
                 <td style="white-space:nowrap">${escapeHtml(c.whatsapp)}</td>
-                <td>${escapeHtml(c.instagram)}</td>
-                <td>${escapeHtml(c.tiktok) || '-'}</td>
+                <td><a href="${formatInstagramUrl(c.instagram)}" target="_blank" rel="noopener">${escapeHtml(c.instagram)}</a></td>
+                <td>${c.tiktok ? `<a href="${formatTiktokUrl(c.tiktok)}" target="_blank" rel="noopener">${escapeHtml(c.tiktok)}</a>` : '-'}</td>
                 <td>${formatSeguidores(c.seguidores)}</td>
                 <td>${escapeHtml(c.estado) || '-'}</td>
                 <td>${escapeHtml(c.cidade) || '-'}</td>
-                <td><div class="nicho-badges">${formatNicho(c.nicho)}</div></td>
                 <td>${formatTipoCreator(c.tipo_creator)}</td>
                 <td style="max-width:200px;font-size:13px;color:var(--text-soft)">${escapeHtml(c.sobre) || '-'}</td>
-                <td>${formatExperiencia(c.experiencia)}</td>
+                <td>${formatExpBadge(c.experiencia)}</td>
                 <td style="white-space:nowrap">
                     ${c.portfolio ? `<a href="${safeUrl(c.portfolio)}" target="_blank" rel="noopener">Portfolio</a>` : '-'}
                     ${c.portfolio && c.melhor_conteudo ? ' · ' : ''}
                     ${c.melhor_conteudo ? `<a href="${safeUrl(c.melhor_conteudo)}" target="_blank" rel="noopener">Conteudo</a>` : ''}
                 </td>
-                <td><span class="badge ${badgeClass(c.status)}">${escapeHtml(c.status)}</span></td>
                 <td style="white-space:nowrap;text-align:center"><span class="salvos-count">${totalSalvos > 0 ? `Salvo por ${totalSalvos} gestora${totalSalvos > 1 ? 's' : ''}` : '-'}</span></td>
                 <td style="white-space:nowrap;font-size:13px;color:var(--text-muted)">${formatDate(c.created_at)}</td>
                 <td style="white-space:nowrap"><button class="btn-delete" onclick="deleteCreator('${c.id}', '${escapeHtml(c.nome).replace(/'/g, "\\'")}')">Excluir</button></td>
@@ -914,19 +958,17 @@
             <div class="creator-card" data-creator-id="${c.id}">
                 <div class="creator-card-header">
                     <div class="name-cell">${avatarHtml(c, 'lg')}<div><div class="creator-card-name">${escapeHtml(c.nome)} <span class="badge-slot">${premiumBadgeHtml(c.id)}</span></div>${totalSalvos > 0 ? `<div class="salvos-count">Salvo por ${totalSalvos} gestora${totalSalvos > 1 ? 's' : ''}</div>` : ''}</div></div>
-                    <span class="badge ${badgeClass(c.status)}">${escapeHtml(c.status)}</span>
                 </div>
                 <div class="creator-card-meta">
                     <span>${escapeHtml(c.email)}</span>
                     <span>WhatsApp: ${escapeHtml(c.whatsapp)}</span>
-                    <span>Instagram: ${escapeHtml(c.instagram)}</span>
-                    ${c.tiktok ? `<span>TikTok: ${escapeHtml(c.tiktok)}</span>` : ''}
+                    <span>Instagram: <a href="${formatInstagramUrl(c.instagram)}" target="_blank" rel="noopener">${escapeHtml(c.instagram)}</a></span>
+                    ${c.tiktok ? `<span>TikTok: <a href="${formatTiktokUrl(c.tiktok)}" target="_blank" rel="noopener">${escapeHtml(c.tiktok)}</a></span>` : ''}
                     <span>Seguidores: ${formatSeguidores(c.seguidores)}</span>
                     <span>${escapeHtml(c.estado) || ''} ${c.estado && c.cidade ? '·' : ''} ${escapeHtml(c.cidade) || ''}</span>
-                    <span>Nicho: <span class="nicho-badges" style="display:inline-flex">${formatNicho(c.nicho)}</span></span>
                     <span>Tipo: ${formatTipoCreator(c.tipo_creator)}</span>
                     ${c.sobre ? `<span>Sobre: ${escapeHtml(c.sobre)}</span>` : ''}
-                    <span>Experiencia: ${formatExperiencia(c.experiencia)}</span>
+                    <span>Experiência: ${formatExpBadge(c.experiencia)}</span>
                     <span>Cadastro: ${formatDate(c.created_at)}</span>
                 </div>
                 ${(c.portfolio || c.melhor_conteudo) ? `
@@ -1073,7 +1115,7 @@
 
     async function loadAlunas() {
         const tbody = document.getElementById('alunasBody');
-        tbody.innerHTML = '<tr><td colspan="5" class="loading">Carregando alunas...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="loading">Carregando alunas...</td></tr>';
 
         try {
             const { data, error } = await sb.rpc('admin_load_alunas');
@@ -1081,14 +1123,14 @@
             allAlunas = data || [];
             renderAlunas();
         } catch (err) {
-            tbody.innerHTML = `<tr><td colspan="5" class="loading" style="color:var(--error)">Erro: ${escapeHtml(err.message)}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="loading" style="color:var(--error)">Erro: ${escapeHtml(err.message)}</td></tr>`;
         }
     }
 
     function renderAlunas() {
         const tbody = document.getElementById('alunasBody');
         if (allAlunas.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><p>Nenhuma aluna cadastrada ainda.</p></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><p>Nenhuma aluna cadastrada ainda.</p></td></tr>';
             return;
         }
         tbody.innerHTML = allAlunas.map(a => `
@@ -1097,6 +1139,8 @@
                 <td>${escapeHtml(a.email)}</td>
                 <td><span class="badge ${a.ativo ? 'badge-ativo-user' : 'badge-inativo'}">${a.ativo ? 'Ativa' : 'Inativa'}</span></td>
                 <td style="font-size:13px;color:var(--text-muted)">${formatDate(a.created_at)}</td>
+                <td style="font-size:13px;color:var(--text-muted)">${formatLoginDate(a.ultimo_login)}</td>
+                <td style="font-size:13px;text-align:center">${a.total_acessos || 0}</td>
                 <td><button class="btn-toggle" onclick="toggleAluna('${a.id}', ${!a.ativo})">${a.ativo ? 'Desativar' : 'Ativar'}</button></td>
             </tr>
         `).join('');

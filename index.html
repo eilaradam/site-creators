@@ -443,6 +443,14 @@
         });
     }
 
+    function formatUrl(url) {
+        if (!url) return null;
+        const s = url.trim();
+        if (!s) return null;
+        if (/^https?:\/\//i.test(s)) return s;
+        return 'https://' + s;
+    }
+
     /* ── Supabase (envolvido em try-catch para não travar a UI) ── */
     let sb = null;
     try {
@@ -504,8 +512,8 @@
                 tipo_creator: document.querySelector('input[name="tipo_creator"]:checked')?.value || null,
                 sobre: (document.getElementById('sobre')?.value || '').trim().substring(0, 200) || null,
                 experiencia: document.getElementById('experiencia').value,
-                portfolio: document.getElementById('portfolio').value.trim() || null,
-                melhor_conteudo: document.getElementById('melhor_conteudo').value.trim() || null,
+                portfolio: formatUrl(document.getElementById('portfolio').value),
+                melhor_conteudo: formatUrl(document.getElementById('melhor_conteudo').value),
                 foto_perfil: fotoUrl,
                 origem: 'site_recrutamento',
                 status: 'novo',
