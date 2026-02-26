@@ -154,7 +154,7 @@
         .col-card-header:hover { background: rgba(212,87,42,0.02); }
         .col-card-name-area { display: flex; align-items: center; gap: 10px; min-width: 180px; flex-shrink: 0; }
         .col-card-name { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
-        .col-card-tags { display: flex; align-items: center; gap: 8px; flex: 1; flex-wrap: wrap; min-width: 0; }
+        .col-card-tags { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
         .col-card-tag { font-size: 12px; color: var(--text-soft); white-space: nowrap; }
         .col-card-chevron { width: 18px; height: 18px; color: var(--text-muted); transition: transform 0.25s ease; flex-shrink: 0; margin-left: auto; }
         .col-card.expanded .col-card-chevron { transform: rotate(180deg); }
@@ -167,6 +167,14 @@
         .col-card-detail a:hover { text-decoration: underline; }
         .col-card-detail strong { color: var(--text); font-weight: 600; }
         .col-card-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; padding-top: 10px; border-top: 1px solid var(--border); }
+
+        /* Column header */
+        .col-list-header { display: flex; align-items: center; gap: 12px; padding: 8px 16px; background: var(--cream); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 4px; position: sticky; top: 53px; z-index: 10; }
+        .col-list-h-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); white-space: nowrap; }
+        .col-w-loc { min-width: 120px; }
+        .col-w-tipo { min-width: 100px; }
+        .col-w-seg { min-width: 60px; }
+        .col-w-exp { min-width: 65px; }
 
         /* Save button (heart) - admin */
         .btn-save { position: absolute; top: 16px; right: 16px; background: none; border: none; cursor: pointer; padding: 4px; transition: all 0.25s ease; line-height: 1; z-index: 5; }
@@ -321,8 +329,9 @@
         @media (max-width: 1024px) {
             .stats-row { flex-wrap: wrap; }
             .stat-card { min-width: 30%; border-bottom: 1px solid var(--border); }
+            .col-list-header { display: none; }
             .col-card-name-area { min-width: auto; }
-            .col-card-tags { gap: 6px; }
+            .col-card-tags { gap: 6px; flex-wrap: wrap; }
         }
         @media (max-width: 600px) {
             .stat-card { min-width: 45%; padding: 10px 8px; }
@@ -484,6 +493,19 @@
         <button class="btn-export-csv" id="btnExportCsv" style="display:none">Exportar CSV</button>
     </div>
 
+    <div class="col-list-header">
+        <div class="col-card-name-area">
+            <span class="col-list-h-label" style="width:40px;text-align:center">Foto</span>
+            <span class="col-list-h-label">Nome</span>
+        </div>
+        <div class="col-card-tags" style="flex-wrap:nowrap">
+            <span class="col-list-h-label col-w-loc">Local</span>
+            <span class="col-list-h-label col-w-tipo">Tipo</span>
+            <span class="col-list-h-label col-w-seg">Seg.</span>
+            <span class="col-list-h-label col-w-exp">Exp.</span>
+        </div>
+        <span style="width:18px"></span>
+    </div>
     <div class="creators-list" id="creatorsList"></div>
 </div>
 
@@ -1280,10 +1302,10 @@
                         ${premiumBadgeHtml(c.id)}
                     </div>
                     <div class="col-card-tags">
-                        ${loc ? `<span class="col-card-tag">${loc}</span>` : ''}
-                        ${formatTipoCreator(c.tipo_creator)}
-                        <span class="col-card-tag">${formatSeguidores(c.seguidores)}</span>
-                        ${formatExpBadge(c.experiencia)}
+                        <span class="col-card-tag col-w-loc">${loc || '-'}</span>
+                        <span class="col-w-tipo">${formatTipoCreator(c.tipo_creator)}</span>
+                        <span class="col-card-tag col-w-seg">${formatSeguidores(c.seguidores)}</span>
+                        <span class="col-w-exp">${formatExpBadge(c.experiencia)}</span>
                         ${totalSalvos > 0 ? `<span class="salvos-count" style="font-size:11px">♥ ${totalSalvos}</span>` : ''}
                     </div>
                     <svg class="col-card-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
