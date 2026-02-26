@@ -147,6 +147,9 @@
         .badge-inativo { background: rgba(156,149,140,0.15); color: var(--text-muted); }
         .btn-toggle { padding: 6px 16px; border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1px solid var(--border); background: var(--cream); color: var(--text-soft); }
         .btn-toggle:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-delete { padding: 5px 12px; border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1px solid rgba(196,69,60,0.2); background: rgba(196,69,60,0.06); color: var(--error); }
+        .btn-delete:hover { background: var(--error); color: white; border-color: var(--error); }
+        .btn-delete:disabled { opacity: 0.5; cursor: not-allowed; }
 
         /* Modal */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 100; display: none; align-items: center; justify-content: center; padding: 24px; }
@@ -317,6 +320,7 @@
                     <th>Status</th>
                     <th>Salvos</th>
                     <th>Cadastro</th>
+                    <th>Ações</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -719,7 +723,7 @@
     function renderTable(creators) {
         const tbody = document.getElementById('tableBody');
         if (creators.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="13" class="empty-state"><p>Nenhum creator encontrado.</p></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="14" class="empty-state"><p>Nenhum creator encontrado.</p></td></tr>';
             return;
         }
         tbody.innerHTML = creators.map(c => {
@@ -743,6 +747,7 @@
                 <td><span class="badge ${badgeClass(c.status)}">${escapeHtml(c.status)}</span></td>
                 <td style="white-space:nowrap;text-align:center"><span class="salvos-count">${totalSalvos > 0 ? `Salvo por ${totalSalvos} gestora${totalSalvos > 1 ? 's' : ''}` : '-'}</span></td>
                 <td style="white-space:nowrap;font-size:13px;color:var(--text-muted)">${formatDate(c.created_at)}</td>
+                <td style="white-space:nowrap"><button class="btn-delete" onclick="deleteCreator('${c.id}', '${escapeHtml(c.nome).replace(/'/g, "\\'")}')">Excluir</button></td>
             </tr>`;
         }).join('');
     }
@@ -777,8 +782,31 @@
                     ${c.portfolio ? `<a href="${escapeHtml(c.portfolio)}" target="_blank" rel="noopener">Portfolio</a>` : ''}
                     ${c.melhor_conteudo ? `<a href="${escapeHtml(c.melhor_conteudo)}" target="_blank" rel="noopener">Melhor conteudo</a>` : ''}
                 </div>` : ''}
+                <div style="margin-top:12px;text-align:right"><button class="btn-delete" onclick="deleteCreator('${c.id}', '${escapeHtml(c.nome).replace(/'/g, "\\'")}')">Excluir</button></div>
             </div>`;
         }).join('');
+    }
+
+    /* ── Excluir creator ── */
+    async function deleteCreator(id, nome) {
+        if (!confirm(`Tem certeza que deseja excluir "${nome}"?\n\nEssa ação não pode ser desfeita.`)) return;
+
+        try {
+            /* Remove perfis salvos relacionados */
+            await sb.from('perfis_salvos').delete().eq('creator_id', id);
+
+            /* Remove o creator */
+            const { error } = await sb.from('creators').delete().eq('id', id);
+            if (error) throw error;
+
+            /* Atualiza a lista local */
+            allCreators = allCreators.filter(c => c.id !== id);
+            applyFilters();
+            updateStats();
+            updateCampanhaStats();
+        } catch (err) {
+            alert('Erro ao excluir: ' + (err.message || 'Tente novamente.'));
+        }
     }
 
     /* Filter events */
