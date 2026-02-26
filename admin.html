@@ -146,6 +146,28 @@
         .creator-card-links a { flex: 1; text-align: center; padding: 8px; border-radius: 8px; background: var(--cream); font-size: 12px; font-weight: 600; color: var(--accent); text-decoration: none; transition: all 0.2s; }
         .creator-card-links a:hover { background: var(--accent-glow); }
 
+        /* Collapsible creator cards */
+        .creators-list { display: flex; flex-direction: column; gap: 6px; }
+        .col-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: box-shadow 0.2s; }
+        .col-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+        .col-card-header { display: flex; align-items: center; gap: 12px; padding: 10px 16px; cursor: pointer; user-select: none; }
+        .col-card-header:hover { background: rgba(212,87,42,0.02); }
+        .col-card-name-area { display: flex; align-items: center; gap: 10px; min-width: 180px; flex-shrink: 0; }
+        .col-card-name { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
+        .col-card-tags { display: flex; align-items: center; gap: 8px; flex: 1; flex-wrap: wrap; min-width: 0; }
+        .col-card-tag { font-size: 12px; color: var(--text-soft); white-space: nowrap; }
+        .col-card-chevron { width: 18px; height: 18px; color: var(--text-muted); transition: transform 0.25s ease; flex-shrink: 0; margin-left: auto; }
+        .col-card.expanded .col-card-chevron { transform: rotate(180deg); }
+        .col-card-body { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+        .col-card.expanded .col-card-body { max-height: 500px; }
+        .col-card-body-inner { padding: 16px; border-top: 1px solid var(--border); display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px 24px; }
+        .col-card-section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 6px; }
+        .col-card-detail { font-size: 12px; color: var(--text-soft); line-height: 2; }
+        .col-card-detail a { color: var(--accent); text-decoration: none; font-weight: 600; }
+        .col-card-detail a:hover { text-decoration: underline; }
+        .col-card-detail strong { color: var(--text); font-weight: 600; }
+        .col-card-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; padding-top: 10px; border-top: 1px solid var(--border); }
+
         /* Save button (heart) - admin */
         .btn-save { position: absolute; top: 16px; right: 16px; background: none; border: none; cursor: pointer; padding: 4px; transition: all 0.25s ease; line-height: 1; z-index: 5; }
         .btn-save:hover { transform: scale(1.15); }
@@ -299,8 +321,8 @@
         @media (max-width: 1024px) {
             .stats-row { flex-wrap: wrap; }
             .stat-card { min-width: 30%; border-bottom: 1px solid var(--border); }
-            .table-container { display: none; }
-            .cards-container { display: block; }
+            .col-card-name-area { min-width: auto; }
+            .col-card-tags { gap: 6px; }
         }
         @media (max-width: 600px) {
             .stat-card { min-width: 45%; padding: 10px 8px; }
@@ -313,6 +335,9 @@
             .camp-stat-value { font-size: 18px; }
             .email-actions { flex-direction: column; }
             .email-actions button { width: 100%; justify-content: center; }
+            .col-card-header { flex-wrap: wrap; gap: 8px; padding: 10px 12px; }
+            .col-card-body-inner { grid-template-columns: 1fr; }
+            .col-card.expanded .col-card-body { max-height: 700px; }
         }
     </style>
 </head>
@@ -459,35 +484,7 @@
         <button class="btn-export-csv" id="btnExportCsv" style="display:none">Exportar CSV</button>
     </div>
 
-    <div class="table-container">
-        <table class="creators-table">
-            <thead>
-                <tr>
-                    <th>Nome</th>
-                    <th>WhatsApp</th>
-                    <th>Instagram</th>
-                    <th>TikTok</th>
-                    <th>Seguidores</th>
-                    <th>Estado</th>
-                    <th>Cidade</th>
-                    <th>Tipo Creator</th>
-                    <th>Sobre</th>
-                    <th>Experiencia</th>
-                    <th>Links</th>
-                    <th>Salvos</th>
-                    <th>UTM</th>
-                    <th>Código</th>
-                    <th>Indicada por</th>
-                    <th>Indicações</th>
-                    <th>Cadastro</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-    </div>
-
-    <div class="cards-container" id="cardsContainer"></div>
+    <div class="creators-list" id="creatorsList"></div>
 </div>
 
 <!-- ── TAB: PERFIS SALVOS (admin) ── -->
@@ -1081,8 +1078,8 @@
        ══════════════════════════════════════ */
 
     async function loadCreators() {
-        const tableBody = document.getElementById('tableBody');
-        tableBody.innerHTML = '<tr><td colspan="18" class="loading">Carregando creators...</td></tr>';
+        const listEl = document.getElementById('creatorsList');
+        listEl.innerHTML = '<div class="loading">Carregando creators...</div>';
 
         try {
             const { data, error } = await sb.from('creators').select('*').order('created_at', { ascending: false });
@@ -1095,7 +1092,7 @@
             updateDashboardUtmIndicacoes();
             applyFilters();
         } catch (err) {
-            tableBody.innerHTML = `<tr><td colspan="18" class="loading" style="color:var(--error)">Erro ao carregar: ${escapeHtml(err.message)}</td></tr>`;
+            listEl.innerHTML = `<div class="loading" style="color:var(--error)">Erro ao carregar: ${escapeHtml(err.message)}</div>`;
         }
     }
 
@@ -1261,81 +1258,73 @@
         document.getElementById('resultsText').innerHTML = `Mostrando <strong>${filtered.length}</strong> de <strong>${allCreators.length}</strong> creators`;
         document.getElementById('btnExportCsv').style.display = filtered.length > 0 ? 'inline-block' : 'none';
         lastFiltered = filtered;
-        renderTable(filtered);
-        renderCards(filtered);
+        renderCreators(filtered);
     }
 
-    function renderTable(creators) {
-        const tbody = document.getElementById('tableBody');
-        if (creators.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="18" class="empty-state"><p>Nenhum creator encontrado.</p></td></tr>';
-            return;
-        }
-        tbody.innerHTML = creators.map(c => {
-            const totalSalvos = popularityMap[c.id] || 0;
-            return `
-            <tr data-creator-id="${c.id}">
-                <td><div class="name-cell">${avatarHtml(c)}<div><strong>${escapeHtml(c.nome)}</strong> <span class="badge-slot">${premiumBadgeHtml(c.id)}</span><br><span style="font-size:12px;color:var(--text-muted)">${escapeHtml(c.email)} ${c.email_boas_vindas_enviado ? '<span title="E-mail de boas-vindas enviado" style="cursor:help">✉️</span>' : ''}</span></div></div></td>
-                <td style="white-space:nowrap">${escapeHtml(c.whatsapp)}</td>
-                <td><a href="${formatInstagramUrl(c.instagram)}" target="_blank" rel="noopener">${escapeHtml(c.instagram)}</a></td>
-                <td>${c.tiktok ? `<a href="${formatTiktokUrl(c.tiktok)}" target="_blank" rel="noopener">${escapeHtml(c.tiktok)}</a>` : '-'}</td>
-                <td>${formatSeguidores(c.seguidores)}</td>
-                <td>${escapeHtml(c.estado) || '-'}</td>
-                <td>${escapeHtml(c.cidade) || '-'}</td>
-                <td>${formatTipoCreator(c.tipo_creator)}</td>
-                <td style="max-width:200px;font-size:13px;color:var(--text-soft)">${escapeHtml(c.sobre) || '-'}</td>
-                <td>${formatExpBadge(c.experiencia)}</td>
-                <td style="white-space:nowrap">
-                    ${c.portfolio ? `<a href="${safeUrl(c.portfolio)}" target="_blank" rel="noopener">Portfolio</a>` : '-'}
-                    ${c.portfolio && c.melhor_conteudo ? ' · ' : ''}
-                    ${c.melhor_conteudo ? `<a href="${safeUrl(c.melhor_conteudo)}" target="_blank" rel="noopener">Conteudo</a>` : ''}
-                </td>
-                <td style="white-space:nowrap;text-align:center"><span class="salvos-count">${totalSalvos > 0 ? `Salvo por ${totalSalvos} gestora${totalSalvos > 1 ? 's' : ''}` : '-'}</span></td>
-                <td style="white-space:nowrap;font-size:12px;color:var(--text-muted)">${escapeHtml(c.utm_origem) || '-'}</td>
-                <td style="white-space:nowrap;font-size:12px;font-family:monospace">${escapeHtml(c.codigo_indicacao) || '-'}</td>
-                <td style="white-space:nowrap;font-size:12px">${c.indicada_por ? escapeHtml(getIndicadoraNome(c.indicada_por)) : '-'}</td>
-                <td style="white-space:nowrap;font-size:12px;text-align:center">${indicacoesMap[c.codigo_indicacao] ? `<strong style="color:var(--accent)">${indicacoesMap[c.codigo_indicacao]}</strong>` : '0'}</td>
-                <td style="white-space:nowrap;font-size:13px;color:var(--text-muted)">${formatDate(c.created_at)}</td>
-                <td style="white-space:nowrap"><button class="btn-delete" onclick="deleteCreator('${c.id}', '${escapeHtml(c.nome).replace(/'/g, "\\'")}')">Excluir</button></td>
-            </tr>`;
-        }).join('');
-    }
-
-    function renderCards(creators) {
-        const container = document.getElementById('cardsContainer');
+    function renderCreators(creators) {
+        const container = document.getElementById('creatorsList');
         if (creators.length === 0) {
             container.innerHTML = '<div class="empty-state"><p>Nenhum creator encontrado.</p></div>';
             return;
         }
         container.innerHTML = creators.map(c => {
             const totalSalvos = popularityMap[c.id] || 0;
+            const idade = c.data_nascimento ? calcularIdade(c.data_nascimento) : null;
+            const loc = [escapeHtml(c.estado), escapeHtml(c.cidade)].filter(Boolean).join(' · ');
             return `
-            <div class="creator-card" data-creator-id="${c.id}">
-                <div class="creator-card-header">
-                    <div class="name-cell">${avatarHtml(c, 'lg')}<div><div class="creator-card-name">${escapeHtml(c.nome)} <span class="badge-slot">${premiumBadgeHtml(c.id)}</span></div>${totalSalvos > 0 ? `<div class="salvos-count">Salvo por ${totalSalvos} gestora${totalSalvos > 1 ? 's' : ''}</div>` : ''}</div></div>
+            <div class="col-card" data-creator-id="${c.id}">
+                <div class="col-card-header" onclick="this.parentElement.classList.toggle('expanded')">
+                    <div class="col-card-name-area">
+                        ${avatarHtml(c)}
+                        <span class="col-card-name" title="${escapeHtml(c.nome)}">${escapeHtml(c.nome)}</span>
+                        ${premiumBadgeHtml(c.id)}
+                    </div>
+                    <div class="col-card-tags">
+                        ${loc ? `<span class="col-card-tag">${loc}</span>` : ''}
+                        ${formatTipoCreator(c.tipo_creator)}
+                        <span class="col-card-tag">${formatSeguidores(c.seguidores)}</span>
+                        ${formatExpBadge(c.experiencia)}
+                        ${totalSalvos > 0 ? `<span class="salvos-count" style="font-size:11px">♥ ${totalSalvos}</span>` : ''}
+                    </div>
+                    <svg class="col-card-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                 </div>
-                <div class="creator-card-meta">
-                    <span>${escapeHtml(c.email)} ${c.email_boas_vindas_enviado ? '<span title="E-mail de boas-vindas enviado" style="cursor:help">✉️</span>' : ''}</span>
-                    <span>WhatsApp: ${escapeHtml(c.whatsapp)}</span>
-                    <span>Instagram: <a href="${formatInstagramUrl(c.instagram)}" target="_blank" rel="noopener">${escapeHtml(c.instagram)}</a></span>
-                    ${c.tiktok ? `<span>TikTok: <a href="${formatTiktokUrl(c.tiktok)}" target="_blank" rel="noopener">${escapeHtml(c.tiktok)}</a></span>` : ''}
-                    <span>Seguidores: ${formatSeguidores(c.seguidores)}</span>
-                    <span>${escapeHtml(c.estado) || ''} ${c.estado && c.cidade ? '·' : ''} ${escapeHtml(c.cidade) || ''}</span>
-                    <span>Tipo: ${formatTipoCreator(c.tipo_creator)}</span>
-                    ${c.sobre ? `<span>Sobre: ${escapeHtml(c.sobre)}</span>` : ''}
-                    <span>Experiência: ${formatExpBadge(c.experiencia)}</span>
-                    <span>Cadastro: ${formatDate(c.created_at)}</span>
-                    <span>UTM: ${escapeHtml(c.utm_origem) || '-'}</span>
-                    <span>Código: <strong style="font-family:monospace">${escapeHtml(c.codigo_indicacao) || '-'}</strong></span>
-                    ${c.indicada_por ? `<span>Indicada por: <strong>${escapeHtml(getIndicadoraNome(c.indicada_por))}</strong></span>` : ''}
-                    ${indicacoesMap[c.codigo_indicacao] ? `<span>Indicações feitas: <strong style="color:var(--accent)">${indicacoesMap[c.codigo_indicacao]}</strong></span>` : ''}
+                <div class="col-card-body">
+                    <div class="col-card-body-inner">
+                        <div>
+                            <div class="col-card-section-title">Contato</div>
+                            <div class="col-card-detail">
+                                ${escapeHtml(c.email)} ${c.email_boas_vindas_enviado ? '<span title="E-mail enviado" style="cursor:help">✉️</span>' : ''}<br>
+                                ${c.whatsapp ? `WhatsApp: <a href="${formatWhatsappUrl(c.whatsapp)}" target="_blank" rel="noopener">${escapeHtml(c.whatsapp)}</a><br>` : ''}
+                                Instagram: <a href="${formatInstagramUrl(c.instagram)}" target="_blank" rel="noopener">${escapeHtml(c.instagram)}</a><br>
+                                ${c.tiktok ? `TikTok: <a href="${formatTiktokUrl(c.tiktok)}" target="_blank" rel="noopener">${escapeHtml(c.tiktok)}</a>` : ''}
+                            </div>
+                        </div>
+                        <div>
+                            <div class="col-card-section-title">Informações</div>
+                            <div class="col-card-detail">
+                                ${idade !== null ? `Idade: <strong>${idade} anos</strong><br>` : ''}
+                                ${c.sobre ? `${escapeHtml(c.sobre)}<br>` : ''}
+                                ${c.nicho ? `Nicho: ${formatNicho(c.nicho)}<br>` : ''}
+                                ${c.portfolio ? `<a href="${safeUrl(c.portfolio)}" target="_blank" rel="noopener">Portfolio</a> ` : ''}
+                                ${c.melhor_conteudo ? `<a href="${safeUrl(c.melhor_conteudo)}" target="_blank" rel="noopener">Melhor conteúdo</a>` : ''}
+                            </div>
+                        </div>
+                        <div>
+                            <div class="col-card-section-title">Rastreamento</div>
+                            <div class="col-card-detail">
+                                Cadastro: <strong>${formatDate(c.created_at)}</strong><br>
+                                UTM: ${escapeHtml(c.utm_origem) || '-'}<br>
+                                Código: <strong style="font-family:monospace">${escapeHtml(c.codigo_indicacao) || '-'}</strong><br>
+                                ${c.indicada_por ? `Indicada por: <strong>${escapeHtml(getIndicadoraNome(c.indicada_por))}</strong><br>` : ''}
+                                ${indicacoesMap[c.codigo_indicacao] ? `Indicações: <strong style="color:var(--accent)">${indicacoesMap[c.codigo_indicacao]}</strong><br>` : ''}
+                                ${totalSalvos > 0 ? `Salvo por <strong>${totalSalvos} gestora${totalSalvos > 1 ? 's' : ''}</strong>` : ''}
+                            </div>
+                        </div>
+                        <div class="col-card-actions">
+                            <button class="btn-delete" onclick="event.stopPropagation();deleteCreator('${c.id}', '${escapeHtml(c.nome).replace(/'/g, "\\'")}')">Excluir</button>
+                        </div>
+                    </div>
                 </div>
-                ${(c.portfolio || c.melhor_conteudo) ? `
-                <div class="creator-card-links">
-                    ${c.portfolio ? `<a href="${safeUrl(c.portfolio)}" target="_blank" rel="noopener">Portfolio</a>` : ''}
-                    ${c.melhor_conteudo ? `<a href="${safeUrl(c.melhor_conteudo)}" target="_blank" rel="noopener">Melhor conteudo</a>` : ''}
-                </div>` : ''}
-                <div style="margin-top:12px;text-align:right"><button class="btn-delete" onclick="deleteCreator('${c.id}', '${escapeHtml(c.nome).replace(/'/g, "\\'")}')">Excluir</button></div>
             </div>`;
         }).join('');
     }
@@ -1766,8 +1755,7 @@
         /* Filtrar manualmente por campanha_interesse */
         const interessadas = allCreators.filter(c => c.campanha_interesse === 'espaco_laser');
         document.getElementById('resultsInfo').innerHTML = `Mostrando <strong>${interessadas.length}</strong> creators interessadas na campanha Espaço Laser`;
-        renderTable(interessadas);
-        renderCards(interessadas);
+        renderCreators(interessadas);
     });
 
     /* Copiar e-mails */
