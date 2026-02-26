@@ -792,11 +792,7 @@
         if (!confirm(`Tem certeza que deseja excluir "${nome}"?\n\nEssa ação não pode ser desfeita.`)) return;
 
         try {
-            /* Remove perfis salvos relacionados */
-            await sb.from('perfis_salvos').delete().eq('creator_id', id);
-
-            /* Remove o creator */
-            const { error } = await sb.from('creators').delete().eq('id', id);
+            const { error } = await sb.rpc('admin_delete_creator', { p_id: id });
             if (error) throw error;
 
             /* Atualiza a lista local */
