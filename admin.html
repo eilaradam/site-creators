@@ -442,6 +442,10 @@
                     <th>Experiencia</th>
                     <th>Links</th>
                     <th>Salvos</th>
+                    <th>UTM</th>
+                    <th>Código</th>
+                    <th>Indicada por</th>
+                    <th>Indicações</th>
                     <th>Cadastro</th>
                     <th>Ações</th>
                 </tr>
@@ -1146,18 +1150,36 @@
 
     async function loadCreators() {
         const tableBody = document.getElementById('tableBody');
-        tableBody.innerHTML = '<tr><td colspan="14" class="loading">Carregando creators...</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="18" class="loading">Carregando creators...</td></tr>';
 
         try {
             const { data, error } = await sb.from('creators').select('*').order('created_at', { ascending: false });
             if (error) throw error;
             allCreators = data || [];
+            buildIndicacoesMap();
             updateStats();
             populateEstadoFilter();
             applyFilters();
         } catch (err) {
-            tableBody.innerHTML = `<tr><td colspan="14" class="loading" style="color:var(--error)">Erro ao carregar: ${escapeHtml(err.message)}</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="18" class="loading" style="color:var(--error)">Erro ao carregar: ${escapeHtml(err.message)}</td></tr>`;
         }
+    }
+
+    let indicacoesMap = {}; // codigo_indicacao → quantidade de indicadas
+
+    function buildIndicacoesMap() {
+        indicacoesMap = {};
+        allCreators.forEach(c => {
+            if (c.indicada_por) {
+                indicacoesMap[c.indicada_por] = (indicacoesMap[c.indicada_por] || 0) + 1;
+            }
+        });
+    }
+
+    function getIndicadoraNome(codigoIndicacao) {
+        if (!codigoIndicacao) return null;
+        const indicadora = allCreators.find(c => c.codigo_indicacao === codigoIndicacao);
+        return indicadora ? indicadora.nome : codigoIndicacao;
     }
 
     function updateStats() {
@@ -1296,7 +1318,7 @@
     function renderTable(creators) {
         const tbody = document.getElementById('tableBody');
         if (creators.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="14" class="empty-state"><p>Nenhum creator encontrado.</p></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="18" class="empty-state"><p>Nenhum creator encontrado.</p></td></tr>';
             return;
         }
         tbody.innerHTML = creators.map(c => {
@@ -1319,6 +1341,10 @@
                     ${c.melhor_conteudo ? `<a href="${safeUrl(c.melhor_conteudo)}" target="_blank" rel="noopener">Conteudo</a>` : ''}
                 </td>
                 <td style="white-space:nowrap;text-align:center"><span class="salvos-count">${totalSalvos > 0 ? `Salvo por ${totalSalvos} gestora${totalSalvos > 1 ? 's' : ''}` : '-'}</span></td>
+                <td style="white-space:nowrap;font-size:12px;color:var(--text-muted)">${escapeHtml(c.utm_origem) || '-'}</td>
+                <td style="white-space:nowrap;font-size:12px;font-family:monospace">${escapeHtml(c.codigo_indicacao) || '-'}</td>
+                <td style="white-space:nowrap;font-size:12px">${c.indicada_por ? escapeHtml(getIndicadoraNome(c.indicada_por)) : '-'}</td>
+                <td style="white-space:nowrap;font-size:12px;text-align:center">${indicacoesMap[c.codigo_indicacao] ? `<strong style="color:var(--accent)">${indicacoesMap[c.codigo_indicacao]}</strong>` : '0'}</td>
                 <td style="white-space:nowrap;font-size:13px;color:var(--text-muted)">${formatDate(c.created_at)}</td>
                 <td style="white-space:nowrap"><button class="btn-delete" onclick="deleteCreator('${c.id}', '${escapeHtml(c.nome).replace(/'/g, "\\'")}')">Excluir</button></td>
             </tr>`;
@@ -1349,6 +1375,10 @@
                     ${c.sobre ? `<span>Sobre: ${escapeHtml(c.sobre)}</span>` : ''}
                     <span>Experiência: ${formatExpBadge(c.experiencia)}</span>
                     <span>Cadastro: ${formatDate(c.created_at)}</span>
+                    <span>UTM: ${escapeHtml(c.utm_origem) || '-'}</span>
+                    <span>Código: <strong style="font-family:monospace">${escapeHtml(c.codigo_indicacao) || '-'}</strong></span>
+                    ${c.indicada_por ? `<span>Indicada por: <strong>${escapeHtml(getIndicadoraNome(c.indicada_por))}</strong></span>` : ''}
+                    ${indicacoesMap[c.codigo_indicacao] ? `<span>Indicações feitas: <strong style="color:var(--accent)">${indicacoesMap[c.codigo_indicacao]}</strong></span>` : ''}
                 </div>
                 ${(c.portfolio || c.melhor_conteudo) ? `
                 <div class="creator-card-links">
@@ -1486,6 +1516,8 @@
                         ${c.sobre ? `<div class="saved-card-detail"><span class="saved-card-detail-label">Sobre</span> <span style="color:var(--text-soft)">${escapeHtml(c.sobre)}</span></div>` : ''}
                     </div>
                     ${totalSalvos > 0 ? `<div class="salvos-count" style="margin-top:8px">Salvo por ${totalSalvos} gestora${totalSalvos > 1 ? 's' : ''}</div>` : ''}
+                    ${c.utm_origem ? `<div style="font-size:11px;color:var(--text-muted);margin-top:4px">UTM: ${escapeHtml(c.utm_origem)} ${c.codigo_indicacao ? `· Código: <strong style="font-family:monospace">${escapeHtml(c.codigo_indicacao)}</strong>` : ''} ${indicacoesMap[c.codigo_indicacao] ? `· <strong style="color:var(--accent)">${indicacoesMap[c.codigo_indicacao]} indicação(ões)</strong>` : ''}</div>` : ''}
+                    ${c.indicada_por ? `<div style="font-size:11px;color:var(--text-muted)">Indicada por: <strong>${escapeHtml(getIndicadoraNome(c.indicada_por))}</strong></div>` : ''}
                     ${(c.instagram || c.tiktok || c.portfolio || c.whatsapp) ? `
                     <div class="saved-card-social">
                         ${c.instagram ? `<a href="https://instagram.com/${safeHandle(c.instagram)}" target="_blank" rel="noopener">Instagram</a>` : ''}
