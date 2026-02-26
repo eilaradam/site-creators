@@ -44,15 +44,18 @@
         .sidebar-nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 14px; font-weight: 500; color: var(--text-soft); cursor: pointer; transition: background 0.15s ease, color 0.15s ease; border: none; background: none; width: 100%; text-align: left; font-family: 'Outfit', sans-serif; border-left: 3px solid transparent; margin-bottom: 2px; white-space: nowrap; }
         .sidebar-nav-item:hover { background: rgba(0,0,0,0.04); color: var(--text); }
         .sidebar-nav-item.active { background: var(--accent-glow); color: var(--accent); font-weight: 600; border-left-color: var(--accent); }
-        .sidebar-nav-icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }
+        .sidebar-nav-icon { width: 24px; height: 22px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .sidebar-nav-icon svg { width: 20px; height: 20px; stroke: var(--text-muted); stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.2s ease; }
+        .sidebar-nav-item.active .sidebar-nav-icon svg { stroke: var(--accent); }
+        .sidebar-nav-item:hover .sidebar-nav-icon svg { stroke: var(--accent); }
         .sidebar-nav-text { opacity: 0; transition: opacity 0.2s ease; }
         .sidebar:hover .sidebar-nav-text { opacity: 1; }
         .sidebar-footer { padding: 12px 8px; border-top: 1px solid var(--border); }
-        .sidebar-user { font-size: 12px; font-weight: 500; color: var(--text-soft); margin-bottom: 8px; padding: 0 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0; transition: opacity 0.2s ease; height: 0; }
-        .sidebar:hover .sidebar-user { opacity: 1; height: auto; margin-bottom: 8px; }
         .sidebar-logout { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s; border: none; background: none; width: 100%; text-align: left; font-family: 'Outfit', sans-serif; border-left: 3px solid transparent; white-space: nowrap; }
         .sidebar-logout:hover { background: rgba(196,69,60,0.06); color: var(--error); }
-        .sidebar-logout-icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }
+        .sidebar-logout-icon { width: 24px; height: 22px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .sidebar-logout-icon svg { width: 20px; height: 20px; stroke: var(--text-muted); stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.2s ease; }
+        .sidebar-logout:hover .sidebar-logout-icon svg { stroke: var(--error); }
         .sidebar-logout-text { opacity: 0; transition: opacity 0.2s ease; }
         .sidebar:hover .sidebar-logout-text { opacity: 1; }
 
@@ -323,6 +326,37 @@
         .calc-faq-item.open .calc-faq-q .calc-faq-arrow { transform: rotate(180deg); }
         .calc-footer { text-align: center; padding: 12px 0; font-size: 12px; color: var(--text-muted); }
 
+        /* Profile tab */
+        .profile-card { max-width: 500px; margin: 0 auto; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; }
+        .profile-title { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; margin-bottom: 24px; }
+        .profile-avatar-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 24px; }
+        .profile-avatar { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--border); cursor: pointer; transition: opacity 0.2s; }
+        .profile-avatar:hover { opacity: 0.8; }
+        .profile-avatar-ph { width: 100px; height: 100px; border-radius: 50%; background: var(--warm); display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 700; color: var(--text-muted); cursor: pointer; transition: opacity 0.2s; border: 3px solid var(--border); }
+        .profile-avatar-ph:hover { opacity: 0.8; }
+        .profile-avatar-label { font-size: 12px; color: var(--accent); font-weight: 600; margin-top: 8px; cursor: pointer; }
+        .profile-avatar-label:hover { text-decoration: underline; }
+        .profile-field { margin-bottom: 18px; }
+        .profile-field label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 6px; }
+        .profile-field input { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; }
+        .profile-field input:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
+        .profile-field input[readonly] { background: var(--warm); color: var(--text-soft); cursor: not-allowed; }
+        .profile-field .field-hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+        .profile-field .input-wrap { position: relative; }
+        .profile-field .input-wrap .lock-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        .profile-field .input-wrap .lock-icon svg { width: 16px; height: 16px; stroke: var(--text-muted); stroke-width: 1.8; fill: none; }
+        .profile-field .input-wrap .toggle-pw { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 4px; color: var(--text-muted); }
+        .profile-field .input-wrap .toggle-pw svg { width: 18px; height: 18px; stroke: var(--text-muted); stroke-width: 1.8; fill: none; }
+        .profile-separator { height: 1px; background: var(--border); margin: 24px 0; }
+        .profile-section-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 14px; }
+        .profile-save { width: 100%; padding: 14px; background: var(--accent); color: white; border: none; border-radius: 12px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.3s; margin-top: 8px; }
+        .profile-save:hover { background: var(--accent-dark); }
+        .profile-save:disabled { opacity: 0.6; cursor: not-allowed; }
+        .profile-msg { padding: 10px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 16px; display: none; }
+        .profile-msg.show { display: block; }
+        .profile-msg.success { background: rgba(45,122,79,0.08); border: 1px solid rgba(45,122,79,0.2); color: var(--success); }
+        .profile-msg.error { background: rgba(196,69,60,0.08); border: 1px solid rgba(196,69,60,0.2); color: var(--error); }
+
         /* ══ MOBILE ══ */
         @media (max-width: 768px) {
             /* Sidebar: hidden */
@@ -428,6 +462,10 @@
             .btn-copiar { padding: 14px; font-size: 14px; min-height: 44px; }
             .calc-quick-btns { flex-wrap: wrap; }
             .calc-quick-btn { padding: 8px 14px; font-size: 13px; min-height: 44px; }
+
+            /* Profile */
+            .profile-card { padding: 20px; border-radius: 14px; }
+            .profile-avatar, .profile-avatar-ph { width: 80px; height: 80px; font-size: 28px; }
         }
 
         /* Hide mobile toggle on desktop */
@@ -447,22 +485,25 @@
     </div>
     <nav class="sidebar-nav">
         <button class="sidebar-nav-item active" data-tab="pesquisar">
-            <span class="sidebar-nav-icon">🔍</span>
-            <span class="sidebar-nav-text">Pesquisar Creators</span>
+            <span class="sidebar-nav-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg></span>
+            <span class="sidebar-nav-text">Pesquisar</span>
         </button>
         <button class="sidebar-nav-item" data-tab="salvos">
-            <span class="sidebar-nav-icon">📁</span>
+            <span class="sidebar-nav-icon"><svg viewBox="0 0 24 24"><path d="M3 7V17C3 18.1 3.9 19 5 19H19C20.1 19 21 18.1 21 17V9C21 7.9 20.1 7 19 7H13L11 5H5C3.9 5 3 5.9 3 7Z"/></svg></span>
             <span class="sidebar-nav-text">Minhas Listas</span>
         </button>
         <button class="sidebar-nav-item" data-tab="calculadora">
-            <span class="sidebar-nav-icon">🧮</span>
+            <span class="sidebar-nav-icon"><svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="12" x2="8" y2="12.01"/><line x1="12" y1="12" x2="12" y2="12.01"/><line x1="16" y1="12" x2="16" y2="12.01"/><line x1="8" y1="16" x2="8" y2="16.01"/><line x1="12" y1="16" x2="12" y2="16.01"/><line x1="16" y1="16" x2="16" y2="16.01"/></svg></span>
             <span class="sidebar-nav-text">Calculadora</span>
         </button>
     </nav>
     <div class="sidebar-footer">
-        <div class="sidebar-user" id="sidebarUserName"></div>
+        <button class="sidebar-nav-item" data-tab="perfil">
+            <span class="sidebar-nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21C4 17 7.6 14 12 14C16.4 14 20 17 20 21"/></svg></span>
+            <span class="sidebar-nav-text">Perfil</span>
+        </button>
         <button class="sidebar-logout" id="sidebarLogoutBtn">
-            <span class="sidebar-logout-icon">🚪</span>
+            <span class="sidebar-logout-icon"><svg viewBox="0 0 24 24"><path d="M9 21H5C3.9 21 3 20.1 3 19V5C3 3.9 3.9 3 5 3H9"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
             <span class="sidebar-logout-text">Sair</span>
         </button>
     </div>
@@ -484,6 +525,7 @@
     <button class="panel-tab active" data-tab="pesquisar">Pesquisar Creators</button>
     <button class="panel-tab" data-tab="salvos">Minhas Listas</button>
     <button class="panel-tab" data-tab="calculadora">Calculadora</button>
+    <button class="panel-tab" data-tab="perfil">Perfil</button>
 </div>
 
 <div class="main">
@@ -780,6 +822,55 @@
             <div class="calc-footer">Calculadora por Lara Dam · Valores sao referencias de mercado</div>
         </div>
     </div>
+
+    <!-- ── TAB: PERFIL ── -->
+    <div class="tab-content" id="tabPerfil">
+        <div class="profile-card">
+            <div class="profile-title">Meu Perfil</div>
+            <div class="profile-msg" id="profileMsg"></div>
+            <div class="profile-avatar-wrap">
+                <div id="profileAvatarContainer"></div>
+                <label class="profile-avatar-label" for="profilePhotoInput">Alterar foto</label>
+                <input type="file" id="profilePhotoInput" accept="image/jpeg,image/png,image/webp" style="display:none">
+            </div>
+            <div class="profile-field">
+                <label>Nome</label>
+                <input type="text" id="profileNome" placeholder="Seu nome">
+            </div>
+            <div class="profile-field">
+                <label>E-mail</label>
+                <div class="input-wrap">
+                    <input type="email" id="profileEmail" readonly>
+                    <span class="lock-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+                </div>
+                <div class="field-hint">O e-mail e usado como login e nao pode ser alterado</div>
+            </div>
+            <div class="profile-separator"></div>
+            <div class="profile-section-title">Alterar senha</div>
+            <div class="profile-field">
+                <label>Senha atual</label>
+                <div class="input-wrap">
+                    <input type="password" id="profileSenhaAtual" placeholder="Sua senha atual" autocomplete="current-password">
+                    <button type="button" class="toggle-pw" onclick="togglePwVisibility(this)"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                </div>
+            </div>
+            <div class="profile-field">
+                <label>Nova senha</label>
+                <div class="input-wrap">
+                    <input type="password" id="profileSenhaNova" placeholder="Minimo 6 caracteres" autocomplete="new-password">
+                    <button type="button" class="toggle-pw" onclick="togglePwVisibility(this)"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                </div>
+            </div>
+            <div class="profile-field">
+                <label>Confirmar nova senha</label>
+                <div class="input-wrap">
+                    <input type="password" id="profileSenhaConfirm" placeholder="Repita a nova senha" autocomplete="new-password">
+                    <button type="button" class="toggle-pw" onclick="togglePwVisibility(this)"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                </div>
+            </div>
+            <button class="profile-save" id="profileSaveBtn">Salvar</button>
+        </div>
+    </div>
 </div>
 
 <!-- Modal Nova Lista -->
@@ -860,7 +951,6 @@
         const userInfo = await Auth.getUserInfo();
         const uname = userInfo ? userInfo.nome : '';
         document.getElementById('userName').textContent = uname;
-        document.getElementById('sidebarUserName').textContent = uname;
 
         await Promise.all([loadEstados(), loadSavedIds(), loadPopularity(), loadListas()]);
         await loadCreators();
@@ -880,11 +970,13 @@
         document.getElementById('tabPesquisar').classList.toggle('show', target === 'pesquisar');
         document.getElementById('tabSalvos').classList.toggle('show', target === 'salvos');
         document.getElementById('tabCalculadora').classList.toggle('show', target === 'calculadora');
+        document.getElementById('tabPerfil').classList.toggle('show', target === 'perfil');
         if (target === 'salvos') {
             populateSavedEstados();
             loadSavedCreators();
             renderListas();
         }
+        if (target === 'perfil') loadProfile();
     }
 
     document.querySelectorAll('.panel-tab').forEach(tab => {
@@ -1818,6 +1910,132 @@
         calcBudget();
         calcVideos();
     }
+
+    /* ══════════════════════════════════════
+       PERFIL
+       ══════════════════════════════════════ */
+    let profileLoaded = false;
+    let pendingPhotoFile = null;
+
+    function togglePwVisibility(btn) {
+        const input = btn.parentElement.querySelector('input');
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+        btn.querySelector('svg').style.stroke = isPassword ? 'var(--accent)' : 'var(--text-muted)';
+    }
+
+    function showProfileMsg(text, type) {
+        const el = document.getElementById('profileMsg');
+        el.textContent = text;
+        el.className = 'profile-msg show ' + type;
+        setTimeout(() => el.classList.remove('show'), 5000);
+    }
+
+    async function loadProfile() {
+        if (profileLoaded) return;
+        const info = await Auth.getUserInfo();
+        if (!info) return;
+        document.getElementById('profileNome').value = info.nome || '';
+        /* Email from auth session (always available) */
+        const { data: { session } } = await sb.auth.getSession();
+        document.getElementById('profileEmail').value = (session && session.user) ? session.user.email : (info.email || '');
+        renderProfileAvatar(info.foto_url || null, info.nome);
+        profileLoaded = true;
+    }
+
+    function profileInitials(nome) {
+        return (nome || '?').split(' ').map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
+    }
+
+    function renderProfileAvatar(url, nome) {
+        const container = document.getElementById('profileAvatarContainer');
+        if (url) {
+            container.innerHTML = `<img src="${escapeHtml(url)}" alt="" class="profile-avatar" onclick="document.getElementById('profilePhotoInput').click()" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="profile-avatar-ph" style="display:none" onclick="document.getElementById('profilePhotoInput').click()">${profileInitials(nome)}</div>`;
+        } else {
+            container.innerHTML = `<div class="profile-avatar-ph" onclick="document.getElementById('profilePhotoInput').click()">${profileInitials(nome)}</div>`;
+        }
+    }
+
+    document.getElementById('profilePhotoInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 2 * 1024 * 1024) {
+            showProfileMsg('A foto deve ter no maximo 2MB.', 'error');
+            return;
+        }
+        pendingPhotoFile = file;
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            const container = document.getElementById('profileAvatarContainer');
+            container.innerHTML = `<img src="${ev.target.result}" alt="" class="profile-avatar" onclick="document.getElementById('profilePhotoInput').click()">`;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    document.getElementById('profileSaveBtn').addEventListener('click', async function() {
+        const btn = this;
+        btn.textContent = 'Salvando...';
+        btn.disabled = true;
+        const msgEl = document.getElementById('profileMsg');
+        msgEl.classList.remove('show');
+
+        try {
+            const nome = document.getElementById('profileNome').value.trim();
+            if (!nome) throw new Error('O nome nao pode ficar vazio.');
+
+            /* Upload foto se alterada */
+            let fotoUrl = null;
+            if (pendingPhotoFile) {
+                const ext = pendingPhotoFile.name.split('.').pop().toLowerCase();
+                const path = `${currentUserId}/avatar.${ext}`;
+                const { error: upErr } = await sb.storage.from('avatars').upload(path, pendingPhotoFile, { upsert: true, contentType: pendingPhotoFile.type });
+                if (upErr) throw new Error('Erro ao enviar foto: ' + upErr.message);
+                const { data: urlData } = sb.storage.from('avatars').getPublicUrl(path);
+                fotoUrl = urlData.publicUrl + '?t=' + Date.now();
+            }
+
+            /* Atualizar nome (e foto se houver) na tabela usuarios */
+            const updateData = { nome };
+            if (fotoUrl) updateData.foto_url = fotoUrl;
+            const { error: updErr } = await sb.from('usuarios').update(updateData).eq('id', currentUserId);
+            if (updErr) throw new Error('Erro ao salvar perfil: ' + updErr.message);
+
+            /* Alterar senha se preenchida */
+            const senhaAtual = document.getElementById('profileSenhaAtual').value;
+            const senhaNova = document.getElementById('profileSenhaNova').value;
+            const senhaConfirm = document.getElementById('profileSenhaConfirm').value;
+            if (senhaNova || senhaConfirm || senhaAtual) {
+                if (!senhaAtual) throw new Error('Informe a senha atual.');
+                if (senhaNova.length < 6) throw new Error('A nova senha deve ter no minimo 6 caracteres.');
+                if (senhaNova !== senhaConfirm) throw new Error('A confirmacao nao confere com a nova senha.');
+
+                /* Verificar senha atual fazendo login novamente */
+                const email = document.getElementById('profileEmail').value;
+                const { error: loginErr } = await sb.auth.signInWithPassword({ email, password: senhaAtual });
+                if (loginErr) throw new Error('Senha atual incorreta.');
+
+                const { error: pwErr } = await sb.auth.updateUser({ password: senhaNova });
+                if (pwErr) throw new Error('Erro ao alterar senha: ' + pwErr.message);
+
+                document.getElementById('profileSenhaAtual').value = '';
+                document.getElementById('profileSenhaNova').value = '';
+                document.getElementById('profileSenhaConfirm').value = '';
+            }
+
+            /* Atualizar nome no header */
+            document.getElementById('userName').textContent = nome;
+
+            pendingPhotoFile = null;
+            profileLoaded = false;
+            loadProfile();
+            showProfileMsg('Perfil atualizado com sucesso!', 'success');
+        } catch (err) {
+            showProfileMsg(err.message, 'error');
+        } finally {
+            btn.textContent = 'Salvar';
+            btn.disabled = false;
+        }
+    });
 </script>
 </body>
 </html>
