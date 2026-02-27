@@ -468,7 +468,18 @@
 
         document.getElementById('formTitleEl').textContent = 'Editar cadastro';
         document.getElementById('formTitleEl').style.display = '';
-        const refCode = dados.codigo_indicacao || '';
+        /* Link de indicacao */
+        let refCode = dados.codigo_indicacao || '';
+        if (!refCode) {
+            refCode = gerarCodigoIndicacao();
+            try {
+                await sb.rpc('creator_update_self', {
+                    p_email: email,
+                    p_whatsapp: whatsapp,
+                    p_data: { codigo_indicacao: refCode }
+                });
+            } catch (e) { refCode = ''; }
+        }
         const refUrl = refCode ? 'https://creators.laradam.com/cadastro?ref=' + refCode : '';
         const refHtml = refUrl
             ? '<div class="ref-link-box"><div class="ref-label">Seu link de indicacao</div><div class="ref-url"><input type="text" value="' + refUrl + '" readonly id="refLinkInput"><button onclick="copyRefLink()">Copiar</button></div></div>'

@@ -80,7 +80,7 @@ DECLARE
         'data_nascimento', 'genero', 'seguidores',
         'estado', 'cidade', 'nicho', 'tipo_creator',
         'sobre', 'experiencia', 'portfolio',
-        'melhor_conteudo', 'foto_perfil'
+        'melhor_conteudo', 'foto_perfil', 'codigo_indicacao'
     ];
     v_key TEXT;
     v_set_parts TEXT[] := '{}';
