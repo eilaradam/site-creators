@@ -711,6 +711,28 @@
             </div>
         </div>
     </div>
+
+    <!-- Reenviar e-mail de boas-vindas -->
+    <div class="camp-section">
+        <div class="camp-section-title">E-mail de Boas-Vindas</div>
+        <div class="email-card">
+            <p style="font-size:13px;color:var(--text-soft);margin-bottom:16px;">Creators que nao receberam o e-mail de boas-vindas no cadastro. Voce pode reenviar individualmente ou para todas de uma vez.</p>
+            <div id="welcomeEmailStatus" style="margin-bottom:16px;">
+                <span style="font-size:13px;color:var(--text-muted);">Carregando...</span>
+            </div>
+            <div id="welcomeEmailList" style="max-height:300px;overflow-y:auto;margin-bottom:16px;"></div>
+            <div class="email-actions">
+                <button class="btn-camp" id="btnCheckWelcome" onclick="checkWelcomeEmails()">Verificar pendentes</button>
+                <button class="btn-send" id="btnResendAll" onclick="resendAllWelcome()" style="opacity:0.5;pointer-events:none;">Reenviar para todas as pendentes</button>
+            </div>
+            <div id="welcomeProgress" style="display:none;margin-top:12px;">
+                <div style="background:var(--warm);border-radius:8px;height:8px;overflow:hidden;">
+                    <div id="welcomeProgressBar" style="background:var(--accent);height:100%;width:0%;transition:width 0.3s;border-radius:8px;"></div>
+                </div>
+                <div id="welcomeProgressText" style="font-size:12px;color:var(--text-muted);margin-top:6px;"></div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- ── TAB: TERMOS ── -->
@@ -1943,6 +1965,121 @@
             btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copiado!`;
             setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 2000);
         } catch (e) { alert('Erro ao copiar. Tente novamente.'); }
+    }
+
+    /* ══════════════════════════════════════
+       E-MAIL DE BOAS-VINDAS (reenvio)
+       ══════════════════════════════════════ */
+
+    let pendingWelcome = [];
+
+    async function checkWelcomeEmails() {
+        const statusEl = document.getElementById('welcomeEmailStatus');
+        const listEl = document.getElementById('welcomeEmailList');
+        const btnResend = document.getElementById('btnResendAll');
+        statusEl.innerHTML = '<span style="font-size:13px;color:var(--text-muted);">Buscando...</span>';
+        listEl.innerHTML = '';
+
+        try {
+            const { data, error } = await sb.from('creators')
+                .select('id, nome, email, created_at, email_boas_vindas_enviado')
+                .or('email_boas_vindas_enviado.is.null,email_boas_vindas_enviado.eq.false')
+                .order('created_at', { ascending: false });
+            if (error) throw error;
+
+            pendingWelcome = data || [];
+            const total = allCreators.length;
+            const enviados = total - pendingWelcome.length;
+
+            statusEl.innerHTML = `<span style="font-size:14px;"><strong>${pendingWelcome.length}</strong> creators pendentes de <strong>${total}</strong> no total (${enviados} ja receberam)</span>`;
+
+            if (pendingWelcome.length === 0) {
+                listEl.innerHTML = '<div style="padding:16px;text-align:center;color:var(--success);font-size:13px;font-weight:600;">Todas as creators ja receberam o e-mail!</div>';
+                btnResend.style.opacity = '0.5';
+                btnResend.style.pointerEvents = 'none';
+                return;
+            }
+
+            btnResend.style.opacity = '1';
+            btnResend.style.pointerEvents = 'auto';
+
+            listEl.innerHTML = '<table style="width:100%;font-size:13px;border-collapse:collapse;">' +
+                '<tr style="text-align:left;color:var(--text-muted);font-size:11px;text-transform:uppercase;letter-spacing:1px;">' +
+                '<th style="padding:8px 12px;">Nome</th><th style="padding:8px 12px;">E-mail</th><th style="padding:8px 12px;">Cadastro</th><th style="padding:8px 12px;"></th></tr>' +
+                pendingWelcome.map(c => `<tr style="border-top:1px solid var(--border);">
+                    <td style="padding:8px 12px;font-weight:500;">${escapeHtml(c.nome)}</td>
+                    <td style="padding:8px 12px;color:var(--text-soft);">${escapeHtml(c.email)}</td>
+                    <td style="padding:8px 12px;color:var(--text-muted);">${new Date(c.created_at).toLocaleDateString('pt-BR')}</td>
+                    <td style="padding:8px 12px;"><button class="btn-camp" style="padding:6px 14px;font-size:12px;" onclick="resendSingleWelcome('${c.id}','${escapeHtml(c.nome)}','${escapeHtml(c.email)}',this)">Reenviar</button></td>
+                </tr>`).join('') + '</table>';
+        } catch (err) {
+            statusEl.innerHTML = `<span style="color:var(--error);font-size:13px;">Erro: ${escapeHtml(err.message)}</span>`;
+        }
+    }
+
+    async function resendSingleWelcome(id, nome, email, btn) {
+        btn.textContent = 'Enviando...';
+        btn.disabled = true;
+        try {
+            const { error: fnErr } = await sb.functions.invoke('send-welcome-email', {
+                body: { nome, email }
+            });
+            if (fnErr) throw fnErr;
+            await sb.from('creators').update({
+                email_boas_vindas_enviado: true,
+                email_boas_vindas_data: new Date().toISOString()
+            }).eq('id', id);
+            btn.textContent = 'Enviado!';
+            btn.style.background = 'var(--success)';
+            btn.style.color = 'white';
+        } catch (e) {
+            btn.textContent = 'Erro';
+            btn.style.color = 'var(--error)';
+            btn.disabled = false;
+        }
+    }
+
+    async function resendAllWelcome() {
+        if (pendingWelcome.length === 0) return;
+        if (!confirm(`Reenviar e-mail de boas-vindas para ${pendingWelcome.length} creators?`)) return;
+
+        const progressEl = document.getElementById('welcomeProgress');
+        const barEl = document.getElementById('welcomeProgressBar');
+        const textEl = document.getElementById('welcomeProgressText');
+        const btnResend = document.getElementById('btnResendAll');
+        btnResend.disabled = true;
+        btnResend.textContent = 'Enviando...';
+        progressEl.style.display = 'block';
+
+        let enviados = 0;
+        let erros = 0;
+
+        for (const c of pendingWelcome) {
+            try {
+                const { error: fnErr } = await sb.functions.invoke('send-welcome-email', {
+                    body: { nome: c.nome, email: c.email }
+                });
+                if (fnErr) throw fnErr;
+                await sb.from('creators').update({
+                    email_boas_vindas_enviado: true,
+                    email_boas_vindas_data: new Date().toISOString()
+                }).eq('id', c.id);
+                enviados++;
+            } catch (e) {
+                erros++;
+            }
+            const progress = ((enviados + erros) / pendingWelcome.length) * 100;
+            barEl.style.width = progress + '%';
+            textEl.textContent = `${enviados + erros} de ${pendingWelcome.length} processados (${enviados} enviados, ${erros} erros)`;
+        }
+
+        btnResend.textContent = 'Concluido!';
+        btnResend.style.opacity = '0.5';
+        btnResend.style.pointerEvents = 'none';
+        textEl.textContent = `Finalizado: ${enviados} enviados com sucesso, ${erros} erros.`;
+
+        /* Recarregar lista */
+        setTimeout(() => checkWelcomeEmails(), 2000);
     }
 
     /* ══════════════════════════════════════
