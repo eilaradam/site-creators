@@ -399,6 +399,27 @@
         .metric-card.clickable:hover { border-color: var(--accent); box-shadow: 0 2px 8px var(--accent-glow); }
         .metric-card.clickable .metric-card-title::after { content: ' \\2197'; font-size: 10px; }
 
+        /* Atividade Alunas */
+        .btn-atividade { padding: 10px 24px; background: none; border: 1.5px solid var(--accent); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; color: var(--accent); cursor: pointer; transition: all 0.3s; }
+        .btn-atividade:hover { background: var(--accent); color: white; }
+        .atividade-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: none; align-items: flex-start; justify-content: center; padding: 40px 24px; overflow-y: auto; }
+        .atividade-overlay.show { display: flex; }
+        .atividade-modal { background: var(--card); border-radius: 16px; padding: 28px; width: 100%; max-width: 960px; position: relative; }
+        .atividade-modal::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent), #E8784A, var(--accent)); border-radius: 16px 16px 0 0; }
+        .atividade-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .atividade-header h3 { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; }
+        .atividade-close { background: none; border: none; font-size: 22px; color: var(--text-muted); cursor: pointer; padding: 0 4px; line-height: 1; }
+        .atividade-close:hover { color: var(--text); }
+        .atividade-filters { display: flex; gap: 12px; margin-bottom: 16px; }
+        .atividade-filters select { padding: 8px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; color: var(--text); background: var(--cream); outline: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239C958C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; cursor: pointer; }
+        .atividade-table { width: 100%; border-collapse: collapse; }
+        .atividade-table th { background: var(--cream); padding: 10px 14px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+        .atividade-table td { padding: 10px 14px; font-size: 13px; border-bottom: 1px solid var(--border); }
+        .atividade-table tr:last-child td { border-bottom: none; }
+        .atividade-table td.num { text-align: center; font-family: 'Fraunces', serif; font-weight: 700; font-size: 13px; }
+        .atividade-table td.accent { color: var(--accent); }
+        .atividade-zero { color: var(--text-muted); }
+
         /* Empty & loading */
         .empty-state { text-align: center; padding: 60px 24px; color: var(--text-muted); }
         .empty-state p { font-size: 13px; line-height: 1.6; }
@@ -652,7 +673,10 @@
 <div class="dashboard" id="tabAlunas">
     <div class="alunas-header">
         <h2>Alunas do Manager Club</h2>
-        <button class="btn-add" id="btnAddAluna">+ Adicionar Aluna</button>
+        <div style="display:flex;gap:10px;align-items:center;">
+            <button class="btn-atividade" id="btnAtividade">Atividade Alunas</button>
+            <button class="btn-add" id="btnAddAluna">+ Adicionar Aluna</button>
+        </div>
     </div>
 
     <div class="table-container">
@@ -894,6 +918,42 @@
             </div>
         </div>
         <div id="modalSuccessContent" style="display:none;"></div>
+    </div>
+</div>
+
+<!-- Modal: Atividade Alunas -->
+<div class="atividade-overlay" id="atividadeOverlay" onclick="if(event.target===this)document.getElementById('atividadeOverlay').classList.remove('show')">
+    <div class="atividade-modal">
+        <div class="atividade-header">
+            <h3>Atividade das Alunas</h3>
+            <button class="atividade-close" onclick="document.getElementById('atividadeOverlay').classList.remove('show')">&times;</button>
+        </div>
+        <div class="atividade-filters">
+            <select id="atividadePeriodo" onchange="loadAtividade()">
+                <option value="7">Ultimos 7 dias</option>
+                <option value="30" selected>Ultimos 30 dias</option>
+                <option value="90">Ultimos 90 dias</option>
+            </select>
+        </div>
+        <div class="table-container">
+            <table class="atividade-table">
+                <thead>
+                    <tr>
+                        <th>Aluna</th>
+                        <th>Tempo Ativa</th>
+                        <th>Acoes</th>
+                        <th>Pesquisas</th>
+                        <th>Perfis Vistos</th>
+                        <th>Salvos</th>
+                        <th>Calculadora</th>
+                        <th>Ultima Atividade</th>
+                    </tr>
+                </thead>
+                <tbody id="atividadeBody">
+                    <tr><td colspan="8" class="loading">Clique em "Atividade Alunas" para carregar</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -2047,6 +2107,51 @@
             btn.disabled = false;
         }
     });
+
+    /* ══════════════════════════════════════
+       ATIVIDADE ALUNAS
+       ══════════════════════════════════════ */
+
+    document.getElementById('btnAtividade').addEventListener('click', () => {
+        document.getElementById('atividadeOverlay').classList.add('show');
+        loadAtividade();
+    });
+
+    async function loadAtividade() {
+        const tbody = document.getElementById('atividadeBody');
+        tbody.innerHTML = '<tr><td colspan="8" class="loading">Carregando atividade...</td></tr>';
+        const dias = parseInt(document.getElementById('atividadePeriodo').value);
+
+        try {
+            const { data, error } = await sb.rpc('admin_get_atividade', { p_dias: dias });
+            if (error) throw error;
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhuma atividade registrada.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(a => {
+                const mins = a.minutos_ativo || 0;
+                const minsDisplay = mins >= 60
+                    ? Math.floor(mins / 60) + 'h ' + (mins % 60) + 'min'
+                    : mins + ' min';
+                const isZero = mins === 0 && (a.total_acoes || 0) === 0;
+                return `<tr${isZero ? ' class="atividade-zero"' : ''}>
+                    <td><strong>${escapeHtml(a.nome || '')}</strong><div style="font-size:11px;color:var(--text-muted)">${escapeHtml(a.email || '')}</div></td>
+                    <td class="num${mins > 0 ? ' accent' : ''}">${minsDisplay}</td>
+                    <td class="num">${a.total_acoes || 0}</td>
+                    <td class="num">${a.pesquisas || 0}</td>
+                    <td class="num">${a.perfis_vistos || 0}</td>
+                    <td class="num">${a.salvos || 0}</td>
+                    <td class="num">${a.calculadora || 0}</td>
+                    <td style="font-size:12px;color:var(--text-muted)">${a.ultima_atividade ? formatLoginDate(a.ultima_atividade) : 'Sem atividade'}</td>
+                </tr>`;
+            }).join('');
+        } catch (err) {
+            tbody.innerHTML = '<tr><td colspan="8" class="loading" style="color:var(--error)">Erro: ' + escapeHtml(err.message) + '</td></tr>';
+        }
+    }
 
     /* ══════════════════════════════════════
        CAMPANHAS & E-MAILS

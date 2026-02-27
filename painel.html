@@ -1046,6 +1046,47 @@
         loadBanners();
     })();
 
+    /* ══════════════════════════════════════
+       ACTIVITY TRACKING (heartbeat + acoes)
+       ══════════════════════════════════════ */
+    (function initActivityTracking() {
+        let heartbeatTimer = null;
+        const HEARTBEAT_INTERVAL = 120000; // 2 minutos
+
+        function sendHeartbeat() {
+            if (!currentUserId) return;
+            sb.rpc('track_atividade', { p_tipo: 'heartbeat' }).catch(() => {});
+        }
+
+        function startHeartbeat() {
+            if (heartbeatTimer) return;
+            sendHeartbeat();
+            heartbeatTimer = setInterval(sendHeartbeat, HEARTBEAT_INTERVAL);
+        }
+
+        function stopHeartbeat() {
+            if (heartbeatTimer) {
+                clearInterval(heartbeatTimer);
+                heartbeatTimer = null;
+            }
+        }
+
+        startHeartbeat();
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) stopHeartbeat();
+            else startHeartbeat();
+        });
+
+        let lastSearchTrack = 0;
+        window.trackAction = function(tipo) {
+            if (!currentUserId) return;
+            if (tipo === 'pesquisa' && Date.now() - lastSearchTrack < 5000) return;
+            if (tipo === 'pesquisa') lastSearchTrack = Date.now();
+            sb.rpc('track_atividade', { p_tipo: tipo }).catch(() => {});
+        };
+    })();
+
     /* ── Logout (header + sidebar) ── */
     document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
     document.getElementById('sidebarLogoutBtn').addEventListener('click', () => Auth.logout());
@@ -1059,6 +1100,7 @@
         document.getElementById('tabCalculadora').classList.toggle('show', target === 'calculadora');
         document.getElementById('tabPerfil').classList.toggle('show', target === 'perfil');
         if (target === 'salvos') {
+            trackAction('ver_salvos');
             populateSavedEstados();
             loadSavedCreators();
             renderListas();
@@ -1303,6 +1345,7 @@
                 btn.classList.add('saved');
                 popularityMap[creatorId] = (popularityMap[creatorId] || 0) + 1;
                 updateBadgeInCard(creatorId);
+                trackAction('salvar_creator');
             }
         }
     }
@@ -1537,6 +1580,7 @@
     function openDrawer(creatorId) {
         const c = creatorsCache[creatorId];
         if (!c) return;
+        trackAction('ver_perfil');
         const overlay = document.getElementById('drawerOverlay');
         const content = document.getElementById('drawerContent');
         const isSaved = savedCreatorIds.has(c.id);
@@ -1672,6 +1716,7 @@
             document.getElementById('resultsInfo').innerHTML = `Mostrando <strong>${(data || []).length}</strong> de <strong>${totalCount}</strong> creators`;
 
             const sorted = sortCreators(data || [], ordem);
+            if (sorted && sorted.length > 0) trackAction('pesquisa');
 
             if (!sorted || sorted.length === 0) {
                 grid.innerHTML = '<div class="empty-state"><p>Nenhum creator encontrado.</p></div>';
@@ -2034,7 +2079,7 @@
     function initCalculadora() {
         /* Scenario selection */
         document.querySelectorAll('.calc-scenario').forEach(card => {
-            card.addEventListener('click', () => selectScenario(card.dataset.scenario));
+            card.addEventListener('click', () => { trackAction('calculadora'); selectScenario(card.dataset.scenario); });
         });
 
         /* Budget inputs */
