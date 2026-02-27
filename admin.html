@@ -377,6 +377,28 @@
             .banner-item-actions { padding: 10px 14px; justify-content: flex-end; border-top: 1px solid var(--border); }
         }
 
+        /* Metric detail modal */
+        .metric-detail-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; align-items: center; justify-content: center; padding: 24px; }
+        .metric-detail-overlay.show { display: flex; }
+        .metric-detail-modal { background: var(--card); border-radius: 16px; padding: 28px; width: 100%; max-width: 520px; max-height: 80vh; display: flex; flex-direction: column; }
+        .metric-detail-modal h3 { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+        .metric-detail-close { background: none; border: none; font-size: 22px; color: var(--text-muted); cursor: pointer; padding: 0 4px; line-height: 1; }
+        .metric-detail-close:hover { color: var(--text); }
+        .metric-detail-list { overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 6px; }
+        .metric-detail-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--cream); }
+        .metric-detail-item:last-child { border-bottom: none; }
+        .metric-detail-rank { font-size: 11px; font-weight: 700; color: var(--text-muted); min-width: 24px; text-align: right; }
+        .metric-detail-label { flex: 1; font-size: 13px; font-weight: 500; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .metric-detail-bar-wrap { width: 80px; height: 6px; background: var(--cream); border-radius: 3px; overflow: hidden; }
+        .metric-detail-bar { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.3s; }
+        .metric-detail-value { font-family: 'Fraunces', serif; font-weight: 700; font-size: 14px; color: var(--accent); min-width: 32px; text-align: right; }
+        .metric-detail-item.zero .metric-detail-label { color: var(--text-muted); }
+        .metric-detail-item.zero .metric-detail-value { color: var(--text-muted); }
+        .metric-detail-item.zero .metric-detail-bar { background: var(--border); }
+        .metric-card.clickable { cursor: pointer; transition: all 0.2s; }
+        .metric-card.clickable:hover { border-color: var(--accent); box-shadow: 0 2px 8px var(--accent-glow); }
+        .metric-card.clickable .metric-card-title::after { content: ' \\2197'; font-size: 10px; }
+
         /* Empty & loading */
         .empty-state { text-align: center; padding: 60px 24px; color: var(--text-muted); }
         .empty-state p { font-size: 13px; line-height: 1.6; }
@@ -442,27 +464,27 @@
         <canvas id="chartCadastros" class="dashboard-chart-canvas"></canvas>
     </div>
     <div class="secondary-metrics">
-        <div class="metric-card">
+        <div class="metric-card clickable" onclick="openMetricDetail('estados')">
             <div class="metric-card-title">Top 5 Estados</div>
             <ul class="metric-list" id="dashEstados"><li class="metric-list-item"><span style="color:var(--text-muted)">Carregando...</span></li></ul>
         </div>
-        <div class="metric-card">
+        <div class="metric-card clickable" onclick="openMetricDetail('nichos')">
             <div class="metric-card-title">Top 5 Nichos</div>
             <ul class="metric-list" id="dashNichos"><li class="metric-list-item"><span style="color:var(--text-muted)">Carregando...</span></li></ul>
         </div>
-        <div class="metric-card">
+        <div class="metric-card clickable" onclick="openMetricDetail('tipos')">
             <div class="metric-card-title">Por Tipo de Creator</div>
             <ul class="metric-list" id="dashTipos"><li class="metric-list-item"><span style="color:var(--text-muted)">Carregando...</span></li></ul>
         </div>
-        <div class="metric-card">
+        <div class="metric-card clickable" onclick="openMetricDetail('campanhas')">
             <div class="metric-card-title">Por Campanha</div>
             <ul class="metric-list" id="dashCampanhas"><li class="metric-list-item"><span style="color:var(--text-muted)">Carregando...</span></li></ul>
         </div>
-        <div class="metric-card">
+        <div class="metric-card clickable" onclick="openMetricDetail('utms')">
             <div class="metric-card-title">Top Origens (UTM)</div>
             <ul class="metric-list" id="dashUtms"><li class="metric-list-item"><span style="color:var(--text-muted)">Carregando...</span></li></ul>
         </div>
-        <div class="metric-card">
+        <div class="metric-card clickable" onclick="openMetricDetail('indicadoras')">
             <div class="metric-card-title">Top Indicadoras</div>
             <ul class="metric-list" id="dashIndicadoras"><li class="metric-list-item"><span style="color:var(--text-muted)">Carregando...</span></li></ul>
         </div>
@@ -473,6 +495,14 @@
                 <li class="metric-list-item"><span class="metric-list-item-label">Ativas (7 dias)</span><span class="metric-list-item-value" id="dashAlunasAtivas">--</span></li>
             </ul>
         </div>
+    </div>
+</div>
+
+<!-- Modal: Metric Detail -->
+<div class="metric-detail-overlay" id="modalMetricDetail" onclick="if(event.target===this)closeMetricDetail()">
+    <div class="metric-detail-modal">
+        <h3><span id="metricDetailTitle"></span><button class="metric-detail-close" onclick="closeMetricDetail()">&times;</button></h3>
+        <div class="metric-detail-list" id="metricDetailList"></div>
     </div>
 </div>
 
@@ -929,6 +959,7 @@
        ══════════════════════════════════ */
     let dashboardChart = null;
     let dashboardLoaded = false;
+    let dashboardStats = null;
 
     async function loadDashboard() {
         if (dashboardLoaded) return;
@@ -936,6 +967,7 @@
             const { data, error } = await sb.rpc('admin_dashboard_stats');
             if (error) throw error;
             const stats = typeof data === 'string' ? JSON.parse(data) : data;
+            dashboardStats = stats;
 
             document.getElementById('dashTotal').textContent = stats.total_creators || 0;
             document.getElementById('dashHoje').textContent = stats.hoje || 0;
@@ -1029,6 +1061,133 @@
                 return { label: creator ? creator.nome : codigo, total };
             });
         renderMetricList('dashIndicadoras', indRanking.length > 0 ? indRanking : []);
+    }
+
+    /* ══════════════════════════════════
+       METRIC DETAIL MODAL
+       ══════════════════════════════════ */
+    const ALL_NICHOS = [
+        'Skincare','Maquiagem','Cabelos','Unhas','Perfumaria','Corpo & Banho',
+        'Roupas femininas','Roupas masculinas','Acessorios','Calcados','Moda sustentavel','Moda plus size',
+        'Fitness','Nutricao','Suplementos','Yoga/Meditacao','Saude mental','Saude feminina',
+        'Receitas saudaveis','Confeitaria','Drinks','Cozinha pratica','Alimentacao vegana/vegetariana',
+        'Decoracao','Organizacao','DIY/Faca voce mesma','Jardinagem','Smart home',
+        'Gadgets','Apps','Produtividade digital','Games',
+        'Gestacao','Bebes','Criancas','Familia',
+        'Cachorros','Gatos','Pets exoticos',
+        'Viagens nacionais','Viagens internacionais','Turismo gastronomico','Viagem economica',
+        'Cursos/Mentorias','Empreendedorismo','Marketing digital','Financas pessoais',
+        'Humor','Musica','Livros/Leitura','Filmes & Series',
+        'Dia a dia','Rotina','Minimalismo','Sustentabilidade',
+        'Restaurantes','Clinicas de estetica','Saloes de beleza','Academias','Hoteis/Pousadas',
+        'Carros','Motos','Acessorios automotivos'
+    ];
+
+    function buildFullMetricData(type) {
+        const tipoLabels = { 'ugc_creator': 'UGC Creator', 'influenciadora': 'Influenciadora', 'ugc_influenciadora': 'UGC + Influenciadora' };
+
+        switch (type) {
+            case 'estados': {
+                const count = {};
+                allCreators.forEach(c => {
+                    const est = c.estado || 'Nao informado';
+                    count[est] = (count[est] || 0) + 1;
+                });
+                return {
+                    title: 'Todos os Estados',
+                    items: Object.entries(count).sort((a, b) => b[1] - a[1]).map(([label, total]) => ({ label, total }))
+                };
+            }
+            case 'nichos': {
+                const count = {};
+                ALL_NICHOS.forEach(n => count[n] = 0);
+                allCreators.forEach(c => {
+                    if (!c.nicho) return;
+                    let nichos = [];
+                    try { nichos = typeof c.nicho === 'string' ? JSON.parse(c.nicho) : (Array.isArray(c.nicho) ? c.nicho : [c.nicho]); } catch(e) { nichos = [c.nicho]; }
+                    nichos.forEach(n => {
+                        const trimmed = (n || '').trim();
+                        if (trimmed) count[trimmed] = (count[trimmed] || 0) + 1;
+                    });
+                });
+                return {
+                    title: 'Todos os Nichos',
+                    items: Object.entries(count).sort((a, b) => b[1] - a[1]).map(([label, total]) => ({ label, total }))
+                };
+            }
+            case 'tipos': {
+                const count = {};
+                allCreators.forEach(c => {
+                    const tipo = c.tipo_creator || 'Nao informado';
+                    count[tipo] = (count[tipo] || 0) + 1;
+                });
+                return {
+                    title: 'Todos os Tipos de Creator',
+                    items: Object.entries(count).sort((a, b) => b[1] - a[1]).map(([label, total]) => ({ label: tipoLabels[label] || label, total }))
+                };
+            }
+            case 'campanhas': {
+                const count = {};
+                allCreators.forEach(c => {
+                    const camp = c.campanha_interesse || 'Nenhuma';
+                    count[camp] = (count[camp] || 0) + 1;
+                });
+                return {
+                    title: 'Todas as Campanhas',
+                    items: Object.entries(count).sort((a, b) => b[1] - a[1]).map(([label, total]) => ({ label, total }))
+                };
+            }
+            case 'utms': {
+                const count = {};
+                allCreators.forEach(c => {
+                    const utm = c.utm_origem || 'direto';
+                    count[utm] = (count[utm] || 0) + 1;
+                });
+                return {
+                    title: 'Todas as Origens (UTM)',
+                    items: Object.entries(count).sort((a, b) => b[1] - a[1]).map(([label, total]) => ({ label, total }))
+                };
+            }
+            case 'indicadoras': {
+                const items = Object.entries(indicacoesMap)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([codigo, total]) => {
+                        const creator = allCreators.find(c => c.codigo_indicacao === codigo);
+                        return { label: creator ? creator.nome : codigo, total };
+                    });
+                return {
+                    title: 'Todas as Indicadoras',
+                    items
+                };
+            }
+            default:
+                return { title: '', items: [] };
+        }
+    }
+
+    function openMetricDetail(type) {
+        const { title, items } = buildFullMetricData(type);
+        if (!items.length) return;
+
+        document.getElementById('metricDetailTitle').textContent = title;
+        const maxVal = items[0]?.total || 1;
+        const listEl = document.getElementById('metricDetailList');
+        listEl.innerHTML = items.map((item, i) => {
+            const pct = maxVal > 0 ? Math.round((item.total / maxVal) * 100) : 0;
+            const zeroClass = item.total === 0 ? ' zero' : '';
+            return `<div class="metric-detail-item${zeroClass}">
+                <span class="metric-detail-rank">${i + 1}.</span>
+                <span class="metric-detail-label" title="${escapeHtml(item.label)}">${escapeHtml(item.label)}</span>
+                <div class="metric-detail-bar-wrap"><div class="metric-detail-bar" style="width:${pct}%"></div></div>
+                <span class="metric-detail-value">${item.total}</span>
+            </div>`;
+        }).join('');
+
+        document.getElementById('modalMetricDetail').classList.add('show');
+    }
+
+    function closeMetricDetail() {
+        document.getElementById('modalMetricDetail').classList.remove('show');
     }
 
     /* ── Carregar IDs salvos do admin ── */
