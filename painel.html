@@ -1053,9 +1053,9 @@
         let heartbeatTimer = null;
         const HEARTBEAT_INTERVAL = 120000; // 2 minutos
 
-        function sendHeartbeat() {
+        async function sendHeartbeat() {
             if (!currentUserId) return;
-            sb.rpc('track_atividade', { p_tipo: 'heartbeat' }).catch(() => {});
+            try { await sb.rpc('track_atividade', { p_tipo: 'heartbeat' }); } catch(e) {}
         }
 
         function startHeartbeat() {
@@ -1079,11 +1079,11 @@
         });
 
         let lastSearchTrack = 0;
-        window.trackAction = function(tipo) {
+        window.trackAction = async function(tipo) {
             if (!currentUserId) return;
             if (tipo === 'pesquisa' && Date.now() - lastSearchTrack < 5000) return;
             if (tipo === 'pesquisa') lastSearchTrack = Date.now();
-            sb.rpc('track_atividade', { p_tipo: tipo }).catch(() => {});
+            try { await sb.rpc('track_atividade', { p_tipo: tipo }); } catch(e) {}
         };
     })();
 
