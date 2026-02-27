@@ -1819,14 +1819,7 @@
 
             const newUserId = signupData.user.id;
 
-            /* Reenviar email de confirmacao para garantir entrega */
-            try {
-                await signupClient.auth.resend({
-                    type: 'signup',
-                    email: email,
-                    options: { emailRedirectTo: 'https://creators.laradam.com/login.html' }
-                });
-            } catch (e) { /* ignora se resend falhar, o signUp ja enviou */ }
+            /* signUp ja envia o email de confirmacao automaticamente */
 
             /* 3. Garantir que a sessao do admin ainda esta ativa */
             const { data: { session: checkSession } } = await sb.auth.getSession();
@@ -1845,7 +1838,7 @@
             });
             if (insertError) throw new Error('Erro ao salvar na tabela: ' + insertError.message);
 
-            /* Mostrar sucesso */
+            /* Mostrar sucesso com botao de reenvio */
             document.getElementById('modalFormContent').style.display = 'none';
             document.getElementById('modalSuccessContent').style.display = 'block';
             document.getElementById('modalSuccessContent').innerHTML = `
@@ -1853,12 +1846,35 @@
                     <strong>Aluna cadastrada!</strong><br><br>
                     Um e-mail de confirmacao foi enviado para <strong>${escapeHtml(email)}</strong>.<br><br>
                     A aluna deve clicar no link do e-mail para ativar a conta. Depois, pode fazer login com a senha que voce definiu.<br><br>
-                    <small style="color:var(--text-muted);">Se o e-mail nao chegar, verifique a caixa de spam.</small>
+                    <small style="color:var(--text-muted);">Se o e-mail nao chegar em alguns minutos, verifique a caixa de spam ou clique abaixo para reenviar.</small>
                 </div>
-                <div class="modal-actions" style="margin-top:16px;">
+                <div class="modal-actions" style="margin-top:16px; flex-direction:column; gap:8px;">
+                    <button class="btn-outline" id="resendEmailBtn" style="width:100%;">Reenviar e-mail de confirmacao</button>
                     <button class="btn-confirm" onclick="document.getElementById('modalAluna').classList.remove('show'); loadAlunas();" style="flex:1;">Fechar</button>
                 </div>
             `;
+            document.getElementById('resendEmailBtn').addEventListener('click', async function() {
+                const resendBtn = this;
+                resendBtn.textContent = 'Reenviando...';
+                resendBtn.disabled = true;
+                try {
+                    const resendClient = Auth.createSignupClient();
+                    const { error: resendErr } = await resendClient.auth.resend({
+                        type: 'signup',
+                        email: '${email.replace(/'/g, "\\'")}',
+                        options: { emailRedirectTo: 'https://creators.laradam.com/login.html' }
+                    });
+                    if (resendErr) throw resendErr;
+                    resendBtn.textContent = 'E-mail reenviado!';
+                    resendBtn.style.background = 'rgba(45,122,79,0.1)';
+                    resendBtn.style.color = 'var(--success)';
+                    resendBtn.style.borderColor = 'var(--success)';
+                } catch (e) {
+                    resendBtn.textContent = 'Erro ao reenviar. Tente em alguns minutos.';
+                    resendBtn.style.color = 'var(--error)';
+                    setTimeout(() => { resendBtn.textContent = 'Reenviar e-mail de confirmacao'; resendBtn.disabled = false; resendBtn.style.color = ''; }, 3000);
+                }
+            });
         } catch (err) {
             errorEl.textContent = err.message || 'Erro ao cadastrar aluna.';
             errorEl.classList.add('show');

@@ -84,6 +84,7 @@
         .photo-label:hover { text-decoration: underline; }
         .form-error { background: rgba(196,69,60,0.08); border: 1px solid rgba(196,69,60,0.2); color: var(--error); padding: 12px 16px; border-radius: 10px; font-size: 13px; margin-bottom: 16px; display: none; }
         .form-error.show { display: block; }
+        .form-error.duplicate { background: rgba(212,87,42,0.08); border: 1px solid rgba(212,87,42,0.25); color: var(--accent-dark); font-size: 14px; font-weight: 500; padding: 16px 20px; }
         .terms-checkbox { display: flex; align-items: flex-start; gap: 10px; margin: 24px 0 8px; padding: 16px; background: rgba(212,87,42,0.04); border-radius: 10px; border: 1px solid var(--border); }
         .terms-checkbox input[type="checkbox"] { accent-color: var(--accent); width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; cursor: pointer; }
         .terms-checkbox label { font-size: 13px; color: var(--text-soft); line-height: 1.5; cursor: pointer; }
@@ -363,7 +364,7 @@
         e.preventDefault();
         const btn = document.getElementById('submitBtn');
         const errorEl = document.getElementById('formErrorBottom');
-        errorEl.classList.remove('show');
+        errorEl.classList.remove('show', 'duplicate');
         document.getElementById('formError').classList.remove('show');
         btn.textContent = 'Enviando...';
         btn.disabled = true;
@@ -425,7 +426,15 @@
                     tentativas++;
                 } else break;
             } while (true);
-            if (error) { if (error.code === '23505') throw new Error('Esse e-mail ou Instagram ja esta cadastrado na nossa base!'); throw error; }
+            if (error) {
+                if (error.code === '23505') {
+                    const msg = (error.message || '') + (error.details || '');
+                    if (msg.includes('email')) throw new Error('Esse e-mail ja esta cadastrado na nossa base! Se voce ja se cadastrou, fique tranquila — suas informacoes estao salvas.');
+                    if (msg.includes('instagram')) throw new Error('Esse Instagram ja esta cadastrado na nossa base! Se voce ja se cadastrou, fique tranquila — suas informacoes estao salvas.');
+                    throw new Error('Voce ja esta cadastrada na nossa base! Se voce ja se cadastrou antes, fique tranquila — suas informacoes estao salvas.');
+                }
+                throw error;
+            }
             const codigoRef = creatorData.codigo_indicacao;
 
             try {
@@ -445,7 +454,10 @@
             setupShareButtons(codigoRef);
             launchConfetti();
         } catch (err) {
+            const isDuplicate = (err.message || '').includes('ja esta cadastrad');
             errorEl.textContent = err.message || 'Erro ao enviar. Tente novamente.';
+            errorEl.classList.remove('duplicate');
+            if (isDuplicate) errorEl.classList.add('duplicate');
             errorEl.classList.add('show');
             errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
             btn.textContent = 'Quero receber oportunidades';

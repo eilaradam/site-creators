@@ -171,7 +171,7 @@
             successEl.classList.add('show');
             btn.style.display = 'none';
         } catch (err) {
-            errorEl.textContent = 'Erro ao enviar. Tente novamente.';
+            errorEl.textContent = err.message || 'Erro ao enviar. Tente novamente.';
             errorEl.classList.add('show');
         } finally {
             btn.textContent = 'Enviar link de recuperacao';
