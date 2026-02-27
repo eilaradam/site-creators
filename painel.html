@@ -209,6 +209,9 @@
         .pagination button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
         .pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
         .pagination span { font-size: 13px; color: var(--text-muted); }
+        .pagination-jump { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); }
+        .pagination-jump input { width: 48px; padding: 6px 8px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 13px; text-align: center; color: var(--text); background: var(--card); outline: none; transition: all 0.2s; }
+        .pagination-jump input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
 
         /* Empty & loading */
         .empty-state { text-align: center; padding: 40px 24px; color: var(--text-muted); }
@@ -675,7 +678,9 @@
         <div class="cards-grid" id="cardsGrid"><div class="loading">Carregando creators...</div></div>
         <div class="pagination" id="pagination" style="display:none;">
             <button id="btnPrev" disabled>Anterior</button>
-            <span id="pageInfo"></span>
+            <div class="pagination-jump">
+                <input type="number" id="pageInput" min="1" value="1"> <span>de <strong id="totalPagesInfo">1</strong></span>
+            </div>
             <button id="btnNext">Proximo</button>
         </div>
     </div>
@@ -736,7 +741,9 @@
         <div class="cards-grid" id="savedCardsGrid"><div class="loading">Carregando perfis salvos...</div></div>
         <div class="pagination" id="savedPagination" style="display:none;">
             <button id="btnSavedPrev" disabled>Anterior</button>
-            <span id="savedPageInfo"></span>
+            <div class="pagination-jump">
+                <input type="number" id="savedPageInput" min="1" value="1"> <span>de <strong id="savedTotalPagesInfo">1</strong></span>
+            </div>
             <button id="btnSavedNext">Proximo</button>
         </div>
     </div>
@@ -1682,7 +1689,9 @@
         const pag = document.getElementById('pagination');
         if (totalPages <= 1) { pag.style.display = 'none'; return; }
         pag.style.display = 'flex';
-        document.getElementById('pageInfo').textContent = `Pagina ${currentPage} de ${totalPages}`;
+        document.getElementById('pageInput').value = currentPage;
+        document.getElementById('pageInput').max = totalPages;
+        document.getElementById('totalPagesInfo').textContent = totalPages;
         document.getElementById('btnPrev').disabled = currentPage <= 1;
         document.getElementById('btnNext').disabled = currentPage >= totalPages;
     }
@@ -1709,6 +1718,24 @@
     });
     document.getElementById('btnPrev').addEventListener('click', () => { if (currentPage > 1) { currentPage--; loadCreators(); } });
     document.getElementById('btnNext').addEventListener('click', () => { currentPage++; loadCreators(); });
+    document.getElementById('pageInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const totalPages = Math.ceil(totalCount / PER_PAGE);
+            let page = parseInt(e.target.value);
+            if (isNaN(page) || page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+            currentPage = page;
+            loadCreators();
+        }
+    });
+    document.getElementById('pageInput').addEventListener('change', (e) => {
+        const totalPages = Math.ceil(totalCount / PER_PAGE);
+        let page = parseInt(e.target.value);
+        if (isNaN(page) || page < 1) page = 1;
+        if (page > totalPages) page = totalPages;
+        currentPage = page;
+        loadCreators();
+    });
 
     /* ══════════════════════════════════════
        TAB: PERFIS SALVOS
@@ -1775,7 +1802,9 @@
         const pag = document.getElementById('savedPagination');
         if (totalPages <= 1) { pag.style.display = 'none'; return; }
         pag.style.display = 'flex';
-        document.getElementById('savedPageInfo').textContent = `Pagina ${savedCurrentPage} de ${totalPages}`;
+        document.getElementById('savedPageInput').value = savedCurrentPage;
+        document.getElementById('savedPageInput').max = totalPages;
+        document.getElementById('savedTotalPagesInfo').textContent = totalPages;
         document.getElementById('btnSavedPrev').disabled = savedCurrentPage <= 1;
         document.getElementById('btnSavedNext').disabled = savedCurrentPage >= totalPages;
     }
@@ -1796,6 +1825,24 @@
     });
     document.getElementById('btnSavedPrev').addEventListener('click', () => { if (savedCurrentPage > 1) { savedCurrentPage--; loadSavedCreators(); } });
     document.getElementById('btnSavedNext').addEventListener('click', () => { savedCurrentPage++; loadSavedCreators(); });
+    document.getElementById('savedPageInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const totalPages = Math.ceil(savedTotalCount / PER_PAGE);
+            let page = parseInt(e.target.value);
+            if (isNaN(page) || page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+            savedCurrentPage = page;
+            loadSavedCreators();
+        }
+    });
+    document.getElementById('savedPageInput').addEventListener('change', (e) => {
+        const totalPages = Math.ceil(savedTotalCount / PER_PAGE);
+        let page = parseInt(e.target.value);
+        if (isNaN(page) || page < 1) page = 1;
+        if (page > totalPages) page = totalPages;
+        savedCurrentPage = page;
+        loadSavedCreators();
+    });
 
     /* ══════════════════════════════════════
        LISTAS PERSONALIZADAS
