@@ -694,12 +694,28 @@
 
             if (temNovaFoto) {
                 const arquivo = fotoField.files[0];
-                const nomeArquivo = Date.now() + '_' + arquivo.name.replace(/[^a-zA-Z0-9.]/g, '_');
-                const { data: uploadData, error: uploadError } = await sb.storage.from('fotos-perfil').upload(nomeArquivo, arquivo, { cacheControl: '3600', upsert: false });
-                if (!uploadError) {
-                    const { data: urlData } = sb.storage.from('fotos-perfil').getPublicUrl(nomeArquivo);
-                    fotoUrl = urlData.publicUrl;
-                }
+                /* Comprimir e redimensionar para 400x400 JPEG */
+                const compressedBlob = await new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = 400;
+                        canvas.height = 400;
+                        const ctx = canvas.getContext('2d');
+                        const size = Math.min(img.width, img.height);
+                        const sx = (img.width - size) / 2;
+                        const sy = (img.height - size) / 2;
+                        ctx.drawImage(img, sx, sy, size, size, 0, 0, 400, 400);
+                        canvas.toBlob(b => b ? resolve(b) : reject(new Error('Erro ao processar foto.')), 'image/jpeg', 0.85);
+                    };
+                    img.onerror = () => reject(new Error('Erro ao carregar foto. Tente outro arquivo.'));
+                    img.src = URL.createObjectURL(arquivo);
+                });
+                const nomeArquivo = Date.now() + '_' + Math.random().toString(36).slice(2, 8) + '.jpg';
+                const { error: uploadError } = await sb.storage.from('fotos-perfil').upload(nomeArquivo, compressedBlob, { cacheControl: '3600', upsert: true, contentType: 'image/jpeg' });
+                if (uploadError) throw new Error('Erro ao enviar foto: ' + uploadError.message);
+                const { data: urlData } = sb.storage.from('fotos-perfil').getPublicUrl(nomeArquivo);
+                fotoUrl = urlData.publicUrl;
             }
 
             const cidadeEl = document.getElementById('cidade');
