@@ -113,8 +113,6 @@ BEGIN
         RETURN json_build_object('sucesso', false, 'erro', 'Nenhum campo para atualizar.');
     END IF;
 
-    v_set_parts := array_append(v_set_parts, format('updated_at = %L', NOW()));
-
     EXECUTE format(
         'UPDATE creators SET %s WHERE id = %L',
         array_to_string(v_set_parts, ', '),
