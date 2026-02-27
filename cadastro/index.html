@@ -87,6 +87,12 @@
         .form-error.duplicate { background: rgba(212,87,42,0.08); border: 1px solid rgba(212,87,42,0.25); color: var(--accent-dark); font-size: 14px; font-weight: 500; padding: 16px 20px; }
         .edit-mode-banner { background: rgba(212,87,42,0.08); border: 1px solid rgba(212,87,42,0.25); color: var(--accent-dark); padding: 12px 16px; border-radius: 10px; font-size: 13px; font-weight: 500; text-align: center; margin-bottom: 16px; }
         .field-locked { opacity: 0.6; pointer-events: none; }
+        .ref-link-box { background: var(--cream); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 20px; }
+        .ref-link-box .ref-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px; }
+        .ref-link-box .ref-url { display: flex; align-items: center; gap: 8px; }
+        .ref-link-box .ref-url input { flex: 1; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-family: 'Outfit', sans-serif; font-size: 13px; color: var(--text); }
+        .ref-link-box .ref-url button { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+        .ref-link-box .ref-url button:hover { background: var(--accent-dark); }
         .terms-checkbox { display: flex; align-items: flex-start; gap: 10px; margin: 24px 0 8px; padding: 16px; background: rgba(212,87,42,0.04); border-radius: 10px; border: 1px solid var(--border); }
         .terms-checkbox input[type="checkbox"] { accent-color: var(--accent); width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; cursor: pointer; }
         .terms-checkbox label { font-size: 13px; color: var(--text-soft); line-height: 1.5; cursor: pointer; }
@@ -462,7 +468,12 @@
 
         document.getElementById('formTitleEl').textContent = 'Editar cadastro';
         document.getElementById('formTitleEl').style.display = '';
-        document.getElementById('formSubtitleEl').innerHTML = '<div class="edit-mode-banner">Voce esta editando seu cadastro. O e-mail nao pode ser alterado.</div>';
+        const refCode = dados.codigo_indicacao || '';
+        const refUrl = refCode ? 'https://creators.laradam.com/cadastro?ref=' + refCode : '';
+        const refHtml = refUrl
+            ? '<div class="ref-link-box"><div class="ref-label">Seu link de indicacao</div><div class="ref-url"><input type="text" value="' + refUrl + '" readonly id="refLinkInput"><button onclick="copyRefLink()">Copiar</button></div></div>'
+            : '';
+        document.getElementById('formSubtitleEl').innerHTML = '<div class="edit-mode-banner">Voce esta editando seu cadastro. O e-mail nao pode ser alterado.</div>' + refHtml;
         document.getElementById('formSubtitleEl').style.display = '';
 
         document.getElementById('creatorForm').style.display = '';
@@ -622,6 +633,19 @@
             cidadeEl.innerHTML = '<option value="" disabled selected>Selecione o estado primeiro</option>';
             cidadeEl.disabled = true;
         }
+    }
+
+    function copyRefLink() {
+        const input = document.getElementById('refLinkInput');
+        if (!input) return;
+        navigator.clipboard.writeText(input.value).then(() => {
+            const btn = input.nextElementSibling;
+            btn.textContent = 'Copiado!';
+            setTimeout(() => { btn.textContent = 'Copiar'; }, 2000);
+        }).catch(() => {
+            input.select();
+            document.execCommand('copy');
+        });
     }
 
     /* UTM e Indicacao */

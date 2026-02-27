@@ -52,7 +52,8 @@ BEGIN
             'experiencia', v_creator.experiencia,
             'portfolio', v_creator.portfolio,
             'melhor_conteudo', v_creator.melhor_conteudo,
-            'foto_perfil', v_creator.foto_perfil
+            'foto_perfil', v_creator.foto_perfil,
+            'codigo_indicacao', v_creator.codigo_indicacao
         )
     );
 END;
