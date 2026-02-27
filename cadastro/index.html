@@ -429,9 +429,9 @@
             if (error) {
                 if (error.code === '23505') {
                     const msg = (error.message || '') + (error.details || '');
-                    if (msg.includes('email')) throw new Error('Esse e-mail ja esta cadastrado na nossa base! Se voce ja se cadastrou, fique tranquila — suas informacoes estao salvas.');
-                    if (msg.includes('instagram')) throw new Error('Esse Instagram ja esta cadastrado na nossa base! Se voce ja se cadastrou, fique tranquila — suas informacoes estao salvas.');
-                    throw new Error('Voce ja esta cadastrada na nossa base! Se voce ja se cadastrou antes, fique tranquila — suas informacoes estao salvas.');
+                    if (msg.includes('email')) throw new Error('Esse e-mail ja esta cadastrado na nossa base! Se voce ja se cadastrou, fique tranquila, suas informacoes estao salvas.');
+                    if (msg.includes('instagram')) throw new Error('Esse Instagram ja esta cadastrado na nossa base! Se voce ja se cadastrou, fique tranquila, suas informacoes estao salvas.');
+                    throw new Error('Voce ja esta cadastrada na nossa base! Se voce ja se cadastrou antes, fique tranquila, suas informacoes estao salvas.');
                 }
                 throw error;
             }
