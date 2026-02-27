@@ -821,7 +821,7 @@
 <div class="modal-overlay" id="modalAluna">
     <div class="modal">
         <h3>Adicionar Aluna</h3>
-        <p>A aluna recebera um e-mail para criar sua senha.</p>
+        <p>A aluna recebera um e-mail de boas-vindas e podera acessar seu perfil.</p>
         <div class="modal-error" id="modalError"></div>
         <div id="modalFormContent">
             <div class="field">
@@ -831,6 +831,10 @@
             <div class="field">
                 <label>E-mail</label>
                 <input type="email" id="alunaEmail" required placeholder="aluna@email.com">
+            </div>
+            <div class="field">
+                <label>Senha</label>
+                <input type="password" id="alunaPassword" required placeholder="Minimo 6 caracteres" autocomplete="new-password">
             </div>
             <div class="modal-actions">
                 <button class="btn-cancel" id="btnCancelAluna">Cancelar</button>
@@ -1710,6 +1714,14 @@
         try {
             const { error } = await sb.rpc('admin_toggle_aluna', { p_id: id, p_ativo: newStatus });
             if (error) throw error;
+            if (newStatus) {
+                const aluna = allAlunas.find(a => a.id === id);
+                if (aluna && aluna.email) {
+                    await Auth.sb.auth.resetPasswordForEmail(aluna.email, {
+                        redirectTo: 'https://creators.laradam.com/redefinir-senha.html'
+                    });
+                }
+            }
             loadAlunas();
         } catch (err) {
             alert('Erro ao atualizar: ' + err.message);
@@ -1735,6 +1747,7 @@
         document.getElementById('modalError').classList.remove('show');
         document.getElementById('alunaName').value = '';
         document.getElementById('alunaEmail').value = '';
+        document.getElementById('alunaPassword').value = '';
         modal.classList.add('show');
     });
 
@@ -1748,9 +1761,15 @@
 
         const nome = document.getElementById('alunaName').value.trim();
         const email = document.getElementById('alunaEmail').value.trim();
+        const senha = document.getElementById('alunaPassword').value;
 
-        if (!nome || !email) {
+        if (!nome || !email || !senha) {
             errorEl.textContent = 'Preencha todos os campos.';
+            errorEl.classList.add('show');
+            return;
+        }
+        if (senha.length < 6) {
+            errorEl.textContent = 'A senha deve ter no minimo 6 caracteres.';
             errorEl.classList.add('show');
             return;
         }
@@ -1763,13 +1782,12 @@
             const { data: { session: adminSession } } = await sb.auth.getSession();
             if (!adminSession) throw new Error('Sessao do admin expirou. Faca login novamente.');
 
-            /* 2. Criar user no Auth usando client separado (senha aleatoria) */
+            /* 2. Criar user no Auth usando client separado */
             const signupClient = Auth.createSignupClient();
-            const randomPassword = crypto.randomUUID() + 'A1!';
 
             const { data: signupData, error: signupError } = await signupClient.auth.signUp({
                 email: email,
-                password: randomPassword,
+                password: senha,
                 options: {
                     emailRedirectTo: 'https://creators.laradam.com/login.html'
                 }
@@ -1806,9 +1824,9 @@
             document.getElementById('modalSuccessContent').style.display = 'block';
             document.getElementById('modalSuccessContent').innerHTML = `
                 <div class="modal-success">
-                    <strong>Convite enviado!</strong><br><br>
-                    A aluna recebera um e-mail em <strong>${escapeHtml(email)}</strong> para ativar seu acesso.<br><br>
-                    Apos confirmar o e-mail, ela pode usar <strong>"Esqueci minha senha"</strong> na tela de login para criar sua senha.
+                    <strong>Aluna cadastrada!</strong><br><br>
+                    Um e-mail de boas-vindas foi enviado para <strong>${escapeHtml(email)}</strong>.<br><br>
+                    Apos confirmar o e-mail, ela podera acessar o perfil usando a senha que voce definiu.
                 </div>
                 <div class="modal-actions" style="margin-top:16px;">
                     <button class="btn-confirm" onclick="document.getElementById('modalAluna').classList.remove('show'); loadAlunas();" style="flex:1;">Fechar</button>
