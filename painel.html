@@ -254,27 +254,31 @@
         /* Modal perfil */
         .drawer-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 200; opacity: 0; visibility: hidden; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; padding: 24px; backdrop-filter: blur(4px); }
         .drawer-overlay.show { opacity: 1; visibility: visible; }
-        .drawer { width: 460px; max-width: 100%; max-height: 85vh; background: var(--card); box-shadow: 0 20px 60px rgba(0,0,0,0.2); z-index: 201; overflow-y: auto; border-radius: 24px; transform: scale(0.9) translateY(20px); opacity: 0; transition: transform 0.35s ease, opacity 0.3s ease; }
+        .drawer { width: 720px; max-width: 100%; background: var(--card); box-shadow: 0 20px 60px rgba(0,0,0,0.2); z-index: 201; overflow: hidden; border-radius: 24px; transform: scale(0.9) translateY(20px); opacity: 0; transition: transform 0.35s ease, opacity 0.3s ease; }
         .drawer-overlay.show .drawer { transform: scale(1) translateY(0); opacity: 1; }
         .drawer-close { position: absolute; top: 12px; right: 12px; background: var(--cream); border: none; font-size: 22px; color: var(--text-muted); cursor: pointer; padding: 4px 10px; z-index: 5; line-height: 1; border-radius: 50%; transition: all 0.2s; }
         .drawer-close:hover { color: var(--text); background: var(--warm); }
-        .drawer-header { padding: 28px 28px 20px; text-align: center; border-bottom: 1px solid var(--border); position: relative; }
-        .drawer-avatar { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid var(--border); margin-bottom: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .drawer-avatar-placeholder { width: 90px; height: 90px; border-radius: 50%; background: var(--warm); display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 700; color: var(--text-muted); margin: 0 auto 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .drawer-header { padding: 24px 28px 16px; text-align: center; border-bottom: 1px solid var(--border); position: relative; }
+        .drawer-avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--border); margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .drawer-avatar-placeholder { width: 80px; height: 80px; border-radius: 50%; background: var(--warm); display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; color: var(--text-muted); margin: 0 auto 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         .drawer-name { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
-        .drawer-location { font-size: 13px; color: var(--text-soft); margin-bottom: 12px; }
-        .drawer-tags { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+        .drawer-location { font-size: 13px; color: var(--text-soft); margin-bottom: 10px; }
+        .drawer-tags { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
         .drawer-exp { font-size: 13px; color: var(--text-soft); }
-        .drawer-section { padding: 16px 28px; border-bottom: 1px solid var(--border); }
+        .drawer-body { display: grid; grid-template-columns: 1fr 1fr; }
+        .drawer-col { display: flex; flex-direction: column; }
+        .drawer-col:first-child { border-right: 1px solid var(--border); }
+        .drawer-section { padding: 14px 24px; border-bottom: 1px solid var(--border); }
+        .drawer-section:last-child { border-bottom: none; }
         .drawer-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 8px; }
-        .drawer-text { font-size: 14px; color: var(--text-soft); line-height: 1.7; }
+        .drawer-text { font-size: 13px; color: var(--text-soft); line-height: 1.6; }
         .drawer-nichos { display: flex; flex-wrap: wrap; gap: 6px; }
-        .drawer-links { display: flex; flex-direction: column; gap: 8px; }
-        .drawer-links a { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 10px; background: var(--cream); font-size: 13px; font-weight: 600; color: var(--accent); text-decoration: none; transition: all 0.2s; }
+        .drawer-links { display: flex; flex-direction: column; gap: 6px; }
+        .drawer-links a { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px; background: var(--cream); font-size: 13px; font-weight: 600; color: var(--accent); text-decoration: none; transition: all 0.2s; }
         .drawer-links a:hover { background: var(--accent-glow); }
         .drawer-links a.drawer-whatsapp { color: #25D366; }
-        .drawer-actions { padding: 20px 28px; display: flex; gap: 10px; }
-        .drawer-btn { flex: 1; padding: 12px; border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; text-align: center; border: 1.5px solid var(--border); background: none; color: var(--text-soft); }
+        .drawer-actions { padding: 14px 24px; display: flex; gap: 10px; }
+        .drawer-btn { flex: 1; padding: 10px; border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; text-align: center; border: 1.5px solid var(--border); background: none; color: var(--text-soft); }
         .drawer-btn:hover { border-color: var(--accent); color: var(--accent); }
         .drawer-btn.saved { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
 
@@ -482,16 +486,18 @@
             .lista-card { padding: 14px; }
 
             /* Modal: mobile */
-            .drawer-overlay { padding: 12px; }
-            .drawer { max-height: 90vh; border-radius: 20px; }
+            .drawer-overlay { padding: 8px; }
+            .drawer { max-height: 92vh; overflow-y: auto; border-radius: 20px; }
+            .drawer-body { grid-template-columns: 1fr; }
+            .drawer-col:first-child { border-right: none; border-bottom: 1px solid var(--border); }
             .drawer-close { font-size: 26px; padding: 6px 12px; min-width: 44px; min-height: 44px; }
-            .drawer-header { padding: 24px 20px 16px; }
-            .drawer-avatar, .drawer-avatar-placeholder { width: 76px; height: 76px; font-size: 24px; }
+            .drawer-header { padding: 20px 20px 14px; }
+            .drawer-avatar, .drawer-avatar-placeholder { width: 68px; height: 68px; font-size: 22px; }
             .drawer-name { font-size: 18px; }
-            .drawer-section { padding: 14px 20px; }
-            .drawer-links a { padding: 12px 14px; font-size: 14px; min-height: 44px; }
-            .drawer-actions { padding: 16px 20px; position: sticky; bottom: 0; background: var(--card); border-top: 1px solid var(--border); border-radius: 0 0 20px 20px; }
-            .drawer-btn { padding: 14px; font-size: 14px; min-height: 44px; }
+            .drawer-section { padding: 12px 20px; }
+            .drawer-links a { padding: 10px 14px; font-size: 14px; min-height: 44px; }
+            .drawer-actions { padding: 14px 20px; position: sticky; bottom: 0; background: var(--card); border-top: 1px solid var(--border); border-radius: 0 0 20px 20px; }
+            .drawer-btn { padding: 12px; font-size: 14px; min-height: 44px; }
 
             /* Modal */
             .modal-overlay { padding: 16px; }
@@ -1536,29 +1542,35 @@
                 </div>
                 <div class="drawer-exp">Experiência: ${formatExpBadge(c.experiencia)}</div>
             </div>
-            ${c.sobre ? `<div class="drawer-section">
-                <div class="drawer-section-title">Sobre</div>
-                <p class="drawer-text">${escapeHtml(c.sobre)}</p>
-            </div>` : ''}
-            ${nichoHtml ? `<div class="drawer-section">
-                <div class="drawer-section-title">Nichos</div>
-                <div class="drawer-nichos">${nichoHtml}</div>
-            </div>` : ''}
-            <div class="drawer-section">
-                <div class="drawer-section-title">Links</div>
-                <div class="drawer-links">
-                    ${c.instagram ? `<a href="${formatInstagramUrl(c.instagram)}" target="_blank" rel="noopener">📸 Instagram — ${escapeHtml(c.instagram)}</a>` : ''}
-                    ${c.tiktok ? `<a href="${formatTiktokUrl(c.tiktok)}" target="_blank" rel="noopener">🎵 TikTok — ${escapeHtml(c.tiktok)}</a>` : ''}
-                    ${c.portfolio ? `<a href="${safeUrl(c.portfolio)}" target="_blank" rel="noopener">🔗 Portfolio</a>` : ''}
-                    ${c.melhor_conteudo ? `<a href="${safeUrl(c.melhor_conteudo)}" target="_blank" rel="noopener">⭐ Melhor conteúdo</a>` : ''}
-                    ${c.whatsapp ? `<a href="${formatWhatsappUrl(c.whatsapp)}" target="_blank" rel="noopener" class="drawer-whatsapp">💬 WhatsApp — ${escapeHtml(c.whatsapp)}</a>` : ''}
+            <div class="drawer-body">
+                <div class="drawer-col">
+                    ${c.sobre ? `<div class="drawer-section">
+                        <div class="drawer-section-title">Sobre</div>
+                        <p class="drawer-text">${escapeHtml(c.sobre)}</p>
+                    </div>` : ''}
+                    ${nichoHtml ? `<div class="drawer-section">
+                        <div class="drawer-section-title">Nichos</div>
+                        <div class="drawer-nichos">${nichoHtml}</div>
+                    </div>` : ''}
+                    <div class="drawer-actions">
+                        <button class="drawer-btn ${isSaved ? 'saved' : ''}" id="drawerBtnSave" onclick="toggleSaveDrawer('${c.id}')">♡ ${isSaved ? 'Salvo' : 'Salvar'}</button>
+                        <button class="drawer-btn" onclick="showListaDropdownDrawer('${c.id}')">📁 Lista</button>
+                    </div>
+                    ${buildListaDropdown(c.id)}
+                </div>
+                <div class="drawer-col">
+                    <div class="drawer-section">
+                        <div class="drawer-section-title">Links</div>
+                        <div class="drawer-links">
+                            ${c.instagram ? `<a href="${formatInstagramUrl(c.instagram)}" target="_blank" rel="noopener">📸 Instagram — ${escapeHtml(c.instagram)}</a>` : ''}
+                            ${c.tiktok ? `<a href="${formatTiktokUrl(c.tiktok)}" target="_blank" rel="noopener">🎵 TikTok — ${escapeHtml(c.tiktok)}</a>` : ''}
+                            ${c.portfolio ? `<a href="${safeUrl(c.portfolio)}" target="_blank" rel="noopener">🔗 Portfolio</a>` : ''}
+                            ${c.melhor_conteudo ? `<a href="${safeUrl(c.melhor_conteudo)}" target="_blank" rel="noopener">⭐ Melhor conteúdo</a>` : ''}
+                            ${c.whatsapp ? `<a href="${formatWhatsappUrl(c.whatsapp)}" target="_blank" rel="noopener" class="drawer-whatsapp">💬 WhatsApp — ${escapeHtml(c.whatsapp)}</a>` : ''}
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="drawer-actions">
-                <button class="drawer-btn ${isSaved ? 'saved' : ''}" id="drawerBtnSave" onclick="toggleSaveDrawer('${c.id}')">♡ ${isSaved ? 'Salvo' : 'Salvar'}</button>
-                <button class="drawer-btn" onclick="showListaDropdownDrawer('${c.id}')">📁 Lista</button>
-            </div>
-            ${buildListaDropdown(c.id)}
         `;
         overlay.classList.add('show');
         document.body.style.overflow = 'hidden';
