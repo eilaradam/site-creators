@@ -85,6 +85,8 @@
         .form-error { background: rgba(196,69,60,0.08); border: 1px solid rgba(196,69,60,0.2); color: var(--error); padding: 12px 16px; border-radius: 10px; font-size: 13px; margin-bottom: 16px; display: none; }
         .form-error.show { display: block; }
         .form-error.duplicate { background: rgba(212,87,42,0.08); border: 1px solid rgba(212,87,42,0.25); color: var(--accent-dark); font-size: 14px; font-weight: 500; padding: 16px 20px; }
+        .edit-mode-banner { background: rgba(212,87,42,0.08); border: 1px solid rgba(212,87,42,0.25); color: var(--accent-dark); padding: 12px 16px; border-radius: 10px; font-size: 13px; font-weight: 500; text-align: center; margin-bottom: 16px; }
+        .field-locked { opacity: 0.6; pointer-events: none; }
         .terms-checkbox { display: flex; align-items: flex-start; gap: 10px; margin: 24px 0 8px; padding: 16px; background: rgba(212,87,42,0.04); border-radius: 10px; border: 1px solid var(--border); }
         .terms-checkbox input[type="checkbox"] { accent-color: var(--accent); width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; cursor: pointer; }
         .terms-checkbox label { font-size: 13px; color: var(--text-soft); line-height: 1.5; cursor: pointer; }
@@ -128,8 +130,32 @@
     <div class="form-wrapper">
         <div class="form-box">
             <div id="formContent">
-                <h3 class="form-title">Seus dados</h3>
-                <p class="form-subtitle">Preencha abaixo para entrar na nossa base e receber oportunidades de campanhas.</p>
+                <!-- Link editar cadastro -->
+                <div id="editarLink" style="text-align:center; margin-bottom:18px;">
+                    <span style="font-size:13px; color:var(--text-soft);">Ja se cadastrou?</span>
+                    <a href="#" id="btnEditarCadastro" style="font-size:13px; color:var(--accent); font-weight:600; text-decoration:underline; margin-left:4px;">Editar cadastro</a>
+                </div>
+                <!-- Secao verificacao -->
+                <div id="verifySection" style="display:none;">
+                    <h3 class="form-title">Editar cadastro</h3>
+                    <p class="form-subtitle">Informe o e-mail e WhatsApp que voce usou no cadastro para verificar sua identidade.</p>
+                    <div class="form-error" id="verifyError"></div>
+                    <div class="field-group">
+                        <label>E-mail do cadastro</label>
+                        <input type="email" id="verifyEmail" required placeholder="seuemail@exemplo.com">
+                    </div>
+                    <div class="field-group">
+                        <label>WhatsApp do cadastro (com DDD)</label>
+                        <input type="tel" id="verifyWhatsapp" required placeholder="(00) 00000-0000">
+                    </div>
+                    <button type="button" class="form-submit" id="btnVerificar">Verificar identidade</button>
+                    <p style="text-align:center; margin-top:12px;">
+                        <a href="#" id="btnVoltarCadastro" style="font-size:13px; color:var(--text-muted); text-decoration:underline;">Voltar para o cadastro</a>
+                    </p>
+                </div>
+                <!-- Formulario -->
+                <h3 class="form-title" id="formTitleEl">Seus dados</h3>
+                <p class="form-subtitle" id="formSubtitleEl">Preencha abaixo para entrar na nossa base e receber oportunidades de campanhas.</p>
                 <div class="form-error" id="formError"></div>
                 <form id="creatorForm">
                     <div class="photo-upload">
@@ -347,6 +373,257 @@
     function initSb() { if (sb) return sb; try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch (e) {} return sb; }
     initSb();
 
+    /* Modo edicao */
+    let isEditMode = false;
+    let editCreatorEmail = null;
+    let editCreatorWhatsapp = null;
+
+    /* Mascara WhatsApp no campo de verificacao */
+    document.getElementById('verifyWhatsapp').addEventListener('input', function(e) {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length > 11) v = v.slice(0, 11);
+        if (v.length > 6) v = '(' + v.slice(0,2) + ') ' + v.slice(2,7) + '-' + v.slice(7);
+        else if (v.length > 2) v = '(' + v.slice(0,2) + ') ' + v.slice(2);
+        else if (v.length > 0) v = '(' + v;
+        e.target.value = v;
+    });
+
+    /* Mostrar secao de verificacao */
+    document.getElementById('btnEditarCadastro').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('editarLink').style.display = 'none';
+        document.getElementById('formTitleEl').style.display = 'none';
+        document.getElementById('formSubtitleEl').style.display = 'none';
+        document.getElementById('creatorForm').style.display = 'none';
+        document.querySelector('.form-footer').style.display = 'none';
+        document.getElementById('verifySection').style.display = 'block';
+    });
+
+    /* Voltar pro cadastro */
+    document.getElementById('btnVoltarCadastro').addEventListener('click', function(e) {
+        e.preventDefault();
+        exitEditMode();
+    });
+
+    /* Verificar identidade */
+    document.getElementById('btnVerificar').addEventListener('click', async function() {
+        const btn = this;
+        const errorEl = document.getElementById('verifyError');
+        errorEl.classList.remove('show');
+
+        const email = document.getElementById('verifyEmail').value.trim().toLowerCase();
+        const whatsapp = document.getElementById('verifyWhatsapp').value.trim();
+
+        if (!email || !whatsapp) {
+            errorEl.textContent = 'Preencha o e-mail e o WhatsApp.';
+            errorEl.classList.add('show');
+            return;
+        }
+
+        if (!initSb()) {
+            errorEl.textContent = 'Erro de conexao. Recarregue a pagina.';
+            errorEl.classList.add('show');
+            return;
+        }
+
+        btn.textContent = 'Verificando...';
+        btn.disabled = true;
+
+        try {
+            const { data: result, error } = await sb.rpc('creator_verify_identity', {
+                p_email: email,
+                p_whatsapp: whatsapp
+            });
+            if (error) throw error;
+
+            if (result && result.encontrado) {
+                enterEditMode(email, whatsapp, result.dados);
+            } else {
+                errorEl.textContent = result?.erro || 'Cadastro nao encontrado.';
+                errorEl.classList.add('show');
+            }
+        } catch (err) {
+            errorEl.textContent = err.message || 'Erro ao verificar. Tente novamente.';
+            errorEl.classList.add('show');
+        } finally {
+            btn.textContent = 'Verificar identidade';
+            btn.disabled = false;
+        }
+    });
+
+    /* Entrar no modo edicao */
+    async function enterEditMode(email, whatsapp, dados) {
+        isEditMode = true;
+        editCreatorEmail = email;
+        editCreatorWhatsapp = whatsapp;
+
+        document.getElementById('verifySection').style.display = 'none';
+        document.getElementById('editarLink').style.display = 'none';
+
+        document.getElementById('formTitleEl').textContent = 'Editar cadastro';
+        document.getElementById('formTitleEl').style.display = '';
+        document.getElementById('formSubtitleEl').innerHTML = '<div class="edit-mode-banner">Voce esta editando seu cadastro. O e-mail nao pode ser alterado.</div>';
+        document.getElementById('formSubtitleEl').style.display = '';
+
+        document.getElementById('creatorForm').style.display = '';
+        document.querySelector('.form-footer').style.display = '';
+
+        /* Preencher campos */
+        document.getElementById('nome').value = dados.nome || '';
+        document.getElementById('whatsapp').value = dados.whatsapp || '';
+        document.getElementById('email').value = dados.email || '';
+        document.getElementById('instagram').value = dados.instagram || '';
+        document.getElementById('tiktok').value = dados.tiktok || '';
+        document.getElementById('nascimento').value = dados.data_nascimento || '';
+        document.getElementById('genero').value = dados.genero || '';
+        document.getElementById('seguidores').value = dados.seguidores || '';
+        document.getElementById('sobre').value = dados.sobre || '';
+        document.getElementById('experiencia').value = dados.experiencia || '';
+        document.getElementById('portfolio').value = dados.portfolio || '';
+        document.getElementById('melhor_conteudo').value = dados.melhor_conteudo || '';
+
+        /* Contador do sobre */
+        const sobreLen = (dados.sobre || '').length;
+        const sobreCounter = document.getElementById('sobreCounter');
+        if (sobreCounter) {
+            sobreCounter.textContent = sobreLen + ' / 200';
+            sobreCounter.classList.toggle('limit', sobreLen >= 200);
+        }
+
+        /* Bloquear email */
+        const emailField = document.getElementById('email');
+        emailField.readOnly = true;
+        emailField.closest('.field-group').classList.add('field-locked');
+
+        /* Foto atual */
+        if (dados.foto_perfil) {
+            document.getElementById('photoPreview').innerHTML = '<img src="' + dados.foto_perfil + '" alt="Foto atual" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+            document.querySelector('.photo-label').textContent = 'Alterar foto (opcional)';
+        }
+
+        /* Tipo creator */
+        if (dados.tipo_creator) {
+            const radio = document.querySelector('input[name="tipo_creator"][value="' + dados.tipo_creator + '"]');
+            if (radio) radio.checked = true;
+        }
+
+        /* Estado e cidade */
+        if (dados.estado) {
+            const estadoSelect = document.getElementById('estado');
+            estadoSelect.value = dados.estado;
+
+            if (dados.cidade) {
+                const cidadeSelect = document.getElementById('cidade');
+                cidadeSelect.innerHTML = '<option value="" disabled selected>Carregando...</option>';
+                cidadeSelect.disabled = true;
+                try {
+                    const res = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados/' + dados.estado + '/municipios?orderBy=nome');
+                    const cidades = await res.json();
+                    cidadeSelect.innerHTML = '<option value="" disabled selected>Selecione a cidade</option>';
+                    cidades.forEach(function(c) {
+                        const opt = document.createElement('option');
+                        opt.value = c.nome; opt.textContent = c.nome;
+                        cidadeSelect.appendChild(opt);
+                    });
+                    cidadeSelect.disabled = false;
+                    cidadeSelect.value = dados.cidade;
+                } catch (err) {
+                    const input = document.createElement('input');
+                    input.type = 'text'; input.name = 'cidade'; input.id = 'cidade'; input.required = true; input.value = dados.cidade;
+                    cidadeSelect.replaceWith(input);
+                }
+            }
+        }
+
+        /* Nichos */
+        selectedNichos = [];
+        if (dados.nicho) {
+            try {
+                const parsed = JSON.parse(dados.nicho);
+                if (Array.isArray(parsed)) {
+                    selectedNichos = parsed;
+                    document.querySelectorAll('#nichoPicker .nicho-chip').forEach(function(chip) {
+                        if (selectedNichos.includes(chip.dataset.value)) {
+                            chip.classList.add('selected');
+                        }
+                    });
+                    updateNichoCounter('nichoCounter');
+                    updateNichoChipStates();
+                }
+            } catch (e) {}
+        }
+
+        /* Ocultar termos (ja aceitou) */
+        const termsSection = document.querySelector('.terms-checkbox');
+        if (termsSection) {
+            termsSection.style.display = 'none';
+            document.getElementById('aceiteTermos').checked = true;
+        }
+
+        /* Botao salvar */
+        document.getElementById('submitBtn').textContent = 'Salvar alteracoes';
+
+        /* Link cancelar */
+        if (!document.getElementById('cancelEditLink')) {
+            const cancelP = document.createElement('p');
+            cancelP.id = 'cancelEditLink';
+            cancelP.style.cssText = 'text-align:center;margin-top:12px;';
+            cancelP.innerHTML = '<a href="#" style="font-size:13px;color:var(--text-muted);text-decoration:underline;">Cancelar e voltar ao cadastro</a>';
+            cancelP.querySelector('a').addEventListener('click', function(e) { e.preventDefault(); exitEditMode(); });
+            document.getElementById('submitBtn').parentNode.insertBefore(cancelP, document.getElementById('submitBtn').nextSibling);
+        }
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* Sair do modo edicao */
+    function exitEditMode() {
+        isEditMode = false;
+        editCreatorEmail = null;
+        editCreatorWhatsapp = null;
+
+        document.getElementById('verifySection').style.display = 'none';
+        document.getElementById('editarLink').style.display = '';
+
+        document.getElementById('formTitleEl').textContent = 'Seus dados';
+        document.getElementById('formTitleEl').style.display = '';
+        document.getElementById('formSubtitleEl').textContent = 'Preencha abaixo para entrar na nossa base e receber oportunidades de campanhas.';
+        document.getElementById('formSubtitleEl').style.display = '';
+
+        document.getElementById('creatorForm').style.display = '';
+        document.querySelector('.form-footer').style.display = '';
+        document.getElementById('creatorForm').reset();
+
+        const emailField = document.getElementById('email');
+        emailField.readOnly = false;
+        emailField.closest('.field-group').classList.remove('field-locked');
+
+        document.getElementById('photoPreview').innerHTML = '<span class="photo-icon">+</span>';
+        document.querySelector('.photo-label').textContent = 'Enviar foto de perfil (obrigatorio)';
+
+        selectedNichos = [];
+        document.querySelectorAll('#nichoPicker .nicho-chip').forEach(function(chip) {
+            chip.classList.remove('selected', 'disabled');
+        });
+        updateNichoCounter('nichoCounter');
+
+        const termsSection = document.querySelector('.terms-checkbox');
+        if (termsSection) {
+            termsSection.style.display = '';
+            document.getElementById('aceiteTermos').checked = false;
+        }
+
+        document.getElementById('submitBtn').textContent = 'Quero receber oportunidades';
+        const cancelLink = document.getElementById('cancelEditLink');
+        if (cancelLink) cancelLink.remove();
+
+        const cidadeEl = document.getElementById('cidade');
+        if (cidadeEl && cidadeEl.tagName === 'SELECT') {
+            cidadeEl.innerHTML = '<option value="" disabled selected>Selecione o estado primeiro</option>';
+            cidadeEl.disabled = true;
+        }
+    }
+
     /* UTM e Indicacao */
     const _params = new URLSearchParams(window.location.search);
     const utmOrigem = _params.get('utm') || 'direto';
@@ -366,7 +643,7 @@
         const errorEl = document.getElementById('formErrorBottom');
         errorEl.classList.remove('show', 'duplicate');
         document.getElementById('formError').classList.remove('show');
-        btn.textContent = 'Enviando...';
+        btn.textContent = isEditMode ? 'Salvando...' : 'Enviando...';
         btn.disabled = true;
 
         try {
@@ -374,11 +651,13 @@
             if (selectedNichos.length === 0) throw new Error('Selecione pelo menos 1 nicho do seu conteudo.');
             if (!document.querySelector('input[name="tipo_creator"]:checked')) throw new Error('Selecione o tipo de creator.');
 
+            /* Foto: obrigatoria no cadastro, opcional na edicao */
             const fotoField = document.getElementById('fotoInput');
-            if (!fotoField || !fotoField.files || !fotoField.files[0]) throw new Error('Envie sua foto de perfil.');
+            const temNovaFoto = fotoField && fotoField.files && fotoField.files[0];
+            if (!isEditMode && !temNovaFoto) throw new Error('Envie sua foto de perfil.');
             let fotoUrl = null;
 
-            if (fotoField && fotoField.files && fotoField.files[0]) {
+            if (temNovaFoto) {
                 const arquivo = fotoField.files[0];
                 const nomeArquivo = Date.now() + '_' + arquivo.name.replace(/[^a-zA-Z0-9.]/g, '_');
                 const { data: uploadData, error: uploadError } = await sb.storage.from('fotos-perfil').upload(nomeArquivo, arquivo, { cacheControl: '3600', upsert: false });
@@ -390,77 +669,131 @@
 
             const cidadeEl = document.getElementById('cidade');
             const cidadeValue = cidadeEl.tagName === 'SELECT' ? cidadeEl.value : cidadeEl.value.trim();
-            const creatorData = {
-                nome: document.getElementById('nome').value.trim(),
-                email: document.getElementById('email').value.trim().toLowerCase(),
-                whatsapp: document.getElementById('whatsapp').value.trim(),
-                instagram: document.getElementById('instagram').value.trim().toLowerCase(),
-                tiktok: document.getElementById('tiktok').value.trim().toLowerCase() || null,
-                data_nascimento: document.getElementById('nascimento').value || null,
-                genero: document.getElementById('genero').value,
-                seguidores: document.getElementById('seguidores').value,
-                estado: document.getElementById('estado').value,
-                cidade: cidadeValue,
-                nicho: JSON.stringify(selectedNichos),
-                tipo_creator: document.querySelector('input[name="tipo_creator"]:checked')?.value || null,
-                sobre: (document.getElementById('sobre')?.value || '').trim().substring(0, 200) || null,
-                experiencia: document.getElementById('experiencia').value,
-                portfolio: formatUrl(document.getElementById('portfolio').value),
-                melhor_conteudo: formatUrl(document.getElementById('melhor_conteudo').value),
-                foto_perfil: fotoUrl,
-                origem: 'site_recrutamento',
-                utm_origem: utmOrigem,
-                codigo_indicacao: gerarCodigoIndicacao(),
-                indicada_por: refCode,
-                status: 'novo',
-                aceite_termos: true,
-                data_aceite_termos: new Date().toISOString()
-            };
 
-            let tentativas = 0;
-            let error;
-            do {
-                ({ error } = await sb.from('creators').insert([creatorData]));
-                if (error && error.message?.includes('codigo_indicacao') && tentativas < 3) {
-                    creatorData.codigo_indicacao = gerarCodigoIndicacao();
-                    tentativas++;
-                } else break;
-            } while (true);
-            if (error) {
-                if (error.code === '23505') {
-                    const msg = (error.message || '') + (error.details || '');
-                    if (msg.includes('email')) throw new Error('Esse e-mail ja esta cadastrado na nossa base! Se voce ja se cadastrou, fique tranquila, suas informacoes estao salvas.');
-                    if (msg.includes('instagram')) throw new Error('Esse Instagram ja esta cadastrado na nossa base! Se voce ja se cadastrou, fique tranquila, suas informacoes estao salvas.');
-                    throw new Error('Voce ja esta cadastrada na nossa base! Se voce ja se cadastrou antes, fique tranquila, suas informacoes estao salvas.');
-                }
-                throw error;
-            }
-            const codigoRef = creatorData.codigo_indicacao;
+            if (isEditMode) {
+                /* ═══ MODO EDICAO ═══ */
+                const updateData = {
+                    nome: document.getElementById('nome').value.trim(),
+                    whatsapp: document.getElementById('whatsapp').value.trim(),
+                    instagram: document.getElementById('instagram').value.trim().toLowerCase(),
+                    tiktok: document.getElementById('tiktok').value.trim().toLowerCase() || '',
+                    data_nascimento: document.getElementById('nascimento').value || '',
+                    genero: document.getElementById('genero').value,
+                    seguidores: document.getElementById('seguidores').value,
+                    estado: document.getElementById('estado').value,
+                    cidade: cidadeValue,
+                    nicho: JSON.stringify(selectedNichos),
+                    tipo_creator: document.querySelector('input[name="tipo_creator"]:checked')?.value || '',
+                    sobre: (document.getElementById('sobre')?.value || '').trim().substring(0, 200) || '',
+                    experiencia: document.getElementById('experiencia').value,
+                    portfolio: formatUrl(document.getElementById('portfolio').value) || '',
+                    melhor_conteudo: formatUrl(document.getElementById('melhor_conteudo').value) || ''
+                };
+                if (fotoUrl) updateData.foto_perfil = fotoUrl;
 
-            try {
-                const emailRes = await sb.functions.invoke('send-welcome-email', {
-                    body: { nome: creatorData.nome, email: creatorData.email }
+                const { data: updateResult, error: updateError } = await sb.rpc('creator_update_self', {
+                    p_email: editCreatorEmail,
+                    p_whatsapp: editCreatorWhatsapp,
+                    p_data: updateData
                 });
-                if (!emailRes.error) {
-                    await sb.from('creators').update({
-                        email_boas_vindas_enviado: true,
-                        email_boas_vindas_data: new Date().toISOString()
-                    }).eq('email', creatorData.email);
-                }
-            } catch (emailErr) {}
 
-            document.getElementById('formContent').style.display = 'none';
-            document.getElementById('successState').classList.add('show');
-            setupShareButtons(codigoRef);
-            launchConfetti();
+                if (updateError) {
+                    if ((updateError.message || '').includes('23505') || updateError.code === '23505') {
+                        throw new Error('Esse Instagram ja esta em uso por outra creator.');
+                    }
+                    throw updateError;
+                }
+                if (updateResult && !updateResult.sucesso) {
+                    throw new Error(updateResult.erro || 'Erro ao atualizar cadastro.');
+                }
+
+                /* Sucesso na edicao */
+                document.getElementById('formContent').style.display = 'none';
+                const successState = document.getElementById('successState');
+                const successTitle = successState.querySelector('.success-title');
+                const successSubtitle = successState.querySelector('.success-subtitle');
+                const successSmall = successState.querySelector('.success-small');
+                if (successTitle) successTitle.textContent = 'Cadastro atualizado!';
+                if (successSubtitle) successSubtitle.textContent = 'Suas alteracoes foram salvas com sucesso.';
+                if (successSmall) successSmall.textContent = '';
+                const shareSection = successState.querySelector('.share-section');
+                if (shareSection) shareSection.style.display = 'none';
+                successState.classList.add('show');
+
+            } else {
+                /* ═══ MODO CADASTRO (original) ═══ */
+                const creatorData = {
+                    nome: document.getElementById('nome').value.trim(),
+                    email: document.getElementById('email').value.trim().toLowerCase(),
+                    whatsapp: document.getElementById('whatsapp').value.trim(),
+                    instagram: document.getElementById('instagram').value.trim().toLowerCase(),
+                    tiktok: document.getElementById('tiktok').value.trim().toLowerCase() || null,
+                    data_nascimento: document.getElementById('nascimento').value || null,
+                    genero: document.getElementById('genero').value,
+                    seguidores: document.getElementById('seguidores').value,
+                    estado: document.getElementById('estado').value,
+                    cidade: cidadeValue,
+                    nicho: JSON.stringify(selectedNichos),
+                    tipo_creator: document.querySelector('input[name="tipo_creator"]:checked')?.value || null,
+                    sobre: (document.getElementById('sobre')?.value || '').trim().substring(0, 200) || null,
+                    experiencia: document.getElementById('experiencia').value,
+                    portfolio: formatUrl(document.getElementById('portfolio').value),
+                    melhor_conteudo: formatUrl(document.getElementById('melhor_conteudo').value),
+                    foto_perfil: fotoUrl,
+                    origem: 'site_recrutamento',
+                    utm_origem: utmOrigem,
+                    codigo_indicacao: gerarCodigoIndicacao(),
+                    indicada_por: refCode,
+                    status: 'novo',
+                    aceite_termos: true,
+                    data_aceite_termos: new Date().toISOString()
+                };
+
+                let tentativas = 0;
+                let error;
+                do {
+                    ({ error } = await sb.from('creators').insert([creatorData]));
+                    if (error && error.message?.includes('codigo_indicacao') && tentativas < 3) {
+                        creatorData.codigo_indicacao = gerarCodigoIndicacao();
+                        tentativas++;
+                    } else break;
+                } while (true);
+                if (error) {
+                    if (error.code === '23505') {
+                        const msg = (error.message || '') + (error.details || '');
+                        if (msg.includes('email')) throw new Error('Esse e-mail ja esta cadastrado na nossa base! Se voce ja se cadastrou, fique tranquila, suas informacoes estao salvas.');
+                        if (msg.includes('instagram')) throw new Error('Esse Instagram ja esta cadastrado na nossa base! Se voce ja se cadastrou, fique tranquila, suas informacoes estao salvas.');
+                        throw new Error('Voce ja esta cadastrada na nossa base! Se voce ja se cadastrou antes, fique tranquila, suas informacoes estao salvas.');
+                    }
+                    throw error;
+                }
+                const codigoRef = creatorData.codigo_indicacao;
+
+                try {
+                    const emailRes = await sb.functions.invoke('send-welcome-email', {
+                        body: { nome: creatorData.nome, email: creatorData.email }
+                    });
+                    if (!emailRes.error) {
+                        await sb.from('creators').update({
+                            email_boas_vindas_enviado: true,
+                            email_boas_vindas_data: new Date().toISOString()
+                        }).eq('email', creatorData.email);
+                    }
+                } catch (emailErr) {}
+
+                document.getElementById('formContent').style.display = 'none';
+                document.getElementById('successState').classList.add('show');
+                setupShareButtons(codigoRef);
+                launchConfetti();
+            }
         } catch (err) {
-            const isDuplicate = (err.message || '').includes('ja esta cadastrad');
+            const isDuplicate = (err.message || '').includes('ja esta cadastrad') || (err.message || '').includes('ja esta em uso');
             errorEl.textContent = err.message || 'Erro ao enviar. Tente novamente.';
             errorEl.classList.remove('duplicate');
             if (isDuplicate) errorEl.classList.add('duplicate');
             errorEl.classList.add('show');
             errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            btn.textContent = 'Quero receber oportunidades';
+            btn.textContent = isEditMode ? 'Salvar alteracoes' : 'Quero receber oportunidades';
             btn.disabled = false;
         }
     });
