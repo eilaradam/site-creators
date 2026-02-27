@@ -1861,7 +1861,7 @@
                     const resendClient = Auth.createSignupClient();
                     const { error: resendErr } = await resendClient.auth.resend({
                         type: 'signup',
-                        email: '${email.replace(/'/g, "\\'")}',
+                        email: email,
                         options: { emailRedirectTo: 'https://creators.laradam.com/login.html' }
                     });
                     if (resendErr) throw resendErr;
