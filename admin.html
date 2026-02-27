@@ -1705,6 +1705,7 @@
                 <td style="white-space:nowrap">
                     <button class="btn-toggle" onclick="toggleAluna('${a.id}', ${!a.ativo})">${a.ativo ? 'Desativar' : 'Ativar'}</button>
                     ${expirada ? `<button class="btn-toggle" style="margin-left:4px;background:var(--success);color:white;border-color:var(--success)" onclick="renovarAluna('${a.id}')">Renovar 1 ano</button>` : ''}
+                    <button class="btn-toggle" style="margin-left:4px;background:var(--error);color:white;border-color:var(--error)" onclick="deleteAluna('${a.id}', '${escapeHtml(a.nome)}')">Excluir</button>
                 </td>
             </tr>`;
         }).join('');
@@ -1736,6 +1737,17 @@
             loadAlunas();
         } catch (err) {
             alert('Erro ao renovar: ' + err.message);
+        }
+    }
+
+    async function deleteAluna(id, nome) {
+        if (!confirm(`Tem certeza que deseja EXCLUIR "${nome}"?\n\nIsso remove a aluna completamente (conta + dados). Essa acao nao pode ser desfeita.`)) return;
+        try {
+            const { error } = await sb.rpc('admin_delete_aluna', { p_id: id });
+            if (error) throw error;
+            loadAlunas();
+        } catch (err) {
+            alert('Erro ao excluir: ' + err.message);
         }
     }
 
