@@ -1800,7 +1800,21 @@
                 throw signupError;
             }
 
+            /* Detectar email ja cadastrado (Supabase retorna sucesso falso) */
+            if (!signupData.user?.identities?.length) {
+                throw new Error('Este e-mail ja esta cadastrado. Verifique a lista de alunas.');
+            }
+
             const newUserId = signupData.user.id;
+
+            /* Reenviar email de confirmacao para garantir entrega */
+            try {
+                await signupClient.auth.resend({
+                    type: 'signup',
+                    email: email,
+                    options: { emailRedirectTo: 'https://creators.laradam.com/login.html' }
+                });
+            } catch (e) { /* ignora se resend falhar, o signUp ja enviou */ }
 
             /* 3. Garantir que a sessao do admin ainda esta ativa */
             const { data: { session: checkSession } } = await sb.auth.getSession();
@@ -1825,8 +1839,9 @@
             document.getElementById('modalSuccessContent').innerHTML = `
                 <div class="modal-success">
                     <strong>Aluna cadastrada!</strong><br><br>
-                    Um e-mail de boas-vindas foi enviado para <strong>${escapeHtml(email)}</strong>.<br><br>
-                    Apos confirmar o e-mail, ela podera acessar o perfil usando a senha que voce definiu.
+                    Um e-mail de confirmacao foi enviado para <strong>${escapeHtml(email)}</strong>.<br><br>
+                    A aluna deve clicar no link do e-mail para ativar a conta. Depois, pode fazer login com a senha que voce definiu.<br><br>
+                    <small style="color:var(--text-muted);">Se o e-mail nao chegar, verifique a caixa de spam.</small>
                 </div>
                 <div class="modal-actions" style="margin-top:16px;">
                     <button class="btn-confirm" onclick="document.getElementById('modalAluna').classList.remove('show'); loadAlunas();" style="flex:1;">Fechar</button>
