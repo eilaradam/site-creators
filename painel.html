@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="this.onerror=null;this.src='https://unpkg.com/@supabase/supabase-js@2'"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.98.0" integrity="sha384-Sm2s7OXxsAMTyJ4iIyRBgVpeGUvMPk2lRQnnZhE78Wej7oggIoolKt+SCt0XJbUB" crossorigin="anonymous"></script>
     <script src="js/auth.js"></script>
     <style>
         :root {
@@ -536,7 +536,7 @@
 
     </style>
 </head>
-<body>
+<body style="visibility:hidden">
 
 <!-- Sidebar (desktop) -->
 <aside class="sidebar">
@@ -1037,6 +1037,7 @@
         const userInfo = await Auth.getUserInfo();
         const uname = userInfo ? userInfo.nome : '';
         document.getElementById('userName').textContent = uname;
+        document.body.style.visibility = 'visible';
 
         await Promise.all([loadEstados(), loadSavedIds(), loadPopularity(), loadListas()]);
         await loadCreators();
@@ -1137,8 +1138,8 @@
             const carousel = document.getElementById('bannerCarousel');
 
             track.innerHTML = data.map(b => {
-                const img = `<img src="${b.imagem_url}" alt="${b.titulo || ''}" onerror="this.parentElement.style.display='none'">`;
-                return `<div class="banner-slide">${b.link_url ? `<a href="${b.link_url}" target="_blank" rel="noopener">${img}</a>` : img}</div>`;
+                const img = `<img src="${escapeHtml(b.imagem_url || '')}" alt="${escapeHtml(b.titulo || '')}" onerror="this.parentElement.style.display='none'">`;
+                return `<div class="banner-slide">${b.link_url ? `<a href="${escapeHtml(b.link_url)}" target="_blank" rel="noopener">${img}</a>` : img}</div>`;
             }).join('');
 
             dots.innerHTML = data.map((_, i) =>

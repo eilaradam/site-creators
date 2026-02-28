@@ -8,8 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="this.onerror=null;this.src='https://unpkg.com/@supabase/supabase-js@2'"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.98.0" integrity="sha384-Sm2s7OXxsAMTyJ4iIyRBgVpeGUvMPk2lRQnnZhE78Wej7oggIoolKt+SCt0XJbUB" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
     <script src="js/auth.js"></script>
     <style>
         :root {
@@ -449,7 +449,7 @@
         }
     </style>
 </head>
-<body>
+<body style="visibility:hidden">
 
 <header class="admin-header">
     <div class="admin-logo">lara<span>.</span>dam <small>Admin</small></div>
@@ -979,6 +979,7 @@
         currentUserId = authData.user.id;
         const userInfo = await Auth.getUserInfo();
         document.getElementById('userName').textContent = userInfo ? userInfo.nome : '';
+        document.body.style.visibility = 'visible';
 
         await Promise.all([loadSavedIds(), loadPopularity()]);
         loadCreators();
@@ -2478,11 +2479,11 @@
         list.innerHTML = adminBanners.map((b, i) => `
             <div class="banner-item" data-id="${b.id}">
                 <div class="banner-item-img">
-                    <img src="${b.imagem_url}" alt="${b.titulo || ''}" onerror="this.parentElement.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:12px\\'>Sem imagem</div>'">
+                    <img src="${escapeHtml(b.imagem_url || '')}" alt="${escapeHtml(b.titulo || '')}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div style="display:none;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:12px">Sem imagem</div>
                 </div>
                 <div class="banner-item-info">
-                    <div class="banner-item-title">${b.titulo || '(Sem titulo)'}</div>
-                    ${b.link_url ? `<a class="banner-item-link" href="${b.link_url}" target="_blank" rel="noopener">${b.link_url}</a>` : ''}
+                    <div class="banner-item-title">${escapeHtml(b.titulo || '(Sem titulo)')}</div>
+                    ${b.link_url ? `<a class="banner-item-link" href="${escapeHtml(b.link_url)}" target="_blank" rel="noopener">${escapeHtml(b.link_url)}</a>` : ''}
                     <div class="banner-item-meta">
                         <span>Ordem: ${b.ordem}</span>
                     </div>
