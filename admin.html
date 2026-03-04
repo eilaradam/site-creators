@@ -1264,9 +1264,21 @@
     /* ── Carregar popularidade ── */
     async function loadPopularity() {
         try {
+            const CACHE_KEY = 'popularityCache';
+            const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
+            const cached = sessionStorage.getItem(CACHE_KEY);
+            if (cached) {
+                const { data: cachedData, ts } = JSON.parse(cached);
+                if (Date.now() - ts < CACHE_TTL) {
+                    popularityMap = {};
+                    cachedData.forEach(r => { popularityMap[r.creator_id] = r.total_salvos; });
+                    return;
+                }
+            }
             const { data } = await sb.from('v_creators_popularidade').select('creator_id, total_salvos');
             popularityMap = {};
             (data || []).forEach(r => { popularityMap[r.creator_id] = r.total_salvos; });
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify({ data: data || [], ts: Date.now() }));
         } catch (e) { popularityMap = {}; }
     }
 
@@ -1451,7 +1463,7 @@
         listEl.innerHTML = '<div class="loading">Carregando creators...</div>';
 
         try {
-            const { data, error } = await sb.from('creators').select('*').order('created_at', { ascending: false });
+            const { data, error } = await sb.from('creators').select('id, nome, email, foto_perfil, estado, cidade, tipo_creator, seguidores, experiencia, whatsapp, instagram, tiktok, sobre, nicho, portfolio, melhor_conteudo, data_nascimento, created_at, utm_origem, codigo_indicacao, indicada_por, status, email_boas_vindas_enviado').order('created_at', { ascending: false });
             if (error) throw error;
             allCreators = data || [];
             buildIndicacoesMap();
