@@ -554,6 +554,10 @@
             <select id="filterTipoCreator"><option value="">Todos</option><option value="ugc_creator">UGC Creator</option><option value="influenciadora">Influenciadora</option><option value="ugc_influenciadora">UGC + Influenciadora</option></select>
         </div>
         <div class="filter-group">
+            <label>Gênero</label>
+            <select id="filterGenero"><option value="">Todos</option><option value="feminino">Feminino</option><option value="masculino">Masculino</option><option value="nao_binario">Não-binário</option><option value="prefiro_nao_dizer">Prefiro não dizer</option></select>
+        </div>
+        <div class="filter-group">
             <label>Estado</label>
             <select id="filterEstado"><option value="">Todos</option></select>
         </div>
@@ -633,6 +637,10 @@
         <div class="filter-group">
             <label>Tipo Creator</label>
             <select id="savedFilterTipoCreator"><option value="">Todos</option><option value="ugc_creator">UGC Creator</option><option value="influenciadora">Influenciadora</option><option value="ugc_influenciadora">UGC + Influenciadora</option></select>
+        </div>
+        <div class="filter-group">
+            <label>Gênero</label>
+            <select id="savedFilterGenero"><option value="">Todos</option><option value="feminino">Feminino</option><option value="masculino">Masculino</option><option value="nao_binario">Não-binário</option><option value="prefiro_nao_dizer">Prefiro não dizer</option></select>
         </div>
         <div class="filter-group">
             <label>Estado</label>
@@ -1606,6 +1614,7 @@
         const status = document.getElementById('filterStatus').value;
         const nicho = document.getElementById('filterNicho').value;
         const tipoCreator = document.getElementById('filterTipoCreator').value;
+        const genero = document.getElementById('filterGenero').value;
         const estado = document.getElementById('filterEstado').value;
         const cidade = document.getElementById('filterCidade').value;
         const seguidores = document.getElementById('filterSeguidores').value;
@@ -1621,6 +1630,7 @@
             if (status && c.status !== status) return false;
             if (!nichoMatches(c.nicho, nicho)) return false;
             if (tipoCreator && c.tipo_creator !== tipoCreator) return false;
+            if (genero && c.genero !== genero) return false;
             if (estado && c.estado !== estado) return false;
             if (cidade && c.cidade !== cidade) return false;
             if (seguidores && c.seguidores !== seguidores) return false;
@@ -1734,6 +1744,7 @@
     document.getElementById('filterStatus').addEventListener('change', applyFilters);
     document.getElementById('filterNicho').addEventListener('change', applyFilters);
     document.getElementById('filterTipoCreator').addEventListener('change', applyFilters);
+    document.getElementById('filterGenero').addEventListener('change', applyFilters);
     document.getElementById('filterEstado').addEventListener('change', function() {
         loadCidades(this.value, 'filterCidade');
         applyFilters();
@@ -1750,6 +1761,7 @@
         document.getElementById('filterStatus').value = '';
         document.getElementById('filterNicho').value = '';
         document.getElementById('filterTipoCreator').value = '';
+        document.getElementById('filterGenero').value = '';
         document.getElementById('filterEstado').value = '';
         document.getElementById('filterCidade').value = '';
         document.getElementById('filterCidade').disabled = true;
@@ -1823,6 +1835,7 @@
             const search = document.getElementById('savedFilterSearch').value.toLowerCase().trim();
             const nicho = document.getElementById('savedFilterNicho').value;
             const tipoCreator = document.getElementById('savedFilterTipoCreator').value;
+            const genero = document.getElementById('savedFilterGenero').value;
             const estado = document.getElementById('savedFilterEstado').value;
             const cidade = document.getElementById('savedFilterCidade').value;
             const seguidores = document.getElementById('savedFilterSeguidores').value;
@@ -1836,6 +1849,7 @@
                 if (search && !(c.nome || '').toLowerCase().includes(search)) return false;
                 if (!nichoMatches(c.nicho, nicho)) return false;
                 if (tipoCreator && c.tipo_creator !== tipoCreator) return false;
+                if (genero && c.genero !== genero) return false;
                 if (estado && c.estado !== estado) return false;
                 if (cidade && c.cidade !== cidade) return false;
                 if (seguidores && c.seguidores !== seguidores) return false;
@@ -1896,6 +1910,7 @@
     document.getElementById('savedFilterSearch').addEventListener('input', loadSavedCreators);
     document.getElementById('savedFilterNicho').addEventListener('change', loadSavedCreators);
     document.getElementById('savedFilterTipoCreator').addEventListener('change', loadSavedCreators);
+    document.getElementById('savedFilterGenero').addEventListener('change', loadSavedCreators);
     document.getElementById('savedFilterEstado').addEventListener('change', function() {
         loadCidades(this.value, 'savedFilterCidade');
         loadSavedCreators();
@@ -1909,6 +1924,7 @@
         document.getElementById('savedFilterSearch').value = '';
         document.getElementById('savedFilterNicho').value = '';
         document.getElementById('savedFilterTipoCreator').value = '';
+        document.getElementById('savedFilterGenero').value = '';
         document.getElementById('savedFilterEstado').value = '';
         document.getElementById('savedFilterCidade').value = '';
         document.getElementById('savedFilterCidade').disabled = true;
