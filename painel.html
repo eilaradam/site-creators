@@ -641,6 +641,10 @@
                     <select id="filterTipoCreator"><option value="">Todos</option><option value="ugc_creator">UGC Creator</option><option value="influenciadora">Influenciadora</option><option value="ugc_influenciadora">UGC + Influenciadora</option></select>
                 </div>
                 <div class="filter-group">
+                    <label>Gênero</label>
+                    <select id="filterGenero"><option value="">Todos</option><option value="feminino">Feminino</option><option value="masculino">Masculino</option><option value="nao_binario">Não-binário</option><option value="prefiro_nao_dizer">Prefiro não dizer</option></select>
+                </div>
+                <div class="filter-group">
                     <label>Seguidores</label>
                     <select id="filterSeguidores">
                         <option value="">Todos</option>
@@ -720,6 +724,10 @@
                 <div class="filter-group">
                     <label>Tipo Creator</label>
                     <select id="savedFilterTipoCreator"><option value="">Todos</option><option value="ugc_creator">UGC Creator</option><option value="influenciadora">Influenciadora</option><option value="ugc_influenciadora">UGC + Influenciadora</option></select>
+                </div>
+                <div class="filter-group">
+                    <label>Gênero</label>
+                    <select id="savedFilterGenero"><option value="">Todos</option><option value="feminino">Feminino</option><option value="masculino">Masculino</option><option value="nao_binario">Não-binário</option><option value="prefiro_nao_dizer">Prefiro não dizer</option></select>
                 </div>
                 <div class="filter-group">
                     <label>Seguidores</label>
@@ -1700,6 +1708,7 @@
         const cidade = document.getElementById('filterCidade').value;
         const nicho = document.getElementById('filterNicho').value;
         const tipoCreator = document.getElementById('filterTipoCreator').value;
+        const genero = document.getElementById('filterGenero').value;
         const seguidores = document.getElementById('filterSeguidores').value;
         const idadeMin = parseInt(document.getElementById('idadeMin').value);
         const idadeMax = parseInt(document.getElementById('idadeMax').value);
@@ -1717,6 +1726,7 @@
             if (cidade) query = query.eq('cidade', cidade);
             if (nicho) query = query.ilike('nicho', `%${nicho}%`);
             if (tipoCreator) query = query.eq('tipo_creator', tipoCreator);
+            if (genero) query = query.eq('genero', genero);
             if (seguidores) query = query.eq('seguidores', seguidores);
             query = applyAgeFilter(query, idadeDe, idadeAte);
 
@@ -1768,6 +1778,7 @@
         document.getElementById('filterCidade').disabled = true;
         document.getElementById('filterNicho').value = '';
         document.getElementById('filterTipoCreator').value = '';
+        document.getElementById('filterGenero').value = '';
         document.getElementById('filterSeguidores').value = '';
         document.getElementById('idadeMin').value = 16;
         document.getElementById('idadeMax').value = 60;
@@ -1812,6 +1823,7 @@
         const cidade = document.getElementById('savedFilterCidade').value;
         const nicho = document.getElementById('savedFilterNicho').value;
         const tipoCreator = document.getElementById('savedFilterTipoCreator').value;
+        const genero = document.getElementById('savedFilterGenero').value;
         const seguidores = document.getElementById('savedFilterSeguidores').value;
 
         try {
@@ -1836,6 +1848,7 @@
             if (cidade) query = query.eq('cidade', cidade);
             if (nicho) query = query.ilike('nicho', `%${nicho}%`);
             if (tipoCreator) query = query.eq('tipo_creator', tipoCreator);
+            if (genero) query = query.eq('genero', genero);
             if (seguidores) query = query.eq('seguidores', seguidores);
 
             const from = (savedCurrentPage - 1) * PER_PAGE;
@@ -1881,6 +1894,7 @@
         document.getElementById('savedFilterCidade').disabled = true;
         document.getElementById('savedFilterNicho').value = '';
         document.getElementById('savedFilterTipoCreator').value = '';
+        document.getElementById('savedFilterGenero').value = '';
         document.getElementById('savedFilterSeguidores').value = '';
         savedCurrentPage = 1;
         loadSavedCreators();
