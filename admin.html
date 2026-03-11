@@ -323,6 +323,33 @@
         .tipo-badge-influenciadora { background: rgba(139,105,20,0.1); color: #8B6914; }
         .tipo-badge-ugc_influenciadora { background: rgba(212,87,42,0.1); color: var(--accent); }
 
+        /* Gestão tab */
+        .gestao-section { margin-bottom: 32px; }
+        .gestao-section-title { font-family: 'Fraunces', serif; font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+        .gestao-section-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }
+        .gestao-table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; overflow-x: auto; margin-bottom: 24px; }
+        .gestao-table { width: 100%; border-collapse: collapse; }
+        .gestao-table th { background: var(--cream); padding: 10px 16px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+        .gestao-table td { padding: 10px 16px; font-size: 13px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        .gestao-table tr:last-child td { border-bottom: none; }
+        .gestao-table tr:hover td { background: rgba(212,87,42,0.02); }
+        .gestao-empty { padding: 24px; text-align: center; font-size: 13px; color: var(--text-muted); }
+        .status-select { appearance: none; padding: 6px 32px 6px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 600; color: var(--text); background: var(--cream); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239C958C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; cursor: pointer; outline: none; transition: all 0.2s; min-width: 130px; }
+        .status-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+        .status-select.val-aprovado { background-color: rgba(45,122,79,0.08); border-color: rgba(45,122,79,0.3); color: var(--success); }
+        .status-select.val-reprovado { background-color: rgba(196,69,60,0.08); border-color: rgba(196,69,60,0.3); color: var(--error); }
+        .status-select.val-ajuste { background-color: rgba(217,169,56,0.1); border-color: rgba(217,169,56,0.4); color: #8B6914; }
+        .status-saved-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--success); margin-left: 6px; opacity: 0; transition: opacity 0.3s; vertical-align: middle; }
+        .status-saved-dot.show { opacity: 1; }
+        .gestao-loading { padding: 40px; text-align: center; font-size: 13px; color: var(--text-muted); }
+        .gestao-add-btn { padding: 7px 16px; background: var(--accent); color: white; border: none; border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+        .gestao-add-btn:hover { background: var(--accent-dark); }
+        .gestao-header-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 14px; }
+        .gestao-creator-nome { font-weight: 600; color: var(--text); }
+        .gestao-creator-ig { font-size: 12px; color: var(--text-muted); }
+        .gestao-creator-ig a { color: var(--accent); text-decoration: none; font-weight: 600; }
+        .gestao-creator-ig a:hover { text-decoration: underline; }
+
         /* Banners management */
         .banners-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .banners-header h2 { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; }
@@ -471,6 +498,7 @@
     <button class="tab" data-tab="termos">Termos</button>
     <button class="tab" data-tab="links">Links</button>
     <button class="tab" data-tab="banners">Banners</button>
+    <button class="tab" data-tab="gestao">Gestão</button>
 </div>
 
 <!-- ── TAB: DASHBOARD ── -->
@@ -876,6 +904,13 @@
     </div>
 </div>
 
+<!-- ── TAB: GESTÃO ── -->
+<div class="dashboard" id="tabGestao">
+    <div id="gestaoContent">
+        <div class="gestao-loading">Carregando...</div>
+    </div>
+</div>
+
 <!-- Modal: Banner -->
 <div class="modal-banner-overlay" id="modalBanner">
     <div class="modal-banner">
@@ -1013,10 +1048,12 @@
             document.getElementById('tabTermos').classList.toggle('show', target === 'termos');
             document.getElementById('tabLinks').classList.toggle('show', target === 'links');
             document.getElementById('tabBanners').classList.toggle('show', target === 'banners');
+            document.getElementById('tabGestao').classList.toggle('show', target === 'gestao');
             if (target === 'dashboard') loadDashboard();
             if (target === 'alunas') loadAlunas();
             if (target === 'termos') loadTermos();
             if (target === 'banners') loadAdminBanners();
+            if (target === 'gestao') loadGestao();
             if (target === 'salvos') {
                 populateSavedEstados();
                 loadSavedCreators();
@@ -2680,6 +2717,124 @@
             await loadAdminBanners();
         } catch (err) {
             alert('Erro ao excluir: ' + err.message);
+        }
+    }
+
+    /* ══════════════════════════════════
+       GESTÃO TAB
+       ══════════════════════════════════ */
+    let gestaoLoaded = false;
+
+    async function loadGestao() {
+        if (gestaoLoaded) return;
+        gestaoLoaded = true;
+        const el = document.getElementById('gestaoContent');
+
+        try {
+            const { data: campanhas, error: errCamp } = await sb
+                .from('campanhas')
+                .select('id, nome, marca, status')
+                .order('created_at', { ascending: false });
+            if (errCamp) throw errCamp;
+
+            const { data: participacoes, error: errPart } = await sb
+                .from('campanha_creators')
+                .select('id, campanha_id, creator_id, status, status_roteiro, status_conteudo, creators(id, nome, instagram)');
+            if (errPart) throw errPart;
+
+            if (!campanhas || campanhas.length === 0) {
+                el.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:24px;">Nenhuma campanha encontrada.</p>';
+                return;
+            }
+
+            const partByCamp = {};
+            (participacoes || []).forEach(p => {
+                if (!partByCamp[p.campanha_id]) partByCamp[p.campanha_id] = [];
+                partByCamp[p.campanha_id].push(p);
+            });
+
+            let html = '';
+            for (const camp of campanhas) {
+                const parts = partByCamp[camp.id] || [];
+                html += `
+                <div class="gestao-section">
+                    <div class="gestao-header-row">
+                        <div>
+                            <div class="gestao-section-title">${escapeHtml(camp.marca)} — ${escapeHtml(camp.nome)}</div>
+                            <div class="gestao-section-sub">${parts.length} creator${parts.length !== 1 ? 's' : ''} participando</div>
+                        </div>
+                    </div>
+                    <div class="gestao-table-wrap">
+                        <table class="gestao-table">
+                            <thead>
+                                <tr>
+                                    <th>Creator</th>
+                                    <th>Instagram</th>
+                                    <th>Status Roteiro</th>
+                                    <th>Status Conteúdo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${parts.length === 0
+                                    ? `<tr><td colspan="4" class="gestao-empty">Nenhum creator participando ainda.</td></tr>`
+                                    : parts.map(p => {
+                                        const c = p.creators || {};
+                                        return `
+                                        <tr>
+                                            <td>
+                                                <div class="gestao-creator-nome">${escapeHtml(c.nome || '—')}</div>
+                                            </td>
+                                            <td class="gestao-creator-ig">
+                                                ${c.instagram ? `<a href="https://instagram.com/${encodeURIComponent(c.instagram.replace('@',''))}" target="_blank" rel="noopener">@${escapeHtml(c.instagram.replace('@',''))}</a>` : '—'}
+                                            </td>
+                                            <td>
+                                                <select class="status-select ${p.status_roteiro ? 'val-'+p.status_roteiro : ''}" data-part-id="${p.id}" data-field="status_roteiro" onchange="updateGestaoStatus(this)">
+                                                    <option value="">Pendente</option>
+                                                    <option value="aprovado" ${p.status_roteiro === 'aprovado' ? 'selected' : ''}>Aprovado</option>
+                                                    <option value="reprovado" ${p.status_roteiro === 'reprovado' ? 'selected' : ''}>Reprovado</option>
+                                                    <option value="ajuste" ${p.status_roteiro === 'ajuste' ? 'selected' : ''}>Ajuste</option>
+                                                </select>
+                                                <span class="status-saved-dot" id="dot-${p.id}-roteiro"></span>
+                                            </td>
+                                            <td>
+                                                <select class="status-select ${p.status_conteudo ? 'val-'+p.status_conteudo : ''}" data-part-id="${p.id}" data-field="status_conteudo" onchange="updateGestaoStatus(this)">
+                                                    <option value="">Pendente</option>
+                                                    <option value="aprovado" ${p.status_conteudo === 'aprovado' ? 'selected' : ''}>Aprovado</option>
+                                                    <option value="reprovado" ${p.status_conteudo === 'reprovado' ? 'selected' : ''}>Reprovado</option>
+                                                    <option value="ajuste" ${p.status_conteudo === 'ajuste' ? 'selected' : ''}>Ajuste</option>
+                                                </select>
+                                                <span class="status-saved-dot" id="dot-${p.id}-conteudo"></span>
+                                            </td>
+                                        </tr>`;
+                                    }).join('')
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>`;
+            }
+            el.innerHTML = html;
+        } catch (err) {
+            el.innerHTML = `<p style="color:var(--error);font-size:13px;padding:24px;">Erro ao carregar: ${escapeHtml(err.message)}</p>`;
+        }
+    }
+
+    async function updateGestaoStatus(select) {
+        const partId = select.dataset.partId;
+        const field = select.dataset.field;
+        const value = select.value || null;
+        const shortField = field === 'status_roteiro' ? 'roteiro' : 'conteudo';
+        const dotId = `dot-${partId}-${shortField}`;
+
+        select.className = 'status-select' + (value ? ' val-' + value : '');
+
+        try {
+            const { error } = await sb.from('campanha_creators').update({ [field]: value }).eq('id', partId);
+            if (error) throw error;
+            const dot = document.getElementById(dotId);
+            if (dot) { dot.classList.add('show'); setTimeout(() => dot.classList.remove('show'), 2000); }
+        } catch (err) {
+            alert('Erro ao salvar: ' + err.message);
         }
     }
 
