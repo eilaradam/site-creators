@@ -94,10 +94,31 @@
     </div>
 
 <script>
-    /* Auto-redirect se já logado */
+    /* Processar confirmacao de email (PKCE flow) */
     (async function() {
         const { sb } = Auth;
         if (!sb) return;
+
+        const params = new URLSearchParams(window.location.search);
+        const tokenHash = params.get('token_hash');
+        const type = params.get('type');
+
+        if (tokenHash && type) {
+            try {
+                const { error } = await sb.auth.verifyOtp({ token_hash: tokenHash, type });
+                if (!error) {
+                    const successEl = document.createElement('div');
+                    successEl.className = 'login-success show';
+                    successEl.textContent = 'E-mail confirmado com sucesso! Agora faca login com sua senha.';
+                    document.getElementById('loginForm').prepend(successEl);
+                    /* Limpar URL */
+                    window.history.replaceState({}, '', 'login.html');
+                    return;
+                }
+            } catch (e) {}
+        }
+
+        /* Auto-redirect se ja logado */
         try {
             const { data: { session } } = await sb.auth.getSession();
             if (session) {
