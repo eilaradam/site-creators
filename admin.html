@@ -1508,9 +1508,19 @@
         listEl.innerHTML = '<div class="loading">Carregando creators...</div>';
 
         try {
-            const { data, error } = await sb.from('creators').select('id, nome, email, foto_perfil, estado, cidade, tipo_creator, seguidores, experiencia, whatsapp, instagram, tiktok, sobre, nicho, portfolio, melhor_conteudo, data_nascimento, created_at, utm_origem, codigo_indicacao, indicada_por, status, email_boas_vindas_enviado').order('created_at', { ascending: false });
-            if (error) throw error;
-            allCreators = data || [];
+            const selectFields = 'id, nome, email, foto_perfil, estado, cidade, tipo_creator, seguidores, experiencia, whatsapp, instagram, tiktok, sobre, nicho, portfolio, melhor_conteudo, data_nascimento, created_at, utm_origem, codigo_indicacao, indicada_por, status, email_boas_vindas_enviado';
+            let allData = [];
+            let from = 0;
+            const pageSize = 1000;
+            while (true) {
+                const { data, error } = await sb.from('creators').select(selectFields).order('created_at', { ascending: false }).range(from, from + pageSize - 1);
+                if (error) throw error;
+                if (!data || data.length === 0) break;
+                allData = allData.concat(data);
+                if (data.length < pageSize) break;
+                from += pageSize;
+            }
+            allCreators = allData;
             buildIndicacoesMap();
             updateStats();
             populateEstadoFilter();
@@ -1683,10 +1693,41 @@
 
         filtered = sortCreators(filtered, ordem);
 
-        document.getElementById('resultsText').innerHTML = `Mostrando <strong>${filtered.length}</strong> de <strong>${allCreators.length}</strong> creators`;
         document.getElementById('btnExportCsv').style.display = filtered.length > 0 ? 'inline-block' : 'none';
         lastFiltered = filtered;
-        renderCreators(filtered);
+        creatorsPage = 0;
+        renderCreatorsPaged(filtered);
+    }
+
+    const PAGE_SIZE = 30;
+    let creatorsPage = 0;
+
+    function renderCreatorsPaged(creators) {
+        const container = document.getElementById('creatorsList');
+        const end = (creatorsPage + 1) * PAGE_SIZE;
+        const visible = creators.slice(0, end);
+        const remaining = creators.length - end;
+
+        document.getElementById('resultsText').innerHTML = `Mostrando <strong>${visible.length}</strong> de <strong>${creators.length}</strong> creators`;
+
+        renderCreators(visible);
+
+        // Remove old button if exists
+        const oldBtn = document.getElementById('btnLoadMore');
+        if (oldBtn) oldBtn.remove();
+
+        if (remaining > 0) {
+            const btn = document.createElement('button');
+            btn.id = 'btnLoadMore';
+            btn.className = 'btn btn-secondary';
+            btn.style.cssText = 'display:block;margin:24px auto;padding:12px 32px;';
+            btn.textContent = `Carregar mais (${remaining} restantes)`;
+            btn.addEventListener('click', () => {
+                creatorsPage++;
+                renderCreatorsPaged(creators);
+            });
+            container.after(btn);
+        }
     }
 
     function renderCreators(creators) {
