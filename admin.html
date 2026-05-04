@@ -499,6 +499,7 @@
     <button class="tab" data-tab="links">Links</button>
     <button class="tab" data-tab="banners">Banners</button>
     <button class="tab" data-tab="gestao">Gestão</button>
+    <button class="tab" data-tab="portfolio">Portfólio</button>
 </div>
 
 <!-- ── TAB: DASHBOARD ── -->
@@ -911,6 +912,83 @@
     </div>
 </div>
 
+<!-- ── TAB: PORTFÓLIO (ugc.laradam.com) ── -->
+<div class="dashboard" id="tabPortfolio">
+    <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+            <h2 style="margin:0 0 4px 0;font-family:'Fraunces',serif;font-weight:700;font-size:24px;">Portfólio · ugc.laradam.com</h2>
+            <p style="margin:0;color:var(--text-muted);font-size:13px;">Leads, visitas e cliques do site público.</p>
+        </div>
+        <div style="display:flex;gap:6px;" id="pfRange">
+            <button class="pf-range-btn active" data-pf-range="7">7d</button>
+            <button class="pf-range-btn" data-pf-range="30">30d</button>
+            <button class="pf-range-btn" data-pf-range="90">90d</button>
+            <button class="pf-range-btn" data-pf-range="0">Tudo</button>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row" style="margin-bottom:24px;">
+        <div class="stat-card accent"><div class="stat-value" id="pfStatLeads">--</div><div class="stat-label">Leads recebidos</div></div>
+        <div class="stat-card"><div class="stat-value" id="pfStatVisits">--</div><div class="stat-label">Visitas no site</div></div>
+        <div class="stat-card"><div class="stat-value" id="pfStatUnique">--</div><div class="stat-label">Visitantes únicos</div></div>
+        <div class="stat-card"><div class="stat-value" id="pfStatClicks">--</div><div class="stat-label">Cliques em botões</div></div>
+        <div class="stat-card"><div class="stat-value" id="pfStatVideos">--</div><div class="stat-label">Vídeos vistos</div></div>
+    </div>
+
+    <!-- Sub-tabs -->
+    <div style="display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid var(--border);" id="pfSubtabs">
+        <button class="pf-subtab-btn active" data-pf-subtab="leads">📥 Leads</button>
+        <button class="pf-subtab-btn" data-pf-subtab="buttons">🔘 Botões</button>
+        <button class="pf-subtab-btn" data-pf-subtab="videos">🎬 Vídeos</button>
+    </div>
+
+    <!-- Subtab: Leads -->
+    <div id="pfPanelLeads" class="pf-panel">
+        <div id="pfLeadsList"><div style="padding:40px;text-align:center;color:var(--text-muted);">Carregando...</div></div>
+    </div>
+
+    <!-- Subtab: Botões -->
+    <div id="pfPanelButtons" class="pf-panel" style="display:none;">
+        <div id="pfButtonsList"><div style="padding:40px;text-align:center;color:var(--text-muted);">Carregando...</div></div>
+    </div>
+
+    <!-- Subtab: Vídeos -->
+    <div id="pfPanelVideos" class="pf-panel" style="display:none;">
+        <div id="pfVideosList"><div style="padding:40px;text-align:center;color:var(--text-muted);">Carregando...</div></div>
+    </div>
+</div>
+
+<style>
+.pf-range-btn, .pf-subtab-btn { padding: 6px 14px; font-size: 12px; font-weight: 600; color: var(--text-muted); background: transparent; border: 1px solid var(--border); border-radius: 999px; cursor: pointer; font-family: 'Outfit', sans-serif; transition: all 0.15s; }
+.pf-range-btn:hover, .pf-subtab-btn:hover { color: var(--text); }
+.pf-range-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+.pf-subtab-btn { border-radius: 0; border: none; border-bottom: 2px solid transparent; padding: 10px 16px; font-size: 13px; }
+.pf-subtab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.pf-lead-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; }
+.pf-lead-card-header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.pf-lead-source { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 3px 8px; border-radius: 999px; }
+.pf-lead-source.popup { background: rgba(212,87,42,0.12); color: var(--accent); }
+.pf-lead-source.contact { background: var(--text); color: var(--card); }
+.pf-lead-name { font-weight: 600; font-size: 14px; }
+.pf-lead-email { color: var(--text-muted); font-size: 12px; }
+.pf-lead-date { margin-left: auto; font-size: 12px; color: var(--text-muted); }
+.pf-lead-meta { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--text-muted); }
+.pf-lead-meta b { color: var(--text); font-weight: 600; }
+.pf-lead-message { margin-top: 8px; padding: 8px 10px; background: var(--cream); border-radius: 8px; font-size: 12px; white-space: pre-wrap; }
+.pf-bar-row { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+.pf-bar-row-name { flex: 1; min-width: 0; }
+.pf-bar-row-label { font-family: 'Menlo', monospace; font-size: 12px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pf-bar-row-bar { margin-top: 5px; height: 4px; background: var(--cream); border-radius: 4px; overflow: hidden; }
+.pf-bar-row-bar-fill { height: 100%; background: var(--accent); border-radius: 4px; }
+.pf-bar-row-count { font-family: 'Fraunces', serif; font-weight: 700; font-size: 22px; tabular-nums: true; }
+.pf-video-row { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+.pf-video-thumb { width: 96px; height: 56px; border-radius: 6px; background: var(--cream); object-fit: cover; flex-shrink: 0; }
+.pf-video-info { flex: 1; min-width: 0; }
+.pf-video-title { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pf-video-sub { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+</style>
+
 <!-- Modal: Banner -->
 <div class="modal-banner-overlay" id="modalBanner">
     <div class="modal-banner">
@@ -1049,16 +1127,182 @@
             document.getElementById('tabLinks').classList.toggle('show', target === 'links');
             document.getElementById('tabBanners').classList.toggle('show', target === 'banners');
             document.getElementById('tabGestao').classList.toggle('show', target === 'gestao');
+            document.getElementById('tabPortfolio').classList.toggle('show', target === 'portfolio');
             if (target === 'dashboard') loadDashboard();
             if (target === 'alunas') loadAlunas();
             if (target === 'termos') loadTermos();
             if (target === 'banners') loadAdminBanners();
             if (target === 'gestao') loadGestao();
+            if (target === 'portfolio') loadPortfolio();
             if (target === 'salvos') {
                 populateSavedEstados();
                 loadSavedCreators();
             }
             if (target === 'campanhas') updateCampanhaStats();
+        });
+    });
+
+    /* ══════════════════════════════════
+       PORTFOLIO TAB (ugc.laradam.com)
+       ══════════════════════════════════ */
+    let pfLeadsCache = null;
+    let pfEventsCache = null;
+    let pfRangeDays = 7;
+
+    async function loadPortfolio() {
+        if (pfLeadsCache && pfEventsCache) {
+            renderPortfolio();
+            return;
+        }
+        try {
+            const [leadsRes, eventsRes] = await Promise.all([
+                sb.from('portfolio_leads').select('*').order('created_at', { ascending: false }),
+                sb.from('portfolio_events').select('*').order('created_at', { ascending: false }).limit(20000)
+            ]);
+            if (leadsRes.error) console.error('[portfolio] leads error', leadsRes.error);
+            if (eventsRes.error) console.error('[portfolio] events error', eventsRes.error);
+            pfLeadsCache = leadsRes.data || [];
+            pfEventsCache = eventsRes.data || [];
+            renderPortfolio();
+        } catch (e) {
+            console.error('[portfolio] exception', e);
+            document.getElementById('pfLeadsList').innerHTML = '<div style="padding:40px;text-align:center;color:#c00;">Erro ao carregar. Verifica as tabelas portfolio_leads e portfolio_events no Supabase.</div>';
+        }
+    }
+
+    function pfFilterByRange(rows) {
+        if (pfRangeDays === 0) return rows;
+        const cutoff = Date.now() - pfRangeDays * 86400000;
+        return rows.filter(r => new Date(r.created_at).getTime() >= cutoff);
+    }
+
+    function renderPortfolio() {
+        const leads = pfFilterByRange(pfLeadsCache || []);
+        const events = pfFilterByRange(pfEventsCache || []);
+
+        const pageViews = events.filter(e => e.event_type === 'page_view');
+        const buttonClicks = events.filter(e => e.event_type === 'button_click');
+        const videoViews = events.filter(e => e.event_type === 'video_view');
+        const uniqueSessions = new Set(pageViews.map(e => e.session_id).filter(Boolean)).size;
+
+        document.getElementById('pfStatLeads').textContent = leads.length;
+        document.getElementById('pfStatVisits').textContent = pageViews.length;
+        document.getElementById('pfStatUnique').textContent = uniqueSessions;
+        document.getElementById('pfStatClicks').textContent = buttonClicks.length;
+        document.getElementById('pfStatVideos').textContent = videoViews.length;
+
+        renderPfLeads(leads);
+        renderPfButtons(buttonClicks);
+        renderPfVideos(videoViews);
+    }
+
+    function renderPfLeads(leads) {
+        const wrap = document.getElementById('pfLeadsList');
+        if (!leads.length) {
+            wrap.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted);">Nenhum lead nesse período. 🌱</div>';
+            return;
+        }
+        wrap.innerHTML = leads.map(l => {
+            const date = new Date(l.created_at).toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+            const sourceLabel = l.source === 'popup' ? 'Popup' : 'Form';
+            const meta = [];
+            if (l.phone) meta.push(`<span><b>Tel:</b> ${escapeHtml(l.phone)}</span>`);
+            if (l.brand) meta.push(`<span><b>Marca:</b> ${escapeHtml(l.brand)}</span>`);
+            if (l.budget) meta.push(`<span><b>Orçamento:</b> ${escapeHtml(l.budget)}</span>`);
+            const phoneDigits = (l.phone || '').replace(/\D/g, '');
+            const actions = [];
+            if (l.email) actions.push(`<a href="mailto:${escapeHtml(l.email)}" style="color:var(--accent);font-size:12px;font-weight:600;">✉ Email</a>`);
+            if (phoneDigits) actions.push(`<a href="https://wa.me/${phoneDigits}" target="_blank" style="color:#25D366;font-size:12px;font-weight:600;">📱 WhatsApp</a>`);
+            return `
+                <div class="pf-lead-card">
+                    <div class="pf-lead-card-header">
+                        <span class="pf-lead-source ${l.source}">${sourceLabel}</span>
+                        <div>
+                            <div class="pf-lead-name">${escapeHtml(l.name || l.email)}</div>
+                            <div class="pf-lead-email">${escapeHtml(l.email)}</div>
+                        </div>
+                        <span class="pf-lead-date">${date}</span>
+                    </div>
+                    ${meta.length ? `<div class="pf-lead-meta">${meta.join('')}</div>` : ''}
+                    ${l.message ? `<div class="pf-lead-message">${escapeHtml(l.message)}</div>` : ''}
+                    ${actions.length ? `<div style="margin-top:8px;display:flex;gap:14px;">${actions.join('')}</div>` : ''}
+                </div>`;
+        }).join('');
+    }
+
+    function renderPfButtons(clicks) {
+        const wrap = document.getElementById('pfButtonsList');
+        if (!clicks.length) {
+            wrap.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted);">Nenhum clique registrado.</div>';
+            return;
+        }
+        const map = new Map();
+        for (const c of clicks) map.set(c.event_name, (map.get(c.event_name) || 0) + 1);
+        const items = [...map.entries()].sort((a, b) => b[1] - a[1]);
+        const max = items[0][1];
+        wrap.innerHTML = items.map(([name, count]) => `
+            <div class="pf-bar-row">
+                <div class="pf-bar-row-name">
+                    <div class="pf-bar-row-label">${escapeHtml(name)}</div>
+                    <div class="pf-bar-row-bar"><div class="pf-bar-row-bar-fill" style="width:${(count/max)*100}%"></div></div>
+                </div>
+                <div class="pf-bar-row-count">${count}</div>
+            </div>`).join('');
+    }
+
+    function renderPfVideos(views) {
+        const wrap = document.getElementById('pfVideosList');
+        if (!views.length) {
+            wrap.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted);">Nenhum vídeo visualizado.</div>';
+            return;
+        }
+        const map = new Map();
+        for (const v of views) {
+            const cur = map.get(v.event_name) || { count: 0, title: '', brand: '', category: '' };
+            cur.count++;
+            const m = v.metadata || {};
+            if (m.title) cur.title = m.title;
+            if (m.brand) cur.brand = m.brand;
+            if (m.category) cur.category = m.category;
+            map.set(v.event_name, cur);
+        }
+        const items = [...map.entries()].sort((a, b) => b[1].count - a[1].count);
+        wrap.innerHTML = items.map(([id, info]) => `
+            <div class="pf-video-row">
+                <a href="https://www.youtube.com/watch?v=${encodeURIComponent(id)}" target="_blank" rel="noopener">
+                    <img class="pf-video-thumb" src="https://i.ytimg.com/vi/${encodeURIComponent(id)}/mqdefault.jpg" alt="" onerror="this.style.background='var(--cream)';this.src='';">
+                </a>
+                <div class="pf-video-info">
+                    <div class="pf-video-title">${escapeHtml(info.title || id)}</div>
+                    <div class="pf-video-sub">${escapeHtml([info.brand, info.category].filter(Boolean).join(' · ') || id)}</div>
+                </div>
+                <div class="pf-bar-row-count">${info.count}</div>
+            </div>`).join('');
+    }
+
+    function escapeHtml(s) {
+        return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    /* Range buttons (7d / 30d / 90d / Tudo) */
+    document.querySelectorAll('.pf-range-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.pf-range-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            pfRangeDays = parseInt(btn.dataset.pfRange, 10);
+            renderPortfolio();
+        });
+    });
+
+    /* Sub-tabs (leads / buttons / videos) */
+    document.querySelectorAll('.pf-subtab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.pf-subtab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const target = btn.dataset.pfSubtab;
+            document.getElementById('pfPanelLeads').style.display = target === 'leads' ? 'block' : 'none';
+            document.getElementById('pfPanelButtons').style.display = target === 'buttons' ? 'block' : 'none';
+            document.getElementById('pfPanelVideos').style.display = target === 'videos' ? 'block' : 'none';
         });
     });
 
