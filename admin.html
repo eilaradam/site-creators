@@ -988,7 +988,7 @@
 .pf-lead-message { padding: 10px 12px; background: var(--cream); border-radius: 8px; font-size: 13px; white-space: pre-wrap; line-height: 1.5; color: var(--text); }
 .pf-bar-row { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
 .pf-bar-row-name { flex: 1; min-width: 0; }
-.pf-bar-row-label { font-family: 'Menlo', monospace; font-size: 12px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pf-bar-row-label { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pf-bar-row-bar { margin-top: 5px; height: 4px; background: var(--cream); border-radius: 4px; overflow: hidden; }
 .pf-bar-row-bar-fill { height: 100%; background: var(--accent); border-radius: 4px; }
 .pf-bar-row-count { font-family: 'Fraunces', serif; font-weight: 700; font-size: 22px; tabular-nums: true; }
@@ -1281,6 +1281,51 @@
         });
     }
 
+    /* Mapa nome técnico → nome amigável pros botões rastreados */
+    const PF_BUTTON_LABELS = {
+        // Navbar (desktop)
+        'nav_logo': 'Logo do topo',
+        'nav_trabalhe_comigo': 'Trabalhe comigo (topo)',
+        'nav_gestao': 'Gestão (topo)',
+        'nav_link_sobre': 'Topo → Sobre',
+        'nav_link_servicos': 'Topo → Serviços',
+        'nav_link_categorias': 'Topo → Categorias',
+        'nav_link_contato': 'Topo → Contato',
+        'lang_pt': 'Idioma · PT',
+        'lang_en': 'Idioma · EN',
+        // Mobile
+        'mobile_menu_open': 'Abrir menu (mobile)',
+        'mobile_nav_sobre': 'Mobile → Sobre',
+        'mobile_nav_servicos': 'Mobile → Serviços',
+        'mobile_nav_categorias': 'Mobile → Categorias',
+        'mobile_nav_contato': 'Mobile → Contato',
+        'mobile_nav_gestao': 'Mobile → Gestão',
+        'mobile_trabalhe_comigo': 'Trabalhe comigo (mobile)',
+        // Hero
+        'hero_ver_portfolio': 'Ver portfólio (hero)',
+        'hero_fale_com_lara': 'Fale com a Lara (hero)',
+        // Seção contato
+        'contact_email': 'Email (seção contato)',
+        'contact_instagram': 'Instagram (seção contato)',
+        'contact_whatsapp': 'WhatsApp (seção contato)',
+        'contact_form_submit': 'Enviou form de contato',
+        // Popup
+        'popup_shown': 'Popup apareceu',
+        'popup_submit': 'Enviou popup',
+        'popup_close': 'Fechou popup',
+        // Rodapé
+        'footer_email': 'Email (rodapé)',
+        'footer_instagram': 'Instagram (rodapé)',
+    };
+
+    function prettifyPfTrack(name) {
+        if (PF_BUTTON_LABELS[name]) return PF_BUTTON_LABELS[name];
+        // Fallback: troca _ por espaço e capitaliza
+        return name.split('_').filter(Boolean)
+            .map(w => w[0].toUpperCase() + w.slice(1))
+            .join(' ');
+    }
+
     function renderPfButtons(clicks) {
         const wrap = document.getElementById('pfButtonsList');
         if (!clicks.length) {
@@ -1294,7 +1339,7 @@
         wrap.innerHTML = items.map(([name, count]) => `
             <div class="pf-bar-row">
                 <div class="pf-bar-row-name">
-                    <div class="pf-bar-row-label">${escapeHtml(name)}</div>
+                    <div class="pf-bar-row-label">${escapeHtml(prettifyPfTrack(name))}</div>
                     <div class="pf-bar-row-bar"><div class="pf-bar-row-bar-fill" style="width:${(count/max)*100}%"></div></div>
                 </div>
                 <div class="pf-bar-row-count">${count}</div>
