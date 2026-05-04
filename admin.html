@@ -965,17 +965,27 @@
 .pf-range-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
 .pf-subtab-btn { border-radius: 0; border: none; border-bottom: 2px solid transparent; padding: 10px 16px; font-size: 13px; }
 .pf-subtab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-.pf-lead-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; }
-.pf-lead-card-header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.pf-lead-source { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 3px 8px; border-radius: 999px; }
+.pf-lead-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; margin-bottom: 12px; }
+.pf-lead-card-header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.pf-lead-source { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 4px 10px; border-radius: 999px; flex-shrink: 0; }
 .pf-lead-source.popup { background: rgba(212,87,42,0.12); color: var(--accent); }
 .pf-lead-source.contact { background: var(--text); color: var(--card); }
-.pf-lead-name { font-weight: 600; font-size: 14px; }
-.pf-lead-email { color: var(--text-muted); font-size: 12px; }
-.pf-lead-date { margin-left: auto; font-size: 12px; color: var(--text-muted); }
-.pf-lead-meta { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--text-muted); }
-.pf-lead-meta b { color: var(--text); font-weight: 600; }
-.pf-lead-message { margin-top: 8px; padding: 8px 10px; background: var(--cream); border-radius: 8px; font-size: 12px; white-space: pre-wrap; }
+.pf-lead-name { font-weight: 700; font-size: 16px; color: var(--text); }
+.pf-lead-date { margin-left: auto; font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+.pf-lead-fields { display: flex; flex-direction: column; gap: 10px; padding-top: 12px; }
+.pf-lead-field { display: flex; flex-direction: column; gap: 4px; }
+.pf-lead-field-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text-muted); }
+.pf-lead-field-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.pf-lead-field-value { font-size: 14px; color: var(--text); font-weight: 500; }
+.pf-lead-email-text { font-family: 'Menlo', monospace; font-size: 14px; color: var(--text); user-select: all; -webkit-user-select: all; cursor: text; padding: 4px 8px; background: var(--cream); border-radius: 6px; }
+.pf-copy-btn { font-size: 11px; font-weight: 600; padding: 4px 10px; background: transparent; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--text-muted); font-family: 'Outfit', sans-serif; transition: all 0.15s; }
+.pf-copy-btn:hover { color: var(--text); border-color: var(--text); }
+.pf-copy-btn.copied { background: var(--success, #2d7a4f); color: white; border-color: var(--success, #2d7a4f); }
+.pf-action-btn { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; text-decoration: none; color: var(--accent); border: 1px solid var(--accent); transition: all 0.15s; }
+.pf-action-btn:hover { background: var(--accent); color: white; }
+.pf-action-btn.pf-wpp { color: #25D366; border-color: #25D366; }
+.pf-action-btn.pf-wpp:hover { background: #25D366; color: white; }
+.pf-lead-message { padding: 10px 12px; background: var(--cream); border-radius: 8px; font-size: 13px; white-space: pre-wrap; line-height: 1.5; color: var(--text); }
 .pf-bar-row { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
 .pf-bar-row-name { flex: 1; min-width: 0; }
 .pf-bar-row-label { font-family: 'Menlo', monospace; font-size: 12px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -1205,29 +1215,70 @@
         wrap.innerHTML = leads.map(l => {
             const date = new Date(l.created_at).toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
             const sourceLabel = l.source === 'popup' ? 'Popup' : 'Form';
-            const meta = [];
-            if (l.phone) meta.push(`<span><b>Tel:</b> ${escapeHtml(l.phone)}</span>`);
-            if (l.brand) meta.push(`<span><b>Marca:</b> ${escapeHtml(l.brand)}</span>`);
-            if (l.budget) meta.push(`<span><b>Orçamento:</b> ${escapeHtml(l.budget)}</span>`);
             const phoneDigits = (l.phone || '').replace(/\D/g, '');
-            const actions = [];
-            if (l.email) actions.push(`<a href="mailto:${escapeHtml(l.email)}" style="color:var(--accent);font-size:12px;font-weight:600;">✉ Email</a>`);
-            if (phoneDigits) actions.push(`<a href="https://wa.me/${phoneDigits}" target="_blank" style="color:#25D366;font-size:12px;font-weight:600;">📱 WhatsApp</a>`);
             return `
                 <div class="pf-lead-card">
                     <div class="pf-lead-card-header">
                         <span class="pf-lead-source ${l.source}">${sourceLabel}</span>
-                        <div>
-                            <div class="pf-lead-name">${escapeHtml(l.name || l.email)}</div>
-                            <div class="pf-lead-email">${escapeHtml(l.email)}</div>
+                        <div style="flex:1;min-width:0;">
+                            <div class="pf-lead-name">${escapeHtml(l.name || '(sem nome)')}</div>
                         </div>
                         <span class="pf-lead-date">${date}</span>
                     </div>
-                    ${meta.length ? `<div class="pf-lead-meta">${meta.join('')}</div>` : ''}
-                    ${l.message ? `<div class="pf-lead-message">${escapeHtml(l.message)}</div>` : ''}
-                    ${actions.length ? `<div style="margin-top:8px;display:flex;gap:14px;">${actions.join('')}</div>` : ''}
+                    <div class="pf-lead-fields">
+                        <div class="pf-lead-field">
+                            <span class="pf-lead-field-label">Email</span>
+                            <div class="pf-lead-field-row">
+                                <span class="pf-lead-field-value pf-lead-email-text" title="${escapeHtml(l.email)}">${escapeHtml(l.email)}</span>
+                                <button class="pf-copy-btn" data-pf-copy="${escapeHtml(l.email)}">Copiar</button>
+                                <a class="pf-action-btn" href="mailto:${escapeHtml(l.email)}">✉ Responder</a>
+                            </div>
+                        </div>
+                        ${l.phone ? `
+                        <div class="pf-lead-field">
+                            <span class="pf-lead-field-label">Telefone</span>
+                            <div class="pf-lead-field-row">
+                                <span class="pf-lead-field-value">${escapeHtml(l.phone)}</span>
+                                <button class="pf-copy-btn" data-pf-copy="${escapeHtml(l.phone)}">Copiar</button>
+                                ${phoneDigits ? `<a class="pf-action-btn pf-wpp" href="https://wa.me/${phoneDigits}" target="_blank">📱 WhatsApp</a>` : ''}
+                            </div>
+                        </div>` : ''}
+                        ${l.brand ? `
+                        <div class="pf-lead-field">
+                            <span class="pf-lead-field-label">Marca / Empresa</span>
+                            <div class="pf-lead-field-row">
+                                <span class="pf-lead-field-value">${escapeHtml(l.brand)}</span>
+                            </div>
+                        </div>` : ''}
+                        ${l.budget ? `
+                        <div class="pf-lead-field">
+                            <span class="pf-lead-field-label">Orçamento</span>
+                            <div class="pf-lead-field-row">
+                                <span class="pf-lead-field-value">${escapeHtml(l.budget)}</span>
+                            </div>
+                        </div>` : ''}
+                        ${l.message ? `
+                        <div class="pf-lead-field">
+                            <span class="pf-lead-field-label">Mensagem</span>
+                            <div class="pf-lead-message">${escapeHtml(l.message)}</div>
+                        </div>` : ''}
+                    </div>
                 </div>`;
         }).join('');
+
+        wrap.querySelectorAll('.pf-copy-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const text = btn.getAttribute('data-pf-copy');
+                try {
+                    await navigator.clipboard.writeText(text);
+                    const original = btn.textContent;
+                    btn.textContent = '✓ Copiado';
+                    btn.classList.add('copied');
+                    setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 1500);
+                } catch {}
+            });
+        });
     }
 
     function renderPfButtons(clicks) {
