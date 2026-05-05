@@ -939,6 +939,7 @@
     <!-- Sub-tabs -->
     <div style="display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid var(--border);" id="pfSubtabs">
         <button class="pf-subtab-btn active" data-pf-subtab="leads">📥 Leads</button>
+        <button class="pf-subtab-btn" data-pf-subtab="gestao">💼 Gestão</button>
         <button class="pf-subtab-btn" data-pf-subtab="buttons">🔘 Botões</button>
         <button class="pf-subtab-btn" data-pf-subtab="videos">🎬 Vídeos</button>
     </div>
@@ -946,6 +947,11 @@
     <!-- Subtab: Leads -->
     <div id="pfPanelLeads" class="pf-panel">
         <div id="pfLeadsList"><div style="padding:40px;text-align:center;color:var(--text-muted);">Carregando...</div></div>
+    </div>
+
+    <!-- Subtab: Gestão -->
+    <div id="pfPanelGestao" class="pf-panel" style="display:none;">
+        <div id="pfGestaoList"><div style="padding:40px;text-align:center;color:var(--text-muted);">Carregando...</div></div>
     </div>
 
     <!-- Subtab: Botões -->
@@ -1157,26 +1163,30 @@
        ══════════════════════════════════ */
     let pfLeadsCache = null;
     let pfEventsCache = null;
+    let pfGestaoCache = null;
     let pfRangeDays = 7;
 
     async function loadPortfolio() {
-        if (pfLeadsCache && pfEventsCache) {
+        if (pfLeadsCache && pfEventsCache && pfGestaoCache) {
             renderPortfolio();
             return;
         }
         try {
-            const [leadsRes, eventsRes] = await Promise.all([
+            const [leadsRes, eventsRes, gestaoRes] = await Promise.all([
                 sb.from('portfolio_leads').select('*').order('created_at', { ascending: false }),
-                sb.from('portfolio_events').select('*').order('created_at', { ascending: false }).limit(20000)
+                sb.from('portfolio_events').select('*').order('created_at', { ascending: false }).limit(20000),
+                sb.from('gestao_leads').select('*').order('created_at', { ascending: false })
             ]);
             if (leadsRes.error) console.error('[portfolio] leads error', leadsRes.error);
             if (eventsRes.error) console.error('[portfolio] events error', eventsRes.error);
+            if (gestaoRes.error) console.error('[portfolio] gestao error', gestaoRes.error);
             pfLeadsCache = leadsRes.data || [];
             pfEventsCache = eventsRes.data || [];
+            pfGestaoCache = gestaoRes.data || [];
             renderPortfolio();
         } catch (e) {
             console.error('[portfolio] exception', e);
-            document.getElementById('pfLeadsList').innerHTML = '<div style="padding:40px;text-align:center;color:#c00;">Erro ao carregar. Verifica as tabelas portfolio_leads e portfolio_events no Supabase.</div>';
+            document.getElementById('pfLeadsList').innerHTML = '<div style="padding:40px;text-align:center;color:#c00;">Erro ao carregar. Verifica as tabelas portfolio_leads, portfolio_events e gestao_leads no Supabase.</div>';
         }
     }
 
@@ -1189,21 +1199,88 @@
     function renderPortfolio() {
         const leads = pfFilterByRange(pfLeadsCache || []);
         const events = pfFilterByRange(pfEventsCache || []);
+        const gestaoLeads = pfFilterByRange(pfGestaoCache || []);
 
         const pageViews = events.filter(e => e.event_type === 'page_view');
         const buttonClicks = events.filter(e => e.event_type === 'button_click');
         const videoViews = events.filter(e => e.event_type === 'video_view');
         const uniqueSessions = new Set(pageViews.map(e => e.session_id).filter(Boolean)).size;
 
-        document.getElementById('pfStatLeads').textContent = leads.length;
+        document.getElementById('pfStatLeads').textContent = leads.length + gestaoLeads.length;
         document.getElementById('pfStatVisits').textContent = pageViews.length;
         document.getElementById('pfStatUnique').textContent = uniqueSessions;
         document.getElementById('pfStatClicks').textContent = buttonClicks.length;
         document.getElementById('pfStatVideos').textContent = videoViews.length;
 
         renderPfLeads(leads);
+        renderPfGestao(gestaoLeads);
         renderPfButtons(buttonClicks);
         renderPfVideos(videoViews);
+    }
+
+    function renderPfGestao(leads) {
+        const wrap = document.getElementById('pfGestaoList');
+        if (!leads.length) {
+            wrap.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted);">Nenhum lead de Gestão nesse período.</div>';
+            return;
+        }
+        wrap.innerHTML = leads.map(l => {
+            const date = new Date(l.created_at).toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+            const phoneDigits = (l.whatsapp || '').replace(/\D/g, '');
+            const fields = [
+                { lbl: 'Email', val: l.email, copy: true, mailto: true },
+                { lbl: 'WhatsApp', val: l.whatsapp, copy: true, wpp: phoneDigits },
+                { lbl: 'Empresa', val: l.company },
+                { lbl: 'Cargo', val: l.role },
+                { lbl: 'Site', val: l.site, link: true },
+                { lbl: 'Modalidade', val: l.modality },
+                { lbl: 'Objetivo', val: l.goal },
+                { lbl: 'Orçamento', val: l.budget },
+            ].filter(f => f.val);
+            return `
+                <div class="pf-lead-card">
+                    <div class="pf-lead-card-header">
+                        <span class="pf-lead-source contact">Gestão</span>
+                        <div style="flex:1;min-width:0;">
+                            <div class="pf-lead-name">${escapeHtml(l.name || '(sem nome)')}</div>
+                        </div>
+                        <span class="pf-lead-date">${date}</span>
+                    </div>
+                    <div class="pf-lead-fields">
+                        ${fields.map(f => `
+                            <div class="pf-lead-field">
+                                <span class="pf-lead-field-label">${escapeHtml(f.lbl)}</span>
+                                <div class="pf-lead-field-row">
+                                    <span class="${f.lbl === 'Email' ? 'pf-lead-email-text' : 'pf-lead-field-value'}">${escapeHtml(f.val)}</span>
+                                    ${f.copy ? `<button class="pf-copy-btn" data-pf-copy="${escapeHtml(f.val)}">Copiar</button>` : ''}
+                                    ${f.mailto ? `<a class="pf-action-btn" href="mailto:${escapeHtml(f.val)}">✉ Responder</a>` : ''}
+                                    ${f.wpp ? `<a class="pf-action-btn pf-wpp" href="https://wa.me/${f.wpp}" target="_blank">📱 WhatsApp</a>` : ''}
+                                    ${f.link ? `<a class="pf-action-btn" href="${escapeHtml(f.val.startsWith('http') ? f.val : 'https://' + f.val)}" target="_blank">↗ Abrir</a>` : ''}
+                                </div>
+                            </div>
+                        `).join('')}
+                        ${l.message ? `
+                        <div class="pf-lead-field">
+                            <span class="pf-lead-field-label">Mensagem</span>
+                            <div class="pf-lead-message">${escapeHtml(l.message)}</div>
+                        </div>` : ''}
+                    </div>
+                </div>`;
+        }).join('');
+
+        wrap.querySelectorAll('.pf-copy-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const text = btn.getAttribute('data-pf-copy');
+                try {
+                    await navigator.clipboard.writeText(text);
+                    const original = btn.textContent;
+                    btn.textContent = '✓ Copiado';
+                    btn.classList.add('copied');
+                    setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 1500);
+                } catch {}
+            });
+        });
     }
 
     function renderPfLeads(leads) {
@@ -1390,13 +1467,14 @@
         });
     });
 
-    /* Sub-tabs (leads / buttons / videos) */
+    /* Sub-tabs (leads / gestao / buttons / videos) */
     document.querySelectorAll('.pf-subtab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.pf-subtab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             const target = btn.dataset.pfSubtab;
             document.getElementById('pfPanelLeads').style.display = target === 'leads' ? 'block' : 'none';
+            document.getElementById('pfPanelGestao').style.display = target === 'gestao' ? 'block' : 'none';
             document.getElementById('pfPanelButtons').style.display = target === 'buttons' ? 'block' : 'none';
             document.getElementById('pfPanelVideos').style.display = target === 'videos' ? 'block' : 'none';
         });
