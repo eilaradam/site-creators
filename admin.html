@@ -992,6 +992,14 @@
 .pf-action-btn.pf-wpp { color: #25D366; border-color: #25D366; }
 .pf-action-btn.pf-wpp:hover { background: #25D366; color: white; }
 .pf-lead-message { padding: 10px 12px; background: var(--cream); border-radius: 8px; font-size: 13px; white-space: pre-wrap; line-height: 1.5; color: var(--text); }
+.pf-status-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; padding: 4px 10px; border-radius: 999px; flex-shrink: 0; }
+.pf-status-pendente { background: rgba(244, 162, 89, 0.15); color: #b85a1a; border: 1px solid rgba(244, 162, 89, 0.3); }
+.pf-status-respondido { background: rgba(45, 122, 79, 0.12); color: #1e6135; border: 1px solid rgba(45, 122, 79, 0.25); }
+.pf-status-controls { display: flex; align-items: center; gap: 10px; padding-top: 10px; margin-top: 6px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+.pf-status-select { padding: 7px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); font-size: 12px; font-weight: 600; color: var(--text); cursor: pointer; font-family: 'Outfit', sans-serif; }
+.pf-status-select:hover { border-color: var(--accent); }
+.pf-delete-btn { padding: 7px 12px; border-radius: 8px; border: 1px solid rgba(220, 53, 69, 0.25); background: transparent; font-size: 12px; font-weight: 600; color: #c33; cursor: pointer; font-family: 'Outfit', sans-serif; transition: all 0.15s; margin-left: auto; }
+.pf-delete-btn:hover { background: #c33; color: white; border-color: #c33; }
 .pf-bar-row { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
 .pf-bar-row-name { flex: 1; min-width: 0; }
 .pf-bar-row-label { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -1218,6 +1226,97 @@
         renderPfVideos(videoViews);
     }
 
+    /* Helpers compartilhados pros cards de lead */
+    function pfStatusBadge(status) {
+        const s = status === 'respondido' ? 'respondido' : 'pendente';
+        const label = s === 'respondido' ? '✓ Respondido' : '⏳ Pendente';
+        return `<span class="pf-status-badge pf-status-${s}">${label}</span>`;
+    }
+
+    function pfStatusControls(table, lead) {
+        const s = lead.status === 'respondido' ? 'respondido' : 'pendente';
+        return `
+            <div class="pf-status-controls">
+                <select class="pf-status-select" data-pf-table="${table}" data-pf-id="${lead.id}">
+                    <option value="pendente" ${s==='pendente'?'selected':''}>⏳ Pendente</option>
+                    <option value="respondido" ${s==='respondido'?'selected':''}>✓ Respondido</option>
+                </select>
+                <button class="pf-delete-btn" data-pf-table="${table}" data-pf-id="${lead.id}" data-pf-name="${escapeHtml(lead.name || lead.email)}">🗑 Excluir</button>
+            </div>`;
+    }
+
+    async function pfUpdateStatus(table, id, status) {
+        const { error } = await sb.from(table).update({ status }).eq('id', id);
+        if (error) {
+            alert('Erro ao atualizar status: ' + error.message);
+            return false;
+        }
+        // Atualiza cache local
+        const cache = table === 'gestao_leads' ? pfGestaoCache : pfLeadsCache;
+        const row = cache?.find(l => l.id === id);
+        if (row) row.status = status;
+        return true;
+    }
+
+    async function pfDeleteLead(table, id, name) {
+        if (!confirm(`Excluir lead "${name}"? Essa ação não pode ser desfeita.`)) return false;
+        const { error } = await sb.from(table).delete().eq('id', id);
+        if (error) {
+            alert('Erro ao excluir: ' + error.message);
+            return false;
+        }
+        if (table === 'gestao_leads') {
+            pfGestaoCache = (pfGestaoCache || []).filter(l => l.id !== id);
+        } else {
+            pfLeadsCache = (pfLeadsCache || []).filter(l => l.id !== id);
+        }
+        renderPortfolio();
+        return true;
+    }
+
+    function pfWireCardActions(wrap, table) {
+        wrap.querySelectorAll('.pf-copy-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const text = btn.getAttribute('data-pf-copy');
+                try {
+                    await navigator.clipboard.writeText(text);
+                    const original = btn.textContent;
+                    btn.textContent = '✓ Copiado';
+                    btn.classList.add('copied');
+                    setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 1500);
+                } catch {}
+            });
+        });
+        wrap.querySelectorAll('.pf-status-select').forEach(sel => {
+            sel.addEventListener('change', async () => {
+                const id = sel.getAttribute('data-pf-id');
+                const tbl = sel.getAttribute('data-pf-table');
+                const status = sel.value;
+                const ok = await pfUpdateStatus(tbl, id, status);
+                if (ok) {
+                    // Atualiza badge visual no card sem re-render completo
+                    const card = sel.closest('.pf-lead-card');
+                    if (card) {
+                        const badge = card.querySelector('.pf-status-badge');
+                        if (badge) {
+                            badge.className = `pf-status-badge pf-status-${status}`;
+                            badge.textContent = status === 'respondido' ? '✓ Respondido' : '⏳ Pendente';
+                        }
+                    }
+                }
+            });
+        });
+        wrap.querySelectorAll('.pf-delete-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const id = btn.getAttribute('data-pf-id');
+                const tbl = btn.getAttribute('data-pf-table');
+                const name = btn.getAttribute('data-pf-name');
+                await pfDeleteLead(tbl, id, name);
+            });
+        });
+    }
+
     function renderPfGestao(leads) {
         const wrap = document.getElementById('pfGestaoList');
         if (!leads.length) {
@@ -1244,6 +1343,7 @@
                         <div style="flex:1;min-width:0;">
                             <div class="pf-lead-name">${escapeHtml(l.name || '(sem nome)')}</div>
                         </div>
+                        ${pfStatusBadge(l.status)}
                         <span class="pf-lead-date">${date}</span>
                     </div>
                     <div class="pf-lead-fields">
@@ -1264,23 +1364,12 @@
                             <span class="pf-lead-field-label">Mensagem</span>
                             <div class="pf-lead-message">${escapeHtml(l.message)}</div>
                         </div>` : ''}
+                        ${pfStatusControls('gestao_leads', l)}
                     </div>
                 </div>`;
         }).join('');
 
-        wrap.querySelectorAll('.pf-copy-btn').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                const text = btn.getAttribute('data-pf-copy');
-                try {
-                    await navigator.clipboard.writeText(text);
-                    const original = btn.textContent;
-                    btn.textContent = '✓ Copiado';
-                    btn.classList.add('copied');
-                    setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 1500);
-                } catch {}
-            });
-        });
+        pfWireCardActions(wrap, 'gestao_leads');
     }
 
     function renderPfLeads(leads) {
@@ -1300,6 +1389,7 @@
                         <div style="flex:1;min-width:0;">
                             <div class="pf-lead-name">${escapeHtml(l.name || '(sem nome)')}</div>
                         </div>
+                        ${pfStatusBadge(l.status)}
                         <span class="pf-lead-date">${date}</span>
                     </div>
                     <div class="pf-lead-fields">
@@ -1339,23 +1429,12 @@
                             <span class="pf-lead-field-label">Mensagem</span>
                             <div class="pf-lead-message">${escapeHtml(l.message)}</div>
                         </div>` : ''}
+                        ${pfStatusControls('portfolio_leads', l)}
                     </div>
                 </div>`;
         }).join('');
 
-        wrap.querySelectorAll('.pf-copy-btn').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                const text = btn.getAttribute('data-pf-copy');
-                try {
-                    await navigator.clipboard.writeText(text);
-                    const original = btn.textContent;
-                    btn.textContent = '✓ Copiado';
-                    btn.classList.add('copied');
-                    setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 1500);
-                } catch {}
-            });
-        });
+        pfWireCardActions(wrap, 'portfolio_leads');
     }
 
     /* Mapa nome técnico → nome amigável pros botões rastreados */
