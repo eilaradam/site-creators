@@ -937,9 +937,10 @@
     </div>
 
     <!-- Sub-tabs -->
-    <div style="display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid var(--border);" id="pfSubtabs">
+    <div style="display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid var(--border);flex-wrap:wrap;" id="pfSubtabs">
         <button class="pf-subtab-btn active" data-pf-subtab="leads">📥 Leads</button>
         <button class="pf-subtab-btn" data-pf-subtab="gestao">💼 Gestão</button>
+        <button class="pf-subtab-btn" data-pf-subtab="bio">📱 Bio (/bio)</button>
         <button class="pf-subtab-btn" data-pf-subtab="buttons">🔘 Botões</button>
         <button class="pf-subtab-btn" data-pf-subtab="videos">🎬 Vídeos</button>
     </div>
@@ -952,6 +953,46 @@
     <!-- Subtab: Gestão -->
     <div id="pfPanelGestao" class="pf-panel" style="display:none;">
         <div id="pfGestaoList"><div style="padding:40px;text-align:center;color:var(--text-muted);">Carregando...</div></div>
+    </div>
+
+    <!-- Subtab: Bio (/bio - link na bio do Instagram) -->
+    <div id="pfPanelBio" class="pf-panel" style="display:none;">
+        <div class="stats-row" style="margin-bottom:20px;">
+            <div class="stat-card"><div class="stat-value" id="bioStatVisits">--</div><div class="stat-label">Visitas em /bio</div></div>
+            <div class="stat-card"><div class="stat-value" id="bioStatUnique">--</div><div class="stat-label">Visitantes únicos</div></div>
+            <div class="stat-card"><div class="stat-value" id="bioStatClicks">--</div><div class="stat-label">Cliques nos cards</div></div>
+            <div class="stat-card accent"><div class="stat-value" id="bioStatRate">--</div><div class="stat-label">Taxa de clique</div></div>
+        </div>
+
+        <div class="bio-chart-card">
+            <div class="bio-card-title">Visitas em /bio · últimos 14 dias</div>
+            <div class="bio-chart" id="bioChart"></div>
+        </div>
+
+        <div class="bio-chart-card">
+            <div class="bio-card-title">Qual público é mais clicado</div>
+            <div class="bio-audience-grid">
+                <div class="bio-audience-block">
+                    <div class="bio-audience-label">Sou Creator</div>
+                    <div class="bio-audience-stats">
+                        <div><div class="bio-audience-value" id="bioToggleCreator">--</div><div class="bio-audience-sub">Toggle</div></div>
+                        <div><div class="bio-audience-value" id="bioCardsCreator">--</div><div class="bio-audience-sub">Cliques nos cards</div></div>
+                    </div>
+                </div>
+                <div class="bio-audience-block">
+                    <div class="bio-audience-label">Sou Marca</div>
+                    <div class="bio-audience-stats">
+                        <div><div class="bio-audience-value" id="bioToggleMarca">--</div><div class="bio-audience-sub">Toggle</div></div>
+                        <div><div class="bio-audience-value" id="bioCardsMarca">--</div><div class="bio-audience-sub">Cliques nos cards</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bio-chart-card">
+            <div class="bio-card-title">Cliques por card</div>
+            <div id="bioButtonsList"><div style="padding:40px;text-align:center;color:var(--text-muted);">Carregando...</div></div>
+        </div>
     </div>
 
     <!-- Subtab: Botões -->
@@ -1011,6 +1052,20 @@
 .pf-video-info { flex: 1; min-width: 0; }
 .pf-video-title { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pf-video-sub { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bio-chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; margin-bottom: 16px; }
+.bio-card-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 14px; }
+.bio-chart { display: flex; align-items: flex-end; gap: 6px; height: 130px; }
+.bio-chart-day { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
+.bio-chart-bar { width: 100%; background: var(--accent); border-radius: 4px 4px 0 0; transition: opacity 0.2s; min-height: 2px; }
+.bio-chart-bar:hover { opacity: 0.8; }
+.bio-chart-label { font-size: 9px; color: var(--text-muted); }
+.bio-audience-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.bio-audience-block { background: var(--cream); border-radius: 10px; padding: 14px 16px; }
+.bio-audience-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 10px; }
+.bio-audience-stats { display: flex; gap: 18px; align-items: flex-end; flex-wrap: wrap; }
+.bio-audience-value { font-family: 'Fraunces', serif; font-weight: 700; font-size: 24px; color: var(--text); line-height: 1; }
+.bio-audience-sub { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 4px; }
+@media (max-width: 600px) { .bio-audience-grid { grid-template-columns: 1fr; } }
 </style>
 
 <!-- Modal: Banner -->
@@ -1224,6 +1279,77 @@
         renderPfGestao(gestaoLeads);
         renderPfButtons(buttonClicks);
         renderPfVideos(videoViews);
+        renderPfBio(events);
+    }
+
+    function renderPfBio(events) {
+        const bioPageViews = events.filter(e => e.event_type === 'page_view' && e.page_path === '/bio');
+        const bioClicks = events.filter(e => e.event_type === 'button_click' && (e.event_name || '').startsWith('bio_'));
+        const uniqueSessions = new Set(bioPageViews.map(e => e.session_id).filter(Boolean)).size;
+        const rate = bioPageViews.length > 0 ? ((bioClicks.length / bioPageViews.length) * 100).toFixed(1) + '%' : '—';
+
+        document.getElementById('bioStatVisits').textContent = bioPageViews.length;
+        document.getElementById('bioStatUnique').textContent = uniqueSessions;
+        document.getElementById('bioStatClicks').textContent = bioClicks.length;
+        document.getElementById('bioStatRate').textContent = rate;
+
+        // Comparativo Creator vs Marca
+        const toggleCreator = bioClicks.filter(e => e.event_name === 'bio_toggle_creator').length;
+        const toggleMarca = bioClicks.filter(e => e.event_name === 'bio_toggle_marca').length;
+        const cardsCreator = bioClicks.filter(e => (e.event_name || '').startsWith('bio_creator_')).length;
+        const cardsMarca = bioClicks.filter(e => (e.event_name || '').startsWith('bio_marca_')).length;
+        document.getElementById('bioToggleCreator').textContent = toggleCreator;
+        document.getElementById('bioToggleMarca').textContent = toggleMarca;
+        document.getElementById('bioCardsCreator').textContent = cardsCreator;
+        document.getElementById('bioCardsMarca').textContent = cardsMarca;
+
+        // Chart 14 dias
+        const chartBuckets = [];
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        for (let i = 13; i >= 0; i--) {
+            const d = new Date(today.getTime() - i * 86400000);
+            chartBuckets.push({ date: d.toISOString().slice(0, 10), count: 0 });
+        }
+        for (const e of bioPageViews) {
+            const day = (e.created_at || '').slice(0, 10);
+            const b = chartBuckets.find(x => x.date === day);
+            if (b) b.count++;
+        }
+        const max = Math.max(1, ...chartBuckets.map(b => b.count));
+        document.getElementById('bioChart').innerHTML = chartBuckets.map(b => `
+            <div class="bio-chart-day" title="${b.date}: ${b.count}">
+                <div class="bio-chart-bar" style="height:${(b.count/max)*100}%"></div>
+                <div class="bio-chart-label">${b.date.slice(8, 10)}</div>
+            </div>`).join('');
+
+        // Lista cliques por card
+        const wrap = document.getElementById('bioButtonsList');
+        if (!bioClicks.length) {
+            wrap.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted);">Nenhum clique registrado ainda.</div>';
+            return;
+        }
+        const map = new Map();
+        for (const c of bioClicks) map.set(c.event_name, (map.get(c.event_name) || 0) + 1);
+        const items = [...map.entries()].sort((a, b) => b[1] - a[1]);
+        const itemMax = items[0][1];
+        wrap.innerHTML = items.map(([name, count]) => `
+            <div class="pf-bar-row">
+                <div class="pf-bar-row-name">
+                    <div class="pf-bar-row-label">${escapeHtml(prettifyBioTrack(name))}</div>
+                    <div class="pf-bar-row-bar"><div class="pf-bar-row-bar-fill" style="width:${(count/itemMax)*100}%"></div></div>
+                </div>
+                <div class="pf-bar-row-count">${count}</div>
+            </div>`).join('');
+    }
+
+    function prettifyBioTrack(name) {
+        // bio_creator_meu_manager → "Creator · Meu Manager"
+        const s = (name || '').replace(/^bio_/, '');
+        if (s.startsWith('toggle_')) return 'Toggle · ' + s.replace('toggle_', '').replace(/^./, c => c.toUpperCase());
+        if (s.startsWith('social_')) return 'Social · ' + s.replace('social_', '').replace(/^./, c => c.toUpperCase());
+        if (s.startsWith('creator_')) return 'Creator · ' + s.replace('creator_', '').replace(/_/g, ' ');
+        if (s.startsWith('marca_')) return 'Marca · ' + s.replace('marca_', '').replace(/_/g, ' ');
+        return s.replace(/_/g, ' ');
     }
 
     /* Helpers compartilhados pros cards de lead */
@@ -1554,6 +1680,7 @@
             const target = btn.dataset.pfSubtab;
             document.getElementById('pfPanelLeads').style.display = target === 'leads' ? 'block' : 'none';
             document.getElementById('pfPanelGestao').style.display = target === 'gestao' ? 'block' : 'none';
+            document.getElementById('pfPanelBio').style.display = target === 'bio' ? 'block' : 'none';
             document.getElementById('pfPanelButtons').style.display = target === 'buttons' ? 'block' : 'none';
             document.getElementById('pfPanelVideos').style.display = target === 'videos' ? 'block' : 'none';
         });
