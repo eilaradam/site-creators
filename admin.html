@@ -1303,23 +1303,27 @@
         document.getElementById('bioCardsCreator').textContent = cardsCreator;
         document.getElementById('bioCardsMarca').textContent = cardsMarca;
 
-        // Chart 14 dias
+        // Chart 14 dias — usa timestamps locais pra evitar bug de timezone
+        const todayMid = new Date(); todayMid.setHours(0, 0, 0, 0);
         const chartBuckets = [];
-        const today = new Date(); today.setHours(0, 0, 0, 0);
         for (let i = 13; i >= 0; i--) {
-            const d = new Date(today.getTime() - i * 86400000);
-            chartBuckets.push({ date: d.toISOString().slice(0, 10), count: 0 });
+            const d = new Date(todayMid.getTime() - i * 86400000);
+            chartBuckets.push({ ts: d.getTime(), label: String(d.getDate()).padStart(2, '0'), count: 0 });
         }
         for (const e of bioPageViews) {
-            const day = (e.created_at || '').slice(0, 10);
-            const b = chartBuckets.find(x => x.date === day);
-            if (b) b.count++;
+            const t = new Date(e.created_at).getTime();
+            if (isNaN(t)) continue;
+            const eventDay = new Date(t); eventDay.setHours(0, 0, 0, 0);
+            const diffDays = Math.round((todayMid.getTime() - eventDay.getTime()) / 86400000);
+            if (diffDays >= 0 && diffDays < 14) {
+                chartBuckets[13 - diffDays].count++;
+            }
         }
         const max = Math.max(1, ...chartBuckets.map(b => b.count));
         document.getElementById('bioChart').innerHTML = chartBuckets.map(b => `
-            <div class="bio-chart-day" title="${b.date}: ${b.count}">
+            <div class="bio-chart-day" title="${new Date(b.ts).toLocaleDateString('pt-BR')}: ${b.count}">
                 <div class="bio-chart-bar" style="height:${(b.count/max)*100}%"></div>
-                <div class="bio-chart-label">${b.date.slice(8, 10)}</div>
+                <div class="bio-chart-label">${b.label}</div>
             </div>`).join('');
 
         // Lista cliques por card
