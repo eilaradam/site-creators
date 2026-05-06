@@ -1055,12 +1055,13 @@
 .pf-video-sub { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bio-chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; margin-bottom: 16px; }
 .bio-card-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 14px; }
-.bio-chart { display: flex; align-items: flex-end; gap: 6px; height: 150px; }
-.bio-chart-day { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; }
-.bio-chart-count { font-family: 'Fraunces', serif; font-weight: 700; font-size: 11px; color: var(--text); height: 14px; }
+.bio-chart { display: flex; align-items: stretch; gap: 6px; height: 170px; }
+.bio-chart-day { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; height: 100%; }
+.bio-chart-count { font-family: 'Fraunces', serif; font-weight: 700; font-size: 11px; color: var(--text); height: 14px; flex-shrink: 0; }
+.bio-chart-bar-wrap { width: 100%; flex: 1; display: flex; align-items: flex-end; }
 .bio-chart-bar { width: 100%; background: var(--accent); border-radius: 4px 4px 0 0; transition: opacity 0.2s; min-height: 2px; }
 .bio-chart-bar:hover { opacity: 0.8; }
-.bio-chart-label { font-size: 9px; color: var(--text-muted); }
+.bio-chart-label { font-size: 9px; color: var(--text-muted); flex-shrink: 0; }
 .bio-chart-hint { margin-top: 10px; font-size: 11px; color: var(--text-muted); text-align: center; }
 .bio-audience-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .bio-audience-block { background: var(--cream); border-radius: 10px; padding: 14px 16px; }
@@ -1333,7 +1334,9 @@
         document.getElementById('bioChart').innerHTML = chartBuckets.map(b => `
             <div class="bio-chart-day" title="${new Date(b.ts).toLocaleDateString('pt-BR')}: ${b.count} visita(s)">
                 <div class="bio-chart-count">${b.count > 0 ? b.count : ''}</div>
-                <div class="bio-chart-bar" style="height:${(b.count/max)*100}%"></div>
+                <div class="bio-chart-bar-wrap">
+                    <div class="bio-chart-bar" style="height:${(b.count/max)*100}%"></div>
+                </div>
                 <div class="bio-chart-label">${b.label}</div>
             </div>`).join('');
 
