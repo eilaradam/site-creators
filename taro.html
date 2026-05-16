@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarô da Lara | Sinta a energia, puxe as cartas</title>
+    <meta name="description" content="Um ritual de tarô online: respire, concentre sua pergunta e deixe as cartas falarem. Arcanos Maiores com leitura completa em texto.">
+    <meta property="og:title" content="Tarô da Lara">
+    <meta property="og:description" content="Respire, concentre sua intenção e puxe as cartas. Leitura completa em texto.">
+    <meta property="og:type" content="website">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --black: #0A0A0A;
+            --white: #FAFAF9;
+            --cream: #F5F3EF;
+            --warm: #E8E4DD;
+            --accent: #D4572A;
+            --accent-dark: #B8461F;
+            --accent-glow: rgba(212,87,42,0.12);
+            --text: #1A1816;
+            --text-soft: #6B645C;
+            --text-muted: #9C958C;
+            --border: #DDD8D0;
+            --card: #FFFFFF;
+            --gold: #C9A24B;
+            --night: #14110F;
+            --night-2: #1E1A16;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: radial-gradient(ellipse at 50% -10%, #241f1a 0%, var(--night) 55%, #0c0a08 100%);
+            color: var(--white);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+        }
+        .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.5; }
+        .stars span {
+            position: absolute; width: 2px; height: 2px; background: var(--gold);
+            border-radius: 50%; animation: twinkle 4s infinite ease-in-out;
+        }
+        @keyframes twinkle { 0%,100%{opacity:0.15;transform:scale(0.7)} 50%{opacity:0.9;transform:scale(1.2)} }
+
+        .wrap { position: relative; z-index: 1; max-width: 920px; margin: 0 auto; padding: 56px 22px 100px; }
+
+        header.hero { text-align: center; margin-bottom: 44px; }
+        .kicker {
+            font-size: 12px; letter-spacing: 3.5px; text-transform: uppercase;
+            color: var(--gold); font-weight: 600; margin-bottom: 16px;
+        }
+        h1 {
+            font-family: 'Fraunces', serif; font-weight: 700;
+            font-size: clamp(34px, 6vw, 58px); line-height: 1.05;
+            letter-spacing: -1px; margin-bottom: 16px;
+        }
+        h1 em { font-style: italic; color: var(--accent); }
+        .sub { color: var(--text-muted); font-size: 16px; max-width: 540px; margin: 0 auto; line-height: 1.6; }
+
+        .panel {
+            background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02));
+            border: 1px solid rgba(201,162,75,0.22);
+            border-radius: 26px;
+            padding: 34px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.45);
+        }
+        .step { display: none; animation: fade 0.6s ease; }
+        .step.active { display: block; }
+        @keyframes fade { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+
+        label.field-label { display:block; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; font-weight: 600; }
+        textarea {
+            width: 100%; background: rgba(0,0,0,0.35); border: 1px solid rgba(201,162,75,0.25);
+            border-radius: 16px; color: var(--white); font-family: 'Outfit', sans-serif;
+            font-size: 16px; padding: 16px 18px; resize: vertical; min-height: 92px; outline: none;
+            transition: border-color 0.3s;
+        }
+        textarea:focus { border-color: var(--accent); }
+        textarea::placeholder { color: var(--text-muted); }
+
+        .spreads { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 14px; margin-top: 26px; }
+        .spread {
+            text-align: left; background: rgba(0,0,0,0.3); border: 1px solid rgba(201,162,75,0.22);
+            border-radius: 18px; padding: 20px; cursor: pointer; transition: all 0.28s;
+        }
+        .spread:hover { border-color: var(--accent); transform: translateY(-3px); background: rgba(212,87,42,0.08); }
+        .spread.sel { border-color: var(--accent); background: rgba(212,87,42,0.12); box-shadow: 0 0 0 1px var(--accent) inset; }
+        .spread h3 { font-family:'Fraunces',serif; font-size: 20px; margin-bottom: 6px; }
+        .spread p { color: var(--text-muted); font-size: 13.5px; line-height: 1.5; }
+        .spread .tag { display:inline-block; margin-top:12px; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--gold); }
+
+        .btn {
+            display: inline-flex; align-items: center; gap: 10px; background: var(--accent);
+            color: var(--white); border: none; padding: 16px 38px; border-radius: 100px;
+            font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 0.4px;
+            cursor: pointer; transition: all 0.3s; margin-top: 30px;
+        }
+        .btn:hover { background: var(--accent-dark); transform: translateY(-2px); box-shadow: 0 14px 34px rgba(212,87,42,0.4); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow:none; }
+        .btn.ghost { background: transparent; border: 1px solid rgba(201,162,75,0.4); color: var(--gold); }
+        .btn.ghost:hover { background: rgba(201,162,75,0.1); box-shadow:none; }
+        .actions { display:flex; gap:14px; flex-wrap:wrap; align-items:center; }
+
+        /* Breathing focus */
+        .breath-wrap { text-align:center; padding: 14px 0 4px; }
+        .orb {
+            width: 150px; height: 150px; margin: 26px auto; border-radius: 50%;
+            background: radial-gradient(circle at 50% 40%, var(--accent), var(--accent-dark) 70%);
+            box-shadow: 0 0 60px rgba(212,87,42,0.5);
+            animation: breathe 8s ease-in-out infinite;
+            display:flex; align-items:center; justify-content:center;
+            font-family:'Fraunces',serif; font-size: 15px; color: rgba(255,255,255,0.85);
+        }
+        @keyframes breathe {
+            0%,100% { transform: scale(0.78); box-shadow: 0 0 40px rgba(212,87,42,0.35); }
+            45% { transform: scale(1.12); box-shadow: 0 0 90px rgba(212,87,42,0.65); }
+        }
+
+        /* Deck */
+        .deck { display:flex; justify-content:center; flex-wrap:wrap; gap: 8px; margin: 30px 0 10px; perspective: 1200px; }
+        .deck-card {
+            width: 78px; height: 124px; border-radius: 12px; cursor: pointer;
+            background:
+              repeating-linear-gradient(45deg, rgba(201,162,75,0.18) 0 6px, transparent 6px 12px),
+              linear-gradient(155deg, #2a231c, #14110f);
+            border: 1px solid rgba(201,162,75,0.4);
+            position: relative; transition: transform 0.3s, box-shadow 0.3s;
+            display:flex; align-items:center; justify-content:center;
+        }
+        .deck-card::after { content:'✦'; color: var(--gold); font-size: 22px; opacity:0.55; }
+        .deck-card:hover { transform: translateY(-14px) rotate(-2deg); box-shadow: 0 16px 30px rgba(0,0,0,0.5); border-color: var(--accent); }
+        .deck-card.picked { pointer-events:none; opacity: 0.22; transform: translateY(6px) scale(0.92); }
+        .pick-hint { text-align:center; color: var(--text-muted); font-size: 14px; margin-top:6px; }
+
+        /* Result cards */
+        .reading-head { text-align:center; margin-bottom: 30px; }
+        .q-echo { color: var(--text-muted); font-size: 14px; font-style: italic; margin-top:8px; }
+
+        .results { display:flex; gap: 22px; flex-wrap:wrap; justify-content:center; margin-bottom: 30px; }
+        .rcard { width: 200px; }
+        .rcard .pos { text-align:center; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--gold); margin-bottom:12px; font-weight:600; }
+        .face {
+            height: 300px; border-radius: 18px; position: relative; transform-style: preserve-3d;
+            transition: transform 0.9s cubic-bezier(.2,.8,.2,1); cursor:pointer;
+        }
+        .face.flipped { transform: rotateY(180deg); }
+        .face .side { position:absolute; inset:0; backface-visibility:hidden; border-radius:18px; overflow:hidden; }
+        .face .back {
+            background:
+              repeating-linear-gradient(45deg, rgba(201,162,75,0.16) 0 7px, transparent 7px 14px),
+              linear-gradient(155deg, #2a231c, #14110f);
+            border:1px solid rgba(201,162,75,0.4); display:flex; align-items:center; justify-content:center;
+        }
+        .face .back span { font-size:34px; color:var(--gold); opacity:0.6; }
+        .face .front {
+            transform: rotateY(180deg);
+            background: linear-gradient(170deg, #fbf6ec, #efe4cf);
+            border: 1px solid var(--gold); color: #2a2317;
+            display:flex; flex-direction:column; align-items:center; justify-content:center; gap: 10px;
+            padding: 16px; text-align:center;
+        }
+        .face .front.rev { background: linear-gradient(170deg, #efe2cf, #d8c6a6); }
+        .face .glyph { font-size: 60px; line-height:1; }
+        .face .front.rev .glyph { transform: rotate(180deg); }
+        .face .num { font-size:12px; letter-spacing:2px; color: var(--accent-dark); font-weight:700; }
+        .face .nm { font-family:'Fraunces',serif; font-size: 21px; font-weight:700; line-height:1.15; }
+        .face .ori { font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:#8a7a55; font-weight:600; }
+
+        .interp { background: rgba(0,0,0,0.28); border:1px solid rgba(201,162,75,0.18); border-radius:16px; padding: 18px; margin-top:16px; }
+        .interp .it-pos { font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--gold); font-weight:600; }
+        .interp .it-nm { font-family:'Fraunces',serif; font-size:17px; margin: 4px 0 8px; }
+        .interp .it-nm small { font-family:'Outfit',sans-serif; font-size:11px; color:var(--text-muted); letter-spacing:1px; text-transform:uppercase; }
+        .interp p { color: #d8d0c4; font-size:14.5px; line-height:1.65; }
+        .interp .adv { margin-top:10px; color: var(--gold); font-size:13.5px; font-style:italic; }
+
+        .synthesis {
+            margin-top: 26px; background: linear-gradient(180deg, rgba(212,87,42,0.12), rgba(212,87,42,0.04));
+            border:1px solid rgba(212,87,42,0.3); border-radius:18px; padding: 24px;
+        }
+        .synthesis h3 { font-family:'Fraunces',serif; font-size:20px; margin-bottom:10px; }
+        .synthesis p { color:#e6ddcf; font-size:15px; line-height:1.7; }
+
+        footer { text-align:center; margin-top: 46px; color: var(--text-muted); font-size: 12.5px; line-height:1.7; }
+        footer a { color: var(--gold); text-decoration:none; }
+        .disclaimer { margin-top: 8px; font-size: 11.5px; color:#6b645c; max-width:520px; margin-left:auto; margin-right:auto; }
+
+        @media (max-width:560px){
+            .panel{ padding:24px; }
+            .deck-card{ width:60px; height:96px; }
+            .rcard{ width:100%; max-width:240px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    <div class="wrap">
+        <header class="hero">
+            <div class="kicker">Ritual de Tarô</div>
+            <h1>Sinta a energia.<br><em>Puxe as cartas.</em></h1>
+            <p class="sub">Respire fundo, concentre sua pergunta no coração e deixe os Arcanos responderem. Leitura completa, em texto, feita pra você.</p>
+        </header>
+
+        <div class="panel">
+
+            <!-- STEP 1 -->
+            <section class="step active" id="step1">
+                <label class="field-label" for="q">Qual é a sua pergunta?</label>
+                <textarea id="q" placeholder="Ex.: O que eu preciso saber sobre o meu momento agora? / Devo seguir nesse caminho? (você também pode deixar em branco e só sentir)"></textarea>
+
+                <div class="spreads" id="spreads">
+                    <div class="spread" data-n="1" data-id="dia">
+                        <h3>Carta única</h3>
+                        <p>Uma mensagem direta para o seu agora. Foco e clareza imediata.</p>
+                        <span class="tag">1 carta</span>
+                    </div>
+                    <div class="spread" data-n="3" data-id="ppf">
+                        <h3>Passado · Presente · Futuro</h3>
+                        <p>A linha do tempo da sua questão: o que ficou, o que é, o que vem.</p>
+                        <span class="tag">3 cartas</span>
+                    </div>
+                    <div class="spread" data-n="3" data-id="sar">
+                        <h3>Situação · Ação · Resultado</h3>
+                        <p>Onde você está, o que fazer e onde isso te leva se agir.</p>
+                        <span class="tag">3 cartas</span>
+                    </div>
+                </div>
+
+                <button class="btn" id="toFocus" disabled>Escolha uma tiragem</button>
+            </section>
+
+            <!-- STEP 2 -->
+            <section class="step" id="step2">
+                <div class="breath-wrap">
+                    <label class="field-label" style="text-align:center">Centre-se</label>
+                    <p class="sub" style="margin-bottom:6px">Acompanhe o círculo: inspire enquanto cresce, solte enquanto encolhe. Pense na sua pergunta três vezes.</p>
+                    <div class="orb">respire</div>
+                    <p class="pick-hint">Quando sentir que está pronta, embaralhe.</p>
+                </div>
+                <div style="text-align:center">
+                    <button class="btn" id="shuffle">Embaralhar as cartas</button>
+                </div>
+            </section>
+
+            <!-- STEP 3 -->
+            <section class="step" id="step3">
+                <label class="field-label" style="text-align:center">Puxe suas cartas</label>
+                <p class="pick-hint" id="pickHint">Escolha 1 carta com a intuição.</p>
+                <div class="deck" id="deck"></div>
+            </section>
+
+            <!-- STEP 4 -->
+            <section class="step" id="step4">
+                <div class="reading-head">
+                    <div class="kicker">Sua leitura</div>
+                    <h1 style="font-size:clamp(26px,4.5vw,40px)">As cartas falaram</h1>
+                    <p class="q-echo" id="qEcho"></p>
+                    <p class="pick-hint" style="margin-top:10px">Toque em cada carta para virar.</p>
+                </div>
+                <div class="results" id="results"></div>
+                <div class="synthesis" id="synthesis" style="display:none">
+                    <h3>Síntese da leitura</h3>
+                    <p id="synthText"></p>
+                </div>
+                <div style="text-align:center">
+                    <button class="btn ghost" id="again">Nova consulta</button>
+                </div>
+            </section>
+
+        </div>
+
+        <footer>
+            Tarô da Lara — um espaço de reflexão e autoconhecimento.
+            <div class="disclaimer">As cartas são um espelho simbólico para olhar pra dentro, não previsão determinística. Use como convite à reflexão, não substituto de decisões, saúde ou aconselhamento profissional.</div>
+        </footer>
+    </div>
+
+<script>
+/* ---------- Estrelas de fundo ---------- */
+(function(){
+    const s = document.getElementById('stars');
+    for(let i=0;i<70;i++){
+        const e=document.createElement('span');
+        e.style.left=Math.random()*100+'%';
+        e.style.top=Math.random()*100+'%';
+        e.style.animationDelay=(Math.random()*4)+'s';
+        e.style.transform='scale('+(0.5+Math.random())+')';
+        s.appendChild(e);
+    }
+})();
+
+/* ---------- Baralho: 22 Arcanos Maiores ---------- */
+const DECK = [
+ {n:0, nm:"O Louco", g:"🃏", k:"Recomeço, fé, liberdade",
+  up:"Um salto no desconhecido com o coração leve. O Louco te lembra que todo grande caminho começa com um passo dado sem garantias — só com confiança. Há frescor, espontaneidade e a coragem de não saber tudo antes de começar.",
+  rev:"Medo de arriscar ou impulsividade sem direção. Pode ser hesitação que paralisa, ou um pulo dado sem olhar onde pisa. Pede consciência antes do salto.",
+  adv:"Confie no próximo passo, mesmo sem ver a escada inteira."},
+ {n:1, nm:"O Mago", g:"🪄", k:"Poder pessoal, foco, manifestação",
+  up:"Você tem em mãos tudo que precisa para criar o que deseja. O Mago é vontade direcionada: talento, recurso e ação alinhados ao mesmo propósito. É hora de fazer, não só desejar.",
+  rev:"Potencial desperdiçado, dispersão ou manipulação. Energia existe, mas sem foco — ou usada para iludir (a si mesma ou aos outros).",
+  adv:"Escolha um foco e canalize toda a sua energia nele."},
+ {n:2, nm:"A Sacerdotisa", g:"🌙", k:"Intuição, mistério, silêncio",
+  up:"As respostas não estão fora — estão no seu silêncio. A Sacerdotisa pede escuta interior, paciência e confiança no que você sente antes do que você explica.",
+  rev:"Desconexão da intuição, segredos pesados ou ruído mental excessivo. Você está racionalizando algo que o corpo já sabe.",
+  adv:"Fique quieta. A resposta sobe quando você para de empurrar."},
+ {n:3, nm:"A Imperatriz", g:"🌹", k:"Abundância, criação, cuidado",
+  up:"Fertilidade em todos os sentidos: projetos, vínculos, prazer, nutrição. A Imperatriz é a energia que faz florescer — receber e criar com generosidade.",
+  rev:"Bloqueio criativo, autoabandono ou excesso de controle sobre o que deveria fluir. Você está cuidando de tudo, menos de si.",
+  adv:"Cuide do que você está gerando — inclusive de você."},
+ {n:4, nm:"O Imperador", g:"♔", k:"Estrutura, autoridade, limite",
+  up:"Ordem, disciplina e a firmeza de quem assume o comando. O Imperador constrói algo que dura através de regras claras e responsabilidade.",
+  rev:"Rigidez, controle excessivo ou autoridade ferida. Estrutura virou prisão, ou falta um esqueleto sólido onde apoiar.",
+  adv:"Construa uma base firme antes de erguer o resto."},
+ {n:5, nm:"O Hierofante", g:"⛪", k:"Tradição, aprendizado, valores",
+  up:"Sabedoria que vem de algo maior: um mentor, uma fé, uma instituição, um conjunto de valores. Convite a aprender pelo caminho já trilhado.",
+  rev:"Quebra com o convencional, dogma sufocante ou busca por uma verdade própria fora do molde.",
+  adv:"Honre a tradição que serve; questione a que aprisiona."},
+ {n:6, nm:"Os Enamorados", g:"❤", k:"Escolha, união, valores",
+  up:"Uma união significativa e, sobretudo, uma escolha feita com o coração inteiro. Alinhamento entre o que você sente e o que você decide.",
+  rev:"Desalinhamento, ambivalência ou uma escolha feita por fora de você. Algo dentro não concorda com algo de fora.",
+  adv:"Escolha o que está em harmonia com seus valores, não só com seu desejo."},
+ {n:7, nm:"O Carro", g:"🏇", k:"Vontade, direção, vitória",
+  up:"Avanço com determinação. Forças opostas domadas pela sua vontade, movimento na direção certa. Vitória de quem segura as rédeas.",
+  rev:"Falta de rumo, força puxando pra lados opostos ou pressa que descarrila. Movimento sem controle.",
+  adv:"Decida o destino antes de acelerar."},
+ {n:8, nm:"A Força", g:"🦁", k:"Coragem suave, domínio interno",
+  up:"Força que não grita: a coragem da serenidade. Você dompa o que é bruto com paciência e compaixão, não com violência.",
+  rev:"Dúvida, medo no comando ou energia reprimida. A fera interna está no controle por falta de gentileza consigo.",
+  adv:"Doçura é poder. Acalme antes de domar."},
+ {n:9, nm:"O Eremita", g:"🏮", k:"Introspecção, busca, sabedoria",
+  up:"Um tempo de recolhimento para encontrar a própria luz. Respostas vêm do silêncio e da solidão escolhida, não da multidão.",
+  rev:"Isolamento que adoece ou recusa de orientação. Solidão virou fuga, não busca.",
+  adv:"Recolha-se o suficiente para se ouvir — depois volte."},
+ {n:10, nm:"A Roda da Fortuna", g:"☸", k:"Ciclos, virada, destino",
+  up:"A roda gira a seu favor. Mudança de fase, sorte em movimento, o reconhecimento de que tudo é ciclo e este está virando pra cima.",
+  rev:"Resistência ao ciclo, fase de baixa ou sensação de estar à mercê do acaso. O que sobe também desce — e vice-versa.",
+  adv:"Flua com o movimento; não segure a roda parada."},
+ {n:11, nm:"A Justiça", g:"⚖", k:"Verdade, equilíbrio, causa-efeito",
+  up:"Cada ação tem consequência, e a balança busca o ponto justo. Clareza, honestidade e decisões tomadas com lucidez e responsabilidade.",
+  rev:"Injustiça, autoengano ou recusa em assumir a própria parte. A balança está torta porque algo não foi dito.",
+  adv:"Seja honesta primeiro consigo. A verdade equilibra."},
+ {n:12, nm:"O Enforcado", g:"🙃", k:"Pausa, rendição, nova ótica",
+  up:"Render-se para enxergar diferente. Uma pausa necessária, uma entrega que liberta. Ver o mundo de cabeça pra baixo revela o que estava escondido.",
+  rev:"Resistência a soltar, estagnação ou sacrifício inútil. Você está pendurada esperando, sem aprender a lição da espera.",
+  adv:"Pare de lutar contra. Olhe pelo outro ângulo."},
+ {n:13, nm:"A Morte", g:"🦋", k:"Fim, transformação, renascimento",
+  up:"Um ciclo se encerra para que outro nasça. Não é fim trágico — é metamorfose. Soltar o que morreu abre espaço para o que vem.",
+  rev:"Apego ao que já acabou, medo da mudança, transição travada. A morte adiada prolonga o sofrimento.",
+  adv:"Deixe morrer o que já morreu. O novo precisa do espaço."},
+ {n:14, nm:"A Temperança", g:"🕊", k:"Equilíbrio, paciência, alquimia",
+  up:"A arte de misturar na medida certa. Paciência, moderação e a cura que vem de integrar opostos sem pressa.",
+  rev:"Excesso, desequilíbrio ou impaciência. Algo está fora de proporção e pede ajuste fino.",
+  adv:"Devagar e na medida. Cura é mistura paciente."},
+ {n:15, nm:"O Diabo", g:"⛓", k:"Apego, sombra, padrão",
+  up:"As correntes que você acha que te prendem têm a chave do seu lado. Vícios, padrões, dependências, desejos que escravizam — vê-los já é começar a se soltar.",
+  rev:"Libertação de uma prisão, fim de um padrão tóxico, a corrente que afrouxa. Você está percebendo o que te amarrava.",
+  adv:"Olhe de frente o que te prende. A corrente é mais frouxa do que parece."},
+ {n:16, nm:"A Torre", g:"⚡", k:"Ruptura, revelação, libertação",
+  up:"Uma estrutura falsa desaba de repente — e isso, por mais chocante, é libertador. A verdade derruba o que foi construído sobre ilusão.",
+  rev:"Crise adiada, colapso evitado por pouco ou medo da mudança inevitável. A torre treme; melhor soltar antes que caia sozinha.",
+  adv:"O que desaba assim precisava cair. Deixe ir."},
+ {n:17, nm:"A Estrela", g:"⭐", k:"Esperança, fé, renovação",
+  up:"Depois da tempestade, a calma luminosa. Esperança renovada, cura, inspiração e a sensação de estar guiada por algo maior.",
+  rev:"Desânimo, fé abalada ou desconexão da própria luz. A estrela ainda brilha — você que está de olhos fechados.",
+  adv:"Mantenha a fé acesa. A cura já começou."},
+ {n:18, nm:"A Lua", g:"🌕", k:"Ilusão, intuição, medo",
+  up:"Terreno de sombras e sonhos. Nem tudo é o que parece; emoções e intuições intensas pedem que você atravesse a névoa com cuidado.",
+  rev:"Confusão se dissipando, verdade emergindo ou medos sendo enfrentados. A névoa começa a abrir.",
+  adv:"Não decida na escuridão total. Espere a luz, sinta o caminho."},
+ {n:19, nm:"O Sol", g:"☀", k:"Alegria, clareza, sucesso",
+  up:"Luz plena. Vitalidade, clareza, alegria sincera e sucesso que aquece. Tudo fica visível e bom à luz do dia.",
+  rev:"Brilho temporariamente encoberto, otimismo forçado ou alegria adiada. O sol está aí, atrás da nuvem.",
+  adv:"Deixe-se ver e ser vista. O bom momento é real."},
+ {n:20, nm:"O Julgamento", g:"📯", k:"Chamado, despertar, perdão",
+  up:"Um chamado interior para se reerguer renovada. Avaliação honesta do passado, perdão e o despertar para uma nova versão de si.",
+  rev:"Autocrítica dura, chamado ignorado ou dificuldade de perdoar (a si mesma inclusive). O despertar está batendo — atenda.",
+  adv:"Perdoe, integre e responda ao chamado."},
+ {n:21, nm:"O Mundo", g:"🌍", k:"Conclusão, plenitude, integração",
+  up:"Um ciclo se completa em plenitude. Realização, integração e a sensação de estar inteira no lugar certo. Fim que é também celebração.",
+  rev:"Ciclo quase fechado, pendência final ou conclusão adiada. Falta pouco — não desista no último passo.",
+  adv:"Honre o que se completou antes de abrir o próximo ciclo."}
+];
+
+const POSITIONS = {
+    dia: ["Mensagem para o agora"],
+    ppf: ["Passado", "Presente", "Futuro"],
+    sar: ["Situação", "Ação", "Resultado"]
+};
+
+let state = { n:1, id:"dia", q:"", drawn:[] };
+
+/* ---------- Navegação de passos ---------- */
+function go(stepId){
+    document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+    document.getElementById(stepId).classList.add('active');
+    window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ---------- Step 1: escolher tiragem ---------- */
+const spreadsEl = document.getElementById('spreads');
+const toFocus = document.getElementById('toFocus');
+spreadsEl.addEventListener('click', e=>{
+    const card = e.target.closest('.spread');
+    if(!card) return;
+    document.querySelectorAll('.spread').forEach(s=>s.classList.remove('sel'));
+    card.classList.add('sel');
+    state.n = parseInt(card.dataset.n,10);
+    state.id = card.dataset.id;
+    toFocus.disabled = false;
+    toFocus.textContent = "Centrar e respirar →";
+});
+toFocus.addEventListener('click', ()=>{
+    state.q = document.getElementById('q').value.trim();
+    go('step2');
+});
+
+/* ---------- Step 2 → 3 ---------- */
+document.getElementById('shuffle').addEventListener('click', ()=>{
+    buildDeck();
+    document.getElementById('pickHint').textContent =
+        "Escolha " + state.n + (state.n>1? " cartas":" carta") + " com a intuição. (0/"+state.n+")";
+    go('step3');
+});
+
+/* ---------- Step 3: baralho interativo ---------- */
+function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+}
+function buildDeck(){
+    state.drawn = [];
+    const deckEl = document.getElementById('deck');
+    deckEl.innerHTML = '';
+    const order = shuffle([...Array(DECK.length).keys()]);
+    order.forEach(idx=>{
+        const c = document.createElement('div');
+        c.className = 'deck-card';
+        c.addEventListener('click', ()=> pickCard(c, idx));
+        deckEl.appendChild(c);
+    });
+}
+function pickCard(el, idx){
+    if(state.drawn.length >= state.n) return;
+    el.classList.add('picked');
+    const reversed = Math.random() < 0.42;
+    state.drawn.push({ card: DECK[idx], reversed });
+    const hint = document.getElementById('pickHint');
+    hint.textContent = "Escolha " + state.n + (state.n>1?" cartas":" carta") +
+        " com a intuição. ("+state.drawn.length+"/"+state.n+")";
+    if(state.drawn.length === state.n){
+        setTimeout(reveal, 650);
+    }
+}
+
+/* ---------- Step 4: revelar leitura ---------- */
+function reveal(){
+    const positions = POSITIONS[state.id];
+    const res = document.getElementById('results');
+    res.innerHTML = '';
+    const qEcho = document.getElementById('qEcho');
+    qEcho.textContent = state.q ? '“' + state.q + '”' : 'Leitura aberta — sem pergunta definida.';
+
+    state.drawn.forEach((d, i)=>{
+        const wrap = document.createElement('div');
+        wrap.className = 'rcard';
+        const orient = d.reversed ? 'rev' : '';
+        const oriLabel = d.reversed ? 'Invertida' : 'Direita';
+        wrap.innerHTML = `
+            <div class="pos">${positions[i]||('Carta '+(i+1))}</div>
+            <div class="face" data-i="${i}">
+                <div class="side back"><span>✦</span></div>
+                <div class="side front ${orient}">
+                    <div class="num">ARCANO ${d.card.n}</div>
+                    <div class="glyph">${d.card.g}</div>
+                    <div class="nm">${d.card.nm}</div>
+                    <div class="ori">${oriLabel}</div>
+                </div>
+            </div>
+            <div class="interp">
+                <div class="it-pos">${positions[i]||('Carta '+(i+1))}</div>
+                <div class="it-nm">${d.card.nm} <small>${oriLabel} · ${d.card.k}</small></div>
+                <p>${d.reversed ? d.card.rev : d.card.up}</p>
+                <p class="adv">→ ${d.card.adv}</p>
+            </div>`;
+        res.appendChild(wrap);
+    });
+
+    document.querySelectorAll('.face').forEach((f,i)=>{
+        setTimeout(()=> f.classList.add('flipped'), 350 + i*420);
+        f.addEventListener('click', ()=> f.classList.toggle('flipped'));
+    });
+
+    buildSynthesis();
+    go('step4');
+}
+
+function buildSynthesis(){
+    const box = document.getElementById('synthesis');
+    const t = document.getElementById('synthText');
+    const d = state.drawn;
+    const names = d.map(x=> x.card.nm + (x.reversed?' invertida':'')).join(', ');
+    let msg = '';
+
+    if(state.id === 'dia'){
+        const c = d[0];
+        msg = `Hoje a energia se concentra em <strong>${c.card.nm}</strong> ${c.reversed?'invertida':''}. ` +
+              (c.reversed ? c.card.rev : c.card.up) + ` Leve isto como bússola do dia: ${c.card.adv.toLowerCase()}`;
+    } else if(state.id === 'ppf'){
+        msg = `Sua linha do tempo desenha um movimento: o <strong>${d[0].card.nm}</strong> moldou o terreno, ` +
+              `o <strong>${d[1].card.nm}</strong> descreve onde você pisa agora, e o <strong>${d[2].card.nm}</strong> ` +
+              `aponta para onde a corrente leva se você seguir a deixa de cada carta. ` +
+              `O fio que costura tudo: ${d[1].card.adv.toLowerCase()} ` +
+              (d[2].reversed ? 'O futuro pede atenção — ainda é maleável.' : 'O futuro responde ao que você cultivar agora.');
+    } else {
+        msg = `A leitura mostra <strong>${d[0].card.nm}</strong> como o retrato da situação, ` +
+              `<strong>${d[1].card.nm}</strong> como o gesto que abre caminho, e ` +
+              `<strong>${d[2].card.nm}</strong> como o desdobramento provável de agir assim. ` +
+              `Conselho central: ${d[1].card.adv.toLowerCase()}`;
+    }
+    msg += `<br><br><em>Cartas tiradas: ${names}.</em> Lembre-se: o tarô não decide por você — ele ilumina o que você já sabe por dentro.`;
+    t.innerHTML = msg;
+    box.style.display = 'block';
+}
+
+/* ---------- Reset ---------- */
+document.getElementById('again').addEventListener('click', ()=>{
+    state = { n:1, id:"dia", q:"", drawn:[] };
+    document.getElementById('q').value = '';
+    document.querySelectorAll('.spread').forEach(s=>s.classList.remove('sel'));
+    toFocus.disabled = true;
+    toFocus.textContent = "Escolha uma tiragem";
+    document.getElementById('synthesis').style.display = 'none';
+    go('step1');
+});
+</script>
+</body>
+</html>
