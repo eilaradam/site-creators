@@ -652,9 +652,13 @@
         <aside class="plan-sidebar">
             <div class="plan-sidebar-head">
                 <span>Meus planos</span>
-                <button class="plan-btn" id="planNewBtn" type="button">+ Novo</button>
+                <select id="planFilter" class="plan-filter">
+                    <option value="ativos">Ativos</option>
+                    <option value="todos">Todos</option>
+                    <option value="arquivado">Arquivados</option>
+                </select>
             </div>
-            <ul class="plan-list" id="planList"></ul>
+            <div class="plan-list" id="planList"></div>
         </aside>
         <section class="plan-main">
             <div class="plan-empty" id="planEmpty">
@@ -662,18 +666,50 @@
                 <button class="plan-btn-primary" id="planNewBtn2" type="button">+ Criar primeiro plano</button>
             </div>
             <div class="plan-detail" id="planDetail" style="display:none">
-                <div class="plan-detail-head">
+                <div class="plan-head">
                     <input type="text" id="planNome" class="plan-nome-input" placeholder="Nome do plano">
-                    <button class="plan-btn-ghost" id="planDeleteBtn" type="button">Excluir plano</button>
+                    <div class="plan-head-meta">
+                        <label class="plan-head-field">Início <input type="date" id="planInicio"></label>
+                        <label class="plan-head-field">Fim <input type="date" id="planFim"></label>
+                        <select id="planStatusSel" class="plan-head-status">
+                            <option value="ativo">Em andamento</option>
+                            <option value="concluido">Concluído</option>
+                            <option value="arquivado">Arquivado</option>
+                        </select>
+                        <button class="plan-btn-ghost" id="planDeleteBtn" type="button">Excluir</button>
+                    </div>
                 </div>
 
-                <div class="plan-progress-wrap">
-                    <div class="plan-progress-label" id="planProgressLabel">0 / 0 feito</div>
-                    <div class="plan-progress-bar"><div class="plan-progress-fill" id="planProgressFill"></div></div>
+                <div class="plan-subtabs" id="planSubtabs">
+                    <button class="plan-subtab-btn active" data-plansub="visao" type="button">Visão Geral</button>
+                    <button class="plan-subtab-btn" data-plansub="calendario" type="button">Calendário</button>
+                    <button class="plan-subtab-btn" data-plansub="conteudo" type="button">Conteúdo</button>
+                    <button class="plan-subtab-btn" data-plansub="metas" type="button">Metas</button>
+                    <button class="plan-subtab-btn" data-plansub="tarefas" type="button">Tarefas</button>
+                    <button class="plan-subtab-btn" data-plansub="notas" type="button">Notas</button>
                 </div>
 
-                <div class="plan-section">
-                    <div class="plan-section-head"><h3>Checklist</h3></div>
+                <div class="plan-pane show" id="planPaneVisao">
+                    <div class="plan-grid" id="planVisaoGrid"></div>
+                </div>
+
+                <div class="plan-pane" id="planPaneCalendario">
+                    <div class="plan-soon">📅 O Calendário (timeline do lançamento) chega na próxima etapa.</div>
+                </div>
+
+                <div class="plan-pane" id="planPaneConteudo">
+                    <div class="plan-soon">🎬 O Kanban de Conteúdo (a gravar → gravado → editado → postado) chega na próxima etapa.</div>
+                </div>
+
+                <div class="plan-pane" id="planPaneMetas">
+                    <div class="plan-soon">💰 As Metas financeiras (cenários e realizado vs projetado) chegam na próxima etapa.</div>
+                </div>
+
+                <div class="plan-pane" id="planPaneTarefas">
+                    <div class="plan-progress-wrap">
+                        <div class="plan-progress-label" id="planProgressLabel">0 / 0 feito</div>
+                        <div class="plan-progress-bar"><div class="plan-progress-fill" id="planProgressFill"></div></div>
+                    </div>
                     <ul class="plan-checklist" id="planChecklist"></ul>
                     <div class="plan-additem">
                         <input type="text" id="planNewItem" placeholder="Nova tarefa — Enter pra adicionar (cole várias linhas pra criar várias)">
@@ -681,9 +717,8 @@
                     </div>
                 </div>
 
-                <div class="plan-section">
-                    <div class="plan-section-head">
-                        <h3>Notas do plano</h3>
+                <div class="plan-pane" id="planPaneNotas">
+                    <div class="plan-section-head" style="justify-content:flex-end;margin-bottom:12px">
                         <div>
                             <button class="plan-btn-ghost" id="planEditNotasBtn" type="button">Editar</button>
                             <button class="plan-btn" id="planSaveNotasBtn" type="button" style="display:none">Concluir edição</button>
@@ -691,11 +726,6 @@
                     </div>
                     <div class="plan-notas-view" id="planNotasView"></div>
                     <textarea class="plan-notas-edit" id="planNotasEdit" style="display:none" placeholder="Escreva ou cole seu plano aqui. Aceita markdown: # título, ## subtítulo, **negrito**, - lista, --- linha."></textarea>
-                </div>
-
-                <div class="plan-savebar">
-                    <span class="plan-status" id="planStatus"></span>
-                    <button class="plan-btn-primary" id="planSaveBtn" type="button">Salvar agora</button>
                 </div>
             </div>
         </section>
@@ -1138,27 +1168,67 @@
 
 /* ===== Aba Planejamento ===== */
 .plan-wrap { display: flex; gap: 20px; align-items: flex-start; }
-.plan-sidebar { width: 240px; flex-shrink: 0; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; position: sticky; top: 16px; }
-.plan-sidebar-head { display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px; }
-.plan-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
-.plan-list-item { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-soft); transition: all 0.15s; }
-.plan-list-item:hover { background: var(--cream); color: var(--text); }
-.plan-list-item.active { background: var(--accent); color: #fff; }
-.plan-list-item .plan-list-mini { margin-left: auto; font-size: 11px; opacity: 0.7; font-weight: 600; }
+.plan-sidebar { width: 280px; flex-shrink: 0; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; position: sticky; top: 16px; }
+.plan-sidebar-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px; }
+.plan-filter { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; color: var(--text-soft); border: 1px solid var(--border); border-radius: 8px; padding: 5px 8px; background: var(--card); cursor: pointer; outline: none; }
+.plan-list { display: flex; flex-direction: column; gap: 8px; }
+.plan-card { border: 1px solid var(--border); border-left: 3px solid transparent; border-radius: 10px; padding: 12px 14px; cursor: pointer; transition: all 0.15s; background: var(--card); }
+.plan-card:hover { border-color: var(--accent); }
+.plan-card.active { border-left-color: var(--accent); background: var(--accent-glow); }
+.plan-card-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.plan-card-dates { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
+.plan-card-bar { background: var(--warm); border-radius: 999px; height: 5px; overflow: hidden; margin-bottom: 8px; }
+.plan-card-bar > div { background: var(--success); height: 100%; border-radius: 999px; transition: width 0.3s; }
+.plan-pill { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 999px; }
+.plan-pill.ativo { background: rgba(200,68,26,0.12); color: var(--accent); }
+.plan-pill.concluido { background: rgba(16,185,129,0.14); color: var(--success); }
+.plan-pill.arquivado { background: #ECECEC; color: var(--text-muted); }
+.plan-list-empty { font-size: 13px; color: var(--text-muted); padding: 10px 4px; }
 .plan-main { flex: 1; min-width: 0; }
-.plan-empty { background: var(--card); border: 1px dashed var(--border); border-radius: 14px; padding: 60px 24px; text-align: center; color: var(--text-muted); }
+.plan-empty { background: var(--card); border: 1px dashed var(--border); border-radius: 12px; padding: 60px 24px; text-align: center; color: var(--text-muted); }
 .plan-empty p { margin-bottom: 16px; font-size: 15px; }
-.plan-detail { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
-.plan-detail-head { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
-.plan-nome-input { flex: 1; font-family: 'DM Sans', sans-serif; font-size: 22px; font-weight: 700; color: var(--text); background: transparent; border: none; border-bottom: 2px solid transparent; padding: 4px 0; outline: none; }
+.plan-detail { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+.plan-head { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+.plan-nome-input { flex: 1; min-width: 200px; font-family: 'DM Sans', sans-serif; font-size: 24px; font-weight: 700; color: var(--text); background: transparent; border: none; border-bottom: 2px solid transparent; padding: 4px 0; outline: none; }
 .plan-nome-input:focus { border-bottom-color: var(--accent); }
-.plan-progress-wrap { margin-bottom: 24px; }
+.plan-head-meta { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
+.plan-head-field { font-size: 11px; font-weight: 600; color: var(--text-muted); display: flex; flex-direction: column; gap: 3px; }
+.plan-head-field input, .plan-head-status { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 7px 9px; background: var(--card); outline: none; }
+.plan-head-field input:focus, .plan-head-status:focus { border-color: var(--accent); }
+.plan-head-status { font-weight: 600; cursor: pointer; }
+.plan-subtabs { display: flex; gap: 4px; flex-wrap: wrap; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+.plan-subtab-btn { padding: 10px 16px; font-size: 13px; font-weight: 600; color: var(--text-muted); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+.plan-subtab-btn:hover { color: var(--text); }
+.plan-subtab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.plan-pane { display: none; }
+.plan-pane.show { display: block; }
+.plan-soon { background: var(--cream); border: 1px dashed var(--border); border-radius: 12px; padding: 48px 24px; text-align: center; color: var(--text-muted); font-size: 14px; }
+.plan-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.plan-w { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.plan-w-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px; }
+.plan-w-big { font-size: 26px; font-weight: 700; color: var(--text); line-height: 1.15; }
+.plan-w-sub { font-size: 13px; color: var(--text-soft); margin-top: 4px; }
+.plan-w-accent { color: var(--accent); }
+.plan-timeline { display: flex; gap: 4px; margin-top: 14px; }
+.plan-timeline-seg { flex: 1; height: 8px; border-radius: 999px; background: var(--warm); position: relative; }
+.plan-timeline-seg.done { background: var(--accent); }
+.plan-timeline-seg.current { background: var(--accent); }
+.plan-timeline-seg.current::after { content: ''; position: absolute; top: 50%; left: 50%; width: 14px; height: 14px; background: var(--accent); border: 3px solid var(--card); border-radius: 50%; transform: translate(-50%,-50%); box-shadow: 0 0 0 1px var(--accent); }
+.plan-w-bar { background: var(--warm); border-radius: 999px; height: 8px; overflow: hidden; margin-top: 12px; }
+.plan-w-bar > div { background: var(--success); height: 100%; border-radius: 999px; transition: width 0.3s; }
+.plan-w-list { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.plan-w-li { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text); }
+.plan-w-li .plan-w-li-meta { margin-left: auto; font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+.plan-tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 2px 7px; border-radius: 999px; background: var(--cream); color: var(--text-soft); }
+.plan-tag.late { background: rgba(220,38,38,0.12); color: var(--error); }
+.plan-tag.ok { background: rgba(16,185,129,0.14); color: var(--success); }
+.plan-w-empty { font-size: 13px; color: var(--text-muted); }
+.plan-w.span2 { grid-column: span 2; }
+.plan-progress-wrap { margin-bottom: 20px; }
 .plan-progress-label { font-size: 12px; font-weight: 700; color: var(--text-soft); margin-bottom: 6px; }
 .plan-progress-bar { background: var(--warm); border-radius: 999px; height: 8px; overflow: hidden; }
 .plan-progress-fill { background: var(--success); height: 100%; width: 0%; border-radius: 999px; transition: width 0.3s ease; }
-.plan-section { margin-bottom: 28px; }
-.plan-section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-.plan-section-head h3 { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); margin: 0; }
+.plan-section-head { display: flex; align-items: center; justify-content: space-between; }
 .plan-checklist { list-style: none; margin: 0 0 12px 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
 .plan-check-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 10px; border-radius: 8px; transition: background 0.15s; }
 .plan-check-item:hover { background: var(--cream); }
@@ -1167,14 +1237,14 @@
 .plan-check-item.done .plan-check-text { text-decoration: line-through; color: var(--text-muted); }
 .plan-check-del { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 16px; line-height: 1; padding: 2px 6px; border-radius: 6px; opacity: 0; transition: all 0.15s; flex-shrink: 0; }
 .plan-check-item:hover .plan-check-del { opacity: 1; }
-.plan-check-del:hover { color: var(--error); background: rgba(196,69,60,0.1); }
+.plan-check-del:hover { color: var(--error); background: rgba(220,38,38,0.1); }
 .plan-additem { display: flex; gap: 8px; }
 .plan-additem input { flex: 1; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; background: var(--cream); outline: none; }
 .plan-additem input:focus { border-color: var(--accent); background: var(--card); }
 .plan-notas-view { font-size: 14px; line-height: 1.7; color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; background: var(--cream); min-height: 80px; overflow-wrap: anywhere; }
 .plan-notas-view:empty::before { content: 'Sem notas ainda. Clique em Editar pra escrever ou colar seu plano.'; color: var(--text-muted); }
-.plan-notas-view h2 { font-family: 'DM Sans', sans-serif; font-size: 20px; margin: 18px 0 8px; }
-.plan-notas-view h3 { font-family: 'DM Sans', sans-serif; font-size: 17px; margin: 16px 0 6px; }
+.plan-notas-view h2 { font-size: 20px; margin: 18px 0 8px; }
+.plan-notas-view h3 { font-size: 17px; margin: 16px 0 6px; }
 .plan-notas-view h4 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-soft); margin: 14px 0 6px; }
 .plan-notas-view p { margin: 0 0 10px; }
 .plan-notas-view ul, .plan-notas-view ol { margin: 0 0 12px; padding-left: 22px; }
@@ -1183,23 +1253,26 @@
 .plan-notas-view strong { font-weight: 700; }
 .plan-notas-view a { color: var(--accent); }
 .plan-notas-edit { width: 100%; min-height: 360px; padding: 16px 18px; border: 1.5px solid var(--accent); border-radius: 10px; font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 13px; line-height: 1.6; color: var(--text); background: var(--card); outline: none; resize: vertical; }
-.plan-savebar { display: flex; align-items: center; justify-content: flex-end; gap: 14px; border-top: 1px solid var(--border); padding-top: 18px; }
-.plan-status { font-size: 13px; color: var(--text-muted); margin-right: auto; }
+.plan-status { font-size: 13px; color: var(--text-muted); }
 .plan-status.ok { color: var(--success); font-weight: 600; }
 .plan-status.saving { color: var(--text-soft); }
 .plan-status.err { color: var(--error); font-weight: 600; }
-.plan-btn { padding: 9px 16px; font-size: 13px; font-weight: 700; color: var(--text-soft); background: var(--card); border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; white-space: nowrap; }
+.plan-btn { padding: 9px 16px; font-size: 13px; font-weight: 700; color: var(--text-soft); background: var(--card); border: 1.5px solid var(--border); border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; white-space: nowrap; }
 .plan-btn:hover { border-color: var(--accent); color: var(--accent); }
 .plan-btn-ghost { padding: 8px 14px; font-size: 12px; font-weight: 600; color: var(--text-muted); background: none; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; white-space: nowrap; }
 .plan-btn-ghost:hover { border-color: var(--error); color: var(--error); }
-.plan-btn-primary { padding: 11px 22px; font-size: 14px; font-weight: 700; color: #fff; background: var(--accent); border: none; border-radius: 10px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; white-space: nowrap; }
+.plan-btn-primary { padding: 10px 18px; font-size: 13px; font-weight: 700; color: #fff; background: var(--accent); border: none; border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; white-space: nowrap; }
 .plan-btn-primary:hover { background: var(--accent-dark); }
-.plan-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+@media (max-width: 980px) { .plan-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 860px) {
     .plan-wrap { flex-direction: column; }
     .plan-sidebar { width: 100%; position: static; }
     .plan-list { flex-direction: row; flex-wrap: wrap; }
+    .plan-card { flex: 1; min-width: 180px; }
+    .plan-grid { grid-template-columns: 1fr; }
+    .plan-w.span2 { grid-column: span 1; }
 }
+
 .pf-lead-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; margin-bottom: 12px; }
 .pf-lead-card-header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
 .pf-lead-source { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 4px 10px; border-radius: 999px; flex-shrink: 0; }
@@ -1401,8 +1474,10 @@
             setPageTitle(target);
             document.getElementById('sidebar').classList.remove('open');
             document.getElementById('sidebarBackdrop').classList.remove('show');
+            const _ta = document.getElementById('topbarActions');
+            if (_ta && target !== 'planejamento') _ta.innerHTML = '';
             if (target === 'dashboard') loadDashboard();
-            if (target === 'planejamento') loadPlanejamento();
+            if (target === 'planejamento') { planMountTopbar(); loadPlanejamento(); }
             if (target === 'portfolio') loadPortfolio();
             if (target === 'admin') showAdminSubtab('alunas');
         });
@@ -1458,12 +1533,10 @@
     let planLoaded = false;
     let planSaveTimer = null;
     let planNotasEditing = false;
+    let planSub = 'visao';
 
-    function planGenId(prefix) {
-        return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-    }
+    function planGenId(prefix) { return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 
-    /* Markdown mínimo e seguro (escapa HTML antes de formatar) */
     function planMd(md) {
         const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
         const inline = s => {
@@ -1493,15 +1566,37 @@
         return html;
     }
 
-    function planActive() {
-        return planData.plans.find(p => p.id === planData.activeId) || null;
+    /* Datas */
+    function planToday() { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }
+    function planParse(s) { if (!s) return null; const m = String(s).match(/^(\d{4})-(\d{2})-(\d{2})/); if (!m) return null; const d = new Date(+m[1], +m[2] - 1, +m[3]); d.setHours(0, 0, 0, 0); return d; }
+    function planFmt(s) { const d = (s instanceof Date) ? s : planParse(s); return d ? d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—'; }
+    function planDaysUntil(s) { const d = planParse(s); if (!d) return null; return Math.round((d - planToday()) / 86400000); }
+    function planWeekRange() { const t = planToday(); const dow = (t.getDay() + 6) % 7; const start = new Date(t); start.setDate(t.getDate() - dow); const end = new Date(start); end.setDate(start.getDate() + 6); return { start, end }; }
+    function planMoney(n) { return 'R$ ' + (Number(n) || 0).toLocaleString('pt-BR', { maximumFractionDigits: 0 }); }
+
+    function planMigrate(p) {
+        if (!p.id) p.id = planGenId('p_');
+        if (!p.nome) p.nome = 'Sem nome';
+        if (typeof p.descricao !== 'string') p.descricao = '';
+        if (typeof p.dataInicio !== 'string') p.dataInicio = '';
+        if (typeof p.dataFim !== 'string') p.dataFim = '';
+        if (!p.status) p.status = 'ativo';
+        if (!Array.isArray(p.fases)) p.fases = [];
+        if (!Array.isArray(p.marcos)) p.marcos = [];
+        if (!Array.isArray(p.conteudos)) p.conteudos = [];
+        if (!Array.isArray(p.metas)) p.metas = [];
+        if (!Array.isArray(p.tarefas)) p.tarefas = [];
+        if (Array.isArray(p.checklist) && p.checklist.length && !p.tarefas.length) {
+            p.tarefas = p.checklist.map(c => ({ id: c.id || planGenId('t_'), faseId: '', titulo: c.texto || '', responsavel: '', prazo: '', status: c.feito ? 'feito' : 'a_fazer', prioridade: 'media' }));
+        }
+        delete p.checklist;
+        if (typeof p.notas === 'string') p.notas = [{ id: planGenId('n_'), secao: 'Geral', conteudo: p.notas }];
+        if (!Array.isArray(p.notas) || !p.notas.length) p.notas = [{ id: planGenId('n_'), secao: 'Geral', conteudo: '' }];
+        return p;
     }
 
-    function planProgressOf(p) {
-        const items = p.checklist || [];
-        const done = items.filter(i => i.feito).length;
-        return { done, total: items.length };
-    }
+    function planActive() { return planData.plans.find(p => p.id === planData.activeId) || null; }
+    function planProgressOf(p) { const t = p.tarefas || []; return { done: t.filter(x => x.status === 'feito').length, total: t.length }; }
 
     async function loadPlanejamento() {
         if (planLoaded) { planRenderList(); planRenderDetail(); return; }
@@ -1509,23 +1604,26 @@
             const { data, error } = await sb.from('configuracoes').select('conteudo').eq('id', 'planejamento').maybeSingle();
             if (error) throw error;
             if (data && data.conteudo) {
-                try {
-                    const parsed = JSON.parse(data.conteudo);
-                    if (parsed && Array.isArray(parsed.plans)) planData = parsed;
-                } catch (e) { /* conteúdo inválido — começa vazio */ }
+                try { const parsed = JSON.parse(data.conteudo); if (parsed && Array.isArray(parsed.plans)) planData = parsed; } catch (e) {}
             }
             planLoaded = true;
-        } catch (err) {
-            document.getElementById('planStatus').textContent = 'Erro ao carregar: ' + (err.message || err);
-            document.getElementById('planStatus').className = 'plan-status err';
-        }
+        } catch (err) { planSetStatus('Erro ao carregar: ' + (err.message || err), 'err'); }
+        planData.plans.forEach(planMigrate);
         if (!planData.activeId && planData.plans.length) planData.activeId = planData.plans[0].id;
         planRenderList();
         planRenderDetail();
     }
 
+    function planMountTopbar() {
+        const ta = document.getElementById('topbarActions');
+        if (!ta) return;
+        ta.innerHTML = '<span id="planStatus" class="plan-status"></span><button id="planTopNewBtn" class="plan-btn-primary" type="button">+ Novo plano</button>';
+        document.getElementById('planTopNewBtn').addEventListener('click', planNewPlan);
+    }
+
     function planSetStatus(txt, cls) {
         const el = document.getElementById('planStatus');
+        if (!el) return;
         el.textContent = txt || '';
         el.className = 'plan-status' + (cls ? ' ' + cls : '');
     }
@@ -1537,122 +1635,212 @@
             try {
                 const { data, error } = await sb.from('configuracoes')
                     .update({ conteudo: JSON.stringify(planData), updated_at: new Date().toISOString() })
-                    .eq('id', 'planejamento')
-                    .select('id');
+                    .eq('id', 'planejamento').select('id');
                 if (error) throw error;
-                if (!data || !data.length) {
-                    planSetStatus('Configuração inicial pendente — rode o sql-planejamento.sql no Supabase uma vez (veja instruções).', 'err');
-                    return;
-                }
-                const now = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-                planSetStatus('Salvo ' + now, 'ok');
-            } catch (err) {
-                planSetStatus('Erro ao salvar: ' + (err.message || err), 'err');
-            }
+                if (!data || !data.length) { planSetStatus('Pendente: rode o sql-planejamento.sql no Supabase 1x', 'err'); return; }
+                planSetStatus('Salvo ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), 'ok');
+            } catch (err) { planSetStatus('Erro ao salvar: ' + (err.message || err), 'err'); }
         };
         if (immediate) return doSave();
         planSetStatus('Editando...', 'saving');
-        planSaveTimer = setTimeout(doSave, 700);
+        planSaveTimer = setTimeout(doSave, 800);
     }
 
     function planRenderList() {
-        const ul = document.getElementById('planList');
-        if (!planData.plans.length) { ul.innerHTML = '<li style="font-size:13px;color:var(--text-muted);padding:8px">Nenhum plano ainda.</li>'; return; }
-        ul.innerHTML = planData.plans.map(p => {
+        const wrap = document.getElementById('planList');
+        const filter = (document.getElementById('planFilter') || {}).value || 'ativos';
+        let plans = planData.plans.slice();
+        if (filter === 'ativos') plans = plans.filter(p => p.status !== 'arquivado');
+        else if (filter === 'arquivado') plans = plans.filter(p => p.status === 'arquivado');
+        document.getElementById('planEmpty').style.display = planData.plans.length ? 'none' : 'block';
+        document.getElementById('planDetail').style.display = (planData.plans.length && planActive()) ? 'block' : 'none';
+        if (!plans.length) { wrap.innerHTML = '<div class="plan-list-empty">Nenhum plano nesse filtro.</div>'; return; }
+        const stLabel = { ativo: 'Em andamento', concluido: 'Concluído', arquivado: 'Arquivado' };
+        wrap.innerHTML = plans.map(p => {
             const pr = planProgressOf(p);
-            const mini = pr.total ? (pr.done + '/' + pr.total) : '';
-            return '<li class="plan-list-item ' + (p.id === planData.activeId ? 'active' : '') + '" data-plan-id="' + p.id + '">' +
-                   '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + escapeHtml(p.nome || 'Sem nome') + '</span>' +
-                   (mini ? '<span class="plan-list-mini">' + mini + '</span>' : '') + '</li>';
+            const pct = pr.total ? Math.round(pr.done / pr.total * 100) : 0;
+            const dates = (p.dataInicio || p.dataFim) ? (planFmt(p.dataInicio) + ' → ' + planFmt(p.dataFim)) : 'Sem datas definidas';
+            return '<div class="plan-card ' + (p.id === planData.activeId ? 'active' : '') + '" data-plan-id="' + p.id + '">' +
+                '<div class="plan-card-name">' + escapeHtml(p.nome) + '</div>' +
+                '<div class="plan-card-dates">' + escapeHtml(dates) + '</div>' +
+                '<div class="plan-card-bar"><div style="width:' + pct + '%"></div></div>' +
+                '<span class="plan-pill ' + p.status + '">' + (stLabel[p.status] || p.status) + '</span>' +
+                '</div>';
         }).join('');
-        ul.querySelectorAll('.plan-list-item').forEach(li => {
-            li.addEventListener('click', () => { planData.activeId = li.dataset.planId; planNotasEditing = false; planRenderList(); planRenderDetail(); });
-        });
+        wrap.querySelectorAll('.plan-card').forEach(c => c.addEventListener('click', () => {
+            planData.activeId = c.dataset.planId; planNotasEditing = false; planRenderList(); planRenderDetail();
+        }));
     }
 
     function planRenderDetail() {
         const p = planActive();
-        document.getElementById('planEmpty').style.display = p ? 'none' : 'block';
+        document.getElementById('planEmpty').style.display = planData.plans.length ? 'none' : 'block';
         document.getElementById('planDetail').style.display = p ? 'block' : 'none';
         if (!p) return;
         document.getElementById('planNome').value = p.nome || '';
-        planRenderChecklist();
-        planRenderNotas();
+        document.getElementById('planInicio').value = p.dataInicio || '';
+        document.getElementById('planFim').value = p.dataFim || '';
+        document.getElementById('planStatusSel').value = p.status || 'ativo';
+        planShowSub(planSub);
+    }
+
+    function planShowSub(sub) {
+        planSub = sub;
+        document.querySelectorAll('.plan-subtab-btn').forEach(b => b.classList.toggle('active', b.dataset.plansub === sub));
+        const map = { visao: 'planPaneVisao', calendario: 'planPaneCalendario', conteudo: 'planPaneConteudo', metas: 'planPaneMetas', tarefas: 'planPaneTarefas', notas: 'planPaneNotas' };
+        Object.keys(map).forEach(k => document.getElementById(map[k]).classList.toggle('show', k === sub));
+        if (sub === 'visao') planRenderVisao();
+        if (sub === 'tarefas') planRenderTarefas();
+        if (sub === 'notas') planRenderNotas();
+    }
+
+    function planWidget(title, inner, span2) {
+        return '<div class="plan-w' + (span2 ? ' span2' : '') + '"><div class="plan-w-title">' + title + '</div>' + inner + '</div>';
+    }
+
+    function planRenderVisao() {
+        const p = planActive(); if (!p) return;
+        const grid = document.getElementById('planVisaoGrid');
+        const today = planToday();
+        let html = '';
+
+        const fases = (p.fases || []).slice().sort((a, b) => (a.ordem || 0) - (b.ordem || 0) || String(a.inicio).localeCompare(String(b.inicio)));
+        if (fases.length) {
+            let curIdx = fases.findIndex(f => { const i = planParse(f.inicio), fim = planParse(f.fim); return i && fim && today >= i && today <= fim; });
+            if (curIdx < 0) curIdx = fases.findIndex(f => { const i = planParse(f.inicio); return i && today < i; });
+            const segs = fases.map((f, idx) => {
+                let cls = '';
+                const fim = planParse(f.fim);
+                if (idx === curIdx) cls = 'current';
+                else if (fim && fim < today) cls = 'done';
+                return '<div class="plan-timeline-seg ' + cls + '" title="' + escapeHtml(f.nome || ('Fase ' + (idx + 1))) + '"></div>';
+            }).join('');
+            const cur = curIdx >= 0 ? fases[curIdx] : null;
+            html += planWidget('Onde estou hoje',
+                '<div class="plan-w-big">' + (cur ? ('Fase ' + (curIdx + 1) + ' de ' + fases.length) : 'Fora de fase') + '</div>' +
+                '<div class="plan-w-sub">' + (cur ? escapeHtml(cur.nome || '') : 'Nenhuma fase ativa hoje') + '</div>' +
+                '<div class="plan-timeline">' + segs + '</div>');
+        } else {
+            html += planWidget('Onde estou hoje', '<div class="plan-w-big">—</div><div class="plan-w-sub">Defina as fases na aba Calendário (em breve)</div>');
+        }
+
+        const marcos = (p.marcos || []).filter(m => planParse(m.data)).sort((a, b) => planParse(a.data) - planParse(b.data));
+        const next = marcos.find(m => planParse(m.data) >= today);
+        if (next) {
+            const d = planDaysUntil(next.data);
+            const lbl = d === 0 ? 'Hoje' : (d === 1 ? 'Amanhã' : 'em ' + d + ' dias');
+            html += planWidget('Próximo marco', '<div class="plan-w-big plan-w-accent">' + escapeHtml(lbl) + '</div><div class="plan-w-sub">' + escapeHtml(next.nome || '') + ' · ' + planFmt(next.data) + '</div>');
+        } else {
+            html += planWidget('Próximo marco', '<div class="plan-w-big">—</div><div class="plan-w-sub">Sem marcos futuros (defina no Calendário)</div>');
+        }
+
+        const pr = planProgressOf(p);
+        const pct = pr.total ? Math.round(pr.done / pr.total * 100) : 0;
+        html += planWidget('Progresso geral', '<div class="plan-w-big">' + pct + '%</div><div class="plan-w-sub">' + pr.done + ' de ' + pr.total + ' tarefas concluídas</div><div class="plan-w-bar"><div style="width:' + pct + '%"></div></div>');
+
+        const metas = p.metas || [];
+        const proj = metas.reduce((s, m) => s + (Number(m.preco) || 0) * (Number(m.metaVendas) || 0), 0);
+        const real = metas.reduce((s, m) => s + (Number(m.preco) || 0) * (Number(m.vendasReais) || 0), 0);
+        if (metas.length) {
+            const fp = proj ? Math.min(100, Math.round(real / proj * 100)) : 0;
+            html += planWidget('Faturamento', '<div class="plan-w-big plan-w-accent">' + planMoney(real) + '</div><div class="plan-w-sub">Projeção: ' + planMoney(proj) + ' (' + fp + '%)</div><div class="plan-w-bar"><div style="width:' + fp + '%"></div></div>');
+        } else {
+            html += planWidget('Faturamento', '<div class="plan-w-big">' + planMoney(0) + '</div><div class="plan-w-sub">Defina as metas na aba Metas (em breve)</div>');
+        }
+
+        const wk = planWeekRange();
+        const semana = (p.conteudos || []).filter(c => { const d = planParse(c.dataPublicacao); return d && d >= wk.start && d <= wk.end; }).sort((a, b) => planParse(a.dataPublicacao) - planParse(b.dataPublicacao));
+        const stC = { a_gravar: 'A gravar', gravado: 'Gravado', editado: 'Editado', postado: 'Postado' };
+        let c5 = semana.length
+            ? '<ul class="plan-w-list">' + semana.map(c => '<li class="plan-w-li"><span>' + escapeHtml(c.tema || ('#' + (c.numero || ''))) + '</span><span class="plan-tag ' + (c.status === 'postado' ? 'ok' : '') + '">' + (stC[c.status] || '—') + '</span><span class="plan-w-li-meta">' + planFmt(c.dataPublicacao) + '</span></li>').join('') + '</ul>'
+            : '<div class="plan-w-empty">Nada programado pra essa semana (cadastre na aba Conteúdo).</div>';
+        html += planWidget('Conteúdo a postar essa semana', c5, true);
+
+        const prox = (p.tarefas || []).filter(t => t.status !== 'feito' && t.prazo).sort((a, b) => planParse(a.prazo) - planParse(b.prazo)).slice(0, 5);
+        let t5 = prox.length
+            ? '<ul class="plan-w-list">' + prox.map(t => { const late = planParse(t.prazo) < today; return '<li class="plan-w-li"><span>' + escapeHtml(t.titulo) + '</span><span class="plan-tag ' + (late ? 'late' : '') + '">' + planFmt(t.prazo) + '</span><span class="plan-w-li-meta">' + escapeHtml(t.responsavel || '') + '</span></li>'; }).join('') + '</ul>'
+            : '<div class="plan-w-empty">Sem tarefas com prazo. Adicione na aba Tarefas.</div>';
+        html += planWidget('Próximas 5 tarefas', t5);
+
+        grid.innerHTML = html;
     }
 
     function planRenderProgress() {
         const p = planActive(); if (!p) return;
         const pr = planProgressOf(p);
-        const pct = pr.total ? Math.round((pr.done / pr.total) * 100) : 0;
-        document.getElementById('planProgressLabel').textContent = pr.done + ' / ' + pr.total + ' feito (' + pct + '%)';
-        document.getElementById('planProgressFill').style.width = pct + '%';
+        const pct = pr.total ? Math.round(pr.done / pr.total * 100) : 0;
+        const lab = document.getElementById('planProgressLabel');
+        const fil = document.getElementById('planProgressFill');
+        if (lab) lab.textContent = pr.done + ' / ' + pr.total + ' feito (' + pct + '%)';
+        if (fil) fil.style.width = pct + '%';
     }
 
-    function planRenderChecklist() {
+    function planRenderTarefas() {
         const p = planActive(); if (!p) return;
-        if (!p.checklist) p.checklist = [];
+        if (!Array.isArray(p.tarefas)) p.tarefas = [];
         const ul = document.getElementById('planChecklist');
-        ul.innerHTML = p.checklist.map(it =>
-            '<li class="plan-check-item ' + (it.feito ? 'done' : '') + '" data-item-id="' + it.id + '">' +
-            '<input type="checkbox" ' + (it.feito ? 'checked' : '') + '>' +
-            '<span class="plan-check-text">' + escapeHtml(it.texto) + '</span>' +
+        ul.innerHTML = p.tarefas.map(it =>
+            '<li class="plan-check-item ' + (it.status === 'feito' ? 'done' : '') + '" data-item-id="' + it.id + '">' +
+            '<input type="checkbox" ' + (it.status === 'feito' ? 'checked' : '') + '>' +
+            '<span class="plan-check-text">' + escapeHtml(it.titulo) + '</span>' +
             '<button class="plan-check-del" type="button" title="Remover">&times;</button></li>'
         ).join('');
         ul.querySelectorAll('.plan-check-item').forEach(li => {
             const id = li.dataset.itemId;
             li.querySelector('input').addEventListener('change', function() {
-                const item = p.checklist.find(x => x.id === id);
-                if (item) { item.feito = this.checked; }
+                const it = p.tarefas.find(x => x.id === id);
+                if (it) it.status = this.checked ? 'feito' : 'a_fazer';
                 li.classList.toggle('done', this.checked);
                 planRenderProgress(); planRenderList(); planPersist();
             });
             li.querySelector('.plan-check-del').addEventListener('click', () => {
-                p.checklist = p.checklist.filter(x => x.id !== id);
-                planRenderChecklist(); planRenderProgress(); planRenderList(); planPersist();
+                p.tarefas = p.tarefas.filter(x => x.id !== id);
+                planRenderTarefas(); planRenderProgress(); planRenderList(); planPersist();
             });
         });
         planRenderProgress();
     }
 
+    function planAddItems(text) {
+        const p = planActive(); if (!p) return;
+        if (!Array.isArray(p.tarefas)) p.tarefas = [];
+        const parts = String(text).split('\n').map(s => s.replace(/^\s*[-*\d.]+\s*/, '').trim()).filter(Boolean);
+        if (!parts.length) return;
+        parts.forEach(t => p.tarefas.push({ id: planGenId('t_'), faseId: '', titulo: t, responsavel: '', prazo: '', status: 'a_fazer', prioridade: 'media' }));
+        planRenderTarefas(); planRenderList(); planPersist();
+    }
+
     function planRenderNotas() {
         const p = planActive(); if (!p) return;
+        const sec = p.notas[0] || (p.notas[0] = { id: planGenId('n_'), secao: 'Geral', conteudo: '' });
         const view = document.getElementById('planNotasView');
         const edit = document.getElementById('planNotasEdit');
         const editBtn = document.getElementById('planEditNotasBtn');
         const saveBtn = document.getElementById('planSaveNotasBtn');
         if (planNotasEditing) {
-            edit.value = p.notas || '';
+            edit.value = sec.conteudo || '';
             edit.style.display = 'block'; view.style.display = 'none';
             editBtn.style.display = 'none'; saveBtn.style.display = 'inline-block';
         } else {
-            view.innerHTML = planMd(p.notas || '');
+            view.innerHTML = planMd(sec.conteudo || '');
             edit.style.display = 'none'; view.style.display = 'block';
             editBtn.style.display = 'inline-block'; saveBtn.style.display = 'none';
         }
     }
 
-    function planAddItems(text) {
-        const p = planActive(); if (!p) return;
-        if (!p.checklist) p.checklist = [];
-        const parts = String(text).split('\n').map(s => s.replace(/^\s*[-*\d.]+\s*/, '').trim()).filter(Boolean);
-        if (!parts.length) return;
-        parts.forEach(t => p.checklist.push({ id: planGenId('c_'), texto: t, feito: false }));
-        planRenderChecklist(); planRenderList(); planPersist();
-    }
-
     function planNewPlan() {
         const nome = (prompt('Nome do novo plano:', 'Novo plano') || '').trim();
         if (nome === '') return;
-        const np = { id: planGenId('p_'), nome: nome, notas: '', checklist: [], updated_at: new Date().toISOString() };
+        const np = planMigrate({ id: planGenId('p_'), nome: nome });
         planData.plans.push(np);
         planData.activeId = np.id;
-        planNotasEditing = false;
+        planNotasEditing = false; planSub = 'visao';
         planRenderList(); planRenderDetail(); planPersist();
     }
 
-    document.getElementById('planNewBtn').addEventListener('click', planNewPlan);
+    /* Listeners (elementos estáticos) */
     document.getElementById('planNewBtn2').addEventListener('click', planNewPlan);
-
+    document.getElementById('planFilter').addEventListener('change', planRenderList);
     document.getElementById('planDeleteBtn').addEventListener('click', () => {
         const p = planActive(); if (!p) return;
         if (!confirm('Excluir o plano "' + (p.nome || 'sem nome') + '"? Essa ação não pode ser desfeita.')) return;
@@ -1660,33 +1848,30 @@
         planData.activeId = planData.plans.length ? planData.plans[0].id : null;
         planRenderList(); planRenderDetail(); planPersist(true);
     });
-
     document.getElementById('planNome').addEventListener('input', function() {
-        const p = planActive(); if (!p) return;
-        p.nome = this.value;
-        planRenderList(); planPersist();
+        const p = planActive(); if (!p) return; p.nome = this.value; planRenderList(); planPersist();
     });
-
+    document.getElementById('planInicio').addEventListener('change', function() {
+        const p = planActive(); if (!p) return; p.dataInicio = this.value; planRenderList(); planPersist();
+    });
+    document.getElementById('planFim').addEventListener('change', function() {
+        const p = planActive(); if (!p) return; p.dataFim = this.value; planRenderList(); planPersist();
+    });
+    document.getElementById('planStatusSel').addEventListener('change', function() {
+        const p = planActive(); if (!p) return; p.status = this.value; planRenderList(); planPersist();
+    });
+    document.querySelectorAll('.plan-subtab-btn').forEach(b => b.addEventListener('click', () => planShowSub(b.dataset.plansub)));
     document.getElementById('planAddItemBtn').addEventListener('click', () => {
-        const inp = document.getElementById('planNewItem');
-        planAddItems(inp.value); inp.value = ''; inp.focus();
+        const inp = document.getElementById('planNewItem'); planAddItems(inp.value); inp.value = ''; inp.focus();
     });
     document.getElementById('planNewItem').addEventListener('keydown', function(e) {
         if (e.key === 'Enter') { e.preventDefault(); planAddItems(this.value); this.value = ''; }
     });
-
-    document.getElementById('planEditNotasBtn').addEventListener('click', () => {
-        planNotasEditing = true; planRenderNotas();
-    });
+    document.getElementById('planEditNotasBtn').addEventListener('click', () => { planNotasEditing = true; planRenderNotas(); });
     document.getElementById('planSaveNotasBtn').addEventListener('click', () => {
         const p = planActive(); if (!p) return;
-        p.notas = document.getElementById('planNotasEdit').value;
+        p.notas[0].conteudo = document.getElementById('planNotasEdit').value;
         planNotasEditing = false; planRenderNotas(); planPersist();
-    });
-    document.getElementById('planSaveBtn').addEventListener('click', () => {
-        const p = planActive();
-        if (p && planNotasEditing) { p.notas = document.getElementById('planNotasEdit').value; planNotasEditing = false; planRenderNotas(); }
-        planPersist(true);
     });
 
     /* ══════════════════════════════════
@@ -3290,6 +3475,7 @@
         document.getElementById('tabPortfolio').classList.remove('show');
         document.getElementById('tabCreators').classList.add('show');
         setPageTitle('creators');
+        const _ta2 = document.getElementById('topbarActions'); if (_ta2) _ta2.innerHTML = '';
 
         /* Filtrar manualmente por campanha_interesse */
         const interessadas = allCreators.filter(c => c.campanha_interesse === 'espaco_laser');
