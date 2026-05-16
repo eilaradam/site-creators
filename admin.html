@@ -492,13 +492,7 @@
 <div class="tabs">
     <button class="tab active" data-tab="dashboard">Dashboard</button>
     <button class="tab" data-tab="creators">Creators</button>
-    <button class="tab" data-tab="salvos">Perfis Salvos</button>
-    <button class="tab" data-tab="alunas">Gerenciar Alunas</button>
-    <button class="tab" data-tab="campanhas">Campanhas &amp; E-mails</button>
-    <button class="tab" data-tab="termos">Termos</button>
-    <button class="tab" data-tab="links">Links</button>
-    <button class="tab" data-tab="banners">Banners</button>
-    <button class="tab" data-tab="gestao">Gestão</button>
+    <button class="tab" data-tab="admin">Administração</button>
     <button class="tab" data-tab="portfolio">Portfólio</button>
 </div>
 
@@ -628,6 +622,7 @@
                 <option value="indicadoras">Só quem indicou</option>
             </select>
         </div>
+        <button class="btn-salvos-toggle" id="btnSalvosToggle" type="button" aria-pressed="false">★ Só salvos</button>
         <button class="btn-clear-filters" id="btnClearFilters">Limpar filtros</button>
     </div>
 
@@ -652,64 +647,19 @@
     <div class="creators-list" id="creatorsList"></div>
 </div>
 
-<!-- ── TAB: PERFIS SALVOS (admin) ── -->
-<div class="dashboard" id="tabSalvos">
-    <div class="saved-filters">
-        <div class="filter-group" style="flex: 2;">
-            <label>Buscar</label>
-            <input type="text" id="savedFilterSearch" placeholder="Nome do creator...">
-        </div>
-        <div class="filter-group">
-            <label>Nicho</label>
-            <select id="savedFilterNicho"><option value="">Todos</option><optgroup label="Beleza & Cuidados Pessoais"><option>Skincare</option><option>Maquiagem</option><option>Cabelos</option><option>Unhas</option><option>Perfumaria</option><option>Corpo & Banho</option></optgroup><optgroup label="Moda & Estilo"><option>Roupas femininas</option><option>Roupas masculinas</option><option>Acessórios</option><option>Calçados</option><option>Moda sustentável</option><option>Moda plus size</option></optgroup><optgroup label="Saúde & Bem-estar"><option>Fitness</option><option>Nutrição</option><option>Suplementos</option><option>Yoga/Meditação</option><option>Saúde mental</option><option>Saúde feminina</option></optgroup><optgroup label="Alimentação"><option>Receitas saudáveis</option><option>Confeitaria</option><option>Drinks</option><option>Cozinha prática</option><option>Alimentação vegana/vegetariana</option></optgroup><optgroup label="Casa & Decoração"><option>Decoração</option><option>Organização</option><option>DIY/Faça você mesma</option><option>Jardinagem</option><option>Smart home</option></optgroup><optgroup label="Tecnologia"><option>Gadgets</option><option>Apps</option><option>Produtividade digital</option><option>Games</option></optgroup><optgroup label="Maternidade & Família"><option>Gestação</option><option>Bebês</option><option>Crianças</option><option>Família</option></optgroup><optgroup label="Pets"><option>Cachorros</option><option>Gatos</option><option>Pets exóticos</option></optgroup><optgroup label="Viagem & Turismo"><option>Viagens nacionais</option><option>Viagens internacionais</option><option>Turismo gastronômico</option><option>Viagem econômica</option></optgroup><optgroup label="Educação & Carreira"><option>Cursos/Mentorias</option><option>Empreendedorismo</option><option>Marketing digital</option><option>Finanças pessoais</option></optgroup><optgroup label="Entretenimento"><option>Humor</option><option>Música</option><option>Livros/Leitura</option><option>Filmes & Séries</option></optgroup><optgroup label="Lifestyle"><option>Dia a dia</option><option>Rotina</option><option>Minimalismo</option><option>Sustentabilidade</option></optgroup><optgroup label="Serviços & Locais"><option>Restaurantes</option><option>Clínicas de estética</option><option>Salões de beleza</option><option>Academias</option><option>Hotéis/Pousadas</option></optgroup><optgroup label="Automotivo"><option>Carros</option><option>Motos</option><option>Acessórios automotivos</option></optgroup><optgroup label="Categorias anteriores"><option value="lifestyle">Lifestyle (antigo)</option><option value="saude_fitness">Saude/Fitness (antigo)</option><option value="beleza">Beleza (antigo)</option><option value="maternidade">Maternidade (antigo)</option><option value="familia">Familia (antigo)</option><option value="entretenimento">Entretenimento (antigo)</option><option value="humor">Humor (antigo)</option><option value="gastronomia">Gastronomia (antigo)</option><option value="moda">Moda (antigo)</option><option value="tecnologia">Tecnologia (antigo)</option><option value="educacao">Educacao (antigo)</option><option value="outro">Outro (antigo)</option></optgroup></select>
-        </div>
-        <div class="filter-group">
-            <label>Tipo Creator</label>
-            <select id="savedFilterTipoCreator"><option value="">Todos</option><option value="ugc_creator">UGC Creator</option><option value="influenciadora">Influenciadora</option><option value="ugc_influenciadora">UGC + Influenciadora</option></select>
-        </div>
-        <div class="filter-group">
-            <label>Gênero</label>
-            <select id="savedFilterGenero"><option value="">Todos</option><option value="feminino">Feminino</option><option value="masculino">Masculino</option><option value="nao_binario">Não-binário</option><option value="prefiro_nao_dizer">Prefiro não dizer</option></select>
-        </div>
-        <div class="filter-group">
-            <label>Estado</label>
-            <select id="savedFilterEstado"><option value="">Todos</option></select>
-        </div>
-        <div class="filter-group">
-            <label>Cidade</label>
-            <select id="savedFilterCidade" disabled><option value="">Todas</option></select>
-        </div>
-        <div class="filter-group">
-            <label>Seguidores</label>
-            <select id="savedFilterSeguidores"><option value="">Todos</option><option value="ate_1k">Ate 1.000</option><option value="1k_5k">1k-5k</option><option value="5k_10k">5k-10k</option><option value="10k_30k">10k-30k</option><option value="30k_mais">30k+</option></select>
-        </div>
-        <div class="filter-group" style="min-width:180px">
-            <label>Idade: <span id="savedIdadeLabel">16 - 60</span></label>
-            <div class="range-slider">
-                <input type="range" id="savedIdadeMin" min="16" max="60" value="16">
-                <input type="range" id="savedIdadeMax" min="16" max="60" value="60">
-                <div class="range-track"></div>
-                <div class="range-track-active" id="savedIdadeTrack"></div>
-            </div>
-        </div>
-        <div class="filter-group">
-            <label>Ordenar por</label>
-            <select id="savedFilterOrdem">
-                <option value="recentes">Mais recentes</option>
-                <option value="salvos">Mais salvos</option>
-                <option value="seguidores">Mais seguidores</option>
-                <option value="nome">Nome A-Z</option>
-            </select>
-        </div>
-        <button class="btn-clear-filters" id="btnClearSavedFilters">Limpar filtros</button>
+<!-- ══ TAB: ADMINISTRAÇÃO (Alunas · Campanhas · Conteúdo · Termos · Links · Banners) ══ -->
+<div class="dashboard" id="tabAdmin">
+    <div class="admin-subtabs" id="adminSubtabs">
+        <button class="admin-subtab-btn active" data-admin-subtab="alunas">Alunas</button>
+        <button class="admin-subtab-btn" data-admin-subtab="campanhas">Campanhas &amp; E-mails</button>
+        <button class="admin-subtab-btn" data-admin-subtab="gestao">Conteúdo</button>
+        <button class="admin-subtab-btn" data-admin-subtab="termos">Termos</button>
+        <button class="admin-subtab-btn" data-admin-subtab="links">Links</button>
+        <button class="admin-subtab-btn" data-admin-subtab="banners">Banners</button>
     </div>
 
-    <div class="results-info" id="savedResultsInfo"></div>
-    <div class="saved-cards-grid" id="savedCardsGrid"><div class="loading">Carregando perfis salvos...</div></div>
-</div>
-
-<!-- ── TAB: ALUNAS ── -->
-<div class="dashboard" id="tabAlunas">
+<!-- ── Sub-aba: ALUNAS ── -->
+<div class="admin-pane show" id="tabAlunas">
     <div class="alunas-header">
         <h2>Alunas do Manager Club</h2>
         <div style="display:flex;gap:10px;align-items:center;">
@@ -739,8 +689,8 @@
     </div>
 </div>
 
-<!-- ── TAB: CAMPANHAS & E-MAILS ── -->
-<div class="dashboard" id="tabCampanhas">
+<!-- ── Sub-aba: CAMPANHAS & E-MAILS ── -->
+<div class="admin-pane" id="tabCampanhas">
     <!-- Campanha ativa -->
     <div class="camp-section">
         <div class="camp-section-title">Campanhas Ativas</div>
@@ -828,8 +778,8 @@
     </div>
 </div>
 
-<!-- ── TAB: TERMOS ── -->
-<div class="dashboard" id="tabTermos">
+<!-- ── Sub-aba: TERMOS ── -->
+<div class="admin-pane" id="tabTermos">
     <div class="termos-editor">
         <h2 style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:4px;">Editor de Termos de Uso</h2>
         <p style="font-size:12px;color:var(--text-soft);margin-bottom:20px;">Edite o conteudo dos termos abaixo em HTML. As alteracoes ficam visiveis publicamente ao salvar.</p>
@@ -853,8 +803,8 @@
     </div>
 </div>
 
-<!-- ── TAB: LINKS ── -->
-<div class="dashboard" id="tabLinks">
+<!-- ── Sub-aba: LINKS ── -->
+<div class="admin-pane" id="tabLinks">
     <div class="links-grid">
         <div class="links-col">
             <div class="links-col-header">
@@ -894,8 +844,8 @@
     </div>
 </div>
 
-<!-- ── TAB: BANNERS ── -->
-<div class="dashboard" id="tabBanners">
+<!-- ── Sub-aba: BANNERS ── -->
+<div class="admin-pane" id="tabBanners">
     <div class="banners-header">
         <h2>Gerenciar Banners</h2>
         <button class="btn-add-banner" id="btnAddBanner">+ Novo Banner</button>
@@ -905,12 +855,14 @@
     </div>
 </div>
 
-<!-- ── TAB: GESTÃO ── -->
-<div class="dashboard" id="tabGestao">
+<!-- ── Sub-aba: CONTEÚDO (era "Gestão") ── -->
+<div class="admin-pane" id="tabGestao">
     <div id="gestaoContent">
         <div class="gestao-loading">Carregando...</div>
     </div>
 </div>
+
+</div><!-- /tabAdmin -->
 
 <!-- ── TAB: PORTFÓLIO (ugc.laradam.com) ── -->
 <div class="dashboard" id="tabPortfolio">
@@ -1013,6 +965,22 @@
 .pf-range-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
 .pf-subtab-btn { border-radius: 0; border: none; border-bottom: 2px solid transparent; padding: 10px 16px; font-size: 13px; }
 .pf-subtab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* Sub-abas da aba Administração */
+.admin-subtabs { display: flex; gap: 6px; margin-bottom: 20px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.admin-subtab-btn { padding: 10px 16px; font-size: 13px; font-weight: 600; color: var(--text-muted); background: transparent; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-family: 'Outfit', sans-serif; transition: all 0.15s; }
+.admin-subtab-btn:hover { color: var(--text); }
+.admin-subtab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.admin-pane { display: none; }
+.admin-pane.show { display: block; }
+
+/* Coração de salvar dentro dos cards da lista de Creators */
+.col-card .btn-save { position: static; top: auto; right: auto; padding: 4px; margin-right: 4px; flex-shrink: 0; }
+
+/* Botão "★ Só salvos" na barra de filtros */
+.btn-salvos-toggle { padding: 8px 14px; font-size: 12px; font-weight: 700; color: var(--text-soft); background: var(--card); border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer; font-family: 'Outfit', sans-serif; transition: all 0.15s; white-space: nowrap; }
+.btn-salvos-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.btn-salvos-toggle.active { background: var(--accent); border-color: var(--accent); color: #fff; }
 .pf-lead-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; margin-bottom: 12px; }
 .pf-lead-card-header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
 .pf-lead-source { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 4px 10px; border-radius: 999px; flex-shrink: 0; }
@@ -1203,26 +1171,33 @@
             const target = this.dataset.tab;
             document.getElementById('tabDashboard').classList.toggle('show', target === 'dashboard');
             document.getElementById('tabCreators').classList.toggle('show', target === 'creators');
-            document.getElementById('tabSalvos').classList.toggle('show', target === 'salvos');
-            document.getElementById('tabAlunas').classList.toggle('show', target === 'alunas');
-            document.getElementById('tabCampanhas').classList.toggle('show', target === 'campanhas');
-            document.getElementById('tabTermos').classList.toggle('show', target === 'termos');
-            document.getElementById('tabLinks').classList.toggle('show', target === 'links');
-            document.getElementById('tabBanners').classList.toggle('show', target === 'banners');
-            document.getElementById('tabGestao').classList.toggle('show', target === 'gestao');
+            document.getElementById('tabAdmin').classList.toggle('show', target === 'admin');
             document.getElementById('tabPortfolio').classList.toggle('show', target === 'portfolio');
             if (target === 'dashboard') loadDashboard();
-            if (target === 'alunas') loadAlunas();
-            if (target === 'termos') loadTermos();
-            if (target === 'banners') loadAdminBanners();
-            if (target === 'gestao') loadGestao();
             if (target === 'portfolio') loadPortfolio();
-            if (target === 'salvos') {
-                populateSavedEstados();
-                loadSavedCreators();
-            }
-            if (target === 'campanhas') updateCampanhaStats();
+            if (target === 'admin') showAdminSubtab('alunas');
         });
+    });
+
+    /* ── Sub-abas da aba Administração ── */
+    function showAdminSubtab(target) {
+        document.querySelectorAll('.admin-subtab-btn').forEach(b => {
+            b.classList.toggle('active', b.dataset.adminSubtab === target);
+        });
+        document.getElementById('tabAlunas').classList.toggle('show', target === 'alunas');
+        document.getElementById('tabCampanhas').classList.toggle('show', target === 'campanhas');
+        document.getElementById('tabGestao').classList.toggle('show', target === 'gestao');
+        document.getElementById('tabTermos').classList.toggle('show', target === 'termos');
+        document.getElementById('tabLinks').classList.toggle('show', target === 'links');
+        document.getElementById('tabBanners').classList.toggle('show', target === 'banners');
+        if (target === 'alunas') loadAlunas();
+        if (target === 'campanhas') updateCampanhaStats();
+        if (target === 'gestao') loadGestao();
+        if (target === 'termos') loadTermos();
+        if (target === 'banners') loadAdminBanners();
+    }
+    document.querySelectorAll('.admin-subtab-btn').forEach(btn => {
+        btn.addEventListener('click', () => showAdminSubtab(btn.dataset.adminSubtab));
     });
 
     /* ══════════════════════════════════
@@ -2011,17 +1986,6 @@
         });
     }
 
-    function populateSavedEstados() {
-        const dest = document.getElementById('savedFilterEstado');
-        if (dest.options.length > 1) return;
-        const estados = [...new Set(allCreators.map(c => c.estado).filter(Boolean))].sort();
-        estados.forEach(uf => {
-            const opt = document.createElement('option');
-            opt.value = uf; opt.textContent = uf;
-            dest.appendChild(opt);
-        });
-    }
-
     /* ══════════════════════════════════════
        HELPERS
        ══════════════════════════════════════ */
@@ -2320,9 +2284,11 @@
         const ordem = document.getElementById('filterOrdem').value;
         const utm = document.getElementById('filterUtm').value;
         const indicacao = document.getElementById('filterIndicacao').value;
+        const salvosOnly = document.getElementById('btnSalvosToggle').classList.contains('active');
         const isIdadeDefault = idadeMin === 16 && idadeMax === 60;
 
         let filtered = allCreators.filter(c => {
+            if (salvosOnly && !savedCreatorIds.has(c.id)) return false;
             if (search && !(c.nome || '').toLowerCase().includes(search) && !(c.instagram || '').toLowerCase().includes(search) && !(c.email || '').toLowerCase().includes(search)) return false;
             if (status && c.status !== status) return false;
             if (!nichoMatches(c.nicho, nicho)) return false;
@@ -2405,6 +2371,7 @@
                         <span class="col-w-exp">${formatExpBadge(c.experiencia)}</span>
                         ${totalSalvos > 0 ? `<span class="salvos-count" style="font-size:11px">♥ ${totalSalvos}</span>` : ''}
                     </div>
+                    <button class="btn-save ${savedCreatorIds.has(c.id) ? 'saved' : ''}" data-id="${c.id}" title="Salvar / remover dos salvos" onclick="event.stopPropagation();toggleSave('${c.id}')">${heartSvg()}</button>
                     <svg class="col-card-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                 </div>
                 <div class="col-card-body">
@@ -2484,7 +2451,16 @@
     document.getElementById('filterOrdem').addEventListener('change', applyFilters);
     setupRangeSlider('idadeMin', 'idadeMax', 'idadeLabel', 'idadeTrack', applyFilters);
 
+    document.getElementById('btnSalvosToggle').addEventListener('click', function() {
+        const active = this.classList.toggle('active');
+        this.setAttribute('aria-pressed', active ? 'true' : 'false');
+        applyFilters();
+    });
+
     document.getElementById('btnClearFilters').addEventListener('click', function() {
+        const salvosBtn = document.getElementById('btnSalvosToggle');
+        salvosBtn.classList.remove('active');
+        salvosBtn.setAttribute('aria-pressed', 'false');
         document.getElementById('filterSearch').value = '';
         document.getElementById('filterStatus').value = '';
         document.getElementById('filterNicho').value = '';
@@ -2538,132 +2514,6 @@
         a.download = 'creators_' + new Date().toISOString().slice(0,10) + '.csv';
         a.click();
         URL.revokeObjectURL(url);
-    });
-
-    /* ══════════════════════════════════════
-       PERFIS SALVOS TAB (admin)
-       ══════════════════════════════════════ */
-
-    async function loadSavedCreators() {
-        const grid = document.getElementById('savedCardsGrid');
-        grid.innerHTML = '<div class="loading">Carregando perfis salvos...</div>';
-
-        try {
-            await loadSavedIds();
-
-            if (savedCreatorIds.size === 0) {
-                grid.innerHTML = '<div class="empty-state"><p>Voce ainda nao salvou nenhum creator.<br>Use o coracao nos cards da aba Creators para salvar.</p></div>';
-                document.getElementById('savedResultsInfo').innerHTML = '';
-                return;
-            }
-
-            const idsArray = Array.from(savedCreatorIds);
-
-            /* Filtrar dos allCreators ja carregados */
-            const search = document.getElementById('savedFilterSearch').value.toLowerCase().trim();
-            const nicho = document.getElementById('savedFilterNicho').value;
-            const tipoCreator = document.getElementById('savedFilterTipoCreator').value;
-            const genero = document.getElementById('savedFilterGenero').value;
-            const estado = document.getElementById('savedFilterEstado').value;
-            const cidade = document.getElementById('savedFilterCidade').value;
-            const seguidores = document.getElementById('savedFilterSeguidores').value;
-            const idadeMin = parseInt(document.getElementById('savedIdadeMin').value);
-            const idadeMax = parseInt(document.getElementById('savedIdadeMax').value);
-            const ordem = document.getElementById('savedFilterOrdem').value;
-            const isIdadeDefault = idadeMin === 16 && idadeMax === 60;
-
-            let filtered = allCreators.filter(c => {
-                if (!idsArray.includes(c.id)) return false;
-                if (search && !(c.nome || '').toLowerCase().includes(search)) return false;
-                if (!nichoMatches(c.nicho, nicho)) return false;
-                if (tipoCreator && c.tipo_creator !== tipoCreator) return false;
-                if (genero && c.genero !== genero) return false;
-                if (estado && c.estado !== estado) return false;
-                if (cidade && c.cidade !== cidade) return false;
-                if (seguidores && c.seguidores !== seguidores) return false;
-                if (!isIdadeDefault && c.data_nascimento) {
-                    const age = calcularIdade(c.data_nascimento);
-                    if (age !== null && (age < idadeMin || age > idadeMax)) return false;
-                }
-                return true;
-            });
-
-            filtered = sortCreators(filtered, ordem);
-
-            document.getElementById('savedResultsInfo').innerHTML = `Mostrando <strong>${filtered.length}</strong> perfis salvos`;
-
-            if (filtered.length === 0) {
-                grid.innerHTML = '<div class="empty-state"><p>Nenhum creator encontrado com esses filtros.</p></div>';
-                return;
-            }
-
-            grid.innerHTML = filtered.map(c => {
-                const isSaved = savedCreatorIds.has(c.id);
-                const totalSalvos = popularityMap[c.id] || 0;
-                return `
-                <div class="saved-card" data-creator-id="${c.id}">
-                    <button class="btn-save ${isSaved ? 'saved' : ''}" data-id="${c.id}" onclick="toggleSave('${c.id}')">${heartSvg()}</button>
-                    <div class="saved-card-top">
-                        ${avatarHtml(c)}
-                        <div>
-                            <div class="saved-card-name">${escapeHtml(c.nome)} <span class="badge-slot">${premiumBadgeHtml(c.id)}</span></div>
-                            <div class="saved-card-location">${escapeHtml(c.cidade) || ''} ${c.cidade && c.estado ? '·' : ''} ${escapeHtml(c.estado) || ''}</div>
-                        </div>
-                    </div>
-                    <div class="saved-card-details">
-                        <div class="saved-card-detail"><span class="saved-card-detail-label">Nicho</span> <div class="nicho-badges" style="display:inline-flex">${formatNicho(c.nicho)}</div></div>
-                        <div class="saved-card-detail"><span class="saved-card-detail-label">Tipo</span> ${formatTipoCreator(c.tipo_creator)}</div>
-                        <div class="saved-card-detail"><span class="saved-card-detail-label">Seguidores</span> ${formatSeguidores(c.seguidores)}</div>
-                        <div class="saved-card-detail"><span class="saved-card-detail-label">Status</span> <span class="badge ${badgeClass(c.status)}">${escapeHtml(c.status)}</span></div>
-                        ${c.sobre ? `<div class="saved-card-detail"><span class="saved-card-detail-label">Sobre</span> <span style="color:var(--text-soft)">${escapeHtml(c.sobre)}</span></div>` : ''}
-                    </div>
-                    ${totalSalvos > 0 ? `<div class="salvos-count" style="margin-top:8px">Salvo por ${totalSalvos} gestora${totalSalvos > 1 ? 's' : ''}</div>` : ''}
-                    ${c.utm_origem ? `<div style="font-size:11px;color:var(--text-muted);margin-top:4px">UTM: ${escapeHtml(c.utm_origem)} ${c.codigo_indicacao ? `· Código: <strong style="font-family:monospace">${escapeHtml(c.codigo_indicacao)}</strong>` : ''} ${indicacoesMap[c.codigo_indicacao] ? `· <strong style="color:var(--accent)">${indicacoesMap[c.codigo_indicacao]} indicação(ões)</strong>` : ''}</div>` : ''}
-                    ${c.indicada_por ? `<div style="font-size:11px;color:var(--text-muted)">Indicada por: <strong>${escapeHtml(getIndicadoraNome(c.indicada_por))}</strong></div>` : ''}
-                    ${(c.instagram || c.tiktok || c.portfolio || c.whatsapp) ? `
-                    <div class="saved-card-social">
-                        ${c.instagram ? `<a href="https://instagram.com/${safeHandle(c.instagram)}" target="_blank" rel="noopener">Instagram</a>` : ''}
-                        ${c.tiktok ? `<a href="https://tiktok.com/${safeHandle(c.tiktok)}" target="_blank" rel="noopener" class="btn-tiktok">TikTok</a>` : ''}
-                        ${c.portfolio ? `<a href="${safeUrl(c.portfolio)}" target="_blank" rel="noopener">Portfolio</a>` : ''}
-                        ${c.whatsapp ? `<a href="${formatWhatsappUrl(c.whatsapp)}" target="_blank" rel="noopener" class="btn-whatsapp">Contato</a>` : ''}
-                    </div>` : ''}
-                </div>`;
-            }).join('');
-        } catch (err) {
-            grid.innerHTML = `<div class="empty-state"><p style="color:var(--error)">Erro ao carregar: ${escapeHtml(err.message)}</p></div>`;
-        }
-    }
-
-    /* Saved filter events */
-    document.getElementById('savedFilterSearch').addEventListener('input', loadSavedCreators);
-    document.getElementById('savedFilterNicho').addEventListener('change', loadSavedCreators);
-    document.getElementById('savedFilterTipoCreator').addEventListener('change', loadSavedCreators);
-    document.getElementById('savedFilterGenero').addEventListener('change', loadSavedCreators);
-    document.getElementById('savedFilterEstado').addEventListener('change', function() {
-        loadCidades(this.value, 'savedFilterCidade');
-        loadSavedCreators();
-    });
-    document.getElementById('savedFilterCidade').addEventListener('change', loadSavedCreators);
-    document.getElementById('savedFilterSeguidores').addEventListener('change', loadSavedCreators);
-    document.getElementById('savedFilterOrdem').addEventListener('change', loadSavedCreators);
-    setupRangeSlider('savedIdadeMin', 'savedIdadeMax', 'savedIdadeLabel', 'savedIdadeTrack', loadSavedCreators);
-
-    document.getElementById('btnClearSavedFilters').addEventListener('click', function() {
-        document.getElementById('savedFilterSearch').value = '';
-        document.getElementById('savedFilterNicho').value = '';
-        document.getElementById('savedFilterTipoCreator').value = '';
-        document.getElementById('savedFilterGenero').value = '';
-        document.getElementById('savedFilterEstado').value = '';
-        document.getElementById('savedFilterCidade').value = '';
-        document.getElementById('savedFilterCidade').disabled = true;
-        document.getElementById('savedFilterSeguidores').value = '';
-        document.getElementById('savedFilterOrdem').value = 'recentes';
-        document.getElementById('savedIdadeMin').value = 16;
-        document.getElementById('savedIdadeMax').value = 60;
-        document.getElementById('savedIdadeLabel').textContent = '16 - 60';
-        const track = document.getElementById('savedIdadeTrack');
-        track.style.left = '0%'; track.style.width = '100%';
-        loadSavedCreators();
     });
 
     /* ══════════════════════════════════════
@@ -2945,10 +2795,10 @@
         /* Ativar aba Creators */
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.querySelector('.tab[data-tab="creators"]').classList.add('active');
+        document.getElementById('tabDashboard').classList.remove('show');
+        document.getElementById('tabAdmin').classList.remove('show');
+        document.getElementById('tabPortfolio').classList.remove('show');
         document.getElementById('tabCreators').classList.add('show');
-        document.getElementById('tabSalvos').classList.remove('show');
-        document.getElementById('tabAlunas').classList.remove('show');
-        document.getElementById('tabCampanhas').classList.remove('show');
 
         /* Filtrar manualmente por campanha_interesse */
         const interessadas = allCreators.filter(c => c.campanha_interesse === 'espaco_laser');
