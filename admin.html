@@ -491,6 +491,7 @@
 <!-- Tabs -->
 <div class="tabs">
     <button class="tab active" data-tab="dashboard">Dashboard</button>
+    <button class="tab" data-tab="planejamento">Planejamento</button>
     <button class="tab" data-tab="creators">Creators</button>
     <button class="tab" data-tab="admin">Administração</button>
     <button class="tab" data-tab="portfolio">Portfólio</button>
@@ -549,6 +550,62 @@
     <div class="metric-detail-modal">
         <h3><span id="metricDetailTitle"></span><button class="metric-detail-close" onclick="closeMetricDetail()">&times;</button></h3>
         <div class="metric-detail-list" id="metricDetailList"></div>
+    </div>
+</div>
+
+<!-- ── TAB: PLANEJAMENTO ── -->
+<div class="dashboard" id="tabPlanejamento">
+    <div class="plan-wrap">
+        <aside class="plan-sidebar">
+            <div class="plan-sidebar-head">
+                <span>Meus planos</span>
+                <button class="plan-btn" id="planNewBtn" type="button">+ Novo</button>
+            </div>
+            <ul class="plan-list" id="planList"></ul>
+        </aside>
+        <section class="plan-main">
+            <div class="plan-empty" id="planEmpty">
+                <p>Você ainda não tem nenhum plano.</p>
+                <button class="plan-btn-primary" id="planNewBtn2" type="button">+ Criar primeiro plano</button>
+            </div>
+            <div class="plan-detail" id="planDetail" style="display:none">
+                <div class="plan-detail-head">
+                    <input type="text" id="planNome" class="plan-nome-input" placeholder="Nome do plano">
+                    <button class="plan-btn-ghost" id="planDeleteBtn" type="button">Excluir plano</button>
+                </div>
+
+                <div class="plan-progress-wrap">
+                    <div class="plan-progress-label" id="planProgressLabel">0 / 0 feito</div>
+                    <div class="plan-progress-bar"><div class="plan-progress-fill" id="planProgressFill"></div></div>
+                </div>
+
+                <div class="plan-section">
+                    <div class="plan-section-head"><h3>Checklist</h3></div>
+                    <ul class="plan-checklist" id="planChecklist"></ul>
+                    <div class="plan-additem">
+                        <input type="text" id="planNewItem" placeholder="Nova tarefa — Enter pra adicionar (cole várias linhas pra criar várias)">
+                        <button class="plan-btn" id="planAddItemBtn" type="button">Adicionar</button>
+                    </div>
+                </div>
+
+                <div class="plan-section">
+                    <div class="plan-section-head">
+                        <h3>Notas do plano</h3>
+                        <div>
+                            <button class="plan-btn-ghost" id="planEditNotasBtn" type="button">Editar</button>
+                            <button class="plan-btn" id="planSaveNotasBtn" type="button" style="display:none">Concluir edição</button>
+                        </div>
+                    </div>
+                    <div class="plan-notas-view" id="planNotasView"></div>
+                    <textarea class="plan-notas-edit" id="planNotasEdit" style="display:none" placeholder="Escreva ou cole seu plano aqui. Aceita markdown: # título, ## subtítulo, **negrito**, - lista, --- linha."></textarea>
+                </div>
+
+                <div class="plan-savebar">
+                    <span class="plan-status" id="planStatus"></span>
+                    <button class="plan-btn-primary" id="planSaveBtn" type="button">Salvar agora</button>
+                </div>
+            </div>
+        </section>
     </div>
 </div>
 
@@ -981,6 +1038,71 @@
 .btn-salvos-toggle { padding: 8px 14px; font-size: 12px; font-weight: 700; color: var(--text-soft); background: var(--card); border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer; font-family: 'Outfit', sans-serif; transition: all 0.15s; white-space: nowrap; }
 .btn-salvos-toggle:hover { border-color: var(--accent); color: var(--accent); }
 .btn-salvos-toggle.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ===== Aba Planejamento ===== */
+.plan-wrap { display: flex; gap: 20px; align-items: flex-start; }
+.plan-sidebar { width: 240px; flex-shrink: 0; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; position: sticky; top: 16px; }
+.plan-sidebar-head { display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px; }
+.plan-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.plan-list-item { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-soft); transition: all 0.15s; }
+.plan-list-item:hover { background: var(--cream); color: var(--text); }
+.plan-list-item.active { background: var(--accent); color: #fff; }
+.plan-list-item .plan-list-mini { margin-left: auto; font-size: 11px; opacity: 0.7; font-weight: 600; }
+.plan-main { flex: 1; min-width: 0; }
+.plan-empty { background: var(--card); border: 1px dashed var(--border); border-radius: 14px; padding: 60px 24px; text-align: center; color: var(--text-muted); }
+.plan-empty p { margin-bottom: 16px; font-size: 15px; }
+.plan-detail { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
+.plan-detail-head { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.plan-nome-input { flex: 1; font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; color: var(--text); background: transparent; border: none; border-bottom: 2px solid transparent; padding: 4px 0; outline: none; }
+.plan-nome-input:focus { border-bottom-color: var(--accent); }
+.plan-progress-wrap { margin-bottom: 24px; }
+.plan-progress-label { font-size: 12px; font-weight: 700; color: var(--text-soft); margin-bottom: 6px; }
+.plan-progress-bar { background: var(--warm); border-radius: 999px; height: 8px; overflow: hidden; }
+.plan-progress-fill { background: var(--success); height: 100%; width: 0%; border-radius: 999px; transition: width 0.3s ease; }
+.plan-section { margin-bottom: 28px; }
+.plan-section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.plan-section-head h3 { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 700; color: var(--text); margin: 0; }
+.plan-checklist { list-style: none; margin: 0 0 12px 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.plan-check-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 10px; border-radius: 8px; transition: background 0.15s; }
+.plan-check-item:hover { background: var(--cream); }
+.plan-check-item input[type="checkbox"] { width: 18px; height: 18px; margin-top: 1px; accent-color: var(--success); cursor: pointer; flex-shrink: 0; }
+.plan-check-item .plan-check-text { flex: 1; font-size: 14px; color: var(--text); line-height: 1.45; word-break: break-word; }
+.plan-check-item.done .plan-check-text { text-decoration: line-through; color: var(--text-muted); }
+.plan-check-del { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 16px; line-height: 1; padding: 2px 6px; border-radius: 6px; opacity: 0; transition: all 0.15s; flex-shrink: 0; }
+.plan-check-item:hover .plan-check-del { opacity: 1; }
+.plan-check-del:hover { color: var(--error); background: rgba(196,69,60,0.1); }
+.plan-additem { display: flex; gap: 8px; }
+.plan-additem input { flex: 1; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; background: var(--cream); outline: none; }
+.plan-additem input:focus { border-color: var(--accent); background: var(--card); }
+.plan-notas-view { font-size: 14px; line-height: 1.7; color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; background: var(--cream); min-height: 80px; overflow-wrap: anywhere; }
+.plan-notas-view:empty::before { content: 'Sem notas ainda. Clique em Editar pra escrever ou colar seu plano.'; color: var(--text-muted); }
+.plan-notas-view h2 { font-family: 'Fraunces', serif; font-size: 20px; margin: 18px 0 8px; }
+.plan-notas-view h3 { font-family: 'Fraunces', serif; font-size: 17px; margin: 16px 0 6px; }
+.plan-notas-view h4 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-soft); margin: 14px 0 6px; }
+.plan-notas-view p { margin: 0 0 10px; }
+.plan-notas-view ul, .plan-notas-view ol { margin: 0 0 12px; padding-left: 22px; }
+.plan-notas-view li { margin-bottom: 4px; }
+.plan-notas-view hr { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+.plan-notas-view strong { font-weight: 700; }
+.plan-notas-view a { color: var(--accent); }
+.plan-notas-edit { width: 100%; min-height: 360px; padding: 16px 18px; border: 1.5px solid var(--accent); border-radius: 10px; font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 13px; line-height: 1.6; color: var(--text); background: var(--card); outline: none; resize: vertical; }
+.plan-savebar { display: flex; align-items: center; justify-content: flex-end; gap: 14px; border-top: 1px solid var(--border); padding-top: 18px; }
+.plan-status { font-size: 13px; color: var(--text-muted); margin-right: auto; }
+.plan-status.ok { color: var(--success); font-weight: 600; }
+.plan-status.saving { color: var(--text-soft); }
+.plan-status.err { color: var(--error); font-weight: 600; }
+.plan-btn { padding: 9px 16px; font-size: 13px; font-weight: 700; color: var(--text-soft); background: var(--card); border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer; font-family: 'Outfit', sans-serif; transition: all 0.15s; white-space: nowrap; }
+.plan-btn:hover { border-color: var(--accent); color: var(--accent); }
+.plan-btn-ghost { padding: 8px 14px; font-size: 12px; font-weight: 600; color: var(--text-muted); background: none; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-family: 'Outfit', sans-serif; transition: all 0.15s; white-space: nowrap; }
+.plan-btn-ghost:hover { border-color: var(--error); color: var(--error); }
+.plan-btn-primary { padding: 11px 22px; font-size: 14px; font-weight: 700; color: #fff; background: var(--accent); border: none; border-radius: 10px; cursor: pointer; font-family: 'Outfit', sans-serif; transition: all 0.2s; white-space: nowrap; }
+.plan-btn-primary:hover { background: var(--accent-dark); }
+.plan-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+@media (max-width: 860px) {
+    .plan-wrap { flex-direction: column; }
+    .plan-sidebar { width: 100%; position: static; }
+    .plan-list { flex-direction: row; flex-wrap: wrap; }
+}
 .pf-lead-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; margin-bottom: 12px; }
 .pf-lead-card-header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
 .pf-lead-source { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 4px 10px; border-radius: 999px; flex-shrink: 0; }
@@ -1170,10 +1292,12 @@
             this.classList.add('active');
             const target = this.dataset.tab;
             document.getElementById('tabDashboard').classList.toggle('show', target === 'dashboard');
+            document.getElementById('tabPlanejamento').classList.toggle('show', target === 'planejamento');
             document.getElementById('tabCreators').classList.toggle('show', target === 'creators');
             document.getElementById('tabAdmin').classList.toggle('show', target === 'admin');
             document.getElementById('tabPortfolio').classList.toggle('show', target === 'portfolio');
             if (target === 'dashboard') loadDashboard();
+            if (target === 'planejamento') loadPlanejamento();
             if (target === 'portfolio') loadPortfolio();
             if (target === 'admin') showAdminSubtab('alunas');
         });
@@ -1198,6 +1322,240 @@
     }
     document.querySelectorAll('.admin-subtab-btn').forEach(btn => {
         btn.addEventListener('click', () => showAdminSubtab(btn.dataset.adminSubtab));
+    });
+
+    /* ══════════════════════════════════
+       PLANEJAMENTO TAB
+       ══════════════════════════════════ */
+    let planData = { plans: [], activeId: null };
+    let planLoaded = false;
+    let planSaveTimer = null;
+    let planNotasEditing = false;
+
+    function planGenId(prefix) {
+        return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    }
+
+    /* Markdown mínimo e seguro (escapa HTML antes de formatar) */
+    function planMd(md) {
+        const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        const inline = s => {
+            let t = esc(s);
+            t = t.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+            t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+            t = t.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+            return t;
+        };
+        const lines = (md || '').replace(/\r\n/g, '\n').split('\n');
+        let html = '', listType = null, para = [];
+        const flushPara = () => { if (para.length) { html += '<p>' + para.map(inline).join('<br>') + '</p>'; para = []; } };
+        const flushList = () => { if (listType) { html += '</' + listType + '>'; listType = null; } };
+        for (const raw of lines) {
+            const line = raw.trimEnd();
+            if (/^\s*$/.test(line)) { flushPara(); flushList(); continue; }
+            if (/^\s*(-{3,}|\*{3,})\s*$/.test(line)) { flushPara(); flushList(); html += '<hr>'; continue; }
+            const h = line.match(/^(#{1,4})\s+(.*)$/);
+            if (h) { flushPara(); flushList(); const lvl = Math.min(h[1].length + 1, 4); html += '<h' + lvl + '>' + inline(h[2]) + '</h' + lvl + '>'; continue; }
+            const ul = line.match(/^\s*[-*]\s+(.*)$/);
+            const ol = line.match(/^\s*\d+\.\s+(.*)$/);
+            if (ul) { flushPara(); if (listType !== 'ul') { flushList(); listType = 'ul'; html += '<ul>'; } html += '<li>' + inline(ul[1]) + '</li>'; continue; }
+            if (ol) { flushPara(); if (listType !== 'ol') { flushList(); listType = 'ol'; html += '<ol>'; } html += '<li>' + inline(ol[1]) + '</li>'; continue; }
+            flushList(); para.push(line);
+        }
+        flushPara(); flushList();
+        return html;
+    }
+
+    function planActive() {
+        return planData.plans.find(p => p.id === planData.activeId) || null;
+    }
+
+    function planProgressOf(p) {
+        const items = p.checklist || [];
+        const done = items.filter(i => i.feito).length;
+        return { done, total: items.length };
+    }
+
+    async function loadPlanejamento() {
+        if (planLoaded) { planRenderList(); planRenderDetail(); return; }
+        try {
+            const { data, error } = await sb.from('configuracoes').select('conteudo').eq('id', 'planejamento').maybeSingle();
+            if (error) throw error;
+            if (data && data.conteudo) {
+                try {
+                    const parsed = JSON.parse(data.conteudo);
+                    if (parsed && Array.isArray(parsed.plans)) planData = parsed;
+                } catch (e) { /* conteúdo inválido — começa vazio */ }
+            }
+            planLoaded = true;
+        } catch (err) {
+            document.getElementById('planStatus').textContent = 'Erro ao carregar: ' + (err.message || err);
+            document.getElementById('planStatus').className = 'plan-status err';
+        }
+        if (!planData.activeId && planData.plans.length) planData.activeId = planData.plans[0].id;
+        planRenderList();
+        planRenderDetail();
+    }
+
+    function planSetStatus(txt, cls) {
+        const el = document.getElementById('planStatus');
+        el.textContent = txt || '';
+        el.className = 'plan-status' + (cls ? ' ' + cls : '');
+    }
+
+    async function planPersist(immediate) {
+        clearTimeout(planSaveTimer);
+        const doSave = async () => {
+            planSetStatus('Salvando...', 'saving');
+            try {
+                const { error } = await sb.from('configuracoes').upsert(
+                    { id: 'planejamento', conteudo: JSON.stringify(planData), updated_at: new Date().toISOString() },
+                    { onConflict: 'id' }
+                );
+                if (error) throw error;
+                const now = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                planSetStatus('Salvo ' + now, 'ok');
+            } catch (err) {
+                planSetStatus('Erro ao salvar: ' + (err.message || err), 'err');
+            }
+        };
+        if (immediate) return doSave();
+        planSetStatus('Editando...', 'saving');
+        planSaveTimer = setTimeout(doSave, 700);
+    }
+
+    function planRenderList() {
+        const ul = document.getElementById('planList');
+        if (!planData.plans.length) { ul.innerHTML = '<li style="font-size:13px;color:var(--text-muted);padding:8px">Nenhum plano ainda.</li>'; return; }
+        ul.innerHTML = planData.plans.map(p => {
+            const pr = planProgressOf(p);
+            const mini = pr.total ? (pr.done + '/' + pr.total) : '';
+            return '<li class="plan-list-item ' + (p.id === planData.activeId ? 'active' : '') + '" data-plan-id="' + p.id + '">' +
+                   '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + escapeHtml(p.nome || 'Sem nome') + '</span>' +
+                   (mini ? '<span class="plan-list-mini">' + mini + '</span>' : '') + '</li>';
+        }).join('');
+        ul.querySelectorAll('.plan-list-item').forEach(li => {
+            li.addEventListener('click', () => { planData.activeId = li.dataset.planId; planNotasEditing = false; planRenderList(); planRenderDetail(); });
+        });
+    }
+
+    function planRenderDetail() {
+        const p = planActive();
+        document.getElementById('planEmpty').style.display = p ? 'none' : 'block';
+        document.getElementById('planDetail').style.display = p ? 'block' : 'none';
+        if (!p) return;
+        document.getElementById('planNome').value = p.nome || '';
+        planRenderChecklist();
+        planRenderNotas();
+    }
+
+    function planRenderProgress() {
+        const p = planActive(); if (!p) return;
+        const pr = planProgressOf(p);
+        const pct = pr.total ? Math.round((pr.done / pr.total) * 100) : 0;
+        document.getElementById('planProgressLabel').textContent = pr.done + ' / ' + pr.total + ' feito (' + pct + '%)';
+        document.getElementById('planProgressFill').style.width = pct + '%';
+    }
+
+    function planRenderChecklist() {
+        const p = planActive(); if (!p) return;
+        if (!p.checklist) p.checklist = [];
+        const ul = document.getElementById('planChecklist');
+        ul.innerHTML = p.checklist.map(it =>
+            '<li class="plan-check-item ' + (it.feito ? 'done' : '') + '" data-item-id="' + it.id + '">' +
+            '<input type="checkbox" ' + (it.feito ? 'checked' : '') + '>' +
+            '<span class="plan-check-text">' + escapeHtml(it.texto) + '</span>' +
+            '<button class="plan-check-del" type="button" title="Remover">&times;</button></li>'
+        ).join('');
+        ul.querySelectorAll('.plan-check-item').forEach(li => {
+            const id = li.dataset.itemId;
+            li.querySelector('input').addEventListener('change', function() {
+                const item = p.checklist.find(x => x.id === id);
+                if (item) { item.feito = this.checked; }
+                li.classList.toggle('done', this.checked);
+                planRenderProgress(); planRenderList(); planPersist();
+            });
+            li.querySelector('.plan-check-del').addEventListener('click', () => {
+                p.checklist = p.checklist.filter(x => x.id !== id);
+                planRenderChecklist(); planRenderProgress(); planRenderList(); planPersist();
+            });
+        });
+        planRenderProgress();
+    }
+
+    function planRenderNotas() {
+        const p = planActive(); if (!p) return;
+        const view = document.getElementById('planNotasView');
+        const edit = document.getElementById('planNotasEdit');
+        const editBtn = document.getElementById('planEditNotasBtn');
+        const saveBtn = document.getElementById('planSaveNotasBtn');
+        if (planNotasEditing) {
+            edit.value = p.notas || '';
+            edit.style.display = 'block'; view.style.display = 'none';
+            editBtn.style.display = 'none'; saveBtn.style.display = 'inline-block';
+        } else {
+            view.innerHTML = planMd(p.notas || '');
+            edit.style.display = 'none'; view.style.display = 'block';
+            editBtn.style.display = 'inline-block'; saveBtn.style.display = 'none';
+        }
+    }
+
+    function planAddItems(text) {
+        const p = planActive(); if (!p) return;
+        if (!p.checklist) p.checklist = [];
+        const parts = String(text).split('\n').map(s => s.replace(/^\s*[-*\d.]+\s*/, '').trim()).filter(Boolean);
+        if (!parts.length) return;
+        parts.forEach(t => p.checklist.push({ id: planGenId('c_'), texto: t, feito: false }));
+        planRenderChecklist(); planRenderList(); planPersist();
+    }
+
+    function planNewPlan() {
+        const nome = (prompt('Nome do novo plano:', 'Novo plano') || '').trim();
+        if (nome === '') return;
+        const np = { id: planGenId('p_'), nome: nome, notas: '', checklist: [], updated_at: new Date().toISOString() };
+        planData.plans.push(np);
+        planData.activeId = np.id;
+        planNotasEditing = false;
+        planRenderList(); planRenderDetail(); planPersist();
+    }
+
+    document.getElementById('planNewBtn').addEventListener('click', planNewPlan);
+    document.getElementById('planNewBtn2').addEventListener('click', planNewPlan);
+
+    document.getElementById('planDeleteBtn').addEventListener('click', () => {
+        const p = planActive(); if (!p) return;
+        if (!confirm('Excluir o plano "' + (p.nome || 'sem nome') + '"? Essa ação não pode ser desfeita.')) return;
+        planData.plans = planData.plans.filter(x => x.id !== p.id);
+        planData.activeId = planData.plans.length ? planData.plans[0].id : null;
+        planRenderList(); planRenderDetail(); planPersist(true);
+    });
+
+    document.getElementById('planNome').addEventListener('input', function() {
+        const p = planActive(); if (!p) return;
+        p.nome = this.value;
+        planRenderList(); planPersist();
+    });
+
+    document.getElementById('planAddItemBtn').addEventListener('click', () => {
+        const inp = document.getElementById('planNewItem');
+        planAddItems(inp.value); inp.value = ''; inp.focus();
+    });
+    document.getElementById('planNewItem').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); planAddItems(this.value); this.value = ''; }
+    });
+
+    document.getElementById('planEditNotasBtn').addEventListener('click', () => {
+        planNotasEditing = true; planRenderNotas();
+    });
+    document.getElementById('planSaveNotasBtn').addEventListener('click', () => {
+        const p = planActive(); if (!p) return;
+        p.notas = document.getElementById('planNotasEdit').value;
+        planNotasEditing = false; planRenderNotas(); planPersist();
+    });
+    document.getElementById('planSaveBtn').addEventListener('click', () => {
+        const p = planActive();
+        if (p && planNotasEditing) { p.notas = document.getElementById('planNotasEdit').value; planNotasEditing = false; planRenderNotas(); }
+        planPersist(true);
     });
 
     /* ══════════════════════════════════
@@ -2796,6 +3154,7 @@
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.querySelector('.tab[data-tab="creators"]').classList.add('active');
         document.getElementById('tabDashboard').classList.remove('show');
+        document.getElementById('tabPlanejamento').classList.remove('show');
         document.getElementById('tabAdmin').classList.remove('show');
         document.getElementById('tabPortfolio').classList.remove('show');
         document.getElementById('tabCreators').classList.add('show');
