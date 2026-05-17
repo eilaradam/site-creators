@@ -706,11 +706,44 @@
                 </div>
 
                 <div class="plan-pane" id="planPaneTarefas">
+                    <datalist id="planRespList"><option value="Lara"></option><option value="Isa"></option><option value="Outro"></option></datalist>
+
+                    <div class="plan-fases">
+                        <div class="plan-fases-head">
+                            <span>Fases do plano</span>
+                            <button class="plan-btn-ghost" id="planFasesToggle" type="button">Gerenciar fases</button>
+                        </div>
+                        <div class="plan-fases-body" id="planFasesBody" style="display:none">
+                            <div id="planFasesList"></div>
+                            <div class="plan-additem">
+                                <input type="text" id="planNewFase" placeholder="Nova fase — Enter (cole várias linhas pra criar várias)">
+                                <button class="plan-btn" id="planAddFaseBtn" type="button">Adicionar fase</button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="plan-progress-wrap">
                         <div class="plan-progress-label" id="planProgressLabel">0 / 0 feito</div>
                         <div class="plan-progress-bar"><div class="plan-progress-fill" id="planProgressFill"></div></div>
                     </div>
-                    <ul class="plan-checklist" id="planChecklist"></ul>
+
+                    <div class="plan-tfilters">
+                        <select id="ptfFase"><option value="">Todas as fases</option></select>
+                        <select id="ptfResp"><option value="">Todos responsáveis</option></select>
+                        <select id="ptfStatus"><option value="">Todos status</option><option value="a_fazer">A fazer</option><option value="em_progresso">Em progresso</option><option value="feito">Feito</option></select>
+                        <select id="ptfPrior"><option value="">Toda prioridade</option><option value="alta">Alta</option><option value="media">Média</option><option value="baixa">Baixa</option></select>
+                        <button class="plan-btn-ghost" id="ptfClear" type="button">Limpar filtros</button>
+                    </div>
+
+                    <div class="plan-bulk" id="planBulk" style="display:none">
+                        <span id="planBulkCount">0 selecionadas</span>
+                        <select id="planBulkFase"><option value="">Mover para fase…</option></select>
+                        <button class="plan-btn-ghost" id="planBulkDelete" type="button">Excluir selecionadas</button>
+                        <button class="plan-btn-ghost" id="planBulkClear" type="button">Limpar seleção</button>
+                    </div>
+
+                    <div id="planTarefasGroups"></div>
+
                     <div class="plan-additem">
                         <input type="text" id="planNewItem" placeholder="Nova tarefa — Enter pra adicionar (cole várias linhas pra criar várias)">
                         <button class="plan-btn" id="planAddItemBtn" type="button">Adicionar</button>
@@ -1241,6 +1274,47 @@
 .plan-additem { display: flex; gap: 8px; }
 .plan-additem input { flex: 1; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; background: var(--cream); outline: none; }
 .plan-additem input:focus { border-color: var(--accent); background: var(--card); }
+/* Tarefas: fases, filtros, linhas, bulk */
+.plan-fases { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 18px; }
+.plan-fases-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; font-size: 13px; font-weight: 700; color: var(--text); }
+.plan-fases-body { padding: 0 16px 16px; }
+.plan-fase-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-top: 1px solid var(--border); }
+.plan-fase-row .pf-ord { display: flex; flex-direction: column; }
+.plan-fase-row .pf-ord button { background: none; border: none; color: var(--text-muted); cursor: pointer; line-height: 0.8; font-size: 12px; padding: 1px; }
+.plan-fase-row .pf-ord button:hover { color: var(--accent); }
+.plan-fase-row .pf-num { width: 20px; text-align: center; font-size: 12px; font-weight: 700; color: var(--text-muted); }
+.plan-fase-row input.pf-nome { flex: 1; min-width: 120px; padding: 7px 9px; border: 1px solid var(--border); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text); background: var(--card); outline: none; }
+.plan-fase-row input.pf-nome:focus { border-color: var(--accent); }
+.plan-fase-row input.pf-date { width: 138px; padding: 7px 8px; border: 1px solid var(--border); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--text-soft); background: var(--card); outline: none; }
+.plan-fase-row .pf-del { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 6px; }
+.plan-fase-row .pf-del:hover { color: var(--error); background: rgba(220,38,38,0.1); }
+.plan-tfilters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.plan-tfilters select { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; color: var(--text-soft); border: 1px solid var(--border); border-radius: 8px; padding: 7px 9px; background: var(--card); cursor: pointer; outline: none; }
+.plan-tfilters select:focus { border-color: var(--accent); }
+.plan-bulk { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: var(--accent-glow); border: 1px solid var(--accent); border-radius: 10px; padding: 10px 14px; margin-bottom: 14px; }
+.plan-bulk #planBulkCount { font-size: 13px; font-weight: 700; color: var(--accent); }
+.plan-bulk select { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; border: 1px solid var(--accent); border-radius: 8px; padding: 6px 9px; background: var(--card); color: var(--text); cursor: pointer; outline: none; }
+.plan-tgroup { margin-bottom: 18px; }
+.plan-tgroup-title { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-soft); padding: 6px 0; border-bottom: 2px solid var(--border); margin-bottom: 6px; }
+.plan-tgroup-title .pt-count { color: var(--text-muted); font-weight: 600; letter-spacing: 0; text-transform: none; }
+.plan-trow { display: flex; align-items: center; gap: 10px; padding: 9px 8px; border-radius: 8px; flex-wrap: wrap; transition: background 0.15s; }
+.plan-trow:hover { background: var(--cream); }
+.plan-trow.sel { background: var(--accent-glow); }
+.plan-trow input[type="checkbox"].pt-sel { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+.plan-trow .pt-tit { flex: 1; min-width: 160px; border: none; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); padding: 4px 2px; outline: none; border-bottom: 1px solid transparent; }
+.plan-trow .pt-tit:focus { border-bottom-color: var(--accent); }
+.plan-trow.done .pt-tit { text-decoration: line-through; color: var(--text-muted); }
+.plan-trow .pt-resp { width: 92px; border: 1px solid var(--border); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 12px; padding: 5px 7px; background: var(--card); color: var(--text); outline: none; }
+.plan-trow .pt-prazo { width: 134px; border: 1px solid var(--border); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 12px; padding: 5px 7px; background: var(--card); color: var(--text-soft); outline: none; }
+.plan-trow .pt-prazo.late { border-color: var(--error); color: var(--error); background: rgba(220,38,38,0.06); font-weight: 600; }
+.plan-trow select.pt-prior, .plan-trow select.pt-status { border: 1px solid var(--border); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; padding: 5px 7px; background: var(--card); cursor: pointer; outline: none; }
+.plan-trow select.pt-prior.alta { color: var(--error); }
+.plan-trow select.pt-prior.media { color: var(--accent); }
+.plan-trow select.pt-prior.baixa { color: var(--text-muted); }
+.plan-trow .pt-del { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 6px; flex-shrink: 0; }
+.plan-trow .pt-del:hover { color: var(--error); background: rgba(220,38,38,0.1); }
+.plan-tempty { font-size: 13px; color: var(--text-muted); padding: 16px 4px; }
+@media (max-width: 720px) { .plan-trow .pt-resp, .plan-trow .pt-prazo { width: 46%; } }
 .plan-notas-view { font-size: 14px; line-height: 1.7; color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; background: var(--cream); min-height: 80px; overflow-wrap: anywhere; }
 .plan-notas-view:empty::before { content: 'Sem notas ainda. Clique em Editar pra escrever ou colar seu plano.'; color: var(--text-muted); }
 .plan-notas-view h2 { font-size: 20px; margin: 18px 0 8px; }
@@ -1668,7 +1742,7 @@
                 '</div>';
         }).join('');
         wrap.querySelectorAll('.plan-card').forEach(c => c.addEventListener('click', () => {
-            planData.activeId = c.dataset.planId; planNotasEditing = false; planRenderList(); planRenderDetail();
+            planData.activeId = c.dataset.planId; planNotasEditing = false; planSel.clear(); planRenderList(); planRenderDetail();
         }));
     }
 
@@ -1775,31 +1849,118 @@
         if (fil) fil.style.width = pct + '%';
     }
 
+    /* ---- Fases ---- */
+    let planSel = new Set();
+    let planFasesOpen = false;
+    const planTF = { fase: '', resp: '', status: '', prior: '' };
+    const PT_ST = { a_fazer: 'A fazer', em_progresso: 'Em progresso', feito: 'Feito' };
+    const PT_PR = { alta: 'Alta', media: 'Média', baixa: 'Baixa' };
+
+    function planFasesSorted(p) { return (p.fases || []).slice().sort((a, b) => (a.ordem || 0) - (b.ordem || 0)); }
+
+    function planAddFases(text) {
+        const p = planActive(); if (!p) return;
+        if (!Array.isArray(p.fases)) p.fases = [];
+        const parts = String(text).split('\n').map(s => s.replace(/^\s*[-*\d.]+\s*/, '').trim()).filter(Boolean);
+        if (!parts.length) return;
+        let ord = p.fases.reduce((m, f) => Math.max(m, f.ordem || 0), 0);
+        parts.forEach(n => p.fases.push({ id: planGenId('f_'), nome: n, ordem: ++ord, inicio: '', fim: '' }));
+        planRenderTarefas(); planRenderList(); planPersist();
+    }
+    function planFaseMove(id, dir) {
+        const p = planActive(); if (!p) return;
+        const arr = planFasesSorted(p);
+        const i = arr.findIndex(f => f.id === id), j = i + dir;
+        if (i < 0 || j < 0 || j >= arr.length) return;
+        const a = arr[i].ordem || 0;
+        arr[i].ordem = arr[j].ordem || 0; arr[j].ordem = a;
+        planRenderTarefas(); planPersist();
+    }
+    function planFaseDelete(id) {
+        const p = planActive(); if (!p) return;
+        const f = (p.fases || []).find(x => x.id === id);
+        if (!confirm('Excluir a fase "' + ((f && f.nome) || '') + '"? As tarefas dela ficam Sem fase.')) return;
+        p.fases = (p.fases || []).filter(x => x.id !== id);
+        (p.tarefas || []).forEach(t => { if (t.faseId === id) t.faseId = ''; });
+        planRenderTarefas(); planRenderList(); planPersist();
+    }
+
+    function planRenderFases() {
+        const p = planActive(); if (!p) return;
+        const body = document.getElementById('planFasesBody');
+        const toggle = document.getElementById('planFasesToggle');
+        body.style.display = planFasesOpen ? 'block' : 'none';
+        toggle.textContent = planFasesOpen ? 'Fechar' : 'Gerenciar fases';
+        if (!planFasesOpen) return;
+        const arr = planFasesSorted(p);
+        document.getElementById('planFasesList').innerHTML = arr.length ? arr.map((f, i) =>
+            '<div class="plan-fase-row" data-fase-id="' + f.id + '">' +
+            '<span class="pf-ord"><button type="button" data-fmove="-1">&#9650;</button><button type="button" data-fmove="1">&#9660;</button></span>' +
+            '<span class="pf-num">' + (i + 1) + '</span>' +
+            '<input class="pf-nome" type="text" value="' + escapeHtml(f.nome || '') + '" placeholder="Nome da fase">' +
+            '<input class="pf-date pf-ini" type="date" value="' + (f.inicio || '') + '" title="Início">' +
+            '<input class="pf-date pf-fim" type="date" value="' + (f.fim || '') + '" title="Fim">' +
+            '<button class="pf-del" type="button" title="Excluir fase">&times;</button></div>'
+        ).join('') : '<div class="plan-tempty">Nenhuma fase ainda. Adicione abaixo (pode colar várias linhas de uma vez).</div>';
+    }
+
     function planRenderTarefas() {
         const p = planActive(); if (!p) return;
         if (!Array.isArray(p.tarefas)) p.tarefas = [];
-        const ul = document.getElementById('planChecklist');
-        ul.innerHTML = p.tarefas.map(it =>
-            '<li class="plan-check-item ' + (it.status === 'feito' ? 'done' : '') + '" data-item-id="' + it.id + '">' +
-            '<input type="checkbox" ' + (it.status === 'feito' ? 'checked' : '') + '>' +
-            '<span class="plan-check-text">' + escapeHtml(it.titulo) + '</span>' +
-            '<button class="plan-check-del" type="button" title="Remover">&times;</button></li>'
-        ).join('');
-        ul.querySelectorAll('.plan-check-item').forEach(li => {
-            const id = li.dataset.itemId;
-            li.querySelector('input').addEventListener('change', function() {
-                const it = p.tarefas.find(x => x.id === id);
-                if (it) it.status = this.checked ? 'feito' : 'a_fazer';
-                li.classList.toggle('done', this.checked);
-                planRenderProgress(); planRenderList(); planPersist();
-            });
-            li.querySelector('.plan-check-del').addEventListener('click', () => {
-                p.tarefas = p.tarefas.filter(x => x.id !== id);
-                planRenderTarefas(); planRenderProgress(); planRenderList(); planPersist();
-            });
-        });
+        if (!Array.isArray(p.fases)) p.fases = [];
+        planRenderFases();
+
+        const fases = planFasesSorted(p);
+        const ptfFase = document.getElementById('ptfFase');
+        ptfFase.innerHTML = '<option value="">Todas as fases</option>' + fases.map(f => '<option value="' + f.id + '">' + escapeHtml(f.nome) + '</option>').join('') + '<option value="__none">Sem fase</option>';
+        ptfFase.value = planTF.fase;
+        const resps = [...new Set(p.tarefas.map(t => (t.responsavel || '').trim()).filter(Boolean))].sort();
+        const ptfResp = document.getElementById('ptfResp');
+        ptfResp.innerHTML = '<option value="">Todos responsáveis</option>' + resps.map(r => '<option value="' + escapeHtml(r) + '">' + escapeHtml(r) + '</option>').join('');
+        ptfResp.value = planTF.resp;
+        document.getElementById('ptfStatus').value = planTF.status;
+        document.getElementById('ptfPrior').value = planTF.prior;
+        document.getElementById('planBulkFase').innerHTML = '<option value="">Mover para fase…</option>' + fases.map(f => '<option value="' + f.id + '">' + escapeHtml(f.nome) + '</option>').join('') + '<option value="__none">(Sem fase)</option>';
+
+        const today = planToday();
+        const match = t => {
+            if (planTF.fase === '__none' && t.faseId) return false;
+            if (planTF.fase && planTF.fase !== '__none' && t.faseId !== planTF.fase) return false;
+            if (planTF.resp && (t.responsavel || '') !== planTF.resp) return false;
+            if (planTF.status && t.status !== planTF.status) return false;
+            if (planTF.prior && (t.prioridade || 'media') !== planTF.prior) return false;
+            return true;
+        };
+        const groups = fases.map(f => ({ nome: f.nome, tasks: p.tarefas.filter(t => t.faseId === f.id && match(t)) }));
+        groups.push({ nome: 'Sem fase', tasks: p.tarefas.filter(t => !t.faseId && match(t)) });
+
+        const opt = (obj, sel) => Object.keys(obj).map(v => '<option value="' + v + '"' + (sel === v ? ' selected' : '') + '>' + obj[v] + '</option>').join('');
+        const rowHtml = t => {
+            const late = t.status !== 'feito' && t.prazo && planParse(t.prazo) && planParse(t.prazo) < today;
+            return '<div class="plan-trow ' + (t.status === 'feito' ? 'done ' : '') + (planSel.has(t.id) ? 'sel' : '') + '" data-id="' + t.id + '">' +
+                '<input type="checkbox" class="pt-sel"' + (planSel.has(t.id) ? ' checked' : '') + '>' +
+                '<input type="text" class="pt-tit" value="' + escapeHtml(t.titulo || '') + '">' +
+                '<input type="text" class="pt-resp" list="planRespList" placeholder="Quem?" value="' + escapeHtml(t.responsavel || '') + '">' +
+                '<input type="date" class="pt-prazo ' + (late ? 'late' : '') + '" value="' + (t.prazo || '') + '">' +
+                '<select class="pt-prior ' + (t.prioridade || 'media') + '">' + opt(PT_PR, t.prioridade || 'media') + '</select>' +
+                '<select class="pt-status">' + opt(PT_ST, t.status || 'a_fazer') + '</select>' +
+                '<button class="pt-del" type="button" title="Excluir">&times;</button></div>';
+        };
+        const cont = document.getElementById('planTarefasGroups');
+        const totalF = groups.reduce((s, g) => s + g.tasks.length, 0);
+        if (!p.tarefas.length) cont.innerHTML = '<div class="plan-tempty">Nenhuma tarefa ainda. Adicione abaixo — pode colar várias linhas de uma vez.</div>';
+        else if (!totalF) cont.innerHTML = '<div class="plan-tempty">Nenhuma tarefa com esses filtros.</div>';
+        else cont.innerHTML = groups.filter(g => g.tasks.length).map(g =>
+            '<div class="plan-tgroup"><div class="plan-tgroup-title">' + escapeHtml(g.nome) + ' <span class="pt-count">· ' + g.tasks.length + '</span></div>' +
+            g.tasks.map(rowHtml).join('') + '</div>').join('');
+
+        const bulk = document.getElementById('planBulk');
+        bulk.style.display = planSel.size ? 'flex' : 'none';
+        document.getElementById('planBulkCount').textContent = planSel.size + (planSel.size === 1 ? ' selecionada' : ' selecionadas');
         planRenderProgress();
     }
+
+    function planTaskById(id) { const p = planActive(); return p ? (p.tarefas || []).find(t => t.id === id) : null; }
 
     function planAddItems(text) {
         const p = planActive(); if (!p) return;
@@ -1834,7 +1995,7 @@
         const np = planMigrate({ id: planGenId('p_'), nome: nome });
         planData.plans.push(np);
         planData.activeId = np.id;
-        planNotasEditing = false; planSub = 'visao';
+        planNotasEditing = false; planSub = 'visao'; planSel.clear();
         planRenderList(); planRenderDetail(); planPersist();
     }
 
@@ -1867,6 +2028,95 @@
     document.getElementById('planNewItem').addEventListener('keydown', function(e) {
         if (e.key === 'Enter') { e.preventDefault(); planAddItems(this.value); this.value = ''; }
     });
+
+    /* Fases: gerenciar */
+    document.getElementById('planFasesToggle').addEventListener('click', () => { planFasesOpen = !planFasesOpen; planRenderFases(); });
+    document.getElementById('planAddFaseBtn').addEventListener('click', () => {
+        const inp = document.getElementById('planNewFase'); planAddFases(inp.value); inp.value = ''; inp.focus();
+    });
+    document.getElementById('planNewFase').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); planAddFases(this.value); this.value = ''; }
+    });
+    document.getElementById('planFasesList').addEventListener('input', function(e) {
+        const row = e.target.closest('.plan-fase-row'); if (!row) return;
+        const p = planActive(); if (!p) return;
+        const f = (p.fases || []).find(x => x.id === row.dataset.faseId); if (!f) return;
+        if (e.target.classList.contains('pf-nome')) { f.nome = e.target.value; planPersist(); }
+    });
+    document.getElementById('planFasesList').addEventListener('change', function(e) {
+        const row = e.target.closest('.plan-fase-row'); if (!row) return;
+        const p = planActive(); if (!p) return;
+        const f = (p.fases || []).find(x => x.id === row.dataset.faseId); if (!f) return;
+        if (e.target.classList.contains('pf-ini')) { f.inicio = e.target.value; planRenderList(); planPersist(); }
+        else if (e.target.classList.contains('pf-fim')) { f.fim = e.target.value; planPersist(); }
+        else if (e.target.classList.contains('pf-nome')) { f.nome = e.target.value; planRenderTarefas(); planPersist(); }
+    });
+    document.getElementById('planFasesList').addEventListener('click', function(e) {
+        const row = e.target.closest('.plan-fase-row'); if (!row) return;
+        const id = row.dataset.faseId;
+        const mv = e.target.closest('[data-fmove]');
+        if (mv) { planFaseMove(id, parseInt(mv.dataset.fmove, 10)); return; }
+        if (e.target.closest('.pf-del')) planFaseDelete(id);
+    });
+
+    /* Filtros de tarefas */
+    function planBindFilter(elId, key) {
+        document.getElementById(elId).addEventListener('change', function() { planTF[key] = this.value; planRenderTarefas(); });
+    }
+    planBindFilter('ptfFase', 'fase'); planBindFilter('ptfResp', 'resp'); planBindFilter('ptfStatus', 'status'); planBindFilter('ptfPrior', 'prior');
+    document.getElementById('ptfClear').addEventListener('click', () => {
+        planTF.fase = ''; planTF.resp = ''; planTF.status = ''; planTF.prior = ''; planRenderTarefas();
+    });
+
+    /* Bulk */
+    document.getElementById('planBulkFase').addEventListener('change', function() {
+        if (this.value === '') return;
+        const p = planActive(); if (!p) return;
+        const fid = this.value === '__none' ? '' : this.value;
+        p.tarefas.forEach(t => { if (planSel.has(t.id)) t.faseId = fid; });
+        planSel.clear(); planRenderTarefas(); planRenderList(); planPersist();
+    });
+    document.getElementById('planBulkDelete').addEventListener('click', () => {
+        if (!planSel.size) return;
+        const p = planActive(); if (!p) return;
+        if (!confirm('Excluir ' + planSel.size + ' tarefa(s) selecionada(s)?')) return;
+        p.tarefas = p.tarefas.filter(t => !planSel.has(t.id));
+        planSel.clear(); planRenderTarefas(); planRenderProgress(); planRenderList(); planPersist();
+    });
+    document.getElementById('planBulkClear').addEventListener('click', () => { planSel.clear(); planRenderTarefas(); });
+
+    /* Tarefas: delegação de eventos */
+    const planGroups = document.getElementById('planTarefasGroups');
+    planGroups.addEventListener('input', function(e) {
+        if (!e.target.classList.contains('pt-tit')) return;
+        const row = e.target.closest('.plan-trow'); if (!row) return;
+        const t = planTaskById(row.dataset.id); if (t) { t.titulo = e.target.value; planPersist(); }
+    });
+    planGroups.addEventListener('change', function(e) {
+        const row = e.target.closest('.plan-trow'); if (!row) return;
+        const t = planTaskById(row.dataset.id); if (!t) return;
+        if (e.target.classList.contains('pt-sel')) {
+            if (e.target.checked) planSel.add(t.id); else planSel.delete(t.id);
+            row.classList.toggle('sel', e.target.checked);
+            const bulk = document.getElementById('planBulk');
+            bulk.style.display = planSel.size ? 'flex' : 'none';
+            document.getElementById('planBulkCount').textContent = planSel.size + (planSel.size === 1 ? ' selecionada' : ' selecionadas');
+            return;
+        }
+        if (e.target.classList.contains('pt-resp')) { t.responsavel = e.target.value; planPersist(); planRenderTarefas(); return; }
+        if (e.target.classList.contains('pt-prazo')) { t.prazo = e.target.value; planPersist(); planRenderTarefas(); return; }
+        if (e.target.classList.contains('pt-prior')) { t.prioridade = e.target.value; planPersist(); planRenderTarefas(); return; }
+        if (e.target.classList.contains('pt-status')) { t.status = e.target.value; planPersist(); planRenderProgress(); planRenderList(); planRenderTarefas(); return; }
+    });
+    planGroups.addEventListener('click', function(e) {
+        if (!e.target.closest('.pt-del')) return;
+        const row = e.target.closest('.plan-trow'); if (!row) return;
+        const p = planActive(); if (!p) return;
+        p.tarefas = p.tarefas.filter(x => x.id !== row.dataset.id);
+        planSel.delete(row.dataset.id);
+        planRenderTarefas(); planRenderProgress(); planRenderList(); planPersist();
+    });
+
     document.getElementById('planEditNotasBtn').addEventListener('click', () => { planNotasEditing = true; planRenderNotas(); });
     document.getElementById('planSaveNotasBtn').addEventListener('click', () => {
         const p = planActive(); if (!p) return;
