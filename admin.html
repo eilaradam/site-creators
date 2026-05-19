@@ -698,7 +698,52 @@
                 </div>
 
                 <div class="plan-pane" id="planPaneConteudo">
-                    <div class="plan-soon">🎬 O Kanban de Conteúdo (a gravar → gravado → editado → postado) chega na próxima etapa.</div>
+                    <datalist id="planRespList2"><option value="Lara"></option><option value="Isa"></option><option value="Outro"></option></datalist>
+                    <div class="plan-ct-bar">
+                        <select id="pcfPlat"><option value="">Todas plataformas</option><option value="reels">Instagram Reels</option><option value="stories">Stories</option><option value="feed">Feed</option><option value="whatsapp">WhatsApp</option><option value="email">E-mail</option></select>
+                        <select id="pcfResp"><option value="">Todos responsáveis</option></select>
+                        <select id="pcfPer"><option value="">Qualquer data</option><option value="semana">Esta semana</option><option value="prox">Próxima semana</option><option value="sem">Sem data</option></select>
+                        <button class="plan-btn-ghost" id="pcfClear" type="button">Limpar</button>
+                        <button class="plan-btn-primary" id="planCtNew" type="button" style="margin-left:auto">+ Novo conteúdo</button>
+                    </div>
+                    <div class="plan-kanban" id="planKanban"></div>
+                </div>
+
+                <div class="plan-ctmodal-ov" id="planCtModal">
+                    <div class="plan-ctmodal">
+                        <div class="plan-ctmodal-head">
+                            <h3 id="planCtModalTitle">Conteúdo</h3>
+                            <button class="plan-ctmodal-x" id="planCtClose" type="button">&times;</button>
+                        </div>
+                        <div class="plan-ctmodal-body">
+                            <div class="plan-ctf two">
+                                <label>Nº <input type="number" id="ctNumero" min="1"></label>
+                                <label>Data de publicação <input type="date" id="ctData"></label>
+                            </div>
+                            <label>Tema / título <input type="text" id="ctTema" placeholder="Ex: O que a marca olha primeiro no portfólio"></label>
+                            <div class="plan-ctf two">
+                                <label>Plataforma
+                                    <select id="ctPlat"><option value="reels">Instagram Reels</option><option value="stories">Stories</option><option value="feed">Feed</option><option value="whatsapp">WhatsApp</option><option value="email">E-mail</option></select>
+                                </label>
+                                <label>Status
+                                    <select id="ctStatus"><option value="a_gravar">A gravar</option><option value="gravado">Gravado</option><option value="editado">Editado</option><option value="postado">Postado</option></select>
+                                </label>
+                            </div>
+                            <div class="plan-ctf two">
+                                <label>Responsável gravação <input type="text" id="ctRespG" list="planRespList2" placeholder="Lara / Isa"></label>
+                                <label>Responsável edição <input type="text" id="ctRespE" list="planRespList2" placeholder="Lara / Isa"></label>
+                            </div>
+                            <label>Roteiro / observações <textarea id="ctRoteiro" rows="4" placeholder="Roteiro, ganchos, observações..."></textarea></label>
+                            <div class="plan-ctf two">
+                                <label>Link da gravação <input type="text" id="ctLinkG" placeholder="Drive, etc."></label>
+                                <label>Link do post final <input type="text" id="ctLinkP" placeholder="Instagram, etc."></label>
+                            </div>
+                        </div>
+                        <div class="plan-ctmodal-foot">
+                            <button class="plan-btn-ghost" id="planCtDelete" type="button">Excluir</button>
+                            <button class="plan-btn-primary" id="planCtSave" type="button">Salvar</button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="plan-pane" id="planPaneMetas">
@@ -1315,6 +1360,46 @@
 .plan-trow .pt-del:hover { color: var(--error); background: rgba(220,38,38,0.1); }
 .plan-tempty { font-size: 13px; color: var(--text-muted); padding: 16px 4px; }
 @media (max-width: 720px) { .plan-trow .pt-resp, .plan-trow .pt-prazo { width: 46%; } }
+/* Conteúdo: Kanban + modal */
+.plan-ct-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+.plan-ct-bar select { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; color: var(--text-soft); border: 1px solid var(--border); border-radius: 8px; padding: 7px 9px; background: var(--card); cursor: pointer; outline: none; }
+.plan-ct-bar select:focus { border-color: var(--accent); }
+.plan-kanban { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; align-items: start; }
+.plan-kcol { background: var(--cream); border: 1px solid var(--border); border-radius: 12px; padding: 12px; min-height: 120px; }
+.plan-kcol.dragover { border-color: var(--accent); background: var(--accent-glow); }
+.plan-kcol-head { display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-soft); margin-bottom: 10px; }
+.plan-kcol-head .kc-count { color: var(--text-muted); }
+.plan-kcard { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 11px 12px; margin-bottom: 8px; cursor: pointer; transition: all 0.15s; }
+.plan-kcard:hover { border-color: var(--accent); box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.plan-kcard.dragging { opacity: 0.5; }
+.plan-kcard-top { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+.plan-kcard-num { font-size: 11px; font-weight: 700; color: var(--text-muted); }
+.plan-kcard-plat { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 2px 7px; border-radius: 999px; background: var(--accent-glow); color: var(--accent); }
+.plan-kcard-date { margin-left: auto; font-size: 11px; color: var(--text-muted); }
+.plan-kcard-date.late { color: var(--error); font-weight: 700; }
+.plan-kcard-tema { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.35; margin-bottom: 8px; }
+.plan-kcard-foot { display: flex; align-items: center; gap: 6px; }
+.plan-kcard-resp { font-size: 11px; color: var(--text-muted); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.plan-kcard-move { background: none; border: 1px solid var(--border); color: var(--text-soft); border-radius: 6px; cursor: pointer; font-size: 12px; line-height: 1; padding: 3px 7px; }
+.plan-kcard-move:hover { border-color: var(--accent); color: var(--accent); }
+.plan-kcard-move:disabled { opacity: 0.3; cursor: default; }
+.plan-kempty { font-size: 12px; color: var(--text-muted); text-align: center; padding: 18px 4px; }
+.plan-ctmodal-ov { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+.plan-ctmodal-ov.show { display: flex; }
+.plan-ctmodal { background: var(--card); border-radius: 14px; width: 100%; max-width: 560px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; }
+.plan-ctmodal-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid var(--border); }
+.plan-ctmodal-head h3 { margin: 0; font-size: 17px; font-weight: 700; color: var(--text); }
+.plan-ctmodal-x { background: none; border: none; font-size: 22px; color: var(--text-muted); cursor: pointer; line-height: 1; }
+.plan-ctmodal-x:hover { color: var(--error); }
+.plan-ctmodal-body { padding: 20px 22px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+.plan-ctmodal-body label { display: flex; flex-direction: column; gap: 5px; font-size: 12px; font-weight: 600; color: var(--text-soft); }
+.plan-ctmodal-body input, .plan-ctmodal-body select, .plan-ctmodal-body textarea { font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); border: 1.5px solid var(--border); border-radius: 8px; padding: 9px 11px; background: var(--card); outline: none; }
+.plan-ctmodal-body input:focus, .plan-ctmodal-body select:focus, .plan-ctmodal-body textarea:focus { border-color: var(--accent); }
+.plan-ctmodal-body textarea { resize: vertical; }
+.plan-ctf.two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.plan-ctmodal-foot { display: flex; align-items: center; justify-content: space-between; padding: 16px 22px; border-top: 1px solid var(--border); }
+@media (max-width: 980px) { .plan-kanban { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .plan-kanban { grid-template-columns: 1fr; } .plan-ctf.two { grid-template-columns: 1fr; } }
 .plan-notas-view { font-size: 14px; line-height: 1.7; color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; background: var(--cream); min-height: 80px; overflow-wrap: anywhere; }
 .plan-notas-view:empty::before { content: 'Sem notas ainda. Clique em Editar pra escrever ou colar seu plano.'; color: var(--text-muted); }
 .plan-notas-view h2 { font-size: 20px; margin: 18px 0 8px; }
@@ -1765,6 +1850,7 @@
         Object.keys(map).forEach(k => document.getElementById(map[k]).classList.toggle('show', k === sub));
         if (sub === 'visao') planRenderVisao();
         if (sub === 'tarefas') planRenderTarefas();
+        if (sub === 'conteudo') planRenderConteudo();
         if (sub === 'notas') planRenderNotas();
     }
 
@@ -1970,6 +2056,163 @@
         parts.forEach(t => p.tarefas.push({ id: planGenId('t_'), faseId: '', titulo: t, responsavel: '', prazo: '', status: 'a_fazer', prioridade: 'media' }));
         planRenderTarefas(); planRenderList(); planPersist();
     }
+
+    /* ---- Conteúdo (Kanban) ---- */
+    const PLAN_PLAT = { reels: 'Reels', stories: 'Stories', feed: 'Feed', whatsapp: 'WhatsApp', email: 'E-mail' };
+    const PLAN_CT_COLS = [['a_gravar', 'A gravar'], ['gravado', 'Gravado'], ['editado', 'Editado'], ['postado', 'Postado']];
+    const planCF = { plat: '', resp: '', per: '' };
+    let planCtEditId = null;
+
+    function planCtById(id) { const p = planActive(); return p ? (p.conteudos || []).find(c => c.id === id) : null; }
+
+    function planRenderConteudo() {
+        const p = planActive(); if (!p) return;
+        if (!Array.isArray(p.conteudos)) p.conteudos = [];
+        const resps = [...new Set(p.conteudos.flatMap(c => [c.respGravacao, c.respEdicao]).map(s => (s || '').trim()).filter(Boolean))].sort();
+        const rs = document.getElementById('pcfResp');
+        rs.innerHTML = '<option value="">Todos responsáveis</option>' + resps.map(r => '<option value="' + escapeHtml(r) + '">' + escapeHtml(r) + '</option>').join('');
+        rs.value = planCF.resp;
+        document.getElementById('pcfPlat').value = planCF.plat;
+        document.getElementById('pcfPer').value = planCF.per;
+
+        const wk = planWeekRange();
+        const nx0 = new Date(wk.end); nx0.setDate(nx0.getDate() + 1);
+        const nx1 = new Date(nx0); nx1.setDate(nx1.getDate() + 6);
+        const today = planToday();
+        const match = c => {
+            if (planCF.plat && c.plataforma !== planCF.plat) return false;
+            if (planCF.resp && c.respGravacao !== planCF.resp && c.respEdicao !== planCF.resp) return false;
+            if (planCF.per) {
+                const d = planParse(c.dataPublicacao);
+                if (planCF.per === 'sem' && d) return false;
+                if (planCF.per === 'semana' && !(d && d >= wk.start && d <= wk.end)) return false;
+                if (planCF.per === 'prox' && !(d && d >= nx0 && d <= nx1)) return false;
+            }
+            return true;
+        };
+        const list = p.conteudos.filter(match);
+        const kb = document.getElementById('planKanban');
+        kb.innerHTML = PLAN_CT_COLS.map(([st, lbl]) => {
+            const items = list.filter(c => (c.status || 'a_gravar') === st);
+            const cards = items.length ? items.map(c => {
+                const d = planParse(c.dataPublicacao);
+                const late = st !== 'postado' && d && d < today;
+                const resp = [c.respGravacao, c.respEdicao].filter(Boolean).join(' / ');
+                const ci = PLAN_CT_COLS.findIndex(x => x[0] === st);
+                return '<div class="plan-kcard" draggable="true" data-id="' + c.id + '">' +
+                    '<div class="plan-kcard-top">' +
+                    (c.numero ? '<span class="plan-kcard-num">#' + escapeHtml(String(c.numero)) + '</span>' : '') +
+                    '<span class="plan-kcard-plat">' + (PLAN_PLAT[c.plataforma] || '—') + '</span>' +
+                    '<span class="plan-kcard-date ' + (late ? 'late' : '') + '">' + (c.dataPublicacao ? planFmt(c.dataPublicacao) : '') + '</span></div>' +
+                    '<div class="plan-kcard-tema">' + (escapeHtml(c.tema || '') || '<span style="color:var(--text-muted)">(sem título)</span>') + '</div>' +
+                    '<div class="plan-kcard-foot">' +
+                    '<button class="plan-kcard-move" data-mv="-1" ' + (ci === 0 ? 'disabled' : '') + ' title="Voltar">‹</button>' +
+                    '<span class="plan-kcard-resp">' + escapeHtml(resp) + '</span>' +
+                    '<button class="plan-kcard-move" data-mv="1" ' + (ci === 3 ? 'disabled' : '') + ' title="Avançar">›</button>' +
+                    '</div></div>';
+            }).join('') : '<div class="plan-kempty">—</div>';
+            return '<div class="plan-kcol" data-col="' + st + '"><div class="plan-kcol-head">' + lbl + ' <span class="kc-count">' + items.length + '</span></div>' + cards + '</div>';
+        }).join('');
+    }
+
+    function planCtMove(id, dir) {
+        const c = planCtById(id); if (!c) return;
+        const order = PLAN_CT_COLS.map(x => x[0]);
+        let i = order.indexOf(c.status || 'a_gravar') + dir;
+        if (i < 0 || i >= order.length) return;
+        c.status = order[i];
+        planRenderConteudo(); planPersist();
+    }
+
+    function planCtFill(c) {
+        document.getElementById('ctNumero').value = c.numero || '';
+        document.getElementById('ctData').value = c.dataPublicacao || '';
+        document.getElementById('ctTema').value = c.tema || '';
+        document.getElementById('ctPlat').value = c.plataforma || 'reels';
+        document.getElementById('ctStatus').value = c.status || 'a_gravar';
+        document.getElementById('ctRespG').value = c.respGravacao || '';
+        document.getElementById('ctRespE').value = c.respEdicao || '';
+        document.getElementById('ctRoteiro').value = c.roteiro || '';
+        document.getElementById('ctLinkG').value = c.linkGravacao || '';
+        document.getElementById('ctLinkP').value = c.linkPost || '';
+    }
+    function planCtOpen(id) {
+        const c = planCtById(id); if (!c) return;
+        planCtEditId = id;
+        document.getElementById('planCtModalTitle').textContent = 'Conteúdo' + (c.numero ? ' #' + c.numero : '');
+        planCtFill(c);
+        document.getElementById('planCtModal').classList.add('show');
+    }
+    function planCtClose() { planCtEditId = null; document.getElementById('planCtModal').classList.remove('show'); }
+    function planCtNew() {
+        const p = planActive(); if (!p) return;
+        if (!Array.isArray(p.conteudos)) p.conteudos = [];
+        const maxN = p.conteudos.reduce((m, c) => Math.max(m, Number(c.numero) || 0), 0);
+        const c = { id: planGenId('ct_'), numero: maxN + 1, tema: '', roteiro: '', plataforma: 'reels', dataPublicacao: '', respGravacao: '', respEdicao: '', status: 'a_gravar', linkGravacao: '', linkPost: '' };
+        p.conteudos.push(c);
+        planRenderConteudo(); planPersist();
+        planCtOpen(c.id);
+    }
+    function planCtSaveModal() {
+        const c = planCtById(planCtEditId); if (!c) return;
+        c.numero = Number(document.getElementById('ctNumero').value) || null;
+        c.dataPublicacao = document.getElementById('ctData').value;
+        c.tema = document.getElementById('ctTema').value;
+        c.plataforma = document.getElementById('ctPlat').value;
+        c.status = document.getElementById('ctStatus').value;
+        c.respGravacao = document.getElementById('ctRespG').value.trim();
+        c.respEdicao = document.getElementById('ctRespE').value.trim();
+        c.roteiro = document.getElementById('ctRoteiro').value;
+        c.linkGravacao = document.getElementById('ctLinkG').value.trim();
+        c.linkPost = document.getElementById('ctLinkP').value.trim();
+        planCtClose(); planRenderConteudo(); planRenderList(); planPersist(true);
+    }
+    function planCtDeleteModal() {
+        const p = planActive(); if (!p || !planCtEditId) return;
+        if (!confirm('Excluir este conteúdo?')) return;
+        p.conteudos = p.conteudos.filter(c => c.id !== planCtEditId);
+        planCtClose(); planRenderConteudo(); planPersist(true);
+    }
+
+    /* Listeners Conteúdo */
+    function planBindCF(elId, key) { document.getElementById(elId).addEventListener('change', function() { planCF[key] = this.value; planRenderConteudo(); }); }
+    planBindCF('pcfPlat', 'plat'); planBindCF('pcfResp', 'resp'); planBindCF('pcfPer', 'per');
+    document.getElementById('pcfClear').addEventListener('click', () => { planCF.plat = ''; planCF.resp = ''; planCF.per = ''; planRenderConteudo(); });
+    document.getElementById('planCtNew').addEventListener('click', planCtNew);
+    document.getElementById('planCtClose').addEventListener('click', planCtClose);
+    document.getElementById('planCtSave').addEventListener('click', planCtSaveModal);
+    document.getElementById('planCtDelete').addEventListener('click', planCtDeleteModal);
+    document.getElementById('planCtModal').addEventListener('click', function(e) { if (e.target === this) planCtClose(); });
+    (function() {
+        const kb = document.getElementById('planKanban');
+        kb.addEventListener('click', function(e) {
+            const card = e.target.closest('.plan-kcard'); if (!card) return;
+            const mv = e.target.closest('[data-mv]');
+            if (mv) { if (!mv.disabled) planCtMove(card.dataset.id, parseInt(mv.dataset.mv, 10)); return; }
+            planCtOpen(card.dataset.id);
+        });
+        let dragId = null;
+        kb.addEventListener('dragstart', function(e) {
+            const card = e.target.closest('.plan-kcard'); if (!card) return;
+            dragId = card.dataset.id; card.classList.add('dragging');
+        });
+        kb.addEventListener('dragend', function(e) {
+            const card = e.target.closest('.plan-kcard'); if (card) card.classList.remove('dragging');
+            kb.querySelectorAll('.plan-kcol').forEach(c => c.classList.remove('dragover'));
+        });
+        kb.addEventListener('dragover', function(e) {
+            const col = e.target.closest('.plan-kcol'); if (!col) return;
+            e.preventDefault();
+            kb.querySelectorAll('.plan-kcol').forEach(c => c.classList.toggle('dragover', c === col));
+        });
+        kb.addEventListener('drop', function(e) {
+            const col = e.target.closest('.plan-kcol'); if (!col || !dragId) return;
+            e.preventDefault();
+            const c = planCtById(dragId);
+            if (c && c.status !== col.dataset.col) { c.status = col.dataset.col; planRenderConteudo(); planRenderList(); planPersist(); }
+            dragId = null;
+        });
+    })();
 
     function planRenderNotas() {
         const p = planActive(); if (!p) return;
