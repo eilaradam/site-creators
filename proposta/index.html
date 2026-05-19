@@ -96,13 +96,17 @@
         .pack-tag { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
         .pack-badge { display: inline-block; align-self: flex-start; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #fff; background: var(--accent); padding: 4px 10px; border-radius: 100px; margin-bottom: 12px; }
         .pack h3 { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; margin-bottom: 10px; line-height: 1.1; }
-        .pack-spec { font-size: 13px; font-weight: 600; color: var(--text); background: var(--cream); border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; line-height: 1.45; }
+        .pack-spec { font-size: 13px; font-weight: 600; color: var(--text); background: var(--cream); border-radius: 10px; padding: 13px 15px; margin-bottom: 14px; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+        .pack-spec li { position: relative; padding-left: 16px; line-height: 1.4; }
+        .pack-spec li::before { content: '•'; position: absolute; left: 2px; color: var(--accent); font-weight: 700; }
         .pack-ideal { font-size: 14px; color: var(--text-soft); margin-bottom: 22px; flex-grow: 1; }
         .pack-lines { border-top: 1px solid var(--border); padding-top: 16px; }
         .pack-line { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; color: var(--text-soft); padding: 6px 0; }
         .pack-line.total { border-top: 1px solid var(--border); margin-top: 8px; padding-top: 14px; }
         .pack-line.total span:first-child { font-weight: 700; color: var(--text); font-size: 15px; }
-        .pack-total-val { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; color: var(--accent); }
+        .pack-line.total { align-items: baseline; gap: 10px; }
+        .pack-line.total span:first-child { flex: 1 1 auto; }
+        .pack-total-val { flex: 0 0 auto; font-family: 'Fraunces', serif; font-size: 23px; font-weight: 700; color: var(--accent); white-space: nowrap; }
         .pack-per { text-align: center; margin-top: 16px; font-size: 13px; color: var(--text-muted); }
         .pack-per b { color: var(--text); font-weight: 700; }
 
@@ -218,7 +222,7 @@
                 <div class="pack reveal">
                     <div class="pack-tag">Pacote 1</div>
                     <h3>Volume Amplo</h3>
-                    <div class="pack-spec">30 creators diferentes · 1 vídeo por creator · 30 vídeos no total</div>
+                    <ul class="pack-spec"><li>30 creators diferentes</li><li>1 vídeo por creator</li><li>30 vídeos no total</li></ul>
                     <p class="pack-ideal">Ideal para campanhas que precisam de variedade de rostos, perfis e narrativas diferentes para teste de criativos em mídia paga ou ocupação de feed com diversidade.</p>
                     <div class="pack-lines">
                         <div class="pack-line"><span>30 vídeos × R$ 450</span><span>R$ 13.500,00</span></div>
@@ -233,7 +237,7 @@
                     <span class="pack-badge">Menor custo por vídeo</span>
                     <div class="pack-tag">Pacote 2</div>
                     <h3>Volume com Profundidade</h3>
-                    <div class="pack-spec">15 creators · 2 vídeos por creator · 30 vídeos no total</div>
+                    <ul class="pack-spec"><li>15 creators</li><li>2 vídeos por creator</li><li>30 vídeos no total</li></ul>
                     <p class="pack-ideal">Ideal para marcas que querem aproveitar a familiaridade do creator com o produto no segundo vídeo, ganhando consistência e profundidade na mensagem com metade do esforço de onboarding.</p>
                     <div class="pack-lines">
                         <div class="pack-line"><span>30 vídeos × R$ 400</span><span>R$ 12.000,00</span></div>
@@ -247,7 +251,7 @@
                 <div class="pack reveal">
                     <div class="pack-tag">Pacote 3</div>
                     <h3>Curadoria Premium</h3>
-                    <div class="pack-spec">10 creators selecionados · 1 vídeo por creator · 10 vídeos no total</div>
+                    <ul class="pack-spec"><li>10 creators selecionados</li><li>1 vídeo por creator</li><li>10 vídeos no total</li></ul>
                     <p class="pack-ideal">Ideal para campanhas que exigem creators mais qualificados, com perfil específico ou nicho mais técnico, onde a curadoria pesa mais que o volume.</p>
                     <div class="pack-lines">
                         <div class="pack-line"><span>10 vídeos × R$ 450</span><span>R$ 4.500,00</span></div>
