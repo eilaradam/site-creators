@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proposta · Gestão de UGC | Lara Dam</title>
+    <meta name="description" content="Proposta de gestão de UGC para marcas — estratégia, curadoria de creators e campanhas geridas por Lara Dam.">
+    <!-- noindex: página de proposta não deve aparecer no Google -->
+    <meta name="robots" content="noindex, nofollow">
+    <meta property="og:title" content="Proposta de Gestão de UGC | Lara Dam">
+    <meta property="og:description" content="Estratégia, curadoria de creators e campanhas de UGC geridas pra sua marca.">
+    <meta property="og:type" content="website">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&display=swap" rel="stylesheet">
+
+    <!-- =====================================================================
+         COMO EDITAR ESTA PROPOSTA (pra leiga, sem medo):
+
+         1) NOME DO CLIENTE: você NÃO precisa editar o arquivo. Mande o link
+            assim:  creators.laradam.com/proposta/?cliente=Nome da Marca
+            (o nome aparece sozinho na capa). Se mandar sem isso, aparece
+            "sua marca".
+
+         2) TEXTOS, VALORES, PASSO A PASSO: procure os blocos marcados com
+            <!-- EDITE: ... -->  e troque só o texto que está escrito.
+
+         3) VÍDEOS DE REFERÊNCIA: procure  <!-- EDITE: VÍDEO 1 -->  e troque
+            o código do YouTube (a parte depois de "embed/") pelo seu.
+
+         4) SEU WHATSAPP: procure  EDITE-SEU-WHATSAPP  e troque o número.
+         ===================================================================== -->
+    <style>
+        :root {
+            --black: #0A0A0A;
+            --white: #FAFAF9;
+            --cream: #F5F3EF;
+            --warm: #E8E4DD;
+            --accent: #D4572A;
+            --accent-dark: #B8461F;
+            --accent-glow: rgba(212,87,42,0.12);
+            --text: #1A1816;
+            --text-soft: #6B645C;
+            --text-muted: #9C958C;
+            --border: #DDD8D0;
+            --card: #FFFFFF;
+            --success: #2D7A4F;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Outfit', sans-serif; background: var(--cream); color: var(--text); -webkit-font-smoothing: antialiased; line-height: 1.6; }
+
+        /* barra de progresso de leitura no topo */
+        .progress { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, var(--accent), #E8784A); z-index: 100; transition: width 0.1s linear; }
+
+        .wrap { max-width: 920px; margin: 0 auto; padding: 0 24px; }
+        section { padding: 88px 0; }
+        .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+        h2 { font-family: 'Fraunces', serif; font-size: clamp(28px, 4vw, 42px); font-weight: 700; letter-spacing: -0.5px; line-height: 1.15; margin-bottom: 16px; }
+        .lead { font-size: 18px; color: var(--text-soft); max-width: 620px; }
+
+        /* ===== CAPA / HERO ===== */
+        .hero { background: linear-gradient(165deg, #1A1816 0%, #2A2420 60%, #3A2C20 100%); color: var(--white); min-height: 100vh; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; }
+        .hero::before { content: ''; position: absolute; top: -30%; right: -15%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(212,87,42,0.35), transparent 70%); border-radius: 50%; filter: blur(20px); }
+        .hero .wrap { position: relative; z-index: 1; }
+        .brand { font-family: 'Fraunces', serif; font-weight: 700; font-size: 22px; color: var(--white); margin-bottom: 60px; }
+        .brand span { color: var(--accent); }
+        .hero-tag { font-size: 13px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 20px; }
+        .hero h1 { font-family: 'Fraunces', serif; font-size: clamp(38px, 7vw, 72px); font-weight: 700; line-height: 1.05; letter-spacing: -1px; margin-bottom: 24px; }
+        .hero h1 em { font-style: italic; color: var(--accent); }
+        .hero-sub { font-size: 19px; color: rgba(250,250,249,0.7); max-width: 560px; margin-bottom: 48px; }
+        .hero-meta { display: flex; gap: 40px; flex-wrap: wrap; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 28px; }
+        .hero-meta div { font-size: 14px; color: rgba(250,250,249,0.55); }
+        .hero-meta strong { display: block; font-size: 16px; color: var(--white); font-weight: 600; margin-top: 2px; }
+        .scroll-hint { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: rgba(250,250,249,0.4); animation: bob 2s ease-in-out infinite; }
+        @keyframes bob { 0%,100% { transform: translate(-50%,0); } 50% { transform: translate(-50%,8px); } }
+
+        /* ===== reveal on scroll ===== */
+        .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s ease; }
+        .reveal.in { opacity: 1; transform: none; }
+
+        /* ===== SOBRE ===== */
+        .about { background: var(--card); }
+        .about-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 48px; align-items: center; }
+        .about-photo { aspect-ratio: 4/5; border-radius: 24px; background: linear-gradient(160deg, var(--warm), var(--cream)); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 14px; text-align: center; padding: 24px; }
+        .stat-row { display: flex; gap: 36px; margin-top: 28px; flex-wrap: wrap; }
+        .stat b { font-family: 'Fraunces', serif; display: block; font-size: 34px; color: var(--accent); line-height: 1; }
+        .stat span { font-size: 13px; color: var(--text-muted); }
+
+        /* ===== O QUE ENTREGO (cards) ===== */
+        .deliver-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 40px; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 30px; transition: transform .3s, box-shadow .3s; }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 14px 36px rgba(0,0,0,0.06); }
+        .card .ico { width: 46px; height: 46px; border-radius: 13px; background: var(--accent-glow); display: flex; align-items: center; justify-content: center; margin-bottom: 18px; }
+        .card .ico svg { width: 22px; height: 22px; stroke: var(--accent); }
+        .card h3 { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+        .card p { font-size: 15px; color: var(--text-soft); }
+
+        /* ===== PASSO A PASSO ===== */
+        .steps { background: var(--card); }
+        .step { display: flex; gap: 26px; padding: 26px 0; border-bottom: 1px solid var(--border); }
+        .step:last-child { border-bottom: none; }
+        .step-num { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; color: var(--accent); width: 56px; height: 56px; flex-shrink: 0; border: 2px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .step h3 { font-family: 'Fraunces', serif; font-size: 21px; font-weight: 600; margin-bottom: 6px; }
+        .step p { font-size: 15px; color: var(--text-soft); max-width: 600px; }
+
+        /* ===== VÍDEOS ===== */
+        .video-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 40px; }
+        .video { aspect-ratio: 9/16; border-radius: 18px; overflow: hidden; border: 1px solid var(--border); background: var(--text); }
+        .video iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+        /* ===== VALORES ===== */
+        .pricing { background: var(--card); }
+        .price-table { margin-top: 40px; border: 1px solid var(--border); border-radius: 22px; overflow: hidden; }
+        .price-row { display: grid; grid-template-columns: 1.6fr 1fr auto; gap: 20px; align-items: center; padding: 26px 30px; border-bottom: 1px solid var(--border); }
+        .price-row:last-child { border-bottom: none; }
+        .price-row.head { background: var(--cream); padding: 16px 30px; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); }
+        .price-row.feat { background: linear-gradient(120deg, var(--accent-glow), transparent); }
+        .price-row h4 { font-family: 'Fraunces', serif; font-size: 19px; font-weight: 600; margin-bottom: 4px; }
+        .price-row .desc { font-size: 14px; color: var(--text-soft); }
+        .price-val { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; color: var(--text); white-space: nowrap; }
+        .price-val small { display: block; font-family: 'Outfit'; font-size: 12px; font-weight: 500; color: var(--text-muted); }
+        .badge { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); background: var(--card); border: 1px solid var(--accent); padding: 4px 10px; border-radius: 100px; }
+        .price-note { font-size: 13px; color: var(--text-muted); margin-top: 16px; text-align: center; }
+
+        /* ===== CTA ===== */
+        .cta { background: linear-gradient(165deg, #1A1816, #3A2C20); color: var(--white); text-align: center; }
+        .cta h2 { color: var(--white); }
+        .cta p { font-size: 18px; color: rgba(250,250,249,0.7); max-width: 520px; margin: 0 auto 36px; }
+        .btn { display: inline-flex; align-items: center; gap: 10px; background: var(--accent); color: #fff; padding: 18px 38px; border-radius: 100px; font-size: 17px; font-weight: 700; text-decoration: none; transition: transform .25s, box-shadow .25s; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(212,87,42,0.4); }
+        .btn svg { width: 20px; height: 20px; }
+        .cta-alt { display: block; margin-top: 20px; font-size: 14px; color: rgba(250,250,249,0.55); }
+        .cta-alt a { color: rgba(250,250,249,0.85); }
+
+        footer { background: #131210; color: rgba(250,250,249,0.4); text-align: center; padding: 40px 24px; font-size: 13px; }
+        footer .brand { font-size: 18px; margin-bottom: 8px; }
+
+        @media (max-width: 720px) {
+            section { padding: 64px 0; }
+            .about-grid { grid-template-columns: 1fr; gap: 28px; }
+            .deliver-grid { grid-template-columns: 1fr; }
+            .video-grid { grid-template-columns: 1fr; }
+            .video { max-width: 320px; margin: 0 auto; }
+            .price-row { grid-template-columns: 1fr; gap: 10px; padding: 22px; text-align: left; }
+            .price-row.head { display: none; }
+            .hero-meta { gap: 24px; }
+            .step { gap: 16px; }
+            .step-num { width: 46px; height: 46px; font-size: 19px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress" id="progress"></div>
+
+    <!-- ===================== CAPA ===================== -->
+    <header class="hero">
+        <div class="wrap">
+            <div class="brand">lara<span>.</span>dam</div>
+            <div class="hero-tag">Proposta de Gestão de UGC</div>
+            <h1>Conteúdo que <em>vende</em>,<br>gerido de ponta a ponta<br>pra <span id="clienteNome">sua marca</span>.</h1>
+            <!-- EDITE: frase da capa (acima) -->
+            <p class="hero-sub">Estratégia, curadoria de creators e campanhas de UGC que parecem orgânicas — sem você precisar gerenciar nada.</p>
+            <div class="hero-meta">
+                <div>Preparado por<strong>Lara Dam · UGC Manager</strong></div>
+                <div>Para<strong id="clienteMeta">Sua marca</strong></div>
+                <div>Data<strong id="dataHoje">—</strong></div>
+            </div>
+        </div>
+        <div class="scroll-hint">role para ver ↓</div>
+    </header>
+
+    <!-- ===================== SOBRE ===================== -->
+    <section class="about">
+        <div class="wrap about-grid">
+            <div class="about-photo reveal">Sua foto aqui<br><small>(troque depois)</small></div>
+            <div class="reveal">
+                <div class="eyebrow">Quem vai cuidar disso</div>
+                <h2>Oi, eu sou a Lara.</h2>
+                <!-- EDITE: seu texto de apresentação -->
+                <p class="lead">Trabalho com UGC há anos — como creator e gerindo creators pra marcas. Conheço os dois lados: o que faz um vídeo converter e o que faz uma campanha acontecer no prazo, sem dor de cabeça pra marca. É isso que eu trago pra sua empresa.</p>
+                <div class="stat-row">
+                    <div class="stat"><b>+150</b><span>creators na base</span></div>
+                    <div class="stat"><b>+80</b><span>campanhas geridas</span></div>
+                    <div class="stat"><b>5+</b><span>anos de UGC</span></div>
+                </div>
+                <!-- EDITE: números acima -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== O QUE ENTREGO ===================== -->
+    <section>
+        <div class="wrap">
+            <div class="reveal">
+                <div class="eyebrow">O que está incluso</div>
+                <h2>Você não contrata um vídeo.<br>Contrata a operação inteira.</h2>
+                <p class="lead">Da estratégia ao relatório final, eu cuido de cada etapa pra você só receber o conteúdo pronto pra postar.</p>
+            </div>
+            <div class="deliver-grid">
+                <!-- EDITE: os 4 cards abaixo (título + descrição) -->
+                <div class="card reveal">
+                    <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="4"/></svg></div>
+                    <h3>Estratégia de conteúdo</h3>
+                    <p>Defino os formatos, ganchos e mensagens que fazem sentido pro seu público — não vídeo aleatório, vídeo com objetivo.</p>
+                </div>
+                <div class="card reveal">
+                    <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M16 6h5M18.5 3.5v5"/></svg></div>
+                    <h3>Curadoria de creators</h3>
+                    <p>Seleciono os creators certos pra sua marca dentro da minha base — perfil, nicho e qualidade já validados.</p>
+                </div>
+                <div class="card reveal">
+                    <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M4 4h16v12H4z"/><path d="M4 20h16M9 16v4M15 16v4"/></svg></div>
+                    <h3>Briefing & direção</h3>
+                    <p>Escrevo o roteiro, oriento a gravação e reviso cada entrega antes de chegar até você. Padrão garantido.</p>
+                </div>
+                <div class="card reveal">
+                    <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg></div>
+                    <h3>Gestão & acompanhamento</h3>
+                    <p>Controlo prazos, refações e organização. No fim, você recebe um resumo do que foi entregue.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== PASSO A PASSO ===================== -->
+    <section class="steps">
+        <div class="wrap">
+            <div class="reveal">
+                <div class="eyebrow">Como funciona</div>
+                <h2>O passo a passo, do "oi" ao vídeo no ar.</h2>
+            </div>
+            <!-- EDITE: as 5 etapas abaixo -->
+            <div class="reveal">
+                <div class="step"><div class="step-num">1</div><div><h3>Diagnóstico</h3><p>Uma conversa rápida pra eu entender sua marca, seu público e o objetivo da campanha.</p></div></div>
+                <div class="step"><div class="step-num">2</div><div><h3>Estratégia & proposta de conteúdo</h3><p>Te apresento os formatos, quantidade de vídeos e quais creators fazem sentido.</p></div></div>
+                <div class="step"><div class="step-num">3</div><div><h3>Seleção dos creators</h3><p>Escolho e fecho com os creators ideais. Você aprova antes de qualquer gravação.</p></div></div>
+                <div class="step"><div class="step-num">4</div><div><h3>Produção & revisão</h3><p>Briefing, gravação e revisão de cada vídeo. Refações por minha conta.</p></div></div>
+                <div class="step"><div class="step-num">5</div><div><h3>Entrega & relatório</h3><p>Você recebe os vídeos prontos, organizados, com um resumo do que foi feito.</p></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== VÍDEOS DE REFERÊNCIA ===================== -->
+    <section>
+        <div class="wrap">
+            <div class="reveal">
+                <div class="eyebrow">Pra você ver o nível</div>
+                <h2>Exemplos de conteúdo.</h2>
+                <p class="lead">Alguns vídeos no estilo que eu produzo e gerencio. É esse padrão que chega até você.</p>
+            </div>
+            <div class="video-grid reveal">
+                <!-- EDITE: VÍDEO 1 — troque "dQw4w9WgXcQ" pelo código do seu vídeo do YouTube -->
+                <div class="video"><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" loading="lazy" allowfullscreen></iframe></div>
+                <!-- EDITE: VÍDEO 2 -->
+                <div class="video"><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" loading="lazy" allowfullscreen></iframe></div>
+                <!-- EDITE: VÍDEO 3 -->
+                <div class="video"><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" loading="lazy" allowfullscreen></iframe></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== VALORES ===================== -->
+    <section class="pricing">
+        <div class="wrap">
+            <div class="reveal">
+                <div class="eyebrow">Investimento</div>
+                <h2>Valores por entrega.</h2>
+                <p class="lead">Você escolhe só o que precisa. Sem mensalidade obrigatória, sem contrato amarrado.</p>
+            </div>
+            <div class="price-table reveal">
+                <div class="price-row head"><div>Serviço</div><div>O que inclui</div><div>Valor</div></div>
+                <!-- EDITE: linhas de valores abaixo (são valores de EXEMPLO) -->
+                <div class="price-row">
+                    <div><h4>Vídeo UGC avulso</h4></div>
+                    <div class="desc">1 creator · 1 vídeo · roteiro + 1 refação inclusa</div>
+                    <div class="price-val">R$ 350<small>por vídeo</small></div>
+                </div>
+                <div class="price-row feat">
+                    <div><h4>Pacote campanha <span class="badge">mais pedido</span></h4></div>
+                    <div class="desc">Curadoria + 5 vídeos + briefing + gestão completa</div>
+                    <div class="price-val">R$ 1.890<small>pacote fechado</small></div>
+                </div>
+                <div class="price-row">
+                    <div><h4>Gestão mensal</h4></div>
+                    <div class="desc">Estratégia + creators + acompanhamento contínuo</div>
+                    <div class="price-val">R$ 1.200<small>por mês</small></div>
+                </div>
+                <div class="price-row">
+                    <div><h4>Direção criativa avulsa</h4></div>
+                    <div class="desc">Roteiro + conceito (você usa com seus creators)</div>
+                    <div class="price-val">R$ 280<small>por roteiro</small></div>
+                </div>
+            </div>
+            <p class="price-note">Valores de exemplo — ajuste os números pelos seus. Combinamos prazos e quantidade conforme a sua necessidade.</p>
+        </div>
+    </section>
+
+    <!-- ===================== CTA ===================== -->
+    <section class="cta">
+        <div class="wrap reveal">
+            <div class="eyebrow">Próximo passo</div>
+            <h2>Bora começar?</h2>
+            <p>Me chama no WhatsApp que a gente marca uma conversa rápida e eu já te mostro como ficaria pra sua marca.</p>
+            <!-- EDITE-SEU-WHATSAPP: troque o número (formato 55 + DDD + número, só dígitos) -->
+            <a class="btn" id="waBtn" href="https://wa.me/5599999999999?text=Oi%20Lara!%20Vi%20a%20proposta%20de%20gest%C3%A3o%20de%20UGC%20e%20quero%20conversar." target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.2-1.7-.8-2-.9-.3-.1-.5-.2-.6.2-.2.3-.7.9-.8 1-.2.2-.3.2-.6.1-1.5-.8-2.5-1.4-3.5-3.1-.3-.5.3-.5.7-1.5.1-.2.1-.4 0-.5l-.9-2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1.1 2.8 1.2 3c.2.2 2.1 3.2 5.1 4.5 1.9.8 2.6.9 3.5.7.6-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3M12 21.5a9.4 9.4 0 0 1-4.8-1.3l-3.4.9.9-3.3A9.5 9.5 0 1 1 12 21.5M12 2a10.5 10.5 0 0 0-9 15.9L1.5 23l5.2-1.4A10.5 10.5 0 1 0 12 2"/></svg>
+                Falar no WhatsApp
+            </a>
+            <span class="cta-alt">ou por e-mail: <a href="mailto:laradam.ugc@gmail.com">laradam.ugc@gmail.com</a></span>
+        </div>
+    </section>
+
+    <footer>
+        <div class="brand" style="font-family:'Fraunces',serif;font-weight:700;color:rgba(250,250,249,0.7)">lara<span style="color:var(--accent)">.</span>dam</div>
+        Proposta de gestão de UGC · documento confidencial
+    </footer>
+
+    <script>
+        // Personalização pela URL: ?cliente=Nome da Marca
+        (function () {
+            var params = new URLSearchParams(window.location.search);
+            var cliente = (params.get('cliente') || params.get('empresa') || '').trim();
+            if (cliente) {
+                document.getElementById('clienteNome').textContent = cliente;
+                document.getElementById('clienteMeta').textContent = cliente;
+                document.title = 'Proposta para ' + cliente + ' | Lara Dam';
+                var wa = document.getElementById('waBtn');
+                wa.href = wa.href.replace('Vi%20a%20proposta', 'Vi%20a%20proposta%20(' + encodeURIComponent(cliente) + ')');
+            }
+
+            // Data de hoje
+            var meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+            var d = new Date();
+            document.getElementById('dataHoje').textContent = d.getDate() + ' de ' + meses[d.getMonth()] + ' de ' + d.getFullYear();
+
+            // Reveal on scroll
+            var io = new IntersectionObserver(function (entries) {
+                entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+            }, { threshold: 0.12 });
+            document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
+
+            // Barra de progresso
+            var bar = document.getElementById('progress');
+            window.addEventListener('scroll', function () {
+                var h = document.documentElement;
+                var pct = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+                bar.style.width = pct + '%';
+            }, { passive: true });
+        })();
+    </script>
+</body>
+</html>
