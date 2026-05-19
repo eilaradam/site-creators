@@ -694,7 +694,55 @@
                 </div>
 
                 <div class="plan-pane" id="planPaneCalendario">
-                    <div class="plan-soon">📅 O Calendário (timeline do lançamento) chega na próxima etapa.</div>
+                    <div class="plan-cal-bar">
+                        <div class="plan-calview" id="planCalView">
+                            <button class="plan-calview-btn active" data-calview="timeline" type="button">Linha do tempo</button>
+                            <button class="plan-calview-btn" data-calview="mes" type="button">Mês</button>
+                        </div>
+                        <div class="plan-calnav" id="planCalNav" style="display:none">
+                            <button class="plan-btn-ghost" id="planCalPrev" type="button">‹</button>
+                            <span id="planCalMonth"></span>
+                            <button class="plan-btn-ghost" id="planCalNext" type="button">›</button>
+                        </div>
+                        <button class="plan-btn-primary" id="planMarcoNew" type="button" style="margin-left:auto">+ Novo marco</button>
+                    </div>
+                    <div id="planCalTimeline"></div>
+                    <div id="planCalMes" style="display:none"></div>
+                    <div class="plan-marcos">
+                        <div class="plan-marcos-title">Todos os marcos</div>
+                        <div id="planMarcosList"></div>
+                    </div>
+                </div>
+
+                <div class="plan-mcmodal-ov" id="planMcModal">
+                    <div class="plan-ctmodal">
+                        <div class="plan-ctmodal-head">
+                            <h3>Marco</h3>
+                            <button class="plan-ctmodal-x" id="planMcClose" type="button">&times;</button>
+                        </div>
+                        <div class="plan-ctmodal-body">
+                            <label>Nome <input type="text" id="mcNome" placeholder="Ex: Aula gratuita ao vivo"></label>
+                            <div class="plan-ctf two">
+                                <label>Data <input type="date" id="mcData"></label>
+                                <label>Tipo
+                                    <select id="mcTipo">
+                                        <option value="aula">Aula</option>
+                                        <option value="imersao">Imersão</option>
+                                        <option value="carrinho_abre">Carrinho abre</option>
+                                        <option value="carrinho_fecha">Carrinho fecha</option>
+                                        <option value="conteudo">Conteúdo</option>
+                                        <option value="prazo">Prazo</option>
+                                        <option value="outro">Outro</option>
+                                    </select>
+                                </label>
+                            </div>
+                            <label>Observação <textarea id="mcObs" rows="3" placeholder="Opcional"></textarea></label>
+                        </div>
+                        <div class="plan-ctmodal-foot">
+                            <button class="plan-btn-ghost" id="planMcDelete" type="button">Excluir</button>
+                            <button class="plan-btn-primary" id="planMcSave" type="button">Salvar</button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="plan-pane" id="planPaneConteudo">
@@ -1400,6 +1448,45 @@
 .plan-ctmodal-foot { display: flex; align-items: center; justify-content: space-between; padding: 16px 22px; border-top: 1px solid var(--border); }
 @media (max-width: 980px) { .plan-kanban { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 600px) { .plan-kanban { grid-template-columns: 1fr; } .plan-ctf.two { grid-template-columns: 1fr; } }
+/* Calendário */
+.plan-cal-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.plan-calview { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.plan-calview-btn { padding: 8px 14px; font-size: 12px; font-weight: 700; color: var(--text-soft); background: var(--card); border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.plan-calview-btn.active { background: var(--accent); color: #fff; }
+.plan-calnav { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; color: var(--text); }
+.plan-calnav span { min-width: 150px; text-align: center; }
+.plan-gantt { border: 1px solid var(--border); border-radius: 12px; padding: 16px; overflow-x: auto; background: var(--card); }
+.plan-gantt-axis { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 8px; position: relative; min-width: 560px; }
+.plan-gantt-tick { flex: 1; font-size: 10px; color: var(--text-muted); padding: 0 0 6px 4px; border-left: 1px solid var(--border); }
+.plan-gantt-row { position: relative; height: 30px; margin: 8px 0; min-width: 560px; }
+.plan-gantt-row-label { position: absolute; left: 0; top: 6px; font-size: 12px; font-weight: 600; color: var(--text); z-index: 2; background: var(--card); padding-right: 8px; max-width: 45%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.plan-gantt-bar { position: absolute; top: 6px; height: 18px; background: var(--accent); opacity: 0.85; border-radius: 5px; }
+.plan-gantt-track { position: relative; min-width: 560px; height: 26px; }
+.plan-gantt-mk { position: absolute; top: 0; transform: translateX(-50%); font-size: 10px; color: var(--accent); text-align: center; white-space: nowrap; }
+.plan-gantt-mk::before { content: ''; display: block; width: 9px; height: 9px; background: var(--accent); border-radius: 50%; margin: 0 auto 2px; }
+.plan-gantt-today { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--error); z-index: 3; }
+.plan-gantt-today span { position: absolute; top: -16px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 700; color: var(--error); }
+.plan-cal-empty { color: var(--text-muted); font-size: 13px; padding: 24px; text-align: center; }
+.plan-cal-hint { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+.plan-month { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; border: 1px solid var(--border); border-radius: 12px; padding: 12px; background: var(--card); }
+.plan-month-dow { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); text-align: center; padding: 4px 0; }
+.plan-month-day { min-height: 76px; border: 1px solid var(--border); border-radius: 8px; padding: 5px; background: var(--cream); }
+.plan-month-day.out { opacity: 0.4; }
+.plan-month-day.today { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.plan-month-num { font-size: 11px; font-weight: 700; color: var(--text-soft); }
+.plan-month-ev { font-size: 10px; font-weight: 600; background: var(--accent-glow); color: var(--accent); border-radius: 4px; padding: 2px 5px; margin-top: 3px; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.plan-marcos { margin-top: 22px; }
+.plan-marcos-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-soft); margin-bottom: 10px; }
+.plan-marco-row { display: flex; align-items: center; gap: 12px; padding: 9px 10px; border-radius: 8px; }
+.plan-marco-row:hover { background: var(--cream); }
+.plan-marco-date { font-size: 12px; font-weight: 700; color: var(--text); width: 92px; flex-shrink: 0; }
+.plan-marco-date.past { color: var(--text-muted); }
+.plan-marco-tipo { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 2px 8px; border-radius: 999px; background: var(--accent-glow); color: var(--accent); flex-shrink: 0; }
+.plan-marco-nome { flex: 1; font-size: 13px; color: var(--text); }
+.plan-marco-edit { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 13px; padding: 4px 8px; border-radius: 6px; }
+.plan-marco-edit:hover { color: var(--accent); }
+.plan-mcmodal-ov { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+.plan-mcmodal-ov.show { display: flex; }
 .plan-notas-view { font-size: 14px; line-height: 1.7; color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; background: var(--cream); min-height: 80px; overflow-wrap: anywhere; }
 .plan-notas-view:empty::before { content: 'Sem notas ainda. Clique em Editar pra escrever ou colar seu plano.'; color: var(--text-muted); }
 .plan-notas-view h2 { font-size: 20px; margin: 18px 0 8px; }
@@ -1851,6 +1938,7 @@
         if (sub === 'visao') planRenderVisao();
         if (sub === 'tarefas') planRenderTarefas();
         if (sub === 'conteudo') planRenderConteudo();
+        if (sub === 'calendario') planRenderCalendario();
         if (sub === 'notas') planRenderNotas();
     }
 
@@ -2213,6 +2301,159 @@
             dragId = null;
         });
     })();
+
+    /* ---- Calendário ---- */
+    const PLAN_MC_TIPO = { aula: 'Aula', imersao: 'Imersão', carrinho_abre: 'Carrinho abre', carrinho_fecha: 'Carrinho fecha', conteudo: 'Conteúdo', prazo: 'Prazo', outro: 'Outro' };
+    let planCalView = 'timeline';
+    let planCalCursor = null;
+    let planCalPlanId = null;
+    let planMcEditId = null;
+    const PLAN_DOW = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+    const PLAN_MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+
+    function planMcById(id) { const p = planActive(); return p ? (p.marcos || []).find(m => m.id === id) : null; }
+
+    function planRenderCalendario() {
+        const p = planActive(); if (!p) return;
+        if (!Array.isArray(p.marcos)) p.marcos = [];
+        if (planCalPlanId !== p.id) { planCalPlanId = p.id; planCalCursor = null; }
+        document.querySelectorAll('.plan-calview-btn').forEach(b => b.classList.toggle('active', b.dataset.calview === planCalView));
+        const isMes = planCalView === 'mes';
+        document.getElementById('planCalTimeline').style.display = isMes ? 'none' : 'block';
+        document.getElementById('planCalMes').style.display = isMes ? 'block' : 'none';
+        document.getElementById('planCalNav').style.display = isMes ? 'flex' : 'none';
+        if (isMes) planRenderMonth(); else planRenderGantt();
+        planRenderMarcos();
+    }
+
+    function planRenderGantt() {
+        const p = planActive();
+        const cont = document.getElementById('planCalTimeline');
+        const fases = planFasesSorted(p).filter(f => planParse(f.inicio) && planParse(f.fim));
+        const marcos = (p.marcos || []).filter(m => planParse(m.data));
+        const ds = [];
+        fases.forEach(f => { ds.push(planParse(f.inicio), planParse(f.fim)); });
+        marcos.forEach(m => ds.push(planParse(m.data)));
+        if (planParse(p.dataInicio)) ds.push(planParse(p.dataInicio));
+        if (planParse(p.dataFim)) ds.push(planParse(p.dataFim));
+        if (!ds.length) {
+            cont.innerHTML = '<div class="plan-gantt"><div class="plan-cal-empty">Sem datas ainda. Defina datas nas fases (aba Tarefas → Gerenciar fases) e adicione marcos.</div></div>';
+            return;
+        }
+        let min = new Date(Math.min.apply(null, ds)), max = new Date(Math.max.apply(null, ds));
+        min.setDate(min.getDate() - 3); max.setDate(max.getDate() + 3);
+        const span = max - min || 1;
+        const pos = d => ((planParse2(d) - min) / span) * 100;
+        const ticks = [];
+        let t = new Date(min);
+        while (t <= max) { ticks.push(new Date(t)); t.setDate(t.getDate() + 7); }
+        const axis = '<div class="plan-gantt-axis">' + ticks.map(d => '<div class="plan-gantt-tick">' + d.getDate() + '/' + (d.getMonth() + 1) + '</div>').join('') + '</div>';
+        const rows = fases.length ? fases.map(f => {
+            const l = Math.max(0, pos(f.inicio)), w = Math.max(2, pos(f.fim) - l);
+            return '<div class="plan-gantt-row"><span class="plan-gantt-row-label">' + escapeHtml(f.nome || '') + '</span>' +
+                '<div class="plan-gantt-bar" title="' + escapeHtml(f.nome || '') + '" style="left:' + l + '%;width:' + w + '%"></div></div>';
+        }).join('') : '<div class="plan-cal-hint">Nenhuma fase com datas. Edite em Tarefas → Gerenciar fases.</div>';
+        const mks = marcos.map(m => '<div class="plan-gantt-mk" data-id="' + m.id + '" style="left:' + pos(m.data) + '%" title="' + escapeHtml((m.nome || '') + ' · ' + planFmt(m.data)) + '">' + escapeHtml((m.nome || '').slice(0, 14)) + '</div>').join('');
+        const today = planToday();
+        let todayLine = '';
+        if (today >= min && today <= max) todayLine = '<div class="plan-gantt-today" style="left:' + pos(today.toISOString().slice(0, 10)) + '%"><span>hoje</span></div>';
+        cont.innerHTML = '<div class="plan-gantt" style="position:relative">' + axis + rows + '<div class="plan-gantt-track">' + mks + '</div>' + todayLine + '</div>' +
+            '<div class="plan-cal-hint">Barras = fases (datas editáveis em Tarefas → Gerenciar fases). Bolinhas = marcos (clique pra editar).</div>';
+    }
+    function planParse2(d) { return (d instanceof Date) ? d : planParse(d); }
+
+    function planRenderMonth() {
+        const p = planActive();
+        if (!planCalCursor) { const base = planParse(p.dataInicio) || planToday(); planCalCursor = new Date(base.getFullYear(), base.getMonth(), 1); }
+        const cur = planCalCursor;
+        document.getElementById('planCalMonth').textContent = PLAN_MESES[cur.getMonth()] + ' ' + cur.getFullYear();
+        const first = new Date(cur.getFullYear(), cur.getMonth(), 1);
+        const start = new Date(first); start.setDate(1 - first.getDay());
+        const today = planToday();
+        const byDay = {};
+        (p.marcos || []).forEach(m => { const d = planParse(m.data); if (d) { const k = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate(); (byDay[k] = byDay[k] || []).push(m); } });
+        let cells = PLAN_DOW.map(d => '<div class="plan-month-dow">' + d + '</div>').join('');
+        for (let i = 0; i < 42; i++) {
+            const d = new Date(start); d.setDate(start.getDate() + i);
+            const out = d.getMonth() !== cur.getMonth();
+            const isToday = d.getTime() === today.getTime();
+            const k = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate();
+            const evs = (byDay[k] || []).map(m => '<div class="plan-month-ev" data-id="' + m.id + '" title="' + escapeHtml(m.nome || '') + '">' + escapeHtml(m.nome || '') + '</div>').join('');
+            cells += '<div class="plan-month-day' + (out ? ' out' : '') + (isToday ? ' today' : '') + '"><div class="plan-month-num">' + d.getDate() + '</div>' + evs + '</div>';
+        }
+        document.getElementById('planCalMes').innerHTML = '<div class="plan-month">' + cells + '</div>';
+    }
+
+    function planRenderMarcos() {
+        const p = planActive();
+        const arr = (p.marcos || []).slice().sort((a, b) => (planParse(a.data) || 0) - (planParse(b.data) || 0));
+        const today = planToday();
+        document.getElementById('planMarcosList').innerHTML = arr.length ? arr.map(m => {
+            const d = planParse(m.data);
+            const past = d && d < today;
+            return '<div class="plan-marco-row" data-id="' + m.id + '">' +
+                '<span class="plan-marco-date ' + (past ? 'past' : '') + '">' + (m.data ? planFmt(m.data) : '—') + '</span>' +
+                '<span class="plan-marco-tipo">' + (PLAN_MC_TIPO[m.tipo] || 'Outro') + '</span>' +
+                '<span class="plan-marco-nome">' + escapeHtml(m.nome || '') + '</span>' +
+                '<button class="plan-marco-edit" type="button">Editar</button></div>';
+        }).join('') : '<div class="plan-cal-empty">Nenhum marco ainda. Clique em “+ Novo marco”.</div>';
+    }
+
+    function planMcOpen(id) {
+        const p = planActive(); if (!p) return;
+        let m = planMcById(id);
+        if (!m) { m = { id: planGenId('m_'), nome: '', data: '', tipo: 'aula', obs: '' }; p.marcos.push(m); }
+        planMcEditId = m.id;
+        document.getElementById('mcNome').value = m.nome || '';
+        document.getElementById('mcData').value = m.data || '';
+        document.getElementById('mcTipo').value = m.tipo || 'aula';
+        document.getElementById('mcObs').value = m.obs || '';
+        document.getElementById('planMcModal').classList.add('show');
+    }
+    function planMcClose() {
+        const p = planActive();
+        const m = planMcById(planMcEditId);
+        if (p && m && !m.nome && !m.data) p.marcos = p.marcos.filter(x => x.id !== m.id);
+        planMcEditId = null;
+        document.getElementById('planMcModal').classList.remove('show');
+    }
+    function planMcSave() {
+        const m = planMcById(planMcEditId); if (!m) return;
+        m.nome = document.getElementById('mcNome').value.trim();
+        m.data = document.getElementById('mcData').value;
+        m.tipo = document.getElementById('mcTipo').value;
+        m.obs = document.getElementById('mcObs').value;
+        planMcEditId = null;
+        document.getElementById('planMcModal').classList.remove('show');
+        planRenderCalendario(); planRenderList(); planPersist(true);
+    }
+    function planMcDelete() {
+        const p = planActive(); if (!p || !planMcEditId) return;
+        if (!confirm('Excluir este marco?')) return;
+        p.marcos = p.marcos.filter(m => m.id !== planMcEditId);
+        planMcEditId = null;
+        document.getElementById('planMcModal').classList.remove('show');
+        planRenderCalendario(); planPersist(true);
+    }
+
+    /* Listeners Calendário */
+    document.querySelectorAll('.plan-calview-btn').forEach(b => b.addEventListener('click', () => { planCalView = b.dataset.calview; planRenderCalendario(); }));
+    document.getElementById('planCalPrev').addEventListener('click', () => { if (planCalCursor) { planCalCursor = new Date(planCalCursor.getFullYear(), planCalCursor.getMonth() - 1, 1); planRenderMonth(); } });
+    document.getElementById('planCalNext').addEventListener('click', () => { if (planCalCursor) { planCalCursor = new Date(planCalCursor.getFullYear(), planCalCursor.getMonth() + 1, 1); planRenderMonth(); } });
+    document.getElementById('planMarcoNew').addEventListener('click', () => planMcOpen(null));
+    document.getElementById('planMcClose').addEventListener('click', planMcClose);
+    document.getElementById('planMcSave').addEventListener('click', planMcSave);
+    document.getElementById('planMcDelete').addEventListener('click', planMcDelete);
+    document.getElementById('planMcModal').addEventListener('click', function(e) { if (e.target === this) planMcClose(); });
+    document.getElementById('planMarcosList').addEventListener('click', function(e) {
+        const row = e.target.closest('.plan-marco-row'); if (row) planMcOpen(row.dataset.id);
+    });
+    document.getElementById('planCalTimeline').addEventListener('click', function(e) {
+        const mk = e.target.closest('.plan-gantt-mk'); if (mk) planMcOpen(mk.dataset.id);
+    });
+    document.getElementById('planCalMes').addEventListener('click', function(e) {
+        const ev = e.target.closest('.plan-month-ev'); if (ev) planMcOpen(ev.dataset.id);
+    });
 
     function planRenderNotas() {
         const p = planActive(); if (!p) return;
