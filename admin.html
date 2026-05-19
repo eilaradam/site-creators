@@ -1663,6 +1663,31 @@
 .bio-audience-value { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 24px; color: var(--text); line-height: 1; }
 .bio-audience-sub { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 4px; }
 @media (max-width: 600px) { .bio-audience-grid { grid-template-columns: 1fr; } }
+
+/* ===== Etapa 9: polish + mobile ===== */
+*:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sidebar-nav::-webkit-scrollbar, .plan-mtable-wrap::-webkit-scrollbar, .plan-gantt::-webkit-scrollbar { height: 8px; width: 8px; }
+.sidebar-nav::-webkit-scrollbar-thumb, .plan-mtable-wrap::-webkit-scrollbar-thumb, .plan-gantt::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+.btn-logout { transition: all 0.15s; }
+.plan-card, .plan-w, .plan-kcard, .plan-cen, .plan-mtot-card { transition: all 0.18s ease; }
+.topbar-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.topbar-actions { flex-wrap: nowrap; min-width: 0; }
+.topbar-actions .plan-status { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 38vw; }
+@media (max-width: 860px) {
+    .topbar { padding: 0 16px; gap: 10px; }
+    .topbar-title { font-size: 18px; }
+    .app-content > .dashboard { padding: 18px 16px; }
+    .plan-detail { padding: 18px 14px; }
+    .plan-head-meta { gap: 8px; }
+    .plan-subtabs { overflow-x: auto; flex-wrap: nowrap; }
+    .plan-subtab-btn { white-space: nowrap; }
+    .plan-w-big { font-size: 22px; }
+}
+@media (max-width: 600px) {
+    .topbar-actions .plan-btn-primary { padding: 9px 12px; font-size: 12px; }
+    .plan-trow { gap: 8px; }
+    .plan-trow .pt-tit { min-width: 100%; order: -1; }
+}
 </style>
 
 <!-- Modal: Banner -->
