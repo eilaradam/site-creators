@@ -795,7 +795,30 @@
                 </div>
 
                 <div class="plan-pane" id="planPaneMetas">
-                    <div class="plan-soon">💰 As Metas financeiras (cenários e realizado vs projetado) chegam na próxima etapa.</div>
+                    <div class="plan-mcfg">
+                        <label>Taxa plataforma % <input type="number" id="mcfTaxa" min="0" max="100" step="0.5"></label>
+                        <label>Imposto % <input type="number" id="mcfImp" min="0" max="100" step="0.5"></label>
+                        <label>Fator conservador <input type="number" id="mcfCons" min="0" max="2" step="0.05"></label>
+                        <label>Fator otimista <input type="number" id="mcfOt" min="0" max="3" step="0.05"></label>
+                        <button class="plan-btn-ghost" id="mcfSeed" type="button">Usar produtos do Bastidor</button>
+                        <button class="plan-btn" id="mcfAdd" type="button">+ Produto</button>
+                    </div>
+
+                    <div class="plan-msec">
+                        <div class="plan-msec-t">Produtos &amp; metas</div>
+                        <div class="plan-mtable-wrap"><table class="plan-mtable" id="planMetasTable"></table></div>
+                    </div>
+
+                    <div class="plan-msec">
+                        <div class="plan-msec-t">Cenários de faturamento</div>
+                        <div class="plan-cenarios" id="planCenarios"></div>
+                    </div>
+
+                    <div class="plan-msec">
+                        <div class="plan-msec-t">Realizado vs Projetado</div>
+                        <div class="plan-mtot" id="planMetasTotais"></div>
+                        <div class="plan-mchart"><canvas id="planMetasChart" height="220"></canvas></div>
+                    </div>
                 </div>
 
                 <div class="plan-pane" id="planPaneTarefas">
@@ -1487,6 +1510,43 @@
 .plan-marco-edit:hover { color: var(--accent); }
 .plan-mcmodal-ov { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
 .plan-mcmodal-ov.show { display: flex; }
+/* Metas */
+.plan-mcfg { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 20px; }
+.plan-mcfg label { display: flex; flex-direction: column; gap: 4px; font-size: 11px; font-weight: 600; color: var(--text-muted); }
+.plan-mcfg input { width: 96px; font-family: 'DM Sans', sans-serif; font-size: 13px; border: 1px solid var(--border); border-radius: 7px; padding: 7px 9px; background: var(--card); color: var(--text); outline: none; }
+.plan-mcfg input:focus { border-color: var(--accent); }
+.plan-msec { margin-bottom: 26px; }
+.plan-msec-t { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-soft); margin-bottom: 12px; }
+.plan-mtable-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; }
+.plan-mtable { width: 100%; border-collapse: collapse; min-width: 620px; }
+.plan-mtable th { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); background: var(--cream); }
+.plan-mtable td { padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text); }
+.plan-mtable tr:last-child td { border-bottom: none; }
+.plan-mtable input { font-family: 'DM Sans', sans-serif; font-size: 13px; border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; background: var(--card); color: var(--text); outline: none; }
+.plan-mtable input:focus { border-color: var(--accent); }
+.plan-mtable input.m-nome { width: 150px; }
+.plan-mtable input.m-num { width: 78px; }
+.plan-mtable .m-calc { font-weight: 600; color: var(--text-soft); white-space: nowrap; }
+.plan-mtable .m-del { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 15px; padding: 2px 6px; border-radius: 6px; }
+.plan-mtable .m-del:hover { color: var(--error); background: rgba(220,38,38,0.1); }
+.plan-mbar { background: var(--warm); border-radius: 999px; height: 6px; overflow: hidden; width: 90px; }
+.plan-mbar > div { background: var(--success); height: 100%; }
+.plan-cenarios { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.plan-cen { border: 1px solid var(--border); border-radius: 12px; padding: 16px; background: var(--card); }
+.plan-cen.realista { border-color: var(--accent); }
+.plan-cen-t { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.plan-cen-t small { font-weight: 600; color: var(--text-muted); }
+.plan-cen-li { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-soft); padding: 4px 0; border-bottom: 1px dashed var(--border); }
+.plan-cen-tot { margin-top: 10px; font-size: 13px; }
+.plan-cen-tot b { color: var(--accent); font-size: 18px; }
+.plan-cen-tot div { color: var(--text-muted); font-size: 12px; margin-top: 2px; }
+.plan-mtot { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+.plan-mtot-card { flex: 1; min-width: 150px; border: 1px solid var(--border); border-radius: 12px; padding: 16px; background: var(--card); }
+.plan-mtot-card .v { font-size: 22px; font-weight: 700; color: var(--text); }
+.plan-mtot-card.accent .v { color: var(--accent); }
+.plan-mtot-card .l { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-top: 4px; }
+.plan-mchart { border: 1px solid var(--border); border-radius: 12px; padding: 16px; background: var(--card); }
+@media (max-width: 860px) { .plan-cenarios { grid-template-columns: 1fr; } }
 .plan-notas-view { font-size: 14px; line-height: 1.7; color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; background: var(--cream); min-height: 80px; overflow-wrap: anywhere; }
 .plan-notas-view:empty::before { content: 'Sem notas ainda. Clique em Editar pra escrever ou colar seu plano.'; color: var(--text-muted); }
 .plan-notas-view h2 { font-size: 20px; margin: 18px 0 8px; }
@@ -1831,6 +1891,7 @@
         if (!Array.isArray(p.marcos)) p.marcos = [];
         if (!Array.isArray(p.conteudos)) p.conteudos = [];
         if (!Array.isArray(p.metas)) p.metas = [];
+        if (!p.metaCfg) p.metaCfg = { taxa: 8, imposto: 10, fatorCons: 0.6, fatorOt: 1.4 };
         if (!Array.isArray(p.tarefas)) p.tarefas = [];
         if (Array.isArray(p.checklist) && p.checklist.length && !p.tarefas.length) {
             p.tarefas = p.checklist.map(c => ({ id: c.id || planGenId('t_'), faseId: '', titulo: c.texto || '', responsavel: '', prazo: '', status: c.feito ? 'feito' : 'a_fazer', prioridade: 'media' }));
@@ -1939,6 +2000,7 @@
         if (sub === 'tarefas') planRenderTarefas();
         if (sub === 'conteudo') planRenderConteudo();
         if (sub === 'calendario') planRenderCalendario();
+        if (sub === 'metas') planRenderMetas();
         if (sub === 'notas') planRenderNotas();
     }
 
@@ -2454,6 +2516,134 @@
     document.getElementById('planCalMes').addEventListener('click', function(e) {
         const ev = e.target.closest('.plan-month-ev'); if (ev) planMcOpen(ev.dataset.id);
     });
+
+    /* ---- Metas (financeiro) ---- */
+    let planMetasChartInst = null;
+    function planNum(v) { const n = parseFloat(v); return isNaN(n) ? 0 : n; }
+    function planLiquido(p, bruto) { const c = p.metaCfg || {}; return bruto * (1 - (planNum(c.taxa) + planNum(c.imposto)) / 100); }
+
+    function planRenderMetas() {
+        const p = planActive(); if (!p) return;
+        if (!Array.isArray(p.metas)) p.metas = [];
+        if (!p.metaCfg) p.metaCfg = { taxa: 8, imposto: 10, fatorCons: 0.6, fatorOt: 1.4 };
+        const c = p.metaCfg;
+        document.getElementById('mcfTaxa').value = c.taxa;
+        document.getElementById('mcfImp').value = c.imposto;
+        document.getElementById('mcfCons').value = c.fatorCons;
+        document.getElementById('mcfOt').value = c.fatorOt;
+
+        const tbl = document.getElementById('planMetasTable');
+        let rows = '<tr><th>Produto</th><th>Preço</th><th>Meta vendas</th><th>Vendas reais</th><th>Bruto previsto</th><th>Bruto real</th><th>Progresso</th><th></th></tr>';
+        if (!p.metas.length) {
+            rows += '<tr><td colspan="8" style="color:var(--text-muted);text-align:center;padding:18px">Nenhum produto. Use “Usar produtos do Bastidor” ou “+ Produto”.</td></tr>';
+        } else {
+            p.metas.forEach(m => {
+                const prev = planNum(m.preco) * planNum(m.metaVendas);
+                const real = planNum(m.preco) * planNum(m.vendasReais);
+                const pct = prev ? Math.min(100, Math.round(real / prev * 100)) : 0;
+                rows += '<tr data-id="' + m.id + '">' +
+                    '<td><input class="m-nome" type="text" value="' + escapeHtml(m.produto || '') + '" data-f="produto"></td>' +
+                    '<td><input class="m-num" type="number" min="0" step="1" value="' + planNum(m.preco) + '" data-f="preco"></td>' +
+                    '<td><input class="m-num" type="number" min="0" step="1" value="' + planNum(m.metaVendas) + '" data-f="metaVendas"></td>' +
+                    '<td><input class="m-num" type="number" min="0" step="1" value="' + planNum(m.vendasReais) + '" data-f="vendasReais"></td>' +
+                    '<td class="m-calc">' + planMoney(prev) + '</td>' +
+                    '<td class="m-calc">' + planMoney(real) + '</td>' +
+                    '<td><div class="plan-mbar"><div style="width:' + pct + '%"></div></div><span style="font-size:11px;color:var(--text-muted)">' + pct + '%</span></td>' +
+                    '<td><button class="m-del" type="button" title="Excluir">&times;</button></td></tr>';
+            });
+        }
+        tbl.innerHTML = rows;
+
+        const cenDefs = [['Conservador', planNum(c.fatorCons), ''], ['Realista', 1, 'realista'], ['Otimista', planNum(c.fatorOt), '']];
+        document.getElementById('planCenarios').innerHTML = cenDefs.map(([nome, fator, cls]) => {
+            let bruto = 0;
+            const lis = p.metas.map(m => {
+                const q = Math.round(planNum(m.metaVendas) * fator);
+                bruto += planNum(m.preco) * q;
+                return '<div class="plan-cen-li"><span>' + escapeHtml(m.produto || '—') + '</span><span>' + q + ' vendas</span></div>';
+            }).join('') || '<div class="plan-cen-li"><span style="color:var(--text-muted)">Sem produtos</span></div>';
+            return '<div class="plan-cen ' + cls + '"><div class="plan-cen-t">' + nome + ' <small>(×' + fator + ')</small></div>' + lis +
+                '<div class="plan-cen-tot"><b>' + planMoney(bruto) + '</b> bruto<div>Líquido ≈ ' + planMoney(planLiquido(p, bruto)) + '</div></div></div>';
+        }).join('');
+
+        const totPrev = p.metas.reduce((s, m) => s + planNum(m.preco) * planNum(m.metaVendas), 0);
+        const totReal = p.metas.reduce((s, m) => s + planNum(m.preco) * planNum(m.vendasReais), 0);
+        const pctG = totPrev ? Math.round(totReal / totPrev * 100) : 0;
+        document.getElementById('planMetasTotais').innerHTML =
+            '<div class="plan-mtot-card"><div class="v">' + planMoney(totPrev) + '</div><div class="l">Bruto projetado (realista)</div></div>' +
+            '<div class="plan-mtot-card accent"><div class="v">' + planMoney(totReal) + '</div><div class="l">Bruto realizado (' + pctG + '% da meta)</div></div>' +
+            '<div class="plan-mtot-card"><div class="v">' + planMoney(planLiquido(p, totReal)) + '</div><div class="l">Líquido realizado estimado</div></div>';
+
+        if (window.Chart) {
+            const ctx = document.getElementById('planMetasChart');
+            if (planMetasChartInst) { planMetasChartInst.destroy(); planMetasChartInst = null; }
+            if (p.metas.length) {
+                planMetasChartInst = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: p.metas.map(m => m.produto || '—'),
+                        datasets: [
+                            { label: 'Projetado', data: p.metas.map(m => planNum(m.preco) * planNum(m.metaVendas)), backgroundColor: '#D8D2CB' },
+                            { label: 'Realizado', data: p.metas.map(m => planNum(m.preco) * planNum(m.vendasReais)), backgroundColor: '#C8441A' }
+                        ]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { labels: { font: { family: 'DM Sans' } } }, tooltip: { callbacks: { label: c2 => c2.dataset.label + ': ' + planMoney(c2.parsed.y) } } },
+                        scales: { y: { beginAtZero: true, ticks: { font: { family: 'DM Sans' }, callback: v => 'R$ ' + v.toLocaleString('pt-BR') } }, x: { ticks: { font: { family: 'DM Sans' } } } }
+                    }
+                });
+            }
+        }
+    }
+
+    /* Listeners Metas */
+    function planBindMcf(elId, key) {
+        document.getElementById(elId).addEventListener('change', function() {
+            const p = planActive(); if (!p) return;
+            p.metaCfg[key] = planNum(this.value);
+            planRenderMetas(); planPersist();
+        });
+    }
+    planBindMcf('mcfTaxa', 'taxa'); planBindMcf('mcfImp', 'imposto'); planBindMcf('mcfCons', 'fatorCons'); planBindMcf('mcfOt', 'fatorOt');
+    document.getElementById('mcfAdd').addEventListener('click', () => {
+        const p = planActive(); if (!p) return;
+        p.metas.push({ id: planGenId('mt_'), produto: 'Novo produto', preco: 0, metaVendas: 0, vendasReais: 0 });
+        planRenderMetas(); planPersist();
+    });
+    document.getElementById('mcfSeed').addEventListener('click', () => {
+        const p = planActive(); if (!p) return;
+        if (p.metas.length && !confirm('Substituir os produtos atuais pelos do Bastidor (Imersão, Coletivo, Pro)?')) return;
+        p.metas = [
+            { id: planGenId('mt_'), produto: 'Imersão', preco: 197, metaVendas: 0, vendasReais: 0 },
+            { id: planGenId('mt_'), produto: 'Coletivo', preco: 697, metaVendas: 0, vendasReais: 0 },
+            { id: planGenId('mt_'), produto: 'Pro', preco: 1797, metaVendas: 0, vendasReais: 0 }
+        ];
+        planRenderMetas(); planPersist();
+    });
+    (function() {
+        const tbl = document.getElementById('planMetasTable');
+        const upd = el => {
+            const tr = el.closest('tr'); if (!tr) return;
+            const p = planActive(); if (!p) return;
+            const m = p.metas.find(x => x.id === tr.dataset.id); if (!m) return;
+            const f = el.dataset.f;
+            m[f] = f === 'produto' ? el.value : planNum(el.value);
+        };
+        tbl.addEventListener('input', function(e) {
+            if (e.target.classList.contains('m-nome')) { upd(e.target); planPersist(); }
+        });
+        tbl.addEventListener('change', function(e) {
+            if (e.target.classList.contains('m-num')) { upd(e.target); planRenderMetas(); planRenderList(); planPersist(); }
+            else if (e.target.classList.contains('m-nome')) { upd(e.target); planRenderMetas(); planPersist(); }
+        });
+        tbl.addEventListener('click', function(e) {
+            if (!e.target.classList.contains('m-del')) return;
+            const tr = e.target.closest('tr'); const p = planActive(); if (!tr || !p) return;
+            p.metas = p.metas.filter(x => x.id !== tr.dataset.id);
+            planRenderMetas(); planRenderList(); planPersist();
+        });
+    })();
 
     function planRenderNotas() {
         const p = planActive(); if (!p) return;
