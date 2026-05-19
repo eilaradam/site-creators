@@ -573,7 +573,7 @@
             </button>
             <button class="tab nav-item" data-tab="orcamentos" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>
-                <span>Orçamentos</span>
+                <span>Propostas</span>
             </button>
         </nav>
         <div class="sidebar-foot">
@@ -1301,30 +1301,47 @@
 <div class="dashboard" id="tabOrcamentos">
     <div class="orc-wrap">
         <div class="orc-toolbar" id="orcFilters"></div>
-        <div id="orcEmpty" class="orc-empty" style="display:none;">Nenhum orçamento ainda. Clique em <b>+ Novo orçamento</b> no topo pra registrar o primeiro.</div>
+        <div id="orcEmpty" class="orc-empty" style="display:none;">Nenhuma proposta ainda. Clique em <b>+ Nova proposta</b> no topo pra criar a primeira.</div>
         <div id="orcList" class="orc-list"></div>
     </div>
     <div class="orc-modal" id="orcModal" style="display:none;">
         <div class="orc-modal-box">
             <div class="orc-modal-head">
-                <h3 id="orcModalTitle">Novo orçamento</h3>
+                <h3 id="orcModalTitle">Nova proposta</h3>
                 <button type="button" class="orc-x" id="orcModalClose" aria-label="Fechar">&times;</button>
             </div>
-            <div class="orc-field"><label>Cliente *</label><input type="text" id="orcF_cliente" placeholder="Nome do cliente / marca"></div>
-            <div class="orc-field"><label>Nicho</label><input type="text" id="orcF_nicho" placeholder="Ex.: Beauty &amp; Wellness"></div>
-            <div class="orc-field"><label>Link da proposta</label><input type="text" id="orcF_link" placeholder="creators.laradam.com/cliente-..."></div>
             <div class="orc-field-row">
-                <div class="orc-field"><label>Valor</label><input type="text" id="orcF_valor" placeholder="Ex.: R$ 14.400"></div>
-                <div class="orc-field"><label>Data de envio</label><input type="date" id="orcF_data"></div>
+                <div class="orc-field"><label>Cliente *</label><input type="text" id="pf_cliente" placeholder="Nome do cliente / marca"></div>
+                <div class="orc-field"><label>Nicho</label><input type="text" id="pf_nicho" placeholder="Beauty &amp; Wellness"></div>
             </div>
-            <div class="orc-field"><label>Status</label><select id="orcF_status">
-                <option value="rascunho">Rascunho</option>
-                <option value="enviado">Enviado</option>
-                <option value="negociando">Negociando</option>
-                <option value="fechado">Fechado</option>
-                <option value="perdido">Perdido</option>
-            </select></div>
-            <div class="orc-field"><label>Observações</label><textarea id="orcF_obs" rows="3" placeholder="Anotações internas (opcional)"></textarea></div>
+            <div class="orc-field"><label>Link da proposta</label><div style="display:flex;gap:6px;align-items:center;"><span style="color:var(--text-muted);font-size:12px;white-space:nowrap;">creators.laradam.com/</span><input type="text" id="pf_slug" placeholder="cliente-nome" style="flex:1;"></div></div>
+            <div class="orc-field-row">
+                <div class="orc-field"><label>Status</label><select id="pf_status">
+                    <option value="rascunho">Rascunho</option><option value="enviado">Enviado</option>
+                    <option value="negociando">Negociando</option><option value="fechado">Fechado</option>
+                    <option value="perdido">Perdido</option>
+                </select></div>
+                <div class="orc-field"><label>Data de envio</label><input type="date" id="pf_data"></div>
+            </div>
+            <div class="orc-sec">Contexto (3 linhas espelhando o briefing)</div>
+            <div class="orc-field"><textarea id="pf_ctx1" rows="2" placeholder="Linha 1 do contexto"></textarea></div>
+            <div class="orc-field"><textarea id="pf_ctx2" rows="2" placeholder="Linha 2 do contexto"></textarea></div>
+            <div class="orc-field"><textarea id="pf_ctx3" rows="2" placeholder="Linha 3 do contexto"></textarea></div>
+            <div class="orc-field"><label>Frase da proposta</label><textarea id="pf_frase" rows="3" placeholder="A frase forte da proposta"></textarea></div>
+            <div class="orc-sec">Pacotes (os valores se calculam sozinhos)</div>
+            <div id="pf_pacotes"></div>
+            <div class="orc-sec">Vídeos de exemplo (ID ou link do YouTube — vazio = "Em breve")</div>
+            <div class="orc-field-row">
+                <div class="orc-field"><input type="text" id="pf_vid1" placeholder="Vídeo 1"></div>
+                <div class="orc-field"><input type="text" id="pf_vid2" placeholder="Vídeo 2"></div>
+            </div>
+            <div class="orc-field-row">
+                <div class="orc-field"><input type="text" id="pf_vid3" placeholder="Vídeo 3"></div>
+                <div class="orc-field"><input type="text" id="pf_vid4" placeholder="Vídeo 4"></div>
+            </div>
+            <div class="orc-sec">Fechamento</div>
+            <div class="orc-field"><label>Validade da proposta</label><input type="text" id="pf_validade" placeholder="Esta proposta é válida por 15 dias..."></div>
+            <div class="orc-field"><label>Cronograma</label><input type="text" id="pf_cronograma" placeholder="Início em até 5 dias úteis..."></div>
             <div class="orc-modal-foot">
                 <button type="button" class="orc-btn-sec" id="orcModalCancel">Cancelar</button>
                 <button type="button" class="plan-btn-primary" id="orcModalSave">Salvar</button>
@@ -1397,6 +1414,15 @@
 .orc-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .orc-modal-foot { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
 .orc-btn-sec { padding: 10px 18px; font-size: 14px; font-weight: 600; border-radius: 10px; border: 1.5px solid var(--border); background: var(--card); color: var(--text-soft); cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.orc-sec { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin: 18px 0 10px; border-top: 1px solid var(--border); padding-top: 16px; }
+.orc-pk { border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+.orc-pk-h { font-weight: 700; font-size: 13px; margin-bottom: 10px; color: var(--text); }
+.orc-pk-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.orc-pk-grid label { display: block; font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 3px; }
+.orc-pk-grid input { width: 100%; padding: 8px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text); background: #fff; }
+.orc-pk-tot { margin-top: 8px; font-size: 13px; color: var(--text-soft); text-align: right; }
+.orc-pk-tot b { color: var(--accent); font-family: 'Fraunces', serif; font-size: 16px; }
+@media (max-width: 560px) { .orc-pk-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 760px) {
   .orc-row { grid-template-columns: 1fr 1fr; }
   .orc-row .orc-cell-lbl { display: block; }
@@ -1896,7 +1922,7 @@
     document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
 
     /* ── Tabs ── */
-    const PAGE_TITLES = { dashboard: 'Dashboard', planejamento: 'Planejamento', creators: 'Creators', admin: 'Administração', portfolio: 'Portfólio', orcamentos: 'Orçamentos' };
+    const PAGE_TITLES = { dashboard: 'Dashboard', planejamento: 'Planejamento', creators: 'Creators', admin: 'Administração', portfolio: 'Portfólio', orcamentos: 'Propostas' };
     function setPageTitle(target) {
         const el = document.getElementById('pageTitle');
         if (el && PAGE_TITLES[target]) el.textContent = PAGE_TITLES[target];
@@ -2089,127 +2115,221 @@
         planSaveTimer = setTimeout(doSave, 800);
     }
 
-    /* ===================== ORÇAMENTOS ===================== */
-    let orcData = { orcamentos: [] };
-    let orcLoaded = false, orcSaveTimer = null, orcFilter = 'todos', orcEditId = null;
+    /* ===================== PROPOSTAS ===================== */
     const ORC_ST = [
         { k: 'rascunho', l: 'Rascunho' }, { k: 'enviado', l: 'Enviado' },
         { k: 'negociando', l: 'Negociando' }, { k: 'fechado', l: 'Fechado' },
         { k: 'perdido', l: 'Perdido' }
     ];
-    function orcEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
-    function orcStatusLabel(k) { const f = ORC_ST.find(s => s.k === k); return f ? f.l : 'Rascunho'; }
-    function orcSetStatus(txt, cls) { const el = document.getElementById('orcStatus'); if (!el) return; el.textContent = txt || ''; el.className = 'plan-status' + (cls ? ' ' + cls : ''); }
-    function orcFmtData(d) { if (!d) return '—'; const p = String(d).split('-'); return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : d; }
+    const ORC_DEF = {
+        nicho: 'Beauty & Wellness',
+        contexto: [
+            'Suas marcas de beauty precisam de criativo novo toda semana pra não saturar a mídia paga, e isso significa volume real de UGC rodando o tempo todo.',
+            'Cada campanha exige falar com 20, 30 creators diferentes: filtro, briefing, follow-up, revisão, NF. É operação demais pra quem precisa estar pensando em estratégia.',
+            'Marca de beauty tem nuance: pele, idade, rotina, perfil. Curadoria errada queima orçamento e não converte. Curadoria certa é o que diferencia campanha boa de campanha medíocre.'
+        ],
+        frase: 'Você passa o briefing da marca. Eu devolvo os vídeos prontos pra entrar no ar. Tudo no meio (seleção de creator, alinhamento, produção, revisão, NF, direito de uso) fica do meu lado.',
+        pacotes: [
+            { creators: 30, videosCreator: 1, valorVideo: 450, gestaoPct: 20 },
+            { creators: 15, videosCreator: 2, valorVideo: 400, gestaoPct: 20 },
+            { creators: 10, videosCreator: 1, valorVideo: 450, gestaoPct: 25 }
+        ],
+        videos: ['', '', '', ''],
+        validade: 'Esta proposta é válida por 15 dias a partir do envio.',
+        cronograma: 'Início em até 5 dias úteis após aprovação · entrega conforme o escopo.'
+    };
+    const ORC_PKNOME = ['Pacote 1 · Volume Amplo', 'Pacote 2 · Volume com Profundidade', 'Pacote 3 · Curadoria Premium'];
+    let orcList = [], orcFilter = 'todos', orcEditSlug = null;
+
+    function orcEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (m) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]; }); }
+    function orcStatusLabel(k) { var f = ORC_ST.find(function (s) { return s.k === k; }); return f ? f.l : 'Rascunho'; }
+    function orcSetStatus(txt, cls) { var el = document.getElementById('orcStatus'); if (!el) return; el.textContent = txt || ''; el.className = 'plan-status' + (cls ? ' ' + cls : ''); }
+    function orcFmtData(d) { if (!d) return '—'; var p = String(d).split('-'); return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : d; }
+    function orcSlugify(s) { var b = String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); return b ? 'cliente-' + b : ''; }
+    function orcBRL(n, dec) { return 'R$ ' + Number(n || 0).toLocaleString('pt-BR', dec ? { minimumFractionDigits: 2, maximumFractionDigits: 2 } : { maximumFractionDigits: 0 }); }
 
     function orcMountTopbar() {
-        const ta = document.getElementById('topbarActions');
+        var ta = document.getElementById('topbarActions');
         if (!ta) return;
-        ta.innerHTML = '<span id="orcStatus" class="plan-status"></span><button id="orcNewBtn" class="plan-btn-primary" type="button">+ Novo orçamento</button>';
+        ta.innerHTML = '<span id="orcStatus" class="plan-status"></span><button id="orcNewBtn" class="plan-btn-primary" type="button">+ Nova proposta</button>';
         document.getElementById('orcNewBtn').addEventListener('click', function () { orcOpenModal(null); });
     }
 
     async function loadOrcamentos() {
-        if (orcLoaded) { orcRender(); return; }
         try {
-            const { data, error } = await sb.from('configuracoes').select('conteudo').eq('id', 'orcamentos').maybeSingle();
+            const { data, error } = await sb.from('propostas').select('slug,cliente,nicho,status,data_envio,updated_at').order('updated_at', { ascending: false });
             if (error) throw error;
-            if (data && data.conteudo) { try { const p = JSON.parse(data.conteudo); if (p && Array.isArray(p.orcamentos)) orcData = p; } catch (e) {} }
-            orcLoaded = true;
+            orcList = data || [];
         } catch (err) { orcSetStatus('Erro ao carregar: ' + (err.message || err), 'err'); }
         orcRender();
     }
 
-    async function orcPersist() {
-        clearTimeout(orcSaveTimer);
+    function orcRender() {
+        var list = document.getElementById('orcList');
+        var empty = document.getElementById('orcEmpty');
+        var filt = document.getElementById('orcFilters');
+        if (!list || !filt) return;
+        var counts = { todos: orcList.length };
+        ORC_ST.forEach(function (s) { counts[s.k] = orcList.filter(function (o) { return o.status === s.k; }).length; });
+        var chips = [{ k: 'todos', l: 'Todas' }].concat(ORC_ST);
+        filt.innerHTML = chips.map(function (c) { return '<button type="button" class="orc-filter-btn' + (orcFilter === c.k ? ' active' : '') + '" data-f="' + c.k + '">' + c.l + ' (' + (counts[c.k] || 0) + ')</button>'; }).join('');
+        filt.querySelectorAll('.orc-filter-btn').forEach(function (b) { b.addEventListener('click', function () { orcFilter = b.dataset.f; orcRender(); }); });
+        var rows = orcList.slice();
+        if (orcFilter !== 'todos') rows = rows.filter(function (o) { return o.status === orcFilter; });
+        empty.style.display = orcList.length ? 'none' : 'block';
+        if (!orcList.length) { list.innerHTML = ''; return; }
+        if (!rows.length) { list.innerHTML = '<div class="orc-empty">Nenhuma proposta nesse filtro.</div>'; return; }
+        list.innerHTML = rows.map(function (o) {
+            var url = 'https://creators.laradam.com/' + orcEsc(o.slug);
+            return '<div class="orc-row">' +
+                '<div><div class="orc-cell-lbl">Cliente</div><div class="orc-cli">' + orcEsc(o.cliente || '(sem nome)') + '</div>' + (o.nicho ? '<div class="orc-sub">' + orcEsc(o.nicho) + '</div>' : '') + '<div class="orc-sub">' + url + '</div></div>' +
+                '<div><div class="orc-cell-lbl">Enviado</div><div class="orc-muted">' + orcFmtData(o.data_envio) + '</div></div>' +
+                '<div><div class="orc-cell-lbl">Status</div><span class="orc-badge ' + orcEsc(o.status || 'rascunho') + '">' + orcStatusLabel(o.status) + '</span></div>' +
+                '<div class="orc-actions">' +
+                '<a class="orc-act" href="' + url + '" target="_blank" rel="noopener">Abrir</a>' +
+                '<button type="button" class="orc-act" data-copy="' + orcEsc(o.slug) + '">Copiar link</button>' +
+                '<button type="button" class="orc-act" data-edit="' + orcEsc(o.slug) + '">Editar</button>' +
+                '<button type="button" class="orc-act del" data-del="' + orcEsc(o.slug) + '">Excluir</button>' +
+                '</div></div>';
+        }).join('');
+        list.querySelectorAll('[data-edit]').forEach(function (b) { b.addEventListener('click', function () { orcOpenModal(b.dataset.edit); }); });
+        list.querySelectorAll('[data-del]').forEach(function (b) { b.addEventListener('click', function () { orcDelete(b.dataset.del); }); });
+        list.querySelectorAll('[data-copy]').forEach(function (b) {
+            b.addEventListener('click', function () {
+                var u = 'https://creators.laradam.com/' + b.dataset.copy;
+                if (navigator.clipboard) navigator.clipboard.writeText(u);
+                var old = b.textContent; b.textContent = 'Copiado!'; setTimeout(function () { b.textContent = old; }, 1500);
+            });
+        });
+    }
+
+    function orcPkRead() {
+        var arr = [{}, {}, {}];
+        document.querySelectorAll('#pf_pacotes input[data-pk]').forEach(function (inp) { arr[+inp.dataset.pk][inp.dataset.f] = +inp.value || 0; });
+        return arr;
+    }
+    function orcPkRecalc() {
+        orcPkRead().forEach(function (p, i) {
+            var tot = (p.creators || 0) * (p.videosCreator || 0);
+            var sub = tot * (p.valorVideo || 0);
+            var inv = sub + sub * (p.gestaoPct || 0) / 100;
+            var el = document.getElementById('pf_pktot' + i);
+            if (el) el.innerHTML = tot + ' vídeos · Investimento total <b>' + orcBRL(inv) + '</b>';
+        });
+    }
+    function orcPkRender(pacotes) {
+        var wrap = document.getElementById('pf_pacotes');
+        if (!wrap) return;
+        wrap.innerHTML = pacotes.map(function (p, i) {
+            return '<div class="orc-pk"><div class="orc-pk-h">' + ORC_PKNOME[i] + '</div>' +
+                '<div class="orc-pk-grid">' +
+                '<div><label>Creators</label><input type="number" min="0" data-pk="' + i + '" data-f="creators" value="' + (p.creators || 0) + '"></div>' +
+                '<div><label>Vídeos/creator</label><input type="number" min="0" data-pk="' + i + '" data-f="videosCreator" value="' + (p.videosCreator || 0) + '"></div>' +
+                '<div><label>R$ por vídeo</label><input type="number" min="0" data-pk="' + i + '" data-f="valorVideo" value="' + (p.valorVideo || 0) + '"></div>' +
+                '<div><label>Gestão %</label><input type="number" min="0" data-pk="' + i + '" data-f="gestaoPct" value="' + (p.gestaoPct || 0) + '"></div>' +
+                '</div><div class="orc-pk-tot" id="pf_pktot' + i + '"></div></div>';
+        }).join('');
+        wrap.querySelectorAll('input[data-pk]').forEach(function (inp) { inp.addEventListener('input', orcPkRecalc); });
+        orcPkRecalc();
+    }
+
+    function orcFill(rec) {
+        var c = rec || {};
+        var ct = c.conteudo || {};
+        document.getElementById('pf_cliente').value = c.cliente || '';
+        document.getElementById('pf_nicho').value = c.nicho || ORC_DEF.nicho;
+        document.getElementById('pf_slug').value = c.slug || '';
+        document.getElementById('pf_status').value = c.status || 'rascunho';
+        document.getElementById('pf_data').value = c.data_envio || '';
+        var ctx = Array.isArray(ct.contexto) ? ct.contexto : ORC_DEF.contexto;
+        document.getElementById('pf_ctx1').value = ctx[0] || '';
+        document.getElementById('pf_ctx2').value = ctx[1] || '';
+        document.getElementById('pf_ctx3').value = ctx[2] || '';
+        document.getElementById('pf_frase').value = ct.frase || ORC_DEF.frase;
+        var vids = Array.isArray(ct.videos) ? ct.videos : ORC_DEF.videos;
+        document.getElementById('pf_vid1').value = vids[0] || '';
+        document.getElementById('pf_vid2').value = vids[1] || '';
+        document.getElementById('pf_vid3').value = vids[2] || '';
+        document.getElementById('pf_vid4').value = vids[3] || '';
+        document.getElementById('pf_validade').value = ct.validade || ORC_DEF.validade;
+        document.getElementById('pf_cronograma').value = ct.cronograma || ORC_DEF.cronograma;
+        orcPkRender(Array.isArray(ct.pacotes) && ct.pacotes.length === 3 ? ct.pacotes : ORC_DEF.pacotes.map(function (x) { return Object.assign({}, x); }));
+    }
+
+    async function orcOpenModal(slug) {
+        orcEditSlug = slug || null;
+        document.getElementById('orcModalTitle').textContent = slug ? 'Editar proposta' : 'Nova proposta';
+        if (slug) {
+            orcSetStatus('Carregando...', 'saving');
+            const { data } = await sb.from('propostas').select('*').eq('slug', slug).maybeSingle();
+            orcSetStatus('');
+            orcFill(data || {});
+        } else {
+            orcFill({ nicho: ORC_DEF.nicho, status: 'rascunho', conteudo: ORC_DEF });
+        }
+        document.getElementById('orcModal').style.display = 'flex';
+    }
+    function orcCloseModal() { var m = document.getElementById('orcModal'); if (m) m.style.display = 'none'; orcEditSlug = null; }
+
+    async function orcSaveModal() {
+        var cliente = document.getElementById('pf_cliente').value.trim();
+        var slug = document.getElementById('pf_slug').value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+        if (!cliente) { alert('Informe o nome do cliente.'); return; }
+        if (!slug) { alert('Informe o link (slug) da proposta.'); return; }
+        var row = {
+            slug: slug,
+            cliente: cliente,
+            nicho: document.getElementById('pf_nicho').value.trim(),
+            status: document.getElementById('pf_status').value,
+            data_envio: document.getElementById('pf_data').value || '',
+            conteudo: {
+                contexto: [document.getElementById('pf_ctx1').value.trim(), document.getElementById('pf_ctx2').value.trim(), document.getElementById('pf_ctx3').value.trim()],
+                frase: document.getElementById('pf_frase').value.trim(),
+                pacotes: orcPkRead(),
+                videos: [document.getElementById('pf_vid1').value.trim(), document.getElementById('pf_vid2').value.trim(), document.getElementById('pf_vid3').value.trim(), document.getElementById('pf_vid4').value.trim()],
+                validade: document.getElementById('pf_validade').value.trim(),
+                cronograma: document.getElementById('pf_cronograma').value.trim()
+            },
+            updated_at: new Date().toISOString()
+        };
         orcSetStatus('Salvando...', 'saving');
         try {
-            const { data, error } = await sb.from('configuracoes')
-                .update({ conteudo: JSON.stringify(orcData), updated_at: new Date().toISOString() })
-                .eq('id', 'orcamentos').select('id');
-            if (error) throw error;
-            if (!data || !data.length) { orcSetStatus('Pendente: rode o sql-orcamentos.sql no Supabase 1x', 'err'); return; }
+            var error;
+            if (orcEditSlug) {
+                ({ error } = await sb.from('propostas').update(row).eq('slug', orcEditSlug));
+            } else {
+                ({ error } = await sb.from('propostas').insert(row));
+            }
+            if (error) {
+                if (String(error.code) === '23505' || /duplicate|already exists/i.test(error.message || '')) { orcSetStatus('Esse link já está em uso, escolha outro.', 'err'); return; }
+                if (/row-level security|permission|policy/i.test(error.message || '')) { orcSetStatus('Pendente: rode o sql-propostas.sql no Supabase 1x', 'err'); return; }
+                throw error;
+            }
             orcSetStatus('Salvo ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), 'ok');
+            orcCloseModal();
+            await loadOrcamentos();
         } catch (err) { orcSetStatus('Erro ao salvar: ' + (err.message || err), 'err'); }
     }
 
-    function orcRender() {
-        const list = document.getElementById('orcList');
-        const empty = document.getElementById('orcEmpty');
-        const filt = document.getElementById('orcFilters');
-        if (!list || !filt) return;
-        const all = orcData.orcamentos || [];
-        const counts = { todos: all.length };
-        ORC_ST.forEach(s => { counts[s.k] = all.filter(o => o.status === s.k).length; });
-        const chips = [{ k: 'todos', l: 'Todos' }].concat(ORC_ST);
-        filt.innerHTML = chips.map(c => '<button type="button" class="orc-filter-btn' + (orcFilter === c.k ? ' active' : '') + '" data-f="' + c.k + '">' + c.l + ' (' + (counts[c.k] || 0) + ')</button>').join('');
-        filt.querySelectorAll('.orc-filter-btn').forEach(b => b.addEventListener('click', function () { orcFilter = b.dataset.f; orcRender(); }));
-        let rows = all.slice().sort((a, b) => String(b.dataEnvio || '').localeCompare(String(a.dataEnvio || '')));
-        if (orcFilter !== 'todos') rows = rows.filter(o => o.status === orcFilter);
-        empty.style.display = all.length ? 'none' : 'block';
-        if (!all.length) { list.innerHTML = ''; return; }
-        if (!rows.length) { list.innerHTML = '<div class="orc-empty">Nenhum orçamento nesse filtro.</div>'; return; }
-        list.innerHTML = rows.map(o => {
-            const link = o.link ? '<a class="orc-act" href="' + orcEsc(o.link) + '" target="_blank" rel="noopener">Abrir</a>' : '';
-            return '<div class="orc-row">' +
-                '<div><div class="orc-cell-lbl">Cliente</div><div class="orc-cli">' + orcEsc(o.cliente || '(sem nome)') + '</div>' + (o.nicho ? '<div class="orc-sub">' + orcEsc(o.nicho) + '</div>' : '') + (o.obs ? '<div class="orc-sub">' + orcEsc(o.obs) + '</div>' : '') + '</div>' +
-                '<div><div class="orc-cell-lbl">Valor</div><div class="orc-val">' + orcEsc(o.valor || '—') + '</div></div>' +
-                '<div><div class="orc-cell-lbl">Enviado</div><div class="orc-muted">' + orcFmtData(o.dataEnvio) + '</div></div>' +
-                '<div><div class="orc-cell-lbl">Status</div><span class="orc-badge ' + orcEsc(o.status || 'rascunho') + '">' + orcStatusLabel(o.status) + '</span></div>' +
-                '<div class="orc-actions">' + link + '<button type="button" class="orc-act" data-edit="' + orcEsc(o.id) + '">Editar</button><button type="button" class="orc-act del" data-del="' + orcEsc(o.id) + '">Excluir</button></div>' +
-                '</div>';
-        }).join('');
-        list.querySelectorAll('[data-edit]').forEach(b => b.addEventListener('click', function () { orcOpenModal(b.dataset.edit); }));
-        list.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', function () { orcDelete(b.dataset.del); }));
+    async function orcDelete(slug) {
+        var o = orcList.find(function (x) { return x.slug === slug; });
+        if (!confirm('Excluir a proposta de "' + ((o && o.cliente) || slug) + '"? Isso não pode ser desfeito.')) return;
+        orcSetStatus('Excluindo...', 'saving');
+        try {
+            const { error } = await sb.from('propostas').delete().eq('slug', slug);
+            if (error) throw error;
+            orcSetStatus('Excluída', 'ok');
+            await loadOrcamentos();
+        } catch (err) { orcSetStatus('Erro ao excluir: ' + (err.message || err), 'err'); }
     }
 
-    function orcOpenModal(id) {
-        orcEditId = id || null;
-        const o = id ? (orcData.orcamentos || []).find(x => String(x.id) === String(id)) : null;
-        document.getElementById('orcModalTitle').textContent = o ? 'Editar orçamento' : 'Novo orçamento';
-        document.getElementById('orcF_cliente').value = o ? (o.cliente || '') : '';
-        document.getElementById('orcF_nicho').value = o ? (o.nicho || '') : '';
-        document.getElementById('orcF_link').value = o ? (o.link || '') : '';
-        document.getElementById('orcF_valor').value = o ? (o.valor || '') : '';
-        document.getElementById('orcF_data').value = o ? (o.dataEnvio || '') : new Date().toISOString().slice(0, 10);
-        document.getElementById('orcF_status').value = o ? (o.status || 'rascunho') : 'enviado';
-        document.getElementById('orcF_obs').value = o ? (o.obs || '') : '';
-        document.getElementById('orcModal').style.display = 'flex';
-    }
-    function orcCloseModal() { const m = document.getElementById('orcModal'); if (m) m.style.display = 'none'; orcEditId = null; }
-    function orcSaveModal() {
-        const cli = document.getElementById('orcF_cliente').value.trim();
-        if (!cli) { alert('Informe o nome do cliente.'); return; }
-        const rec = {
-            cliente: cli,
-            nicho: document.getElementById('orcF_nicho').value.trim(),
-            link: document.getElementById('orcF_link').value.trim(),
-            valor: document.getElementById('orcF_valor').value.trim(),
-            dataEnvio: document.getElementById('orcF_data').value,
-            status: document.getElementById('orcF_status').value,
-            obs: document.getElementById('orcF_obs').value.trim()
-        };
-        if (!orcData.orcamentos) orcData.orcamentos = [];
-        if (orcEditId) {
-            const i = orcData.orcamentos.findIndex(x => String(x.id) === String(orcEditId));
-            if (i >= 0) orcData.orcamentos[i] = Object.assign({}, orcData.orcamentos[i], rec);
-        } else {
-            rec.id = 'o' + Date.now();
-            orcData.orcamentos.push(rec);
-        }
-        orcCloseModal(); orcRender(); orcPersist();
-    }
-    function orcDelete(id) {
-        const o = (orcData.orcamentos || []).find(x => String(x.id) === String(id));
-        if (!confirm('Excluir o orçamento de "' + ((o && o.cliente) || '') + '"? Isso não pode ser desfeito.')) return;
-        orcData.orcamentos = (orcData.orcamentos || []).filter(x => String(x.id) !== String(id));
-        orcRender(); orcPersist();
-    }
     (function orcBindModal() {
-        const c1 = document.getElementById('orcModalClose'); if (c1) c1.addEventListener('click', orcCloseModal);
-        const c2 = document.getElementById('orcModalCancel'); if (c2) c2.addEventListener('click', orcCloseModal);
-        const sv = document.getElementById('orcModalSave'); if (sv) sv.addEventListener('click', orcSaveModal);
-        const md = document.getElementById('orcModal'); if (md) md.addEventListener('click', function (e) { if (e.target === md) orcCloseModal(); });
+        var c1 = document.getElementById('orcModalClose'); if (c1) c1.addEventListener('click', orcCloseModal);
+        var c2 = document.getElementById('orcModalCancel'); if (c2) c2.addEventListener('click', orcCloseModal);
+        var sv = document.getElementById('orcModalSave'); if (sv) sv.addEventListener('click', orcSaveModal);
+        var md = document.getElementById('orcModal'); if (md) md.addEventListener('click', function (e) { if (e.target === md) orcCloseModal(); });
+        var cl = document.getElementById('pf_cliente'); var sg = document.getElementById('pf_slug');
+        if (cl && sg) cl.addEventListener('blur', function () { if (!sg.value.trim()) sg.value = orcSlugify(cl.value); });
     })();
 
     function planRenderList() {
