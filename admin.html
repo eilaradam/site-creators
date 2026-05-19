@@ -571,6 +571,10 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
                 <span>Portfólio</span>
             </button>
+            <button class="tab nav-item" data-tab="orcamentos" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>
+                <span>Orçamentos</span>
+            </button>
         </nav>
         <div class="sidebar-foot">
             <div class="sidebar-user">
@@ -1294,6 +1298,41 @@
     </div>
 </div>
 
+<div class="dashboard" id="tabOrcamentos">
+    <div class="orc-wrap">
+        <div class="orc-toolbar" id="orcFilters"></div>
+        <div id="orcEmpty" class="orc-empty" style="display:none;">Nenhum orçamento ainda. Clique em <b>+ Novo orçamento</b> no topo pra registrar o primeiro.</div>
+        <div id="orcList" class="orc-list"></div>
+    </div>
+    <div class="orc-modal" id="orcModal" style="display:none;">
+        <div class="orc-modal-box">
+            <div class="orc-modal-head">
+                <h3 id="orcModalTitle">Novo orçamento</h3>
+                <button type="button" class="orc-x" id="orcModalClose" aria-label="Fechar">&times;</button>
+            </div>
+            <div class="orc-field"><label>Cliente *</label><input type="text" id="orcF_cliente" placeholder="Nome do cliente / marca"></div>
+            <div class="orc-field"><label>Nicho</label><input type="text" id="orcF_nicho" placeholder="Ex.: Beauty &amp; Wellness"></div>
+            <div class="orc-field"><label>Link da proposta</label><input type="text" id="orcF_link" placeholder="creators.laradam.com/cliente-..."></div>
+            <div class="orc-field-row">
+                <div class="orc-field"><label>Valor</label><input type="text" id="orcF_valor" placeholder="Ex.: R$ 14.400"></div>
+                <div class="orc-field"><label>Data de envio</label><input type="date" id="orcF_data"></div>
+            </div>
+            <div class="orc-field"><label>Status</label><select id="orcF_status">
+                <option value="rascunho">Rascunho</option>
+                <option value="enviado">Enviado</option>
+                <option value="negociando">Negociando</option>
+                <option value="fechado">Fechado</option>
+                <option value="perdido">Perdido</option>
+            </select></div>
+            <div class="orc-field"><label>Observações</label><textarea id="orcF_obs" rows="3" placeholder="Anotações internas (opcional)"></textarea></div>
+            <div class="orc-modal-foot">
+                <button type="button" class="orc-btn-sec" id="orcModalCancel">Cancelar</button>
+                <button type="button" class="plan-btn-primary" id="orcModalSave">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
         </main>
     </div>
 </div><!-- /app-shell -->
@@ -1320,6 +1359,49 @@
 .btn-salvos-toggle { padding: 8px 14px; font-size: 12px; font-weight: 700; color: var(--text-soft); background: var(--card); border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; white-space: nowrap; }
 .btn-salvos-toggle:hover { border-color: var(--accent); color: var(--accent); }
 .btn-salvos-toggle.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ===== Orçamentos ===== */
+.orc-wrap { max-width: 1100px; }
+.orc-toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.orc-filter-btn { padding: 7px 14px; font-size: 12px; font-weight: 700; color: var(--text-soft); background: var(--card); border: 1.5px solid var(--border); border-radius: 999px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+.orc-filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+.orc-filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.orc-empty { padding: 48px 24px; text-align: center; color: var(--text-muted); border: 1px dashed var(--border); border-radius: 14px; }
+.orc-list { display: flex; flex-direction: column; gap: 10px; }
+.orc-row { display: grid; grid-template-columns: 1.5fr 1fr 0.9fr 0.9fr auto; gap: 14px; align-items: center; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; }
+.orc-row .orc-cli { font-weight: 700; color: var(--text); }
+.orc-row .orc-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.orc-row .orc-cell-lbl { display: none; font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 2px; }
+.orc-row .orc-val { font-weight: 700; color: var(--text); }
+.orc-muted { color: var(--text-soft); font-size: 13px; }
+.orc-badge { display: inline-block; padding: 4px 11px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+.orc-badge.rascunho { background: #EFEFEF; color: #6B645C; }
+.orc-badge.enviado { background: #E3F0FF; color: #1D6FD6; }
+.orc-badge.negociando { background: #FFF0D9; color: #B5730B; }
+.orc-badge.fechado { background: #DFF3E4; color: #2D7A4F; }
+.orc-badge.perdido { background: #FBE3E1; color: #C4453C; }
+.orc-actions { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
+.orc-act { padding: 6px 10px; font-size: 12px; font-weight: 600; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text-soft); cursor: pointer; font-family: 'DM Sans', sans-serif; text-decoration: none; }
+.orc-act:hover { border-color: var(--accent); color: var(--accent); }
+.orc-act.del:hover { border-color: #C4453C; color: #C4453C; }
+.orc-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+.orc-modal-box { background: var(--card); border-radius: 16px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; padding: 24px; }
+.orc-modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.orc-modal-head h3 { font-size: 18px; font-weight: 700; color: var(--text); margin: 0; }
+.orc-x { background: none; border: none; font-size: 26px; line-height: 1; color: var(--text-muted); cursor: pointer; padding: 0 4px; }
+.orc-field { margin-bottom: 14px; }
+.orc-field label { display: block; font-size: 12px; font-weight: 700; color: var(--text-soft); margin-bottom: 5px; }
+.orc-field input, .orc-field select, .orc-field textarea { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); background: #fff; outline: none; }
+.orc-field input:focus, .orc-field select:focus, .orc-field textarea:focus { border-color: var(--accent); }
+.orc-field textarea { resize: vertical; }
+.orc-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.orc-modal-foot { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
+.orc-btn-sec { padding: 10px 18px; font-size: 14px; font-weight: 600; border-radius: 10px; border: 1.5px solid var(--border); background: var(--card); color: var(--text-soft); cursor: pointer; font-family: 'DM Sans', sans-serif; }
+@media (max-width: 760px) {
+  .orc-row { grid-template-columns: 1fr 1fr; }
+  .orc-row .orc-cell-lbl { display: block; }
+  .orc-actions { grid-column: 1 / -1; justify-content: flex-start; }
+}
 
 /* ===== Aba Planejamento ===== */
 .plan-wrap { display: flex; gap: 20px; align-items: flex-start; }
@@ -1814,7 +1896,7 @@
     document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
 
     /* ── Tabs ── */
-    const PAGE_TITLES = { dashboard: 'Dashboard', planejamento: 'Planejamento', creators: 'Creators', admin: 'Administração', portfolio: 'Portfólio' };
+    const PAGE_TITLES = { dashboard: 'Dashboard', planejamento: 'Planejamento', creators: 'Creators', admin: 'Administração', portfolio: 'Portfólio', orcamentos: 'Orçamentos' };
     function setPageTitle(target) {
         const el = document.getElementById('pageTitle');
         if (el && PAGE_TITLES[target]) el.textContent = PAGE_TITLES[target];
@@ -1829,6 +1911,7 @@
             document.getElementById('tabCreators').classList.toggle('show', target === 'creators');
             document.getElementById('tabAdmin').classList.toggle('show', target === 'admin');
             document.getElementById('tabPortfolio').classList.toggle('show', target === 'portfolio');
+            document.getElementById('tabOrcamentos').classList.toggle('show', target === 'orcamentos');
             setPageTitle(target);
             document.getElementById('sidebar').classList.remove('open');
             document.getElementById('sidebarBackdrop').classList.remove('show');
@@ -1838,6 +1921,7 @@
             if (target === 'planejamento') { planMountTopbar(); loadPlanejamento(); }
             if (target === 'portfolio') loadPortfolio();
             if (target === 'admin') showAdminSubtab('alunas');
+            if (target === 'orcamentos') { orcMountTopbar(); loadOrcamentos(); }
         });
     });
 
@@ -2004,6 +2088,129 @@
         planSetStatus('Editando...', 'saving');
         planSaveTimer = setTimeout(doSave, 800);
     }
+
+    /* ===================== ORÇAMENTOS ===================== */
+    let orcData = { orcamentos: [] };
+    let orcLoaded = false, orcSaveTimer = null, orcFilter = 'todos', orcEditId = null;
+    const ORC_ST = [
+        { k: 'rascunho', l: 'Rascunho' }, { k: 'enviado', l: 'Enviado' },
+        { k: 'negociando', l: 'Negociando' }, { k: 'fechado', l: 'Fechado' },
+        { k: 'perdido', l: 'Perdido' }
+    ];
+    function orcEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
+    function orcStatusLabel(k) { const f = ORC_ST.find(s => s.k === k); return f ? f.l : 'Rascunho'; }
+    function orcSetStatus(txt, cls) { const el = document.getElementById('orcStatus'); if (!el) return; el.textContent = txt || ''; el.className = 'plan-status' + (cls ? ' ' + cls : ''); }
+    function orcFmtData(d) { if (!d) return '—'; const p = String(d).split('-'); return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : d; }
+
+    function orcMountTopbar() {
+        const ta = document.getElementById('topbarActions');
+        if (!ta) return;
+        ta.innerHTML = '<span id="orcStatus" class="plan-status"></span><button id="orcNewBtn" class="plan-btn-primary" type="button">+ Novo orçamento</button>';
+        document.getElementById('orcNewBtn').addEventListener('click', function () { orcOpenModal(null); });
+    }
+
+    async function loadOrcamentos() {
+        if (orcLoaded) { orcRender(); return; }
+        try {
+            const { data, error } = await sb.from('configuracoes').select('conteudo').eq('id', 'orcamentos').maybeSingle();
+            if (error) throw error;
+            if (data && data.conteudo) { try { const p = JSON.parse(data.conteudo); if (p && Array.isArray(p.orcamentos)) orcData = p; } catch (e) {} }
+            orcLoaded = true;
+        } catch (err) { orcSetStatus('Erro ao carregar: ' + (err.message || err), 'err'); }
+        orcRender();
+    }
+
+    async function orcPersist() {
+        clearTimeout(orcSaveTimer);
+        orcSetStatus('Salvando...', 'saving');
+        try {
+            const { data, error } = await sb.from('configuracoes')
+                .update({ conteudo: JSON.stringify(orcData), updated_at: new Date().toISOString() })
+                .eq('id', 'orcamentos').select('id');
+            if (error) throw error;
+            if (!data || !data.length) { orcSetStatus('Pendente: rode o sql-orcamentos.sql no Supabase 1x', 'err'); return; }
+            orcSetStatus('Salvo ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), 'ok');
+        } catch (err) { orcSetStatus('Erro ao salvar: ' + (err.message || err), 'err'); }
+    }
+
+    function orcRender() {
+        const list = document.getElementById('orcList');
+        const empty = document.getElementById('orcEmpty');
+        const filt = document.getElementById('orcFilters');
+        if (!list || !filt) return;
+        const all = orcData.orcamentos || [];
+        const counts = { todos: all.length };
+        ORC_ST.forEach(s => { counts[s.k] = all.filter(o => o.status === s.k).length; });
+        const chips = [{ k: 'todos', l: 'Todos' }].concat(ORC_ST);
+        filt.innerHTML = chips.map(c => '<button type="button" class="orc-filter-btn' + (orcFilter === c.k ? ' active' : '') + '" data-f="' + c.k + '">' + c.l + ' (' + (counts[c.k] || 0) + ')</button>').join('');
+        filt.querySelectorAll('.orc-filter-btn').forEach(b => b.addEventListener('click', function () { orcFilter = b.dataset.f; orcRender(); }));
+        let rows = all.slice().sort((a, b) => String(b.dataEnvio || '').localeCompare(String(a.dataEnvio || '')));
+        if (orcFilter !== 'todos') rows = rows.filter(o => o.status === orcFilter);
+        empty.style.display = all.length ? 'none' : 'block';
+        if (!all.length) { list.innerHTML = ''; return; }
+        if (!rows.length) { list.innerHTML = '<div class="orc-empty">Nenhum orçamento nesse filtro.</div>'; return; }
+        list.innerHTML = rows.map(o => {
+            const link = o.link ? '<a class="orc-act" href="' + orcEsc(o.link) + '" target="_blank" rel="noopener">Abrir</a>' : '';
+            return '<div class="orc-row">' +
+                '<div><div class="orc-cell-lbl">Cliente</div><div class="orc-cli">' + orcEsc(o.cliente || '(sem nome)') + '</div>' + (o.nicho ? '<div class="orc-sub">' + orcEsc(o.nicho) + '</div>' : '') + (o.obs ? '<div class="orc-sub">' + orcEsc(o.obs) + '</div>' : '') + '</div>' +
+                '<div><div class="orc-cell-lbl">Valor</div><div class="orc-val">' + orcEsc(o.valor || '—') + '</div></div>' +
+                '<div><div class="orc-cell-lbl">Enviado</div><div class="orc-muted">' + orcFmtData(o.dataEnvio) + '</div></div>' +
+                '<div><div class="orc-cell-lbl">Status</div><span class="orc-badge ' + orcEsc(o.status || 'rascunho') + '">' + orcStatusLabel(o.status) + '</span></div>' +
+                '<div class="orc-actions">' + link + '<button type="button" class="orc-act" data-edit="' + orcEsc(o.id) + '">Editar</button><button type="button" class="orc-act del" data-del="' + orcEsc(o.id) + '">Excluir</button></div>' +
+                '</div>';
+        }).join('');
+        list.querySelectorAll('[data-edit]').forEach(b => b.addEventListener('click', function () { orcOpenModal(b.dataset.edit); }));
+        list.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', function () { orcDelete(b.dataset.del); }));
+    }
+
+    function orcOpenModal(id) {
+        orcEditId = id || null;
+        const o = id ? (orcData.orcamentos || []).find(x => String(x.id) === String(id)) : null;
+        document.getElementById('orcModalTitle').textContent = o ? 'Editar orçamento' : 'Novo orçamento';
+        document.getElementById('orcF_cliente').value = o ? (o.cliente || '') : '';
+        document.getElementById('orcF_nicho').value = o ? (o.nicho || '') : '';
+        document.getElementById('orcF_link').value = o ? (o.link || '') : '';
+        document.getElementById('orcF_valor').value = o ? (o.valor || '') : '';
+        document.getElementById('orcF_data').value = o ? (o.dataEnvio || '') : new Date().toISOString().slice(0, 10);
+        document.getElementById('orcF_status').value = o ? (o.status || 'rascunho') : 'enviado';
+        document.getElementById('orcF_obs').value = o ? (o.obs || '') : '';
+        document.getElementById('orcModal').style.display = 'flex';
+    }
+    function orcCloseModal() { const m = document.getElementById('orcModal'); if (m) m.style.display = 'none'; orcEditId = null; }
+    function orcSaveModal() {
+        const cli = document.getElementById('orcF_cliente').value.trim();
+        if (!cli) { alert('Informe o nome do cliente.'); return; }
+        const rec = {
+            cliente: cli,
+            nicho: document.getElementById('orcF_nicho').value.trim(),
+            link: document.getElementById('orcF_link').value.trim(),
+            valor: document.getElementById('orcF_valor').value.trim(),
+            dataEnvio: document.getElementById('orcF_data').value,
+            status: document.getElementById('orcF_status').value,
+            obs: document.getElementById('orcF_obs').value.trim()
+        };
+        if (!orcData.orcamentos) orcData.orcamentos = [];
+        if (orcEditId) {
+            const i = orcData.orcamentos.findIndex(x => String(x.id) === String(orcEditId));
+            if (i >= 0) orcData.orcamentos[i] = Object.assign({}, orcData.orcamentos[i], rec);
+        } else {
+            rec.id = 'o' + Date.now();
+            orcData.orcamentos.push(rec);
+        }
+        orcCloseModal(); orcRender(); orcPersist();
+    }
+    function orcDelete(id) {
+        const o = (orcData.orcamentos || []).find(x => String(x.id) === String(id));
+        if (!confirm('Excluir o orçamento de "' + ((o && o.cliente) || '') + '"? Isso não pode ser desfeito.')) return;
+        orcData.orcamentos = (orcData.orcamentos || []).filter(x => String(x.id) !== String(id));
+        orcRender(); orcPersist();
+    }
+    (function orcBindModal() {
+        const c1 = document.getElementById('orcModalClose'); if (c1) c1.addEventListener('click', orcCloseModal);
+        const c2 = document.getElementById('orcModalCancel'); if (c2) c2.addEventListener('click', orcCloseModal);
+        const sv = document.getElementById('orcModalSave'); if (sv) sv.addEventListener('click', orcSaveModal);
+        const md = document.getElementById('orcModal'); if (md) md.addEventListener('click', function (e) { if (e.target === md) orcCloseModal(); });
+    })();
 
     function planRenderList() {
         const wrap = document.getElementById('planList');
