@@ -867,14 +867,20 @@
                 </div>
 
                 <div class="plan-pane" id="planPaneNotas">
-                    <div class="plan-section-head" style="justify-content:flex-end;margin-bottom:12px">
-                        <div>
-                            <button class="plan-btn-ghost" id="planEditNotasBtn" type="button">Editar</button>
-                            <button class="plan-btn" id="planSaveNotasBtn" type="button" style="display:none">Concluir edição</button>
-                        </div>
+                    <div class="plan-ntabs" id="planNotasTabs"></div>
+                    <div class="plan-ntoolbar" id="planNotasToolbar">
+                        <button type="button" data-cmd="bold" title="Negrito"><b>B</b></button>
+                        <button type="button" data-cmd="italic" title="Itálico"><i>I</i></button>
+                        <button type="button" data-blk="h2" title="Título">H2</button>
+                        <button type="button" data-blk="h3" title="Subtítulo">H3</button>
+                        <button type="button" data-blk="p" title="Texto normal">¶</button>
+                        <button type="button" data-cmd="insertUnorderedList" title="Lista">• Lista</button>
+                        <button type="button" data-cmd="insertOrderedList" title="Lista numerada">1. Lista</button>
+                        <button type="button" data-link="1" title="Link">🔗</button>
+                        <button type="button" data-cmd="removeFormat" title="Limpar formatação">⌫ Limpar</button>
+                        <span class="plan-nstatus" id="planNotasHint">Salva sozinho enquanto você escreve</span>
                     </div>
-                    <div class="plan-notas-view" id="planNotasView"></div>
-                    <textarea class="plan-notas-edit" id="planNotasEdit" style="display:none" placeholder="Escreva ou cole seu plano aqui. Aceita markdown: # título, ## subtítulo, **negrito**, - lista, --- linha."></textarea>
+                    <div class="plan-neditor" id="planNotasEditor" contenteditable="true"></div>
                 </div>
             </div>
         </section>
@@ -1547,6 +1553,27 @@
 .plan-mtot-card .l { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-top: 4px; }
 .plan-mchart { border: 1px solid var(--border); border-radius: 12px; padding: 16px; background: var(--card); }
 @media (max-width: 860px) { .plan-cenarios { grid-template-columns: 1fr; } }
+/* Notas */
+.plan-ntabs { display: flex; gap: 4px; flex-wrap: wrap; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
+.plan-ntab { padding: 8px 14px; font-size: 13px; font-weight: 600; color: var(--text-muted); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.plan-ntab:hover { color: var(--text); }
+.plan-ntab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.plan-ntab-add { padding: 8px 12px; font-size: 13px; font-weight: 700; color: var(--text-soft); background: none; border: none; cursor: pointer; }
+.plan-ntab-add:hover { color: var(--accent); }
+.plan-ntoolbar { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; padding: 8px; background: var(--cream); border: 1px solid var(--border); border-radius: 8px 8px 0 0; }
+.plan-ntoolbar button { min-width: 32px; height: 30px; padding: 0 8px; font-size: 13px; font-family: 'DM Sans', sans-serif; color: var(--text-soft); background: var(--card); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; }
+.plan-ntoolbar button:hover { border-color: var(--accent); color: var(--accent); }
+.plan-nstatus { margin-left: auto; font-size: 11px; color: var(--text-muted); }
+.plan-nstatus.saving { color: var(--accent); }
+.plan-neditor { border: 1px solid var(--border); border-top: none; border-radius: 0 0 8px 8px; padding: 20px 22px; min-height: 380px; background: var(--card); font-size: 14px; line-height: 1.7; color: var(--text); outline: none; overflow-wrap: anywhere; }
+.plan-neditor:focus { border-color: var(--accent); }
+.plan-neditor h2 { font-size: 20px; font-weight: 700; margin: 18px 0 8px; }
+.plan-neditor h3 { font-size: 17px; font-weight: 700; margin: 16px 0 6px; }
+.plan-neditor p { margin: 0 0 10px; }
+.plan-neditor ul, .plan-neditor ol { margin: 0 0 12px; padding-left: 24px; }
+.plan-neditor li { margin-bottom: 4px; }
+.plan-neditor a { color: var(--accent); }
+.plan-neditor:empty::before { content: 'Escreva ou cole aqui. Use a barra acima pra formatar.'; color: var(--text-muted); }
 .plan-notas-view { font-size: 14px; line-height: 1.7; color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; background: var(--cream); min-height: 80px; overflow-wrap: anywhere; }
 .plan-notas-view:empty::before { content: 'Sem notas ainda. Clique em Editar pra escrever ou colar seu plano.'; color: var(--text-muted); }
 .plan-notas-view h2 { font-size: 20px; margin: 18px 0 8px; }
@@ -1975,7 +2002,7 @@
                 '</div>';
         }).join('');
         wrap.querySelectorAll('.plan-card').forEach(c => c.addEventListener('click', () => {
-            planData.activeId = c.dataset.planId; planNotasEditing = false; planSel.clear(); planRenderList(); planRenderDetail();
+            planNotasFlush(); planData.activeId = c.dataset.planId; planNotaSec = null; planNotaLoadedKey = null; planSel.clear(); planRenderList(); planRenderDetail();
         }));
     }
 
@@ -1992,6 +2019,7 @@
     }
 
     function planShowSub(sub) {
+        if (planSub === 'notas' && sub !== 'notas') planNotasFlush();
         planSub = sub;
         document.querySelectorAll('.plan-subtab-btn').forEach(b => b.classList.toggle('active', b.dataset.plansub === sub));
         const map = { visao: 'planPaneVisao', calendario: 'planPaneCalendario', conteudo: 'planPaneConteudo', metas: 'planPaneMetas', tarefas: 'planPaneTarefas', notas: 'planPaneNotas' };
@@ -2645,21 +2673,33 @@
         });
     })();
 
+    let planNotaSec = null;
+    let planNotaLoadedKey = null;
+
+    function planNotasActiveSec(p) {
+        if (!Array.isArray(p.notas) || !p.notas.length) p.notas = [{ id: planGenId('n_'), secao: 'Geral', conteudo: '' }];
+        if (!planNotaSec || !p.notas.find(s => s.id === planNotaSec)) planNotaSec = p.notas[0].id;
+        return p.notas.find(s => s.id === planNotaSec);
+    }
+    function planNotaToHtml(c) { c = c || ''; return /<[a-z][\s\S]*>/i.test(c) ? c : (c.trim() ? planMd(c) : ''); }
+    function planNotasFlush() {
+        const p = planActive(); if (!p || !planNotaLoadedKey) return;
+        const ed = document.getElementById('planNotasEditor'); if (!ed) return;
+        const sec = (p.notas || []).find(s => (p.id + ':' + s.id) === planNotaLoadedKey);
+        if (sec) sec.conteudo = ed.innerHTML;
+    }
+
     function planRenderNotas() {
         const p = planActive(); if (!p) return;
-        const sec = p.notas[0] || (p.notas[0] = { id: planGenId('n_'), secao: 'Geral', conteudo: '' });
-        const view = document.getElementById('planNotasView');
-        const edit = document.getElementById('planNotasEdit');
-        const editBtn = document.getElementById('planEditNotasBtn');
-        const saveBtn = document.getElementById('planSaveNotasBtn');
-        if (planNotasEditing) {
-            edit.value = sec.conteudo || '';
-            edit.style.display = 'block'; view.style.display = 'none';
-            editBtn.style.display = 'none'; saveBtn.style.display = 'inline-block';
-        } else {
-            view.innerHTML = planMd(sec.conteudo || '');
-            edit.style.display = 'none'; view.style.display = 'block';
-            editBtn.style.display = 'inline-block'; saveBtn.style.display = 'none';
+        const sec = planNotasActiveSec(p);
+        document.getElementById('planNotasTabs').innerHTML =
+            p.notas.map(s => '<button class="plan-ntab ' + (s.id === sec.id ? 'active' : '') + '" data-sec="' + s.id + '">' +
+                escapeHtml(s.secao || 'Seção') + (p.notas.length > 1 ? ' <span class="nt-x" data-del="' + s.id + '" title="Excluir seção">&times;</span>' : '') + '</button>').join('') +
+            '<button class="plan-ntab-add" id="planNotaAdd" type="button" title="Nova seção">+ seção</button>';
+        const key = p.id + ':' + sec.id;
+        if (planNotaLoadedKey !== key) {
+            document.getElementById('planNotasEditor').innerHTML = planNotaToHtml(sec.conteudo);
+            planNotaLoadedKey = key;
         }
     }
 
@@ -2669,7 +2709,7 @@
         const np = planMigrate({ id: planGenId('p_'), nome: nome });
         planData.plans.push(np);
         planData.activeId = np.id;
-        planNotasEditing = false; planSub = 'visao'; planSel.clear();
+        planNotasEditing = false; planSub = 'visao'; planSel.clear(); planNotaSec = null; planNotaLoadedKey = null;
         planRenderList(); planRenderDetail(); planPersist();
     }
 
@@ -2791,11 +2831,60 @@
         planRenderTarefas(); planRenderProgress(); planRenderList(); planPersist();
     });
 
-    document.getElementById('planEditNotasBtn').addEventListener('click', () => { planNotasEditing = true; planRenderNotas(); });
-    document.getElementById('planSaveNotasBtn').addEventListener('click', () => {
+    /* Listeners Notas */
+    const planNEd = document.getElementById('planNotasEditor');
+    let planNotaTimer = null;
+    planNEd.addEventListener('input', function() {
+        planNotasFlush();
+        const h = document.getElementById('planNotasHint');
+        if (h) { h.textContent = 'Salvando…'; h.className = 'plan-nstatus saving'; }
+        clearTimeout(planNotaTimer);
+        planNotaTimer = setTimeout(() => {
+            if (h) { h.textContent = 'Salva sozinho enquanto você escreve'; h.className = 'plan-nstatus'; }
+            planPersist(true);
+        }, 1200);
+    });
+    planNEd.addEventListener('blur', function() { planNotasFlush(); planPersist(); });
+    document.getElementById('planNotasToolbar').addEventListener('click', function(e) {
+        const b = e.target.closest('button'); if (!b) return;
+        planNEd.focus();
+        if (b.dataset.cmd) document.execCommand(b.dataset.cmd, false, null);
+        else if (b.dataset.blk) document.execCommand('formatBlock', false, b.dataset.blk);
+        else if (b.dataset.link) { const u = prompt('URL do link (com https://):', 'https://'); if (u) document.execCommand('createLink', false, u); }
+        planNotasFlush(); planPersist();
+    });
+    document.getElementById('planNotasTabs').addEventListener('click', function(e) {
         const p = planActive(); if (!p) return;
-        p.notas[0].conteudo = document.getElementById('planNotasEdit').value;
-        planNotasEditing = false; planRenderNotas(); planPersist();
+        if (e.target.id === 'planNotaAdd' || e.target.closest('#planNotaAdd')) {
+            const nome = (prompt('Nome da seção:', 'Nova seção') || '').trim(); if (!nome) return;
+            planNotasFlush();
+            const ns = { id: planGenId('n_'), secao: nome, conteudo: '' };
+            p.notas.push(ns); planNotaSec = ns.id; planRenderNotas(); planPersist(true); return;
+        }
+        const del = e.target.closest('.nt-x');
+        if (del) {
+            e.stopPropagation();
+            if (p.notas.length <= 1) return;
+            const sid = del.dataset.del;
+            const s = p.notas.find(x => x.id === sid);
+            if (!confirm('Excluir a seção "' + ((s && s.secao) || '') + '"?')) return;
+            p.notas = p.notas.filter(x => x.id !== sid);
+            if (planNotaSec === sid) { planNotaSec = p.notas[0].id; planNotaLoadedKey = null; }
+            planRenderNotas(); planPersist(true); return;
+        }
+        const tab = e.target.closest('.plan-ntab');
+        if (tab && tab.dataset.sec) {
+            planNotasFlush();
+            planNotaSec = tab.dataset.sec;
+            planRenderNotas();
+        }
+    });
+    document.getElementById('planNotasTabs').addEventListener('dblclick', function(e) {
+        const tab = e.target.closest('.plan-ntab'); if (!tab || !tab.dataset.sec) return;
+        const p = planActive(); if (!p) return;
+        const s = p.notas.find(x => x.id === tab.dataset.sec); if (!s) return;
+        const nv = (prompt('Renomear seção:', s.secao || '') || '').trim();
+        if (nv) { s.secao = nv; planRenderNotas(); planPersist(); }
     });
 
     /* ══════════════════════════════════
