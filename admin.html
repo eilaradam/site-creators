@@ -2132,13 +2132,14 @@
         pacotes: [
             { creators: 30, videosCreator: 1, valorVideo: 450, gestaoPct: 20 },
             { creators: 15, videosCreator: 2, valorVideo: 400, gestaoPct: 20 },
-            { creators: 10, videosCreator: 1, valorVideo: 450, gestaoPct: 25 }
+            { creators: 10, videosCreator: 1, valorVideo: 450, gestaoPct: 25 },
+            { creators: 5, videosCreator: 2, valorVideo: 400, gestaoPct: 25 }
         ],
         videos: ['', '', '', ''],
         validade: 'Esta proposta é válida por 15 dias a partir do envio.',
         cronograma: 'Início em até 5 dias úteis após aprovação · entrega conforme o escopo.'
     };
-    const ORC_PKNOME = ['Pacote 1 · Volume Amplo', 'Pacote 2 · Volume com Profundidade', 'Pacote 3 · Curadoria Premium'];
+    const ORC_PKNOME = ['Pacote 1 · Volume Amplo', 'Pacote 2 · Volume com Profundidade', 'Pacote 3 · Curadoria Premium', 'Pacote 4 · Curadoria Essencial'];
     let orcList = [], orcFilter = 'todos', orcEditSlug = null;
 
     function orcEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (m) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]; }); }
@@ -2204,8 +2205,8 @@
     }
 
     function orcPkRead() {
-        var arr = [{}, {}, {}];
-        document.querySelectorAll('#pf_pacotes input[data-pk]').forEach(function (inp) { arr[+inp.dataset.pk][inp.dataset.f] = +inp.value || 0; });
+        var arr = [];
+        document.querySelectorAll('#pf_pacotes input[data-pk]').forEach(function (inp) { var k = +inp.dataset.pk; arr[k] = arr[k] || {}; arr[k][inp.dataset.f] = +inp.value || 0; });
         return arr;
     }
     function orcPkRecalc() {
@@ -2253,7 +2254,7 @@
         document.getElementById('pf_vid4').value = vids[3] || '';
         document.getElementById('pf_validade').value = ct.validade || ORC_DEF.validade;
         document.getElementById('pf_cronograma').value = ct.cronograma || ORC_DEF.cronograma;
-        orcPkRender(Array.isArray(ct.pacotes) && ct.pacotes.length === 3 ? ct.pacotes : ORC_DEF.pacotes.map(function (x) { return Object.assign({}, x); }));
+        orcPkRender(Array.isArray(ct.pacotes) && ct.pacotes.length ? ct.pacotes : ORC_DEF.pacotes.map(function (x) { return Object.assign({}, x); }));
     }
 
     async function orcOpenModal(slug) {
