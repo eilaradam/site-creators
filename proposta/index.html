@@ -83,6 +83,28 @@
         .check-list li:last-child { border-bottom: none; }
         .check-list .tick { flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%; background: var(--accent-glow); display: flex; align-items: center; justify-content: center; margin-top: 1px; }
         .check-list .tick svg { width: 13px; height: 13px; stroke: var(--accent); stroke-width: 3; }
+
+        /* animação: itens inclusos aparecem em sequência ao rolar até a seção */
+        .check-list.reveal { opacity: 1; transform: none; }
+        .check-list li { opacity: 0; transform: translateX(-14px); transition: opacity .5s ease, transform .5s ease; }
+        .check-list .tick { transform: scale(0); transition: transform .5s cubic-bezier(.34,1.56,.64,1); }
+        .check-list.in li { opacity: 1; transform: none; }
+        .check-list.in .tick { transform: scale(1); }
+        .check-list.in li:nth-child(1) { transition-delay: 0s; }
+        .check-list.in li:nth-child(2) { transition-delay: .10s; }
+        .check-list.in li:nth-child(3) { transition-delay: .20s; }
+        .check-list.in li:nth-child(4) { transition-delay: .30s; }
+        .check-list.in li:nth-child(5) { transition-delay: .40s; }
+        .check-list.in li:nth-child(6) { transition-delay: .50s; }
+        .check-list.in li:nth-child(1) .tick { transition-delay: .08s; }
+        .check-list.in li:nth-child(2) .tick { transition-delay: .18s; }
+        .check-list.in li:nth-child(3) .tick { transition-delay: .28s; }
+        .check-list.in li:nth-child(4) .tick { transition-delay: .38s; }
+        .check-list.in li:nth-child(5) .tick { transition-delay: .48s; }
+        .check-list.in li:nth-child(6) .tick { transition-delay: .58s; }
+        @media (prefers-reduced-motion: reduce) {
+            .check-list li, .check-list .tick { transition: none; opacity: 1; transform: none; }
+        }
         .highlight-stack { display: flex; flex-direction: column; gap: 14px; }
         .hl { border: 1px solid var(--border); border-radius: 18px; padding: 22px 24px; background: var(--cream); }
         .hl-title { display: flex; align-items: center; gap: 10px; font-family: 'Fraunces', serif; font-size: 17px; font-weight: 600; margin-bottom: 6px; }
