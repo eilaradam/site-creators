@@ -315,6 +315,7 @@
                 'Ideal pra marcas premium e dermocosméticos que exigem creators em uma escala menor, com perfil específico (estética, dermato, makeup pro), onde a curadoria pesa mais que o volume.',
                 'Versão enxuta da curadoria: poucos creators selecionados, 2 vídeos cada pra aprofundar a mensagem, com um custo por vídeo mais acessível que o Premium.'
             ];
+            var PK_BADGE = [null, 'Menor custo por vídeo', null, 'Pacote reduzido'];
             function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (m) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]; }); }
             function brl(n, dec) { return 'R$ ' + Number(n || 0).toLocaleString('pt-BR', dec ? { minimumFractionDigits: 2, maximumFractionDigits: 2 } : { maximumFractionDigits: 0 }); }
             function vidId(v) { v = String(v || '').trim(); if (!v) return ''; var m = v.match(/(?:shorts\/|watch\?v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{6,})/); return m ? m[1] : v.replace(/[^A-Za-z0-9_-]/g, ''); }
@@ -325,10 +326,10 @@
                 grid.innerHTML = pacotes.slice(0, 4).map(function (p, i) {
                     var c = +p.creators || 0, vc = +p.videosCreator || 0, vv = +p.valorVideo || 0, g = +p.gestaoPct || 0;
                     var tot = c * vc, sub = tot * vv, ges = sub * g / 100, inv = sub + ges;
-                    var feat = i === 1;
+                    var feat = !!PK_BADGE[i];
                     var spec = '<ul class="pack-spec"><li>' + c + ' creators' + PK_SUF[i] + '</li><li>' + vc + ' vídeo' + (vc > 1 ? 's' : '') + ' por creator</li><li>' + tot + ' vídeos no total</li></ul>';
                     return '<div class="pack' + (feat ? ' feat' : '') + ' reveal">' +
-                        (feat ? '<span class="pack-badge">Menor custo por vídeo</span>' : '') +
+                        (feat ? '<span class="pack-badge">' + PK_BADGE[i] + '</span>' : '') +
                         '<div class="pack-tag">' + PK_TAGS[i] + '</div>' +
                         '<h3>' + esc(PK_NOMES[i]) + '</h3>' + spec +
                         '<p class="pack-ideal">' + esc(PK_IDEAL[i]) + '</p>' +
