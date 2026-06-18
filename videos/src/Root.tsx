@@ -1,21 +1,24 @@
 import { Composition } from "remotion";
-import { Intro, introSchema } from "./Intro";
+import { CabecaFlutuante, cabecaSchema } from "./CabecaFlutuante";
 
 export const RemotionRoot: React.FC = () => {
   return (
     <>
-      {/* Vídeo de abertura — formato vertical 1080x1920 (Reels / Stories / TikTok) */}
+      {/* Vídeo vertical 1080x1920, 30fps, 5 segundos (150 frames) */}
       <Composition
-        id="Intro"
-        component={Intro}
+        id="CabecaFlutuante"
+        component={CabecaFlutuante}
         durationInFrames={150}
         fps={30}
         width={1080}
         height={1920}
-        schema={introSchema}
+        schema={cabecaSchema}
         defaultProps={{
-          titulo: "Lara Adam",
-          subtitulo: "Creators",
+          textoTopo: "TUTORIAL",
+          textoBaixo: "Como Criar esse efeito no Claude",
+          palavraDestaque: "Claude",
+          corDestaque: "#E8623D",
+          corTexto: "#17223B",
         }}
       />
     </>

@@ -1,0 +1,96 @@
+# Vídeos com Remotion — Lara Adam Creators
+
+Vídeos verticais feitos por código (React + [Remotion](https://remotion.dev)).
+
+## Composição atual: `CabecaFlutuante`
+
+Efeito "cabeça flutuante" para gancho de Reels — **1080×1920, 30fps, 5s**.
+Uma cabeça recortada surge crescendo (efeito carimbo com leve overshoot),
+segura, encolhe e some; o rosto só troca quando está invisível (nunca corte
+seco). A cabeça flutua de leve, gira o mínimo e tem contorno branco estilo
+sticker + sombra suave.
+
+---
+
+## Como rodar
+
+```bash
+cd videos
+npm install
+
+# Abrir o editor visual (preview ao vivo, ajusta props no painel direito):
+npm run dev          # abre o Remotion Studio no navegador
+
+# Renderizar o MP4:
+npm run render CabecaFlutuante out/cabeca-flutuante.mp4
+```
+
+> **Renderizar neste ambiente remoto:** o download oficial do Chrome do
+> Remotion é bloqueado pela rede. Foi instalado um Chromium via npm
+> (`@sparticuz/chromium`). Para renderizar aqui use:
+> ```bash
+> node -e 'require("@sparticuz/chromium").default.executablePath()' # extrai p/ /tmp/chromium
+> npx remotion render src/index.ts CabecaFlutuante out/cabeca-flutuante.mp4 \
+>   --codec=h264 --concurrency=4 --gl=angle --browser-executable=/tmp/chromium
+> ```
+> Na **sua máquina** isso não é necessário: o `npm run render` baixa o Chrome
+> sozinho.
+
+---
+
+## ✏️ Como trocar os TEXTOS e CORES
+
+Tudo fica em **`src/Root.tsx`**, no bloco `defaultProps`:
+
+```tsx
+defaultProps={{
+  textoTopo: "TUTORIAL",                          // texto de cima
+  textoBaixo: "Como Criar esse efeito no Claude",  // texto de baixo
+  palavraDestaque: "Claude",   // palavra do texto de baixo em itálico serifado
+  corDestaque: "#E8623D",      // cor da palavra em destaque (coral)
+  corTexto: "#17223B",         // cor do restante do texto (azul-tinta)
+}}
+```
+
+- **Trocar a frase:** edite `textoTopo` e `textoBaixo`.
+- **Mudar a palavra em itálico/cor:** ela precisa aparecer em `textoBaixo`.
+  Ex.: para destacar "efeito", ponha `palavraDestaque: "efeito"`.
+- **Mudar cores:** troque `corDestaque` e `corTexto` por qualquer cor hex.
+
+Se editar pelo **Remotion Studio** (`npm run dev`), dá pra mudar esses campos
+no painel da direita sem mexer no código.
+
+---
+
+## 🖼️ Como trocar as FOTOS (cabeças)
+
+1. Coloque seus PNGs **com fundo transparente** em `public/cabecas/`.
+2. Liste-os no array `CABECAS` em **`src/CabecaFlutuante.tsx`**:
+   ```ts
+   const CABECAS = [
+     "cabecas/rosto1.png",
+     "cabecas/rosto2.png",
+     // ...adicione quantos quiser
+   ];
+   ```
+O efeito usa todas as cabeças da lista, em sequência.
+
+### Trocar o FUNDO
+Substitua **`public/fundo.jpg`** por outra imagem (qualquer proporção; ela é
+cortada pra cobrir a tela). Se o arquivo não existir, aparece um fundo creme
+`#F1E9D2` com linhas verticais azuis desenhadas automaticamente.
+
+---
+
+## 🎚️ Ajustes finos (em `src/CabecaFlutuante.tsx`)
+
+| O quê | Onde | Padrão |
+|---|---|---|
+| Velocidade da troca de rosto | `CICLO` (frames) | `27` (~0,9s) |
+| Tamanho da cabeça | `ALTURA_CABECA` (px) | `780` |
+| Intensidade da flutuação | `flutuaY` (`* 18`) | ±18px |
+| Giro | `giro` (`* 2.6`) | ±2,6° |
+| Espessura do contorno branco | `transform: scale(1.05)` na silhueta | 1.05 |
+
+A duração total e o FPS ficam no `<Composition>` em `src/Root.tsx`
+(`durationInFrames={150}`, `fps={30}`).
