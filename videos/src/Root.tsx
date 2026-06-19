@@ -39,6 +39,7 @@ export const RemotionRoot: React.FC = () => {
           corFundoA: "#CDEBF6",
           corFundoB: "#9FCBE6",
           corVerde: "#2BD49B",
+          corLaranja: "#E8623D",
           corTexto: "#16314A",
         }}
       />

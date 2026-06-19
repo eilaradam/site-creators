@@ -21,6 +21,7 @@ export const conselhoSchema = z.object({
   corFundoA: z.string(), // topo do gradiente do fundo
   corFundoB: z.string(), // base do gradiente do fundo
   corVerde: z.string(), // verde-menta da marca (destaque / logo)
+  corLaranja: z.string(), // laranja/coral da marca (detalhes)
   corTexto: z.string(), // navy do texto
 });
 
@@ -32,6 +33,7 @@ export const ConselhoDigitando: React.FC<ConselhoProps> = ({
   corFundoA,
   corFundoB,
   corVerde,
+  corLaranja,
   corTexto,
 }) => {
   const frame = useCurrentFrame();
@@ -96,8 +98,8 @@ export const ConselhoDigitando: React.FC<ConselhoProps> = ({
         background: `linear-gradient(160deg, ${corFundoA} 0%, ${corFundoB} 100%)`,
       }}
     >
-      {/* textura: pontinhos suaves de fundo */}
-      <PontosDeFundo cor={corVerde} />
+      {/* textura: pontinhos suaves de fundo (verde + laranja) */}
+      <PontosDeFundo corA={corVerde} corB={corLaranja} />
 
       {cliques}
 
@@ -144,13 +146,13 @@ export const ConselhoDigitando: React.FC<ConselhoProps> = ({
             Conselho da EITA
           </div>
 
-          {/* aspas decorativas */}
+          {/* aspas decorativas (laranja) */}
           <div
             style={{
               fontFamily: '"Times New Roman", Times, serif',
               fontSize: 150,
               lineHeight: 0.5,
-              color: corVerde,
+              color: corLaranja,
               height: 70,
               marginTop: 26,
               marginBottom: 6,
@@ -177,7 +179,7 @@ export const ConselhoDigitando: React.FC<ConselhoProps> = ({
               destaque={destaque}
               corVerde={corVerde}
             />
-            {/* cursor */}
+            {/* cursor (laranja) */}
             <span
               style={{
                 display: "inline-block",
@@ -185,7 +187,7 @@ export const ConselhoDigitando: React.FC<ConselhoProps> = ({
                 height: 64,
                 marginLeft: 6,
                 transform: "translateY(10px)",
-                background: corVerde,
+                background: corLaranja,
                 borderRadius: 3,
                 opacity: mostrarCursor ? 1 : 0,
               }}
@@ -268,8 +270,11 @@ const Lampada: React.FC<{ cor: string; grande?: boolean }> = ({
   );
 };
 
-/* Pontinhos suaves espalhados no fundo (textura leve da marca) */
-const PontosDeFundo: React.FC<{ cor: string }> = ({ cor }) => {
+/* Pontinhos suaves espalhados no fundo (textura leve da marca: verde + laranja) */
+const PontosDeFundo: React.FC<{ corA: string; corB: string }> = ({
+  corA,
+  corB,
+}) => {
   const pontos = [];
   let seed = 11;
   const rnd = () => {
@@ -280,8 +285,10 @@ const PontosDeFundo: React.FC<{ cor: string }> = ({ cor }) => {
     const cx = rnd() * 1080;
     const cy = rnd() * 1920;
     const r = 3 + rnd() * 7;
+    // ~1 a cada 3 pontinhos em laranja, o resto em verde
+    const cor = i % 3 === 0 ? corB : corA;
     pontos.push(
-      <circle key={i} cx={cx} cy={cy} r={r} fill={cor} opacity={0.12} />
+      <circle key={i} cx={cx} cy={cy} r={r} fill={cor} opacity={0.13} />
     );
   }
   return (
