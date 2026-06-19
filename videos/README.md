@@ -2,13 +2,30 @@
 
 Vídeos verticais feitos por código (React + [Remotion](https://remotion.dev)).
 
-## Composição atual: `CabecaFlutuante`
+## Composições
+
+### `CabecaFlutuante`
 
 Efeito "cabeça flutuante" para gancho de Reels — **1080×1920, 30fps, 5s**.
 Uma cabeça recortada surge crescendo (efeito carimbo com leve overshoot),
 segura, encolhe e some; o rosto só troca quando está invisível (nunca corte
 seco). A cabeça flutua de leve, gira o mínimo e tem contorno branco estilo
 sticker + sombra suave.
+
+### `ConselhoDigitando`
+
+Conselho "sendo escrito" em um card no estilo da marca **EITA Mentora
+Virtual** (verde-menta + azul claro + navy) — **1080×1920, 30fps, 5s**.
+O texto é digitado letra por letra, com cursor piscando, etiqueta verde
+"Conselho da EITA" (lâmpada) e **som de teclado** (um clique por caractere).
+O som está em `public/teclado.wav` (gerado por código). Edite frase, trecho
+em destaque e cores nas `defaultProps` em `src/Root.tsx`.
+
+Renderizar (neste ambiente remoto, ver nota do Chromium abaixo):
+```bash
+npx remotion render src/index.ts ConselhoDigitando out/conselho-digitando.mp4 \
+  --codec=h264 --concurrency=4 --gl=angle --browser-executable=/tmp/chromium
+```
 
 ---
 
