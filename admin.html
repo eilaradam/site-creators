@@ -1318,12 +1318,14 @@
         </div>
         <div id="castingStats" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;"></div>
         <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:14px;">
-            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px;">🔗 Gerar link de indicação (pra mentoras)</div>
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;">🔗 Gerar link de indicação (pra mentoras)</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">O link sai com um <b>código anônimo</b> (a mentora não vê o nome dela). Só você enxerga quem é quem aqui no painel.</div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
                 <input id="refGenNome" placeholder="Nome da mentora (ex.: Mariana)" style="flex:1;min-width:200px;padding:9px 13px;border:1px solid var(--border);border-radius:9px;font-family:inherit;font-size:13px;background:var(--cream);color:var(--text);outline:none;">
                 <button type="button" onclick="gerarLinkIndicacao()" style="padding:9px 16px;background:var(--accent);color:#fff;border:none;border-radius:9px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">Gerar + copiar</button>
             </div>
-            <input id="refGenLink" readonly placeholder="o link aparece aqui pra você copiar e mandar pra mentora" style="width:100%;margin-top:8px;padding:9px 13px;border:1px solid var(--border);border-radius:9px;font-family:inherit;font-size:13px;background:var(--cream);color:var(--accent);outline:none;">
+            <input id="refGenLink" readonly placeholder="o link anônimo aparece aqui pra você copiar e mandar" style="width:100%;margin-top:8px;padding:9px 13px;border:1px solid var(--border);border-radius:9px;font-family:inherit;font-size:13px;background:var(--cream);color:var(--accent);outline:none;">
+            <div id="refLinksList"></div>
         </div>
         <div id="castingIndicacoes" style="margin-bottom:14px;"></div>
         <div id="castingEmpty" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:40px;text-align:center;color:var(--text-muted);">Nenhuma candidatura ainda. Compartilhe o link <b>creators.laradam.com/casting/internacional</b> com as creators.</div>
@@ -2247,21 +2249,43 @@
             + (r.ingles_sotaque ? castingRow('Sotaque', lbl(sotaqueMap, r.ingles_sotaque)) : '')
             + (r.ingles_origem ? castingRow('Aprendeu inglês', lbl(origemMap, r.ingles_origem)) : '')
             + castingRow('Mora no exterior', ext)
-            + (r.indicada_por ? castingRow('Veio de', '🔗 ' + castingEsc(r.indicada_por)) : '')
+            + (r.indicada_por ? castingRow('Veio de', '🔗 ' + castingEsc(_castingRefMap[r.indicada_por] || r.indicada_por)) : '')
             + (r.tom_pele ? castingRow('Tom de pele', lbl(tomPeleMap, r.tom_pele)) : '')
             + (peleCarac ? castingRow('Pele', peleCarac) : '')
             + (cabelo ? castingRow('Cabelo', cabelo) : '')
             + (r.tatuagem ? castingRow('Tatuagens', lbl(tatuMap, r.tatuagem)) : '')
             + '</div>';
     }
+    let _castingRefMap = {};
+    function refMapGet() { try { return JSON.parse(localStorage.getItem('castingRefMap') || '{}'); } catch (e) { return {}; } }
+    function refMapSet(m) { try { localStorage.setItem('castingRefMap', JSON.stringify(m)); } catch (e) {} }
+    function refGenCode() { const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s = ''; for (let i = 0; i < 6; i++) s += c[Math.floor(Math.random() * c.length)]; return s; }
     function gerarLinkIndicacao() {
-        const nome = (document.getElementById('refGenNome').value || '').trim();
-        const out = document.getElementById('refGenLink');
-        if (!nome) { out.value = ''; return; }
-        const slug = nome.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-        const link = 'https://creators.laradam.com/casting/internacional?ref=' + slug;
-        out.value = link;
+        const nomeEl = document.getElementById('refGenNome');
+        const nome = (nomeEl.value || '').trim();
+        if (!nome) return;
+        const map = refMapGet();
+        const code = refGenCode();
+        map[code] = nome;
+        refMapSet(map);
+        const link = 'https://creators.laradam.com/casting/internacional?ref=' + code;
+        document.getElementById('refGenLink').value = link;
         navigator.clipboard.writeText(link).then(() => {}).catch(() => {});
+        nomeEl.value = '';
+        renderRefLinks();
+    }
+    function copiarRefLink(code) {
+        const link = 'https://creators.laradam.com/casting/internacional?ref=' + code;
+        navigator.clipboard.writeText(link).then(() => {}).catch(() => {});
+    }
+    function renderRefLinks() {
+        const el = document.getElementById('refLinksList');
+        if (!el) return;
+        const entries = Object.entries(refMapGet());
+        el.innerHTML = entries.length
+            ? '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin:14px 0 6px;">Seus links (só você vê o nome) · ' + entries.length + '</div>'
+                + entries.map(en => '<div style="display:flex;align-items:center;gap:8px;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border);"><strong style="min-width:120px;">' + castingEsc(en[1]) + '</strong><span style="flex:1;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">.../casting/internacional?ref=' + castingEsc(en[0]) + '</span><button type="button" onclick="copiarRefLink(\'' + castingEsc(en[0]) + '\')" style="padding:4px 11px;border:1px solid var(--border);border-radius:7px;background:var(--cream);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;">copiar</button></div>').join('')
+            : '';
     }
 
     async function loadCasting() {
@@ -2271,6 +2295,8 @@
         if (!list) return;
         list.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted);">Carregando...</div>';
         empty.style.display = 'none';
+        _castingRefMap = refMapGet();
+        renderRefLinks();
         const { data, error } = await sb.from('casting_candidaturas').select('*').eq('casting', 'internacional').order('created_at', { ascending: false });
         if (error) {
             stats.innerHTML = '';
@@ -2305,7 +2331,7 @@
             _indEl.innerHTML = _refEntries.length
                 ? '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;">'
                     + '<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;">📈 Quem trouxe creators (por link de indicação)</div>'
-                    + _refEntries.map(e => '<div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border);"><span>🔗 ' + castingEsc(e[0]) + '</span><strong style="color:var(--accent);">' + e[1] + '</strong></div>').join('')
+                    + _refEntries.map(e => '<div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border);"><span>🔗 ' + castingEsc(_castingRefMap[e[0]] || e[0]) + '</span><strong style="color:var(--accent);">' + e[1] + '</strong></div>').join('')
                     + '<div style="display:flex;justify-content:space-between;font-size:12px;padding:7px 0 0;color:var(--text-muted);"><span>Direto (sem link de indicação)</span><span>' + _semRef + '</span></div>'
                     + '</div>'
                 : '';
