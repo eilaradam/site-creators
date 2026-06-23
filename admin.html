@@ -2224,13 +2224,13 @@
             + '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><strong style="font-size:15px;">' + castingEsc(d.nome || '—') + '</strong>' + badge + '</div>'
             + '<span style="font-size:12px;color:var(--text-muted);">' + date + '</span></div>'
             + '<div style="font-size:13px;margin-bottom:10px;"><a href="mailto:' + castingEsc(d.email) + '" style="color:var(--accent);">' + castingEsc(d.email) + '</a></div>'
-            + castingRow('Nível de inglês', nivelMap[r.ingles_nivel] || '—')
-            + (r.ingles_live ? castingRow('Live em inglês', lbl(liveMap, r.ingles_live)) : '')
+            + (r.ingles_nivel ? castingRow('Nível de inglês', lbl(nivelMap, r.ingles_nivel)) : '')
+            + castingRow('Cria em inglês', conteudo)
             + (r.ingles_ugc ? castingRow('UGC em inglês', lbl(ugcMap, r.ingles_ugc)) : '')
             + (r.ingles_sotaque ? castingRow('Sotaque', lbl(sotaqueMap, r.ingles_sotaque)) : '')
             + (r.ingles_origem ? castingRow('Aprendeu inglês', lbl(origemMap, r.ingles_origem)) : '')
-            + castingRow('Cria em inglês', conteudo)
             + castingRow('TikTok Shop', tts)
+            + (r.ingles_live ? castingRow('Live em inglês', lbl(liveMap, r.ingles_live)) : '')
             + (produtos ? castingRow('Produtos vendidos', produtos) : '')
             + castingRow('Mora no exterior', ext)
             + (r.tom_pele ? castingRow('Tom de pele', lbl(tomPeleMap, r.tom_pele)) : '')
