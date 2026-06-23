@@ -1316,15 +1316,17 @@
 
 <!-- ── TAB: DISPARO DE E-MAIL ── -->
 <div class="dashboard" id="tabDisparo">
-    <div style="max-width:760px;margin:0 auto;">
+    <div style="max-width:1140px;margin:0 auto;">
         <h2 style="font-size:22px;font-weight:800;margin:0;color:var(--text);">📨 Disparo de E-mail em Massa</h2>
         <p style="color:var(--text-muted);font-size:13px;margin:2px 0 20px;">Envia um e-mail pra sua base de creators, direto pelo Resend. Use <b>{{nome}}</b> no texto pra personalizar com o primeiro nome de cada uma.</p>
 
-        <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;">
+        <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;">
+        <div style="flex:1.1;min-width:360px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;">
             <div style="margin-bottom:16px;">
                 <label style="display:block;font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;">Destinatários</label>
                 <select id="dispTarget" onchange="loadDisparo()" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;background:var(--cream);color:var(--text);outline:none;">
                     <option value="todos">Todos os creators da base</option>
+                    <option value="teste">🧪 Teste — só laradam.ugc@gmail.com</option>
                     <option value="novo">Só status: Novo</option>
                     <option value="aprovado">Só status: Aprovado</option>
                     <option value="ativo">Só status: Ativo</option>
@@ -1368,6 +1370,11 @@
                 <div id="dispProgressText" style="font-size:13px;color:var(--text-soft);margin-top:8px;text-align:center;"></div>
             </div>
             <div id="dispResult" style="margin-top:14px;"></div>
+        </div>
+        <div style="flex:1;min-width:320px;position:sticky;top:14px;">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:8px;">📱 Como vai chegar</div>
+            <div id="dispPreview" style="background:#f1f1f1;border:1px solid var(--border);border-radius:14px;padding:14px;"></div>
+        </div>
         </div>
     </div>
 </div>
@@ -2272,6 +2279,7 @@
 
     /* ══ DISPARO DE E-MAIL EM MASSA (via função send-bulk-email + Resend) ══ */
     async function disparoRecipients(target) {
+        if (target === 'teste') return [{ nome: 'Lara', email: 'laradam.ugc@gmail.com' }];
         let q = sb.from('creators').select('nome,email');
         if (target && target !== 'todos') q = q.eq('status', target);
         const { data, error } = await q;
@@ -2281,10 +2289,24 @@
     async function loadDisparo() {
         const el = document.getElementById('dispCount');
         if (!el) return;
+        ['dispSubject', 'dispBody', 'dispBtnText', 'dispBtnLink'].forEach(id => { const f = document.getElementById(id); if (f) f.oninput = renderDispPreview; });
+        renderDispPreview();
         el.textContent = 'Contando...';
-        const recs = await disparoRecipients(document.getElementById('dispTarget').value);
+        const target = document.getElementById('dispTarget').value;
+        const recs = await disparoRecipients(target);
         if (recs === null) { el.innerHTML = '<span style="color:var(--error);">Erro ao contar destinatários.</span>'; return; }
-        el.innerHTML = '<b style="color:var(--accent);">' + recs.length + '</b> creators vão receber este e-mail.';
+        if (target === 'teste') el.innerHTML = '🧪 Modo teste — vai só pra <b>laradam.ugc@gmail.com</b>.';
+        else el.innerHTML = '<b style="color:var(--accent);">' + recs.length + '</b> creators vão receber este e-mail.';
+    }
+    function renderDispPreview() {
+        const el = document.getElementById('dispPreview');
+        if (!el) return;
+        const subject = (document.getElementById('dispSubject').value || '').trim() || '(sem assunto)';
+        const corpo = (document.getElementById('dispBody').value || '').trim() || 'Escreva a mensagem ao lado e veja aqui como vai ficar...';
+        const html = buildEmailHtml(corpo, document.getElementById('dispBtnText').value.trim(), document.getElementById('dispBtnLink').value.trim()).replace(/\{\{nome\}\}/g, 'Maria');
+        el.innerHTML = '<div style="background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,.08);">'
+            + '<div style="padding:11px 16px;border-bottom:1px solid #eee;font-size:12px;color:#555;line-height:1.5;"><div><b>De:</b> Lara Dam &lt;contato@ugcmanager.com.br&gt;</div><div><b>Assunto:</b> ' + dispEsc(subject) + '</div></div>'
+            + html + '</div>';
     }
     function dispEsc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
     function buildEmailHtml(corpo, btnText, btnLink) {
