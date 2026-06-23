@@ -553,6 +553,13 @@
 
         btn.textContent = 'Verificando...'; btn.disabled = true;
         try {
+            /* Já respondeu esse casting? (evita duplicata) */
+            const { data: jaResp, error: jaErr } = await sb.rpc('casting_ja_respondeu', { p_casting: CASTING_ID, p_email: email });
+            if (!jaErr && jaResp === true) {
+                err.textContent = 'Esse e-mail já está no banco — você já respondeu esse casting! 💛 Sua resposta está salva, não precisa preencher de novo.';
+                err.classList.add('show');
+                return;
+            }
             const { data, error } = await sb.rpc('creator_lookup_by_email', { p_email: email });
             if (error) throw error;
             jaCadastrada = !!(data && data.encontrado);
