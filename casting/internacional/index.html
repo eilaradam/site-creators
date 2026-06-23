@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casting · Creators Internacionais | Lara Dam</title>
+    <meta name="description" content="Casting de creators que falam inglês para campanhas internacionais e TikTok Shop. Lara Dam.">
+    <meta name="robots" content="noindex">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.98.0" integrity="sha384-Sm2s7OXxsAMTyJ4iIyRBgVpeGUvMPk2lRQnnZhE78Wej7oggIoolKt+SCt0XJbUB" crossorigin="anonymous"></script>
+    <style>
+        :root {
+            --black: #0A0A0A;
+            --white: #FAFAF9;
+            --cream: #F5F3EF;
+            --warm: #E8E4DD;
+            --accent: #D4572A;
+            --accent-dark: #B8461F;
+            --accent-glow: rgba(212,87,42,0.12);
+            --text: #1A1816;
+            --text-soft: #6B645C;
+            --text-muted: #9C958C;
+            --border: #DDD8D0;
+            --card: #FFFFFF;
+            --success: #2D7A4F;
+            --error: #C4453C;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background: var(--cream); color: var(--text); -webkit-font-smoothing: antialiased; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 32px 24px; }
+        .page-logo { text-align: center; margin-bottom: 32px; }
+        .page-logo a { font-family: 'Fraunces', serif; font-weight: 700; font-size: 28px; color: var(--text); text-decoration: none; }
+        .page-logo a span { color: var(--accent); }
+        .form-wrapper { max-width: 540px; width: 100%; }
+        .form-box { background: var(--card); border-radius: 24px; padding: 44px 36px; border: 1px solid var(--border); box-shadow: 0 4px 24px rgba(0,0,0,0.04); position: relative; overflow: hidden; }
+        .form-box::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent), #E8784A, var(--accent)); }
+        .casting-badge { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent); background: var(--accent-glow); padding: 5px 12px; border-radius: 100px; margin-bottom: 14px; }
+        .form-title { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.5px; }
+        .form-subtitle { font-size: 14px; color: var(--text-soft); margin-bottom: 32px; line-height: 1.6; }
+        .field-group { margin-bottom: 20px; }
+        .field-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+        .field-group input, .field-group select { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 12px; font-family: 'Outfit', sans-serif; font-size: 15px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; }
+        .field-group input::placeholder { color: var(--text-muted); }
+        .field-group input:focus, .field-group select:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
+        .field-group select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239C958C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 40px; cursor: pointer; }
+        .field-group textarea { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 12px; font-family: 'Outfit', sans-serif; font-size: 15px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; resize: vertical; min-height: 80px; line-height: 1.5; }
+        .field-group textarea::placeholder { color: var(--text-muted); }
+        .field-group textarea:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
+        .char-counter { font-size: 12px; color: var(--text-muted); text-align: right; margin-top: 4px; }
+        .char-counter.limit { color: var(--error); font-weight: 600; }
+        .nicho-picker { border: 1.5px solid var(--border); border-radius: 12px; background: var(--cream); padding: 16px; max-height: 320px; overflow-y: auto; transition: border-color 0.25s; }
+        .nicho-picker:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
+        .nicho-category { margin-bottom: 14px; }
+        .nicho-category:last-child { margin-bottom: 0; }
+        .nicho-category-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 8px; }
+        .nicho-options { display: flex; flex-wrap: wrap; gap: 6px; }
+        .nicho-chip { display: inline-flex; align-items: center; padding: 6px 14px; border-radius: 100px; border: 1.5px solid var(--border); background: var(--card); font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; color: var(--text-soft); cursor: pointer; transition: all 0.2s; user-select: none; }
+        .nicho-chip:hover { border-color: var(--accent); color: var(--accent); }
+        .nicho-chip.selected { background: var(--accent); border-color: var(--accent); color: white; font-weight: 600; }
+        .nicho-chip.disabled { opacity: 0.4; cursor: not-allowed; }
+        .nicho-chip.disabled:hover { border-color: var(--border); color: var(--text-soft); }
+        .nicho-counter { font-size: 12px; color: var(--text-muted); margin-top: 8px; text-align: right; }
+        .nicho-counter.limit { color: var(--accent); font-weight: 600; }
+        .tipo-creator-group { display: flex; gap: 8px; flex-wrap: wrap; }
+        .tipo-creator-option { flex: 1; min-width: 140px; }
+        .tipo-creator-option input[type="radio"] { display: none; }
+        .tipo-creator-option label { display: block; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 12px; background: var(--cream); font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 500; color: var(--text-soft); text-align: center; cursor: pointer; transition: all 0.25s; }
+        .tipo-creator-option label:hover { border-color: var(--accent); color: var(--accent); }
+        .tipo-creator-option input[type="radio"]:checked + label { background: var(--accent); border-color: var(--accent); color: white; font-weight: 700; }
+        .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-submit { width: 100%; margin-top: 8px; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 14px; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .form-submit:hover { background: var(--accent-dark); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(212,87,42,0.3); }
+        .form-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+        .form-footer { text-align: center; margin-top: 16px; font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+        .photo-upload { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 24px; }
+        .photo-preview { width: 96px; height: 96px; border-radius: 50%; background: var(--warm); border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; transition: all 0.3s; }
+        .photo-preview:hover { border-color: var(--accent); background: var(--accent-glow); }
+        .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .photo-preview .photo-icon { font-size: 28px; color: var(--text-muted); line-height: 1; }
+        .photo-label { font-size: 13px; color: var(--accent); font-weight: 600; cursor: pointer; }
+        .photo-label:hover { text-decoration: underline; }
+        .form-error { background: rgba(196,69,60,0.08); border: 1px solid rgba(196,69,60,0.2); color: var(--error); padding: 12px 16px; border-radius: 10px; font-size: 13px; margin-bottom: 16px; display: none; }
+        .form-error.show { display: block; }
+        .form-error.duplicate { background: rgba(212,87,42,0.08); border: 1px solid rgba(212,87,42,0.25); color: var(--accent-dark); font-size: 14px; font-weight: 500; padding: 16px 20px; }
+        .welcome-banner { background: rgba(45,122,79,0.08); border: 1px solid rgba(45,122,79,0.22); color: #1f5c39; padding: 14px 16px; border-radius: 10px; font-size: 14px; font-weight: 500; line-height: 1.5; margin-bottom: 24px; }
+        .field-locked { opacity: 0.6; pointer-events: none; }
+        .casting-section { margin-top: 28px; padding-top: 26px; border-top: 1px solid var(--border); }
+        .cond-block { border-left: 2px solid var(--accent-glow); padding-left: 16px; margin: -2px 0 20px; }
+        .terms-checkbox { display: flex; align-items: flex-start; gap: 10px; margin: 24px 0 8px; padding: 16px; background: rgba(212,87,42,0.04); border-radius: 10px; border: 1px solid var(--border); }
+        .terms-checkbox input[type="checkbox"] { accent-color: var(--accent); width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; cursor: pointer; }
+        .terms-checkbox label { font-size: 13px; color: var(--text-soft); line-height: 1.5; cursor: pointer; }
+        .terms-checkbox a { color: var(--accent); font-weight: 600; text-decoration: underline; }
+        .success-state { display: none; text-align: center; padding: 40px 20px; }
+        .success-state.show { display: block; animation: fadeUp 0.5s ease-out; }
+        @keyframes checkPop { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 1; } }
+        .success-check-animated { width: 80px; height: 80px; border-radius: 50%; background: rgba(45,122,79,0.1); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 36px; animation: checkPop 0.6s cubic-bezier(0.175,0.885,0.32,1.275) both; }
+        .success-title { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .success-subtitle { font-size: 14px; color: var(--text-soft); line-height: 1.7; max-width: 380px; margin: 0 auto 6px; }
+        .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 200; overflow: hidden; }
+        .confetti-piece { position: absolute; width: 10px; height: 10px; top: -10px; border-radius: 2px; animation: confettiFall linear forwards; }
+        @keyframes confettiFall { 0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 768px) {
+            body { padding: 24px 16px; }
+            .field-row { grid-template-columns: 1fr; }
+            .form-box { padding: 32px 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-logo"><a href="/">lara<span>.</span>dam</a></div>
+    <div class="form-wrapper">
+        <div class="form-box">
+            <div id="formContent">
+                <!-- ETAPA 1: PORTEIRA (nome + email) -->
+                <div id="gateSection">
+                    <span class="casting-badge">🌎 Casting Internacional</span>
+                    <h3 class="form-title">Creators que falam inglês</h3>
+                    <p class="form-subtitle">Estamos montando um time de creators bilíngues para campanhas internacionais e TikTok Shop. Se você fala inglês, já cria conteúdo no idioma ou tem experiência com TikTok Shop, preencha abaixo — leva 2 minutinhos.</p>
+                    <div class="form-error" id="gateError"></div>
+                    <div class="field-group"><label>Nome completo</label><input type="text" id="gateNome" placeholder="Seu nome"></div>
+                    <div class="field-group"><label>E-mail</label><input type="email" id="gateEmail" placeholder="seuemail@exemplo.com"></div>
+                    <button type="button" class="form-submit" id="gateBtn">Continuar</button>
+                    <p class="form-footer">Se você já é cadastrada na nossa base de creators, vamos direto às perguntas. Se ainda não é, você completa seu cadastro aqui.</p>
+                </div>
+
+                <!-- ETAPA 2: FORMULÁRIO -->
+                <form id="creatorForm" style="display:none;">
+                    <div class="welcome-banner" id="welcomeBanner" style="display:none;"></div>
+
+                    <!-- Campos padrão (só para creators NOVAS) -->
+                    <div id="standardFields">
+                        <h3 class="form-title">Seus dados</h3>
+                        <p class="form-subtitle">Você ainda não está na nossa base — complete seu cadastro para participar do casting.</p>
+                        <div class="photo-upload">
+                            <label for="fotoInput" style="cursor:pointer"><div class="photo-preview" id="photoPreview"><span class="photo-icon">+</span></div></label>
+                            <label class="photo-label" for="fotoInput">Enviar foto de perfil (obrigatório)</label>
+                            <input type="file" id="fotoInput" accept="image/*" style="display:none">
+                        </div>
+                        <div class="field-row">
+                            <div class="field-group"><label>Nome completo</label><input type="text" required placeholder="Seu nome" id="nome"></div>
+                            <div class="field-group"><label>WhatsApp (com DDD)</label><input type="tel" required placeholder="(00) 00000-0000" id="whatsapp"></div>
+                        </div>
+                        <div class="field-group"><label>E-mail</label><input type="email" required placeholder="seuemail@exemplo.com" id="email"></div>
+                        <div class="field-row">
+                            <div class="field-group"><label>Data de nascimento</label><input type="date" required id="nascimento" max="2015-12-31" min="1940-01-01"></div>
+                            <div class="field-group"><label>Gênero</label><select required id="genero"><option value="" disabled selected>Selecione</option><option value="feminino">Feminino</option><option value="masculino">Masculino</option><option value="nao_binario">Não-binário</option><option value="prefiro_nao_dizer">Prefiro não dizer</option></select></div>
+                        </div>
+                        <div class="field-row">
+                            <div class="field-group"><label>@ do Instagram</label><input type="text" required placeholder="@seuperfil" id="instagram"></div>
+                            <div class="field-group"><label>@ do TikTok <span style="color: var(--text-muted); font-weight: 400;">(opcional)</span></label><input type="text" placeholder="@seuperfil" id="tiktok"></div>
+                        </div>
+                        <div class="field-group"><label>Seguidores no Instagram</label><select required id="seguidores"><option value="" disabled selected>Selecione</option><option value="ate_1k">Até 1.000</option><option value="1k_5k">1.000 a 5.000</option><option value="5k_10k">5.000 a 10.000</option><option value="10k_30k">10.000 a 30.000</option><option value="30k_mais">Acima de 30.000</option></select></div>
+                        <div class="field-row">
+                            <div class="field-group"><label>Estado</label><select required id="estado"><option value="" disabled selected>Selecione o estado</option></select></div>
+                            <div class="field-group"><label>Cidade</label><select required id="cidade" disabled><option value="" disabled selected>Selecione o estado primeiro</option></select></div>
+                        </div>
+                        <div class="field-group">
+                            <label>Nichos do seu conteúdo <span style="color: var(--text-muted); font-weight: 400;">(selecione até 10)</span></label>
+                            <div class="nicho-picker" id="nichoPicker"></div>
+                            <div class="nicho-counter" id="nichoCounter">0 / 10 selecionados</div>
+                        </div>
+                        <div class="field-group">
+                            <label>Tipo de creator</label>
+                            <div class="tipo-creator-group">
+                                <div class="tipo-creator-option"><input type="radio" name="tipo_creator" id="tipo_ugc" value="ugc_creator"><label for="tipo_ugc">UGC Creator</label></div>
+                                <div class="tipo-creator-option"><input type="radio" name="tipo_creator" id="tipo_influenciadora" value="influenciadora"><label for="tipo_influenciadora">Influenciadora</label></div>
+                                <div class="tipo-creator-option"><input type="radio" name="tipo_creator" id="tipo_ambos" value="ugc_influenciadora"><label for="tipo_ambos">UGC + Influenciadora</label></div>
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <label>Sobre você <span style="color: var(--text-muted); font-weight: 400;">(opcional, máx 200 caracteres)</span></label>
+                            <textarea id="sobre" maxlength="200" placeholder="Conte um pouco sobre você, seu estilo de conteúdo e o que te diferencia..."></textarea>
+                            <div class="char-counter" id="sobreCounter">0 / 200</div>
+                        </div>
+                        <div class="field-group"><label>Já fez campanha paga para marcas?</label><select id="experiencia"><option value="" disabled selected>Selecione</option><option value="sim">Sim, já fiz</option><option value="nao">Não, seria minha primeira</option><option value="permuta">Só permuta</option></select></div>
+                        <div class="field-group"><label>Link do portfólio <span style="color: var(--text-muted); font-weight: 400;">(Google Drive, Behance, site, etc.)</span></label><input type="text" id="portfolio" placeholder="drive.google.com/..."></div>
+                        <div class="field-group"><label>Link do seu melhor conteúdo <span style="color: var(--text-muted); font-weight: 400;">(Instagram, TikTok, YouTube, Drive...)</span></label><input type="text" id="melhor_conteudo" placeholder="instagram.com/reel/..."></div>
+                        <div class="terms-checkbox">
+                            <input type="checkbox" id="aceiteTermos">
+                            <label for="aceiteTermos">Li e aceito os <a href="/termos.html" target="_blank">Termos de Uso do Banco de Creators</a></label>
+                        </div>
+                    </div>
+
+                    <!-- Perguntas do casting (para TODAS) -->
+                    <div class="casting-section" id="castingQuestions">
+                        <h3 class="form-title" style="font-size:22px;">Sobre o casting 🌎</h3>
+                        <p class="form-subtitle">Essas perguntas são específicas desta seleção.</p>
+
+                        <!-- Q1 -->
+                        <div class="field-group">
+                            <label>Qual o seu nível de inglês?</label>
+                            <select id="q_ingles_nivel">
+                                <option value="" disabled selected>Selecione</option>
+                                <option value="basico">Básico</option>
+                                <option value="intermediario">Intermediário</option>
+                                <option value="avancado">Avançado</option>
+                                <option value="fluente">Fluente</option>
+                                <option value="nativo">Nativo</option>
+                            </select>
+                        </div>
+
+                        <!-- Q2 -->
+                        <div class="field-group">
+                            <label>Você já cria conteúdo em inglês?</label>
+                            <select id="q_conteudo_ingles">
+                                <option value="" disabled selected>Selecione</option>
+                                <option value="sim">Sim</option>
+                                <option value="nao">Não, ainda não</option>
+                            </select>
+                        </div>
+                        <div class="cond-block" id="condConteudoIngles" style="display:none;">
+                            <div class="field-group"><label>Cole o link de 1 vídeo seu em inglês <span style="color: var(--text-muted); font-weight: 400;">(referência)</span></label><input type="text" id="q_video_ingles" placeholder="instagram.com/reel/... ou youtube.com/..."></div>
+                            <div class="field-group"><label>Há quanto tempo você cria conteúdo em inglês?</label><input type="text" id="q_tempo_ingles" placeholder="Ex.: 1 ano e meio"></div>
+                        </div>
+
+                        <!-- Q3 -->
+                        <div class="field-group">
+                            <label>Você tem experiência com TikTok Shop?</label>
+                            <select id="q_tiktokshop">
+                                <option value="" disabled selected>Selecione</option>
+                                <option value="sim">Sim</option>
+                                <option value="nao">Não, ainda não</option>
+                            </select>
+                        </div>
+                        <div class="cond-block" id="condTiktokshop" style="display:none;">
+                            <div class="field-group"><label>Quantas lives em média você já fez?</label><input type="text" id="q_lives" placeholder="Ex.: 3 por semana / 50 no total"></div>
+                            <div class="field-group"><label>Há quanto tempo tem essa experiência? <span style="color: var(--text-muted); font-weight: 400;">(opcional)</span></label><input type="text" id="q_tempo_tiktokshop" placeholder="Ex.: 8 meses"></div>
+                        </div>
+
+                        <!-- Q4 -->
+                        <div class="field-group">
+                            <label>Você mora no exterior?</label>
+                            <select id="q_exterior">
+                                <option value="" disabled selected>Selecione</option>
+                                <option value="sim">Sim</option>
+                                <option value="nao">Não, moro no Brasil</option>
+                            </select>
+                        </div>
+                        <div class="cond-block" id="condExterior" style="display:none;">
+                            <div class="field-group"><label>Em qual cidade e país você mora?</label><input type="text" id="q_local_exterior" placeholder="Ex.: Lisboa, Portugal"></div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="form-submit" id="submitBtn">Quero participar do casting</button>
+                    <div class="form-error" id="formErrorBottom" style="margin-top:14px;"></div>
+                </form>
+            </div>
+
+            <!-- SUCESSO -->
+            <div class="success-state" id="successState">
+                <div class="success-check-animated">&#10003;</div>
+                <h3 class="success-title">Candidatura recebida! 🌎</h3>
+                <p class="success-subtitle">Recebemos sua candidatura ao casting internacional. Se o seu perfil encaixar, a gente entra em contato pelo e-mail ou WhatsApp. Boa sorte!</p>
+            </div>
+        </div>
+    </div>
+
+<script>
+    const CASTING_ID = 'internacional';
+
+    /* Supabase */
+    const SUPABASE_URL = 'https://mfrmnquvwwuxraqgemyh.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mcm1ucXV2d3d1eHJhcWdlbXloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNDI1NDIsImV4cCI6MjA4NzYxODU0Mn0.zmsi08dV5L1IlXJSr34vOii71w0g0OsD5_5DKio5g-o';
+    let sb = null;
+    function initSb() { if (sb) return sb; try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch (e) {} return sb; }
+    initSb();
+
+    let jaCadastrada = false;
+
+    function gv(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+    function escapeHtml(s) { return (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    function formatUrl(url) { if (!url) return null; const s = url.trim(); if (!s) return null; if (/^https?:\/\//i.test(s)) return s; return 'https://' + s; }
+    function gerarCodigoIndicacao() { const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let code = ''; for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)]; return code; }
+
+    /* Foto de perfil — preview */
+    document.getElementById('fotoInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 15 * 1024 * 1024) { alert('A foto deve ter no máximo 15MB.'); e.target.value = ''; return; }
+        const reader = new FileReader();
+        reader.onload = function(ev) { document.getElementById('photoPreview').innerHTML = '<img src="' + ev.target.result + '" alt="Preview">'; };
+        reader.readAsDataURL(file);
+    });
+
+    /* Máscara WhatsApp */
+    document.getElementById('whatsapp').addEventListener('input', function(e) {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length > 11) v = v.slice(0, 11);
+        if (v.length > 6) v = '(' + v.slice(0,2) + ') ' + v.slice(2,7) + '-' + v.slice(7);
+        else if (v.length > 2) v = '(' + v.slice(0,2) + ') ' + v.slice(2);
+        else if (v.length > 0) v = '(' + v;
+        e.target.value = v;
+    });
+
+    /* IBGE: Estados e Cidades */
+    const estadoSelect = document.getElementById('estado');
+    const cidadeSelect = document.getElementById('cidade');
+    async function carregarEstados() {
+        try {
+            const res = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome');
+            const estados = await res.json();
+            estados.forEach(estado => { const opt = document.createElement('option'); opt.value = estado.sigla; opt.textContent = estado.nome + ' (' + estado.sigla + ')'; estadoSelect.appendChild(opt); });
+        } catch (err) {
+            const ufs = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
+            ufs.forEach(uf => { const opt = document.createElement('option'); opt.value = uf; opt.textContent = uf; estadoSelect.appendChild(opt); });
+        }
+    }
+    estadoSelect.addEventListener('change', async function() {
+        const uf = this.value;
+        cidadeSelect.innerHTML = '<option value="" disabled selected>Carregando cidades...</option>';
+        cidadeSelect.disabled = true;
+        try {
+            const res = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados/' + uf + '/municipios?orderBy=nome');
+            const cidades = await res.json();
+            cidadeSelect.innerHTML = '<option value="" disabled selected>Selecione a cidade</option>';
+            cidades.forEach(cidade => { const opt = document.createElement('option'); opt.value = cidade.nome; opt.textContent = cidade.nome; cidadeSelect.appendChild(opt); });
+            cidadeSelect.disabled = false;
+        } catch (err) {
+            cidadeSelect.innerHTML = '';
+            const input = document.createElement('input');
+            input.type = 'text'; input.id = 'cidade'; input.placeholder = 'Digite sua cidade';
+            cidadeSelect.replaceWith(input);
+        }
+    });
+    carregarEstados();
+
+    /* Nicho Multi-Select */
+    const NICHO_CATEGORIES = {
+        'Beleza & Cuidados Pessoais': ['Skincare','Maquiagem','Cabelos','Unhas','Perfumaria','Corpo & Banho'],
+        'Moda & Estilo': ['Roupas femininas','Roupas masculinas','Acessorios','Calcados','Moda sustentavel','Moda plus size'],
+        'Saude & Bem-estar': ['Fitness','Nutricao','Suplementos','Yoga/Meditacao','Saude mental','Saude feminina'],
+        'Alimentacao': ['Receitas saudaveis','Confeitaria','Drinks','Cozinha pratica','Alimentacao vegana/vegetariana'],
+        'Casa & Decoracao': ['Decoracao','Organizacao','DIY/Faca voce mesma','Jardinagem','Smart home'],
+        'Tecnologia': ['Gadgets','Apps','Produtividade digital','Games'],
+        'Maternidade & Familia': ['Gestacao','Bebes','Criancas','Familia'],
+        'Pets': ['Cachorros','Gatos','Pets exoticos'],
+        'Viagem & Turismo': ['Viagens nacionais','Viagens internacionais','Turismo gastronomico','Viagem economica'],
+        'Educacao & Carreira': ['Cursos/Mentorias','Empreendedorismo','Marketing digital','Financas pessoais'],
+        'Entretenimento': ['Humor','Musica','Livros/Leitura','Filmes & Series'],
+        'Lifestyle': ['Dia a dia','Rotina','Minimalismo','Sustentabilidade'],
+        'Servicos & Locais': ['Restaurantes','Clinicas de estetica','Saloes de beleza','Academias','Hoteis/Pousadas'],
+        'Automotivo': ['Carros','Motos','Acessorios automotivos']
+    };
+    const MAX_NICHOS = 10;
+    let selectedNichos = [];
+
+    function renderNichoPicker(containerId, counterId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        let html = '';
+        for (const [category, options] of Object.entries(NICHO_CATEGORIES)) {
+            html += '<div class="nicho-category"><div class="nicho-category-title">' + category + '</div><div class="nicho-options">';
+            options.forEach(opt => { html += '<span class="nicho-chip" data-value="' + opt + '" onclick="toggleNicho(this,\'' + counterId + '\')">' + opt + '</span>'; });
+            html += '</div></div>';
+        }
+        container.innerHTML = html;
+    }
+    function toggleNicho(chip, counterId) {
+        const value = chip.dataset.value;
+        const idx = selectedNichos.indexOf(value);
+        if (idx > -1) { selectedNichos.splice(idx, 1); chip.classList.remove('selected'); }
+        else { if (selectedNichos.length >= MAX_NICHOS) return; selectedNichos.push(value); chip.classList.add('selected'); }
+        updateNichoCounter(counterId);
+        updateNichoChipStates();
+    }
+    function updateNichoCounter(counterId) {
+        const counter = document.getElementById(counterId);
+        if (!counter) return;
+        counter.textContent = selectedNichos.length + ' / ' + MAX_NICHOS + ' selecionados';
+        counter.classList.toggle('limit', selectedNichos.length >= MAX_NICHOS);
+    }
+    function updateNichoChipStates() {
+        const atLimit = selectedNichos.length >= MAX_NICHOS;
+        document.querySelectorAll('.nicho-chip').forEach(chip => { if (!chip.classList.contains('selected')) chip.classList.toggle('disabled', atLimit); });
+    }
+    renderNichoPicker('nichoPicker', 'nichoCounter');
+
+    /* Sobre: contador */
+    const sobreField = document.getElementById('sobre');
+    if (sobreField) {
+        sobreField.addEventListener('input', function() {
+            const counter = document.getElementById('sobreCounter');
+            const len = this.value.length;
+            counter.textContent = len + ' / 200';
+            counter.classList.toggle('limit', len >= 200);
+        });
+    }
+
+    /* Reveals condicionais das perguntas do casting */
+    function bindCond(selectId, blockId) {
+        const s = document.getElementById(selectId);
+        const b = document.getElementById(blockId);
+        s.addEventListener('change', function() { b.style.display = this.value === 'sim' ? 'block' : 'none'; });
+    }
+    bindCond('q_conteudo_ingles', 'condConteudoIngles');
+    bindCond('q_tiktokshop', 'condTiktokshop');
+    bindCond('q_exterior', 'condExterior');
+
+    /* Liga/desliga os campos padrão (creators novas) */
+    function setStandardActive(active) {
+        const sf = document.getElementById('standardFields');
+        sf.style.display = active ? 'block' : 'none';
+        sf.querySelectorAll('input, select, textarea').forEach(el => { el.disabled = !active; });
+    }
+
+    /* ETAPA 1 → 2: checa o e-mail e ramifica */
+    document.getElementById('gateBtn').addEventListener('click', async function() {
+        const btn = this;
+        const err = document.getElementById('gateError');
+        err.classList.remove('show');
+        const nome = gv('gateNome');
+        const email = gv('gateEmail').toLowerCase();
+        if (!nome) { err.textContent = 'Digite seu nome.'; err.classList.add('show'); return; }
+        if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { err.textContent = 'Digite um e-mail válido.'; err.classList.add('show'); return; }
+        if (!initSb()) { err.textContent = 'Erro de conexão. Recarregue a página.'; err.classList.add('show'); return; }
+
+        btn.textContent = 'Verificando...'; btn.disabled = true;
+        try {
+            const { data, error } = await sb.rpc('creator_lookup_by_email', { p_email: email });
+            if (error) throw error;
+            jaCadastrada = !!(data && data.encontrado);
+            const displayNome = (data && data.nome) ? data.nome : nome;
+
+            document.getElementById('gateSection').style.display = 'none';
+            document.getElementById('creatorForm').style.display = 'block';
+            const banner = document.getElementById('welcomeBanner');
+
+            if (jaCadastrada) {
+                setStandardActive(false);
+                const primeiro = (displayNome || '').split(' ')[0];
+                banner.innerHTML = 'Oi, ' + escapeHtml(primeiro) + '! Achamos seu cadastro na nossa base. 💛 Agora é só responder as perguntas do casting abaixo.';
+                banner.style.display = 'block';
+            } else {
+                setStandardActive(true);
+                banner.style.display = 'none';
+                document.getElementById('nome').value = nome;
+                const ef = document.getElementById('email');
+                ef.value = email; ef.readOnly = true; ef.closest('.field-group').classList.add('field-locked');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (e) {
+            err.textContent = 'Não consegui verificar agora. Tente de novo em instantes.';
+            err.classList.add('show');
+        } finally {
+            btn.textContent = 'Continuar'; btn.disabled = false;
+        }
+    });
+
+    /* ETAPA 2: envio */
+    document.getElementById('creatorForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        const errorEl = document.getElementById('formErrorBottom');
+        errorEl.classList.remove('show', 'duplicate');
+        btn.textContent = 'Enviando...'; btn.disabled = true;
+
+        try {
+            if (!initSb()) throw new Error('Erro de conexão. Recarregue a página.');
+
+            /* Respostas do casting + validação */
+            const cAns = {
+                ingles_nivel: gv('q_ingles_nivel'),
+                cria_conteudo_ingles: gv('q_conteudo_ingles'),
+                tiktokshop: gv('q_tiktokshop'),
+                mora_exterior: gv('q_exterior')
+            };
+            if (!cAns.ingles_nivel) throw new Error('Selecione o seu nível de inglês.');
+            if (!cAns.cria_conteudo_ingles) throw new Error('Diga se você já cria conteúdo em inglês.');
+            if (cAns.cria_conteudo_ingles === 'sim') {
+                cAns.video_ingles = formatUrl(gv('q_video_ingles'));
+                cAns.tempo_ingles = gv('q_tempo_ingles');
+                if (!cAns.video_ingles) throw new Error('Cole o link de 1 vídeo seu em inglês.');
+            }
+            if (!cAns.tiktokshop) throw new Error('Diga se você tem experiência com TikTok Shop.');
+            if (cAns.tiktokshop === 'sim') {
+                cAns.lives_media = gv('q_lives');
+                cAns.tempo_tiktokshop = gv('q_tempo_tiktokshop');
+                if (!cAns.lives_media && !cAns.tempo_tiktokshop) throw new Error('Conte quantas lives já fez ou há quanto tempo tem experiência com TikTok Shop.');
+            }
+            if (!cAns.mora_exterior) throw new Error('Diga se você mora no exterior.');
+            if (cAns.mora_exterior === 'sim') {
+                cAns.local_exterior = gv('q_local_exterior');
+                if (!cAns.local_exterior) throw new Error('Diga em qual cidade e país você mora.');
+            }
+
+            let nome, email;
+
+            if (jaCadastrada) {
+                nome = gv('gateNome');
+                email = gv('gateEmail').toLowerCase();
+            } else {
+                /* Creator nova: valida e cria o cadastro padrão */
+                nome = gv('nome');
+                email = gv('email').toLowerCase();
+                if (selectedNichos.length === 0) throw new Error('Selecione pelo menos 1 nicho do seu conteúdo.');
+                if (!document.querySelector('input[name="tipo_creator"]:checked')) throw new Error('Selecione o tipo de creator.');
+                if (!document.getElementById('aceiteTermos').checked) throw new Error('Você precisa aceitar os Termos de Uso.');
+
+                const fotoField = document.getElementById('fotoInput');
+                const temNovaFoto = fotoField && fotoField.files && fotoField.files[0];
+                if (!temNovaFoto) throw new Error('Envie sua foto de perfil.');
+
+                const arquivo = fotoField.files[0];
+                const compressedBlob = await new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = 400; canvas.height = 400;
+                        const ctx = canvas.getContext('2d');
+                        const size = Math.min(img.width, img.height);
+                        const sx = (img.width - size) / 2; const sy = (img.height - size) / 2;
+                        ctx.drawImage(img, sx, sy, size, size, 0, 0, 400, 400);
+                        canvas.toBlob(b => b ? resolve(b) : reject(new Error('Erro ao processar foto.')), 'image/jpeg', 0.85);
+                    };
+                    img.onerror = () => reject(new Error('Erro ao carregar foto. Tente outro arquivo.'));
+                    img.src = URL.createObjectURL(arquivo);
+                });
+                const nomeArquivo = Date.now() + '_' + Math.random().toString(36).slice(2, 8) + '.jpg';
+                const { error: uploadError } = await sb.storage.from('fotos-perfil').upload(nomeArquivo, compressedBlob, { cacheControl: '3600', upsert: true, contentType: 'image/jpeg' });
+                if (uploadError) throw new Error('Erro ao enviar foto: ' + uploadError.message);
+                const { data: urlData } = sb.storage.from('fotos-perfil').getPublicUrl(nomeArquivo);
+                const fotoUrl = urlData.publicUrl;
+
+                const cidadeEl = document.getElementById('cidade');
+                const cidadeValue = cidadeEl.tagName === 'SELECT' ? cidadeEl.value : cidadeEl.value.trim();
+
+                const creatorData = {
+                    nome: nome,
+                    email: email,
+                    whatsapp: gv('whatsapp'),
+                    instagram: gv('instagram').toLowerCase(),
+                    tiktok: gv('tiktok').toLowerCase() || null,
+                    data_nascimento: gv('nascimento') || null,
+                    genero: gv('genero'),
+                    seguidores: gv('seguidores'),
+                    estado: gv('estado'),
+                    cidade: cidadeValue,
+                    nicho: JSON.stringify(selectedNichos),
+                    tipo_creator: document.querySelector('input[name="tipo_creator"]:checked')?.value || null,
+                    sobre: gv('sobre').substring(0, 200) || null,
+                    experiencia: gv('experiencia') || null,
+                    portfolio: formatUrl(gv('portfolio')),
+                    melhor_conteudo: formatUrl(gv('melhor_conteudo')),
+                    foto_perfil: fotoUrl,
+                    origem: 'site_recrutamento',
+                    utm_origem: 'casting_' + CASTING_ID,
+                    codigo_indicacao: gerarCodigoIndicacao(),
+                    status: 'novo',
+                    aceite_termos: true,
+                    data_aceite_termos: new Date().toISOString()
+                };
+
+                let tentativas = 0, error;
+                do {
+                    ({ error } = await sb.from('creators').insert([creatorData]));
+                    if (error && error.message?.includes('codigo_indicacao') && tentativas < 3) { creatorData.codigo_indicacao = gerarCodigoIndicacao(); tentativas++; }
+                    else break;
+                } while (true);
+                if (error) {
+                    if (error.code === '23505') {
+                        const msg = (error.message || '') + (error.details || '');
+                        if (msg.includes('email')) throw new Error('Esse e-mail já está cadastrado na nossa base! Volte e clique em Continuar de novo para ir direto às perguntas.');
+                        if (msg.includes('instagram')) throw new Error('Esse Instagram já está cadastrado na nossa base com outro e-mail.');
+                        throw new Error('Você já está cadastrada na nossa base! Volte e clique em Continuar para ir direto às perguntas.');
+                    }
+                    throw error;
+                }
+
+                /* E-mail de boas-vindas (best effort) */
+                try {
+                    const emailRes = await sb.functions.invoke('send-welcome-email', { body: { nome: nome, email: email } });
+                    if (!emailRes.error) {
+                        await sb.from('creators').update({ email_boas_vindas_enviado: true, email_boas_vindas_data: new Date().toISOString() }).eq('email', email);
+                    }
+                } catch (emailErr) {}
+            }
+
+            /* Candidatura ao casting (ambos os caminhos) */
+            const { error: candErr } = await sb.from('casting_candidaturas').insert([{
+                casting: CASTING_ID,
+                nome: nome,
+                email: email,
+                ja_cadastrada: jaCadastrada,
+                respostas: cAns
+            }]);
+            if (candErr) throw new Error('Erro ao enviar a candidatura. Tente novamente.');
+
+            document.getElementById('formContent').style.display = 'none';
+            document.getElementById('successState').classList.add('show');
+            launchConfetti();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (err) {
+            const isDuplicate = (err.message || '').includes('já está cadastrad');
+            errorEl.textContent = err.message || 'Erro ao enviar. Tente novamente.';
+            if (isDuplicate) errorEl.classList.add('duplicate');
+            errorEl.classList.add('show');
+            errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            btn.textContent = 'Quero participar do casting'; btn.disabled = false;
+        }
+    });
+
+    /* Confetti */
+    function launchConfetti() {
+        const container = document.createElement('div');
+        container.className = 'confetti-container';
+        document.body.appendChild(container);
+        const colors = ['#D4572A','#E8784A','#2D7A4F','#F5C842','#B8461F','#6B645C'];
+        for (let i = 0; i < 60; i++) {
+            const p = document.createElement('div');
+            p.className = 'confetti-piece';
+            p.style.left = Math.random() * 100 + '%';
+            p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            p.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            p.style.animationDelay = (Math.random() * 1.5) + 's';
+            p.style.width = (Math.random() * 8 + 6) + 'px';
+            p.style.height = (Math.random() * 8 + 6) + 'px';
+            container.appendChild(p);
+        }
+        setTimeout(() => container.remove(), 5000);
+    }
+</script>
+</body>
+</html>
