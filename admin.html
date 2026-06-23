@@ -2311,6 +2311,13 @@
     function clbl(map, v) { return v ? (map[v] || v) : ''; }
     let _castingData = [];
     let _castingTab = 'todas';
+    let _castingCreatorCodes = {};
+    function resolveRef(code) {
+        if (!code) return castingEsc(code || '');
+        if (_castingRefMap[code]) return castingEsc(_castingRefMap[code]);
+        if (_castingCreatorCodes[code]) return castingEsc(_castingCreatorCodes[code]) + ' <span style="color:var(--text-muted);font-size:11px;">(creator)</span>';
+        return castingEsc(code);
+    }
     function _cExterior(r) { if (r.mora_exterior === 'sim') return '🌎 ' + (castingEsc(r.local_exterior || '') || 'Sim'); if (r.mora_exterior === 'nao') return 'Brasil'; return '—'; }
     function _cCria(r) { if (r.cria_conteudo_ingles !== 'sim') return r.cria_conteudo_ingles === 'nao' ? 'Não' : '—'; let s = 'Sim'; if (r.tempo_ingles) s += ' · há ' + castingEsc(clbl(C_TEMPO, r.tempo_ingles)); if (r.video_ingles) s += ' · <a href="' + castingEsc(r.video_ingles) + '" target="_blank" style="color:var(--accent);font-weight:600;">vídeo ↗</a>'; return s; }
     function _cFisico(r) {
@@ -2322,7 +2329,7 @@
         if (r.tatuagem) p.push('<b>Tattoo:</b> ' + castingEsc(clbl(C_TATU, r.tatuagem)));
         return p.length ? p.join('<br>') : '—';
     }
-    function _cVeioDe(d) { const rp = (d.respostas || {}).indicada_por; return rp ? '🔗 ' + castingEsc(_castingRefMap[rp] || rp) : '—'; }
+    function _cVeioDe(d) { const rp = (d.respostas || {}).indicada_por; return rp ? '🔗 ' + resolveRef(rp) : '—'; }
     function _cNome(d) { const b = d.ja_cadastrada ? '<span style="background:rgba(16,185,129,0.12);color:#0a7a55;font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px;margin-left:6px;">na base</span>' : '<span style="background:var(--accent-glow);color:var(--accent-dark);font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px;margin-left:6px;">nova</span>'; return '<strong>' + castingEsc(d.nome || '—') + '</strong>' + b; }
     function _ctTH(s) { return '<th style="text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);padding:9px 12px;white-space:nowrap;border-bottom:1px solid var(--border);background:var(--cream);">' + s + '</th>'; }
     function _ctTD(s, extra) { return '<td style="padding:9px 12px;font-size:13px;color:var(--text);vertical-align:top;border-bottom:1px solid var(--border);' + (extra || '') + '">' + s + '</td>'; }
@@ -2417,6 +2424,9 @@
             + castingStatChip('Fala inglês', falaIngN)
             + castingStatChip('No exterior', ext);
 
+        // Mapa código→nome das creators (pra resolver indicações de creators)
+        _castingCreatorCodes = {};
+        _castingData.forEach(d => { const c = (d.respostas || {}).codigo_indicacao; if (c) _castingCreatorCodes[c] = d.nome || ''; });
         // Ranking de indicações (agrupa por quem indicou via ?ref=)
         const _refs = {};
         let _semRef = 0;
@@ -2427,7 +2437,7 @@
             _indEl.innerHTML = _refEntries.length
                 ? '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;">'
                     + '<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;">📈 Quem trouxe creators (por link de indicação)</div>'
-                    + _refEntries.map(e => '<div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border);"><span>🔗 ' + castingEsc(_castingRefMap[e[0]] || e[0]) + '</span><strong style="color:var(--accent);">' + e[1] + '</strong></div>').join('')
+                    + _refEntries.map(e => '<div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border);"><span>🔗 ' + resolveRef(e[0]) + '</span><strong style="color:var(--accent);">' + e[1] + '</strong></div>').join('')
                     + '<div style="display:flex;justify-content:space-between;font-size:12px;padding:7px 0 0;color:var(--text-muted);"><span>Direto (sem link de indicação)</span><span>' + _semRef + '</span></div>'
                     + '</div>'
                 : '';
