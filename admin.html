@@ -575,6 +575,10 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>
                 <span>Propostas</span>
             </button>
+            <button class="tab nav-item" data-tab="casting" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <span>Casting</span>
+            </button>
         </nav>
         <div class="sidebar-foot">
             <div class="sidebar-user">
@@ -1298,6 +1302,22 @@
     </div>
 </div>
 
+<!-- ── TAB: CASTING ── -->
+<div class="dashboard" id="tabCasting">
+    <div style="max-width:1000px;margin:0 auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
+            <div>
+                <h2 style="font-size:22px;font-weight:800;margin:0;color:var(--text);">Casting Internacional</h2>
+                <p style="color:var(--text-muted);font-size:13px;margin-top:2px;">Creators bilíngues · <a href="/casting/internacional" target="_blank" style="color:var(--accent);font-weight:600;">abrir formulário ↗</a></p>
+            </div>
+            <button type="button" onclick="loadCasting()" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 16px;font-family:inherit;font-size:13px;font-weight:600;color:var(--text-soft);cursor:pointer;">↻ Atualizar</button>
+        </div>
+        <div id="castingStats" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;"></div>
+        <div id="castingEmpty" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:40px;text-align:center;color:var(--text-muted);">Nenhuma candidatura ainda. Compartilhe o link <b>creators.laradam.com/casting/internacional</b> com as creators.</div>
+        <div id="castingList"></div>
+    </div>
+</div>
+
 <div class="dashboard" id="tabOrcamentos">
     <div class="orc-wrap">
         <div class="orc-toolbar" id="orcFilters"></div>
@@ -1922,7 +1942,7 @@
     document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
 
     /* ── Tabs ── */
-    const PAGE_TITLES = { dashboard: 'Dashboard', planejamento: 'Planejamento', creators: 'Creators', admin: 'Administração', portfolio: 'Portfólio', orcamentos: 'Propostas' };
+    const PAGE_TITLES = { dashboard: 'Dashboard', planejamento: 'Planejamento', creators: 'Creators', admin: 'Administração', portfolio: 'Portfólio', orcamentos: 'Propostas', casting: 'Casting' };
     function setPageTitle(target) {
         const el = document.getElementById('pageTitle');
         if (el && PAGE_TITLES[target]) el.textContent = PAGE_TITLES[target];
@@ -1938,6 +1958,7 @@
             document.getElementById('tabAdmin').classList.toggle('show', target === 'admin');
             document.getElementById('tabPortfolio').classList.toggle('show', target === 'portfolio');
             document.getElementById('tabOrcamentos').classList.toggle('show', target === 'orcamentos');
+            document.getElementById('tabCasting').classList.toggle('show', target === 'casting');
             setPageTitle(target);
             document.getElementById('sidebar').classList.remove('open');
             document.getElementById('sidebarBackdrop').classList.remove('show');
@@ -1948,6 +1969,7 @@
             if (target === 'portfolio') loadPortfolio();
             if (target === 'admin') showAdminSubtab('alunas');
             if (target === 'orcamentos') { orcMountTopbar(); loadOrcamentos(); }
+            if (target === 'casting') loadCasting();
         });
     });
 
@@ -2154,6 +2176,75 @@
         if (!ta) return;
         ta.innerHTML = '<span id="orcStatus" class="plan-status"></span><button id="orcNewBtn" class="plan-btn-primary" type="button">+ Nova proposta</button>';
         document.getElementById('orcNewBtn').addEventListener('click', function () { orcOpenModal(null); });
+    }
+
+    /* ── CASTING: candidaturas ── */
+    function castingEsc(s){ return (s==null?'':String(s)).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    function castingStatChip(label, val){ return '<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 16px;min-width:110px;"><div style="font-size:22px;font-weight:800;color:var(--accent);line-height:1;">'+val+'</div><div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-top:6px;">'+label+'</div></div>'; }
+    function castingRow(label, val){ return '<div style="display:flex;gap:10px;font-size:13px;padding:3px 0;"><span style="color:var(--text-muted);min-width:130px;flex-shrink:0;">'+label+'</span><span style="color:var(--text);font-weight:500;">'+val+'</span></div>'; }
+    function renderCastingCard(d){
+        const r = d.respostas || {};
+        const nivelMap = { basico:'Básico', intermediario:'Intermediário', avancado:'Avançado', fluente:'Fluente', nativo:'Nativo' };
+        const badge = d.ja_cadastrada
+            ? '<span style="background:rgba(16,185,129,0.12);color:#0a7a55;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;">já na base</span>'
+            : '<span style="background:var(--accent-glow);color:var(--accent-dark);font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;">nova</span>';
+        const date = d.created_at ? new Date(d.created_at).toLocaleDateString('pt-BR') : '';
+        let conteudo = '—';
+        if (r.cria_conteudo_ingles === 'sim') {
+            conteudo = 'Sim';
+            if (r.tempo_ingles) conteudo += ' · ' + castingEsc(r.tempo_ingles);
+            if (r.video_ingles) conteudo += ' · <a href="' + castingEsc(r.video_ingles) + '" target="_blank" style="color:var(--accent);font-weight:600;">ver vídeo ↗</a>';
+        } else if (r.cria_conteudo_ingles === 'nao') conteudo = 'Não';
+        let tts = '—';
+        if (r.tiktokshop === 'sim') {
+            tts = 'Sim';
+            if (r.lives_media) tts += ' · ' + castingEsc(r.lives_media) + ' lives';
+            if (r.tempo_tiktokshop) tts += ' · ' + castingEsc(r.tempo_tiktokshop);
+        } else if (r.tiktokshop === 'nao') tts = 'Não';
+        let ext = '—';
+        if (r.mora_exterior === 'sim') ext = 'Sim · ' + castingEsc(r.local_exterior || '');
+        else if (r.mora_exterior === 'nao') ext = 'Não (Brasil)';
+        return '<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px 20px;margin-bottom:12px;">'
+            + '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;">'
+            + '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><strong style="font-size:15px;">' + castingEsc(d.nome || '—') + '</strong>' + badge + '</div>'
+            + '<span style="font-size:12px;color:var(--text-muted);">' + date + '</span></div>'
+            + '<div style="font-size:13px;margin-bottom:10px;"><a href="mailto:' + castingEsc(d.email) + '" style="color:var(--accent);">' + castingEsc(d.email) + '</a></div>'
+            + castingRow('Nível de inglês', nivelMap[r.ingles_nivel] || '—')
+            + castingRow('Cria em inglês', conteudo)
+            + castingRow('TikTok Shop', tts)
+            + castingRow('Mora no exterior', ext)
+            + '</div>';
+    }
+    async function loadCasting() {
+        const list = document.getElementById('castingList');
+        const empty = document.getElementById('castingEmpty');
+        const stats = document.getElementById('castingStats');
+        if (!list) return;
+        list.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted);">Carregando...</div>';
+        empty.style.display = 'none';
+        const { data, error } = await sb.from('casting_candidaturas').select('*').eq('casting', 'internacional').order('created_at', { ascending: false });
+        if (error) {
+            stats.innerHTML = '';
+            list.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;color:var(--error);font-size:14px;">Erro ao carregar. Você já rodou o <b>sql-casting.sql</b> no Supabase? <br><span style="color:var(--text-muted);font-size:12px;">(' + castingEsc(error.message || '') + ')</span></div>';
+            return;
+        }
+        if (!data || !data.length) {
+            stats.innerHTML = '';
+            list.innerHTML = '';
+            empty.style.display = 'block';
+            return;
+        }
+        const total = data.length;
+        const novas = data.filter(d => !d.ja_cadastrada).length;
+        const ingAvanc = data.filter(d => ['avancado','fluente','nativo'].includes((d.respostas || {}).ingles_nivel)).length;
+        const tts = data.filter(d => (d.respostas || {}).tiktokshop === 'sim').length;
+        const ext = data.filter(d => (d.respostas || {}).mora_exterior === 'sim').length;
+        stats.innerHTML = castingStatChip('Candidaturas', total)
+            + castingStatChip('Novas / na base', novas + ' / ' + (total - novas))
+            + castingStatChip('Inglês avançado+', ingAvanc)
+            + castingStatChip('TikTok Shop', tts)
+            + castingStatChip('No exterior', ext);
+        list.innerHTML = data.map(renderCastingCard).join('');
     }
 
     async function loadOrcamentos() {
