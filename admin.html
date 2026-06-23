@@ -1311,10 +1311,13 @@
     <div style="max-width:1000px;margin:0 auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
             <div>
-                <h2 style="font-size:22px;font-weight:800;margin:0;color:var(--text);">Casting Internacional</h2>
-                <p style="color:var(--text-muted);font-size:13px;margin-top:2px;">Creators bilíngues · <a href="/casting/internacional" target="_blank" style="color:var(--accent);font-weight:600;">abrir formulário ↗</a></p>
+                <h2 style="font-size:22px;font-weight:800;margin:0;color:var(--text);">🌎 Casting Internacional</h2>
+                <p style="color:var(--text-muted);font-size:13px;margin-top:2px;">Inscritos do recrutamento · atualiza ao vivo · <a href="/casting/internacional" target="_blank" style="color:var(--accent);font-weight:600;">abrir formulário ↗</a></p>
             </div>
-            <button type="button" onclick="loadCasting()" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 16px;font-family:inherit;font-size:13px;font-weight:600;color:var(--text-soft);cursor:pointer;">↻ Atualizar</button>
+            <div style="display:flex;gap:8px;">
+                <button type="button" onclick="loadCasting()" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 16px;font-family:inherit;font-size:13px;font-weight:600;color:var(--text-soft);cursor:pointer;">↻ Atualizar</button>
+                <button type="button" onclick="exportCastingCsv()" style="background:var(--accent);border:none;border-radius:10px;padding:9px 16px;font-family:inherit;font-size:13px;font-weight:700;color:#fff;cursor:pointer;">⬇ Exportar CSV</button>
+            </div>
         </div>
         <div id="castingStats" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;"></div>
         <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:14px;">
@@ -1328,6 +1331,11 @@
             <div id="refLinksList"></div>
         </div>
         <div id="castingIndicacoes" style="margin-bottom:14px;"></div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
+            <button type="button" id="castingTabIngles" onclick="castingSetTab('ingles')">🌎 Fala inglês <span id="castingTabInglesN" style="background:rgba(0,0,0,0.10);border-radius:100px;padding:1px 8px;font-size:11px;"></span></button>
+            <button type="button" id="castingTabLiveshop" onclick="castingSetTab('liveshop')">🛍️ Faz LiveShop <span id="castingTabLiveshopN" style="background:rgba(0,0,0,0.10);border-radius:100px;padding:1px 8px;font-size:11px;"></span></button>
+            <input id="castingBusca" oninput="renderCastingTable()" placeholder="Buscar por nome ou e-mail..." style="flex:1;min-width:200px;padding:9px 13px;border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;background:var(--card);color:var(--text);outline:none;">
+        </div>
         <div id="castingEmpty" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:40px;text-align:center;color:var(--text-muted);">Nenhuma candidatura ainda. Compartilhe o link <b>creators.laradam.com/casting/internacional</b> com as creators.</div>
         <div id="castingList"></div>
     </div>
@@ -2288,6 +2296,83 @@
             : '';
     }
 
+    // ── Tabela estilo agencia (abas Fala inglês / Faz LiveShop) ──
+    const C_NIVEL = { basico:'Básico', intermediario:'Intermediário', avancado:'Avançado', fluente:'Fluente', nativo:'Nativo' };
+    const C_LIVE = { natural:'Sim, natural', topicos:'Sim, com tópicos', roteiro:'Só com roteiro', nao:'Ainda não / não faz' };
+    const C_UGC = { natural:'Sim, natural', dificuldade:'Com dificuldade', nao:'Ainda não' };
+    const C_SOT = { americano:'Americano', britanico:'Britânico', neutro:'Neutro', br_leve:'Sotaque BR leve', br_forte:'Sotaque BR forte' };
+    const C_ORIG = { fora:'Morou/mora fora', intercambio:'Intercâmbio', curso:'Curso', autodidata:'Autodidata', nativa:'Nativa' };
+    const C_TOM = { muito_clara:'Muito clara', clara:'Clara', media:'Média', media_escura:'Média escura', escura:'Escura' };
+    const C_COMP = { curto:'Curto', medio:'Médio', longo:'Longo' };
+    const C_TATU = { nao:'Não tem', poucas_pequenas:'Poucas/pequenas', grandes:'Grandes/visíveis', muitas:'Muitas' };
+    const C_TEMPO = { lt6m:'menos de 6 meses', '6m1a':'6 meses–1 ano', '1a2a':'1–2 anos', '2a3a':'2–3 anos', gt3a:'3+ anos', comecando:'começando agora', gt2a:'2+ anos' };
+    const C_LIVES = { irregular:'sem regularidade', '1a2sem':'1–2/semana', '3a5sem':'3–5/semana', '6sem':'6+/semana' };
+    function clbl(map, v) { return v ? (map[v] || v) : ''; }
+    let _castingData = [];
+    let _castingTab = 'ingles';
+    function _cExterior(r) { if (r.mora_exterior === 'sim') return '🌎 ' + (castingEsc(r.local_exterior || '') || 'Sim'); if (r.mora_exterior === 'nao') return 'Brasil'; return '—'; }
+    function _cCria(r) { if (r.cria_conteudo_ingles !== 'sim') return r.cria_conteudo_ingles === 'nao' ? 'Não' : '—'; let s = 'Sim'; if (r.tempo_ingles) s += ' · há ' + castingEsc(clbl(C_TEMPO, r.tempo_ingles)); if (r.video_ingles) s += ' · <a href="' + castingEsc(r.video_ingles) + '" target="_blank" style="color:var(--accent);font-weight:600;">vídeo ↗</a>'; return s; }
+    function _cFisico(r) {
+        const cab = [r.cabelo_comprimento ? clbl(C_COMP, r.cabelo_comprimento) : '', (Array.isArray(r.cabelo_tipo) ? r.cabelo_tipo.join(', ') : ''), (Array.isArray(r.cabelo_cor) ? r.cabelo_cor.join(', ') : '')].filter(Boolean).join(' · ');
+        const pele = [clbl(C_TOM, r.tom_pele), (Array.isArray(r.pele_caracteristicas) ? r.pele_caracteristicas.join(', ') : '')].filter(Boolean).join(' · ');
+        const p = [];
+        if (pele) p.push('<b>Pele:</b> ' + castingEsc(pele));
+        if (cab) p.push('<b>Cabelo:</b> ' + castingEsc(cab));
+        if (r.tatuagem) p.push('<b>Tattoo:</b> ' + castingEsc(clbl(C_TATU, r.tatuagem)));
+        return p.length ? p.join('<br>') : '—';
+    }
+    function _cVeioDe(d) { const rp = (d.respostas || {}).indicada_por; return rp ? '🔗 ' + castingEsc(_castingRefMap[rp] || rp) : '—'; }
+    function _cNome(d) { const b = d.ja_cadastrada ? '<span style="background:rgba(16,185,129,0.12);color:#0a7a55;font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px;margin-left:6px;">na base</span>' : '<span style="background:var(--accent-glow);color:var(--accent-dark);font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px;margin-left:6px;">nova</span>'; return '<strong>' + castingEsc(d.nome || '—') + '</strong>' + b; }
+    function _ctTH(s) { return '<th style="text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);padding:9px 12px;white-space:nowrap;border-bottom:1px solid var(--border);background:var(--cream);">' + s + '</th>'; }
+    function _ctTD(s, extra) { return '<td style="padding:9px 12px;font-size:13px;color:var(--text);vertical-align:top;border-bottom:1px solid var(--border);' + (extra || '') + '">' + s + '</td>'; }
+    function _castingTabBtn(active) { return 'display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;' + (active ? 'background:var(--accent);color:#fff;border:1px solid var(--accent);' : 'background:var(--card);color:var(--text-soft);border:1px solid var(--border);'); }
+    function castingSetTab(t) { _castingTab = t; renderCastingTable(); }
+    function renderCastingTable() {
+        const list = document.getElementById('castingList');
+        if (!list) return;
+        const fala = d => { const x = d.respostas || {}; return x.fala_ingles === 'sim' || x.ingles_nivel; };
+        const live = d => (d.respostas || {}).tiktokshop === 'sim';
+        const bIng = document.getElementById('castingTabIngles'); if (bIng) bIng.style.cssText = _castingTabBtn(_castingTab === 'ingles');
+        const bLive = document.getElementById('castingTabLiveshop'); if (bLive) bLive.style.cssText = _castingTabBtn(_castingTab === 'liveshop');
+        const eIng = document.getElementById('castingTabInglesN'); if (eIng) eIng.textContent = _castingData.filter(fala).length;
+        const eLive = document.getElementById('castingTabLiveshopN'); if (eLive) eLive.textContent = _castingData.filter(live).length;
+        const q = (document.getElementById('castingBusca') ? document.getElementById('castingBusca').value : '').trim().toLowerCase();
+        let rows = _castingData.filter(_castingTab === 'ingles' ? fala : live);
+        if (q) rows = rows.filter(d => ((d.nome || '') + ' ' + (d.email || '')).toLowerCase().includes(q));
+        if (!rows.length) { list.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;text-align:center;color:var(--text-muted);">Nenhuma creator ' + (_castingTab === 'ingles' ? 'que fala inglês' : 'que faz LiveShop') + ' com esse filtro.</div>'; return; }
+        let head, body;
+        if (_castingTab === 'ingles') {
+            head = _ctTH('Nome') + _ctTH('E-mail') + _ctTH('Nível') + _ctTH('Cria em inglês') + _ctTH('UGC') + _ctTH('Live em inglês') + _ctTH('Sotaque') + _ctTH('Aprendeu') + _ctTH('Exterior') + _ctTH('Veio de') + _ctTH('Perfil físico') + _ctTH('Data');
+            body = rows.map(d => { const r = d.respostas || {}; const dt = d.created_at ? new Date(d.created_at).toLocaleDateString('pt-BR') : '';
+                return '<tr>' + _ctTD(_cNome(d), 'white-space:nowrap;') + _ctTD('<a href="mailto:' + castingEsc(d.email) + '" style="color:var(--accent);">' + castingEsc(d.email) + '</a>', 'white-space:nowrap;') + _ctTD(clbl(C_NIVEL, r.ingles_nivel) || '—', 'white-space:nowrap;') + _ctTD(_cCria(r), 'white-space:nowrap;') + _ctTD(clbl(C_UGC, r.ingles_ugc) || '—', 'white-space:nowrap;') + _ctTD(clbl(C_LIVE, r.ingles_live) || '—', 'white-space:nowrap;') + _ctTD(clbl(C_SOT, r.ingles_sotaque) || '—', 'white-space:nowrap;') + _ctTD(clbl(C_ORIG, r.ingles_origem) || '—', 'white-space:nowrap;') + _ctTD(_cExterior(r), 'white-space:nowrap;') + _ctTD(_cVeioDe(d), 'white-space:nowrap;') + _ctTD(_cFisico(r), 'font-size:12px;min-width:170px;') + _ctTD(dt, 'white-space:nowrap;color:var(--text-muted);font-size:12px;') + '</tr>';
+            }).join('');
+        } else {
+            head = _ctTH('Nome') + _ctTH('E-mail') + _ctTH('Lives') + _ctTH('Tempo LiveShop') + _ctTH('Produtos vendidos') + _ctTH('Exterior') + _ctTH('Veio de') + _ctTH('Perfil físico') + _ctTH('Data');
+            body = rows.map(d => { const r = d.respostas || {}; const dt = d.created_at ? new Date(d.created_at).toLocaleDateString('pt-BR') : ''; const prods = (Array.isArray(r.produtos_vendidos) ? r.produtos_vendidos.map(castingEsc).join(', ') : '') || '—';
+                return '<tr>' + _ctTD(_cNome(d), 'white-space:nowrap;') + _ctTD('<a href="mailto:' + castingEsc(d.email) + '" style="color:var(--accent);">' + castingEsc(d.email) + '</a>', 'white-space:nowrap;') + _ctTD(clbl(C_LIVES, r.lives_media) || '—', 'white-space:nowrap;') + _ctTD(clbl(C_TEMPO, r.tempo_tiktokshop) || '—', 'white-space:nowrap;') + _ctTD(prods, 'min-width:160px;') + _ctTD(_cExterior(r), 'white-space:nowrap;') + _ctTD(_cVeioDe(d), 'white-space:nowrap;') + _ctTD(_cFisico(r), 'font-size:12px;min-width:170px;') + _ctTD(dt, 'white-space:nowrap;color:var(--text-muted);font-size:12px;') + '</tr>';
+            }).join('');
+        }
+        list.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;overflow-x:auto;"><table style="width:100%;border-collapse:collapse;min-width:760px;"><thead><tr>' + head + '</tr></thead><tbody>' + body + '</tbody></table></div>';
+    }
+    function exportCastingCsv() {
+        if (!_castingData.length) { alert('Nenhuma candidatura pra exportar.'); return; }
+        const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+        const H = ['Nome','E-mail','Cadastro','Fala inglês','Nível','Cria em inglês','Vídeo','UGC','Live em inglês','Sotaque','Aprendeu','Faz LiveShop','Lives','Tempo LiveShop','Produtos','Exterior','Local','Tom de pele','Pele','Cabelo','Tatuagem','Veio de','Data'];
+        const lines = _castingData.map(d => { const r = d.respostas || {};
+            const cab = [r.cabelo_comprimento ? clbl(C_COMP, r.cabelo_comprimento) : '', (Array.isArray(r.cabelo_tipo) ? r.cabelo_tipo.join(', ') : ''), (Array.isArray(r.cabelo_cor) ? r.cabelo_cor.join(', ') : '')].filter(Boolean).join(' · ');
+            return [d.nome || '', d.email || '', d.ja_cadastrada ? 'Já na base' : 'Nova',
+                (r.fala_ingles === 'sim' || r.ingles_nivel) ? 'Sim' : (r.fala_ingles === 'nao' ? 'Não' : ''), clbl(C_NIVEL, r.ingles_nivel),
+                r.cria_conteudo_ingles === 'sim' ? 'Sim' : (r.cria_conteudo_ingles === 'nao' ? 'Não' : ''), r.video_ingles || '', clbl(C_UGC, r.ingles_ugc), clbl(C_LIVE, r.ingles_live), clbl(C_SOT, r.ingles_sotaque), clbl(C_ORIG, r.ingles_origem),
+                r.tiktokshop === 'sim' ? 'Sim' : (r.tiktokshop === 'nao' ? 'Não' : ''), clbl(C_LIVES, r.lives_media), clbl(C_TEMPO, r.tempo_tiktokshop), (Array.isArray(r.produtos_vendidos) ? r.produtos_vendidos.join('; ') : ''),
+                r.mora_exterior === 'sim' ? 'Sim' : (r.mora_exterior === 'nao' ? 'Não' : ''), r.local_exterior || '', clbl(C_TOM, r.tom_pele), (Array.isArray(r.pele_caracteristicas) ? r.pele_caracteristicas.join('; ') : ''), cab, clbl(C_TATU, r.tatuagem),
+                r.indicada_por ? (_castingRefMap[r.indicada_por] || r.indicada_por) : '', d.created_at ? new Date(d.created_at).toLocaleString('pt-BR') : ''
+            ].map(esc).join(',');
+        });
+        const csv = '﻿' + [H.map(esc).join(','), ...lines].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'casting-internacional.csv'; a.click(); URL.revokeObjectURL(url);
+    }
+
     async function loadCasting() {
         const list = document.getElementById('castingList');
         const empty = document.getElementById('castingEmpty');
@@ -2303,6 +2388,7 @@
             list.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;color:var(--error);font-size:14px;">Erro ao carregar. Você já rodou o <b>sql-casting.sql</b> no Supabase? <br><span style="color:var(--text-muted);font-size:12px;">(' + castingEsc(error.message || '') + ')</span></div>';
             return;
         }
+        _castingData = data || [];
         if (!data || !data.length) {
             stats.innerHTML = '';
             list.innerHTML = '';
@@ -2337,7 +2423,7 @@
                 : '';
         }
 
-        list.innerHTML = data.map(renderCastingCard).join('');
+        renderCastingTable();
     }
 
     async function loadOrcamentos() {
