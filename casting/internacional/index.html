@@ -292,10 +292,11 @@
                             <label>Tom de pele</label>
                             <select id="q_tom_pele">
                                 <option value="" disabled selected>Selecione</option>
+                                <option value="muito_clara">Muito clara</option>
                                 <option value="clara">Clara</option>
-                                <option value="morena_clara">Morena clara</option>
-                                <option value="morena">Morena</option>
-                                <option value="negra">Negra / retinta</option>
+                                <option value="media">Média</option>
+                                <option value="media_escura">Média escura</option>
+                                <option value="escura">Escura</option>
                             </select>
                         </div>
                         <div class="field-group">
@@ -312,8 +313,12 @@
                             </select>
                         </div>
                         <div class="field-group">
-                            <label>Tipo de cabelo <span style="color: var(--text-muted); font-weight: 400;">(marque o que se aplica)</span></label>
+                            <label>Textura do cabelo <span style="color: var(--text-muted); font-weight: 400;">(marque o que se aplica)</span></label>
                             <div class="produtos-picker" id="cabeloPicker" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;"></div>
+                        </div>
+                        <div class="field-group">
+                            <label>Cor do cabelo <span style="color: var(--text-muted); font-weight: 400;">(marque o que se aplica)</span></label>
+                            <div class="produtos-picker" id="cabeloCorPicker" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;"></div>
                         </div>
                         <div class="field-group">
                             <label>Você tem tatuagens?</label>
@@ -483,7 +488,7 @@
     bindCond('q_exterior', 'condExterior');
 
     /* Multi-select por chips (reaproveitado: produtos, pele, cabelo) */
-    const chipState = { produtos: [], pele: [], cabelo: [] };
+    const chipState = { produtos: [], pele: [], cabelo: [], cabelo_cor: [] };
     function renderChips(containerId, group, options) {
         const c = document.getElementById(containerId);
         if (!c) return;
@@ -497,8 +502,9 @@
         else { arr.push(v); chip.classList.add('selected'); }
     }
     renderChips('produtosPicker', 'produtos', ['Beleza & Skincare','Maquiagem','Moda & Roupas','Acessórios','Casa & Decoração','Eletrônicos & Gadgets','Suplementos & Saúde','Pet','Alimentos & Bebidas','Outro']);
-    renderChips('pelePicker', 'pele', ['Normal','Oleosa','Seca','Mista','Sensível','Rosácea','Acne','Manchas / melasma','Vitiligo']);
-    renderChips('cabeloPicker', 'cabelo', ['Liso','Ondulado','Cacheado','Crespo','Pintado / colorido']);
+    renderChips('pelePicker', 'pele', ['Normal','Oleosa','Seca / ressecada','Mista','Sensível','Rosácea','Acne','Manchas / melasma','Olheiras','Rugas / linhas finas','Vitiligo']);
+    renderChips('cabeloPicker', 'cabelo', ['Liso','Ondulado','Cacheado','Crespo']);
+    renderChips('cabeloCorPicker', 'cabelo_cor', ['Loiro','Castanho','Ruivo','Preto','Grisalho','Colorido / fantasia']);
 
     /* Liga/desliga os campos padrão (creators novas) */
     function setStandardActive(active) {
@@ -597,6 +603,7 @@
             cAns.pele_caracteristicas = chipState.pele.slice();
             cAns.cabelo_comprimento = gv('q_cabelo_comp');
             cAns.cabelo_tipo = chipState.cabelo.slice();
+            cAns.cabelo_cor = chipState.cabelo_cor.slice();
             cAns.tatuagem = gv('q_tatuagem');
             if (!cAns.tom_pele) throw new Error('Selecione o seu tom de pele.');
             if (!cAns.cabelo_comprimento) throw new Error('Selecione o comprimento do seu cabelo.');
