@@ -2290,11 +2290,18 @@
     /* ══ DISPARO DE E-MAIL EM MASSA (via função send-bulk-email + Resend) ══ */
     async function disparoRecipients(target) {
         if (target === 'teste') return [{ nome: 'Lara', email: 'laradam.ugc@gmail.com' }];
-        let q = sb.from('creators').select('nome,email');
-        if (target && target !== 'todos') q = q.eq('status', target);
-        const { data, error } = await q;
-        if (error) return null;
-        return (data || []).filter(c => c.email && String(c.email).includes('@')).map(c => ({ nome: c.nome || '', email: String(c.email).trim() }));
+        const all = [];
+        const PAGE = 1000;
+        for (let from = 0; from < 100000; from += PAGE) {
+            let q = sb.from('creators').select('nome,email').range(from, from + PAGE - 1);
+            if (target && target !== 'todos') q = q.eq('status', target);
+            const { data, error } = await q;
+            if (error) return null;
+            if (!data || !data.length) break;
+            all.push(...data);
+            if (data.length < PAGE) break;
+        }
+        return all.filter(c => c.email && String(c.email).includes('@')).map(c => ({ nome: c.nome || '', email: String(c.email).trim() }));
     }
     async function loadDisparo() {
         const el = document.getElementById('dispCount');
