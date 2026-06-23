@@ -1090,6 +1090,10 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                     Copiar lista de WhatsApp
                 </button>
+                <button class="btn-copy" onclick="exportWhatsappCsv()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Exportar CSV (nome + WhatsApp)
+                </button>
                 <button class="btn-send" disabled>
                     Enviar e-mail
                     <span class="btn-send-tooltip">Em breve</span>
@@ -4997,6 +5001,29 @@
             btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copiado!`;
             setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 2000);
         } catch (e) { alert('Erro ao copiar. Tente novamente.'); }
+    }
+
+    /* Exporta CSV (nome, primeiro nome, telefone E.164) pronto pra subir em BSP de WhatsApp */
+    function exportWhatsappCsv() {
+        const filtered = getFilteredCreators();
+        const rows = filtered.map(c => {
+            let d = String(c.whatsapp || '').replace(/\D/g, '');
+            if (d && d.length <= 11) d = '55' + d;            // sem código do país → adiciona 55
+            const nome = (c.nome || '').trim();
+            const primeiro = nome.split(' ')[0] || nome;
+            return { nome, primeiro, tel: d };
+        }).filter(r => r.tel.length >= 12 && r.tel.length <= 13);
+        if (!rows.length) { alert('Nenhum WhatsApp válido nessa seleção.'); return; }
+        const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+        const header = ['nome', 'primeiro_nome', 'telefone'].map(esc).join(',');
+        const lines = rows.map(r => [r.nome, r.primeiro, r.tel].map(esc).join(','));
+        const csv = '﻿' + [header, ...lines].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'creators-whatsapp.csv'; a.click();
+        URL.revokeObjectURL(url);
+        alert(rows.length + ' contatos exportados no CSV.');
     }
 
     /* ══════════════════════════════════════
