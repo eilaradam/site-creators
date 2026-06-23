@@ -1339,6 +1339,15 @@
                 <input id="dispSubject" placeholder="Ex.: Surgiu uma nova oportunidade de campanha pra você 🌎" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;background:var(--cream);color:var(--text);outline:none;">
             </div>
 
+            <div style="display:flex;gap:6px;margin-bottom:12px;">
+                <button type="button" id="dispModeTexto" onclick="setDispMode('texto')">✍️ Texto fácil</button>
+                <button type="button" id="dispModeHtml" onclick="setDispMode('html')">&lt;/&gt; HTML</button>
+            </div>
+            <div id="dispHtmlField" style="display:none;margin-bottom:16px;">
+                <label style="display:block;font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;">Cole o HTML do e-mail <span style="font-weight:400;color:var(--text-muted);">(use {{nome}} pro primeiro nome)</span></label>
+                <textarea id="dispHtml" rows="12" oninput="renderDispPreview()" placeholder="&lt;div style=&quot;font-family:Arial&quot;&gt;Oi, {{nome}}! ...&lt;/div&gt;" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:ui-monospace,Menlo,monospace;font-size:12px;background:var(--cream);color:var(--text);outline:none;resize:vertical;line-height:1.45;"></textarea>
+            </div>
+            <div id="dispTextoFields">
             <div style="margin-bottom:16px;">
                 <label style="display:block;font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;">Mensagem <span style="font-weight:400;color:var(--text-muted);">(use {{nome}} pro primeiro nome · links viram clicáveis)</span></label>
                 <textarea id="dispBody" rows="8" placeholder="Oi, {{nome}}! 👋&#10;Aqui é a Lara Dam..." style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;background:var(--cream);color:var(--text);outline:none;resize:vertical;line-height:1.5;"></textarea>
@@ -1353,6 +1362,7 @@
                     <label style="display:block;font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;">Botão — link</label>
                     <input id="dispBtnLink" placeholder="https://creators.laradam.com/casting/internacional" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;background:var(--cream);color:var(--text);outline:none;">
                 </div>
+            </div>
             </div>
 
             <div style="border-top:1px solid var(--border);padding-top:18px;">
@@ -2289,8 +2299,8 @@
     async function loadDisparo() {
         const el = document.getElementById('dispCount');
         if (!el) return;
-        ['dispSubject', 'dispBody', 'dispBtnText', 'dispBtnLink'].forEach(id => { const f = document.getElementById(id); if (f) f.oninput = renderDispPreview; });
-        renderDispPreview();
+        ['dispSubject', 'dispBody', 'dispBtnText', 'dispBtnLink', 'dispHtml'].forEach(id => { const f = document.getElementById(id); if (f) f.oninput = renderDispPreview; });
+        setDispMode(dispMode);
         el.textContent = 'Contando...';
         const target = document.getElementById('dispTarget').value;
         const recs = await disparoRecipients(target);
@@ -2302,8 +2312,9 @@
         const el = document.getElementById('dispPreview');
         if (!el) return;
         const subject = (document.getElementById('dispSubject').value || '').trim() || '(sem assunto)';
-        const corpo = (document.getElementById('dispBody').value || '').trim() || 'Escreva a mensagem ao lado e veja aqui como vai ficar...';
-        const html = buildEmailHtml(corpo, document.getElementById('dispBtnText').value.trim(), document.getElementById('dispBtnLink').value.trim()).replace(/\{\{nome\}\}/g, 'Maria');
+        const html = dispContentEmpty()
+            ? '<div style="padding:26px;color:#999;font-family:Arial,sans-serif;font-size:14px;">Escreva a mensagem (ou cole o HTML) e veja aqui como vai ficar...</div>'
+            : buildFinalHtml().replace(/\{\{nome\}\}/g, 'Maria');
         el.innerHTML = '<div style="background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,.08);">'
             + '<div style="padding:11px 16px;border-bottom:1px solid #eee;font-size:12px;color:#555;line-height:1.5;"><div><b>De:</b> Lara Dam &lt;contato@ugcmanager.com.br&gt;</div><div><b>Assunto:</b> ' + dispEsc(subject) + '</div></div>'
             + html + '</div>';
@@ -2321,13 +2332,32 @@
             + '<hr style="border:none;border-top:1px solid #eeeeee;margin:28px 0 12px;">'
             + '<p style="font-size:12px;color:#999999;line-height:1.5;">Você recebe este e-mail porque se cadastrou no Banco de Creators da Lara Dam. Se não quiser mais receber, responda com <b>SAIR</b>.</p></div>';
     }
+    let dispMode = 'texto';
+    function dispModeBtnStyle(active) { return 'padding:8px 15px;border-radius:9px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;' + (active ? 'background:var(--accent);color:#fff;border:1px solid var(--accent);' : 'background:var(--card);color:var(--text-soft);border:1px solid var(--border);'); }
+    function setDispMode(m) {
+        dispMode = m;
+        const tf = document.getElementById('dispTextoFields'), hf = document.getElementById('dispHtmlField');
+        if (tf) tf.style.display = m === 'texto' ? 'block' : 'none';
+        if (hf) hf.style.display = m === 'html' ? 'block' : 'none';
+        const bt = document.getElementById('dispModeTexto'), bh = document.getElementById('dispModeHtml');
+        if (bt) bt.style.cssText = dispModeBtnStyle(m === 'texto');
+        if (bh) bh.style.cssText = dispModeBtnStyle(m === 'html');
+        renderDispPreview();
+    }
+    function dispContentEmpty() {
+        if (dispMode === 'html') return !(document.getElementById('dispHtml').value || '').trim();
+        return !(document.getElementById('dispBody').value || '').trim();
+    }
+    function buildFinalHtml() {
+        if (dispMode === 'html') return (document.getElementById('dispHtml').value || '').trim() || '<p>(vazio)</p>';
+        return buildEmailHtml(document.getElementById('dispBody').value.trim(), document.getElementById('dispBtnText').value.trim(), document.getElementById('dispBtnLink').value.trim());
+    }
     async function enviarTesteDisparo(btn) {
         const email = document.getElementById('dispTestEmail').value.trim();
         const subject = document.getElementById('dispSubject').value.trim();
-        const corpo = document.getElementById('dispBody').value.trim();
         if (!email || !email.includes('@')) { alert('Digite um e-mail válido pra teste.'); return; }
-        if (!subject || !corpo) { alert('Preencha o assunto e a mensagem primeiro.'); return; }
-        const html = buildEmailHtml(corpo, document.getElementById('dispBtnText').value.trim(), document.getElementById('dispBtnLink').value.trim());
+        if (!subject || dispContentEmpty()) { alert('Preencha o assunto e a mensagem (ou o HTML) primeiro.'); return; }
+        const html = buildFinalHtml();
         const orig = btn.textContent; btn.textContent = 'Enviando...'; btn.disabled = true;
         try {
             const { data, error } = await sb.functions.invoke('send-bulk-email', { body: { recipients: [{ email, nome: 'Teste' }], subject, html } });
@@ -2339,13 +2369,12 @@
     }
     async function dispararEmMassa() {
         const subject = document.getElementById('dispSubject').value.trim();
-        const corpo = document.getElementById('dispBody').value.trim();
-        if (!subject || !corpo) { alert('Preencha o assunto e a mensagem.'); return; }
+        if (!subject || dispContentEmpty()) { alert('Preencha o assunto e a mensagem (ou o HTML).'); return; }
         const recipients = await disparoRecipients(document.getElementById('dispTarget').value);
         if (recipients === null) { alert('Erro ao carregar destinatários.'); return; }
         if (!recipients.length) { alert('Nenhum destinatário nessa seleção.'); return; }
         if (!confirm('Disparar este e-mail pra ' + recipients.length + ' creators?\n\nNão dá pra desfazer. (Recomendo enviar um teste antes!)')) return;
-        const html = buildEmailHtml(corpo, document.getElementById('dispBtnText').value.trim(), document.getElementById('dispBtnLink').value.trim());
+        const html = buildFinalHtml();
         const sendBtn = document.getElementById('dispSendBtn'), wrap = document.getElementById('dispProgressWrap'), bar = document.getElementById('dispProgressBar'), txt = document.getElementById('dispProgressText'), result = document.getElementById('dispResult');
         sendBtn.disabled = true; sendBtn.style.opacity = '.6';
         wrap.style.display = 'block'; result.innerHTML = '';
