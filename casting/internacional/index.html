@@ -285,6 +285,46 @@
                         <div class="cond-block" id="condExterior" style="display:none;">
                             <div class="field-group"><label>Em qual cidade e país você mora?</label><input type="text" id="q_local_exterior" placeholder="Ex.: Lisboa, Portugal"></div>
                         </div>
+
+                        <h3 class="form-title" style="font-size:18px;margin-top:26px;">Seu perfil físico</h3>
+                        <p class="form-subtitle" style="margin-bottom:20px;">Ajuda a casar você com o perfil que cada marca procura.</p>
+                        <div class="field-group">
+                            <label>Tom de pele</label>
+                            <select id="q_tom_pele">
+                                <option value="" disabled selected>Selecione</option>
+                                <option value="clara">Clara</option>
+                                <option value="morena_clara">Morena clara</option>
+                                <option value="morena">Morena</option>
+                                <option value="negra">Negra / retinta</option>
+                            </select>
+                        </div>
+                        <div class="field-group">
+                            <label>Características da pele <span style="color: var(--text-muted); font-weight: 400;">(marque o que se aplica)</span></label>
+                            <div class="produtos-picker" id="pelePicker" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;"></div>
+                        </div>
+                        <div class="field-group">
+                            <label>Comprimento do cabelo</label>
+                            <select id="q_cabelo_comp">
+                                <option value="" disabled selected>Selecione</option>
+                                <option value="curto">Curto</option>
+                                <option value="medio">Médio</option>
+                                <option value="longo">Longo</option>
+                            </select>
+                        </div>
+                        <div class="field-group">
+                            <label>Tipo de cabelo <span style="color: var(--text-muted); font-weight: 400;">(marque o que se aplica)</span></label>
+                            <div class="produtos-picker" id="cabeloPicker" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;"></div>
+                        </div>
+                        <div class="field-group">
+                            <label>Você tem tatuagens?</label>
+                            <select id="q_tatuagem">
+                                <option value="" disabled selected>Selecione</option>
+                                <option value="nao">Não tenho</option>
+                                <option value="poucas_pequenas">Sim, poucas e pequenas</option>
+                                <option value="grandes">Sim, grandes ou visíveis</option>
+                                <option value="muitas">Sim, muitas</option>
+                            </select>
+                        </div>
                     </div>
 
                     <button type="submit" class="form-submit" id="submitBtn">Quero participar do casting</button>
@@ -442,20 +482,23 @@
     bindCond('q_tiktokshop', 'condTiktokshop');
     bindCond('q_exterior', 'condExterior');
 
-    /* Produtos já vendidos em live (multi-select TikTok Shop) */
-    const PRODUTOS = ['Beleza & Skincare','Maquiagem','Moda & Roupas','Acessórios','Casa & Decoração','Eletrônicos & Gadgets','Suplementos & Saúde','Pet','Alimentos & Bebidas','Outro'];
-    let selectedProdutos = [];
-    (function renderProdutos() {
-        const c = document.getElementById('produtosPicker');
+    /* Multi-select por chips (reaproveitado: produtos, pele, cabelo) */
+    const chipState = { produtos: [], pele: [], cabelo: [] };
+    function renderChips(containerId, group, options) {
+        const c = document.getElementById(containerId);
         if (!c) return;
-        c.innerHTML = PRODUTOS.map(p => '<span class="nicho-chip" data-value="' + p + '" onclick="toggleProduto(this)">' + p + '</span>').join('');
-    })();
-    function toggleProduto(chip) {
-        const v = chip.dataset.value;
-        const i = selectedProdutos.indexOf(v);
-        if (i > -1) { selectedProdutos.splice(i, 1); chip.classList.remove('selected'); }
-        else { selectedProdutos.push(v); chip.classList.add('selected'); }
+        c.innerHTML = options.map(o => '<span class="nicho-chip" data-group="' + group + '" data-value="' + o + '" onclick="toggleChip(this)">' + o + '</span>').join('');
     }
+    function toggleChip(chip) {
+        const g = chip.dataset.group, v = chip.dataset.value;
+        const arr = chipState[g];
+        const i = arr.indexOf(v);
+        if (i > -1) { arr.splice(i, 1); chip.classList.remove('selected'); }
+        else { arr.push(v); chip.classList.add('selected'); }
+    }
+    renderChips('produtosPicker', 'produtos', ['Beleza & Skincare','Maquiagem','Moda & Roupas','Acessórios','Casa & Decoração','Eletrônicos & Gadgets','Suplementos & Saúde','Pet','Alimentos & Bebidas','Outro']);
+    renderChips('pelePicker', 'pele', ['Normal','Oleosa','Seca','Mista','Sensível','Rosácea','Acne','Manchas / melasma','Vitiligo']);
+    renderChips('cabeloPicker', 'cabelo', ['Liso','Ondulado','Cacheado','Crespo','Pintado / colorido']);
 
     /* Liga/desliga os campos padrão (creators novas) */
     function setStandardActive(active) {
@@ -545,11 +588,19 @@
             if (cAns.tiktokshop === 'sim') {
                 cAns.lives_media = gv('q_lives');
                 cAns.tempo_tiktokshop = gv('q_tempo_tiktokshop');
-                cAns.produtos_vendidos = selectedProdutos.slice();
+                cAns.produtos_vendidos = chipState.produtos.slice();
                 if (!cAns.lives_media) throw new Error('Selecione quantas lives de TikTok Shop você faz.');
                 if (!cAns.tempo_tiktokshop) throw new Error('Selecione há quanto tempo você faz TikTok Shop.');
                 if (!cAns.produtos_vendidos.length) throw new Error('Marque pelo menos um tipo de produto que você já vendeu em live.');
             }
+            cAns.tom_pele = gv('q_tom_pele');
+            cAns.pele_caracteristicas = chipState.pele.slice();
+            cAns.cabelo_comprimento = gv('q_cabelo_comp');
+            cAns.cabelo_tipo = chipState.cabelo.slice();
+            cAns.tatuagem = gv('q_tatuagem');
+            if (!cAns.tom_pele) throw new Error('Selecione o seu tom de pele.');
+            if (!cAns.cabelo_comprimento) throw new Error('Selecione o comprimento do seu cabelo.');
+            if (!cAns.tatuagem) throw new Error('Diga se você tem tatuagens.');
             if (!cAns.mora_exterior) throw new Error('Diga se você mora no exterior.');
             if (cAns.mora_exterior === 'sim') {
                 cAns.local_exterior = gv('q_local_exterior');
