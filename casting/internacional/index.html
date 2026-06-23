@@ -553,13 +553,6 @@
 
         btn.textContent = 'Verificando...'; btn.disabled = true;
         try {
-            /* Já respondeu esse casting? (evita duplicata) */
-            const { data: jaResp, error: jaErr } = await sb.rpc('casting_ja_respondeu', { p_casting: CASTING_ID, p_email: email });
-            if (!jaErr && jaResp === true) {
-                err.textContent = 'Esse e-mail já está no banco — você já respondeu esse casting! 💛 Sua resposta está salva, não precisa preencher de novo.';
-                err.classList.add('show');
-                return;
-            }
             const { data, error } = await sb.rpc('creator_lookup_by_email', { p_email: email });
             if (error) throw error;
             jaCadastrada = !!(data && data.encontrado);
@@ -727,23 +720,19 @@
                     if (error && error.message?.includes('codigo_indicacao') && tentativas < 3) { creatorData.codigo_indicacao = gerarCodigoIndicacao(); tentativas++; }
                     else break;
                 } while (true);
-                if (error) {
-                    if (error.code === '23505') {
-                        const msg = (error.message || '') + (error.details || '');
-                        if (msg.includes('email')) throw new Error('Esse e-mail já está cadastrado na nossa base! Volte e clique em Continuar de novo para ir direto às perguntas.');
-                        if (msg.includes('instagram')) throw new Error('Esse Instagram já está cadastrado na nossa base com outro e-mail.');
-                        throw new Error('Você já está cadastrada na nossa base! Volte e clique em Continuar para ir direto às perguntas.');
-                    }
-                    throw error;
-                }
+                /* Se já existir no banco (23505 = e-mail/instagram repetido), NÃO bloqueia —
+                   segue e registra a candidatura mesmo assim. Só interrompe em erro de verdade. */
+                if (error && error.code !== '23505') throw error;
 
-                /* E-mail de boas-vindas (best effort) */
-                try {
-                    const emailRes = await sb.functions.invoke('send-welcome-email', { body: { nome: nome, email: email } });
-                    if (!emailRes.error) {
-                        await sb.from('creators').update({ email_boas_vindas_enviado: true, email_boas_vindas_data: new Date().toISOString() }).eq('email', email);
-                    }
-                } catch (emailErr) {}
+                /* E-mail de boas-vindas só pra cadastro novo de fato (sem duplicata) */
+                if (!error) {
+                    try {
+                        const emailRes = await sb.functions.invoke('send-welcome-email', { body: { nome: nome, email: email } });
+                        if (!emailRes.error) {
+                            await sb.from('creators').update({ email_boas_vindas_enviado: true, email_boas_vindas_data: new Date().toISOString() }).eq('email', email);
+                        }
+                    } catch (emailErr) {}
+                }
             }
 
             /* Indicação: código próprio (pra compartilhar) + quem indicou */
