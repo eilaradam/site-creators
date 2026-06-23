@@ -27,6 +27,20 @@ npx remotion render src/index.ts ConselhoDigitando out/conselho-digitando.mp4 \
   --codec=h264 --concurrency=4 --gl=angle --browser-executable=/tmp/chromium
 ```
 
+### `CarrosselCreators`
+
+Carrossel de feed **1080×1350 (4:5)** no estilo da marca — verde-menta +
+detalhes laranja/coral + navy. 6 cards (capa, 4 tipos de creator, CTA).
+O conteúdo de cada card fica no array `CARDS` em
+`src/CarrosselCreators.tsx`; troque o card visível pela prop `indice`
+(0 = capa … 5 = CTA). Cada card é exportado como **imagem** (still):
+```bash
+mkdir -p out/carrossel
+for i in 0 1 2 3 4 5; do n=$((i+1)); \
+  npx remotion still src/index.ts CarrosselCreators out/carrossel/card-$n.png \
+    --props="{\"indice\":$i}" --browser-executable=/tmp/chromium; done
+```
+
 ---
 
 ## Como rodar

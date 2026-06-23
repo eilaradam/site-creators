@@ -1,6 +1,7 @@
 import { Composition } from "remotion";
 import { CabecaFlutuante, cabecaSchema } from "./CabecaFlutuante";
 import { ConselhoDigitando, conselhoSchema } from "./ConselhoDigitando";
+import { CarrosselCreators, carrosselSchema } from "./CarrosselCreators";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -42,6 +43,19 @@ export const RemotionRoot: React.FC = () => {
           corLaranja: "#E8623D",
           corTexto: "#16314A",
         }}
+      />
+
+      {/* Carrossel de feed 1080x1350 (4:5). Renderize cada card como still
+          mudando a prop `indice` (0=capa ... 5=CTA). */}
+      <Composition
+        id="CarrosselCreators"
+        component={CarrosselCreators}
+        durationInFrames={1}
+        fps={30}
+        width={1080}
+        height={1350}
+        schema={carrosselSchema}
+        defaultProps={{ indice: 0 }}
       />
     </>
   );
