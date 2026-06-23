@@ -2224,14 +2224,15 @@
             + '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><strong style="font-size:15px;">' + castingEsc(d.nome || '—') + '</strong>' + badge + '</div>'
             + '<span style="font-size:12px;color:var(--text-muted);">' + date + '</span></div>'
             + '<div style="font-size:13px;margin-bottom:10px;"><a href="mailto:' + castingEsc(d.email) + '" style="color:var(--accent);">' + castingEsc(d.email) + '</a></div>'
+            + castingRow('Faz LiveShop', tts)
+            + (produtos ? castingRow('Produtos vendidos', produtos) : '')
+            + castingRow('Fala inglês', (r.fala_ingles === 'sim' || r.ingles_nivel) ? 'Sim' : (r.fala_ingles === 'nao' ? 'Não' : '—'))
             + (r.ingles_nivel ? castingRow('Nível de inglês', lbl(nivelMap, r.ingles_nivel)) : '')
-            + castingRow('Cria em inglês', conteudo)
+            + (r.cria_conteudo_ingles ? castingRow('Cria em inglês', conteudo) : '')
             + (r.ingles_ugc ? castingRow('UGC em inglês', lbl(ugcMap, r.ingles_ugc)) : '')
+            + (r.ingles_live ? castingRow('Live em inglês', lbl(liveMap, r.ingles_live)) : '')
             + (r.ingles_sotaque ? castingRow('Sotaque', lbl(sotaqueMap, r.ingles_sotaque)) : '')
             + (r.ingles_origem ? castingRow('Aprendeu inglês', lbl(origemMap, r.ingles_origem)) : '')
-            + castingRow('TikTok Shop', tts)
-            + (r.ingles_live ? castingRow('Live em inglês', lbl(liveMap, r.ingles_live)) : '')
-            + (produtos ? castingRow('Produtos vendidos', produtos) : '')
             + castingRow('Mora no exterior', ext)
             + (r.tom_pele ? castingRow('Tom de pele', lbl(tomPeleMap, r.tom_pele)) : '')
             + (peleCarac ? castingRow('Pele', peleCarac) : '')
@@ -2260,13 +2261,13 @@
         }
         const total = data.length;
         const novas = data.filter(d => !d.ja_cadastrada).length;
-        const ingAvanc = data.filter(d => ['avancado','fluente','nativo'].includes((d.respostas || {}).ingles_nivel)).length;
-        const tts = data.filter(d => (d.respostas || {}).tiktokshop === 'sim').length;
+        const liveshopN = data.filter(d => (d.respostas || {}).tiktokshop === 'sim').length;
+        const falaIngN = data.filter(d => { const x = d.respostas || {}; return x.fala_ingles === 'sim' || x.ingles_nivel; }).length;
         const ext = data.filter(d => (d.respostas || {}).mora_exterior === 'sim').length;
         stats.innerHTML = castingStatChip('Candidaturas', total)
             + castingStatChip('Novas / na base', novas + ' / ' + (total - novas))
-            + castingStatChip('Inglês avançado+', ingAvanc)
-            + castingStatChip('TikTok Shop', tts)
+            + castingStatChip('Faz LiveShop', liveshopN)
+            + castingStatChip('Fala inglês', falaIngN)
             + castingStatChip('No exterior', ext);
         list.innerHTML = data.map(renderCastingCard).join('');
     }

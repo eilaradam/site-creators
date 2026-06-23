@@ -190,29 +190,54 @@
                         <h3 class="form-title" style="font-size:22px;">Sobre o casting 🌎</h3>
                         <p class="form-subtitle">Essas perguntas são específicas desta seleção.</p>
 
-                        <!-- BLOCO 1: Inglês -->
+                        <!-- BLOCO 1: LiveShop -->
                         <div class="field-group">
-                            <label>Qual o seu nível de inglês?</label>
-                            <select id="q_ingles_nivel">
-                                <option value="" disabled selected>Selecione</option>
-                                <option value="basico">Básico</option>
-                                <option value="intermediario">Intermediário</option>
-                                <option value="avancado">Avançado</option>
-                                <option value="fluente">Fluente</option>
-                                <option value="nativo">Nativo</option>
-                            </select>
-                        </div>
-                        <div class="field-group">
-                            <label>Você cria ou tem experiência com conteúdo em inglês?</label>
-                            <select id="q_conteudo_ingles">
+                            <label>Você faz LiveShop? <span style="color: var(--text-muted); font-weight: 400;">(lives de venda, ex.: TikTok Shop)</span></label>
+                            <select id="q_tiktokshop">
                                 <option value="" disabled selected>Selecione</option>
                                 <option value="sim">Sim</option>
                                 <option value="nao">Não</option>
                             </select>
                         </div>
-                        <div class="cond-block" id="condConteudoIngles" style="display:none;">
-                            <div class="field-group"><label>Cole o link de 1 vídeo seu em inglês <span style="color: var(--text-muted); font-weight: 400;">(referência)</span></label><input type="text" id="q_video_ingles" placeholder="instagram.com/reel/... ou youtube.com/..."></div>
-                            <div class="field-group"><label>Há quanto tempo você cria conteúdo em inglês?</label><select id="q_tempo_ingles"><option value="" disabled selected>Selecione</option><option value="lt6m">Menos de 6 meses</option><option value="6m1a">6 meses a 1 ano</option><option value="1a2a">1 a 2 anos</option><option value="2a3a">2 a 3 anos</option><option value="gt3a">Mais de 3 anos</option></select></div>
+                        <div class="cond-block" id="condTiktokshop" style="display:none;">
+                            <div class="field-group"><label>Quantas lives você faz?</label><select id="q_lives"><option value="" disabled selected>Selecione</option><option value="irregular">Ainda não faço com regularidade</option><option value="1a2sem">1 a 2 por semana</option><option value="3a5sem">3 a 5 por semana</option><option value="6sem">6+ por semana / quase todo dia</option></select></div>
+                            <div class="field-group"><label>Há quanto tempo você faz LiveShop?</label><select id="q_tempo_tiktokshop"><option value="" disabled selected>Selecione</option><option value="comecando">Estou começando agora</option><option value="lt6m">Menos de 6 meses</option><option value="6m1a">6 meses a 1 ano</option><option value="1a2a">1 a 2 anos</option><option value="gt2a">Mais de 2 anos</option></select></div>
+                            <div class="field-group"><label>Que tipos de produto você já vendeu em live? <span style="color: var(--text-muted); font-weight: 400;">(pode marcar vários)</span></label><div class="produtos-picker" id="produtosPicker" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;"></div></div>
+                        </div>
+
+                        <!-- BLOCO 2: Inglês -->
+                        <div class="field-group">
+                            <label>Você fala inglês?</label>
+                            <select id="q_fala_ingles">
+                                <option value="" disabled selected>Selecione</option>
+                                <option value="sim">Sim</option>
+                                <option value="nao">Não</option>
+                            </select>
+                        </div>
+                        <div class="cond-block" id="condFalaIngles" style="display:none;">
+                            <div class="field-group">
+                                <label>Qual o seu nível de inglês?</label>
+                                <select id="q_ingles_nivel">
+                                    <option value="" disabled selected>Selecione</option>
+                                    <option value="basico">Básico</option>
+                                    <option value="intermediario">Intermediário</option>
+                                    <option value="avancado">Avançado</option>
+                                    <option value="fluente">Fluente</option>
+                                    <option value="nativo">Nativo</option>
+                                </select>
+                            </div>
+                            <div class="field-group">
+                                <label>Você cria ou tem experiência com conteúdo em inglês?</label>
+                                <select id="q_conteudo_ingles">
+                                    <option value="" disabled selected>Selecione</option>
+                                    <option value="sim">Sim</option>
+                                    <option value="nao">Não</option>
+                                </select>
+                            </div>
+                            <div class="cond-block" id="condConteudoIngles" style="display:none;">
+                                <div class="field-group"><label>Cole o link de 1 vídeo seu em inglês <span style="color: var(--text-muted); font-weight: 400;">(referência)</span></label><input type="text" id="q_video_ingles" placeholder="instagram.com/reel/... ou youtube.com/..."></div>
+                                <div class="field-group"><label>Há quanto tempo você cria conteúdo em inglês?</label><select id="q_tempo_ingles"><option value="" disabled selected>Selecione</option><option value="lt6m">Menos de 6 meses</option><option value="6m1a">6 meses a 1 ano</option><option value="1a2a">1 a 2 anos</option><option value="2a3a">2 a 3 anos</option><option value="gt3a">Mais de 3 anos</option></select></div>
+                            </div>
                             <div class="field-group">
                                 <label>Você consegue gravar conteúdo UGC em inglês de forma natural?</label>
                                 <select id="q_ingles_ugc">
@@ -220,6 +245,16 @@
                                     <option value="natural">Sim, com total naturalidade</option>
                                     <option value="dificuldade">Sim, mas com um pouco de dificuldade</option>
                                     <option value="nao">Ainda não me sinto segura</option>
+                                </select>
+                            </div>
+                            <div class="field-group">
+                                <label>Você consegue fazer live em inglês sem roteiro, de forma natural?</label>
+                                <select id="q_ingles_live">
+                                    <option value="" disabled selected>Selecione</option>
+                                    <option value="natural">Sim, totalmente natural</option>
+                                    <option value="topicos">Sim, mas prefiro um guia de tópicos</option>
+                                    <option value="roteiro">Só com roteiro decorado</option>
+                                    <option value="nao">Ainda não me sinto segura / não faço lives</option>
                                 </select>
                             </div>
                             <div class="field-group">
@@ -244,31 +279,6 @@
                                     <option value="nativa">Sou nativa</option>
                                 </select>
                             </div>
-                        </div>
-
-                        <!-- BLOCO 2: TikTok Shop / LiveShop -->
-                        <div class="field-group">
-                            <label>Você tem experiência com TikTok Shop ou LiveShop?</label>
-                            <select id="q_tiktokshop">
-                                <option value="" disabled selected>Selecione</option>
-                                <option value="sim">Sim</option>
-                                <option value="nao">Não</option>
-                            </select>
-                        </div>
-                        <div class="cond-block" id="condTiktokshop" style="display:none;">
-                            <div class="field-group">
-                                <label>Você consegue fazer live em inglês sem roteiro, de forma natural?</label>
-                                <select id="q_ingles_live">
-                                    <option value="" disabled selected>Selecione</option>
-                                    <option value="natural">Sim, totalmente natural</option>
-                                    <option value="topicos">Sim, mas prefiro um guia de tópicos</option>
-                                    <option value="roteiro">Só com roteiro decorado</option>
-                                    <option value="nao">Ainda não me sinto segura / não faço lives</option>
-                                </select>
-                            </div>
-                            <div class="field-group"><label>Quantas lives de TikTok Shop você faz?</label><select id="q_lives"><option value="" disabled selected>Selecione</option><option value="irregular">Ainda não faço com regularidade</option><option value="1a2sem">1 a 2 por semana</option><option value="3a5sem">3 a 5 por semana</option><option value="6sem">6+ por semana / quase todo dia</option></select></div>
-                            <div class="field-group"><label>Há quanto tempo você faz TikTok Shop?</label><select id="q_tempo_tiktokshop"><option value="" disabled selected>Selecione</option><option value="comecando">Estou começando agora</option><option value="lt6m">Menos de 6 meses</option><option value="6m1a">6 meses a 1 ano</option><option value="1a2a">1 a 2 anos</option><option value="gt2a">Mais de 2 anos</option></select></div>
-                            <div class="field-group"><label>Que tipos de produto você já vendeu em live? <span style="color: var(--text-muted); font-weight: 400;">(pode marcar vários)</span></label><div class="produtos-picker" id="produtosPicker" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;"></div></div>
                         </div>
 
                         <!-- BLOCO 3: Localização -->
@@ -481,6 +491,7 @@
         const b = document.getElementById(blockId);
         s.addEventListener('change', function() { b.style.display = this.value === 'sim' ? 'block' : 'none'; });
     }
+    bindCond('q_fala_ingles', 'condFalaIngles');
     bindCond('q_conteudo_ingles', 'condConteudoIngles');
     bindCond('q_tiktokshop', 'condTiktokshop');
     bindCond('q_exterior', 'condExterior');
@@ -567,35 +578,41 @@
 
             /* Respostas do casting + validação */
             const cAns = {
-                ingles_nivel: gv('q_ingles_nivel'),
-                cria_conteudo_ingles: gv('q_conteudo_ingles'),
                 tiktokshop: gv('q_tiktokshop'),
+                fala_ingles: gv('q_fala_ingles'),
                 mora_exterior: gv('q_exterior')
             };
-            if (!cAns.ingles_nivel) throw new Error('Selecione o seu nível de inglês.');
-            if (!cAns.cria_conteudo_ingles) throw new Error('Diga se você cria ou tem experiência com conteúdo em inglês.');
-            if (cAns.cria_conteudo_ingles === 'sim') {
-                cAns.video_ingles = formatUrl(gv('q_video_ingles'));
-                cAns.tempo_ingles = gv('q_tempo_ingles');
-                cAns.ingles_ugc = gv('q_ingles_ugc');
-                cAns.ingles_sotaque = gv('q_ingles_sotaque');
-                cAns.ingles_origem = gv('q_ingles_origem');
-                if (!cAns.video_ingles) throw new Error('Cole o link de 1 vídeo seu em inglês.');
-                if (!cAns.tempo_ingles) throw new Error('Selecione há quanto tempo você cria conteúdo em inglês.');
-                if (!cAns.ingles_ugc) throw new Error('Diga se você consegue gravar conteúdo UGC em inglês.');
-                if (!cAns.ingles_sotaque) throw new Error('Selecione como soa o seu inglês.');
-                if (!cAns.ingles_origem) throw new Error('Diga onde você aprendeu inglês.');
-            }
-            if (!cAns.tiktokshop) throw new Error('Diga se você tem experiência com TikTok Shop ou LiveShop.');
+            /* Bloco LiveShop */
+            if (!cAns.tiktokshop) throw new Error('Diga se você faz LiveShop.');
             if (cAns.tiktokshop === 'sim') {
-                cAns.ingles_live = gv('q_ingles_live');
                 cAns.lives_media = gv('q_lives');
                 cAns.tempo_tiktokshop = gv('q_tempo_tiktokshop');
                 cAns.produtos_vendidos = chipState.produtos.slice();
-                if (!cAns.ingles_live) throw new Error('Diga se você consegue fazer live em inglês sem roteiro.');
-                if (!cAns.lives_media) throw new Error('Selecione quantas lives de TikTok Shop você faz.');
-                if (!cAns.tempo_tiktokshop) throw new Error('Selecione há quanto tempo você faz TikTok Shop.');
+                if (!cAns.lives_media) throw new Error('Selecione quantas lives você faz.');
+                if (!cAns.tempo_tiktokshop) throw new Error('Selecione há quanto tempo você faz LiveShop.');
                 if (!cAns.produtos_vendidos.length) throw new Error('Marque pelo menos um tipo de produto que você já vendeu em live.');
+            }
+            /* Bloco Inglês */
+            if (!cAns.fala_ingles) throw new Error('Diga se você fala inglês.');
+            if (cAns.fala_ingles === 'sim') {
+                cAns.ingles_nivel = gv('q_ingles_nivel');
+                cAns.cria_conteudo_ingles = gv('q_conteudo_ingles');
+                cAns.ingles_ugc = gv('q_ingles_ugc');
+                cAns.ingles_live = gv('q_ingles_live');
+                cAns.ingles_sotaque = gv('q_ingles_sotaque');
+                cAns.ingles_origem = gv('q_ingles_origem');
+                if (!cAns.ingles_nivel) throw new Error('Selecione o seu nível de inglês.');
+                if (!cAns.cria_conteudo_ingles) throw new Error('Diga se você cria ou tem experiência com conteúdo em inglês.');
+                if (cAns.cria_conteudo_ingles === 'sim') {
+                    cAns.video_ingles = formatUrl(gv('q_video_ingles'));
+                    cAns.tempo_ingles = gv('q_tempo_ingles');
+                    if (!cAns.video_ingles) throw new Error('Cole o link de 1 vídeo seu em inglês.');
+                    if (!cAns.tempo_ingles) throw new Error('Selecione há quanto tempo você cria conteúdo em inglês.');
+                }
+                if (!cAns.ingles_ugc) throw new Error('Diga se você consegue gravar conteúdo UGC em inglês.');
+                if (!cAns.ingles_live) throw new Error('Diga se você consegue fazer live em inglês sem roteiro.');
+                if (!cAns.ingles_sotaque) throw new Error('Selecione como soa o seu inglês.');
+                if (!cAns.ingles_origem) throw new Error('Diga onde você aprendeu inglês.');
             }
             cAns.tom_pele = gv('q_tom_pele');
             cAns.pele_caracteristicas = chipState.pele.slice();
