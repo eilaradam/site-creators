@@ -2185,7 +2185,8 @@
     function renderCastingCard(d){
         const r = d.respostas || {};
         const nivelMap = { basico:'Básico', intermediario:'Intermediário', avancado:'Avançado', fluente:'Fluente', nativo:'Nativo' };
-        const cameraMap = { natural:'Sim, natural', topicos:'Sim, com tópicos', roteiro:'Só com roteiro', inseguro:'Ainda insegura' };
+        const liveMap = { natural:'Sim, natural', topicos:'Sim, com tópicos', roteiro:'Só com roteiro', nao:'Ainda não / não faz' };
+        const ugcMap = { natural:'Sim, natural', dificuldade:'Com dificuldade', nao:'Ainda não' };
         const sotaqueMap = { americano:'Americano', britanico:'Britânico', neutro:'Neutro', br_leve:'Sotaque BR leve', br_forte:'Sotaque BR forte' };
         const origemMap = { fora:'Morou/mora fora', intercambio:'Intercâmbio', curso:'Curso', autodidata:'Autodidata', nativa:'Nativa' };
         const tempoMap = { lt6m:'menos de 6 meses', '6m1a':'6 meses–1 ano', '1a2a':'1–2 anos', '2a3a':'2–3 anos', gt3a:'3+ anos', comecando:'começando agora', gt2a:'2+ anos' };
@@ -2217,7 +2218,8 @@
             + '<span style="font-size:12px;color:var(--text-muted);">' + date + '</span></div>'
             + '<div style="font-size:13px;margin-bottom:10px;"><a href="mailto:' + castingEsc(d.email) + '" style="color:var(--accent);">' + castingEsc(d.email) + '</a></div>'
             + castingRow('Nível de inglês', nivelMap[r.ingles_nivel] || '—')
-            + (r.ingles_camera ? castingRow('Inglês na câmera', lbl(cameraMap, r.ingles_camera)) : '')
+            + (r.ingles_live ? castingRow('Live em inglês', lbl(liveMap, r.ingles_live)) : '')
+            + (r.ingles_ugc ? castingRow('UGC em inglês', lbl(ugcMap, r.ingles_ugc)) : '')
             + (r.ingles_sotaque ? castingRow('Sotaque', lbl(sotaqueMap, r.ingles_sotaque)) : '')
             + (r.ingles_origem ? castingRow('Aprendeu inglês', lbl(origemMap, r.ingles_origem)) : '')
             + castingRow('Cria em inglês', conteudo)

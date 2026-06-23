@@ -203,13 +203,22 @@
                             </select>
                         </div>
                         <div class="field-group">
-                            <label>Você consegue gravar ou fazer live em inglês sem roteiro, de forma natural?</label>
-                            <select id="q_ingles_camera">
+                            <label>Você consegue fazer live em inglês sem roteiro, de forma natural?</label>
+                            <select id="q_ingles_live">
                                 <option value="" disabled selected>Selecione</option>
                                 <option value="natural">Sim, totalmente natural</option>
-                                <option value="topicos">Sim, mas prefiro tópicos/guia</option>
+                                <option value="topicos">Sim, mas prefiro um guia de tópicos</option>
                                 <option value="roteiro">Só com roteiro decorado</option>
-                                <option value="inseguro">Ainda não me sinto segura</option>
+                                <option value="nao">Ainda não me sinto segura / não faço lives</option>
+                            </select>
+                        </div>
+                        <div class="field-group">
+                            <label>Você consegue gravar conteúdo UGC em inglês de forma natural?</label>
+                            <select id="q_ingles_ugc">
+                                <option value="" disabled selected>Selecione</option>
+                                <option value="natural">Sim, com total naturalidade</option>
+                                <option value="dificuldade">Sim, mas com um pouco de dificuldade</option>
+                                <option value="nao">Ainda não me sinto segura</option>
                             </select>
                         </div>
                         <div class="field-group">
@@ -512,7 +521,8 @@
             /* Respostas do casting + validação */
             const cAns = {
                 ingles_nivel: gv('q_ingles_nivel'),
-                ingles_camera: gv('q_ingles_camera'),
+                ingles_live: gv('q_ingles_live'),
+                ingles_ugc: gv('q_ingles_ugc'),
                 ingles_sotaque: gv('q_ingles_sotaque'),
                 ingles_origem: gv('q_ingles_origem'),
                 cria_conteudo_ingles: gv('q_conteudo_ingles'),
@@ -520,7 +530,8 @@
                 mora_exterior: gv('q_exterior')
             };
             if (!cAns.ingles_nivel) throw new Error('Selecione o seu nível de inglês.');
-            if (!cAns.ingles_camera) throw new Error('Diga se você consegue gravar em inglês sem roteiro.');
+            if (!cAns.ingles_live) throw new Error('Diga se você consegue fazer live em inglês sem roteiro.');
+            if (!cAns.ingles_ugc) throw new Error('Diga se você consegue gravar conteúdo UGC em inglês.');
             if (!cAns.ingles_sotaque) throw new Error('Selecione como soa o seu inglês.');
             if (!cAns.ingles_origem) throw new Error('Diga onde você aprendeu inglês.');
             if (!cAns.cria_conteudo_ingles) throw new Error('Diga se você já cria conteúdo em inglês.');
