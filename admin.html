@@ -2185,6 +2185,12 @@
     function renderCastingCard(d){
         const r = d.respostas || {};
         const nivelMap = { basico:'Básico', intermediario:'Intermediário', avancado:'Avançado', fluente:'Fluente', nativo:'Nativo' };
+        const cameraMap = { natural:'Sim, natural', topicos:'Sim, com tópicos', roteiro:'Só com roteiro', inseguro:'Ainda insegura' };
+        const sotaqueMap = { americano:'Americano', britanico:'Britânico', neutro:'Neutro', br_leve:'Sotaque BR leve', br_forte:'Sotaque BR forte' };
+        const origemMap = { fora:'Morou/mora fora', intercambio:'Intercâmbio', curso:'Curso', autodidata:'Autodidata', nativa:'Nativa' };
+        const tempoMap = { lt6m:'menos de 6 meses', '6m1a':'6 meses–1 ano', '1a2a':'1–2 anos', '2a3a':'2–3 anos', gt3a:'3+ anos', comecando:'começando agora', gt2a:'2+ anos' };
+        const livesMap = { irregular:'sem regularidade', '1a2sem':'1–2/semana', '3a5sem':'3–5/semana', '6sem':'6+/semana' };
+        const lbl = (map, v) => v ? (map[v] || castingEsc(v)) : '';
         const badge = d.ja_cadastrada
             ? '<span style="background:rgba(16,185,129,0.12);color:#0a7a55;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;">já na base</span>'
             : '<span style="background:var(--accent-glow);color:var(--accent-dark);font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;">nova</span>';
@@ -2192,15 +2198,16 @@
         let conteudo = '—';
         if (r.cria_conteudo_ingles === 'sim') {
             conteudo = 'Sim';
-            if (r.tempo_ingles) conteudo += ' · ' + castingEsc(r.tempo_ingles);
+            if (r.tempo_ingles) conteudo += ' · há ' + lbl(tempoMap, r.tempo_ingles);
             if (r.video_ingles) conteudo += ' · <a href="' + castingEsc(r.video_ingles) + '" target="_blank" style="color:var(--accent);font-weight:600;">ver vídeo ↗</a>';
         } else if (r.cria_conteudo_ingles === 'nao') conteudo = 'Não';
         let tts = '—';
         if (r.tiktokshop === 'sim') {
             tts = 'Sim';
-            if (r.lives_media) tts += ' · ' + castingEsc(r.lives_media) + ' lives';
-            if (r.tempo_tiktokshop) tts += ' · ' + castingEsc(r.tempo_tiktokshop);
+            if (r.lives_media) tts += ' · ' + lbl(livesMap, r.lives_media);
+            if (r.tempo_tiktokshop) tts += ' · há ' + lbl(tempoMap, r.tempo_tiktokshop);
         } else if (r.tiktokshop === 'nao') tts = 'Não';
+        const produtos = (Array.isArray(r.produtos_vendidos) && r.produtos_vendidos.length) ? r.produtos_vendidos.map(castingEsc).join(', ') : '';
         let ext = '—';
         if (r.mora_exterior === 'sim') ext = 'Sim · ' + castingEsc(r.local_exterior || '');
         else if (r.mora_exterior === 'nao') ext = 'Não (Brasil)';
@@ -2210,8 +2217,12 @@
             + '<span style="font-size:12px;color:var(--text-muted);">' + date + '</span></div>'
             + '<div style="font-size:13px;margin-bottom:10px;"><a href="mailto:' + castingEsc(d.email) + '" style="color:var(--accent);">' + castingEsc(d.email) + '</a></div>'
             + castingRow('Nível de inglês', nivelMap[r.ingles_nivel] || '—')
+            + (r.ingles_camera ? castingRow('Inglês na câmera', lbl(cameraMap, r.ingles_camera)) : '')
+            + (r.ingles_sotaque ? castingRow('Sotaque', lbl(sotaqueMap, r.ingles_sotaque)) : '')
+            + (r.ingles_origem ? castingRow('Aprendeu inglês', lbl(origemMap, r.ingles_origem)) : '')
             + castingRow('Cria em inglês', conteudo)
             + castingRow('TikTok Shop', tts)
+            + (produtos ? castingRow('Produtos vendidos', produtos) : '')
             + castingRow('Mora no exterior', ext)
             + '</div>';
     }
