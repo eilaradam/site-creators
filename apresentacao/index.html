@@ -194,16 +194,24 @@
   .rv.d1{transition-delay:.08s}.rv.d2{transition-delay:.16s}.rv.d3{transition-delay:.24s}.rv.d4{transition-delay:.32s}
 
   @media(max-width:920px){
-    .stats-grid,.feat-grid,.vgrid{grid-template-columns:1fr 1fr}
+    .feat-grid{grid-template-columns:1fr 1fr}
     .two{grid-template-columns:1fr}
     .logos{grid-template-columns:repeat(3,1fr)}
     .cycle{display:none}
     .hero{padding:150px 0 80px}
-    .stats-band{padding:40px 26px}
+    #operacao{padding:96px 0}
   }
   @media(max-width:560px){
-    .stats-grid{grid-template-columns:1fr 1fr}.feat-grid{grid-template-columns:1fr}.vgrid{grid-template-columns:1fr 1fr}
-    .logos{grid-template-columns:repeat(2,1fr)}
+    .feat-grid{grid-template-columns:1fr}
+    .logos{grid-template-columns:repeat(3,1fr);gap:9px}
+    .logo-chip{height:74px;padding:10px 8px;border-radius:13px}
+    .logo-chip img{max-height:46px}
+    .logo-chip.txt{font-size:19px}
+    .stat{padding:16px 11px}
+    .stat .num{font-size:30px;letter-spacing:-1px}
+    .stat .lbl{font-size:11.5px;margin-top:8px;max-width:none}
+    .vcard{flex:0 0 46%}
+    #operacao{padding:78px 0}
     .sheet-scroll{overflow-x:auto}.sheet table{min-width:560px}
   }
 </style>
