@@ -97,8 +97,10 @@
   .logo-chip.txt{font-weight:800;font-size:30px;letter-spacing:-1.5px;color:#15151b}
 
   /* stats band (feature cards) */
-  .stats-band{position:relative;background:linear-gradient(180deg,#101015,#0B0B0F);border:1px solid var(--line);border-radius:28px;padding:56px 48px;overflow:hidden}
-  .stats-band .glow{filter:blur(70px)}
+  #operacao{position:relative;background:linear-gradient(180deg,#15110D 0%,#0B0907 100%);border-top:1px solid rgba(255,92,51,.13);border-bottom:1px solid rgba(255,92,51,.13);padding:132px 0;overflow:hidden}
+  #operacao::before{content:"";position:absolute;top:-30%;left:50%;transform:translateX(-50%);width:1000px;max-width:118%;height:560px;background:radial-gradient(circle,rgba(255,92,51,.17),transparent 60%);filter:blur(50px);pointer-events:none}
+  .stats-band{position:relative;z-index:2;padding:0}
+  .stats-band .glow{display:none}
   .stats-band .sg{top:-30%;left:-5%;width:460px;height:460px;background:radial-gradient(circle,rgba(255,92,51,.20),transparent 62%)}
   .stats-head{position:relative;z-index:2;max-width:none}
   .stats-head h2{font-size:clamp(26px,3.6vw,44px);max-width:none}
