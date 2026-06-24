@@ -2043,6 +2043,17 @@
         await Promise.all([loadSavedIds(), loadPopularity()]);
         loadCreators();
         loadDashboard();
+
+        // Restaura a última aba aberta (sobrevive ao refresh) — os handlers de .tab
+        // já estão registrados e os dados-base carregados, então um clique sintético
+        // reaproveita toda a lógica de troca (toggle + loader + título).
+        try {
+            const savedTab = localStorage.getItem('adminActiveTab');
+            if (savedTab && savedTab !== 'dashboard') {
+                const tabEl = document.querySelector('.tab[data-tab="' + savedTab + '"]');
+                if (tabEl) tabEl.click();
+            }
+        } catch {}
     })();
 
     /* ── Logout ── */
@@ -2059,6 +2070,7 @@
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             this.classList.add('active');
             const target = this.dataset.tab;
+            try { localStorage.setItem('adminActiveTab', target); } catch {}
             document.getElementById('tabDashboard').classList.toggle('show', target === 'dashboard');
             document.getElementById('tabPlanejamento').classList.toggle('show', target === 'planejamento');
             document.getElementById('tabCreators').classList.toggle('show', target === 'creators');
