@@ -42,18 +42,26 @@
   .glow{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none}
   .glow.a{top:-120px;left:-60px;width:540px;height:540px;background:radial-gradient(circle,rgba(255,92,51,.30),transparent 65%)}
   .glow.b{top:120px;right:-120px;width:520px;height:520px;background:radial-gradient(circle,rgba(120,130,200,.18),transparent 65%)}
-  /* chrome orb */
-  .orb{position:absolute;top:120px;right:-60px;width:430px;height:430px;border-radius:50%;pointer-events:none;z-index:1;display:flex;align-items:center;justify-content:center;
-    background:radial-gradient(circle at 34% 26%,#ffffff 0%,#dadae2 11%,#a6a6b2 33%,#54545e 60%,#1c1c22 84%,#0c0c10 100%);
-    box-shadow:inset -34px -30px 70px rgba(0,0,0,.65),inset 22px 18px 55px rgba(255,255,255,.30),0 60px 140px rgba(0,0,0,.6),0 0 90px rgba(255,92,51,.10);animation:float 9s ease-in-out infinite}
-  .orb::after{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 210deg,transparent 0deg,rgba(255,255,255,.5) 40deg,transparent 95deg,rgba(255,92,51,.18) 160deg,transparent 230deg,rgba(255,255,255,.28) 300deg,transparent 360deg);mix-blend-mode:screen;opacity:.55;animation:spinSheen 18s linear infinite}
-  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-22px)}}
-  @keyframes spinSheen{to{transform:rotate(360deg)}}
-  .orb-words{position:relative;z-index:3;width:240px;height:42px;text-align:center}
-  .orb-words span{position:absolute;left:0;right:0;top:0;font-weight:800;font-size:28px;letter-spacing:-.7px;color:#15151b;opacity:0;animation:cyc 6s infinite}
-  .orb-words span:nth-child(2){animation-delay:2s}
-  .orb-words span:nth-child(3){animation-delay:4s}
-  @keyframes cyc{0%{opacity:0;transform:translateY(9px)}7%{opacity:1;transform:none}28%{opacity:1;transform:none}35%{opacity:0;transform:translateY(-9px)}100%{opacity:0}}
+  /* ciclo Creators · Criativos · Conversão */
+  .cycle{position:absolute;top:122px;right:48px;width:336px;height:336px;z-index:2;pointer-events:none}
+  .cycle-ring{position:absolute;inset:0;border-radius:50%;border:1.5px dashed rgba(255,255,255,.14)}
+  .cycle-flow{position:absolute;inset:-2px;border-radius:50%;
+    background:conic-gradient(from 0deg,transparent 0deg,transparent 205deg,rgba(255,92,51,0) 205deg,rgba(255,92,51,.92) 325deg,#FFAE33 360deg);
+    -webkit-mask:radial-gradient(closest-side,transparent 71%,#000 73%);mask:radial-gradient(closest-side,transparent 71%,#000 73%);
+    filter:drop-shadow(0 0 11px rgba(255,92,51,.5));animation:cspin 7s linear infinite}
+  @keyframes cspin{to{transform:rotate(360deg)}}
+  .cycle-core{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:132px;height:132px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle,rgba(255,92,51,.15),transparent 68%);font-family:'Fraunces',serif;font-style:italic;font-weight:600;font-size:22px;color:var(--soft);letter-spacing:.3px}
+  .cycle-node{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:10px}
+  .cycle-node.n1{left:50%;top:0;flex-direction:column-reverse}
+  .cycle-node.n2{left:6.7%;top:75%}
+  .cycle-node.n3{left:93.3%;top:75%}
+  .cycle-node .dot{width:15px;height:15px;border-radius:50%;background:var(--coral);animation:nodepulse 7s ease-in-out infinite}
+  .cycle-node b{font-weight:700;font-size:15px;color:#fff;white-space:nowrap;text-shadow:0 1px 7px rgba(0,0,0,.7)}
+  .cycle-node.n1 .dot{animation-delay:0s}
+  .cycle-node.n3 .dot{animation-delay:2.33s}
+  .cycle-node.n2 .dot{animation-delay:4.66s}
+  @keyframes nodepulse{0%,55%,100%{transform:scale(1);box-shadow:0 0 0 5px rgba(255,92,51,.10),0 0 12px rgba(255,92,51,.45)}12%{transform:scale(1.6);box-shadow:0 0 0 9px rgba(255,92,51,.20),0 0 26px var(--coral)}}
   .hero-inner{position:relative;z-index:3;max-width:760px}
   .eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:11.5px;font-weight:700;letter-spacing:2.6px;
     text-transform:uppercase;color:var(--soft);background:var(--panel);border:1px solid var(--line);padding:8px 16px;border-radius:100px;margin-bottom:30px}
@@ -185,7 +193,7 @@
     .stats-grid,.feat-grid,.vgrid{grid-template-columns:1fr 1fr}
     .two{grid-template-columns:1fr}
     .logos{grid-template-columns:repeat(3,1fr)}
-    .orb{width:280px;height:280px;top:90px;right:-90px;opacity:.7}
+    .cycle{display:none}
     .hero{padding:150px 0 80px}
     .stats-band{padding:40px 26px}
   }
@@ -208,7 +216,14 @@
   <div class="grid-bg"></div>
   <div class="glow a"></div>
   <div class="glow b"></div>
-  <div class="orb"><div class="orb-words"><span>Creators</span><span>Criativos</span><span>Conversão</span></div></div>
+  <div class="cycle" aria-hidden="true">
+    <div class="cycle-ring"></div>
+    <div class="cycle-flow"></div>
+    <div class="cycle-core">UGC</div>
+    <div class="cycle-node n1"><span class="dot"></span><b>Creators</b></div>
+    <div class="cycle-node n3"><span class="dot"></span><b>Criativos</b></div>
+    <div class="cycle-node n2"><span class="dot"></span><b>Conversão</b></div>
+  </div>
   <div class="wrap">
     <div class="hero-inner">
       <div class="rv in"><span class="eyebrow"><i></i> Para marcas & agências</span></div>
@@ -470,9 +485,7 @@
     if (!_stats) return;
     const s = _stats;
     const ingMax = Math.max(1, ...Object.values(s.nivel));
-    document.getElementById('ingBars').innerHTML =
-      bar('Avançado', s.nivel.avancado, ingMax) + bar('Fluente', s.nivel.fluente, ingMax) +
-      bar('Nativo', s.nivel.nativo, ingMax) + bar('Intermediário', s.nivel.intermediario, ingMax) + bar('Básico', s.nivel.basico, ingMax);
+    document.getElementById('ingBars').innerHTML = Object.entries(s.nivel).filter(e => e[1] > 0).sort((a, b) => b[1] - a[1]).map(e => bar(NIVEL[e[0]] || e[0], e[1], ingMax)).join('');
     const liveMax = Math.max(1, ...Object.values(s.lives));
     document.getElementById('liveBars').innerHTML =
       bar('6+ por semana', s.lives['6sem'], liveMax) + bar('3 a 5 / semana', s.lives['3a5sem'], liveMax) +
@@ -501,7 +514,7 @@
   }
   const sBadge = r => '<span class="sbadge ' + (r.ja_cadastrada ? 'base">na base' : 'nova">nova') + '</span>';
   const avatar = r => r.foto_perfil ? '<span class="av" style="background-image:url(&quot;' + r.foto_perfil + '&quot;)"></span>' : '<span class="av"></span>';
-  const nmCell = r => '<td class="nm"><span class="nmw">' + avatar(r) + '<span>' + maskName(r.nome) + sBadge(r) + '</span></span></td>';
+  const nmCell = r => '<td class="nm"><span class="nmw">' + avatar(r) + '<span>' + maskName(r.nome) + '</span></span></td>';
   let _stab = 'ingles';
   function renderTable() {
     const body = document.getElementById('sheetBody');
@@ -510,9 +523,9 @@
     let html, rows;
     if (_stab === 'ingles') {
       rows = _rows.filter(r => r.fala_ingles);
-      const order = ['nativo','fluente','avancado','intermediario','basico'];
+      const order = ['basico','intermediario','avancado','fluente','nativo'];
       html = '<table><thead><tr><th>Creator</th><th>Nível</th><th>Sotaque</th><th>Idade</th><th>Seguidores</th><th>Nicho</th></tr></thead><tbody>';
-      const groups = order.map(lv => [lv, rows.filter(r => r.ingles_nivel === lv)]).filter(g => g[1].length);
+      const groups = order.map(lv => [lv, rows.filter(r => r.ingles_nivel === lv)]).filter(g => g[1].length).sort((a, b) => b[1].length - a[1].length);
       const outras = rows.filter(r => !order.includes(r.ingles_nivel));
       if (outras.length) groups.push(['__o', outras]);
       groups.forEach(([lv, g]) => {
