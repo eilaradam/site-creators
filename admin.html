@@ -1272,7 +1272,7 @@
         </div>
 
         <div class="bio-chart-card">
-            <div class="bio-card-title">Visitas em /bio · últimos 14 dias</div>
+            <div class="bio-card-title" id="bioChartTitle">Visitas em /bio · últimos 14 dias</div>
             <div class="bio-chart" id="bioChart"></div>
             <div class="bio-chart-hint" id="bioChartHint"></div>
         </div>
@@ -3738,23 +3738,40 @@
     let pfGestaoCache = null;
     let pfRangeDays = 7;
 
+    // Supabase/PostgREST devolve no máximo 1000 linhas por requisição (o .limit()
+    // maior que isso é ignorado pelo servidor). portfolio_events já passou de 6 mil,
+    // então sem paginar o admin só via os 1000 eventos mais recentes (~últimos dias)
+    // e subcontava visitas/cliques. pfFetchAll busca em blocos até trazer tudo.
+    async function pfFetchAll(table) {
+        const PAGE = 1000;
+        let all = [];
+        for (let from = 0; ; from += PAGE) {
+            const { data, error } = await sb.from(table)
+                .select('*')
+                .order('created_at', { ascending: false })
+                .range(from, from + PAGE - 1);
+            if (error) { console.error('[portfolio] fetch error', table, error); break; }
+            if (!data || !data.length) break;
+            all = all.concat(data);
+            if (data.length < PAGE) break;
+        }
+        return all;
+    }
+
     async function loadPortfolio() {
         if (pfLeadsCache && pfEventsCache && pfGestaoCache) {
             renderPortfolio();
             return;
         }
         try {
-            const [leadsRes, eventsRes, gestaoRes] = await Promise.all([
-                sb.from('portfolio_leads').select('*').order('created_at', { ascending: false }),
-                sb.from('portfolio_events').select('*').order('created_at', { ascending: false }).limit(20000),
-                sb.from('gestao_leads').select('*').order('created_at', { ascending: false })
+            const [leads, events, gestao] = await Promise.all([
+                pfFetchAll('portfolio_leads'),
+                pfFetchAll('portfolio_events'),
+                pfFetchAll('gestao_leads')
             ]);
-            if (leadsRes.error) console.error('[portfolio] leads error', leadsRes.error);
-            if (eventsRes.error) console.error('[portfolio] events error', eventsRes.error);
-            if (gestaoRes.error) console.error('[portfolio] gestao error', gestaoRes.error);
-            pfLeadsCache = leadsRes.data || [];
-            pfEventsCache = eventsRes.data || [];
-            pfGestaoCache = gestaoRes.data || [];
+            pfLeadsCache = leads;
+            pfEventsCache = events;
+            pfGestaoCache = gestao;
             renderPortfolio();
         } catch (e) {
             console.error('[portfolio] exception', e);
@@ -3812,44 +3829,68 @@
         document.getElementById('bioCardsCreator').textContent = cardsCreator;
         document.getElementById('bioCardsMarca').textContent = cardsMarca;
 
-        // Chart 14 dias — usa timestamps locais pra evitar bug de timezone
+        // Chart adaptativo — a janela acompanha o filtro (7d/30d/90d/Tudo) em vez de
+        // ficar travada em 14 dias. Usa timestamps locais pra evitar bug de timezone.
         const todayMid = new Date(); todayMid.setHours(0, 0, 0, 0);
+        let chartDays;
+        if (pfRangeDays === 7 || pfRangeDays === 30 || pfRangeDays === 90) {
+            chartDays = pfRangeDays;
+        } else if (bioPageViews.length) {
+            // "Tudo": do dia da visita mais antiga até hoje (limitado a 120 dias pra caber)
+            const oldest = Math.min(...bioPageViews.map(e => new Date(e.created_at).getTime()));
+            const oldestMid = new Date(oldest); oldestMid.setHours(0, 0, 0, 0);
+            chartDays = Math.round((todayMid.getTime() - oldestMid.getTime()) / 86400000) + 1;
+            chartDays = Math.max(14, Math.min(120, chartDays));
+        } else {
+            chartDays = 14;
+        }
+
         const chartBuckets = [];
-        for (let i = 13; i >= 0; i--) {
+        for (let i = chartDays - 1; i >= 0; i--) {
             const d = new Date(todayMid.getTime() - i * 86400000);
-            chartBuckets.push({ ts: d.getTime(), label: String(d.getDate()).padStart(2, '0'), count: 0 });
+            chartBuckets.push({ ts: d.getTime(), count: 0 });
         }
         for (const e of bioPageViews) {
             const t = new Date(e.created_at).getTime();
             if (isNaN(t)) continue;
             const eventDay = new Date(t); eventDay.setHours(0, 0, 0, 0);
             const diffDays = Math.round((todayMid.getTime() - eventDay.getTime()) / 86400000);
-            if (diffDays >= 0 && diffDays < 14) {
-                chartBuckets[13 - diffDays].count++;
+            if (diffDays >= 0 && diffDays < chartDays) {
+                chartBuckets[chartDays - 1 - diffDays].count++;
             }
         }
-        // Total fora do range do gráfico (eventos com mais de 14 dias)
+        // Visitas que ficaram fora da janela do gráfico
         const inChart = chartBuckets.reduce((s, b) => s + b.count, 0);
         const outOfChart = bioPageViews.length - inChart;
         const lastVisit = bioPageViews.length > 0
             ? new Date(Math.max(...bioPageViews.map(e => new Date(e.created_at).getTime())))
             : null;
 
+        const showCount = chartDays <= 16;             // número em cima da barra só cabe em janelas curtas
+        const labelEvery = Math.ceil(chartDays / 12);  // no máximo ~12 rótulos de data
         const max = Math.max(1, ...chartBuckets.map(b => b.count));
-        document.getElementById('bioChart').innerHTML = chartBuckets.map(b => `
-            <div class="bio-chart-day" title="${new Date(b.ts).toLocaleDateString('pt-BR')}: ${b.count} visita(s)">
-                <div class="bio-chart-count">${b.count > 0 ? b.count : ''}</div>
+        document.getElementById('bioChart').innerHTML = chartBuckets.map((b, i) => {
+            const dd = new Date(b.ts);
+            const showLabel = (chartDays - 1 - i) % labelEvery === 0; // ancora no dia de hoje
+            const label = showLabel ? String(dd.getDate()).padStart(2, '0') : '';
+            return `
+            <div class="bio-chart-day" title="${dd.toLocaleDateString('pt-BR')}: ${b.count} visita(s)">
+                <div class="bio-chart-count">${showCount && b.count > 0 ? b.count : ''}</div>
                 <div class="bio-chart-bar-wrap">
-                    <div class="bio-chart-bar" style="height:${(b.count/max)*100}%"></div>
+                    <div class="bio-chart-bar" style="height:${(b.count / max) * 100}%"></div>
                 </div>
-                <div class="bio-chart-label">${b.label}</div>
-            </div>`).join('');
+                <div class="bio-chart-label">${label}</div>
+            </div>`;
+        }).join('');
+
+        const titleEl = document.getElementById('bioChartTitle');
+        if (titleEl) titleEl.textContent = `Visitas em /bio · últimos ${chartDays} dias`;
 
         const hint = document.getElementById('bioChartHint');
         if (hint) {
             const parts = [];
             if (lastVisit) parts.push(`Última visita: ${lastVisit.toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}`);
-            if (outOfChart > 0) parts.push(`+${outOfChart} visita(s) com mais de 14 dias`);
+            if (outOfChart > 0) parts.push(`+${outOfChart} visita(s) fora do período do gráfico`);
             hint.textContent = parts.join(' · ');
         }
 
