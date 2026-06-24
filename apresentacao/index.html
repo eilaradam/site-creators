@@ -303,7 +303,7 @@
     <p class="sub">Cada creator catalogada por nível de inglês, experiência em LiveShop e nicho. É assim que eu monto o elenco exato pra cada campanha. Em minutos, não em semanas.</p></div>
     <div class="sheet rv">
       <div class="sheet-bar">
-        <div class="sheet-title">🗂️ Casting Internacional <span class="sheet-live"><i></i> base ao vivo</span></div>
+        <div class="sheet-title">🗂️ Casting Disponível <span class="sheet-live"><i></i> base ao vivo</span></div>
         <div class="sheet-tabs">
           <button class="sheet-tab active" data-stab="ingles">Fala inglês <b id="cntIng">0</b></button>
           <button class="sheet-tab" data-stab="liveshop">Faz LiveShop <b id="cntLive">0</b></button>
@@ -495,7 +495,10 @@
   const SOTAQUE = { americano:'Americano', britanico:'Britânico', neutro:'Neutro', br_leve:'BR leve', br_forte:'BR forte' };
   const TEMPO = { lt6m:'menos de 6 meses', '6m1a':'6m a 1 ano', '1a2a':'1 a 2 anos', '2a3a':'2 a 3 anos', gt3a:'3+ anos', comecando:'começando', gt2a:'2+ anos' };
   const LIVES = { irregular:'sem regularidade', '1a2sem':'1 a 2/semana', '3a5sem':'3 a 5/semana', '6sem':'6+/semana' };
+  const SEGUID = { ate_1k:'até 1k', '1k_5k':'1k a 5k', '5k_10k':'5k a 10k', '10k_30k':'10k a 30k', '30k_mais':'30k+' };
   const lbl = (m, v) => v ? (m[v] || v) : '·';
+  function parseNichos(s) { if (!s) return []; try { const a = JSON.parse(s); return Array.isArray(a) ? a.map(String) : []; } catch (e) { return String(s).split(',').map(x => x.trim()).filter(Boolean); } }
+  function idade(dn) { if (!dn) return '·'; const d = new Date(dn); if (isNaN(d.getTime())) return '·'; const t = new Date(); let a = t.getFullYear() - d.getFullYear(); const m = t.getMonth() - d.getMonth(); if (m < 0 || (m === 0 && t.getDate() < d.getDate())) a--; return (a > 5 && a < 100) ? (a + ' anos') : '·'; }
   function maskName(n) {
     if (!n) return 'Creator';
     const p = String(n).trim().split(/\s+/);
@@ -515,15 +518,16 @@
     if (_stab === 'ingles') {
       rows = _rows.filter(r => r.fala_ingles);
       const order = ['nativo','fluente','avancado','intermediario','basico'];
-      html = '<table><thead><tr><th>Creator</th><th>Nível</th><th>Cria em inglês</th><th>Live em inglês</th><th>Sotaque</th></tr></thead><tbody>';
+      html = '<table><thead><tr><th>Creator</th><th>Nível</th><th>Sotaque</th><th>Idade</th><th>Seguidores</th><th>Nicho</th></tr></thead><tbody>';
       const groups = order.map(lv => [lv, rows.filter(r => r.ingles_nivel === lv)]).filter(g => g[1].length);
       const outras = rows.filter(r => !order.includes(r.ingles_nivel));
       if (outras.length) groups.push(['__o', outras]);
       groups.forEach(([lv, g]) => {
-        html += '<tr class="grp"><td colspan="5">' + (lv === '__o' ? 'Outras' : NIVEL[lv]) + ' · ' + g.length + '</td></tr>';
+        html += '<tr class="grp"><td colspan="6">' + (lv === '__o' ? 'Outras' : NIVEL[lv]) + ' · ' + g.length + '</td></tr>';
         g.forEach(r => {
-          const cria = r.cria_conteudo_ingles === 'sim' ? 'Sim' : r.cria_conteudo_ingles === 'nao' ? 'Não' : '·';
-          html += '<tr>' + nmCell(r) + '<td>' + lbl(NIVEL, r.ingles_nivel) + '</td><td>' + cria + '</td><td>' + lbl(LIVE_ING, r.ingles_live) + '</td><td>' + lbl(SOTAQUE, r.ingles_sotaque) + '</td></tr>';
+          const ns = parseNichos(r.nicho);
+          const nicho = ns.length ? (ns.slice(0, 2).join(', ') + (ns.length > 2 ? ' +' + (ns.length - 2) : '')) : '·';
+          html += '<tr>' + nmCell(r) + '<td>' + lbl(NIVEL, r.ingles_nivel) + '</td><td>' + lbl(SOTAQUE, r.ingles_sotaque) + '</td><td>' + idade(r.data_nascimento) + '</td><td>' + (SEGUID[r.seguidores] || r.seguidores || '·') + '</td><td>' + nicho + '</td></tr>';
         });
       });
     } else {

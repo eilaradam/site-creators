@@ -1,14 +1,15 @@
 -- ============================================================
--- casting_agencia_full — planilha COMPLETA do casting (uso interno da Lara no agencia.laradam)
+-- casting_agencia_full — planilha COMPLETA do casting (agencia.laradam + apresentação)
 -- ============================================================
--- Junta casting_candidaturas + creators pra trazer FOTO, Instagram, seguidores,
--- cidade/estado e nicho, além dos dados profissionais do casting.
+-- Junta casting_candidaturas + creators: FOTO, Instagram, seguidores, cidade,
+-- nicho, DATA DE NASCIMENTO (p/ idade) + dados profissionais do casting.
 --
--- ⚠️ Privacidade: NÃO retorna e-mail nem WhatsApp (contato fica protegido).
--- O agencia.laradam opera como anon → grant pra anon. Foto já é pública (bucket
--- fotos-perfil) e Instagram é público, então a exposição é de dado já semi-público.
+-- ⚠️ Privacidade: NÃO retorna e-mail nem WhatsApp.
 -- Rodar 1x no SQL Editor do Supabase (projeto mfrmnquvwwuxraqgemyh).
+-- Tem DROP antes porque mudou a lista de colunas (Postgres exige).
 -- ============================================================
+
+drop function if exists public.casting_agencia_full(text);
 
 create or replace function public.casting_agencia_full(p_casting text default 'internacional')
 returns table (
@@ -23,6 +24,7 @@ returns table (
     cidade               text,
     estado               text,
     nicho                text,
+    data_nascimento      text,
     -- casting: inglês
     fala_ingles          boolean,
     ingles_nivel         text,
@@ -54,6 +56,7 @@ as $$
         cr.cidade,
         cr.estado,
         cr.nicho,
+        cr.data_nascimento::text,
         (c.respostas->>'fala_ingles' = 'sim' or (c.respostas->>'ingles_nivel') is not null) as fala_ingles,
         c.respostas->>'ingles_nivel',
         c.respostas->>'cria_conteudo_ingles',
@@ -73,5 +76,3 @@ as $$
 $$;
 
 grant execute on function public.casting_agencia_full(text) to anon, authenticated;
-
--- pronto: o agencia chama supabase.rpc('casting_agencia_full', { p_casting: 'internacional' })
