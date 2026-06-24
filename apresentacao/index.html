@@ -37,8 +37,11 @@
 
   /* hero */
   .hero{position:relative;padding:184px 0 110px;overflow:hidden}
-  .grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:58px 58px;
-    -webkit-mask-image:radial-gradient(120% 90% at 30% 10%,#000 25%,transparent 75%);mask-image:radial-gradient(120% 90% at 30% 10%,#000 25%,transparent 75%);pointer-events:none}
+  .grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:58px 58px;
+    -webkit-mask-image:radial-gradient(125% 95% at 32% 8%,#000 24%,transparent 78%);mask-image:radial-gradient(125% 95% at 32% 8%,#000 24%,transparent 78%);pointer-events:none;transition:background-position .25s ease-out}
+  .grid-spot{position:absolute;inset:0;pointer-events:none;z-index:1;opacity:0;transition:opacity .45s ease,background-position .25s ease-out;
+    background-image:linear-gradient(rgba(255,92,51,.62) 1px,transparent 1px),linear-gradient(90deg,rgba(255,92,51,.62) 1px,transparent 1px);background-size:58px 58px;
+    -webkit-mask:radial-gradient(180px circle at var(--mx,-300px) var(--my,-300px),#000 0%,transparent 70%);mask:radial-gradient(180px circle at var(--mx,-300px) var(--my,-300px),#000 0%,transparent 70%)}
   .glow{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none}
   .glow.a{top:-120px;left:-60px;width:540px;height:540px;background:radial-gradient(circle,rgba(255,92,51,.30),transparent 65%)}
   .glow.b{top:120px;right:-120px;width:520px;height:520px;background:radial-gradient(circle,rgba(120,130,200,.18),transparent 65%)}
@@ -213,6 +216,7 @@
 <!-- HERO -->
 <header class="hero">
   <div class="grid-bg"></div>
+  <div class="grid-spot"></div>
   <div class="glow a"></div>
   <div class="glow b"></div>
   <div class="cycle" aria-hidden="true">
@@ -588,6 +592,27 @@
     p && p.addEventListener('click', () => row.scrollBy({ left: -amt(), behavior: 'smooth' }));
     n && n.addEventListener('click', () => row.scrollBy({ left: amt(), behavior: 'smooth' }));
   });
+
+  /* ── Grade interativa do herói (acende no cursor + parallax) ── */
+  (function () {
+    const hero = document.querySelector('.hero'), grid = document.querySelector('.grid-bg'), spot = document.querySelector('.grid-spot');
+    if (!hero || !spot || !grid) return;
+    hero.addEventListener('pointermove', (e) => {
+      const r = hero.getBoundingClientRect();
+      const x = e.clientX - r.left, y = e.clientY - r.top;
+      spot.style.setProperty('--mx', x + 'px');
+      spot.style.setProperty('--my', y + 'px');
+      spot.style.opacity = '1';
+      const px = (x / r.width - .5) * 14, py = (y / r.height - .5) * 14;
+      grid.style.backgroundPosition = px + 'px ' + py + 'px';
+      spot.style.backgroundPosition = px + 'px ' + py + 'px';
+    });
+    hero.addEventListener('pointerleave', () => {
+      spot.style.opacity = '0';
+      grid.style.backgroundPosition = '0 0';
+      spot.style.backgroundPosition = '0 0';
+    });
+  })();
 </script>
 </body>
 </html>
