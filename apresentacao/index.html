@@ -43,11 +43,17 @@
   .glow.a{top:-120px;left:-60px;width:540px;height:540px;background:radial-gradient(circle,rgba(255,92,51,.30),transparent 65%)}
   .glow.b{top:120px;right:-120px;width:520px;height:520px;background:radial-gradient(circle,rgba(120,130,200,.18),transparent 65%)}
   /* chrome orb */
-  .orb{position:absolute;top:120px;right:-60px;width:430px;height:430px;border-radius:50%;pointer-events:none;z-index:1;
+  .orb{position:absolute;top:120px;right:-60px;width:430px;height:430px;border-radius:50%;pointer-events:none;z-index:1;display:flex;align-items:center;justify-content:center;
     background:radial-gradient(circle at 34% 26%,#ffffff 0%,#dadae2 11%,#a6a6b2 33%,#54545e 60%,#1c1c22 84%,#0c0c10 100%);
     box-shadow:inset -34px -30px 70px rgba(0,0,0,.65),inset 22px 18px 55px rgba(255,255,255,.30),0 60px 140px rgba(0,0,0,.6),0 0 90px rgba(255,92,51,.10);animation:float 9s ease-in-out infinite}
-  .orb::after{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 210deg,transparent 0deg,rgba(255,255,255,.5) 40deg,transparent 95deg,rgba(255,92,51,.18) 160deg,transparent 230deg,rgba(255,255,255,.28) 300deg,transparent 360deg);mix-blend-mode:screen;opacity:.6}
+  .orb::after{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 210deg,transparent 0deg,rgba(255,255,255,.5) 40deg,transparent 95deg,rgba(255,92,51,.18) 160deg,transparent 230deg,rgba(255,255,255,.28) 300deg,transparent 360deg);mix-blend-mode:screen;opacity:.55;animation:spinSheen 18s linear infinite}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-22px)}}
+  @keyframes spinSheen{to{transform:rotate(360deg)}}
+  .orb-words{position:relative;z-index:3;width:240px;height:42px;text-align:center}
+  .orb-words span{position:absolute;left:0;right:0;top:0;font-weight:800;font-size:28px;letter-spacing:-.7px;color:#15151b;opacity:0;animation:cyc 6s infinite}
+  .orb-words span:nth-child(2){animation-delay:2s}
+  .orb-words span:nth-child(3){animation-delay:4s}
+  @keyframes cyc{0%{opacity:0;transform:translateY(9px)}7%{opacity:1;transform:none}28%{opacity:1;transform:none}35%{opacity:0;transform:translateY(-9px)}100%{opacity:0}}
   .hero-inner{position:relative;z-index:3;max-width:760px}
   .eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:11.5px;font-weight:700;letter-spacing:2.6px;
     text-transform:uppercase;color:var(--soft);background:var(--panel);border:1px solid var(--line);padding:8px 16px;border-radius:100px;margin-bottom:30px}
@@ -72,17 +78,19 @@
   /* logo wall */
   .logos-sec{padding:34px 0 8px}
   .logos-lbl{text-align:center;font-size:11px;font-weight:700;letter-spacing:2.6px;text-transform:uppercase;color:var(--muted);margin-bottom:26px}
-  .logos{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
-  .logo-chip{background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:14px;height:76px;display:flex;align-items:center;justify-content:center;padding:14px 18px;transition:transform .25s,box-shadow .25s}
-  .logo-chip:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(0,0,0,.4)}
-  .logo-chip img{max-width:100%;max-height:100%;object-fit:contain;filter:grayscale(1);opacity:.78;transition:filter .25s,opacity .25s}
+  .logos{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:12px}
+  .logo-chip{background:rgba(255,255,255,.95);border:1px solid var(--line);border-radius:16px;min-height:110px;display:flex;align-items:center;justify-content:center;padding:18px 24px;transition:transform .25s,box-shadow .25s}
+  .logo-chip:hover{transform:translateY(-3px);box-shadow:0 16px 34px rgba(0,0,0,.45)}
+  .logo-chip img{max-width:100%;max-height:74px;object-fit:contain;filter:grayscale(.2);opacity:.92;transition:filter .25s,opacity .25s}
   .logo-chip:hover img{filter:none;opacity:1}
+  .logo-chip.txt{font-weight:800;font-size:32px;letter-spacing:-1.5px;color:#15151b}
 
   /* stats band (feature cards) */
   .stats-band{position:relative;background:linear-gradient(180deg,#101015,#0B0B0F);border:1px solid var(--line);border-radius:28px;padding:56px 48px;overflow:hidden}
   .stats-band .glow{filter:blur(70px)}
   .stats-band .sg{top:-30%;left:-5%;width:460px;height:460px;background:radial-gradient(circle,rgba(255,92,51,.20),transparent 62%)}
-  .stats-head{position:relative;z-index:2;max-width:24ch}
+  .stats-head{position:relative;z-index:2;max-width:none}
+  .stats-head h2{font-size:clamp(26px,3.6vw,44px);max-width:none}
   .stats-grid{position:relative;z-index:2;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:42px}
   .stat{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:26px 22px;transition:border-color .3s,transform .3s,background .3s}
   .stat:hover{border-color:rgba(255,92,51,.4);transform:translateY(-3px);background:rgba(255,92,51,.05)}
@@ -131,6 +139,8 @@
   .sheet tr.grp td{background:rgba(255,92,51,.08);font-weight:700;font-size:12.5px;color:var(--coral);letter-spacing:.3px;text-transform:uppercase}
   .sheet tr.grp:hover td{background:rgba(255,92,51,.08)}
   .sheet .nm{font-weight:600}
+  .sheet .nmw{display:flex;align-items:center;gap:11px}
+  .sheet .av{width:34px;height:34px;border-radius:50%;background-color:rgba(255,255,255,.07);background-size:cover;background-position:center;border:1px solid var(--line);flex-shrink:0}
   .sbadge{font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:100px;margin-left:8px;vertical-align:middle;text-transform:uppercase;letter-spacing:.3px}
   .sbadge.base{background:rgba(61,220,132,.16);color:#5fe39a}
   .sbadge.nova{background:rgba(255,92,51,.16);color:var(--coral)}
@@ -179,18 +189,17 @@
   <div class="grid-bg"></div>
   <div class="glow a"></div>
   <div class="glow b"></div>
-  <div class="orb"></div>
+  <div class="orb"><div class="orb-words"><span>Creators</span><span>Criativos</span><span>Conversão</span></div></div>
   <div class="wrap">
     <div class="hero-inner">
       <div class="rv in"><span class="eyebrow"><i></i> Para marcas & agências</span></div>
       <h1 class="headline rv in d1">Conteúdo de creators que <em>vende de verdade</em>.</h1>
-      <p class="lead rv in d2">Eu recruto, seleciono e gerencio as creators certas pra sua marca — com dados, não no achismo. Você recebe os vídeos prontos pra rodar na mídia. Sem operação, sem dor de cabeça.</p>
+      <p class="lead rv in d2">Eu recruto, seleciono e gerencio as creators certas pra sua marca, com dados e não no achismo. Você recebe os vídeos prontos pra rodar na mídia. Sem operação, sem dor de cabeça.</p>
       <div class="cta-row rv in d3">
         <a class="btn btn-primary" id="ctaTop" href="#" target="_blank" rel="noreferrer">Quero conversar
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         <a class="btn btn-ghost" href="#operacao">Ver a operação</a>
       </div>
-      <div class="para-tag rv in d4">Apresentação preparada para <b id="heroClient">sua marca</b>.</div>
     </div>
   </div>
 </header>
@@ -206,6 +215,7 @@
       <div class="logo-chip"><img src="/assets/logos/46.png" alt="Marca" loading="lazy"></div>
       <div class="logo-chip"><img src="/assets/logos/56.png" alt="Marca" loading="lazy"></div>
       <div class="logo-chip"><img src="/assets/logos/58.png" alt="Marca" loading="lazy"></div>
+      <div class="logo-chip txt" id="logoZap">ZAP</div>
     </div>
   </div>
 </section>
@@ -217,11 +227,11 @@
       <div class="glow sg"></div>
       <div class="stats-head">
         <div class="kicker">A operação em números</div>
-        <h2 class="title">Uma base real de creators, pronta pra rodar.</h2>
+        <h2 class="title">Uma base real de creators,<br>pronta pra rodar.</h2>
       </div>
       <div class="stats-grid">
         <div class="stat"><div class="num chrome" data-count="0">0</div><div class="lbl">creators selecionadas e prontas pra campanha</div></div>
-        <div class="stat"><div class="num chrome" data-count="0">0</div><div class="lbl">falam inglês — prontas pra campanha internacional</div></div>
+        <div class="stat"><div class="num chrome" data-count="0">0</div><div class="lbl">falam inglês, prontas pra campanha internacional</div></div>
         <div class="stat"><div class="num chrome" data-count="0">0</div><div class="lbl">com experiência em LiveShop / TikTok Shop</div></div>
         <div class="stat"><div class="num chrome" data-count="0">0</div><div class="lbl">categorias de nicho já vendidas ao vivo</div></div>
       </div>
@@ -234,13 +244,13 @@
 <section class="sec-pad">
   <div class="wrap">
     <div class="rv"><div class="kicker">Gestão completa</div>
-    <h2 class="title">Tudo num lugar só — você passa a campanha, eu opero.</h2>
+    <h2 class="title">Tudo num lugar só. Você passa a campanha, eu opero.</h2>
     <p class="sub">Da descoberta da creator ao vídeo pronto pra mídia. Você não monta operação nenhuma.</p></div>
     <div class="feat-grid">
-      <div class="feat rv"><div class="ic">🎯</div><h4>Curadoria por dado</h4><p>Creators escolhidas pelo perfil da sua marca e filtradas por inglês, LiveShop e nicho. Não é sorteio — curadoria errada queima orçamento.</p></div>
-      <div class="feat rv d1"><div class="ic">🤝</div><h4>Gestão ponta a ponta</h4><p>Do briefing à revisão final: prazos, follow-up, ajustes. Você só acompanha — eu cuido de todo o meio.</p></div>
+      <div class="feat rv"><div class="ic">🎯</div><h4>Curadoria por dado</h4><p>Creators escolhidas pelo perfil da sua marca e filtradas por inglês, LiveShop e nicho. Não é sorteio. Curadoria errada queima orçamento.</p></div>
+      <div class="feat rv d1"><div class="ic">🤝</div><h4>Gestão ponta a ponta</h4><p>Do briefing à revisão final: prazos, follow-up, ajustes. Você só acompanha, eu cuido de todo o meio.</p></div>
       <div class="feat rv d2"><div class="ic">📄</div><h4>NF & direitos de uso</h4><p>Tudo regularizado. Você roda o conteúdo na mídia paga com segurança jurídica, sem surpresa.</p></div>
-      <div class="feat rv d3"><div class="ic">⚡</div><h4>Volume na frequência certa</h4><p>Criativo novo toda semana pra não saturar a mídia — sem você montar um time interno.</p></div>
+      <div class="feat rv d3"><div class="ic">⚡</div><h4>Volume na frequência certa</h4><p>Criativo novo toda semana pra não saturar a mídia, sem você montar um time interno.</p></div>
     </div>
   </div>
 </section>
@@ -250,7 +260,7 @@
   <div class="wrap">
     <div class="rv"><div class="kicker">O time de creators</div>
     <h2 class="title">Perfis pra qualquer necessidade.</h2>
-    <p class="sub">Composição real da base — atualizada conforme novas creators entram.</p></div>
+    <p class="sub">Composição real da base, atualizada conforme novas creators entram.</p></div>
     <div class="two">
       <div class="panel rv">
         <div class="panel-h">Nível de inglês</div>
@@ -271,7 +281,7 @@
   <div class="wrap">
     <div class="rv"><div class="kicker">Por dentro do sistema</div>
     <h2 class="title">A planilha que encontra o match certo.</h2>
-    <p class="sub">Cada creator catalogada por nível de inglês, experiência em LiveShop e nicho. É assim que eu monto o elenco exato pra cada campanha — em minutos, não em semanas.</p></div>
+    <p class="sub">Cada creator catalogada por nível de inglês, experiência em LiveShop e nicho. É assim que eu monto o elenco exato pra cada campanha. Em minutos, não em semanas.</p></div>
     <div class="sheet rv">
       <div class="sheet-bar">
         <div class="sheet-title">🗂️ Casting Internacional <span class="sheet-live"><i></i> base ao vivo</span></div>
@@ -281,7 +291,7 @@
         </div>
       </div>
       <div class="sheet-scroll" id="sheetBody"><div class="sheet-empty">Carregando a base ao vivo…</div></div>
-      <div class="sheet-foot" id="sheetFoot">Nomes resumidos por privacidade. E-mail, WhatsApp e perfil completo de cada creator ficam protegidos no meu sistema — a sua marca recebe a <b>curadoria pronta</b>, sem operação.</div>
+      <div class="sheet-foot" id="sheetFoot">Nomes resumidos por privacidade. E-mail, WhatsApp e perfil completo de cada creator ficam protegidos no meu sistema. A sua marca recebe a <b>curadoria pronta</b>, sem operação.</div>
     </div>
   </div>
 </section>
@@ -307,7 +317,6 @@
   const cliente = (params.get('cliente') || params.get('marca') || '').trim();
   if (cliente) {
     document.getElementById('topClient').textContent = cliente;
-    document.getElementById('heroClient').textContent = cliente;
     document.querySelectorAll('.closing em').forEach(e => { /* keep generic */ });
     document.title = 'Lara Dam · Proposta de UGC para ' + cliente;
   }
@@ -354,7 +363,9 @@
   async function fetchStats() {
     try {
       const sb = window.supabase.createClient(SB_URL, SB_KEY);
-      const { data, error } = await sb.rpc('casting_agencia', { p_casting: 'internacional' });
+      let res = await sb.rpc('casting_agencia_full', { p_casting: 'internacional' });
+      if (res.error) res = await sb.rpc('casting_agencia', { p_casting: 'internacional' });
+      const { data, error } = res;
       if (error || !data) return null;
       _rows = data;
       const total = data.length;
@@ -411,17 +422,19 @@
   const NIVEL = { basico:'Básico', intermediario:'Intermediário', avancado:'Avançado', fluente:'Fluente', nativo:'Nativo' };
   const LIVE_ING = { natural:'Sim, natural', topicos:'Com tópicos', roteiro:'Só com roteiro', nao:'Ainda não' };
   const SOTAQUE = { americano:'Americano', britanico:'Britânico', neutro:'Neutro', br_leve:'BR leve', br_forte:'BR forte' };
-  const TEMPO = { lt6m:'< 6 meses', '6m1a':'6m–1 ano', '1a2a':'1–2 anos', '2a3a':'2–3 anos', gt3a:'3+ anos', comecando:'começando', gt2a:'2+ anos' };
-  const LIVES = { irregular:'sem regularidade', '1a2sem':'1–2/semana', '3a5sem':'3–5/semana', '6sem':'6+/semana' };
-  const lbl = (m, v) => v ? (m[v] || v) : '—';
+  const TEMPO = { lt6m:'menos de 6 meses', '6m1a':'6m a 1 ano', '1a2a':'1 a 2 anos', '2a3a':'2 a 3 anos', gt3a:'3+ anos', comecando:'começando', gt2a:'2+ anos' };
+  const LIVES = { irregular:'sem regularidade', '1a2sem':'1 a 2/semana', '3a5sem':'3 a 5/semana', '6sem':'6+/semana' };
+  const lbl = (m, v) => v ? (m[v] || v) : '·';
   function maskName(n) {
-    if (!n) return '—';
+    if (!n) return 'Creator';
     const p = String(n).trim().split(/\s+/);
     const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : s;
     const first = cap(p[0]);
     return p.length < 2 ? first : first + ' ' + p[p.length - 1].charAt(0).toUpperCase() + '.';
   }
   const sBadge = r => '<span class="sbadge ' + (r.ja_cadastrada ? 'base">na base' : 'nova">nova') + '</span>';
+  const avatar = r => r.foto_perfil ? '<span class="av" style="background-image:url(&quot;' + r.foto_perfil + '&quot;)"></span>' : '<span class="av"></span>';
+  const nmCell = r => '<td class="nm"><span class="nmw">' + avatar(r) + '<span>' + maskName(r.nome) + sBadge(r) + '</span></span></td>';
   let _stab = 'ingles';
   function renderTable() {
     const body = document.getElementById('sheetBody');
@@ -438,8 +451,8 @@
       groups.forEach(([lv, g]) => {
         html += '<tr class="grp"><td colspan="5">' + (lv === '__o' ? 'Outras' : NIVEL[lv]) + ' · ' + g.length + '</td></tr>';
         g.forEach(r => {
-          const cria = r.cria_conteudo_ingles === 'sim' ? 'Sim' : r.cria_conteudo_ingles === 'nao' ? 'Não' : '—';
-          html += '<tr><td class="nm">' + maskName(r.nome) + sBadge(r) + '</td><td>' + lbl(NIVEL, r.ingles_nivel) + '</td><td>' + cria + '</td><td>' + lbl(LIVE_ING, r.ingles_live) + '</td><td>' + lbl(SOTAQUE, r.ingles_sotaque) + '</td></tr>';
+          const cria = r.cria_conteudo_ingles === 'sim' ? 'Sim' : r.cria_conteudo_ingles === 'nao' ? 'Não' : '·';
+          html += '<tr>' + nmCell(r) + '<td>' + lbl(NIVEL, r.ingles_nivel) + '</td><td>' + cria + '</td><td>' + lbl(LIVE_ING, r.ingles_live) + '</td><td>' + lbl(SOTAQUE, r.ingles_sotaque) + '</td></tr>';
         });
       });
     } else {
@@ -453,7 +466,7 @@
         html += '<tr class="grp"><td colspan="4">' + (lv === '__o' ? 'Outras' : LIVES[lv]) + ' · ' + g.length + '</td></tr>';
         g.forEach(r => {
           const prods = Array.isArray(r.produtos_vendidos) ? r.produtos_vendidos.slice(0, 3).join(', ') : '';
-          html += '<tr><td class="nm">' + maskName(r.nome) + sBadge(r) + '</td><td>' + lbl(LIVES, r.lives_media) + '</td><td>' + lbl(TEMPO, r.tempo_liveshop) + '</td><td>' + (prods || '—') + '</td></tr>';
+          html += '<tr>' + nmCell(r) + '<td>' + lbl(LIVES, r.lives_media) + '</td><td>' + lbl(TEMPO, r.tempo_liveshop) + '</td><td>' + (prods || '·') + '</td></tr>';
         });
       });
     }
