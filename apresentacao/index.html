@@ -108,17 +108,23 @@
   .feat h4{font-weight:700;font-size:19px;letter-spacing:-.4px;margin-bottom:9px}
   .feat p{font-size:14.5px;color:var(--soft);line-height:1.55;font-weight:300}
 
-  /* exemplos de conteúdo */
-  .vgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:48px}
-  .vcard{display:block;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:var(--panel);transition:transform .3s,border-color .3s}
-  .vcard:hover{transform:translateY(-5px);border-color:rgba(255,92,51,.45)}
-  .vframe{position:relative;aspect-ratio:9/16;background:linear-gradient(160deg,#16161c,#0b0b0f);display:flex;align-items:center;justify-content:center;overflow:hidden}
-  .vframe iframe,.vframe video{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:cover}
-  .vplay{width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;backdrop-filter:blur(4px);transition:background .25s,border-color .25s,color .25s}
+  /* exemplos de conteúdo (carrossel estilo Netflix) */
+  .vscroll{position:relative;margin-top:44px}
+  .vrow{display:flex;gap:16px;overflow-x:auto;scroll-behavior:smooth;scroll-snap-type:x proximity;padding:12px 2px 22px;scrollbar-width:none}
+  .vrow::-webkit-scrollbar{display:none}
+  .vcard{flex:0 0 210px;scroll-snap-align:start;position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#111;cursor:pointer;transition:transform .3s,border-color .3s,box-shadow .3s}
+  .vcard:hover{transform:scale(1.045);border-color:rgba(255,92,51,.55);box-shadow:0 22px 54px rgba(0,0,0,.6);z-index:3}
+  .vframe{position:relative;aspect-ratio:9/16;background-color:#15151b;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center}
+  .vframe iframe{position:absolute;inset:0;width:100%;height:100%;border:0;z-index:4}
+  .vframe::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.12) 0%,transparent 32%,transparent 52%,rgba(0,0,0,.66) 100%);pointer-events:none}
+  .vplay{position:relative;z-index:2;width:54px;height:54px;border-radius:50%;background:rgba(0,0,0,.42);border:1.5px solid rgba(255,255,255,.78);display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;padding-left:3px;transition:background .25s,border-color .25s,color .25s}
   .vcard:hover .vplay{background:var(--coral);border-color:var(--coral);color:#0a0a0a}
-  .vph{position:absolute;bottom:16px;left:0;right:0;text-align:center;font-size:11.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted)}
-  .vcap{padding:15px 17px;font-size:13px;color:var(--soft);font-weight:300}
-  .vcap b{color:var(--ink);display:block;font-weight:600;font-size:14.5px;margin-bottom:2px}
+  .vname{position:absolute;z-index:2;bottom:13px;left:14px;right:14px;font-weight:700;font-size:15px;color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.75)}
+  .vnav{position:absolute;top:12px;bottom:22px;width:56px;border:none;cursor:pointer;z-index:6;color:#fff;font-size:30px;font-weight:300;display:flex;align-items:center;justify-content:center;transition:color .2s;font-family:inherit}
+  .vnav.prev{left:0;background:linear-gradient(90deg,var(--bg) 12%,transparent);border-radius:16px 0 0 16px}
+  .vnav.next{right:0;background:linear-gradient(270deg,var(--bg) 12%,transparent);border-radius:0 16px 16px 0}
+  .vnav:hover{color:var(--coral)}
+  @media(hover:none){.vnav{display:none}}
 
   /* dataviz */
   .two{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:48px}
@@ -313,12 +319,23 @@
   <div class="wrap">
     <div class="rv"><div class="kicker">Exemplos de conteúdo</div>
     <h2 class="title">O tipo de vídeo que a sua marca recebe.</h2>
-    <p class="sub">Conteúdo real de creators da nossa base, pronto pra rodar na mídia.</p></div>
-    <div class="vgrid">
-      <div class="vcard rv"><div class="vframe"><span class="vplay">▶</span><span class="vph">Em breve</span></div><div class="vcap"><b>Exemplo 01</b>UGC · review de produto</div></div>
-      <div class="vcard rv d1"><div class="vframe"><span class="vplay">▶</span><span class="vph">Em breve</span></div><div class="vcap"><b>Exemplo 02</b>LiveShop · demonstração</div></div>
-      <div class="vcard rv d2"><div class="vframe"><span class="vplay">▶</span><span class="vph">Em breve</span></div><div class="vcap"><b>Exemplo 03</b>UGC em inglês</div></div>
-      <div class="vcard rv d3"><div class="vframe"><span class="vplay">▶</span><span class="vph">Em breve</span></div><div class="vcap"><b>Exemplo 04</b>Unboxing · lifestyle</div></div>
+    <p class="sub">Conteúdo real de creators da nossa base, pronto pra rodar na mídia. Toque pra assistir.</p></div>
+    <div class="vscroll rv">
+      <button class="vnav prev" id="vPrev" aria-label="Anterior">‹</button>
+      <div class="vrow" id="vrow">
+        <div class="vcard" data-yt="cSLuSZnS750"><div class="vframe" style="background-image:url(https://i.ytimg.com/vi/cSLuSZnS750/hqdefault.jpg)"><span class="vplay">▶</span><span class="vname">Daisy</span></div></div>
+        <div class="vcard" data-yt="-kKJ7oWSnEw"><div class="vframe" style="background-image:url(https://i.ytimg.com/vi/-kKJ7oWSnEw/hqdefault.jpg)"><span class="vplay">▶</span><span class="vname">Vinicius</span></div></div>
+        <div class="vcard" data-yt="BXy568ASAYQ"><div class="vframe" style="background-image:url(https://i.ytimg.com/vi/BXy568ASAYQ/hqdefault.jpg)"><span class="vplay">▶</span><span class="vname">Leticia</span></div></div>
+        <div class="vcard" data-yt="P9-vkzYf-mY"><div class="vframe" style="background-image:url(https://i.ytimg.com/vi/P9-vkzYf-mY/hqdefault.jpg)"><span class="vplay">▶</span><span class="vname">Carolina</span></div></div>
+        <div class="vcard" data-yt="6AYTqSwc31U"><div class="vframe" style="background-image:url(https://i.ytimg.com/vi/6AYTqSwc31U/hqdefault.jpg)"><span class="vplay">▶</span><span class="vname">Camila</span></div></div>
+        <div class="vcard" data-yt="Wcny_uBOlcM"><div class="vframe" style="background-image:url(https://i.ytimg.com/vi/Wcny_uBOlcM/hqdefault.jpg)"><span class="vplay">▶</span><span class="vname">Nathalia</span></div></div>
+        <div class="vcard" data-yt="JV6HtfxTnvM"><div class="vframe" style="background-image:url(https://i.ytimg.com/vi/JV6HtfxTnvM/hqdefault.jpg)"><span class="vplay">▶</span><span class="vname">Danielle</span></div></div>
+        <div class="vcard" data-yt="9bvXsEwQ8no"><div class="vframe" style="background-image:url(https://i.ytimg.com/vi/9bvXsEwQ8no/hqdefault.jpg)"><span class="vplay">▶</span><span class="vname">Maria Karoline</span></div></div>
+        <div class="vcard" data-yt="x04CnPa2A8s"><div class="vframe" style="background-image:url(https://i.ytimg.com/vi/x04CnPa2A8s/hqdefault.jpg)"><span class="vplay">▶</span><span class="vname">Jacqueline</span></div></div>
+        <div class="vcard" data-yt="dwb42jctVK8"><div class="vframe" style="background-image:url(https://i.ytimg.com/vi/dwb42jctVK8/hqdefault.jpg)"><span class="vplay">▶</span><span class="vname">Anna Cordeiro</span></div></div>
+        <div class="vcard" data-yt="UaylTSSXjlE"><div class="vframe" style="background-image:url(https://i.ytimg.com/vi/UaylTSSXjlE/hqdefault.jpg)"><span class="vplay">▶</span><span class="vname">Karen Corrado</span></div></div>
+      </div>
+      <button class="vnav next" id="vNext" aria-label="Próximo">›</button>
     </div>
   </div>
 </section>
@@ -519,6 +536,22 @@
   })();
   addEventListener('scroll', maybeCount, { passive: true });
   maybeCount();
+
+  /* ── Exemplos: play ao clicar + setas (estilo Netflix) ── */
+  document.querySelectorAll('.vcard[data-yt]').forEach(card => {
+    card.addEventListener('click', () => {
+      if (card.dataset.loaded) return;
+      card.dataset.loaded = '1';
+      const id = card.dataset.yt;
+      card.querySelector('.vframe').innerHTML = '<iframe src="https://www.youtube.com/embed/' + id + '?autoplay=1&rel=0&playsinline=1" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>';
+    });
+  });
+  (function () {
+    const row = document.getElementById('vrow'); if (!row) return;
+    const p = document.getElementById('vPrev'), n = document.getElementById('vNext');
+    p && p.addEventListener('click', () => row.scrollBy({ left: -456, behavior: 'smooth' }));
+    n && n.addEventListener('click', () => row.scrollBy({ left: 456, behavior: 'smooth' }));
+  })();
 </script>
 </body>
 </html>
