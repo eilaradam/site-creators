@@ -78,12 +78,12 @@
   /* logo wall */
   .logos-sec{padding:34px 0 8px}
   .logos-lbl{text-align:center;font-size:11px;font-weight:700;letter-spacing:2.6px;text-transform:uppercase;color:var(--muted);margin-bottom:26px}
-  .logos{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:12px}
-  .logo-chip{background:rgba(255,255,255,.95);border:1px solid var(--line);border-radius:16px;min-height:110px;display:flex;align-items:center;justify-content:center;padding:18px 24px;transition:transform .25s,box-shadow .25s}
+  .logos{display:grid;grid-template-columns:repeat(7,1fr);gap:12px}
+  .logo-chip{background:rgba(255,255,255,.95);border:1px solid var(--line);border-radius:16px;height:112px;display:flex;align-items:center;justify-content:center;padding:14px 14px;transition:transform .25s,box-shadow .25s}
   .logo-chip:hover{transform:translateY(-3px);box-shadow:0 16px 34px rgba(0,0,0,.45)}
-  .logo-chip img{max-width:100%;max-height:74px;object-fit:contain;filter:grayscale(.2);opacity:.92;transition:filter .25s,opacity .25s}
+  .logo-chip img{max-width:100%;max-height:92px;object-fit:contain;filter:grayscale(.2);opacity:.92;transition:filter .25s,opacity .25s}
   .logo-chip:hover img{filter:none;opacity:1}
-  .logo-chip.txt{font-weight:800;font-size:32px;letter-spacing:-1.5px;color:#15151b}
+  .logo-chip.txt{font-weight:800;font-size:30px;letter-spacing:-1.5px;color:#15151b}
 
   /* stats band (feature cards) */
   .stats-band{position:relative;background:linear-gradient(180deg,#101015,#0B0B0F);border:1px solid var(--line);border-radius:28px;padding:56px 48px;overflow:hidden}
@@ -91,11 +91,11 @@
   .stats-band .sg{top:-30%;left:-5%;width:460px;height:460px;background:radial-gradient(circle,rgba(255,92,51,.20),transparent 62%)}
   .stats-head{position:relative;z-index:2;max-width:none}
   .stats-head h2{font-size:clamp(26px,3.6vw,44px);max-width:none}
-  .stats-grid{position:relative;z-index:2;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:42px}
+  .stats-grid{position:relative;z-index:2;display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:42px}
   .stat{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:26px 22px;transition:border-color .3s,transform .3s,background .3s}
   .stat:hover{border-color:rgba(255,92,51,.4);transform:translateY(-3px);background:rgba(255,92,51,.05)}
   .stat .num{font-weight:800;font-size:clamp(40px,5vw,62px);line-height:1;letter-spacing:-2px}
-  .stat .lbl{font-size:13px;color:var(--soft);margin-top:14px;line-height:1.45;max-width:22ch;font-weight:300}
+  .stat .lbl{font-size:16px;color:var(--soft);margin-top:14px;line-height:1.35;max-width:20ch;font-weight:500}
   .live-dot{position:relative;z-index:2;display:inline-flex;align-items:center;gap:9px;font-size:12px;color:var(--muted);margin-top:34px;letter-spacing:.4px}
   .live-dot i{width:8px;height:8px;border-radius:50%;background:#3ddc84;box-shadow:0 0 0 0 rgba(61,220,132,.7);animation:pulse 2s infinite}
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(61,220,132,.6)}70%{box-shadow:0 0 0 10px rgba(61,220,132,0)}100%{box-shadow:0 0 0 0 rgba(61,220,132,0)}}
@@ -212,12 +212,11 @@
   <div class="wrap">
     <div class="hero-inner">
       <div class="rv in"><span class="eyebrow"><i></i> Para marcas & agências</span></div>
-      <h1 class="headline rv in d1">Conteúdo de creators que <em>vende de verdade</em>.</h1>
-      <p class="lead rv in d2">Eu recruto, seleciono e gerencio as creators certas pra sua marca, com dados e não no achismo. Você recebe os vídeos prontos pra rodar na mídia. Sem operação, sem dor de cabeça.</p>
+      <h1 class="headline rv in d1">Curadoria de <em>creators</em> pra sua marca.</h1>
+      <p class="lead rv in d2">Recrutamento, seleção e gestão de creators de ponta a ponta. Você recebe os vídeos prontos pra rodar na mídia. Sem operação, sem dor de cabeça.</p>
       <div class="cta-row rv in d3">
-        <a class="btn btn-primary" id="ctaTop" href="#" target="_blank" rel="noreferrer">Quero conversar
+        <a class="btn btn-primary" href="#operacao">Ver a operação
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-        <a class="btn btn-ghost" href="#operacao">Ver a operação</a>
       </div>
     </div>
   </div>
@@ -246,71 +245,14 @@
       <div class="glow sg"></div>
       <div class="stats-head">
         <div class="kicker">A operação em números</div>
-        <h2 class="title">Uma base real de creators,<br>pronta pra rodar.</h2>
+        <h2 class="title">Creators ativas nas<br>últimas 24h.</h2>
       </div>
       <div class="stats-grid">
-        <div class="stat"><div class="num chrome" data-count="0">0</div><div class="lbl">creators selecionadas e prontas pra campanha</div></div>
-        <div class="stat"><div class="num chrome" data-count="0">0</div><div class="lbl">falam inglês, prontas pra campanha internacional</div></div>
-        <div class="stat"><div class="num chrome" data-count="0">0</div><div class="lbl">com experiência em LiveShop / TikTok Shop</div></div>
-        <div class="stat"><div class="num chrome" data-count="0">0</div><div class="lbl">categorias de nicho já vendidas ao vivo</div></div>
+        <div class="stat"><div class="num chrome" data-count="0">0</div><div class="lbl">Creators interessadas</div></div>
+        <div class="stat"><div class="num chrome" data-count="0">0</div><div class="lbl">Falam inglês e criam conteúdo</div></div>
+        <div class="stat"><div class="num chrome" data-count="0">0</div><div class="lbl">Gravam LiveShop</div></div>
       </div>
       <div class="live-dot"><i></i> <span id="liveNote">Dados em tempo real da minha base de recrutamento</span></div>
-    </div>
-  </div>
-</section>
-
-<!-- GESTÃO COMPLETA (features) -->
-<section class="sec-pad">
-  <div class="wrap">
-    <div class="rv"><div class="kicker">Gestão completa</div>
-    <h2 class="title">Tudo num lugar só. Você passa a campanha, eu opero.</h2>
-    <p class="sub">Da descoberta da creator ao vídeo pronto pra mídia. Você não monta operação nenhuma.</p></div>
-    <div class="feat-grid">
-      <div class="feat rv"><div class="ic">🎯</div><h4>Curadoria por dado</h4><p>Creators escolhidas pelo perfil da sua marca e filtradas por inglês, LiveShop e nicho. Não é sorteio. Curadoria errada queima orçamento.</p></div>
-      <div class="feat rv d1"><div class="ic">🤝</div><h4>Gestão ponta a ponta</h4><p>Do briefing à revisão final: prazos, follow-up, ajustes. Você só acompanha, eu cuido de todo o meio.</p></div>
-      <div class="feat rv d2"><div class="ic">📄</div><h4>NF & direitos de uso</h4><p>Tudo regularizado. Você roda o conteúdo na mídia paga com segurança jurídica, sem surpresa.</p></div>
-      <div class="feat rv d3"><div class="ic">⚡</div><h4>Volume na frequência certa</h4><p>Criativo novo toda semana pra não saturar a mídia, sem você montar um time interno.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- DATAVIZ -->
-<section class="sec-pad">
-  <div class="wrap">
-    <div class="rv"><div class="kicker">O time de creators</div>
-    <h2 class="title">Perfis pra qualquer necessidade.</h2>
-    <p class="sub">Composição real da base, atualizada conforme novas creators entram.</p></div>
-    <div class="two">
-      <div class="panel rv">
-        <div class="panel-h">Nível de inglês</div>
-        <div id="ingBars"><div style="color:var(--muted);font-size:14px">Carregando dados…</div></div>
-      </div>
-      <div class="panel rv d1">
-        <div class="panel-h">Experiência em LiveShop</div>
-        <div id="liveBars"><div style="color:var(--muted);font-size:14px">Carregando dados…</div></div>
-        <div class="panel-h" style="margin-top:30px;font-size:16px">Categorias que já venderam em live</div>
-        <div class="chips" id="prodChips"></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- PLANILHA -->
-<section class="sec-pad">
-  <div class="wrap">
-    <div class="rv"><div class="kicker">Por dentro do sistema</div>
-    <h2 class="title">A planilha que encontra o match certo.</h2>
-    <p class="sub">Cada creator catalogada por nível de inglês, experiência em LiveShop e nicho. É assim que eu monto o elenco exato pra cada campanha. Em minutos, não em semanas.</p></div>
-    <div class="sheet rv">
-      <div class="sheet-bar">
-        <div class="sheet-title">🗂️ Casting Disponível <span class="sheet-live"><i></i> base ao vivo</span></div>
-        <div class="sheet-tabs">
-          <button class="sheet-tab active" data-stab="ingles">Fala inglês <b id="cntIng">0</b></button>
-          <button class="sheet-tab" data-stab="liveshop">Faz LiveShop <b id="cntLive">0</b></button>
-        </div>
-      </div>
-      <div class="sheet-scroll" id="sheetBody"><div class="sheet-empty">Carregando a base ao vivo…</div></div>
-      <div class="sheet-foot" id="sheetFoot">Nomes resumidos por privacidade. E-mail, WhatsApp e perfil completo de cada creator ficam protegidos no meu sistema. A sua marca recebe a <b>curadoria pronta</b>, sem operação.</div>
     </div>
   </div>
 </section>
@@ -368,6 +310,60 @@
   </div>
 </section>
 
+<!-- DATAVIZ -->
+<section class="sec-pad">
+  <div class="wrap">
+    <div class="rv"><div class="kicker">O time de creators</div>
+    <h2 class="title">Perfis pra qualquer necessidade.</h2>
+    <p class="sub">Composição real da base, atualizada conforme novas creators entram.</p></div>
+    <div class="two">
+      <div class="panel rv">
+        <div class="panel-h">Nível de inglês</div>
+        <div id="ingBars"><div style="color:var(--muted);font-size:14px">Carregando dados…</div></div>
+      </div>
+      <div class="panel rv d1">
+        <div class="panel-h">Experiência em LiveShop</div>
+        <div id="liveBars"><div style="color:var(--muted);font-size:14px">Carregando dados…</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLANILHA -->
+<section class="sec-pad">
+  <div class="wrap">
+    <div class="rv"><div class="kicker">Por dentro do sistema</div>
+    <h2 class="title">A planilha que encontra o match certo.</h2>
+    <p class="sub">Cada creator catalogada por nível de inglês, experiência em LiveShop e nicho. É assim que eu monto o elenco exato pra cada campanha. Em minutos, não em semanas.</p></div>
+    <div class="sheet rv">
+      <div class="sheet-bar">
+        <div class="sheet-title">🗂️ Casting Disponível <span class="sheet-live"><i></i> base ao vivo</span></div>
+        <div class="sheet-tabs">
+          <button class="sheet-tab active" data-stab="ingles">Fala inglês <b id="cntIng">0</b></button>
+          <button class="sheet-tab" data-stab="liveshop">Faz LiveShop <b id="cntLive">0</b></button>
+        </div>
+      </div>
+      <div class="sheet-scroll" id="sheetBody"><div class="sheet-empty">Carregando a base ao vivo…</div></div>
+      <div class="sheet-foot" id="sheetFoot">Nomes resumidos por privacidade. E-mail, WhatsApp e perfil completo de cada creator ficam protegidos no meu sistema. A sua marca recebe a <b>curadoria pronta</b>, sem operação.</div>
+    </div>
+  </div>
+</section>
+
+<!-- GESTÃO COMPLETA (features) -->
+<section class="sec-pad">
+  <div class="wrap">
+    <div class="rv"><div class="kicker">Gestão completa</div>
+    <h2 class="title">Tudo num lugar só. Você passa a campanha, eu opero.</h2>
+    <p class="sub">Da descoberta da creator ao vídeo pronto pra mídia. Você não monta operação nenhuma.</p></div>
+    <div class="feat-grid">
+      <div class="feat rv"><div class="ic">🎯</div><h4>Curadoria por dado</h4><p>Creators escolhidas pelo perfil da sua marca e filtradas por inglês, LiveShop e nicho. Não é sorteio. Curadoria errada queima orçamento.</p></div>
+      <div class="feat rv d1"><div class="ic">🤝</div><h4>Gestão ponta a ponta</h4><p>Do briefing à revisão final: prazos, follow-up, ajustes. Você só acompanha, eu cuido de todo o meio.</p></div>
+      <div class="feat rv d2"><div class="ic">📄</div><h4>NF & direitos de uso</h4><p>Tudo regularizado. Você roda o conteúdo na mídia paga com segurança jurídica, sem surpresa.</p></div>
+      <div class="feat rv d3"><div class="ic">⚡</div><h4>Volume na frequência certa</h4><p>Criativo novo toda semana pra não saturar a mídia, sem você montar um time interno.</p></div>
+    </div>
+  </div>
+</section>
+
 <!-- CLOSING -->
 <section class="closing">
   <div class="glow c"></div>
@@ -397,7 +393,6 @@
   /* ── WhatsApp ── */
   const waMsg = encodeURIComponent('Oi, Lara! Vi a sua apresentação' + (cliente ? ' (' + cliente + ')' : '') + ' e quero conversar sobre uma campanha de UGC.');
   const waUrl = 'https://wa.me/5512988729264?text=' + waMsg;
-  document.getElementById('ctaTop').href = waUrl;
   document.getElementById('ctaBottom').href = waUrl;
 
   /* ── Topbar scroll ── */
@@ -458,14 +453,13 @@
   function renderStats() {
     const nums = document.querySelectorAll('.stat .num');
     if (!_stats) { // fallback enquanto carrega / se falhar
-      animateCount(nums[0], 240); animateCount(nums[1], 67); animateCount(nums[2], 72); animateCount(nums[3], 8);
+      animateCount(nums[0], 530); animateCount(nums[1], 148); animateCount(nums[2], 146);
       return;
     }
     const s = _stats;
     animateCount(nums[0], s.total);
     animateCount(nums[1], s.falaIng);
     animateCount(nums[2], s.liveshop);
-    animateCount(nums[3], s.catCount);
   }
 
   function bar(label, val, max) {
@@ -483,8 +477,6 @@
     document.getElementById('liveBars').innerHTML =
       bar('6+ por semana', s.lives['6sem'], liveMax) + bar('3 a 5 / semana', s.lives['3a5sem'], liveMax) +
       bar('1 a 2 / semana', s.lives['1a2sem'], liveMax) + bar('Começando', s.lives.irregular, liveMax);
-    const topProd = Object.entries(s.prod).sort((a,b)=>b[1]-a[1]).slice(0,8);
-    document.getElementById('prodChips').innerHTML = topProd.length ? topProd.map(p => '<span class="chip">' + p[0] + ' · ' + p[1] + '</span>').join('') : '<span class="chip">Em construção</span>';
     // anima as barras quando visíveis
     const barIo = new IntersectionObserver((es)=>es.forEach(e=>{ if(e.isIntersecting){ e.target.querySelectorAll('.bar-fill').forEach(f=>f.style.width=f.dataset.w+'%'); barIo.unobserve(e.target);} }),{threshold:.3});
     document.querySelectorAll('#ingBars,#liveBars').forEach(el=>barIo.observe(el));
