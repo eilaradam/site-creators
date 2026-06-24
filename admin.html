@@ -1891,6 +1891,9 @@
 .bio-chart-bar:hover { opacity: 0.8; }
 .bio-chart-label { font-size: 9px; color: var(--text-muted); flex-shrink: 0; }
 .bio-chart-hint { margin-top: 10px; font-size: 11px; color: var(--text-muted); text-align: center; }
+.bio-tip { position: fixed; z-index: 9999; background: var(--text, #1B1B1B); color: #fff; padding: 6px 10px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 12px; line-height: 1.3; white-space: nowrap; pointer-events: none; opacity: 0; transform: translate(-50%, -100%); transition: opacity 0.12s; box-shadow: 0 4px 14px rgba(0,0,0,0.18); }
+.bio-tip.show { opacity: 1; }
+.bio-tip b { color: var(--accent, #C8441A); }
 .bio-audience-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .bio-audience-block { background: var(--cream); border-radius: 10px; padding: 14px 16px; }
 .bio-audience-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 10px; }
@@ -3749,6 +3752,7 @@
     let pfEventsCache = null;
     let pfGestaoCache = null;
     let pfRangeDays = 7;
+    let bioTipWired = false;
 
     // Supabase/PostgREST devolve no máximo 1000 linhas por requisição (o .limit()
     // maior que isso é ignorado pelo servidor). portfolio_events já passou de 6 mil,
@@ -3886,7 +3890,7 @@
             const showLabel = (chartDays - 1 - i) % labelEvery === 0; // ancora no dia de hoje
             const label = showLabel ? String(dd.getDate()).padStart(2, '0') : '';
             return `
-            <div class="bio-chart-day" title="${dd.toLocaleDateString('pt-BR')}: ${b.count} visita(s)">
+            <div class="bio-chart-day" data-date="${dd.toLocaleDateString('pt-BR')}" data-count="${b.count}">
                 <div class="bio-chart-count">${showCount && b.count > 0 ? b.count : ''}</div>
                 <div class="bio-chart-bar-wrap">
                     <div class="bio-chart-bar" style="height:${(b.count / max) * 100}%"></div>
@@ -3894,6 +3898,7 @@
                 <div class="bio-chart-label">${label}</div>
             </div>`;
         }).join('');
+        setupBioChartTooltip();
 
         const titleEl = document.getElementById('bioChartTitle');
         if (titleEl) titleEl.textContent = `Visitas em /bio · últimos ${chartDays} dias`;
@@ -3924,6 +3929,33 @@
                 </div>
                 <div class="pf-bar-row-count">${count}</div>
             </div>`).join('');
+    }
+
+    // Tooltip que segue o mouse sobre o gráfico de /bio mostrando data + nº de visitas.
+    // Delegação no container (#bioChart sobrevive ao re-render), então liga uma vez só.
+    function setupBioChartTooltip() {
+        if (bioTipWired) return;
+        const chart = document.getElementById('bioChart');
+        if (!chart) return;
+        let tip = document.getElementById('bioTip');
+        if (!tip) {
+            tip = document.createElement('div');
+            tip.id = 'bioTip';
+            tip.className = 'bio-tip';
+            document.body.appendChild(tip);
+        }
+        chart.addEventListener('mousemove', (ev) => {
+            const day = ev.target.closest('.bio-chart-day');
+            if (!day) { tip.classList.remove('show'); return; }
+            const n = parseInt(day.getAttribute('data-count'), 10) || 0;
+            const date = day.getAttribute('data-date') || '';
+            tip.innerHTML = `${date} · <b>${n}</b> ${n === 1 ? 'visita' : 'visitas'}`;
+            tip.style.left = ev.clientX + 'px';
+            tip.style.top = (ev.clientY - 14) + 'px';
+            tip.classList.add('show');
+        });
+        chart.addEventListener('mouseleave', () => tip.classList.remove('show'));
+        bioTipWired = true;
     }
 
     function prettifyBioTrack(name) {
