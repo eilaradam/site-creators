@@ -102,6 +102,31 @@
   .del h4{font-family:'Fraunces',serif;font-weight:600;font-size:20px;letter-spacing:-.3px;margin-bottom:8px}
   .del p{font-size:14.5px;color:var(--soft);line-height:1.55;font-weight:300}
 
+  /* planilha / sistema */
+  .sheet{margin-top:48px;background:var(--card);border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:0 24px 60px -34px rgba(23,19,16,.34)}
+  .sheet-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:17px 22px;border-bottom:1px solid var(--line);background:var(--bg)}
+  .sheet-title{font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px;color:var(--ink)}
+  .sheet-live{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted);font-weight:500}
+  .sheet-live i{width:7px;height:7px;border-radius:50%;background:#3ddc84;box-shadow:0 0 0 0 rgba(61,220,132,.7);animation:pulse 2s infinite}
+  .sheet-tabs{display:flex;gap:8px}
+  .sheet-tab{font-family:inherit;font-size:12.5px;font-weight:600;color:var(--soft);background:var(--bg2);border:1px solid var(--line);padding:7px 13px;border-radius:100px;cursor:pointer;display:flex;align-items:center;gap:7px;transition:background .2s,color .2s,border-color .2s}
+  .sheet-tab b{font-size:10.5px;background:#fff;color:var(--soft);padding:1px 7px;border-radius:100px;font-weight:700}
+  .sheet-tab.active{background:var(--coral);color:#fff;border-color:var(--coral)}
+  .sheet-tab.active b{background:rgba(255,255,255,.24);color:#fff}
+  .sheet-scroll{max-height:470px;overflow:auto}
+  .sheet table{width:100%;border-collapse:collapse}
+  .sheet th{position:sticky;top:0;text-align:left;font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--muted);padding:11px 18px;background:var(--bg);border-bottom:1px solid var(--line);white-space:nowrap;z-index:3}
+  .sheet td{padding:10px 18px;font-size:13.5px;color:var(--ink);border-bottom:1px solid var(--line);white-space:nowrap}
+  .sheet tbody tr:hover{background:var(--bg)}
+  .sheet tr.grp td{background:#fbf0e9;font-family:'Fraunces',serif;font-weight:600;font-size:13px;color:var(--coral-d);letter-spacing:.2px}
+  .sheet tr.grp:hover td{background:#fbf0e9}
+  .sheet .nm{font-weight:600}
+  .sbadge{font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:100px;margin-left:8px;vertical-align:middle;text-transform:uppercase;letter-spacing:.3px}
+  .sbadge.base{background:#d8f3e3;color:#1a7a48}
+  .sbadge.nova{background:rgba(200,68,26,.12);color:var(--coral)}
+  .sheet-foot{padding:14px 22px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);background:var(--bg);line-height:1.5}
+  .sheet-empty{padding:64px 20px;text-align:center;color:var(--muted);font-size:14px}
+
   /* closing */
   .closing{text-align:center;padding:120px 0 40px}
   .closing h2{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(34px,5.4vw,68px);line-height:1.02;letter-spacing:-1.5px;max-width:16ch;margin:0 auto}
@@ -201,6 +226,26 @@
   </div>
 </section>
 
+<!-- PLANILHA / SISTEMA -->
+<section class="sec-pad">
+  <div class="wrap">
+    <div class="rv"><div class="kicker">Por dentro do meu sistema</div>
+    <h2 class="title serif">A planilha que encontra o match certo.</h2>
+    <p class="sub">Cada creator catalogada por nível de inglês, experiência em LiveShop e nicho. É assim que eu monto o elenco exato pra cada campanha — em minutos, não em semanas de procura.</p></div>
+    <div class="sheet rv">
+      <div class="sheet-bar">
+        <div class="sheet-title">🗂️ Casting Internacional <span class="sheet-live"><i></i> base ao vivo</span></div>
+        <div class="sheet-tabs">
+          <button class="sheet-tab active" data-stab="ingles">Fala inglês <b id="cntIng">0</b></button>
+          <button class="sheet-tab" data-stab="liveshop">Faz LiveShop <b id="cntLive">0</b></button>
+        </div>
+      </div>
+      <div class="sheet-scroll" id="sheetBody"><div class="sheet-empty">Carregando a base ao vivo…</div></div>
+      <div class="sheet-foot" id="sheetFoot">Nomes resumidos por privacidade. E-mail, WhatsApp e perfil completo de cada creator ficam protegidos no meu sistema — a sua marca recebe a <b>curadoria pronta</b>, sem operação.</div>
+    </div>
+  </div>
+</section>
+
 <!-- DELIVER -->
 <section class="sec-pad">
   <div class="wrap">
@@ -278,12 +323,13 @@
   /* ── Dados ao vivo (casting) ── */
   const SB_URL = 'https://mfrmnquvwwuxraqgemyh.supabase.co';
   const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mcm1ucXV2d3d1eHJhcWdlbXloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNDI1NDIsImV4cCI6MjA4NzYxODU0Mn0.zmsi08dV5L1IlXJSr34vOii71w0g0OsD5_5DKio5g-o';
-  let _stats = null;
+  let _stats = null, _rows = [];
   async function fetchStats() {
     try {
       const sb = window.supabase.createClient(SB_URL, SB_KEY);
       const { data, error } = await sb.rpc('casting_agencia', { p_casting: 'internacional' });
       if (error || !data) return null;
+      _rows = data;
       const total = data.length;
       const falaIng = data.filter(d => d.fala_ingles).length;
       const liveshop = data.filter(d => d.faz_liveshop).length;
@@ -334,11 +380,72 @@
     document.querySelectorAll('#ingBars,#liveBars').forEach(el=>barIo.observe(el));
   }
 
+  /* ── Planilha (replica o sistema do agencia.laradam) ── */
+  const NIVEL = { basico:'Básico', intermediario:'Intermediário', avancado:'Avançado', fluente:'Fluente', nativo:'Nativo' };
+  const LIVE_ING = { natural:'Sim, natural', topicos:'Com tópicos', roteiro:'Só com roteiro', nao:'Ainda não' };
+  const SOTAQUE = { americano:'Americano', britanico:'Britânico', neutro:'Neutro', br_leve:'BR leve', br_forte:'BR forte' };
+  const TEMPO = { lt6m:'< 6 meses', '6m1a':'6m–1 ano', '1a2a':'1–2 anos', '2a3a':'2–3 anos', gt3a:'3+ anos', comecando:'começando', gt2a:'2+ anos' };
+  const LIVES = { irregular:'sem regularidade', '1a2sem':'1–2/semana', '3a5sem':'3–5/semana', '6sem':'6+/semana' };
+  const lbl = (m, v) => v ? (m[v] || v) : '—';
+  function maskName(n) {
+    if (!n) return '—';
+    const p = String(n).trim().split(/\s+/);
+    const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : s;
+    const first = cap(p[0]);
+    return p.length < 2 ? first : first + ' ' + p[p.length - 1].charAt(0).toUpperCase() + '.';
+  }
+  const sBadge = r => '<span class="sbadge ' + (r.ja_cadastrada ? 'base">na base' : 'nova">nova') + '</span>';
+  let _stab = 'ingles';
+  function renderTable() {
+    const body = document.getElementById('sheetBody');
+    if (!body) return;
+    if (!_rows.length) { body.innerHTML = '<div class="sheet-empty">Carregando a base ao vivo…</div>'; return; }
+    let html, rows;
+    if (_stab === 'ingles') {
+      rows = _rows.filter(r => r.fala_ingles);
+      const order = ['nativo','fluente','avancado','intermediario','basico'];
+      html = '<table><thead><tr><th>Creator</th><th>Nível</th><th>Cria em inglês</th><th>Live em inglês</th><th>Sotaque</th></tr></thead><tbody>';
+      const groups = order.map(lv => [lv, rows.filter(r => r.ingles_nivel === lv)]).filter(g => g[1].length);
+      const outras = rows.filter(r => !order.includes(r.ingles_nivel));
+      if (outras.length) groups.push(['__o', outras]);
+      groups.forEach(([lv, g]) => {
+        html += '<tr class="grp"><td colspan="5">' + (lv === '__o' ? 'Outras' : NIVEL[lv]) + ' · ' + g.length + '</td></tr>';
+        g.forEach(r => {
+          const cria = r.cria_conteudo_ingles === 'sim' ? 'Sim' : r.cria_conteudo_ingles === 'nao' ? 'Não' : '—';
+          html += '<tr><td class="nm">' + maskName(r.nome) + sBadge(r) + '</td><td>' + lbl(NIVEL, r.ingles_nivel) + '</td><td>' + cria + '</td><td>' + lbl(LIVE_ING, r.ingles_live) + '</td><td>' + lbl(SOTAQUE, r.ingles_sotaque) + '</td></tr>';
+        });
+      });
+    } else {
+      rows = _rows.filter(r => r.faz_liveshop);
+      const order = ['6sem','3a5sem','1a2sem','irregular'];
+      html = '<table><thead><tr><th>Creator</th><th>Lives/semana</th><th>Tempo de LiveShop</th><th>Categorias que vende</th></tr></thead><tbody>';
+      const groups = order.map(lv => [lv, rows.filter(r => r.lives_media === lv)]).filter(g => g[1].length);
+      const outras = rows.filter(r => !order.includes(r.lives_media));
+      if (outras.length) groups.push(['__o', outras]);
+      groups.forEach(([lv, g]) => {
+        html += '<tr class="grp"><td colspan="4">' + (lv === '__o' ? 'Outras' : LIVES[lv]) + ' · ' + g.length + '</td></tr>';
+        g.forEach(r => {
+          const prods = Array.isArray(r.produtos_vendidos) ? r.produtos_vendidos.slice(0, 3).join(', ') : '';
+          html += '<tr><td class="nm">' + maskName(r.nome) + sBadge(r) + '</td><td>' + lbl(LIVES, r.lives_media) + '</td><td>' + lbl(TEMPO, r.tempo_liveshop) + '</td><td>' + (prods || '—') + '</td></tr>';
+        });
+      });
+    }
+    html += '</tbody></table>';
+    body.innerHTML = html;
+  }
+  document.querySelectorAll('.sheet-tab').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.sheet-tab').forEach(x => x.classList.remove('active'));
+    b.classList.add('active'); _stab = b.dataset.stab; renderTable();
+  }));
+
   (async () => {
     _stats = await fetchStats();
     if (_stats) {
       document.getElementById('liveNote').textContent = 'Atualizado em tempo real · ' + _stats.total + ' creators na frente atual';
+      document.getElementById('cntIng').textContent = _stats.falaIng;
+      document.getElementById('cntLive').textContent = _stats.liveshop;
       renderBars();
+      renderTable();
       if (counted) renderStats(); // se já passou pela banda
     }
     maybeCount();
