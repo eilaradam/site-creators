@@ -108,6 +108,18 @@
   .feat h4{font-weight:700;font-size:19px;letter-spacing:-.4px;margin-bottom:9px}
   .feat p{font-size:14.5px;color:var(--soft);line-height:1.55;font-weight:300}
 
+  /* exemplos de conteúdo */
+  .vgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:48px}
+  .vcard{display:block;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:var(--panel);transition:transform .3s,border-color .3s}
+  .vcard:hover{transform:translateY(-5px);border-color:rgba(255,92,51,.45)}
+  .vframe{position:relative;aspect-ratio:9/16;background:linear-gradient(160deg,#16161c,#0b0b0f);display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .vframe iframe,.vframe video{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:cover}
+  .vplay{width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;backdrop-filter:blur(4px);transition:background .25s,border-color .25s,color .25s}
+  .vcard:hover .vplay{background:var(--coral);border-color:var(--coral);color:#0a0a0a}
+  .vph{position:absolute;bottom:16px;left:0;right:0;text-align:center;font-size:11.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted)}
+  .vcap{padding:15px 17px;font-size:13px;color:var(--soft);font-weight:300}
+  .vcap b{color:var(--ink);display:block;font-weight:600;font-size:14.5px;margin-bottom:2px}
+
   /* dataviz */
   .two{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:48px}
   .panel{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:34px 36px}
@@ -163,7 +175,7 @@
   .rv.d1{transition-delay:.08s}.rv.d2{transition-delay:.16s}.rv.d3{transition-delay:.24s}.rv.d4{transition-delay:.32s}
 
   @media(max-width:920px){
-    .stats-grid,.feat-grid{grid-template-columns:1fr 1fr}
+    .stats-grid,.feat-grid,.vgrid{grid-template-columns:1fr 1fr}
     .two{grid-template-columns:1fr}
     .logos{grid-template-columns:repeat(3,1fr)}
     .orb{width:280px;height:280px;top:90px;right:-90px;opacity:.7}
@@ -171,7 +183,7 @@
     .stats-band{padding:40px 26px}
   }
   @media(max-width:560px){
-    .stats-grid{grid-template-columns:1fr 1fr}.feat-grid{grid-template-columns:1fr}
+    .stats-grid{grid-template-columns:1fr 1fr}.feat-grid{grid-template-columns:1fr}.vgrid{grid-template-columns:1fr 1fr}
     .logos{grid-template-columns:repeat(2,1fr)}
     .sheet-scroll{overflow-x:auto}.sheet table{min-width:560px}
   }
@@ -292,6 +304,21 @@
       </div>
       <div class="sheet-scroll" id="sheetBody"><div class="sheet-empty">Carregando a base ao vivo…</div></div>
       <div class="sheet-foot" id="sheetFoot">Nomes resumidos por privacidade. E-mail, WhatsApp e perfil completo de cada creator ficam protegidos no meu sistema. A sua marca recebe a <b>curadoria pronta</b>, sem operação.</div>
+    </div>
+  </div>
+</section>
+
+<!-- EXEMPLOS DE CONTEÚDO -->
+<section class="sec-pad">
+  <div class="wrap">
+    <div class="rv"><div class="kicker">Exemplos de conteúdo</div>
+    <h2 class="title">O tipo de vídeo que a sua marca recebe.</h2>
+    <p class="sub">Conteúdo real de creators da nossa base, pronto pra rodar na mídia.</p></div>
+    <div class="vgrid">
+      <div class="vcard rv"><div class="vframe"><span class="vplay">▶</span><span class="vph">Em breve</span></div><div class="vcap"><b>Exemplo 01</b>UGC · review de produto</div></div>
+      <div class="vcard rv d1"><div class="vframe"><span class="vplay">▶</span><span class="vph">Em breve</span></div><div class="vcap"><b>Exemplo 02</b>LiveShop · demonstração</div></div>
+      <div class="vcard rv d2"><div class="vframe"><span class="vplay">▶</span><span class="vph">Em breve</span></div><div class="vcap"><b>Exemplo 03</b>UGC em inglês</div></div>
+      <div class="vcard rv d3"><div class="vframe"><span class="vplay">▶</span><span class="vph">Em breve</span></div><div class="vcap"><b>Exemplo 04</b>Unboxing · lifestyle</div></div>
     </div>
   </div>
 </section>
