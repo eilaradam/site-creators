@@ -583,6 +583,10 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9z"/></svg>
                 <span>Disparo</span>
             </button>
+            <button class="tab nav-item" data-tab="imersao" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                <span>Imersão</span>
+            </button>
         </nav>
         <div class="sidebar-foot">
             <div class="sidebar-user">
@@ -1311,6 +1315,32 @@
     <!-- Subtab: Vídeos -->
     <div id="pfPanelVideos" class="pf-panel" style="display:none;">
         <div id="pfVideosList"><div style="padding:40px;text-align:center;color:var(--text-muted);">Carregando...</div></div>
+    </div>
+</div>
+
+<!-- ── TAB: IMERSÃO ── -->
+<div class="dashboard" id="tabImersao">
+    <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+            <h2 style="margin:0 0 4px 0;font-family:'DM Sans',sans-serif;font-weight:700;font-size:24px;">Imersão · imersao.laradam.com</h2>
+            <p style="margin:0;color:var(--text-muted);font-size:13px;">Visitas e cliques no botão de comprar da página de venda.</p>
+        </div>
+        <button type="button" onclick="loadImersao()" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 16px;font-family:inherit;font-size:13px;font-weight:600;color:var(--text-soft);cursor:pointer;">↻ Atualizar</button>
+    </div>
+
+    <div class="stats-row" style="margin-bottom:14px;">
+        <div class="stat-card accent"><div class="stat-value" id="imStatVisits">--</div><div class="stat-label">Visitas no site</div></div>
+        <div class="stat-card"><div class="stat-value" id="imStatUnique">--</div><div class="stat-label">Visitantes únicos</div></div>
+        <div class="stat-card"><div class="stat-value" id="imStatClicks">--</div><div class="stat-label">Cliques em comprar</div></div>
+        <div class="stat-card accent"><div class="stat-value" id="imStatRate">--</div><div class="stat-label">Taxa de clique no comprar</div></div>
+        <div class="stat-card"><div class="stat-value" id="imStatToday">--</div><div class="stat-label">Visitas hoje</div></div>
+    </div>
+
+    <p id="imInfo7d" style="margin:0 0 22px 0;color:var(--text-muted);font-size:12.5px;"></p>
+
+    <div class="bio-chart-card">
+        <div class="bio-card-title">Cliques por botão da página</div>
+        <div id="imCtaList"><div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando...</div></div>
     </div>
 </div>
 
@@ -2063,7 +2093,7 @@
     document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
 
     /* ── Tabs ── */
-    const PAGE_TITLES = { dashboard: 'Dashboard', planejamento: 'Planejamento', creators: 'Creators', admin: 'Administração', portfolio: 'Portfólio', orcamentos: 'Propostas', casting: 'Casting', disparo: 'Disparo de E-mail' };
+    const PAGE_TITLES = { dashboard: 'Dashboard', planejamento: 'Planejamento', creators: 'Creators', admin: 'Administração', portfolio: 'Portfólio', orcamentos: 'Propostas', casting: 'Casting', disparo: 'Disparo de E-mail', imersao: 'Imersão' };
     function setPageTitle(target) {
         const el = document.getElementById('pageTitle');
         if (el && PAGE_TITLES[target]) el.textContent = PAGE_TITLES[target];
@@ -2082,6 +2112,7 @@
             document.getElementById('tabOrcamentos').classList.toggle('show', target === 'orcamentos');
             document.getElementById('tabCasting').classList.toggle('show', target === 'casting');
             document.getElementById('tabDisparo').classList.toggle('show', target === 'disparo');
+            document.getElementById('tabImersao').classList.toggle('show', target === 'imersao');
             setPageTitle(target);
             document.getElementById('sidebar').classList.remove('open');
             document.getElementById('sidebarBackdrop').classList.remove('show');
@@ -2094,6 +2125,7 @@
             if (target === 'orcamentos') { orcMountTopbar(); loadOrcamentos(); }
             if (target === 'casting') loadCasting();
             if (target === 'disparo') loadDisparo();
+            if (target === 'imersao') loadImersao();
         });
     });
 
@@ -3772,6 +3804,48 @@
             if (data.length < PAGE) break;
         }
         return all;
+    }
+
+    async function loadImersao() {
+        const setTxt = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+        const fmt = n => (Number(n) || 0).toLocaleString('pt-BR');
+        ['imStatVisits','imStatUnique','imStatClicks','imStatRate','imStatToday'].forEach(id => setTxt(id, '...'));
+        const listEl = document.getElementById('imCtaList');
+        if (listEl) listEl.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando...</div>';
+        try {
+            const { data, error } = await sb.rpc('imersao_stats');
+            if (error) throw error;
+            const s = data || {};
+            const visitas = Number(s.visitas_total) || 0;
+            const checkout = Number(s.cliques_checkout) || 0;
+            setTxt('imStatVisits', fmt(visitas));
+            setTxt('imStatUnique', fmt(s.visitantes_unicos));
+            setTxt('imStatClicks', fmt(checkout));
+            setTxt('imStatRate', visitas > 0 ? (checkout / visitas * 100).toFixed(1).replace('.', ',') + '%' : '--');
+            setTxt('imStatToday', fmt(s.visitas_hoje));
+            setTxt('imInfo7d', 'Últimos 7 dias: ' + fmt(s.visitas_7d) + ' visitas · ' + fmt(s.cliques_checkout_7d)
+                + ' cliques em comprar · hoje ' + fmt(s.cliques_checkout_hoje) + ' cliques em comprar');
+            const labels = { hero:'Topo da página', banner:'Meio da página', preco:'Card de preço (compra)', final:'Final da página (compra)', sticky:'Barra fixa', suporte:'Suporte / WhatsApp', cta:'Outro', '?':'Sem origem' };
+            const por = s.por_cta || {};
+            const entries = Object.keys(por).map(k => [k, Number(por[k]) || 0]).sort((a, b) => b[1] - a[1]);
+            if (!entries.length) {
+                listEl.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">Nenhum clique registrado ainda.</div>';
+            } else {
+                const max = entries[0][1] || 1;
+                listEl.innerHTML = entries.map(([k, c]) => {
+                    const pct = Math.round(c / max * 100);
+                    return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">'
+                        + '<div style="flex:0 0 190px;font-size:13.5px;font-weight:600;">' + (labels[k] || k) + '</div>'
+                        + '<div style="flex:1;height:10px;background:var(--accent-glow);border-radius:6px;overflow:hidden;"><div style="height:100%;width:' + pct + '%;background:var(--accent);border-radius:6px;"></div></div>'
+                        + '<div style="flex:0 0 54px;text-align:right;font-weight:700;font-size:14px;">' + fmt(c) + '</div>'
+                        + '</div>';
+                }).join('');
+            }
+        } catch (e) {
+            console.error('[imersao] erro', e);
+            ['imStatVisits','imStatUnique','imStatClicks','imStatRate','imStatToday'].forEach(id => setTxt(id, '--'));
+            if (listEl) listEl.innerHTML = '<div style="padding:30px;text-align:center;color:#c00;">Erro ao carregar. Confirme que a tabela <b>imersao_events</b> e a função <b>imersao_stats</b> existem no Supabase (rode o sql-imersao-events.sql).</div>';
+        }
     }
 
     async function loadPortfolio() {
