@@ -21,7 +21,7 @@ const TEXTO = "#1E2230";
 const FONTE = "Helvetica, Arial, sans-serif";
 
 /* ---------- Conteúdo ---------- */
-type Card = {
+export type Card = {
   titulo: string;
   paras: string[]; // use **negrito** para destacar
   ugc: string; // linha "O UGC é..." (sempre em negrito)
@@ -41,7 +41,7 @@ type Icone =
   | "floco"
   | "saude";
 
-const CARDS: Card[] = [
+export const CARDS: Card[] = [
   {
     titulo: "Copa do Mundo, a final (19/07)",
     paras: [

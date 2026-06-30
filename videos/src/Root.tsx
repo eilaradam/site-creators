@@ -3,6 +3,7 @@ import { CabecaFlutuante, cabecaSchema } from "./CabecaFlutuante";
 import { ConselhoDigitando, conselhoSchema } from "./ConselhoDigitando";
 import { CarrosselCreators, carrosselSchema } from "./CarrosselCreators";
 import { CarrosselJulho, julhoSchema } from "./CarrosselJulho";
+import { CarrosselJulhoEstilos, julhoEstilosSchema } from "./CarrosselJulhoEstilos";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -70,6 +71,19 @@ export const RemotionRoot: React.FC = () => {
         height={1350}
         schema={julhoSchema}
         defaultProps={{ indice: 0 }}
+      />
+
+      {/* 3 novas direções visuais do carrossel de julho (pra escolher).
+          versao: 1=Editorial, 2=Bold Dark, 3=Soft Pastel. indice 0..7. */}
+      <Composition
+        id="CarrosselJulhoEstilos"
+        component={CarrosselJulhoEstilos}
+        durationInFrames={1}
+        fps={30}
+        width={1080}
+        height={1350}
+        schema={julhoEstilosSchema}
+        defaultProps={{ versao: 1, indice: 0 }}
       />
     </>
   );
