@@ -107,8 +107,17 @@ export const CarrosselJulhoEstilos: React.FC<JulhoEstilosProps> = ({
   const props = { kind, card, indice, total };
   if (versao === 2) return <Dark {...props} />;
   if (versao === 3) return <Pastel {...props} />;
+  if (versao === 4) return <Cream {...props} />;
   return <Editorial {...props} />;
 };
+
+/* Tamanho da data grande conforme o comprimento */
+function tamData(d: string): number {
+  if (!d) return 60;
+  if (d.length <= 6) return 64;
+  if (d.length <= 12) return 44;
+  return 30;
+}
 
 /* =========================================================================
    VERSÃO 1 — EDITORIAL MINIMALISTA
@@ -620,6 +629,199 @@ const Pastel: React.FC<{ kind: Kind; card: Card | null; indice: number; total: n
     </AbsoluteFill>
   );
 };
+
+/* =========================================================================
+   VERSÃO 4 — CREAM (estilo @eubecreative): creme + textura, tarja laranja
+   inclinada, data grande, texto centralizado, 3 fotos embaixo.
+   ========================================================================= */
+const C = {
+  bg: "#EFE9DF",
+  ink: "#2B2622",
+  orange: "#F4541E",
+  soft: "#F8E7DD",
+  mut: "#928777",
+  sans: "Helvetica, Arial, sans-serif",
+  serif: '"Georgia", "Times New Roman", serif',
+};
+
+/* Textura de papel sutil (ruído) sobre o fundo */
+const Textura: React.FC = () => (
+  <svg
+    style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0.05, mixBlendMode: "multiply" }}
+  >
+    <filter id="grao">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch" />
+    </filter>
+    <rect width="100%" height="100%" filter="url(#grao)" />
+  </svg>
+);
+
+/* "@meumanager" repetido no topo (marca d'água) */
+const Handles: React.FC = () => (
+  <div style={{ display: "flex", justifyContent: "space-between", padding: "0 6px" }}>
+    {[0, 1, 2].map((i) => (
+      <span key={i} style={{ fontSize: 24, fontStyle: "italic", color: C.mut, opacity: 0.6, letterSpacing: 0.5 }}>
+        @meumanager
+      </span>
+    ))}
+  </div>
+);
+
+/* Tarja laranja inclinada com título */
+const TarjaTitulo: React.FC<{ texto: string }> = ({ texto }) => (
+  <div
+    style={{
+      display: "inline-block",
+      background: C.orange,
+      transform: "rotate(-2deg)",
+      padding: "16px 40px",
+      boxShadow: "0 14px 30px rgba(244,84,30,0.26)",
+    }}
+  >
+    <div
+      style={{
+        color: "#fff",
+        fontSize: 50,
+        fontWeight: 900,
+        lineHeight: 1.06,
+        letterSpacing: 1,
+        textTransform: "uppercase",
+        textAlign: "center",
+      }}
+    >
+      {texto}
+    </div>
+  </div>
+);
+
+const Cream: React.FC<{ kind: Kind; card: Card | null; indice: number; total: number }> = ({
+  kind,
+  card,
+  indice,
+  total,
+}) => (
+  <AbsoluteFill style={{ background: C.bg, fontFamily: C.sans, color: C.ink }}>
+    <Textura />
+
+    {kind === "capa" && (
+      <div style={{ padding: "60px 80px 80px", height: "100%", display: "flex", flexDirection: "column" }}>
+        <Handles />
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
+          <div
+            style={{
+              background: C.orange,
+              color: "#fff",
+              fontWeight: 800,
+              fontSize: 26,
+              letterSpacing: 4,
+              padding: "10px 24px",
+              transform: "rotate(-2deg)",
+              textTransform: "uppercase",
+              boxShadow: "0 12px 24px rgba(244,84,30,0.26)",
+            }}
+          >
+            ☀ Guia de Julho
+          </div>
+          <div style={{ marginTop: 50, fontSize: 96, fontWeight: 900, lineHeight: 1.04, letterSpacing: -2 }}>
+            As <span style={{ color: C.orange }}>{CAPA_NUM}</span>
+            {CAPA_TITULO_POS}
+            <span style={{ color: C.orange, fontStyle: "italic", fontFamily: C.serif }}>{CAPA_MES}</span>
+          </div>
+          <div style={{ marginTop: 40, fontSize: 40, fontWeight: 600, lineHeight: 1.3, color: C.mut, maxWidth: 720 }}>
+            {CAPA_SUB}
+          </div>
+        </div>
+        <div style={{ textAlign: "center", fontSize: 30, fontWeight: 700 }}>
+          Lara Dam <span style={{ color: C.orange }}>· @meumanager</span>
+        </div>
+      </div>
+    )}
+
+    {kind === "card" && card && (
+      <Conteudo
+        card={card}
+        indice={indice}
+        render={(c, n, d) => (
+          <div style={{ padding: "60px 76px 78px", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+            <div style={{ alignSelf: "stretch" }}>
+              <Handles />
+            </div>
+            <div style={{ marginTop: 24, fontSize: tamData(d), fontWeight: 900, color: C.ink, letterSpacing: 1 }}>
+              {d || "JULHO"}
+            </div>
+            <div style={{ marginTop: 6 }}>
+              <TarjaTitulo texto={n} />
+            </div>
+            <div style={{ marginTop: 34, fontSize: 34, lineHeight: 1.34, color: C.ink, fontWeight: 500, maxWidth: 880 }}>
+              {c.paras.map((p, i) => (
+                <p key={i} style={{ margin: 0 }}>
+                  <Rico texto={p} peso={500} />
+                </p>
+              ))}
+            </div>
+            <div style={{ marginTop: 18, fontSize: 33, lineHeight: 1.3, color: C.orange, fontWeight: 800, maxWidth: 880 }}>
+              {c.ugc}
+            </div>
+            <div style={{ marginTop: 20, background: C.soft, borderRadius: 18, padding: "16px 26px", maxWidth: 880 }}>
+              <span style={{ color: C.orange, fontWeight: 900, fontSize: 26 }}>Dica: </span>
+              <span style={{ color: C.ink, fontSize: 26, lineHeight: 1.28, fontWeight: 500 }}>{c.dica}</span>
+            </div>
+            <div style={{ marginTop: "auto", alignSelf: "stretch" }}>
+              <div style={{ fontSize: 24, letterSpacing: 2, color: C.mut, fontWeight: 700, marginBottom: 14 }}>
+                ideias de conteúdo:
+              </div>
+              <Fotos imagens={c.imagens} raio={16} altura={222} gap={16} />
+            </div>
+            <div style={{ marginTop: 22, fontSize: 26, fontWeight: 700 }}>
+              Lara Dam <span style={{ color: C.orange }}>· @meumanager</span>
+            </div>
+          </div>
+        )}
+      />
+    )}
+
+    {kind === "cta" && (
+      <div style={{ padding: "60px 80px 80px", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+        <div style={{ alignSelf: "stretch" }}>
+          <Handles />
+        </div>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
+          <div style={{ fontSize: 70, fontWeight: 900, lineHeight: 1.08, letterSpacing: -1 }}>
+            Julho tá cheio de oportunidade pra fechar{" "}
+            <span style={{ color: C.orange }}>Publi e UGC.</span>
+          </div>
+          <div style={{ marginTop: 30, fontSize: 34, fontWeight: 600, lineHeight: 1.32, color: C.mut, maxWidth: 800 }}>
+            {CTA_SALVA}
+          </div>
+          <div style={{ marginTop: 28, fontSize: 34, lineHeight: 1.36, color: C.ink, fontWeight: 500, maxWidth: 820 }}>
+            Comenta <span style={{ color: C.orange, fontWeight: 900 }}>NOVIDADES</span> que eu te mando no
+            privado as oportunidades mais quentes pra você chegar antes nas marcas.
+          </div>
+          <div
+            style={{
+              marginTop: 40,
+              background: C.orange,
+              color: "#fff",
+              fontWeight: 900,
+              fontSize: 42,
+              padding: "22px 46px",
+              borderRadius: 999,
+              transform: "rotate(-2deg)",
+              boxShadow: "0 16px 32px rgba(244,84,30,0.3)",
+            }}
+          >
+            💬 NOVIDADES
+          </div>
+        </div>
+        <div style={{ fontSize: 30, fontWeight: 700 }}>
+          Lara Dam <span style={{ color: C.orange }}>· @meumanager</span>
+        </div>
+      </div>
+    )}
+
+    <Dots total={total} ativo={indice} cor={C.orange} fraco="rgba(43,38,34,0.18)" />
+  </AbsoluteFill>
+);
 
 /* Wrapper que injeta nome/data parseados do título */
 const Conteudo: React.FC<{
