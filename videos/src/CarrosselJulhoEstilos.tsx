@@ -713,7 +713,7 @@ const Cream: React.FC<{ kind: Kind; card: Card | null; indice: number; total: nu
       <AbsoluteFill>
         <Img
           src={staticFile(CAPA_FOTO)}
-          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
         />
         {/* sobreposição p/ legibilidade */}
         <AbsoluteFill
@@ -722,7 +722,7 @@ const Cream: React.FC<{ kind: Kind; card: Card | null; indice: number; total: nu
               "linear-gradient(180deg, rgba(20,16,12,0.46) 0%, rgba(20,16,12,0.06) 30%, rgba(20,16,12,0.30) 58%, rgba(20,16,12,0.86) 100%)",
           }}
         />
-        <div style={{ padding: "58px 70px 80px", height: "100%", display: "flex", flexDirection: "column", color: "#fff" }}>
+        <AbsoluteFill style={{ padding: "58px 70px 80px", color: "#fff" }}>
           <Handles cor="#FFFFFF" opacidade={0.85} />
           <div style={{ marginTop: "auto" }}>
             <div
@@ -771,7 +771,7 @@ const Cream: React.FC<{ kind: Kind; card: Card | null; indice: number; total: nu
               Lara Dam <span style={{ color: C.orange }}>· @eilaradam</span>
             </div>
           </div>
-        </div>
+        </AbsoluteFill>
       </AbsoluteFill>
     )}
 
