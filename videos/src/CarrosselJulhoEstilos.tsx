@@ -50,7 +50,8 @@ const Fotos: React.FC<{
   raio: number;
   altura: number;
   gap?: number;
-}> = ({ imagens, raio, altura, gap = 16 }) => (
+  focos?: (string | undefined)[];
+}> = ({ imagens, raio, altura, gap = 16, focos }) => (
   <div style={{ display: "flex", gap }}>
     {(imagens ?? []).map((src, i) => (
       <div
@@ -60,7 +61,13 @@ const Fotos: React.FC<{
         {src && (
           <Img
             src={staticFile(src)}
-            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: focos?.[i] ?? "center",
+              display: "block",
+            }}
           />
         )}
       </div>
@@ -814,45 +821,44 @@ const Cream: React.FC<{ kind: Kind; card: Card | null; indice: number; total: nu
         card={card}
         indice={indice}
         render={(c, n, d) => (
-          <div style={{ padding: "56px 70px 64px", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-            {/* TOPO: handles + data + tarja (sempre na mesma altura) */}
+          <div style={{ padding: "56px 70px 60px", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
             <div style={{ alignSelf: "stretch" }}>
               <Handles />
             </div>
-            <div style={{ marginTop: 20, fontSize: tamData(d), fontWeight: 900, color: C.ink, letterSpacing: 1 }}>
-              {d || "JULHO"}
-            </div>
-            <div style={{ marginTop: 6 }}>
-              <TarjaTitulo texto={n} />
-            </div>
 
-            {/* MEIO: texto centralizado no espaço flexível (sem vão único grande) */}
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: 16, width: "100%" }}>
-              <div style={{ fontSize: 31, lineHeight: 1.32, color: C.ink, fontWeight: 500, maxWidth: 870, marginLeft: "auto", marginRight: "auto" }}>
+            {/* Conjunto inteiro centralizado: data, tarja, texto e fotos juntos
+                (sem vão único; fotos sobem pra logo após o texto) */}
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", width: "100%" }}>
+              <div style={{ fontSize: tamData(d), fontWeight: 900, color: C.ink, letterSpacing: 1 }}>
+                {d || "JULHO"}
+              </div>
+              <div style={{ marginTop: 6 }}>
+                <TarjaTitulo texto={n} />
+              </div>
+              <div style={{ marginTop: 30, fontSize: 31, lineHeight: 1.32, color: C.ink, fontWeight: 500, maxWidth: 870 }}>
                 {c.paras.map((p, i) => (
                   <p key={i} style={{ margin: 0 }}>
                     <Rico texto={p} peso={500} />
                   </p>
                 ))}
               </div>
-              <div style={{ fontSize: 30, lineHeight: 1.28, color: C.orange, fontWeight: 800, maxWidth: 870, marginLeft: "auto", marginRight: "auto" }}>
+              <div style={{ marginTop: 14, fontSize: 30, lineHeight: 1.28, color: C.orange, fontWeight: 800, maxWidth: 870 }}>
                 {c.ugc}
               </div>
-              <div style={{ background: C.soft, borderRadius: 18, padding: "16px 26px", maxWidth: 870, marginLeft: "auto", marginRight: "auto" }}>
+              <div style={{ marginTop: 14, background: C.soft, borderRadius: 18, padding: "16px 26px", maxWidth: 870 }}>
                 <span style={{ color: C.orange, fontWeight: 900, fontSize: 25 }}>Dica: </span>
                 <span style={{ color: C.ink, fontSize: 25, lineHeight: 1.26, fontWeight: 500 }}>{c.dica}</span>
               </div>
+              <div style={{ marginTop: 30, alignSelf: "stretch" }}>
+                <div style={{ fontSize: 23, letterSpacing: 2, color: C.mut, fontWeight: 700, marginBottom: 14 }}>
+                  ideias de conteúdo:
+                </div>
+                <Fotos imagens={c.imagens} focos={c.focos} raio={16} altura={224} gap={16} />
+              </div>
             </div>
 
-            {/* BASE: fotos + rodapé (sempre na mesma altura) */}
-            <div style={{ alignSelf: "stretch" }}>
-              <div style={{ fontSize: 23, letterSpacing: 2, color: C.mut, fontWeight: 700, marginBottom: 14 }}>
-                ideias de conteúdo:
-              </div>
-              <Fotos imagens={c.imagens} raio={16} altura={224} gap={16} />
-              <div style={{ marginTop: 20, fontSize: 26, fontWeight: 700 }}>
-                Lara Dam <span style={{ color: C.orange }}>· @eilaradam</span>
-              </div>
+            <div style={{ fontSize: 26, fontWeight: 700 }}>
+              Lara Dam <span style={{ color: C.orange }}>· @eilaradam</span>
             </div>
           </div>
         )}

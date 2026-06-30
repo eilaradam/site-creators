@@ -31,6 +31,8 @@ export type Card = {
   // Opcional: caminhos em public/ p/ as fotos reais (ex.: "julho/c1-1.jpg").
   // Quando preenchido, mostra a foto no lugar do placeholder.
   imagens?: [string?, string?, string?];
+  // Opcional: object-position por foto (ex.: "center 16%") p/ não cortar rosto.
+  focos?: (string | undefined)[];
 };
 
 type Icone =
@@ -63,6 +65,7 @@ export const CARDS: Card[] = [
     fotos: ["GRWM pro show", "look do dia", "vlog em São Paulo"],
     tema: { cor1: "#C44AE0", cor2: "#6E32D8", icone: "musica" },
     imagens: ["julho/harry1.jpg", "julho/harry2.jpg", "julho/harry3.jpg"],
+    focos: ["center", "center 15%", "center"],
   },
   {
     titulo: "As estreias de cinema do mês",
@@ -74,6 +77,7 @@ export const CARDS: Card[] = [
     fotos: ["vem ao cinema comigo", "look temático do filme", "unboxing licenciado"],
     tema: { cor1: "#3A5BE0", cor2: "#212E86", icone: "filme" },
     imagens: ["julho/filmes1.jpg", "julho/filmes2.jpg", "julho/filmes3.jpg"],
+    focos: ["center", "center 18%", "center"],
   },
   {
     titulo: "Dia do Amigo e da Amizade (20/07)",
