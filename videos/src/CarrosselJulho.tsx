@@ -1,4 +1,4 @@
-import { AbsoluteFill } from "remotion";
+import { AbsoluteFill, Img, staticFile } from "remotion";
 import { z } from "zod";
 
 /* =========================================================================
@@ -27,6 +27,9 @@ type Card = {
   ugc: string; // linha "O UGC é..." (sempre em negrito)
   dica: string; // texto após "Dica de abordagem:"
   fotos: [string, string, string]; // legendas dos slots de foto
+  // Opcional: caminhos em public/ p/ as fotos reais (ex.: "julho/c1-1.jpg").
+  // Quando preenchido, mostra a foto no lugar do placeholder.
+  imagens?: [string?, string?, string?];
 };
 
 const CARDS: Card[] = [
@@ -281,7 +284,7 @@ const CardData: React.FC<{ card: Card; indice: number; total: number }> = ({
       }}
     >
       {card.fotos.map((legenda, i) => (
-        <SlotFoto key={i} legenda={legenda} />
+        <SlotFoto key={i} legenda={legenda} src={card.imagens?.[i]} />
       ))}
     </div>
 
@@ -451,8 +454,26 @@ const Rodape: React.FC<{ posicao: "dentro" | "fora" }> = ({ posicao }) => (
   </div>
 );
 
-/* Slot de foto (placeholder pra trocar pela imagem real) */
-const SlotFoto: React.FC<{ legenda: string }> = ({ legenda }) => (
+/* Slot de foto: mostra a imagem real se `src` existir, senão o placeholder. */
+const SlotFoto: React.FC<{ legenda: string; src?: string }> = ({
+  legenda,
+  src,
+}) => {
+  if (src) {
+    return (
+      <Img
+        src={staticFile(src)}
+        style={{
+          width: 280,
+          height: 250,
+          borderRadius: 18,
+          objectFit: "cover",
+          display: "block",
+        }}
+      />
+    );
+  }
+  return (
   <div
     style={{
       width: 280,
@@ -495,7 +516,8 @@ const SlotFoto: React.FC<{ legenda: string }> = ({ legenda }) => (
       sua foto aqui
     </div>
   </div>
-);
+  );
+};
 
 /* Logo "M" do @meumanager (quadrado gradiente) */
 const LogoM: React.FC = () => (
