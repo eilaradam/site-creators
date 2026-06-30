@@ -27,10 +27,19 @@ type Card = {
   ugc: string; // linha "O UGC é..." (sempre em negrito)
   dica: string; // texto após "Dica de abordagem:"
   fotos: [string, string, string]; // legendas dos slots de foto
+  tema: { cor1: string; cor2: string; icone: Icone }; // bloco temático
   // Opcional: caminhos em public/ p/ as fotos reais (ex.: "julho/c1-1.jpg").
   // Quando preenchido, mostra a foto no lugar do placeholder.
   imagens?: [string?, string?, string?];
 };
+
+type Icone =
+  | "bola"
+  | "musica"
+  | "filme"
+  | "coracao"
+  | "floco"
+  | "saude";
 
 const CARDS: Card[] = [
   {
@@ -41,6 +50,7 @@ const CARDS: Card[] = [
     ugc: "O UGC é a reação: torcida, mesa de bar, grito de gol, galera reunida.",
     dica: "marcas de cerveja, snack e delivery precisam de conteúdo em VOLUME nessa fase. Ofereça um pacote reativo, vídeos rápidos a cada jogo decisivo, proposta que quase ninguém faz.",
     fotos: ["torcida na arquibancada", "mesa de bar com a galera", "petisco verde-amarelo"],
+    tema: { cor1: "#2E9E5B", cor2: "#176A3A", icone: "bola" },
   },
   {
     titulo: "Harry Styles em São Paulo (17, 18, 21 e 24/07)",
@@ -50,6 +60,7 @@ const CARDS: Card[] = [
     ugc: "O UGC aqui é a experiência: GRWM pro show, look do dia, vlog de São Paulo, a viagem pra ver o Harry.",
     dica: "marcas de moda, beleza e hotéis em SP querem pegar carona em eventos assim, mas quase ninguém oferece UGC de “indo pro show”. Chega com um pacote de experiência antes mesmo de te pedirem.",
     fotos: ["GRWM pro show", "look do dia", "vlog em São Paulo"],
+    tema: { cor1: "#C44AE0", cor2: "#6E32D8", icone: "musica" },
   },
   {
     titulo: "As estreias de cinema do mês",
@@ -59,6 +70,7 @@ const CARDS: Card[] = [
     ugc: "O UGC é o ritual: “vem ao cinema comigo”, look inspirado no filme, reação na estreia, unboxing de produto licenciado.",
     dica: "marcas de snack, moda e papelaria podem surfar cada estreia. Monte um calendário de conteúdo amarrando produto a cada lançamento, em vez de um vídeo solto.",
     fotos: ["vem ao cinema comigo", "look temático do filme", "unboxing licenciado"],
+    tema: { cor1: "#3A5BE0", cor2: "#212E86", icone: "filme" },
   },
   {
     titulo: "Dia do Amigo e da Amizade (20/07)",
@@ -68,6 +80,7 @@ const CARDS: Card[] = [
     ugc: "O UGC é o afeto real: marcar a melhor amiga, o presente pra quem você ama, o rolê da turma.",
     dica: "marcas de presente e restaurantes raramente recebem proposta de UGC pra essa data. Ofereça um conteúdo de “presenteie quem você ama” com a cara da marca.",
     fotos: ["a melhor amiga", "presente afetivo", "rolê da turma"],
+    tema: { cor1: "#F4541E", cor2: "#C5380E", icone: "coracao" },
   },
   {
     titulo: "Dia dos Avós (26/07)",
@@ -77,6 +90,7 @@ const CARDS: Card[] = [
     ugc: "O UGC aqui é a conexão de verdade: neto e avó, a homenagem, o presente que faz chorar.",
     dica: "marcas de presente, alimento e moda confortável quase nunca pensam nessa data. Chega com um roteiro afetivo pronto, é o tipo de conteúdo que viraliza por emoção.",
     fotos: ["neto e avó", "a homenagem", "presente que emociona"],
+    tema: { cor1: "#E8893D", cor2: "#C25A24", icone: "coracao" },
   },
   {
     titulo: "Férias escolares e inverno (mês inteiro)",
@@ -86,6 +100,7 @@ const CARDS: Card[] = [
     ugc: "O UGC é o aconchego e o passeio: gente real com frio real, viagem em família, dia gostoso em casa.",
     dica: "marcas de conforto (pijama, cobertor) e turismo vendem muito nessa época e precisam de conteúdo que não pareça catálogo. UGC resolve exatamente isso.",
     fotos: ["viagem em família", "enrolada no cobertor", "chocolate quente"],
+    tema: { cor1: "#2BB8D4", cor2: "#1C6FA0", icone: "floco" },
   },
   {
     titulo: "Julho Amarelo e Julho Verde (mês inteiro)",
@@ -95,6 +110,7 @@ const CARDS: Card[] = [
     ugc: "O UGC aqui é informação com verdade, conteúdo que conscientiza sem soar comercial.",
     dica: "é terreno sensível, então chega com cuidado. Marcas de saúde precisam de conteúdo humano sobre a causa, mas que respeite o tema. Sensibilidade aqui é o seu diferencial.",
     fotos: ["conteúdo de saúde", "registro humano", "causa com verdade"],
+    tema: { cor1: "#E0B52B", cor2: "#2E9E5B", icone: "saude" },
   },
 ];
 
@@ -284,7 +300,12 @@ const CardData: React.FC<{ card: Card; indice: number; total: number }> = ({
       }}
     >
       {card.fotos.map((legenda, i) => (
-        <SlotFoto key={i} legenda={legenda} src={card.imagens?.[i]} />
+        <SlotFoto
+          key={i}
+          legenda={legenda}
+          src={card.imagens?.[i]}
+          tema={card.tema}
+        />
       ))}
     </div>
 
@@ -454,11 +475,13 @@ const Rodape: React.FC<{ posicao: "dentro" | "fora" }> = ({ posicao }) => (
   </div>
 );
 
-/* Slot de foto: mostra a imagem real se `src` existir, senão o placeholder. */
-const SlotFoto: React.FC<{ legenda: string; src?: string }> = ({
-  legenda,
-  src,
-}) => {
+/* Slot de foto: mostra a foto real se `src` existir; senão, um bloco
+   temático da marca (gradiente + ícone + legenda). */
+const SlotFoto: React.FC<{
+  legenda: string;
+  src?: string;
+  tema: { cor1: string; cor2: string; icone: Icone };
+}> = ({ legenda, src, tema }) => {
   if (src) {
     return (
       <Img
@@ -474,49 +497,119 @@ const SlotFoto: React.FC<{ legenda: string; src?: string }> = ({
     );
   }
   return (
-  <div
-    style={{
-      width: 280,
-      height: 250,
-      borderRadius: 18,
-      background: "#E4DECF",
-      border: "3px dashed rgba(244,84,30,0.55)",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 14,
-      padding: 16,
-      textAlign: "center",
-    }}
-  >
-    <svg width={56} height={56} viewBox="0 0 24 24" fill="none">
-      <rect
-        x="2.5"
-        y="4.5"
-        width="19"
-        height="15"
-        rx="2.5"
-        stroke={LARANJA}
-        strokeWidth="1.8"
-      />
-      <circle cx="8.5" cy="10" r="2" fill={LARANJA} />
-      <path
-        d="M4 18l5-5 3.5 3.5L16 12l4 4.5"
-        stroke={LARANJA}
-        strokeWidth="1.8"
-        fill="none"
-        strokeLinejoin="round"
-      />
-    </svg>
-    <div style={{ fontSize: 25, fontWeight: 700, color: "#7A6B53", lineHeight: 1.15 }}>
-      {legenda}
+    <div
+      style={{
+        position: "relative",
+        width: 280,
+        height: 250,
+        borderRadius: 18,
+        overflow: "hidden",
+        background: `linear-gradient(150deg, ${tema.cor1} 0%, ${tema.cor2} 100%)`,
+        boxShadow: "0 12px 26px rgba(30,34,48,0.18)",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 18,
+        padding: 22,
+        textAlign: "center",
+      }}
+    >
+      {/* ícone marca d'água grande ao fundo */}
+      <div style={{ position: "absolute", right: -18, bottom: -18, opacity: 0.18 }}>
+        <IconeTema nome={tema.icone} tamanho={150} cor="#FFFFFF" />
+      </div>
+      {/* ícone principal */}
+      <IconeTema nome={tema.icone} tamanho={62} cor="#FFFFFF" />
+      <div
+        style={{
+          fontSize: 26,
+          fontWeight: 800,
+          color: "#FFFFFF",
+          lineHeight: 1.18,
+          textShadow: "0 2px 6px rgba(0,0,0,0.18)",
+        }}
+      >
+        {legenda}
+      </div>
     </div>
-    <div style={{ fontSize: 19, fontWeight: 600, color: "#A99A80" }}>
-      sua foto aqui
-    </div>
-  </div>
   );
+};
+
+/* Ícones temáticos simples (SVG) */
+const IconeTema: React.FC<{ nome: Icone; tamanho: number; cor: string }> = ({
+  nome,
+  tamanho,
+  cor,
+}) => {
+  const p = { width: tamanho, height: tamanho, viewBox: "0 0 24 24" };
+  switch (nome) {
+    case "bola":
+      return (
+        <svg {...p} fill="none">
+          <circle cx="12" cy="12" r="9.2" stroke={cor} strokeWidth="1.7" />
+          <path
+            d="M12 6.6l3.4 2.5-1.3 4h-4.2l-1.3-4L12 6.6z"
+            fill={cor}
+          />
+          <path
+            d="M12 2.8v3.8M5 8.8l3.6 1.3M19 8.8l-3.6 1.3M8.2 19.3l1.6-3.7M15.8 19.3l-1.6-3.7"
+            stroke={cor}
+            strokeWidth="1.5"
+          />
+        </svg>
+      );
+    case "musica":
+      return (
+        <svg {...p} fill="none">
+          <path
+            d="M9 17.5V6.2l9-1.8v10"
+            stroke={cor}
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <circle cx="6.6" cy="17.6" r="2.5" fill={cor} />
+          <circle cx="15.6" cy="15.6" r="2.5" fill={cor} />
+        </svg>
+      );
+    case "filme":
+      return (
+        <svg {...p} fill="none">
+          <rect x="2.6" y="8" width="18.8" height="12" rx="2" stroke={cor} strokeWidth="1.7" />
+          <path d="M2.6 8l3.2-4 3 4M9.2 8l3.2-4 3 4M16 8l3.2-4" stroke={cor} strokeWidth="1.6" strokeLinejoin="round" />
+          <path d="M10 12.4v4l3.4-2-3.4-2z" fill={cor} />
+        </svg>
+      );
+    case "coracao":
+      return (
+        <svg {...p} fill="none">
+          <path
+            d="M12 20.5l-1.4-1.3C5.4 14.6 2.5 12 2.5 8.6 2.5 6 4.5 4 7 4c1.6 0 3.1.8 4 2.1C11.9 4.8 13.4 4 15 4c2.5 0 4.5 2 4.5 4.6 0 3.4-2.9 6-8.1 10.6L12 20.5z"
+            fill={cor}
+          />
+        </svg>
+      );
+    case "floco":
+      return (
+        <svg {...p} fill="none" stroke={cor} strokeWidth="1.6" strokeLinecap="round">
+          <path d="M12 2.5v19M3.8 7.2l16.4 9.6M20.2 7.2L3.8 16.8" />
+          <path d="M12 5.6l2.2-2.1M12 5.6L9.8 3.5M12 18.4l2.2 2.1M12 18.4l-2.2 2.1M5.2 8.6L2.4 8M5.2 8.6l-.6-2.8M18.8 15.4l2.8.6M18.8 15.4l.6 2.8M5.2 15.4l-.6 2.8M5.2 15.4l-2.8.6M18.8 8.6l.6-2.8M18.8 8.6l2.8-.6" />
+        </svg>
+      );
+    case "saude":
+      return (
+        <svg {...p} fill="none">
+          <path
+            d="M12 20.5l-1.4-1.3C5.4 14.6 2.5 12 2.5 8.6 2.5 6 4.5 4 7 4c1.6 0 3.1.8 4 2.1C11.9 4.8 13.4 4 15 4c2.5 0 4.5 2 4.5 4.6 0 3.4-2.9 6-8.1 10.6L12 20.5z"
+            stroke={cor}
+            strokeWidth="1.7"
+            fill="none"
+          />
+          <path d="M12 8.5v5M9.5 11h5" stroke={cor} strokeWidth="1.8" strokeLinecap="round" />
+        </svg>
+      );
+  }
 };
 
 /* Logo "M" do @meumanager (quadrado gradiente) */
