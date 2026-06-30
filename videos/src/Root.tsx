@@ -2,6 +2,7 @@ import { Composition } from "remotion";
 import { CabecaFlutuante, cabecaSchema } from "./CabecaFlutuante";
 import { ConselhoDigitando, conselhoSchema } from "./ConselhoDigitando";
 import { CarrosselCreators, carrosselSchema } from "./CarrosselCreators";
+import { CarrosselJulho, julhoSchema } from "./CarrosselJulho";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -55,6 +56,19 @@ export const RemotionRoot: React.FC = () => {
         width={1080}
         height={1350}
         schema={carrosselSchema}
+        defaultProps={{ indice: 0 }}
+      />
+
+      {/* Carrossel de JULHO (template Lara Dam | UGC Manager) — 1080x1350.
+          9 lâminas: capa (0), datas (1..7) e CTA (8). */}
+      <Composition
+        id="CarrosselJulho"
+        component={CarrosselJulho}
+        durationInFrames={1}
+        fps={30}
+        width={1080}
+        height={1350}
+        schema={julhoSchema}
         defaultProps={{ indice: 0 }}
       />
     </>

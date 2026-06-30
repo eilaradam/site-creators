@@ -27,6 +27,21 @@ npx remotion render src/index.ts ConselhoDigitando out/conselho-digitando.mp4 \
   --codec=h264 --concurrency=4 --gl=angle --browser-executable=/tmp/chromium
 ```
 
+### `CarrosselJulho`
+
+Carrossel de JULHO no template **"Lara Dam | UGC Manager"** — fundo creme,
+tarja laranja no título, corpo escuro, faixa azul de "Dica de abordagem",
+3 slots de foto e rodapé. Feed **1080×1350 (4:5)**, 9 lâminas: capa (0),
+7 datas (1–7) e CTA (8). Conteúdo no array `CARDS` de
+`src/CarrosselJulho.tsx` (use `**negrito**` no corpo). As fotos são **slots
+marcados** ("sua foto aqui") pra trocar pelas imagens reais no Canva.
+```bash
+mkdir -p out/julho
+for i in 0 1 2 3 4 5 6 7 8; do \
+  npx remotion still src/index.ts CarrosselJulho out/julho/julho-$i.png \
+    --props="{\"indice\":$i}" --browser-executable=/tmp/chromium; done
+```
+
 ### `CarrosselCreators`
 
 Carrossel de feed **1080×1350 (4:5)** no estilo da marca — verde-menta +
