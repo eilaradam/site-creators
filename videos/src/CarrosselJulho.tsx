@@ -51,6 +51,7 @@ const CARDS: Card[] = [
     dica: "marcas de cerveja, snack e delivery precisam de conteúdo em VOLUME nessa fase. Ofereça um pacote reativo, vídeos rápidos a cada jogo decisivo, proposta que quase ninguém faz.",
     fotos: ["torcida na arquibancada", "mesa de bar com a galera", "petisco verde-amarelo"],
     tema: { cor1: "#2E9E5B", cor2: "#176A3A", icone: "bola" },
+    imagens: ["julho/copa1.png", "julho/copa2.png", "julho/copa3.png"],
   },
   {
     titulo: "Harry Styles em São Paulo (17, 18, 21 e 24/07)",
@@ -61,6 +62,7 @@ const CARDS: Card[] = [
     dica: "marcas de moda, beleza e hotéis em SP querem pegar carona em eventos assim, mas quase ninguém oferece UGC de “indo pro show”. Chega com um pacote de experiência antes mesmo de te pedirem.",
     fotos: ["GRWM pro show", "look do dia", "vlog em São Paulo"],
     tema: { cor1: "#C44AE0", cor2: "#6E32D8", icone: "musica" },
+    imagens: ["julho/harry1.jpg", "julho/harry2.jpg", "julho/harry3.jpg"],
   },
   {
     titulo: "As estreias de cinema do mês",
@@ -71,6 +73,7 @@ const CARDS: Card[] = [
     dica: "marcas de snack, moda e papelaria podem surfar cada estreia. Monte um calendário de conteúdo amarrando produto a cada lançamento, em vez de um vídeo solto.",
     fotos: ["vem ao cinema comigo", "look temático do filme", "unboxing licenciado"],
     tema: { cor1: "#3A5BE0", cor2: "#212E86", icone: "filme" },
+    imagens: ["julho/filmes1.jpg", "julho/filmes2.jpg", "julho/filmes3.jpg"],
   },
   {
     titulo: "Dia do Amigo e da Amizade (20/07)",
@@ -81,6 +84,7 @@ const CARDS: Card[] = [
     dica: "marcas de presente e restaurantes raramente recebem proposta de UGC pra essa data. Ofereça um conteúdo de “presenteie quem você ama” com a cara da marca.",
     fotos: ["a melhor amiga", "presente afetivo", "rolê da turma"],
     tema: { cor1: "#F4541E", cor2: "#C5380E", icone: "coracao" },
+    imagens: ["julho/amigos1.png", "julho/amigos2.png", "julho/amigos3.png"],
   },
   {
     titulo: "Dia dos Avós (26/07)",
@@ -91,6 +95,7 @@ const CARDS: Card[] = [
     dica: "marcas de presente, alimento e moda confortável quase nunca pensam nessa data. Chega com um roteiro afetivo pronto, é o tipo de conteúdo que viraliza por emoção.",
     fotos: ["neto e avó", "a homenagem", "presente que emociona"],
     tema: { cor1: "#E8893D", cor2: "#C25A24", icone: "coracao" },
+    imagens: ["julho/avos.png", "julho/avos1.png", "julho/avos3.png"],
   },
   {
     titulo: "Férias escolares e inverno (mês inteiro)",
@@ -101,6 +106,7 @@ const CARDS: Card[] = [
     dica: "marcas de conforto (pijama, cobertor) e turismo vendem muito nessa época e precisam de conteúdo que não pareça catálogo. UGC resolve exatamente isso.",
     fotos: ["viagem em família", "enrolada no cobertor", "chocolate quente"],
     tema: { cor1: "#2BB8D4", cor2: "#1C6FA0", icone: "floco" },
+    imagens: ["julho/inverno1.jpg", "julho/inverno2.png", "julho/inverno3.png"],
   },
 ];
 
