@@ -18,6 +18,9 @@ const CAPA_NUM = "6";
 const CAPA_TITULO_POS = " oportunidades de UGC de ";
 const CAPA_MES = "julho";
 const CAPA_SUB = "pra você começar o mês já fechando Publi e UGC";
+// Foto de fundo da capa (Versão 4). Aponte para o arquivo em public/ quando
+// a imagem estiver lá, ex.: "julho/capa.jpg". null = capa creme sem foto.
+const CAPA_FOTO: string | null = "julho/capa.jpg";
 const CTA_SALVA =
   "Salva esse carrossel pra não perder nenhuma data e usar o mês todo como guia.";
 
@@ -169,7 +172,7 @@ const Editorial: React.FC<{
           <div style={{ marginTop: "auto", display: "flex", alignItems: "center", gap: 14, fontSize: 30 }}>
             <span style={{ fontWeight: 800 }}>Lara Dam</span>
             <span style={{ color: E.line }}>/</span>
-            <span style={{ color: E.acc, fontWeight: 700 }}>@meumanager</span>
+            <span style={{ color: E.acc, fontWeight: 700 }}>@eilaradam</span>
           </div>
         </div>
       )}
@@ -227,7 +230,7 @@ const Editorial: React.FC<{
               <div style={{ marginTop: 26, fontSize: 27 }}>
                 <span style={{ fontWeight: 800 }}>Lara Dam</span>
                 <span style={{ color: E.line }}> / </span>
-                <span style={{ color: E.acc, fontWeight: 700 }}>@meumanager</span>
+                <span style={{ color: E.acc, fontWeight: 700 }}>@eilaradam</span>
               </div>
             </div>
           )}
@@ -267,7 +270,7 @@ const Editorial: React.FC<{
           <div style={{ marginTop: "auto", fontSize: 30 }}>
             <span style={{ fontWeight: 800 }}>Lara Dam</span>
             <span style={{ color: E.line }}> / </span>
-            <span style={{ color: E.acc, fontWeight: 700 }}>@meumanager</span>
+            <span style={{ color: E.acc, fontWeight: 700 }}>@eilaradam</span>
           </div>
         </div>
       )}
@@ -298,7 +301,7 @@ const Dark: React.FC<{ kind: Kind; card: Card | null; indice: number; total: num
     <AbsoluteFill style={{ background: D.bg, fontFamily: D.sans, color: D.ink }}>
       {kind === "capa" && (
         <div style={{ padding: "100px 86px", height: "100%", display: "flex", flexDirection: "column" }}>
-          <div style={{ fontSize: 30, fontWeight: 800, color: D.acc, letterSpacing: 1 }}>@meumanager</div>
+          <div style={{ fontSize: 30, fontWeight: 800, color: D.acc, letterSpacing: 1 }}>@eilaradam</div>
           <div style={{ marginTop: "auto" }}>
             <div style={{ fontSize: 110, fontWeight: 900, lineHeight: 0.98, letterSpacing: -3 }}>
               {CAPA_TITULO_PRE}
@@ -320,7 +323,7 @@ const Dark: React.FC<{ kind: Kind; card: Card | null; indice: number; total: num
             </div>
           </div>
           <div style={{ marginTop: 70, fontSize: 30, fontWeight: 700 }}>
-            Lara Dam <span style={{ color: D.acc }}>/ @meumanager</span>
+            Lara Dam <span style={{ color: D.acc }}>/ @eilaradam</span>
           </div>
         </div>
       )}
@@ -379,7 +382,7 @@ const Dark: React.FC<{ kind: Kind; card: Card | null; indice: number; total: num
                 <span style={{ color: D.ink, fontSize: 29, lineHeight: 1.3, fontWeight: 500 }}>{c.dica}</span>
               </div>
               <div style={{ marginTop: 24, fontSize: 28, fontWeight: 700 }}>
-                Lara Dam <span style={{ color: D.acc }}>/ @meumanager</span>
+                Lara Dam <span style={{ color: D.acc }}>/ @eilaradam</span>
               </div>
             </div>
           )}
@@ -418,7 +421,7 @@ const Dark: React.FC<{ kind: Kind; card: Card | null; indice: number; total: num
             💬 NOVIDADES
           </div>
           <div style={{ marginTop: 64, fontSize: 30, fontWeight: 700 }}>
-            Lara Dam <span style={{ color: D.acc }}>/ @meumanager</span>
+            Lara Dam <span style={{ color: D.acc }}>/ @eilaradam</span>
           </div>
         </div>
       )}
@@ -510,7 +513,7 @@ const Pastel: React.FC<{ kind: Kind; card: Card | null; indice: number; total: n
               {CAPA_SUB}
             </div>
             <div style={{ marginTop: 44, fontSize: 30, fontWeight: 700 }}>
-              Lara Dam <span style={{ color: P.acc }}>· @meumanager</span>
+              Lara Dam <span style={{ color: P.acc }}>· @eilaradam</span>
             </div>
           </div>
         </AbsoluteFill>
@@ -573,7 +576,7 @@ const Pastel: React.FC<{ kind: Kind; card: Card | null; indice: number; total: n
                   <span style={{ color: P.ink, fontSize: 28, lineHeight: 1.3, fontWeight: 500 }}>{c.dica}</span>
                 </div>
                 <div style={{ marginTop: 22, fontSize: 27, fontWeight: 700 }}>
-                  Lara Dam <span style={{ color: P.acc }}>· @meumanager</span>
+                  Lara Dam <span style={{ color: P.acc }}>· @eilaradam</span>
                 </div>
               </div>
             </AbsoluteFill>
@@ -619,7 +622,7 @@ const Pastel: React.FC<{ kind: Kind; card: Card | null; indice: number; total: n
               💬 NOVIDADES
             </div>
             <div style={{ marginTop: 40, fontSize: 28, fontWeight: 700 }}>
-              Lara Dam <span style={{ color: P.acc }}>· @meumanager</span>
+              Lara Dam <span style={{ color: P.acc }}>· @eilaradam</span>
             </div>
           </div>
         </AbsoluteFill>
@@ -656,12 +659,15 @@ const Textura: React.FC = () => (
   </svg>
 );
 
-/* "@meumanager" repetido no topo (marca d'água) */
-const Handles: React.FC = () => (
+/* "@eilaradam" repetido no topo (marca d'água) */
+const Handles: React.FC<{ cor?: string; opacidade?: number }> = ({
+  cor = C.mut,
+  opacidade = 0.6,
+}) => (
   <div style={{ display: "flex", justifyContent: "space-between", padding: "0 6px" }}>
     {[0, 1, 2].map((i) => (
-      <span key={i} style={{ fontSize: 24, fontStyle: "italic", color: C.mut, opacity: 0.6, letterSpacing: 0.5 }}>
-        @meumanager
+      <span key={i} style={{ fontSize: 24, fontStyle: "italic", color: cor, opacity: opacidade, letterSpacing: 0.5 }}>
+        @eilaradam
       </span>
     ))}
   </div>
@@ -703,7 +709,73 @@ const Cream: React.FC<{ kind: Kind; card: Card | null; indice: number; total: nu
   <AbsoluteFill style={{ background: C.bg, fontFamily: C.sans, color: C.ink }}>
     <Textura />
 
-    {kind === "capa" && (
+    {kind === "capa" && CAPA_FOTO && (
+      <AbsoluteFill>
+        <Img
+          src={staticFile(CAPA_FOTO)}
+          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+        />
+        {/* sobreposição p/ legibilidade */}
+        <AbsoluteFill
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(20,16,12,0.46) 0%, rgba(20,16,12,0.06) 30%, rgba(20,16,12,0.30) 58%, rgba(20,16,12,0.86) 100%)",
+          }}
+        />
+        <div style={{ padding: "58px 70px 80px", height: "100%", display: "flex", flexDirection: "column", color: "#fff" }}>
+          <Handles cor="#FFFFFF" opacidade={0.85} />
+          <div style={{ marginTop: "auto" }}>
+            <div
+              style={{
+                display: "inline-block",
+                background: C.orange,
+                color: "#fff",
+                fontWeight: 800,
+                fontSize: 26,
+                letterSpacing: 4,
+                padding: "10px 24px",
+                transform: "rotate(-2deg)",
+                textTransform: "uppercase",
+                boxShadow: "0 12px 24px rgba(0,0,0,0.4)",
+              }}
+            >
+              ☀ Guia de Julho
+            </div>
+            <div
+              style={{
+                marginTop: 26,
+                fontSize: 100,
+                fontWeight: 900,
+                lineHeight: 1.02,
+                letterSpacing: -2,
+                textShadow: "0 4px 24px rgba(0,0,0,0.55)",
+              }}
+            >
+              As <span style={{ color: C.orange }}>{CAPA_NUM}</span>
+              {CAPA_TITULO_POS}
+              <span style={{ color: C.orange, fontStyle: "italic", fontFamily: C.serif }}>{CAPA_MES}</span>
+            </div>
+            <div
+              style={{
+                marginTop: 26,
+                fontSize: 40,
+                fontWeight: 700,
+                lineHeight: 1.3,
+                maxWidth: 760,
+                textShadow: "0 2px 12px rgba(0,0,0,0.6)",
+              }}
+            >
+              {CAPA_SUB}
+            </div>
+            <div style={{ marginTop: 40, fontSize: 30, fontWeight: 700, textShadow: "0 2px 10px rgba(0,0,0,0.6)" }}>
+              Lara Dam <span style={{ color: C.orange }}>· @eilaradam</span>
+            </div>
+          </div>
+        </div>
+      </AbsoluteFill>
+    )}
+
+    {kind === "capa" && !CAPA_FOTO && (
       <div style={{ padding: "60px 80px 80px", height: "100%", display: "flex", flexDirection: "column" }}>
         <Handles />
         <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
@@ -732,7 +804,7 @@ const Cream: React.FC<{ kind: Kind; card: Card | null; indice: number; total: nu
           </div>
         </div>
         <div style={{ textAlign: "center", fontSize: 30, fontWeight: 700 }}>
-          Lara Dam <span style={{ color: C.orange }}>· @meumanager</span>
+          Lara Dam <span style={{ color: C.orange }}>· @eilaradam</span>
         </div>
       </div>
     )}
@@ -773,7 +845,7 @@ const Cream: React.FC<{ kind: Kind; card: Card | null; indice: number; total: nu
               <Fotos imagens={c.imagens} raio={16} altura={222} gap={16} />
             </div>
             <div style={{ marginTop: 22, fontSize: 26, fontWeight: 700 }}>
-              Lara Dam <span style={{ color: C.orange }}>· @meumanager</span>
+              Lara Dam <span style={{ color: C.orange }}>· @eilaradam</span>
             </div>
           </div>
         )}
@@ -814,7 +886,7 @@ const Cream: React.FC<{ kind: Kind; card: Card | null; indice: number; total: nu
           </div>
         </div>
         <div style={{ fontSize: 30, fontWeight: 700 }}>
-          Lara Dam <span style={{ color: C.orange }}>· @meumanager</span>
+          Lara Dam <span style={{ color: C.orange }}>· @eilaradam</span>
         </div>
       </div>
     )}

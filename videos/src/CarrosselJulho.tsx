@@ -452,7 +452,7 @@ const Cabecalho: React.FC = () => (
   </div>
 );
 
-/* Rodapé "Lara Dam | @meumanager" */
+/* Rodapé "Lara Dam | @eilaradam" */
 const Rodape: React.FC<{ posicao: "dentro" | "fora" }> = ({ posicao }) => (
   <div
     style={{
@@ -467,7 +467,7 @@ const Rodape: React.FC<{ posicao: "dentro" | "fora" }> = ({ posicao }) => (
   >
     <span style={{ fontWeight: 900 }}>Lara Dam</span>
     <span style={{ opacity: 0.4 }}>|</span>
-    <span style={{ color: LARANJA, fontWeight: 800 }}>@meumanager</span>
+    <span style={{ color: LARANJA, fontWeight: 800 }}>@eilaradam</span>
   </div>
 );
 
@@ -608,7 +608,7 @@ const IconeTema: React.FC<{ nome: Icone; tamanho: number; cor: string }> = ({
   }
 };
 
-/* Logo "M" do @meumanager (quadrado gradiente) */
+/* Logo "M" do @eilaradam (quadrado gradiente) */
 const LogoM: React.FC = () => (
   <div
     style={{
