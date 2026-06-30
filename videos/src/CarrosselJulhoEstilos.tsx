@@ -10,6 +10,7 @@ import { CARDS, Card } from "./CarrosselJulho";
 export const julhoEstilosSchema = z.object({
   versao: z.number(),
   indice: z.number(),
+  ctaVar: z.number().optional(), // 1,2,3 = variantes criativas do CTA (V4)
 });
 export type JulhoEstilosProps = z.infer<typeof julhoEstilosSchema>;
 
@@ -110,6 +111,7 @@ type Kind = "capa" | "card" | "cta";
 export const CarrosselJulhoEstilos: React.FC<JulhoEstilosProps> = ({
   versao,
   indice,
+  ctaVar,
 }) => {
   const total = CARDS.length + 2;
   const kind: Kind = indice === 0 ? "capa" : indice <= CARDS.length ? "card" : "cta";
@@ -117,7 +119,7 @@ export const CarrosselJulhoEstilos: React.FC<JulhoEstilosProps> = ({
   const props = { kind, card, indice, total };
   if (versao === 2) return <Dark {...props} />;
   if (versao === 3) return <Pastel {...props} />;
-  if (versao === 4) return <Cream {...props} />;
+  if (versao === 4) return <Cream {...props} ctaVar={ctaVar} />;
   return <Editorial {...props} />;
 };
 
@@ -707,11 +709,12 @@ const TarjaTitulo: React.FC<{ texto: string }> = ({ texto }) => (
   </div>
 );
 
-const Cream: React.FC<{ kind: Kind; card: Card | null; indice: number; total: number }> = ({
+const Cream: React.FC<{ kind: Kind; card: Card | null; indice: number; total: number; ctaVar?: number }> = ({
   kind,
   card,
   indice,
   total,
+  ctaVar,
 }) => (
   <AbsoluteFill style={{ background: C.bg, fontFamily: C.sans, color: C.ink }}>
     <Textura />
@@ -865,48 +868,163 @@ const Cream: React.FC<{ kind: Kind; card: Card | null; indice: number; total: nu
       />
     )}
 
-    {kind === "cta" && (
-      <div style={{ padding: "60px 80px 80px", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-        <div style={{ alignSelf: "stretch" }}>
-          <Handles />
-        </div>
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
-          <div style={{ fontSize: 70, fontWeight: 900, lineHeight: 1.08, letterSpacing: -1 }}>
-            Julho tá cheio de oportunidade pra fechar{" "}
-            <span style={{ color: C.orange }}>Publi e UGC.</span>
-          </div>
-          <div style={{ marginTop: 30, fontSize: 34, fontWeight: 600, lineHeight: 1.32, color: C.mut, maxWidth: 800 }}>
-            {CTA_SALVA}
-          </div>
-          <div style={{ marginTop: 28, fontSize: 34, lineHeight: 1.36, color: C.ink, fontWeight: 500, maxWidth: 820 }}>
-            Comenta <span style={{ color: C.orange, fontWeight: 900 }}>NOVIDADES</span> que eu te mando no
-            privado as oportunidades mais quentes pra você chegar antes nas marcas.
-          </div>
-          <div
-            style={{
-              marginTop: 40,
-              background: C.orange,
-              color: "#fff",
-              fontWeight: 900,
-              fontSize: 42,
-              padding: "22px 46px",
-              borderRadius: 999,
-              transform: "rotate(-2deg)",
-              boxShadow: "0 16px 32px rgba(244,84,30,0.3)",
-            }}
-          >
-            💬 NOVIDADES
-          </div>
-        </div>
-        <div style={{ fontSize: 30, fontWeight: 700 }}>
-          Lara Dam <span style={{ color: C.orange }}>· @eilaradam</span>
-        </div>
-      </div>
-    )}
+    {kind === "cta" && <CtaCriativo variante={ctaVar ?? 1} />}
 
     <Dots total={total} ativo={indice} cor={C.orange} fraco="rgba(43,38,34,0.18)" />
   </AbsoluteFill>
 );
+
+/* =========================================================================
+   CTA CRIATIVO (Versão 4) — 3 variantes pra escolher
+   ========================================================================= */
+const RED = "#C7202B";
+
+const CtaShell: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <div style={{ padding: "54px 60px 58px", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+    <div style={{ alignSelf: "stretch" }}>
+      <Handles />
+    </div>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", width: "100%" }}>
+      {children}
+    </div>
+    <div style={{ fontSize: 26, fontWeight: 700 }}>
+      Lara Dam <span style={{ color: C.orange }}>· @eilaradam</span>
+    </div>
+  </div>
+);
+
+const BotaoNov: React.FC<{ giro?: number }> = ({ giro = -1.5 }) => (
+  <div
+    style={{
+      background: C.orange,
+      color: "#fff",
+      fontWeight: 900,
+      fontSize: 42,
+      padding: "20px 46px",
+      borderRadius: 999,
+      transform: `rotate(${giro}deg)`,
+      boxShadow: "0 16px 32px rgba(244,84,30,0.32)",
+      display: "inline-flex",
+      alignItems: "center",
+      gap: 14,
+    }}
+  >
+    <IconChat cor="#fff" t={34} /> NOVIDADES
+  </div>
+);
+
+const IconChat: React.FC<{ cor: string; t?: number }> = ({ cor, t = 28 }) => (
+  <svg width={t} height={t} viewBox="0 0 24 24" fill="none">
+    <path d="M4 4h16v12H8l-4 4V4z" fill={cor} />
+    <circle cx="9" cy="10" r="1.3" fill={C.orange} />
+    <circle cx="12.5" cy="10" r="1.3" fill={C.orange} />
+    <circle cx="16" cy="10" r="1.3" fill={C.orange} />
+  </svg>
+);
+const IconBookmark: React.FC<{ cor: string; t?: number }> = ({ cor, t = 28 }) => (
+  <svg width={t} height={t} viewBox="0 0 24 24" fill="none">
+    <path d="M6 3h12v18l-6-4.2L6 21V3z" fill={cor} />
+  </svg>
+);
+
+/* Marcas de canto (estilo recorte) ao redor de um bloco */
+const Cantos: React.FC<{ cor: string }> = ({ cor }) => (
+  <>
+    {[
+      { top: -9, left: -9 },
+      { top: -9, right: -9 },
+      { bottom: -9, left: -9 },
+      { bottom: -9, right: -9 },
+    ].map((p, i) => (
+      <div key={i} style={{ position: "absolute", width: 18, height: 18, background: cor, ...p }} />
+    ))}
+  </>
+);
+
+/* Destaque tipo "texto selecionado" (iOS) */
+const Selecao: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <span style={{ position: "relative", background: "rgba(74,144,226,0.32)", padding: "0 6px", borderRadius: 3, whiteSpace: "nowrap" }}>
+    <span style={{ position: "absolute", left: -8, top: -10, width: 16, height: 16, borderRadius: 999, background: "#2F77E0" }} />
+    {children}
+    <span style={{ position: "absolute", right: -8, bottom: -10, width: 16, height: 16, borderRadius: 999, background: "#2F77E0" }} />
+  </span>
+);
+
+const CtaCriativo: React.FC<{ variante: number }> = ({ variante }) => {
+  /* ---- Variante 2: SELEÇÃO + DESFOQUE ---- */
+  if (variante === 2)
+    return (
+      <CtaShell>
+        <div style={{ fontSize: 60, fontWeight: 900, lineHeight: 1.1, letterSpacing: -1, color: C.ink, maxWidth: 900 }}>
+          Não entra em julho no piloto automático.
+        </div>
+        <div style={{ marginTop: 40, fontSize: 44, fontWeight: 800, lineHeight: 1.4, maxWidth: 880, color: C.ink }}>
+          Comenta <Selecao>NOVIDADES</Selecao> que eu te mando as oportunidades mais{" "}
+          <span style={{ color: RED }}>quentes</span> no seu privado.
+        </div>
+        <div style={{ marginTop: 40, position: "relative", fontSize: 78, fontWeight: 900, letterSpacing: -2, color: C.ink }}>
+          <span style={{ position: "absolute", inset: 0, filter: "blur(11px)", opacity: 0.5 }}>CHEGA ANTES.</span>
+          <span style={{ position: "relative" }}>CHEGA ANTES.</span>
+        </div>
+        <div style={{ marginTop: 44 }}>
+          <BotaoNov giro={-1.5} />
+        </div>
+      </CtaShell>
+    );
+
+  /* ---- Variante 3: ÍCONES + CHIPS + GLOW ---- */
+  if (variante === 3)
+    return (
+      <CtaShell>
+        <div style={{ fontSize: 64, fontWeight: 900, lineHeight: 1.08, letterSpacing: -1, color: C.ink, maxWidth: 880 }}>
+          Julho tá cheio de oportunidade pra{" "}
+          <span style={{ color: C.orange }}>fechar Publi e UGC.</span>
+        </div>
+        <div style={{ marginTop: 40, display: "flex", gap: 18 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 12, background: "#fff", border: `2px solid ${C.ink}`, borderRadius: 999, padding: "14px 26px", fontSize: 28, fontWeight: 800, color: C.ink }}>
+            <IconBookmark cor={C.ink} t={26} /> SALVA o guia
+          </div>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 12, background: C.ink, borderRadius: 999, padding: "14px 26px", fontSize: 28, fontWeight: 800, color: "#fff" }}>
+            <IconChat cor="#fff" t={26} /> COMENTA
+          </div>
+        </div>
+        <div style={{ marginTop: 36, fontSize: 32, color: C.mut, fontWeight: 600, lineHeight: 1.34, maxWidth: 780 }}>
+          Eu te mando no privado as oportunidades mais quentes pra você{" "}
+          <span style={{ color: C.ink, fontWeight: 900 }}>chegar antes</span> nas marcas.
+        </div>
+        <div style={{ marginTop: 40, position: "relative", display: "inline-flex" }}>
+          <div style={{ position: "absolute", inset: -6, background: C.orange, filter: "blur(34px)", opacity: 0.45, borderRadius: 999 }} />
+          <div style={{ position: "relative" }}>
+            <div style={{ background: C.orange, color: "#fff", fontWeight: 900, fontSize: 46, padding: "22px 52px", borderRadius: 999, display: "inline-flex", alignItems: "center", gap: 14 }}>
+              <IconChat cor="#fff" t={36} /> NOVIDADES
+            </div>
+          </div>
+        </div>
+      </CtaShell>
+    );
+
+  /* ---- Variante 1 (padrão): SERIF + TARJA VERMELHA ---- */
+  return (
+    <CtaShell>
+      <div style={{ fontFamily: C.serif, fontSize: 92, lineHeight: 0.98, color: C.ink }}>
+        Bora fechar{" "}
+        <span style={{ fontStyle: "italic", color: C.orange }}>Publi &amp; UGC?</span>
+      </div>
+      <div style={{ position: "relative", marginTop: 44, transform: "rotate(-2deg)", maxWidth: 860 }}>
+        <Cantos cor={RED} />
+        <div style={{ background: RED, color: "#fff", padding: "30px 46px", fontSize: 32, lineHeight: 1.32, fontWeight: 600 }}>
+          Comenta <b style={{ fontWeight: 900 }}>NOVIDADES</b> aqui embaixo que eu te mando as oportunidades mais quentes no seu <b style={{ fontWeight: 900 }}>privado</b>.
+        </div>
+      </div>
+      <div style={{ marginTop: 36, fontSize: 32, fontWeight: 600, color: C.mut, maxWidth: 740 }}>
+        E <b style={{ color: C.ink, fontWeight: 900 }}>salva</b> esse carrossel pra usar o mês todo como guia.
+      </div>
+      <div style={{ marginTop: 34 }}>
+        <BotaoNov giro={-1.5} />
+      </div>
+    </CtaShell>
+  );
+};
 
 /* Wrapper que injeta nome/data parseados do título */
 const Conteudo: React.FC<{
