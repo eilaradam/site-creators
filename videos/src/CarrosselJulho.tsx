@@ -102,16 +102,6 @@ const CARDS: Card[] = [
     fotos: ["viagem em família", "enrolada no cobertor", "chocolate quente"],
     tema: { cor1: "#2BB8D4", cor2: "#1C6FA0", icone: "floco" },
   },
-  {
-    titulo: "Julho Amarelo e Julho Verde (mês inteiro)",
-    paras: [
-      "Dois meses de conscientização: **Julho Amarelo** (prevenção das hepatites virais) e **Julho Verde** (prevenção do câncer de cabeça e pescoço). Marcas de saúde, farmácia, clínicas e ONGs comunicam a causa.",
-    ],
-    ugc: "O UGC aqui é informação com verdade, conteúdo que conscientiza sem soar comercial.",
-    dica: "é terreno sensível, então chega com cuidado. Marcas de saúde precisam de conteúdo humano sobre a causa, mas que respeite o tema. Sensibilidade aqui é o seu diferencial.",
-    fotos: ["conteúdo de saúde", "registro humano", "causa com verdade"],
-    tema: { cor1: "#E0B52B", cor2: "#2E9E5B", icone: "saude" },
-  },
 ];
 
 const DATAS_CAPA = ["02", "16", "17", "19", "20", "24", "26", "30"];
@@ -177,7 +167,7 @@ const Capa: React.FC<{ total: number }> = ({ total }) => (
               color: LARANJA,
             }}
           >
-            As 7 oportunidades de UGC de{" "}
+            As 6 oportunidades de UGC de{" "}
             <span
               style={{
                 borderBottom: `10px solid ${LARANJA}`,
