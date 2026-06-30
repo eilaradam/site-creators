@@ -878,6 +878,7 @@ const Cream: React.FC<{ kind: Kind; card: Card | null; indice: number; total: nu
    CTA CRIATIVO (Versão 4) — 3 variantes pra escolher
    ========================================================================= */
 const RED = "#C7202B";
+const AZUL_ESCURO = "#0C40ED";
 
 const CtaShell: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div style={{ padding: "54px 60px 58px", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
@@ -1011,8 +1012,8 @@ const CtaCriativo: React.FC<{ variante: number }> = ({ variante }) => {
         <span style={{ fontStyle: "italic", color: C.orange }}>Publi &amp; UGC?</span>
       </div>
       <div style={{ position: "relative", marginTop: 44, transform: "rotate(-2deg)", maxWidth: 860 }}>
-        <Cantos cor={RED} />
-        <div style={{ background: RED, color: "#fff", padding: "30px 46px", fontSize: 32, lineHeight: 1.32, fontWeight: 600 }}>
+        <Cantos cor={AZUL_ESCURO} />
+        <div style={{ background: AZUL_ESCURO, color: "#fff", padding: "30px 46px", fontSize: 32, lineHeight: 1.32, fontWeight: 600 }}>
           Comenta <b style={{ fontWeight: 900 }}>NOVIDADES</b> aqui embaixo que eu te mando as oportunidades mais quentes no seu <b style={{ fontWeight: 900 }}>privado</b>.
         </div>
       </div>
