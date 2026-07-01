@@ -6552,13 +6552,25 @@
                 }).join('')
                 + '</div>';
         }
+        const themes = d.themes || [];
+        if (themes.length) {
+            html += '<div style="font-size:15px;font-weight:800;color:var(--text);margin:0 0 3px;">🎬 Ideias de vídeo <span style="font-weight:600;color:var(--text-muted);font-size:12px;">(sugeridas pela IA ✨)</span></div>'
+                + '<div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Os assuntos que mais aparecem nos comentários, com uma ideia pronta pra você gravar.</div>'
+                + '<div style="display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));margin-bottom:26px;">'
+                + themes.map(t => '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;">'
+                    + '<div style="font-weight:800;color:var(--text);font-size:13px;margin-bottom:4px;">' + escapeHtml(t.tema || '') + '</div>'
+                    + '<div style="color:var(--text-muted);font-size:12px;line-height:1.4;">🎥 ' + escapeHtml(t.ideia_video || '') + '</div>'
+                    + '</div>').join('')
+                + '</div>';
+        }
         const opps = d.opportunities || [];
         const nQ = opps.filter(o => o.category === 'pergunta').length;
         const nI = opps.filter(o => o.category === 'interesse').length;
         const filt = igOppFilter || 'all';
         const shown = filt === 'all' ? opps : opps.filter(o => o.category === filt);
-        html += '<div style="font-size:15px;font-weight:800;color:var(--text);margin:0 0 3px;">💡 Oportunidades de conteúdo</div>'
-            + '<div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">Dúvidas e interesses reais dos seguidores (de todos os posts). Já filtrei os aleatórios tipo "sim", "amei", "quero". Clique pra responder ou transformar em ideia de vídeo.</div>'
+        const aiOn = (d.commenters_meta || {}).ai;
+        html += '<div style="font-size:15px;font-weight:800;color:var(--text);margin:0 0 3px;">💡 Oportunidades de conteúdo' + (aiOn ? ' <span style="font-weight:600;color:#5b3aa8;font-size:12px;">✨ analisadas pela IA</span>' : '') + '</div>'
+            + '<div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">Dúvidas e interesses reais dos seguidores (de todos os posts). Já filtrei os aleatórios tipo "sim", "amei", "quero". Clique pra responder ou transformar em vídeo.</div>'
             + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">'
             + [['all', 'Tudo', opps.length], ['pergunta', '❓ Dúvidas', nQ], ['interesse', '✨ Interesses', nI]].map(f =>
                 '<button class="ig-sortbtn' + (f[0] === filt ? ' active' : '') + '" data-ig-opp="' + f[0] + '" type="button">' + f[1] + ' (' + f[2] + ')</button>').join('')
@@ -6575,7 +6587,8 @@
                     + '<a href="https://instagram.com/' + encodeURIComponent(o.username || '') + '" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;text-decoration:none;font-size:13px;">@' + escapeHtml(o.username || 'sem @') + '</a>'
                     + badge + '</div>'
                     + '<div style="color:var(--text);margin-top:3px;font-size:13px;">' + escapeHtml(o.text || '') + '</div>'
-                    + (o.permalink ? '<a href="' + escapeHtml(o.permalink) + '" target="_blank" rel="noopener" style="color:var(--text-muted);font-size:11px;text-decoration:none;">ver post ↗</a>' : '')
+                    + (o.idea ? '<div style="color:#5b3aa8;margin-top:4px;font-size:12px;">💡 ' + escapeHtml(o.idea) + '</div>' : '')
+                    + (o.permalink ? '<div style="margin-top:4px;"><a href="' + escapeHtml(o.permalink) + '" target="_blank" rel="noopener" style="color:var(--text-muted);font-size:11px;text-decoration:none;">ver post ↗</a></div>' : '')
                     + '</div>';
             });
         }
