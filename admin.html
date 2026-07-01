@@ -6334,7 +6334,11 @@
         igUpdateMediaBtn();
         igFlow = { steps: [] }; igFlowSeq = 0;
         if (a && a.flow && Array.isArray(a.flow.steps)) {
-            igFlow = { steps: a.flow.steps.map(s => ({ id: s.id, message: s.message || '', link: s.link || '', buttons: (s.buttons || []).map(b => ({ title: b.title || '', next: (b.next === null || b.next === undefined) ? '' : b.next })) })) };
+            igFlow = { steps: a.flow.steps.map(s => {
+                const d = s.delay || null; let dv = '', du = 'm', dn = '';
+                if (d && d.seconds) { dn = (d.next == null ? '' : d.next); if (d.seconds % 3600 === 0) { dv = d.seconds / 3600; du = 'h'; } else if (d.seconds % 60 === 0) { dv = d.seconds / 60; du = 'm'; } else { dv = d.seconds; du = 's'; } }
+                return { id: s.id, message: s.message || '', link: s.link || '', buttons: (s.buttons || []).map(b => ({ title: b.title || '', next: (b.next === null || b.next === undefined) ? '' : b.next })), delayValue: dv, delayUnit: du, delayNext: dn };
+            }) };
             igFlowSeq = igFlow.steps.reduce((m, s) => Math.max(m, +s.id || 0), 0);
         }
         igFlowRender();
@@ -6366,7 +6370,11 @@
                     buttons: (s.buttons || []).filter(b => (b.title || '').trim()).map(b => ({
                         title: b.title.trim(),
                         next: (b.next === '' || b.next === null || b.next === undefined) ? null : (isNaN(+b.next) ? b.next : +b.next)
-                    }))
+                    })),
+                    delay: (+s.delayValue > 0 && s.delayNext) ? {
+                        seconds: Math.round((+s.delayValue) * ({ s: 1, m: 60, h: 3600 }[s.delayUnit] || 60)),
+                        next: (isNaN(+s.delayNext) ? s.delayNext : +s.delayNext)
+                    } : null
                 }))
             } : null,
             updated_at: new Date().toISOString()
@@ -6401,6 +6409,7 @@
                 const msg = (s.message || '').indexOf('{LINK}') >= 0 ? s.message.split('{LINK}').join(url) : (s.message + (s.link ? ' ' + url : ''));
                 h += igBubble(msg || '(mensagem vazia)', false);
                 (s.buttons || []).forEach(b => { if ((b.title || '').trim()) h += '<div style="display:flex;justify-content:flex-start;margin:-2px 0 8px;"><div style="border:1px solid #2f6bff;color:#7aa2ff;padding:5px 12px;border-radius:16px;font-size:12px;">' + escapeHtml(b.title) + '</div></div>'; });
+                if (+s.delayValue > 0 && s.delayNext) h += '<div style="text-align:center;color:#8a8f98;font-size:10px;margin:0 0 8px;">⏰ depois de ' + s.delayValue + ' ' + ({ s: 'seg', m: 'min', h: 'h' }[s.delayUnit] || 'min') + ' envia outro passo automaticamente</div>';
             });
         } else {
             const linkMsg = document.getElementById('igf_linkmsg').value;
@@ -6439,6 +6448,14 @@
                 + '<input class="ig-input" style="margin-top:8px;" data-flow="link" data-si="' + si + '" placeholder="Link desse passo (opcional)" value="' + igEsc(s.link) + '">'
                 + btns
                 + '<button type="button" class="ig-btn ghost" data-flow="btnadd" data-si="' + si + '" style="margin-top:8px;font-size:12px;padding:4px 10px;">+ Adicionar botão</button>'
+                + '<div style="display:flex;gap:6px;align-items:center;margin-top:10px;flex-wrap:wrap;font-size:12px;color:var(--text-muted);border-top:1px dashed var(--border);padding-top:10px;">'
+                + '⏰ Depois de '
+                + '<input class="ig-input" style="margin:0;width:62px;" type="number" min="0" data-flow="delayval" data-si="' + si + '" value="' + (s.delayValue || '') + '">'
+                + '<select class="ig-input" style="margin:0;width:auto;" data-flow="delayunit" data-si="' + si + '">' + [['s', 'segundos'], ['m', 'minutos'], ['h', 'horas']].map(u => '<option value="' + u[0] + '"' + (((s.delayUnit) || 'm') === u[0] ? ' selected' : '') + '>' + u[1] + '</option>').join('') + '</select>'
+                + ' enviar '
+                + '<select class="ig-input" style="margin:0;width:auto;" data-flow="delaynext" data-si="' + si + '"><option value="">(nenhum)</option>' + opts(s.delayNext) + '</select>'
+                + '<span class="ig-hint">automaticamente</span>'
+                + '</div>'
                 + '</div>';
         }).join('');
         igRenderPreview();
@@ -6719,11 +6736,16 @@
                 if (f === 'msg') igFlow.steps[si].message = el.value;
                 else if (f === 'link') igFlow.steps[si].link = el.value;
                 else if (f === 'btntitle') igFlow.steps[si].buttons[+el.dataset.bi].title = el.value;
+                else if (f === 'delayval') igFlow.steps[si].delayValue = el.value;
                 igRenderPreview();
             });
             fs.addEventListener('change', (e) => {
-                const el = e.target.closest('[data-flow="btnnext"]'); if (!el) return;
-                igFlow.steps[+el.dataset.si].buttons[+el.dataset.bi].next = el.value;
+                const el = e.target.closest('[data-flow]'); if (!el) return;
+                const f = el.dataset.flow, si = +el.dataset.si;
+                if (f === 'btnnext') igFlow.steps[si].buttons[+el.dataset.bi].next = el.value;
+                else if (f === 'delayunit') igFlow.steps[si].delayUnit = el.value;
+                else if (f === 'delaynext') igFlow.steps[si].delayNext = el.value;
+                igRenderPreview();
             });
             fs.addEventListener('click', (e) => {
                 const el = e.target.closest('[data-flow]'); if (!el) return;
