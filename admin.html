@@ -1371,6 +1371,7 @@
         <div style="display:flex;gap:8px;margin-bottom:20px;">
             <button class="ig-subtab-btn active" data-ig-sub="automacoes" type="button">Automações</button>
             <button class="ig-subtab-btn" data-ig-sub="leads" type="button">Leads</button>
+            <button class="ig-subtab-btn" data-ig-sub="insights" type="button">Análises</button>
         </div>
         <div id="igPaneAutomacoes">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;">
@@ -1386,6 +1387,12 @@
                 <button id="igExportBtn" class="ig-btn ghost" type="button">⬇ Exportar CSV</button>
             </div>
             <div id="igLeadList"></div>
+        </div>
+        <div id="igPaneInsights" style="display:none;">
+            <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+                <button id="igRefreshInsights" class="ig-btn ghost" type="button">↻ Atualizar</button>
+            </div>
+            <div id="igInsightsBox"></div>
         </div>
     </div>
     <div id="igModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:20px;">
@@ -6211,12 +6218,15 @@
        ══════════════════════════════════ */
     let igAutomations = [];
     let igLeads = [];
+    let igInsightsLoaded = false;
 
     function igSetSub(sub) {
         document.querySelectorAll('#tabInstagram .ig-subtab-btn').forEach(b => b.classList.toggle('active', b.dataset.igSub === sub));
         document.getElementById('igPaneAutomacoes').style.display = sub === 'automacoes' ? '' : 'none';
         document.getElementById('igPaneLeads').style.display = sub === 'leads' ? '' : 'none';
+        document.getElementById('igPaneInsights').style.display = sub === 'insights' ? '' : 'none';
         if (sub === 'leads') igRenderLeads();
+        if (sub === 'insights' && !igInsightsLoaded) { igInsightsLoaded = true; igLoadInsights(); }
     }
 
     async function loadInstagram() {
@@ -6360,6 +6370,68 @@
         URL.revokeObjectURL(url);
     }
 
+    function igNum(v) { return (v === null || v === undefined || v === '') ? '—' : Number(v).toLocaleString('pt-BR'); }
+    function igCard(label, val) { return '<div class="ig-chip" style="min-width:132px;"><b>' + val + '</b>' + label + '</div>'; }
+
+    async function igLoadInsights() {
+        const box = document.getElementById('igInsightsBox');
+        box.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted);">Carregando análises do seu perfil...</div>';
+        const { data, error } = await sb.functions.invoke('ig-insights');
+        if (error || (data && data.error)) {
+            box.innerHTML = '<div style="color:var(--error);padding:16px;">Erro ao carregar: ' + escapeHtml((error && error.message) || (data && data.error) || 'desconhecido') + '</div>';
+            return;
+        }
+        igRenderInsights(data);
+    }
+
+    function igRenderInsights(d) {
+        const box = document.getElementById('igInsightsBox');
+        const acc = d.account || {};
+        const reachArr = d.reach || [];
+        const reachTotal = reachArr.reduce((s, x) => s + (x.value || 0), 0);
+        let html = '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">'
+            + igCard('Seguidores', igNum(acc.followers_count))
+            + igCard('Alcance (30 dias)', igNum(reachTotal))
+            + igCard('Contas engajadas', igNum(d.accounts_engaged))
+            + igCard('Interações', igNum(d.total_interactions))
+            + '</div>';
+        const rc = reachArr.slice(-14);
+        if (rc.length) {
+            const max = Math.max.apply(null, rc.map(x => x.value || 0).concat([1]));
+            html += '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:22px;">'
+                + '<div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:12px;">📈 Alcance por dia (últimos ' + rc.length + ' dias)</div>'
+                + '<div style="display:flex;align-items:flex-end;gap:4px;height:92px;">'
+                + rc.map(x => { const h = Math.round((x.value || 0) / max * 82) + 4; return '<div title="' + escapeHtml(igFmtDate(x.date)) + ': ' + igNum(x.value) + '" style="flex:1;background:var(--accent);border-radius:4px 4px 0 0;height:' + h + 'px;opacity:.85;"></div>'; }).join('')
+                + '</div></div>';
+        }
+        html += '<div style="font-size:15px;font-weight:800;color:var(--text);margin:0 0 12px;">🔥 Posts que mais interagiram</div>'
+            + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:12px;margin-bottom:26px;">';
+        (d.top_posts || []).forEach(p => {
+            const thumb = p.thumbnail_url || p.media_url || '';
+            html += '<a href="' + escapeHtml(p.permalink || '#') + '" target="_blank" rel="noopener" style="text-decoration:none;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;display:block;">'
+                + (thumb ? '<img src="' + escapeHtml(thumb) + '" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;background:var(--border);">' : '<div style="aspect-ratio:1;background:var(--border);"></div>')
+                + '<div style="padding:8px 10px;font-size:12px;color:var(--text);font-weight:600;">❤️ ' + (p.like_count || 0) + ' · 💬 ' + (p.comments_count || 0) + '</div>'
+                + '</a>';
+        });
+        html += '</div>';
+        const comments = d.comments || [];
+        const qs = comments.filter(c => c.question).length;
+        html += '<div style="font-size:15px;font-weight:800;color:var(--text);margin:0 0 12px;">💬 Comentários recentes' + (qs ? ' <span style="font-weight:600;color:var(--text-muted);font-size:13px;">(' + qs + ' com pergunta)</span>' : '') + '</div>'
+            + '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;">';
+        if (!comments.length) { html += '<div style="padding:20px;color:var(--text-muted);">Sem comentários recentes.</div>'; }
+        else {
+            comments.slice(0, 25).forEach(c => {
+                html += '<div style="padding:11px 16px;border-bottom:1px solid var(--border);">'
+                    + '<a href="https://instagram.com/' + encodeURIComponent(c.username || '') + '" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;text-decoration:none;font-size:13px;">@' + escapeHtml(c.username || '') + '</a>'
+                    + (c.question ? ' <span style="background:#ffe9c7;color:#8a5a00;border-radius:6px;padding:1px 6px;font-size:10px;font-weight:800;">DÚVIDA</span>' : '')
+                    + '<div style="color:var(--text);margin-top:3px;font-size:13px;">' + escapeHtml(c.text || '') + '</div>'
+                    + '</div>';
+            });
+        }
+        html += '</div>';
+        box.innerHTML = html;
+    }
+
     (function igWire() {
         const nb = document.getElementById('igNewBtn'); if (nb) nb.addEventListener('click', () => igOpenModal(null));
         document.querySelectorAll('#tabInstagram .ig-subtab-btn').forEach(b => b.addEventListener('click', () => igSetSub(b.dataset.igSub)));
@@ -6367,6 +6439,7 @@
         const se = document.getElementById('igLeadSearch'); if (se) se.addEventListener('input', igRenderLeads);
         const sv = document.getElementById('igSaveBtn'); if (sv) sv.addEventListener('click', igSave);
         const cc = document.getElementById('igCancelBtn'); if (cc) cc.addEventListener('click', igCloseModal);
+        const ri = document.getElementById('igRefreshInsights'); if (ri) ri.addEventListener('click', igLoadInsights);
         const md = document.getElementById('igModal'); if (md) md.addEventListener('click', (e) => { if (e.target === md) igCloseModal(); });
         const al = document.getElementById('igAutoList');
         if (al) al.addEventListener('click', (e) => {
