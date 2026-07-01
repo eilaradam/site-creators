@@ -1415,6 +1415,10 @@
             <input id="igf_nome" class="ig-input" placeholder="Ex: Portfólio UGC">
             <label class="ig-label">Palavras-chave <span class="ig-hint">(separadas por vírgula, ex: quero, portfolio, link)</span></label>
             <input id="igf_keyword" class="ig-input" placeholder="quero, portfolio">
+            <label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:var(--text);cursor:pointer;"><input type="checkbox" id="igf_matchany"> Qualquer palavra <span class="ig-hint">(dispara em qualquer comentário)</span></label>
+            <label class="ig-label">Em quais posts <span class="ig-hint">(vazio = todos os posts)</span></label>
+            <button type="button" id="igMediaBtn" class="ig-btn ghost" style="width:100%;text-align:left;">Todos os posts</button>
+            <div id="igMediaGrid" style="display:none;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:6px;margin-top:10px;max-height:220px;overflow-y:auto;"></div>
             <label class="ig-label">Mensagem pedindo pra seguir <span class="ig-hint">(1ª DM enviada)</span></label>
             <textarea id="igf_ask" class="ig-input"></textarea>
             <label class="ig-label">Mensagem com o link <span class="ig-hint">(escreva {LINK} onde o link deve entrar)</span></label>
@@ -6234,6 +6238,8 @@
        ══════════════════════════════════ */
     let igAutomations = [];
     let igLeads = [];
+    let igSelMedia = new Set();
+    let igMediaCache = null;
     let igInsightsLoaded = false;
     let igInsightsData = null;
     let igDays = 30;
@@ -6276,7 +6282,7 @@
             + '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">'
             + '<div style="flex:1;min-width:220px;">'
             + '<div style="font-weight:800;color:var(--text);font-size:15px;margin-bottom:5px;">' + escapeHtml(a.nome || 'Automação') + (a.active ? '' : ' <span style="color:var(--text-muted);font-weight:600;font-size:12px;">(pausada)</span>') + '</div>'
-            + '<div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">Palavras: <b style="color:var(--accent);">' + escapeHtml(a.keyword || '') + '</b></div>'
+            + '<div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">' + (a.match_any ? '<b style="color:var(--accent);">Qualquer palavra</b>' : 'Palavras: <b style="color:var(--accent);">' + escapeHtml(a.keyword || '') + '</b>') + ' · ' + ((a.media_ids && a.media_ids.length) ? a.media_ids.length + ' post(s)' : 'todos os posts') + '</div>'
             + '<div style="font-size:12px;color:var(--text-muted);">🔗 ' + escapeHtml(a.link_url || '(sem link)') + (a.require_follow ? ' · pede follow antes' : '') + '</div>'
             + '</div>'
             + '<div style="display:flex;gap:6px;flex-shrink:0;">'
@@ -6313,6 +6319,11 @@
         document.getElementById('igf_public').value = a ? (a.public_reply || '') : 'te chamei no direct 💌';
         document.getElementById('igf_require').checked = a ? !!a.require_follow : true;
         document.getElementById('igf_active').checked = a ? !!a.active : true;
+        document.getElementById('igf_matchany').checked = a ? !!a.match_any : false;
+        igSelMedia = new Set((a && a.media_ids) ? a.media_ids : []);
+        document.getElementById('igMediaGrid').style.display = 'none';
+        igUpdateMediaBtn();
+        (function () { const k = document.getElementById('igf_keyword'), m = document.getElementById('igf_matchany'); k.disabled = m.checked; k.style.opacity = m.checked ? '.5' : '1'; })();
         document.getElementById('igModal').style.display = 'flex';
         igRenderPreview();
     }
@@ -6330,9 +6341,11 @@
             public_reply: document.getElementById('igf_public').value,
             require_follow: document.getElementById('igf_require').checked,
             active: document.getElementById('igf_active').checked,
+            match_any: document.getElementById('igf_matchany').checked,
+            media_ids: Array.from(igSelMedia),
             updated_at: new Date().toISOString()
         };
-        if (!rec.keyword) { alert('Coloque pelo menos uma palavra-chave.'); return; }
+        if (!rec.keyword && !rec.match_any) { alert('Coloque pelo menos uma palavra-chave, ou marque "qualquer palavra".'); return; }
         let error;
         if (id) { ({ error } = await sb.from('ig_automations').update(rec).eq('id', id)); }
         else { ({ error } = await sb.from('ig_automations').insert(rec)); }
@@ -6364,6 +6377,35 @@
             h += igBubble(rendered, false);
         }
         box.innerHTML = h;
+    }
+
+    function igUpdateMediaBtn() {
+        const btn = document.getElementById('igMediaBtn'); if (!btn) return;
+        const n = igSelMedia.size;
+        btn.textContent = n ? (n + (n === 1 ? ' post selecionado' : ' posts selecionados')) : 'Todos os posts';
+    }
+    async function igToggleMediaGrid() {
+        const grid = document.getElementById('igMediaGrid');
+        if (grid.style.display !== 'none') { grid.style.display = 'none'; return; }
+        grid.style.display = 'grid';
+        if (!igMediaCache) {
+            grid.innerHTML = '<div style="grid-column:1/-1;color:var(--text-muted);font-size:12px;padding:10px;">Carregando seus posts...</div>';
+            const { data, error } = await sb.functions.invoke('ig-media');
+            if (error || (data && data.error)) { grid.innerHTML = '<div style="grid-column:1/-1;color:var(--error);font-size:12px;padding:10px;">Erro ao carregar posts.</div>'; return; }
+            igMediaCache = data.media || [];
+        }
+        igRenderMediaGrid();
+    }
+    function igRenderMediaGrid() {
+        const grid = document.getElementById('igMediaGrid');
+        if (!igMediaCache || !igMediaCache.length) { grid.innerHTML = '<div style="grid-column:1/-1;color:var(--text-muted);font-size:12px;padding:10px;">Nenhum post encontrado.</div>'; return; }
+        grid.innerHTML = igMediaCache.map(m => {
+            const sel = igSelMedia.has(m.id);
+            return '<div data-ig-media="' + m.id + '" title="' + escapeHtml(m.caption || '') + '" style="position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid ' + (sel ? 'var(--accent)' : 'transparent') + ';">'
+                + (m.thumb ? '<img src="' + escapeHtml(m.thumb) + '" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;">' : '<div style="width:100%;height:100%;background:var(--border);"></div>')
+                + (sel ? '<div style="position:absolute;top:3px;right:3px;background:var(--accent);color:#fff;border-radius:50%;width:17px;height:17px;font-size:11px;line-height:17px;text-align:center;font-weight:700;">✓</div>' : '')
+                + '</div>';
+        }).join('');
     }
 
     async function igLoadLeads() {
@@ -6547,6 +6589,14 @@
         const md = document.getElementById('igModal'); if (md) md.addEventListener('click', (e) => { if (e.target === md) igCloseModal(); });
         ['igf_ask', 'igf_linkmsg', 'igf_linkurl', 'igf_public'].forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('input', igRenderPreview); });
         const rq = document.getElementById('igf_require'); if (rq) rq.addEventListener('change', igRenderPreview);
+        const mb = document.getElementById('igMediaBtn'); if (mb) mb.addEventListener('click', igToggleMediaGrid);
+        const mg = document.getElementById('igMediaGrid'); if (mg) mg.addEventListener('click', (e) => {
+            const cell = e.target.closest('[data-ig-media]'); if (!cell) return;
+            const id = cell.dataset.igMedia;
+            if (igSelMedia.has(id)) igSelMedia.delete(id); else igSelMedia.add(id);
+            igRenderMediaGrid(); igUpdateMediaBtn();
+        });
+        const ma = document.getElementById('igf_matchany'); if (ma) ma.addEventListener('change', () => { const k = document.getElementById('igf_keyword'); k.disabled = ma.checked; k.style.opacity = ma.checked ? '.5' : '1'; });
         const al = document.getElementById('igAutoList');
         if (al) al.addEventListener('click', (e) => {
             const btn = e.target.closest('[data-ig-act]'); if (!btn) return;
