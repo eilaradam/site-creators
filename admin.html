@@ -1430,6 +1430,12 @@
             <label style="display:flex;align-items:center;gap:8px;margin-top:16px;font-size:13px;color:var(--text);cursor:pointer;"><input type="checkbox" id="igf_require"> Pedir pra seguir antes de mandar o link</label>
             <label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px;color:var(--text);cursor:pointer;"><input type="checkbox" id="igf_active"> Automação ativa</label>
             <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px;">
+                <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:4px;">🔀 Fluxo com botões <span class="ig-hint">(opcional)</span></div>
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Monte uma conversa com botões que a pessoa toca pra avançar. Se você criar passos aqui, eles substituem a "mensagem com o link" acima. Use <b>{LINK}</b> no texto pra inserir o link do passo.</div>
+                <div id="igFlowSteps"></div>
+                <button type="button" id="igFlowAdd" class="ig-btn ghost" style="width:100%;margin-top:6px;">+ Adicionar passo</button>
+            </div>
+            <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px;">
                 <div style="font-size:12px;font-weight:800;color:var(--text-muted);margin-bottom:10px;">👀 Prévia da conversa (como a pessoa vai receber)</div>
                 <div id="igPreview" style="background:#0f1115;border-radius:14px;padding:14px 12px;min-height:70px;"></div>
             </div>
@@ -6240,6 +6246,8 @@
     let igLeads = [];
     let igSelMedia = new Set();
     let igMediaCache = null;
+    let igFlow = { steps: [] };
+    let igFlowSeq = 0;
     let igInsightsLoaded = false;
     let igInsightsData = null;
     let igDays = 30;
@@ -6324,6 +6332,12 @@
         igSelMedia = new Set((a && a.media_ids) ? a.media_ids : []);
         document.getElementById('igMediaGrid').style.display = 'none';
         igUpdateMediaBtn();
+        igFlow = { steps: [] }; igFlowSeq = 0;
+        if (a && a.flow && Array.isArray(a.flow.steps)) {
+            igFlow = { steps: a.flow.steps.map(s => ({ id: s.id, message: s.message || '', link: s.link || '', buttons: (s.buttons || []).map(b => ({ title: b.title || '', next: (b.next === null || b.next === undefined) ? '' : b.next })) })) };
+            igFlowSeq = igFlow.steps.reduce((m, s) => Math.max(m, +s.id || 0), 0);
+        }
+        igFlowRender();
         (function () { const k = document.getElementById('igf_keyword'), m = document.getElementById('igf_matchany'); k.disabled = m.checked; k.style.opacity = m.checked ? '.5' : '1'; })();
         document.getElementById('igModal').style.display = 'flex';
         igRenderPreview();
@@ -6344,9 +6358,21 @@
             active: document.getElementById('igf_active').checked,
             match_any: document.getElementById('igf_matchany').checked,
             media_ids: Array.from(igSelMedia),
+            flow: igFlow.steps.length ? {
+                steps: igFlow.steps.map(s => ({
+                    id: s.id,
+                    message: s.message || '',
+                    link: (s.link || '').trim(),
+                    buttons: (s.buttons || []).filter(b => (b.title || '').trim()).map(b => ({
+                        title: b.title.trim(),
+                        next: (b.next === '' || b.next === null || b.next === undefined) ? null : (isNaN(+b.next) ? b.next : +b.next)
+                    }))
+                }))
+            } : null,
             updated_at: new Date().toISOString()
         };
         if (!rec.keyword && !rec.match_any) { alert('Coloque pelo menos uma palavra-chave, ou marque "qualquer palavra".'); return; }
+        if (rec.flow && rec.flow.steps.some(s => !s.message.trim())) { alert('Tem um passo do fluxo sem mensagem. Preencha ou remova o passo.'); return; }
         let error;
         if (id) { ({ error } = await sb.from('ig_automations').update(rec).eq('id', id)); }
         else { ({ error } = await sb.from('ig_automations').insert(rec)); }
@@ -6360,24 +6386,62 @@
         return '<div style="display:flex;justify-content:' + (me ? 'flex-end' : 'flex-start') + ';margin-bottom:6px;">'
             + '<div style="max-width:80%;background:' + (me ? '#2f6bff' : '#26282e') + ';color:#fff;padding:8px 11px;border-radius:14px;font-size:12.5px;line-height:1.4;white-space:normal;">' + t + '</div></div>';
     }
+    function igEsc(s) { return escapeHtml(s || '').replace(/"/g, '&quot;'); }
     function igRenderPreview() {
         const box = document.getElementById('igPreview'); if (!box) return;
-        const ask = document.getElementById('igf_ask').value;
-        const linkMsg = document.getElementById('igf_linkmsg').value;
-        const linkUrl = document.getElementById('igf_linkurl').value || 'seu-link.com';
-        const req = document.getElementById('igf_require').checked;
         const pub = document.getElementById('igf_public').value;
-        const rendered = linkMsg.indexOf('{LINK}') >= 0 ? linkMsg.split('{LINK}').join(linkUrl) : (linkMsg + ' ' + linkUrl);
+        const req = document.getElementById('igf_require').checked;
+        const ask = document.getElementById('igf_ask').value;
         let h = '';
         if (pub) h += '<div style="text-align:center;color:#8a8f98;font-size:10.5px;margin-bottom:8px;">💬 resposta no comentário: "' + escapeHtml(pub) + '"</div>';
-        if (req) {
-            h += igBubble(ask, false);
-            h += igBubble('segui', true);
-            h += igBubble(rendered, false);
+        if (igFlow.steps.length) {
+            if (req) { h += igBubble(ask, false); h += igBubble('segui', true); }
+            igFlow.steps.forEach(s => {
+                const url = s.link || 'seu-link.com';
+                const msg = (s.message || '').indexOf('{LINK}') >= 0 ? s.message.split('{LINK}').join(url) : (s.message + (s.link ? ' ' + url : ''));
+                h += igBubble(msg || '(mensagem vazia)', false);
+                (s.buttons || []).forEach(b => { if ((b.title || '').trim()) h += '<div style="display:flex;justify-content:flex-start;margin:-2px 0 8px;"><div style="border:1px solid #2f6bff;color:#7aa2ff;padding:5px 12px;border-radius:16px;font-size:12px;">' + escapeHtml(b.title) + '</div></div>'; });
+            });
         } else {
-            h += igBubble(rendered, false);
+            const linkMsg = document.getElementById('igf_linkmsg').value;
+            const linkUrl = document.getElementById('igf_linkurl').value || 'seu-link.com';
+            const rendered = linkMsg.indexOf('{LINK}') >= 0 ? linkMsg.split('{LINK}').join(linkUrl) : (linkMsg + ' ' + linkUrl);
+            if (req) { h += igBubble(ask, false); h += igBubble('segui', true); h += igBubble(rendered, false); }
+            else { h += igBubble(rendered, false); }
         }
         box.innerHTML = h;
+    }
+    function igFlowAddStep() {
+        igFlow.steps.push({ id: ++igFlowSeq, message: '', link: '', buttons: [] });
+        igFlowRender();
+    }
+    function igFlowRender() {
+        const box = document.getElementById('igFlowSteps'); if (!box) return;
+        if (!igFlow.steps.length) {
+            box.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:4px 0 8px;">Sem fluxo. A automação usa a "mensagem com o link" acima. Clique em "+ Adicionar passo" pra criar um fluxo com botões.</div>';
+            igRenderPreview(); return;
+        }
+        const opts = (sel) => igFlow.steps.map((s, i) => '<option value="' + s.id + '"' + (String(s.id) === String(sel) ? ' selected' : '') + '>Passo ' + (i + 1) + '</option>').join('');
+        box.innerHTML = igFlow.steps.map((s, si) => {
+            const btns = (s.buttons || []).map((b, bi) =>
+                '<div style="display:flex;gap:6px;align-items:center;margin-top:6px;">'
+                + '<input class="ig-input" style="margin:0;flex:1;" data-flow="btntitle" data-si="' + si + '" data-bi="' + bi + '" maxlength="20" placeholder="Texto do botão (ex: simmmm)" value="' + igEsc(b.title) + '">'
+                + '<span style="font-size:11px;color:var(--text-muted);white-space:nowrap;">→</span>'
+                + '<select class="ig-input" style="margin:0;width:auto;" data-flow="btnnext" data-si="' + si + '" data-bi="' + bi + '"><option value="">(termina)</option>' + opts(b.next) + '</select>'
+                + '<button type="button" data-flow="btndel" data-si="' + si + '" data-bi="' + bi + '" style="background:none;border:none;color:var(--error);cursor:pointer;font-size:15px;line-height:1;">✕</button>'
+                + '</div>').join('');
+            return '<div style="border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;">'
+                + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
+                + '<span style="font-weight:800;font-size:13px;color:var(--text);">Passo ' + (si + 1) + (si === 0 ? ' <span style="font-weight:500;color:var(--text-muted);font-size:11px;">(início)</span>' : '') + '</span>'
+                + '<button type="button" data-flow="stepdel" data-si="' + si + '" style="background:none;border:none;color:var(--error);cursor:pointer;font-size:12px;">remover</button>'
+                + '</div>'
+                + '<textarea class="ig-input" style="margin:0;min-height:60px;" data-flow="msg" data-si="' + si + '" placeholder="Mensagem desse passo...">' + escapeHtml(s.message || '') + '</textarea>'
+                + '<input class="ig-input" style="margin-top:8px;" data-flow="link" data-si="' + si + '" placeholder="Link desse passo (opcional)" value="' + igEsc(s.link) + '">'
+                + btns
+                + '<button type="button" class="ig-btn ghost" data-flow="btnadd" data-si="' + si + '" style="margin-top:8px;font-size:12px;padding:4px 10px;">+ Adicionar botão</button>'
+                + '</div>';
+        }).join('');
+        igRenderPreview();
     }
 
     function igUpdateMediaBtn() {
@@ -6646,6 +6710,29 @@
             igRenderMediaGrid(); igUpdateMediaBtn();
         });
         const ma = document.getElementById('igf_matchany'); if (ma) ma.addEventListener('change', () => { const k = document.getElementById('igf_keyword'); k.disabled = ma.checked; k.style.opacity = ma.checked ? '.5' : '1'; });
+        const fa = document.getElementById('igFlowAdd'); if (fa) fa.addEventListener('click', igFlowAddStep);
+        const fs = document.getElementById('igFlowSteps');
+        if (fs) {
+            fs.addEventListener('input', (e) => {
+                const el = e.target.closest('[data-flow]'); if (!el) return;
+                const si = +el.dataset.si, f = el.dataset.flow;
+                if (f === 'msg') igFlow.steps[si].message = el.value;
+                else if (f === 'link') igFlow.steps[si].link = el.value;
+                else if (f === 'btntitle') igFlow.steps[si].buttons[+el.dataset.bi].title = el.value;
+                igRenderPreview();
+            });
+            fs.addEventListener('change', (e) => {
+                const el = e.target.closest('[data-flow="btnnext"]'); if (!el) return;
+                igFlow.steps[+el.dataset.si].buttons[+el.dataset.bi].next = el.value;
+            });
+            fs.addEventListener('click', (e) => {
+                const el = e.target.closest('[data-flow]'); if (!el) return;
+                const f = el.dataset.flow, si = +el.dataset.si;
+                if (f === 'stepdel') { igFlow.steps.splice(si, 1); igFlowRender(); }
+                else if (f === 'btnadd') { igFlow.steps[si].buttons.push({ title: '', next: '' }); igFlowRender(); }
+                else if (f === 'btndel') { igFlow.steps[si].buttons.splice(+el.dataset.bi, 1); igFlowRender(); }
+            });
+        }
         const al = document.getElementById('igAutoList');
         if (al) al.addEventListener('click', (e) => {
             const btn = e.target.closest('[data-ig-act]'); if (!btn) return;
