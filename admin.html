@@ -6476,6 +6476,10 @@
         }
         igInsightsData = data;
         igRenderInsights();
+        // primeira vez (cache vazio): monta o estudo completo automaticamente
+        if (!refresh && data.commenters_meta && !data.commenters_meta.generated_at) {
+            igLoadInsights(true);
+        }
     }
 
     function igPostsHtml() {
