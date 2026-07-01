@@ -1378,6 +1378,7 @@
             <button class="ig-subtab-btn active" data-ig-sub="automacoes" type="button">Automações</button>
             <button class="ig-subtab-btn" data-ig-sub="leads" type="button">Leads</button>
             <button class="ig-subtab-btn" data-ig-sub="insights" type="button">Análises</button>
+            <button class="ig-subtab-btn" data-ig-sub="marcas" type="button">🏢 Marcas</button>
         </div>
         <div id="igPaneAutomacoes">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;">
@@ -1405,6 +1406,20 @@
                 <button id="igRefreshInsights" class="ig-btn ghost" type="button">↻ Atualizar</button>
             </div>
             <div id="igInsightsBox"></div>
+        </div>
+        <div id="igPaneMarcas" style="display:none;">
+            <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">Leio suas conversas da DM e separo <b>seguidoras</b> de <b>marcas</b> (querendo fechar ou que você prospectou), salvando as marcas com e-mail/contato. As regras fazem o grosso de graça; o GPT revisa só os casos duvidosos.</div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px;">
+                <span style="font-size:13px;color:var(--text);">Analisar as</span>
+                <select id="igMarcasLimit" class="ig-input" style="width:auto;">
+                    <option value="50">50 conversas mais recentes</option>
+                    <option value="100">100 mais recentes</option>
+                    <option value="200">200 mais recentes</option>
+                </select>
+                <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer;"><input type="checkbox" id="igMarcasAI" checked> revisar duvidosos com IA</label>
+                <button id="igMarcasBtn" class="ig-btn" type="button">🔍 Analisar minhas DMs</button>
+            </div>
+            <div id="igMarcasBox"></div>
         </div>
     </div>
     <div id="igModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:20px;">
@@ -6248,6 +6263,8 @@
     let igMediaCache = null;
     let igFlow = { steps: [] };
     let igFlowSeq = 0;
+    let igMarcasLoaded = false;
+    let igMarcasData = null;
     let igInsightsLoaded = false;
     let igInsightsData = null;
     let igDays = 30;
@@ -6260,13 +6277,79 @@
         document.getElementById('igPaneAutomacoes').style.display = sub === 'automacoes' ? '' : 'none';
         document.getElementById('igPaneLeads').style.display = sub === 'leads' ? '' : 'none';
         document.getElementById('igPaneInsights').style.display = sub === 'insights' ? '' : 'none';
+        document.getElementById('igPaneMarcas').style.display = sub === 'marcas' ? '' : 'none';
         if (sub === 'leads') igRenderLeads();
         if (sub === 'insights' && !igInsightsLoaded) { igInsightsLoaded = true; igLoadInsights(); }
+        if (sub === 'marcas' && !igMarcasLoaded) { igMarcasLoaded = true; igLoadMarcas(); }
     }
 
     async function loadInstagram() {
         igSetSub('automacoes');
         await Promise.all([igLoadAutomations(), igLoadLeads()]);
+    }
+
+    async function igLoadMarcas() {
+        const box = document.getElementById('igMarcasBox');
+        box.innerHTML = '<div style="color:var(--text-muted);padding:16px;">Carregando marcas salvas...</div>';
+        const { data, error } = await sb.from('ig_brand_leads').select('*').order('last_message_at', { ascending: false });
+        if (error) { box.innerHTML = '<div style="color:var(--error);padding:16px;">Erro: ' + escapeHtml(error.message) + '</div>'; return; }
+        igMarcasData = { brands: data || [], counts: null, analyzed: null };
+        igRenderMarcas();
+    }
+    async function igAnalyzeDMs() {
+        const box = document.getElementById('igMarcasBox');
+        const limit = parseInt(document.getElementById('igMarcasLimit').value, 10) || 50;
+        const useAI = document.getElementById('igMarcasAI').checked;
+        const btn = document.getElementById('igMarcasBtn'); btn.disabled = true; const old = btn.textContent; btn.textContent = 'Analisando...';
+        box.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">Lendo suas ' + limit + ' conversas mais recentes...<br><span style="font-size:12px;">Isso pode levar de 30s a 2 min, pode deixar aberto ☕</span></div>';
+        const { data, error } = await sb.functions.invoke('ig-dm-analyze', { body: { limit, useAI } });
+        btn.disabled = false; btn.textContent = old;
+        if (error || (data && data.error)) { box.innerHTML = '<div style="color:var(--error);padding:16px;">Erro: ' + escapeHtml((error && error.message) || (data && data.error) || 'desconhecido') + '</div>'; return; }
+        igMarcasData = data;
+        igRenderMarcas();
+    }
+    function igRenderMarcas() {
+        const box = document.getElementById('igMarcasBox'); if (!box || !igMarcasData) return;
+        const d = igMarcasData;
+        let h = '';
+        if (d.counts) {
+            h += '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">'
+                + '<div class="ig-chip"><b>' + (d.counts.marca_interessada || 0) + '</b>marcas interessadas</div>'
+                + '<div class="ig-chip"><b>' + (d.counts.marca_prospectada || 0) + '</b>que você prospectou</div>'
+                + '<div class="ig-chip"><b>' + (d.counts.seguidoras || 0) + '</b>seguidoras</div>'
+                + '</div>'
+                + '<div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">Analisei ' + d.analyzed + ' conversas' + (d.ai_calls ? ' (IA revisou ' + d.ai_calls + ' duvidosas)' : '') + '. As marcas ficam salvas aqui.</div>';
+        }
+        const brands = d.brands || [];
+        if (!brands.length) { h += '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;color:var(--text-muted);">Nenhuma marca ainda. Clique em "Analisar minhas DMs" pra começar.</div>'; box.innerHTML = h; return; }
+        h += '<div style="display:flex;justify-content:flex-end;margin-bottom:10px;"><button id="igMarcasCsv" class="ig-btn ghost" type="button">⬇ Exportar CSV</button></div>';
+        h += '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;">';
+        brands.forEach(b => {
+            const badge = b.tipo === 'marca_prospectada'
+                ? '<span style="background:#e5dbff;color:#5b3aa8;border-radius:6px;padding:1px 7px;font-size:10px;font-weight:800;">📤 EU PROSPECTEI</span>'
+                : '<span style="background:#d7f5e3;color:#1c7a45;border-radius:6px;padding:1px 7px;font-size:10px;font-weight:800;">🏢 MARCA INTERESSADA</span>';
+            h += '<div style="padding:12px 16px;border-bottom:1px solid var(--border);">'
+                + '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">'
+                + '<a href="https://instagram.com/' + encodeURIComponent(b.username || '') + '" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;text-decoration:none;font-size:14px;">@' + escapeHtml(b.username || 'sem @') + '</a>'
+                + badge + '</div>'
+                + (b.resumo ? '<div style="color:var(--text);margin-top:4px;font-size:13px;">' + escapeHtml(b.resumo) + '</div>' : '')
+                + '<div style="margin-top:5px;font-size:12px;color:var(--text-muted);display:flex;gap:14px;flex-wrap:wrap;">'
+                + (b.email ? '<span>✉️ <a href="mailto:' + escapeHtml(b.email) + '" style="color:var(--accent);text-decoration:none;">' + escapeHtml(b.email) + '</a></span>' : '')
+                + (b.phone ? '<span>📱 ' + escapeHtml(b.phone) + '</span>' : '')
+                + (b.confianca === 'ia' ? '<span style="color:#5b3aa8;">✨ revisado pela IA</span>' : '')
+                + '</div>'
+                + '</div>';
+        });
+        h += '</div>';
+        box.innerHTML = h;
+        const csv = document.getElementById('igMarcasCsv'); if (csv) csv.addEventListener('click', igMarcasExport);
+    }
+    function igMarcasExport() {
+        const brands = (igMarcasData && igMarcasData.brands) || [];
+        const rows = [['username', 'tipo', 'email', 'telefone', 'resumo', 'ultima_msg']].concat(brands.map(b => [b.username || '', b.tipo || '', b.email || '', b.phone || '', (b.resumo || '').replace(/[\n;]/g, ' '), b.last_message_at || '']));
+        const csv = rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(';')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'marcas.csv'; a.click();
     }
 
     async function igLoadAutomations() {
@@ -6727,6 +6810,7 @@
             igRenderMediaGrid(); igUpdateMediaBtn();
         });
         const ma = document.getElementById('igf_matchany'); if (ma) ma.addEventListener('change', () => { const k = document.getElementById('igf_keyword'); k.disabled = ma.checked; k.style.opacity = ma.checked ? '.5' : '1'; });
+        const mab = document.getElementById('igMarcasBtn'); if (mab) mab.addEventListener('click', igAnalyzeDMs);
         const fa = document.getElementById('igFlowAdd'); if (fa) fa.addEventListener('click', igFlowAddStep);
         const fs = document.getElementById('igFlowSteps');
         if (fs) {
