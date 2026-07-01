@@ -6409,13 +6409,13 @@
             + '<div style="font-size:15px;font-weight:800;color:var(--text);">🙌 ' + ps.length + ' participante' + (ps.length === 1 ? '' : 's') + '</div>'
             + (ps.length ? '<button id="igSortBtn" class="ig-btn" type="button">🎲 Sortear ganhador</button>' : '')
             + '</div>';
-        if (d.dm_scan === 'indisponivel') h += '<div style="font-size:12px;color:#8a5a00;background:#fff6e6;border:1px solid #f0d9a8;border-radius:10px;padding:8px 12px;margin-bottom:12px;">Não consegui recuperar as menções antigas dos directs (o Instagram limita isso). A lista mostra quem foi capturado automaticamente. Daqui pra frente, todo mundo que te marcar é capturado.</div>';
-        if (!ps.length) { h += '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;color:var(--text-muted);">Ninguém ainda nesse período. Assim que alguém te marcar no story, aparece aqui. 💛</div>'; box.innerHTML = h; return; }
+        h += '<div style="font-size:12px;color:var(--text-muted);background:#faf6f1;border:1px solid var(--border);border-radius:10px;padding:9px 12px;margin-bottom:12px;">A lista pega quem te marca no story <b>a partir de agora</b> (o Instagram não deixa recuperar marcações antigas com precisão). Anuncia o sorteio, deixa a galera te marcar, e volta aqui pra sortear. 💛</div>';
+        if (!ps.length) { h += '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;color:var(--text-muted);">Ninguém te marcou ainda nesse período. Assim que alguém te marcar no story, aparece aqui. 💛</div>'; box.innerHTML = h; return; }
         h += '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;">';
         ps.forEach((p, i) => {
             h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);font-size:13px;">'
                 + '<span><span style="color:var(--text-muted);">' + (i + 1) + '.</span> <a href="https://instagram.com/' + encodeURIComponent(p.username || '') + '" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;text-decoration:none;">@' + escapeHtml(p.username || 'sem @') + '</a></span>'
-                + '<span style="font-size:11px;color:var(--text-muted);">' + (p.source === 'captura' ? '✓ capturado' : 'via DM') + '</span>'
+                + '<span style="font-size:11px;color:var(--text-muted);">✓ te marcou</span>'
                 + '</div>';
         });
         h += '</div>';
