@@ -1363,6 +1363,8 @@
     #tabInstagram .ig-period-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
     #tabInstagram .ig-sortbtn{background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:8px;padding:5px 10px;font-weight:700;font-size:11px;cursor:pointer;font-family:inherit;}
     #tabInstagram .ig-sortbtn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+    #tabInstagram .ig-bar{opacity:.8;transition:opacity .1s;cursor:default;}
+    #tabInstagram .ig-bar:hover{opacity:1;}
     #tabInstagram .ig-chip{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 16px;font-size:12px;color:var(--text-muted);font-weight:600;}
     #tabInstagram .ig-chip b{display:block;font-size:22px;color:var(--accent);font-weight:800;}
     #tabInstagram table{width:100%;border-collapse:collapse;}
@@ -6436,9 +6438,10 @@
         if (rc.length) {
             const max = Math.max.apply(null, rc.map(x => x.value || 0).concat([1]));
             html += '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:22px;">'
-                + '<div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:12px;">📈 Alcance por dia</div>'
-                + '<div style="display:flex;align-items:flex-end;gap:3px;height:92px;">'
-                + rc.map(x => { const h = Math.round((x.value || 0) / max * 82) + 4; return '<div title="' + escapeHtml(igFmtDate(x.date)) + ': ' + igNum(x.value) + '" style="flex:1;min-width:3px;background:var(--accent);border-radius:3px 3px 0 0;height:' + h + 'px;opacity:.85;"></div>'; }).join('')
+                + '<div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:12px;">📈 Alcance por dia <span style="font-weight:400;color:var(--text-muted);font-size:11px;">(passe o mouse pra ver os números)</span></div>'
+                + '<div id="igReachChart" style="position:relative;display:flex;align-items:flex-end;gap:3px;height:92px;">'
+                + rc.map(x => { const h = Math.round((x.value || 0) / max * 82) + 4; return '<div class="ig-bar" data-rd="' + escapeHtml(igFmtDate(x.date)) + '" data-rv="' + igNum(x.value) + '" style="flex:1;min-width:3px;background:var(--accent);border-radius:3px 3px 0 0;height:' + h + 'px;"></div>'; }).join('')
+                + '<div id="igReachTip" style="display:none;position:absolute;bottom:100%;margin-bottom:6px;transform:translateX(-50%);background:#1B1B1B;color:#fff;font-size:11px;font-weight:700;padding:4px 9px;border-radius:6px;white-space:nowrap;pointer-events:none;z-index:5;box-shadow:0 2px 8px rgba(0,0,0,.22);"></div>'
                 + '</div></div>';
         }
         html += '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px;">'
@@ -6486,6 +6489,17 @@
             const b = e.target.closest('[data-ig-sort]'); if (!b) return;
             igSort = b.dataset.igSort;
             igRenderInsights();
+        });
+        if (ib) ib.addEventListener('mouseover', (e) => {
+            const bar = e.target.closest('.ig-bar'); if (!bar) return;
+            const tip = document.getElementById('igReachTip'); if (!tip) return;
+            tip.textContent = bar.dataset.rd + ': ' + bar.dataset.rv;
+            tip.style.left = (bar.offsetLeft + bar.offsetWidth / 2) + 'px';
+            tip.style.display = 'block';
+        });
+        if (ib) ib.addEventListener('mouseout', (e) => {
+            if (!e.target.closest('.ig-bar')) return;
+            const tip = document.getElementById('igReachTip'); if (tip) tip.style.display = 'none';
         });
         const md = document.getElementById('igModal'); if (md) md.addEventListener('click', (e) => { if (e.target === md) igCloseModal(); });
         const al = document.getElementById('igAutoList');
