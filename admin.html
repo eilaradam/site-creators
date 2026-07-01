@@ -587,6 +587,10 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
                 <span>Imersão</span>
             </button>
+            <button class="tab nav-item" data-tab="instagram" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                <span>Instagram</span>
+            </button>
         </nav>
         <div class="sidebar-foot">
             <div class="sidebar-user">
@@ -1344,6 +1348,72 @@
     </div>
 </div>
 
+<!-- ── TAB: INSTAGRAM (ManyChat próprio) ── -->
+<div class="dashboard" id="tabInstagram">
+    <style>
+    #tabInstagram .ig-input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;color:var(--text);font-size:14px;font-family:inherit;box-sizing:border-box;}
+    #tabInstagram textarea.ig-input{min-height:78px;resize:vertical;}
+    #tabInstagram .ig-label{display:block;font-size:12px;font-weight:700;color:var(--text);margin:14px 0 6px;}
+    #tabInstagram .ig-hint{font-size:11px;color:var(--text-muted);font-weight:400;}
+    #tabInstagram .ig-btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:9px 16px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;}
+    #tabInstagram .ig-btn.ghost{background:transparent;color:var(--text);border:1px solid var(--border);}
+    #tabInstagram .ig-subtab-btn{background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:10px;padding:8px 16px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;}
+    #tabInstagram .ig-subtab-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+    #tabInstagram .ig-chip{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 16px;font-size:12px;color:var(--text-muted);font-weight:600;}
+    #tabInstagram .ig-chip b{display:block;font-size:22px;color:var(--accent);font-weight:800;}
+    #tabInstagram table{width:100%;border-collapse:collapse;}
+    #tabInstagram th,#tabInstagram td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;color:var(--text);white-space:nowrap;}
+    #tabInstagram th{color:var(--text-muted);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.4px;}
+    </style>
+    <div style="max-width:1140px;margin:0 auto;">
+        <h2 style="font-size:22px;font-weight:800;margin:0 0 4px;color:var(--text);">📸 Automação do Instagram</h2>
+        <p style="color:var(--text-muted);font-size:14px;margin:0 0 20px;">Responda comentários e DMs por palavra-chave automaticamente, e veja quem interagiu com você.</p>
+        <div style="display:flex;gap:8px;margin-bottom:20px;">
+            <button class="ig-subtab-btn active" data-ig-sub="automacoes" type="button">Automações</button>
+            <button class="ig-subtab-btn" data-ig-sub="leads" type="button">Leads</button>
+        </div>
+        <div id="igPaneAutomacoes">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;">
+                <div id="igAutoCount" style="color:var(--text-muted);font-size:13px;"></div>
+                <button id="igNewBtn" class="ig-btn" type="button">+ Nova automação</button>
+            </div>
+            <div id="igAutoList"></div>
+        </div>
+        <div id="igPaneLeads" style="display:none;">
+            <div id="igLeadStats" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;"></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px;">
+                <input id="igLeadSearch" class="ig-input" type="text" placeholder="Buscar por @ ou palavra..." style="max-width:280px;">
+                <button id="igExportBtn" class="ig-btn ghost" type="button">⬇ Exportar CSV</button>
+            </div>
+            <div id="igLeadList"></div>
+        </div>
+    </div>
+    <div id="igModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:20px;">
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;max-width:560px;width:100%;max-height:90vh;overflow:auto;padding:24px;">
+            <h3 id="igModalTitle" style="margin:0 0 6px;color:var(--text);font-size:18px;font-weight:800;">Nova automação</h3>
+            <input type="hidden" id="igf_id">
+            <label class="ig-label">Nome da automação</label>
+            <input id="igf_nome" class="ig-input" placeholder="Ex: Portfólio UGC">
+            <label class="ig-label">Palavras-chave <span class="ig-hint">(separadas por vírgula, ex: quero, portfolio, link)</span></label>
+            <input id="igf_keyword" class="ig-input" placeholder="quero, portfolio">
+            <label class="ig-label">Mensagem pedindo pra seguir <span class="ig-hint">(1ª DM enviada)</span></label>
+            <textarea id="igf_ask" class="ig-input"></textarea>
+            <label class="ig-label">Mensagem com o link <span class="ig-hint">(escreva {LINK} onde o link deve entrar)</span></label>
+            <textarea id="igf_linkmsg" class="ig-input"></textarea>
+            <label class="ig-label">Link a entregar</label>
+            <input id="igf_linkurl" class="ig-input" placeholder="https://...">
+            <label class="ig-label">Resposta pública no comentário <span class="ig-hint">(opcional)</span></label>
+            <input id="igf_public" class="ig-input" placeholder="te chamei no direct 💌">
+            <label style="display:flex;align-items:center;gap:8px;margin-top:16px;font-size:13px;color:var(--text);cursor:pointer;"><input type="checkbox" id="igf_require"> Pedir pra seguir antes de mandar o link</label>
+            <label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px;color:var(--text);cursor:pointer;"><input type="checkbox" id="igf_active"> Automação ativa</label>
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:22px;">
+                <button id="igCancelBtn" class="ig-btn ghost" type="button">Cancelar</button>
+                <button id="igSaveBtn" class="ig-btn" type="button">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- ── TAB: DISPARO DE E-MAIL ── -->
 <div class="dashboard" id="tabDisparo">
     <div style="max-width:1140px;margin:0 auto;">
@@ -2093,7 +2163,7 @@
     document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
 
     /* ── Tabs ── */
-    const PAGE_TITLES = { dashboard: 'Dashboard', planejamento: 'Planejamento', creators: 'Creators', admin: 'Administração', portfolio: 'Portfólio', orcamentos: 'Propostas', casting: 'Casting', disparo: 'Disparo de E-mail', imersao: 'Imersão' };
+    const PAGE_TITLES = { dashboard: 'Dashboard', planejamento: 'Planejamento', creators: 'Creators', admin: 'Administração', portfolio: 'Portfólio', orcamentos: 'Propostas', casting: 'Casting', disparo: 'Disparo de E-mail', imersao: 'Imersão', instagram: 'Instagram' };
     function setPageTitle(target) {
         const el = document.getElementById('pageTitle');
         if (el && PAGE_TITLES[target]) el.textContent = PAGE_TITLES[target];
@@ -2113,6 +2183,7 @@
             document.getElementById('tabCasting').classList.toggle('show', target === 'casting');
             document.getElementById('tabDisparo').classList.toggle('show', target === 'disparo');
             document.getElementById('tabImersao').classList.toggle('show', target === 'imersao');
+            document.getElementById('tabInstagram').classList.toggle('show', target === 'instagram');
             setPageTitle(target);
             document.getElementById('sidebar').classList.remove('open');
             document.getElementById('sidebarBackdrop').classList.remove('show');
@@ -2126,6 +2197,7 @@
             if (target === 'casting') loadCasting();
             if (target === 'disparo') loadDisparo();
             if (target === 'imersao') loadImersao();
+            if (target === 'instagram') loadInstagram();
         });
     });
 
@@ -6133,6 +6205,178 @@
             alert('Erro ao reordenar: ' + err.message);
         }
     }
+
+    /* ══════════════════════════════════
+       INSTAGRAM TAB (ManyChat próprio)
+       ══════════════════════════════════ */
+    let igAutomations = [];
+    let igLeads = [];
+
+    function igSetSub(sub) {
+        document.querySelectorAll('#tabInstagram .ig-subtab-btn').forEach(b => b.classList.toggle('active', b.dataset.igSub === sub));
+        document.getElementById('igPaneAutomacoes').style.display = sub === 'automacoes' ? '' : 'none';
+        document.getElementById('igPaneLeads').style.display = sub === 'leads' ? '' : 'none';
+        if (sub === 'leads') igRenderLeads();
+    }
+
+    async function loadInstagram() {
+        igSetSub('automacoes');
+        await Promise.all([igLoadAutomations(), igLoadLeads()]);
+    }
+
+    async function igLoadAutomations() {
+        const list = document.getElementById('igAutoList');
+        list.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando...</div>';
+        const { data, error } = await sb.from('ig_automations').select('*').order('created_at', { ascending: true });
+        if (error) { list.innerHTML = '<div style="color:var(--error);padding:16px;">Erro ao carregar: ' + escapeHtml(error.message) + '</div>'; return; }
+        igAutomations = data || [];
+        igRenderAutomations();
+    }
+
+    function igRenderAutomations() {
+        const list = document.getElementById('igAutoList');
+        const count = document.getElementById('igAutoCount');
+        count.textContent = igAutomations.length + ' automação(ões)';
+        if (!igAutomations.length) {
+            list.innerHTML = '<div style="background:var(--card);border:1px dashed var(--border);border-radius:14px;padding:34px;text-align:center;color:var(--text-muted);">Nenhuma automação ainda.<br>Clique em <b>+ Nova automação</b> pra criar a primeira.</div>';
+            return;
+        }
+        list.innerHTML = igAutomations.map(a => (
+            '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:12px;">'
+            + '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">'
+            + '<div style="flex:1;min-width:220px;">'
+            + '<div style="font-weight:800;color:var(--text);font-size:15px;margin-bottom:5px;">' + escapeHtml(a.nome || 'Automação') + (a.active ? '' : ' <span style="color:var(--text-muted);font-weight:600;font-size:12px;">(pausada)</span>') + '</div>'
+            + '<div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">Palavras: <b style="color:var(--accent);">' + escapeHtml(a.keyword || '') + '</b></div>'
+            + '<div style="font-size:12px;color:var(--text-muted);">🔗 ' + escapeHtml(a.link_url || '(sem link)') + (a.require_follow ? ' · pede follow antes' : '') + '</div>'
+            + '</div>'
+            + '<div style="display:flex;gap:6px;flex-shrink:0;">'
+            + '<button class="ig-btn ghost" type="button" data-ig-act="toggle" data-ig-id="' + a.id + '">' + (a.active ? 'Pausar' : 'Ativar') + '</button>'
+            + '<button class="ig-btn ghost" type="button" data-ig-act="edit" data-ig-id="' + a.id + '">Editar</button>'
+            + '<button class="ig-btn ghost" type="button" data-ig-act="delete" data-ig-id="' + a.id + '" style="color:var(--error);border-color:var(--error);">Excluir</button>'
+            + '</div>'
+            + '</div></div>'
+        )).join('');
+    }
+
+    async function igToggleActive(id) {
+        const a = igAutomations.find(x => x.id === id); if (!a) return;
+        const { error } = await sb.from('ig_automations').update({ active: !a.active, updated_at: new Date().toISOString() }).eq('id', id);
+        if (error) { alert('Erro: ' + error.message); return; }
+        igLoadAutomations();
+    }
+
+    async function igDeleteAuto(id) {
+        if (!confirm('Excluir esta automação? Os leads já capturados continuam salvos.')) return;
+        const { error } = await sb.from('ig_automations').delete().eq('id', id);
+        if (error) { alert('Erro: ' + error.message); return; }
+        igLoadAutomations();
+    }
+
+    function igOpenModal(a) {
+        document.getElementById('igModalTitle').textContent = a ? 'Editar automação' : 'Nova automação';
+        document.getElementById('igf_id').value = a ? a.id : '';
+        document.getElementById('igf_nome').value = a ? (a.nome || '') : '';
+        document.getElementById('igf_keyword').value = a ? (a.keyword || '') : '';
+        document.getElementById('igf_ask').value = a ? (a.ask_follow_message || '') : 'Oiii! Que alegria ver seu interesse 💛 Antes de te mandar o link, me segue aqui no perfil? Assim que me seguir, responde com "segui" que eu te envio tudo ✨';
+        document.getElementById('igf_linkmsg').value = a ? (a.link_message || '') : 'Prontinho! Aqui está o que você pediu: {LINK} 💌';
+        document.getElementById('igf_linkurl').value = a ? (a.link_url || '') : '';
+        document.getElementById('igf_public').value = a ? (a.public_reply || '') : 'te chamei no direct 💌';
+        document.getElementById('igf_require').checked = a ? !!a.require_follow : true;
+        document.getElementById('igf_active').checked = a ? !!a.active : true;
+        document.getElementById('igModal').style.display = 'flex';
+    }
+    function igEdit(id) { const a = igAutomations.find(x => x.id === id); if (a) igOpenModal(a); }
+    function igCloseModal() { document.getElementById('igModal').style.display = 'none'; }
+
+    async function igSave() {
+        const id = document.getElementById('igf_id').value;
+        const rec = {
+            nome: document.getElementById('igf_nome').value.trim() || 'Automação',
+            keyword: document.getElementById('igf_keyword').value.trim(),
+            ask_follow_message: document.getElementById('igf_ask').value,
+            link_message: document.getElementById('igf_linkmsg').value,
+            link_url: document.getElementById('igf_linkurl').value.trim(),
+            public_reply: document.getElementById('igf_public').value,
+            require_follow: document.getElementById('igf_require').checked,
+            active: document.getElementById('igf_active').checked,
+            updated_at: new Date().toISOString()
+        };
+        if (!rec.keyword) { alert('Coloque pelo menos uma palavra-chave.'); return; }
+        let error;
+        if (id) { ({ error } = await sb.from('ig_automations').update(rec).eq('id', id)); }
+        else { ({ error } = await sb.from('ig_automations').insert(rec)); }
+        if (error) { alert('Erro ao salvar: ' + error.message); return; }
+        igCloseModal();
+        igLoadAutomations();
+    }
+
+    async function igLoadLeads() {
+        const { data, error } = await sb.from('ig_leads').select('*').order('updated_at', { ascending: false });
+        igLeads = error ? [] : (data || []);
+    }
+
+    function igFmtDate(s) {
+        if (!s) return '';
+        try { const d = new Date(s); return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); } catch (e) { return s; }
+    }
+
+    function igRenderLeads() {
+        const stats = document.getElementById('igLeadStats');
+        const list = document.getElementById('igLeadList');
+        if (!stats || !list) return;
+        const q = (document.getElementById('igLeadSearch').value || '').toLowerCase();
+        const filtered = igLeads.filter(l => !q || (l.username || '').toLowerCase().includes(q) || (l.last_keyword || '').toLowerCase().includes(q));
+        const total = igLeads.length;
+        const seguem = igLeads.filter(l => l.followed === true).length;
+        const receberam = igLeads.filter(l => l.link_sent).length;
+        stats.innerHTML = '<div class="ig-chip"><b>' + total + '</b>Leads captados</div>'
+            + '<div class="ig-chip"><b>' + seguem + '</b>Já seguem</div>'
+            + '<div class="ig-chip"><b>' + receberam + '</b>Receberam o link</div>';
+        if (!filtered.length) {
+            list.innerHTML = '<div style="background:var(--card);border:1px dashed var(--border);border-radius:14px;padding:34px;text-align:center;color:var(--text-muted);">' + (total ? 'Nenhum lead com esse filtro.' : 'Nenhum lead ainda. Quando alguém comentar sua palavra-chave, aparece aqui.') + '</div>';
+            return;
+        }
+        list.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:auto;"><table><thead><tr>'
+            + '<th>Conta</th><th>Origem</th><th>Palavra</th><th>Segue?</th><th>Link?</th><th>Interações</th><th>Última vez</th></tr></thead><tbody>'
+            + filtered.map(l => '<tr>'
+                + '<td>' + (l.username ? '<a href="https://instagram.com/' + encodeURIComponent(l.username) + '" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;font-weight:700;">@' + escapeHtml(l.username) + '</a>' : escapeHtml(l.ig_user_id || '')) + '</td>'
+                + '<td>' + (l.last_source === 'comment' ? '💬 Comentário' : '📩 Direct') + '</td>'
+                + '<td>' + escapeHtml(l.last_keyword || '') + '</td>'
+                + '<td>' + (l.followed === true ? '✅' : (l.followed === false ? '❌' : '—')) + '</td>'
+                + '<td>' + (l.link_sent ? '✅' : '—') + '</td>'
+                + '<td>' + (l.interactions || 1) + '</td>'
+                + '<td>' + escapeHtml(igFmtDate(l.updated_at)) + '</td>'
+                + '</tr>').join('')
+            + '</tbody></table></div>';
+    }
+
+    function igExportCSV() {
+        const rows = [['username', 'ig_user_id', 'origem', 'palavra', 'segue', 'link_enviado', 'interacoes', 'primeira_vez', 'ultima_vez', 'ultimo_texto']];
+        igLeads.forEach(l => rows.push([l.username || '', l.ig_user_id || '', l.last_source || '', l.last_keyword || '', l.followed === true ? 'sim' : (l.followed === false ? 'nao' : ''), l.link_sent ? 'sim' : 'nao', l.interactions || 1, l.created_at || '', l.updated_at || '', (l.last_text || '').replace(/\n/g, ' ')]));
+        const csv = rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
+        const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = 'leads-instagram.csv'; a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    (function igWire() {
+        const nb = document.getElementById('igNewBtn'); if (nb) nb.addEventListener('click', () => igOpenModal(null));
+        document.querySelectorAll('#tabInstagram .ig-subtab-btn').forEach(b => b.addEventListener('click', () => igSetSub(b.dataset.igSub)));
+        const ex = document.getElementById('igExportBtn'); if (ex) ex.addEventListener('click', igExportCSV);
+        const se = document.getElementById('igLeadSearch'); if (se) se.addEventListener('input', igRenderLeads);
+        const sv = document.getElementById('igSaveBtn'); if (sv) sv.addEventListener('click', igSave);
+        const cc = document.getElementById('igCancelBtn'); if (cc) cc.addEventListener('click', igCloseModal);
+        const md = document.getElementById('igModal'); if (md) md.addEventListener('click', (e) => { if (e.target === md) igCloseModal(); });
+        const al = document.getElementById('igAutoList');
+        if (al) al.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-ig-act]'); if (!btn) return;
+            const id = btn.dataset.igId, act = btn.dataset.igAct;
+            if (act === 'toggle') igToggleActive(id);
+            else if (act === 'edit') igEdit(id);
+            else if (act === 'delete') igDeleteAuto(id);
+        });
+    })();
 </script>
 </body>
 </html>
