@@ -6526,13 +6526,21 @@
         html += '<div id="igTopPosts" style="margin-bottom:6px;">' + igPostsHtml() + '</div>';
         html += '<div style="font-size:11px;color:var(--text-muted);margin-bottom:24px;">Só aparecem posts publicados por você. Collabs publicados pela marca (onde você entra como convidada) não vêm pela API do Instagram. "Seguidores por post" não existe pra Reels na API, por isso mostro views/salvos.</div>';
         const tc = d.top_commenters || [];
+        const cm = d.commenters_meta || {};
         if (tc.length) {
-            html += '<div style="font-size:15px;font-weight:800;color:var(--text);margin:0 0 12px;">🏆 Quem mais comenta ' + (d.days === 'all' ? '(todos)' : '(' + d.days + ' dias)') + '</div>'
+            html += '<div style="font-size:15px;font-weight:800;color:var(--text);margin:0 0 3px;">🏆 Quem mais comenta <span style="font-weight:600;color:var(--text-muted);font-size:12px;">(últimos ' + (cm.posts_studied || 20) + ' posts)</span></div>'
+                + '<div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Estudo completo: li os ' + igNum(cm.total_comments || 0) + ' comentários (incluindo respostas) desses posts, sem contar os seus.</div>'
                 + '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:26px;">'
-                + tc.map((c, i) => '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);font-size:13px;">'
-                    + '<span><span style="color:var(--text-muted);">' + (i + 1) + '.</span> <a href="https://instagram.com/' + encodeURIComponent(c.username) + '" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;text-decoration:none;">@' + escapeHtml(c.username) + '</a></span>'
-                    + '<strong style="color:var(--text);">' + c.count + (c.count === 1 ? ' comentário' : ' comentários') + '</strong>'
-                    + '</div>').join('')
+                + tc.map((c, i) => {
+                    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) + '.';
+                    const name = c.username
+                        ? '<a href="https://instagram.com/' + encodeURIComponent(c.username) + '" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;text-decoration:none;">@' + escapeHtml(c.username) + '</a>'
+                        : '<span style="color:var(--text-muted);font-style:italic;">sem @ público</span>';
+                    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);font-size:13px;">'
+                        + '<span><span style="color:var(--text-muted);display:inline-block;min-width:26px;text-align:center;">' + medal + '</span> ' + name + '</span>'
+                        + '<strong style="color:var(--text);">' + c.count + (c.count === 1 ? ' comentário' : ' comentários') + '</strong>'
+                        + '</div>';
+                }).join('')
                 + '</div>';
         }
         const comments = d.comments || [];
@@ -6540,7 +6548,7 @@
         html += '<div style="font-size:15px;font-weight:800;color:var(--text);margin:0 0 3px;">💬 Comentários naturais dos seguidores' + (qs ? ' <span style="font-weight:600;color:var(--text-muted);font-size:13px;">(' + qs + ' com pergunta)</span>' : '') + '</div>'
             + '<div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Sem os seus comentários e sem os de gatilho de automação.</div>'
             + '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;">';
-        if (!comments.length) { html += '<div style="padding:20px;color:var(--text-muted);">Sem comentários naturais no período.</div>'; }
+        if (!comments.length) { html += '<div style="padding:20px;color:var(--text-muted);">Sem comentários naturais nos últimos posts.</div>'; }
         else {
             comments.slice(0, 30).forEach(c => {
                 html += '<div style="padding:11px 16px;border-bottom:1px solid var(--border);">'
