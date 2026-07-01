@@ -1400,6 +1400,7 @@
                     <button class="ig-period-btn" data-ig-days="7" type="button">7 dias</button>
                     <button class="ig-period-btn active" data-ig-days="30" type="button">30 dias</button>
                     <button class="ig-period-btn" data-ig-days="90" type="button">90 dias</button>
+                    <button class="ig-period-btn" data-ig-days="all" type="button">Tudo</button>
                 </div>
                 <button id="igRefreshInsights" class="ig-btn ghost" type="button">↻ Atualizar</button>
             </div>
@@ -6233,7 +6234,7 @@
     let igInsightsData = null;
     let igDays = 30;
     let igSort = 'engagement';
-    const IG_SORTS = [{ key: 'engagement', label: 'Melhores' }, { key: 'like_count', label: 'Mais curtidos' }, { key: 'comments_count', label: 'Mais comentados' }, { key: 'saved', label: 'Mais salvos' }, { key: 'follows', label: 'Mais seguidores' }];
+    const IG_SORTS = [{ key: 'engagement', label: 'Melhores' }, { key: 'like_count', label: 'Mais curtidos' }, { key: 'comments_count', label: 'Mais comentados' }, { key: 'saved', label: 'Mais salvos' }, { key: 'views', label: 'Mais vistos' }];
 
     function igSetSub(sub) {
         document.querySelectorAll('#tabInstagram .ig-subtab-btn').forEach(b => b.classList.toggle('active', b.dataset.igSub === sub));
@@ -6404,7 +6405,7 @@
         const d = igInsightsData; if (!d) return '';
         const posts = (d.posts || []).slice().sort((a, b) => (b[igSort] || 0) - (a[igSort] || 0));
         if (!posts.length) return '<div style="color:var(--text-muted);padding:16px;">Nenhum post no período.</div>';
-        const icon = { engagement: '', like_count: '❤️', comments_count: '💬', saved: '🔖', follows: '👤' };
+        const icon = { engagement: '', like_count: '❤️', comments_count: '💬', saved: '🔖', views: '👀' };
         return '<div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;">'
             + posts.map(p => {
                 const thumb = p.thumbnail_url || p.media_url || '';
@@ -6414,7 +6415,7 @@
                     + '<div style="padding:8px 10px;font-size:11px;color:var(--text-muted);line-height:1.5;">'
                     + hi
                     + '<div>❤️ ' + igNum(p.like_count) + ' · 💬 ' + igNum(p.comments_count) + '</div>'
-                    + '<div>🔖 ' + igNum(p.saved) + ' · 👤 ' + igNum(p.follows) + '</div>'
+                    + '<div>🔖 ' + igNum(p.saved) + ' · 👀 ' + igNum(p.views) + '</div>'
                     + '</div></a>';
             }).join('')
             + '</div>';
@@ -6427,10 +6428,11 @@
         const reachArr = d.reach || [];
         const reachTotal = reachArr.reduce((s, x) => s + (x.value || 0), 0);
         const followerNew = (d.follower_growth || []).reduce((s, x) => s + (x.value || 0), 0);
+        const per = d.days === 'all' ? '90d' : d.days + 'd';
         let html = '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">'
             + igCard('Seguidores', igNum(acc.followers_count))
-            + igCard('Novos seg. (' + d.days + 'd)', igNum(followerNew))
-            + igCard('Alcance (' + d.days + 'd)', igNum(reachTotal))
+            + igCard('Novos seg. (' + per + ')', igNum(followerNew))
+            + igCard('Alcance (' + per + ')', igNum(reachTotal))
             + igCard('Contas engajadas', igNum(d.accounts_engaged))
             + igCard('Interações', igNum(d.total_interactions))
             + '</div>';
@@ -6445,11 +6447,22 @@
                 + '</div></div>';
         }
         html += '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px;">'
-            + '<div style="font-size:15px;font-weight:800;color:var(--text);">🔥 Melhores posts (' + d.days + ' dias)</div>'
+            + '<div style="font-size:15px;font-weight:800;color:var(--text);">🔥 Melhores posts ' + (d.days === 'all' ? '(todos)' : '(' + d.days + ' dias)') + '</div>'
             + '<div style="display:flex;gap:6px;flex-wrap:wrap;">'
             + IG_SORTS.map(s => '<button class="ig-sortbtn' + (s.key === igSort ? ' active' : '') + '" data-ig-sort="' + s.key + '" type="button">' + s.label + '</button>').join('')
             + '</div></div>';
-        html += '<div id="igTopPosts" style="margin-bottom:26px;">' + igPostsHtml() + '</div>';
+        html += '<div id="igTopPosts" style="margin-bottom:6px;">' + igPostsHtml() + '</div>';
+        html += '<div style="font-size:11px;color:var(--text-muted);margin-bottom:24px;">Só aparecem posts publicados por você. Collabs publicados pela marca (onde você entra como convidada) não vêm pela API do Instagram. "Seguidores por post" não existe pra Reels na API, por isso mostro views/salvos.</div>';
+        const tc = d.top_commenters || [];
+        if (tc.length) {
+            html += '<div style="font-size:15px;font-weight:800;color:var(--text);margin:0 0 12px;">🏆 Quem mais comenta ' + (d.days === 'all' ? '(todos)' : '(' + d.days + ' dias)') + '</div>'
+                + '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:26px;">'
+                + tc.map((c, i) => '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);font-size:13px;">'
+                    + '<span><span style="color:var(--text-muted);">' + (i + 1) + '.</span> <a href="https://instagram.com/' + encodeURIComponent(c.username) + '" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;text-decoration:none;">@' + escapeHtml(c.username) + '</a></span>'
+                    + '<strong style="color:var(--text);">' + c.count + (c.count === 1 ? ' comentário' : ' comentários') + '</strong>'
+                    + '</div>').join('')
+                + '</div>';
+        }
         const comments = d.comments || [];
         const qs = comments.filter(c => c.question).length;
         html += '<div style="font-size:15px;font-weight:800;color:var(--text);margin:0 0 3px;">💬 Comentários naturais dos seguidores' + (qs ? ' <span style="font-weight:600;color:var(--text-muted);font-size:13px;">(' + qs + ' com pergunta)</span>' : '') + '</div>'
@@ -6480,7 +6493,7 @@
         const pb = document.getElementById('igPeriodBtns');
         if (pb) pb.addEventListener('click', (e) => {
             const b = e.target.closest('[data-ig-days]'); if (!b) return;
-            igDays = parseInt(b.dataset.igDays, 10);
+            igDays = b.dataset.igDays === 'all' ? 'all' : parseInt(b.dataset.igDays, 10);
             document.querySelectorAll('#igPeriodBtns .ig-period-btn').forEach(x => x.classList.toggle('active', x === b));
             igLoadInsights();
         });
