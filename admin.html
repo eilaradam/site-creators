@@ -6875,5 +6875,92 @@
         });
     })();
 </script>
+<style>
+/* ============================================================
+   FACELIFT v1 — polimento visual profissional (editorial + profundidade)
+   Camada final: sobrescreve a cascata sem mexer no layout.
+   ============================================================ */
+:root {
+    --cream: #FBF8F4;
+    --card: #FFFFFF;
+    --border: #ECE6DF;
+    --border-strong: #DED6CC;
+    --text: #211D1A;
+    --text-soft: #6B635B;
+    --text-muted: #A69D93;
+    --accent: #C8441A;
+    --accent-dark: #A8380F;
+    --accent-glow: rgba(200,68,26,0.08);
+    --radius: 14px;
+    --radius-lg: 18px;
+    --shadow-xs: 0 1px 2px rgba(33,29,26,0.05);
+    --shadow-sm: 0 1px 2px rgba(33,29,26,0.04), 0 2px 6px rgba(33,29,26,0.05);
+    --shadow-md: 0 4px 14px rgba(33,29,26,0.07), 0 2px 5px rgba(33,29,26,0.04);
+    --shadow-lg: 0 18px 44px rgba(33,29,26,0.14);
+}
+body { background: var(--cream); letter-spacing: -0.01em; }
+::selection { background: rgba(200,68,26,0.16); }
+
+/* Cards: profundidade suave em vez de "bordinha seca" */
+.stats-row, .dashboard-chart-container, .metric-card, .filters-bar, .table-container {
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow .2s ease, transform .2s ease;
+}
+.stats-row { border-radius: var(--radius-lg); }
+.dashboard-chart-container, .metric-card, .filters-bar { border-radius: var(--radius); }
+.table-container { border-radius: var(--radius-lg); box-shadow: var(--shadow-md); }
+.metric-card:hover, .dashboard-chart-container:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.stat-card { padding: 18px 16px; }
+.stat-card .stat-value, .metric-card-big .stat-value { font-size: 23px; letter-spacing: -0.6px; }
+
+/* Menos CAIXA-ALTA robótica: rótulos ficam editoriais */
+.dashboard-chart-title, .metric-card-title {
+    text-transform: none; letter-spacing: -0.1px; font-size: 13px; font-weight: 700; color: var(--text);
+}
+.stat-card .stat-label, .metric-card-big .stat-label { text-transform: none; letter-spacing: 0; }
+.creators-table th { text-transform: none; letter-spacing: .1px; font-weight: 600; font-size: 12px; color: var(--text-soft); background: #FAF6F1; }
+.filter-group label { text-transform: none; letter-spacing: .1px; font-weight: 600; font-size: 12px; color: var(--text-soft); }
+.creators-table tr:hover td { background: rgba(200,68,26,0.035); }
+
+/* Chrome: sidebar + topbar com leve profundidade */
+.sidebar { box-shadow: 1px 0 0 var(--border); }
+.sidebar .nav-item { border-radius: 12px; font-weight: 600; }
+.sidebar .nav-item:hover { background: #F5F0EA; }
+.topbar { box-shadow: var(--shadow-xs); }
+.topbar-title { letter-spacing: -0.6px; }
+
+/* Botões primários: profundidade + micro-interação */
+.btn-export-csv {
+    box-shadow: 0 2px 8px rgba(200,68,26,0.22);
+    transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.btn-export-csv:hover { transform: translateY(-1px); box-shadow: 0 7px 18px rgba(200,68,26,0.30); background: var(--accent-dark); }
+.btn-export-csv:active { transform: translateY(0); }
+.btn-logout, .btn-clear-filters { border-radius: 10px; }
+
+/* Foco acessível */
+.filter-group input:focus, .filter-group select:focus { box-shadow: 0 0 0 4px var(--accent-glow); border-color: var(--accent); }
+
+/* ===== Aba Instagram: mesma linguagem ===== */
+#tabInstagram .ig-btn { border-radius: 11px; box-shadow: 0 2px 8px rgba(200,68,26,0.20); transition: transform .15s ease, box-shadow .15s ease, background .15s ease; }
+#tabInstagram .ig-btn:hover { transform: translateY(-1px); box-shadow: 0 7px 18px rgba(200,68,26,0.28); }
+#tabInstagram .ig-btn:active { transform: translateY(0); }
+#tabInstagram .ig-btn.ghost { box-shadow: none; }
+#tabInstagram .ig-btn.ghost:hover { transform: none; background: #F5F0EA; }
+#tabInstagram .ig-subtab-btn { border-radius: 999px; padding: 8px 18px; transition: all .18s ease; }
+#tabInstagram .ig-subtab-btn:not(.active):hover { border-color: var(--border-strong); color: var(--text); background: #FAF6F1; }
+#tabInstagram .ig-period-btn, #tabInstagram .ig-sortbtn { border-radius: 999px; transition: all .15s ease; }
+#tabInstagram .ig-input { border-radius: 11px; border-color: var(--border); transition: box-shadow .18s ease, border-color .18s ease; }
+#tabInstagram .ig-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
+#tabInstagram .ig-chip { border-radius: 14px; box-shadow: var(--shadow-sm); }
+#tabInstagram .ig-chip b { font-size: 24px; letter-spacing: -0.5px; }
+/* dá profundidade aos cards inline da aba (padrão border-radius:14px) */
+#tabInstagram [style*="border-radius:14px"] { box-shadow: var(--shadow-sm); }
+#tabInstagram th { text-transform: none; letter-spacing: .1px; font-weight: 600; }
+
+/* Modais com sombra premium */
+#igModal > div { box-shadow: var(--shadow-lg); border-radius: 18px; }
+</style>
 </body>
 </html>
