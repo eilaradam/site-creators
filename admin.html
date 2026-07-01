@@ -6961,6 +6961,15 @@ body { background: var(--cream); letter-spacing: -0.01em; }
 
 /* Modais com sombra premium */
 #igModal > div { box-shadow: var(--shadow-lg); border-radius: 18px; }
+
+/* CORREÇÃO: quando a sidebar recolhe no desktop, o botão de expandir sumia.
+   Agora ele continua visível (centralizado, com a seta virada) pra reabrir. */
+@media (min-width: 861px) {
+    .app-shell.collapsed .sidebar-collapse { display: flex; margin: 0 auto; }
+    .app-shell.collapsed .sidebar-logo { display: none; }
+    .app-shell.collapsed .sidebar-collapse svg { transform: rotate(180deg); }
+    .app-shell.collapsed .sidebar-collapse:hover { background: var(--accent-glow); color: var(--accent); }
+}
 </style>
 </body>
 </html>
