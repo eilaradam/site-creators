@@ -6264,7 +6264,9 @@
     let igFlow = { steps: [] };
     let igFlowSeq = 0;
     let igMarcasLoaded = false;
-    let igMarcasData = null;
+    let igMarcasData = [];
+    let igMarcasFilter = 'todas';
+    let igMarcasLastRun = null;
     let igInsightsLoaded = false;
     let igInsightsData = null;
     let igDays = 30;
@@ -6290,66 +6292,83 @@
 
     async function igLoadMarcas() {
         const box = document.getElementById('igMarcasBox');
-        box.innerHTML = '<div style="color:var(--text-muted);padding:16px;">Carregando marcas salvas...</div>';
-        const { data, error } = await sb.from('ig_brand_leads').select('*').order('last_message_at', { ascending: false });
+        box.innerHTML = '<div style="color:var(--text-muted);padding:16px;">Carregando conversas analisadas...</div>';
+        const { data, error } = await sb.from('ig_dm_convos').select('*').order('last_message_at', { ascending: false });
         if (error) { box.innerHTML = '<div style="color:var(--error);padding:16px;">Erro: ' + escapeHtml(error.message) + '</div>'; return; }
-        igMarcasData = { brands: data || [], counts: null, analyzed: null };
+        igMarcasData = data || [];
         igRenderMarcas();
+        igUpdateMarcasBtn();
+    }
+    function igUpdateMarcasBtn() {
+        const btn = document.getElementById('igMarcasBtn'); if (!btn) return;
+        btn.textContent = igMarcasData.length ? '🔍 Analisar próximas' : '🔍 Analisar minhas DMs';
     }
     async function igAnalyzeDMs() {
         const box = document.getElementById('igMarcasBox');
         const limit = parseInt(document.getElementById('igMarcasLimit').value, 10) || 50;
         const useAI = document.getElementById('igMarcasAI').checked;
         const btn = document.getElementById('igMarcasBtn'); btn.disabled = true; const old = btn.textContent; btn.textContent = 'Analisando...';
-        box.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">Lendo suas ' + limit + ' conversas mais recentes...<br><span style="font-size:12px;">Isso pode levar de 30s a 2 min, pode deixar aberto ☕</span></div>';
+        box.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">Lendo até ' + limit + ' <b>novas</b> conversas (pulando as já analisadas)...<br><span style="font-size:12px;">Isso pode levar de 30s a 2 min, pode deixar aberto ☕</span></div>';
         const { data, error } = await sb.functions.invoke('ig-dm-analyze', { body: { limit, useAI } });
-        btn.disabled = false; btn.textContent = old;
-        if (error || (data && data.error)) { box.innerHTML = '<div style="color:var(--error);padding:16px;">Erro: ' + escapeHtml((error && error.message) || (data && data.error) || 'desconhecido') + '</div>'; return; }
-        igMarcasData = data;
-        igRenderMarcas();
+        btn.disabled = false;
+        if (error || (data && data.error)) { btn.textContent = old; box.innerHTML = '<div style="color:var(--error);padding:16px;">Erro: ' + escapeHtml((error && error.message) || (data && data.error) || 'desconhecido') + '</div>'; return; }
+        igMarcasLastRun = data;
+        await igLoadMarcas();
     }
     function igRenderMarcas() {
-        const box = document.getElementById('igMarcasBox'); if (!box || !igMarcasData) return;
-        const d = igMarcasData;
+        const box = document.getElementById('igMarcasBox'); if (!box) return;
+        const all = igMarcasData || [];
+        const marcas = all.filter(x => x.tipo === 'marca_interessada' || x.tipo === 'marca_prospectada');
+        const segs = all.filter(x => x.tipo === 'seguidora');
         let h = '';
-        if (d.counts) {
-            h += '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">'
-                + '<div class="ig-chip"><b>' + (d.counts.marca_interessada || 0) + '</b>marcas interessadas</div>'
-                + '<div class="ig-chip"><b>' + (d.counts.marca_prospectada || 0) + '</b>que você prospectou</div>'
-                + '<div class="ig-chip"><b>' + (d.counts.seguidoras || 0) + '</b>seguidoras</div>'
-                + '</div>'
-                + '<div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">Analisei ' + d.analyzed + ' conversas' + (d.ai_calls ? ' (IA revisou ' + d.ai_calls + ' duvidosas)' : '') + '. As marcas ficam salvas aqui.</div>';
+        h += '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;">'
+            + '<div class="ig-chip"><b>' + marcas.length + '</b>marcas (clientes)</div>'
+            + '<div class="ig-chip"><b>' + segs.length + '</b>seguidoras</div>'
+            + '<div class="ig-chip"><b>' + all.length + '</b>conversas analisadas</div>'
+            + '</div>';
+        if (igMarcasLastRun) {
+            h += '<div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">Última rodada: <b>+' + (igMarcasLastRun.analyzed_now || 0) + '</b> novas'
+                + (igMarcasLastRun.ai_calls ? ' (IA revisou ' + igMarcasLastRun.ai_calls + ')' : '')
+                + (igMarcasLastRun.done ? '. ✅ Você chegou ao fim das conversas!' : '. Clique de novo pra pegar as próximas.')
+                + '</div>';
         }
-        const brands = d.brands || [];
-        if (!brands.length) { h += '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;color:var(--text-muted);">Nenhuma marca ainda. Clique em "Analisar minhas DMs" pra começar.</div>'; box.innerHTML = h; return; }
-        h += '<div style="display:flex;justify-content:flex-end;margin-bottom:10px;"><button id="igMarcasCsv" class="ig-btn ghost" type="button">⬇ Exportar CSV</button></div>';
+        if (!all.length) { box.innerHTML = h + '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;color:var(--text-muted);">Nenhuma conversa analisada ainda. Clique em "Analisar minhas DMs".</div>'; return; }
+        const f = igMarcasFilter;
+        const shown = f === 'marca' ? marcas : f === 'seguidora' ? segs : all.filter(x => x.tipo !== 'sem_texto');
+        h += '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;">'
+            + '<div style="display:flex;gap:6px;flex-wrap:wrap;">'
+            + [['todas', 'Todas'], ['marca', '🏢 Marcas'], ['seguidora', '👤 Seguidoras']].map(o => '<button class="ig-sortbtn' + (f === o[0] ? ' active' : '') + '" data-ig-mf="' + o[0] + '" type="button">' + o[1] + '</button>').join('')
+            + '</div>'
+            + '<button id="igMarcasCsv" class="ig-btn ghost" type="button">⬇ Exportar CSV</button>'
+            + '</div>';
         h += '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;">';
-        brands.forEach(b => {
+        if (!shown.length) h += '<div style="padding:20px;color:var(--text-muted);">Nada nesse filtro.</div>';
+        shown.forEach(b => {
             const badge = b.tipo === 'marca_prospectada'
                 ? '<span style="background:#e5dbff;color:#5b3aa8;border-radius:6px;padding:1px 7px;font-size:10px;font-weight:800;">📤 EU PROSPECTEI</span>'
-                : '<span style="background:#d7f5e3;color:#1c7a45;border-radius:6px;padding:1px 7px;font-size:10px;font-weight:800;">🏢 MARCA INTERESSADA</span>';
+                : b.tipo === 'marca_interessada'
+                    ? '<span style="background:#d7f5e3;color:#1c7a45;border-radius:6px;padding:1px 7px;font-size:10px;font-weight:800;">🏢 CLIENTE</span>'
+                    : '<span style="background:#eef0f3;color:#555;border-radius:6px;padding:1px 7px;font-size:10px;font-weight:800;">👤 SEGUIDORA</span>';
             h += '<div style="padding:12px 16px;border-bottom:1px solid var(--border);">'
                 + '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">'
                 + '<a href="https://instagram.com/' + encodeURIComponent(b.username || '') + '" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;text-decoration:none;font-size:14px;">@' + escapeHtml(b.username || 'sem @') + '</a>'
                 + badge + '</div>'
                 + (b.resumo ? '<div style="color:var(--text);margin-top:4px;font-size:13px;">' + escapeHtml(b.resumo) + '</div>' : '')
-                + '<div style="margin-top:5px;font-size:12px;color:var(--text-muted);display:flex;gap:14px;flex-wrap:wrap;">'
-                + (b.email ? '<span>✉️ <a href="mailto:' + escapeHtml(b.email) + '" style="color:var(--accent);text-decoration:none;">' + escapeHtml(b.email) + '</a></span>' : '')
-                + (b.phone ? '<span>📱 ' + escapeHtml(b.phone) + '</span>' : '')
-                + (b.confianca === 'ia' ? '<span style="color:#5b3aa8;">✨ revisado pela IA</span>' : '')
-                + '</div>'
+                + ((b.email || b.phone || b.confianca === 'ia') ? '<div style="margin-top:5px;font-size:12px;color:var(--text-muted);display:flex;gap:14px;flex-wrap:wrap;">'
+                    + (b.email ? '<span>✉️ <a href="mailto:' + escapeHtml(b.email) + '" style="color:var(--accent);text-decoration:none;">' + escapeHtml(b.email) + '</a></span>' : '')
+                    + (b.phone ? '<span>📱 ' + escapeHtml(b.phone) + '</span>' : '')
+                    + (b.confianca === 'ia' ? '<span style="color:#5b3aa8;">✨ IA</span>' : '')
+                    + '</div>' : '')
                 + '</div>';
         });
         h += '</div>';
         box.innerHTML = h;
-        const csv = document.getElementById('igMarcasCsv'); if (csv) csv.addEventListener('click', igMarcasExport);
     }
     function igMarcasExport() {
-        const brands = (igMarcasData && igMarcasData.brands) || [];
-        const rows = [['username', 'tipo', 'email', 'telefone', 'resumo', 'ultima_msg']].concat(brands.map(b => [b.username || '', b.tipo || '', b.email || '', b.phone || '', (b.resumo || '').replace(/[\n;]/g, ' '), b.last_message_at || '']));
+        const rows = [['username', 'tipo', 'email', 'telefone', 'resumo', 'ultima_msg']].concat((igMarcasData || []).map(b => [b.username || '', b.tipo || '', b.email || '', b.phone || '', (b.resumo || '').replace(/[\n;]/g, ' '), b.last_message_at || '']));
         const csv = rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(';')).join('\n');
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'marcas.csv'; a.click();
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'conversas.csv'; a.click();
     }
 
     async function igLoadAutomations() {
@@ -6811,6 +6830,12 @@
         });
         const ma = document.getElementById('igf_matchany'); if (ma) ma.addEventListener('change', () => { const k = document.getElementById('igf_keyword'); k.disabled = ma.checked; k.style.opacity = ma.checked ? '.5' : '1'; });
         const mab = document.getElementById('igMarcasBtn'); if (mab) mab.addEventListener('click', igAnalyzeDMs);
+        const mbox = document.getElementById('igMarcasBox');
+        if (mbox) mbox.addEventListener('click', (e) => {
+            const f = e.target.closest('[data-ig-mf]');
+            if (f) { igMarcasFilter = f.dataset.igMf; igRenderMarcas(); return; }
+            if (e.target.closest('#igMarcasCsv')) igMarcasExport();
+        });
         const fa = document.getElementById('igFlowAdd'); if (fa) fa.addEventListener('click', igFlowAddStep);
         const fs = document.getElementById('igFlowSteps');
         if (fs) {
