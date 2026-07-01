@@ -6528,7 +6528,7 @@
         const tc = d.top_commenters || [];
         const cm = d.commenters_meta || {};
         if (tc.length) {
-            html += '<div style="font-size:15px;font-weight:800;color:var(--text);margin:0 0 3px;">🏆 Quem mais comenta <span style="font-weight:600;color:var(--text-muted);font-size:12px;">(últimos ' + (cm.posts_studied || 20) + ' posts)</span></div>'
+            html += '<div style="font-size:15px;font-weight:800;color:var(--text);margin:0 0 3px;">🏆 Quem mais comenta <span style="font-weight:600;color:var(--text-muted);font-size:12px;">(últimos ' + (cm.posts_studied || 50) + ' posts)</span></div>'
                 + '<div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Estudo completo: li os ' + igNum(cm.total_comments || 0) + ' comentários (incluindo respostas) desses posts, sem contar os seus.</div>'
                 + '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:26px;">'
                 + tc.map((c, i) => {
