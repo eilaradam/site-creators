@@ -1359,6 +1359,10 @@
     #tabInstagram .ig-btn.ghost{background:transparent;color:var(--text);border:1px solid var(--border);}
     #tabInstagram .ig-subtab-btn{background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:10px;padding:8px 16px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;}
     #tabInstagram .ig-subtab-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+    #tabInstagram .ig-period-btn{background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:8px;padding:6px 13px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit;}
+    #tabInstagram .ig-period-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+    #tabInstagram .ig-sortbtn{background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:8px;padding:5px 10px;font-weight:700;font-size:11px;cursor:pointer;font-family:inherit;}
+    #tabInstagram .ig-sortbtn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
     #tabInstagram .ig-chip{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 16px;font-size:12px;color:var(--text-muted);font-weight:600;}
     #tabInstagram .ig-chip b{display:block;font-size:22px;color:var(--accent);font-weight:800;}
     #tabInstagram table{width:100%;border-collapse:collapse;}
@@ -1389,7 +1393,12 @@
             <div id="igLeadList"></div>
         </div>
         <div id="igPaneInsights" style="display:none;">
-            <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+                <div style="display:flex;gap:6px;" id="igPeriodBtns">
+                    <button class="ig-period-btn" data-ig-days="7" type="button">7 dias</button>
+                    <button class="ig-period-btn active" data-ig-days="30" type="button">30 dias</button>
+                    <button class="ig-period-btn" data-ig-days="90" type="button">90 dias</button>
+                </div>
                 <button id="igRefreshInsights" class="ig-btn ghost" type="button">↻ Atualizar</button>
             </div>
             <div id="igInsightsBox"></div>
@@ -6219,6 +6228,10 @@
     let igAutomations = [];
     let igLeads = [];
     let igInsightsLoaded = false;
+    let igInsightsData = null;
+    let igDays = 30;
+    let igSort = 'engagement';
+    const IG_SORTS = [{ key: 'engagement', label: 'Melhores' }, { key: 'like_count', label: 'Mais curtidos' }, { key: 'comments_count', label: 'Mais comentados' }, { key: 'saved', label: 'Mais salvos' }, { key: 'follows', label: 'Mais seguidores' }];
 
     function igSetSub(sub) {
         document.querySelectorAll('#tabInstagram .ig-subtab-btn').forEach(b => b.classList.toggle('active', b.dataset.igSub === sub));
@@ -6375,52 +6388,73 @@
 
     async function igLoadInsights() {
         const box = document.getElementById('igInsightsBox');
-        box.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted);">Carregando análises do seu perfil...</div>';
-        const { data, error } = await sb.functions.invoke('ig-insights');
+        box.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted);">Carregando análises dos últimos ' + igDays + ' dias...<br><span style="font-size:12px;">(pode levar alguns segundos)</span></div>';
+        const { data, error } = await sb.functions.invoke('ig-insights', { body: { days: igDays } });
         if (error || (data && data.error)) {
             box.innerHTML = '<div style="color:var(--error);padding:16px;">Erro ao carregar: ' + escapeHtml((error && error.message) || (data && data.error) || 'desconhecido') + '</div>';
             return;
         }
-        igRenderInsights(data);
+        igInsightsData = data;
+        igRenderInsights();
     }
 
-    function igRenderInsights(d) {
+    function igPostsHtml() {
+        const d = igInsightsData; if (!d) return '';
+        const posts = (d.posts || []).slice().sort((a, b) => (b[igSort] || 0) - (a[igSort] || 0));
+        if (!posts.length) return '<div style="color:var(--text-muted);padding:16px;">Nenhum post no período.</div>';
+        const icon = { engagement: '', like_count: '❤️', comments_count: '💬', saved: '🔖', follows: '👤' };
+        return '<div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;">'
+            + posts.map(p => {
+                const thumb = p.thumbnail_url || p.media_url || '';
+                const hi = igSort !== 'engagement' ? '<div style="font-weight:800;color:var(--accent);font-size:14px;">' + (icon[igSort] || '') + ' ' + igNum(p[igSort]) + '</div>' : '';
+                return '<a href="' + escapeHtml(p.permalink || '#') + '" target="_blank" rel="noopener" style="flex:0 0 150px;width:150px;text-decoration:none;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;display:block;">'
+                    + (thumb ? '<img src="' + escapeHtml(thumb) + '" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;background:var(--border);">' : '<div style="aspect-ratio:1;background:var(--border);"></div>')
+                    + '<div style="padding:8px 10px;font-size:11px;color:var(--text-muted);line-height:1.5;">'
+                    + hi
+                    + '<div>❤️ ' + igNum(p.like_count) + ' · 💬 ' + igNum(p.comments_count) + '</div>'
+                    + '<div>🔖 ' + igNum(p.saved) + ' · 👤 ' + igNum(p.follows) + '</div>'
+                    + '</div></a>';
+            }).join('')
+            + '</div>';
+    }
+
+    function igRenderInsights() {
+        const d = igInsightsData; if (!d) return;
         const box = document.getElementById('igInsightsBox');
         const acc = d.account || {};
         const reachArr = d.reach || [];
         const reachTotal = reachArr.reduce((s, x) => s + (x.value || 0), 0);
+        const followerNew = (d.follower_growth || []).reduce((s, x) => s + (x.value || 0), 0);
         let html = '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">'
             + igCard('Seguidores', igNum(acc.followers_count))
-            + igCard('Alcance (30 dias)', igNum(reachTotal))
+            + igCard('Novos seg. (' + d.days + 'd)', igNum(followerNew))
+            + igCard('Alcance (' + d.days + 'd)', igNum(reachTotal))
             + igCard('Contas engajadas', igNum(d.accounts_engaged))
             + igCard('Interações', igNum(d.total_interactions))
             + '</div>';
-        const rc = reachArr.slice(-14);
+        const rc = reachArr.slice(-30);
         if (rc.length) {
             const max = Math.max.apply(null, rc.map(x => x.value || 0).concat([1]));
             html += '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:22px;">'
-                + '<div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:12px;">📈 Alcance por dia (últimos ' + rc.length + ' dias)</div>'
-                + '<div style="display:flex;align-items:flex-end;gap:4px;height:92px;">'
-                + rc.map(x => { const h = Math.round((x.value || 0) / max * 82) + 4; return '<div title="' + escapeHtml(igFmtDate(x.date)) + ': ' + igNum(x.value) + '" style="flex:1;background:var(--accent);border-radius:4px 4px 0 0;height:' + h + 'px;opacity:.85;"></div>'; }).join('')
+                + '<div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:12px;">📈 Alcance por dia</div>'
+                + '<div style="display:flex;align-items:flex-end;gap:3px;height:92px;">'
+                + rc.map(x => { const h = Math.round((x.value || 0) / max * 82) + 4; return '<div title="' + escapeHtml(igFmtDate(x.date)) + ': ' + igNum(x.value) + '" style="flex:1;min-width:3px;background:var(--accent);border-radius:3px 3px 0 0;height:' + h + 'px;opacity:.85;"></div>'; }).join('')
                 + '</div></div>';
         }
-        html += '<div style="font-size:15px;font-weight:800;color:var(--text);margin:0 0 12px;">🔥 Posts que mais interagiram</div>'
-            + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:12px;margin-bottom:26px;">';
-        (d.top_posts || []).forEach(p => {
-            const thumb = p.thumbnail_url || p.media_url || '';
-            html += '<a href="' + escapeHtml(p.permalink || '#') + '" target="_blank" rel="noopener" style="text-decoration:none;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;display:block;">'
-                + (thumb ? '<img src="' + escapeHtml(thumb) + '" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;background:var(--border);">' : '<div style="aspect-ratio:1;background:var(--border);"></div>')
-                + '<div style="padding:8px 10px;font-size:12px;color:var(--text);font-weight:600;">❤️ ' + (p.like_count || 0) + ' · 💬 ' + (p.comments_count || 0) + '</div>'
-                + '</a>';
-        });
-        html += '</div>';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px;">'
+            + '<div style="font-size:15px;font-weight:800;color:var(--text);">🔥 Melhores posts (' + d.days + ' dias)</div>'
+            + '<div style="display:flex;gap:6px;flex-wrap:wrap;">'
+            + IG_SORTS.map(s => '<button class="ig-sortbtn' + (s.key === igSort ? ' active' : '') + '" data-ig-sort="' + s.key + '" type="button">' + s.label + '</button>').join('')
+            + '</div></div>';
+        html += '<div id="igTopPosts" style="margin-bottom:26px;">' + igPostsHtml() + '</div>';
         const comments = d.comments || [];
         const qs = comments.filter(c => c.question).length;
-        html += '<div style="font-size:15px;font-weight:800;color:var(--text);margin:0 0 12px;">💬 Comentários recentes' + (qs ? ' <span style="font-weight:600;color:var(--text-muted);font-size:13px;">(' + qs + ' com pergunta)</span>' : '') + '</div>'
+        html += '<div style="font-size:15px;font-weight:800;color:var(--text);margin:0 0 3px;">💬 Comentários naturais dos seguidores' + (qs ? ' <span style="font-weight:600;color:var(--text-muted);font-size:13px;">(' + qs + ' com pergunta)</span>' : '') + '</div>'
+            + '<div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Sem os seus comentários e sem os de gatilho de automação.</div>'
             + '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;">';
-        if (!comments.length) { html += '<div style="padding:20px;color:var(--text-muted);">Sem comentários recentes.</div>'; }
+        if (!comments.length) { html += '<div style="padding:20px;color:var(--text-muted);">Sem comentários naturais no período.</div>'; }
         else {
-            comments.slice(0, 25).forEach(c => {
+            comments.slice(0, 30).forEach(c => {
                 html += '<div style="padding:11px 16px;border-bottom:1px solid var(--border);">'
                     + '<a href="https://instagram.com/' + encodeURIComponent(c.username || '') + '" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;text-decoration:none;font-size:13px;">@' + escapeHtml(c.username || '') + '</a>'
                     + (c.question ? ' <span style="background:#ffe9c7;color:#8a5a00;border-radius:6px;padding:1px 6px;font-size:10px;font-weight:800;">DÚVIDA</span>' : '')
@@ -6440,6 +6474,19 @@
         const sv = document.getElementById('igSaveBtn'); if (sv) sv.addEventListener('click', igSave);
         const cc = document.getElementById('igCancelBtn'); if (cc) cc.addEventListener('click', igCloseModal);
         const ri = document.getElementById('igRefreshInsights'); if (ri) ri.addEventListener('click', igLoadInsights);
+        const pb = document.getElementById('igPeriodBtns');
+        if (pb) pb.addEventListener('click', (e) => {
+            const b = e.target.closest('[data-ig-days]'); if (!b) return;
+            igDays = parseInt(b.dataset.igDays, 10);
+            document.querySelectorAll('#igPeriodBtns .ig-period-btn').forEach(x => x.classList.toggle('active', x === b));
+            igLoadInsights();
+        });
+        const ib = document.getElementById('igInsightsBox');
+        if (ib) ib.addEventListener('click', (e) => {
+            const b = e.target.closest('[data-ig-sort]'); if (!b) return;
+            igSort = b.dataset.igSort;
+            igRenderInsights();
+        });
         const md = document.getElementById('igModal'); if (md) md.addEventListener('click', (e) => { if (e.target === md) igCloseModal(); });
         const al = document.getElementById('igAutoList');
         if (al) al.addEventListener('click', (e) => {
