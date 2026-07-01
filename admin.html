@@ -1425,6 +1425,10 @@
             <input id="igf_public" class="ig-input" placeholder="te chamei no direct 💌">
             <label style="display:flex;align-items:center;gap:8px;margin-top:16px;font-size:13px;color:var(--text);cursor:pointer;"><input type="checkbox" id="igf_require"> Pedir pra seguir antes de mandar o link</label>
             <label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px;color:var(--text);cursor:pointer;"><input type="checkbox" id="igf_active"> Automação ativa</label>
+            <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px;">
+                <div style="font-size:12px;font-weight:800;color:var(--text-muted);margin-bottom:10px;">👀 Prévia da conversa (como a pessoa vai receber)</div>
+                <div id="igPreview" style="background:#0f1115;border-radius:14px;padding:14px 12px;min-height:70px;"></div>
+            </div>
             <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:22px;">
                 <button id="igCancelBtn" class="ig-btn ghost" type="button">Cancelar</button>
                 <button id="igSaveBtn" class="ig-btn" type="button">Salvar</button>
@@ -6310,6 +6314,7 @@
         document.getElementById('igf_require').checked = a ? !!a.require_follow : true;
         document.getElementById('igf_active').checked = a ? !!a.active : true;
         document.getElementById('igModal').style.display = 'flex';
+        igRenderPreview();
     }
     function igEdit(id) { const a = igAutomations.find(x => x.id === id); if (a) igOpenModal(a); }
     function igCloseModal() { document.getElementById('igModal').style.display = 'none'; }
@@ -6334,6 +6339,31 @@
         if (error) { alert('Erro ao salvar: ' + error.message); return; }
         igCloseModal();
         igLoadAutomations();
+    }
+
+    function igBubble(text, me) {
+        const t = escapeHtml(text || '').replace(/\n/g, '<br>');
+        return '<div style="display:flex;justify-content:' + (me ? 'flex-end' : 'flex-start') + ';margin-bottom:6px;">'
+            + '<div style="max-width:80%;background:' + (me ? '#2f6bff' : '#26282e') + ';color:#fff;padding:8px 11px;border-radius:14px;font-size:12.5px;line-height:1.4;white-space:normal;">' + t + '</div></div>';
+    }
+    function igRenderPreview() {
+        const box = document.getElementById('igPreview'); if (!box) return;
+        const ask = document.getElementById('igf_ask').value;
+        const linkMsg = document.getElementById('igf_linkmsg').value;
+        const linkUrl = document.getElementById('igf_linkurl').value || 'seu-link.com';
+        const req = document.getElementById('igf_require').checked;
+        const pub = document.getElementById('igf_public').value;
+        const rendered = linkMsg.indexOf('{LINK}') >= 0 ? linkMsg.split('{LINK}').join(linkUrl) : (linkMsg + ' ' + linkUrl);
+        let h = '';
+        if (pub) h += '<div style="text-align:center;color:#8a8f98;font-size:10.5px;margin-bottom:8px;">💬 resposta no comentário: "' + escapeHtml(pub) + '"</div>';
+        if (req) {
+            h += igBubble(ask, false);
+            h += igBubble('segui', true);
+            h += igBubble(rendered, false);
+        } else {
+            h += igBubble(rendered, false);
+        }
+        box.innerHTML = h;
     }
 
     async function igLoadLeads() {
@@ -6515,6 +6545,8 @@
             const tip = document.getElementById('igReachTip'); if (tip) tip.style.display = 'none';
         });
         const md = document.getElementById('igModal'); if (md) md.addEventListener('click', (e) => { if (e.target === md) igCloseModal(); });
+        ['igf_ask', 'igf_linkmsg', 'igf_linkurl', 'igf_public'].forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('input', igRenderPreview); });
+        const rq = document.getElementById('igf_require'); if (rq) rq.addEventListener('change', igRenderPreview);
         const al = document.getElementById('igAutoList');
         if (al) al.addEventListener('click', (e) => {
             const btn = e.target.closest('[data-ig-act]'); if (!btn) return;
