@@ -12,7 +12,10 @@ import { z } from "zod";
    variante 1 = Pop & Beat | 2 = Shine sweep | 3 = Wipe reveal
    1080x1080, 30fps. Fonte aproximada (rounded bold do sistema).
    ========================================================================= */
-export const logoSchema = z.object({ variante: z.number() });
+export const logoSchema = z.object({
+  variante: z.number(),
+  transparente: z.boolean().optional(),
+});
 export type LogoProps = z.infer<typeof logoSchema>;
 
 const FONTE = "'Arial Rounded MT Bold', 'Helvetica Rounded', Arial, sans-serif";
@@ -36,12 +39,12 @@ const Coracao: React.FC<{ tamanho: number }> = ({ tamanho }) => (
   </svg>
 );
 
-export const LogoCreators: React.FC<LogoProps> = ({ variante }) => {
+export const LogoCreators: React.FC<LogoProps> = ({ variante, transparente }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  /* fundo branco levemente aquecido */
-  const bg = "#FFFFFF";
+  /* fundo branco — ou transparente p/ sobrepor em vídeo */
+  const bg = transparente ? "transparent" : "#FFFFFF";
 
   /* gradiente fluindo (todas as variantes) */
   const gx = (frame * 3.2) % 200;
