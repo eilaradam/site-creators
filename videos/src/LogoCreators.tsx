@@ -1,5 +1,7 @@
 import {
   AbsoluteFill,
+  Audio,
+  staticFile,
   interpolate,
   spring,
   useCurrentFrame,
@@ -15,6 +17,7 @@ import { z } from "zod";
 export const logoSchema = z.object({
   variante: z.number(),
   transparente: z.boolean().optional(),
+  fundo: z.string().optional(), // cor de fundo (ex.: "#00FF00" p/ chroma key)
 });
 export type LogoProps = z.infer<typeof logoSchema>;
 
@@ -39,12 +42,12 @@ const Coracao: React.FC<{ tamanho: number }> = ({ tamanho }) => (
   </svg>
 );
 
-export const LogoCreators: React.FC<LogoProps> = ({ variante, transparente }) => {
+export const LogoCreators: React.FC<LogoProps> = ({ variante, transparente, fundo }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  /* fundo branco — ou transparente p/ sobrepor em vídeo */
-  const bg = transparente ? "transparent" : "#FFFFFF";
+  /* fundo: transparente, cor custom (ex.: verde chroma) ou branco */
+  const bg = transparente ? "transparent" : fundo ?? "#FFFFFF";
 
   /* gradiente fluindo (todas as variantes) */
   const gx = (frame * 3.2) % 200;
@@ -98,6 +101,7 @@ export const LogoCreators: React.FC<LogoProps> = ({ variante, transparente }) =>
 
   return (
     <AbsoluteFill style={{ background: bg, justifyContent: "center", alignItems: "center" }}>
+      <Audio src={staticFile("logo-som.wav")} volume={0.85} />
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
         {/* PROGRAMA */}
         <div
