@@ -5,6 +5,7 @@ import { CarrosselCreators, carrosselSchema } from "./CarrosselCreators";
 import { CarrosselJulho, julhoSchema } from "./CarrosselJulho";
 import { CarrosselJulhoEstilos, julhoEstilosSchema } from "./CarrosselJulhoEstilos";
 import { LogoCreators, logoSchema } from "./LogoCreators";
+import { FraseConexao, fraseSchema } from "./FraseConexao";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -97,6 +98,18 @@ export const RemotionRoot: React.FC = () => {
         height={1080}
         schema={logoSchema}
         defaultProps={{ variante: 1 }}
+      />
+
+      {/* Frase animada "conectar seu nome à marca" — 1080x1920, 6s, chroma */}
+      <Composition
+        id="FraseConexao"
+        component={FraseConexao}
+        durationInFrames={180}
+        fps={30}
+        width={1080}
+        height={1920}
+        schema={fraseSchema}
+        defaultProps={{ variante: 1, fundo: "#00E100" }}
       />
     </>
   );
