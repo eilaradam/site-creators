@@ -4,6 +4,7 @@ import { ConselhoDigitando, conselhoSchema } from "./ConselhoDigitando";
 import { CarrosselCreators, carrosselSchema } from "./CarrosselCreators";
 import { CarrosselJulho, julhoSchema } from "./CarrosselJulho";
 import { CarrosselJulhoEstilos, julhoEstilosSchema } from "./CarrosselJulhoEstilos";
+import { LogoCreators, logoSchema } from "./LogoCreators";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -84,6 +85,18 @@ export const RemotionRoot: React.FC = () => {
         height={1350}
         schema={julhoEstilosSchema}
         defaultProps={{ versao: 1, indice: 0 }}
+      />
+
+      {/* Logo animado "Creators da Shô" — 1080x1080, 3s. variante 1/2/3 */}
+      <Composition
+        id="LogoCreators"
+        component={LogoCreators}
+        durationInFrames={90}
+        fps={30}
+        width={1080}
+        height={1080}
+        schema={logoSchema}
+        defaultProps={{ variante: 1 }}
       />
     </>
   );
