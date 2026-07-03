@@ -14,10 +14,12 @@ alter table public.link_tokens enable row level security;
 --   insert into public.link_tokens (campanha, token) values ('flores', '<TOKEN_ALEATORIO>')
 --     on conflict (campanha) do update set token = excluded.token, criado = now();
 
--- RPC: devolve as inscritas da campanha só se o token bater (SECURITY DEFINER)
-create or replace function public.campanha_inscritas(p_campanha text, p_token text)
+-- RPC: devolve as inscritas da campanha só se o token bater (SECURITY DEFINER).
+-- Cruza com creators (por email, senão @) pra trazer a foto de perfil.
+drop function if exists public.campanha_inscritas(text, text);
+create function public.campanha_inscritas(p_campanha text, p_token text)
 returns table (nome text, email text, whatsapp text, instagram text, cidade text,
-  regiao text, seguidores text, orcamento text, portfolio text, criado timestamptz)
+  regiao text, seguidores text, orcamento text, portfolio text, foto text, criado timestamptz)
 language plpgsql security definer set search_path to 'public' as $fn$
 begin
   if p_token is null or p_token <> (select token from public.link_tokens where campanha = p_campanha) then
@@ -25,8 +27,17 @@ begin
   end if;
   return query
     select c.nome, c.email, c.whatsapp, c.instagram, c.cidade,
-      c.respostas->>'regiao', c.respostas->>'seguidores', c.respostas->>'orcamento', c.respostas->>'portfolio', c.created_at
+      c.respostas->>'regiao', c.respostas->>'seguidores', c.respostas->>'orcamento', c.respostas->>'portfolio',
+      f.foto_perfil, c.created_at
     from campanha_candidaturas c
+    left join lateral (
+      select cr.foto_perfil from creators cr
+      where cr.foto_perfil is not null and cr.foto_perfil <> ''
+        and ( (nullif(trim(c.email),'') is not null and lower(trim(cr.email)) = lower(trim(c.email)))
+           or (nullif(trim(c.instagram),'') is not null and lower(trim(cr.instagram)) = lower(trim(c.instagram))) )
+      order by case when lower(trim(cr.email)) = lower(trim(coalesce(c.email,'-'))) then 0 else 1 end
+      limit 1
+    ) f on true
     where c.campanha = p_campanha
     order by c.created_at desc;
 end; $fn$;
