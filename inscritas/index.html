@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscritas · Campanha | Lara Dam</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.98.0" integrity="sha384-Sm2s7OXxsAMTyJ4iIyRBgVpeGUvMPk2lRQnnZhE78Wej7oggIoolKt+SCt0XJbUB" crossorigin="anonymous"></script>
+    <style>
+        :root { --cream:#F5F3EF; --warm:#E8E4DD; --accent:#D4572A; --accent-dark:#B8461F; --accent-glow:rgba(212,87,42,0.12); --text:#1A1816; --text-soft:#6B645C; --text-muted:#9C958C; --border:#DDD8D0; --card:#FFFFFF; --success:#2D7A4F; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Outfit',sans-serif; background:var(--cream); color:var(--text); -webkit-font-smoothing:antialiased; padding:28px 18px 60px; }
+        .wrap { max-width:860px; margin:0 auto; }
+        .topbar { display:flex; justify-content:space-between; align-items:flex-end; gap:14px; flex-wrap:wrap; margin-bottom:6px; }
+        .brand { font-family:'Fraunces',serif; font-weight:700; font-size:22px; color:var(--text); text-decoration:none; }
+        .brand span { color:var(--accent); }
+        .live { display:flex; align-items:center; gap:7px; font-size:12px; color:var(--text-muted); }
+        .dot { width:9px; height:9px; border-radius:50%; background:var(--success); box-shadow:0 0 0 0 rgba(45,122,79,0.5); animation:pulse 2s infinite; }
+        @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(45,122,79,0.45);} 70%{box-shadow:0 0 0 8px rgba(45,122,79,0);} 100%{box-shadow:0 0 0 0 rgba(45,122,79,0);} }
+        h1 { font-family:'Fraunces',serif; font-size:30px; font-weight:700; letter-spacing:-0.5px; margin:14px 0 2px; }
+        .sub { color:var(--text-soft); font-size:14px; margin-bottom:4px; }
+        .count { display:inline-block; margin:14px 0 18px; font-size:14px; font-weight:700; color:var(--accent); background:var(--accent-glow); padding:6px 14px; border-radius:100px; }
+        .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:18px 20px; margin-bottom:12px; box-shadow:0 1px 4px rgba(0,0,0,0.03); }
+        .card-top { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:12px; }
+        .nome { font-size:18px; font-weight:800; color:var(--text); }
+        .when { font-size:12px; color:var(--text-muted); }
+        .badge { display:inline-block; font-size:11px; font-weight:700; padding:3px 10px; border-radius:100px; margin-left:8px; }
+        .badge.reg { background:var(--accent-glow); color:var(--accent); }
+        .badge.out { background:rgba(0,0,0,0.06); color:var(--text-muted); }
+        .grid { display:grid; grid-template-columns:1fr 1fr; gap:8px 20px; }
+        .row { display:flex; gap:8px; font-size:13.5px; padding:3px 0; }
+        .row .k { color:var(--text-muted); min-width:96px; flex-shrink:0; }
+        .row .v { color:var(--text); font-weight:500; word-break:break-word; }
+        .row .v a { color:var(--accent); font-weight:600; text-decoration:none; }
+        .row .v a:hover { text-decoration:underline; }
+        .orc { grid-column:1 / -1; }
+        .empty, .msg { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:40px 24px; text-align:center; color:var(--text-muted); font-size:15px; }
+        .foot { text-align:center; color:var(--text-muted); font-size:12px; margin-top:26px; }
+        @media (max-width:620px){ .grid{ grid-template-columns:1fr; } h1{ font-size:25px; } }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="topbar">
+            <a class="brand" href="#">lara<span>.</span>dam</a>
+            <div class="live" id="live" style="visibility:hidden;"><span class="dot"></span><span id="liveTxt">ao vivo</span></div>
+        </div>
+        <h1 id="titulo">Inscritas</h1>
+        <div class="sub" id="sub">Carregando...</div>
+        <div id="countWrap"></div>
+        <div id="list"></div>
+        <div class="foot">Atualiza sozinho. Deixe esta página aberta ou recarregue pra ver as novas inscrições. 🌸</div>
+    </div>
+
+<script>
+    const SUPABASE_URL = 'https://mfrmnquvwwuxraqgemyh.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mcm1ucXV2d3d1eHJhcWdlbXloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNDI1NDIsImV4cCI6MjA4NzYxODU0Mn0.zmsi08dV5L1IlXJSr34vOii71w0g0OsD5_5DKio5g-o';
+    let sb = null;
+    try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch (e) {}
+
+    const params = new URLSearchParams(window.location.search);
+    const campanha = (params.get('c') || 'flores').toLowerCase();
+    const token = params.get('k') || '';
+    const NOMES = { flores: 'Campanha de Flores 🌸', pais: 'Campanha Pais Creators 👶', decoracao: 'Campanha Casa & Decoração 🛋️' };
+    const REGIAO = { goiania: 'Goiânia', porto_alegre: 'Porto Alegre', salvador: 'Salvador', belo_horizonte: 'Belo Horizonte', outra: 'Outra região' };
+
+    function esc(s) { return (s == null ? '' : String(s)).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+    function fmtSeg(s) { const n = parseInt(String(s).replace(/\D/g, ''), 10); return isNaN(n) ? esc(s || '') : n.toLocaleString('pt-BR'); }
+    function fmtWhen(iso) { try { const d = new Date(iso); return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; } }
+    function urlify(u) { if (!u) return ''; const s = String(u).trim(); return /^https?:\/\//i.test(s) ? s : 'https://' + s; }
+
+    document.getElementById('titulo').textContent = 'Inscritas · ' + (NOMES[campanha] || 'Campanha');
+
+    function card(r) {
+        const ig = (r.instagram || '').replace(/^@+/, '');
+        const wpp = (r.whatsapp || '').replace(/\D/g, '');
+        const reg = r.regiao ? (REGIAO[r.regiao] || r.regiao) : '';
+        const regBadge = r.regiao ? '<span class="badge ' + (r.regiao === 'outra' ? 'out' : 'reg') + '">' + esc(reg) + '</span>' : '';
+        let g = '';
+        if (ig) g += '<div class="row"><span class="k">Instagram</span><span class="v"><a href="https://instagram.com/' + encodeURIComponent(ig) + '" target="_blank">@' + esc(ig) + '</a></span></div>';
+        if (r.seguidores) g += '<div class="row"><span class="k">Seguidores</span><span class="v">' + fmtSeg(r.seguidores) + '</span></div>';
+        if (wpp) g += '<div class="row"><span class="k">WhatsApp</span><span class="v"><a href="https://wa.me/55' + wpp + '" target="_blank">' + esc(r.whatsapp) + '</a></span></div>';
+        if (r.cidade) g += '<div class="row"><span class="k">Cidade</span><span class="v">' + esc(r.cidade) + '</span></div>';
+        if (r.email) g += '<div class="row"><span class="k">E-mail</span><span class="v"><a href="mailto:' + esc(r.email) + '">' + esc(r.email) + '</a></span></div>';
+        if (r.portfolio) g += '<div class="row"><span class="k">Portfólio</span><span class="v"><a href="' + esc(urlify(r.portfolio)) + '" target="_blank">abrir ↗</a></span></div>';
+        if (r.orcamento) g += '<div class="row orc"><span class="k">Orçamento</span><span class="v">' + esc(r.orcamento) + '</span></div>';
+        return '<div class="card"><div class="card-top"><div class="nome">' + esc(r.nome || '(sem nome)') + regBadge + '</div><div class="when">🗓️ ' + fmtWhen(r.criado) + '</div></div><div class="grid">' + g + '</div></div>';
+    }
+
+    let firstLoad = true;
+    async function carregar() {
+        const sub = document.getElementById('sub'), list = document.getElementById('list'), countWrap = document.getElementById('countWrap');
+        if (!sb) { sub.textContent = ''; list.innerHTML = '<div class="msg">Erro de conexão. Recarregue a página.</div>'; return; }
+        if (!token) { sub.textContent = ''; list.innerHTML = '<div class="msg">Link inválido. Peça o link completo pra Lara. 💛</div>'; return; }
+        const { data, error } = await sb.rpc('campanha_inscritas', { p_campanha: campanha, p_token: token });
+        if (error) { if (firstLoad) list.innerHTML = '<div class="msg">Não consegui carregar agora. Tente recarregar.</div>'; return; }
+        const rows = data || [];
+        if (!rows.length) {
+            sub.textContent = 'As inscrições aparecem aqui em tempo real.';
+            countWrap.innerHTML = '';
+            list.innerHTML = '<div class="empty">Nenhuma inscrita ainda. Assim que alguém se inscrever, aparece aqui. 🌸</div>';
+        } else {
+            sub.textContent = 'Cada creator que se inscreve na campanha aparece aqui.';
+            countWrap.innerHTML = '<span class="count">' + rows.length + ' inscrita' + (rows.length > 1 ? 's' : '') + '</span>';
+            list.innerHTML = rows.map(card).join('');
+        }
+        const live = document.getElementById('live');
+        live.style.visibility = 'visible';
+        document.getElementById('liveTxt').textContent = 'atualizado ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        firstLoad = false;
+    }
+    carregar();
+    setInterval(carregar, 45000);
+</script>
+</body>
+</html>
