@@ -46,8 +46,9 @@
         .camp-card:hover { border-color: var(--accent); }
         .camp-card.selected { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 3px var(--accent-glow); }
         .camp-card-head { display: flex; gap: 12px; align-items: flex-start; }
-        .camp-check { flex-shrink: 0; width: 22px; height: 22px; border-radius: 7px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 13px; color: #fff; transition: all 0.2s; margin-top: 1px; }
-        .camp-card.selected .camp-check { background: var(--accent); border-color: var(--accent); }
+        .camp-toggle { margin-top: 14px; width: 100%; padding: 11px 14px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--card); color: var(--text-soft); font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+        .camp-toggle:hover { border-color: var(--accent); color: var(--accent); }
+        .camp-card.selected .camp-toggle { background: var(--accent); border-color: var(--accent); color: #fff; }
         .camp-card-title { font-size: 15.5px; font-weight: 700; color: var(--text); }
         .camp-card-desc { font-size: 13px; color: var(--text-soft); line-height: 1.5; margin-top: 3px; }
         .cond-block { margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--border); }
@@ -98,7 +99,7 @@
                     <div class="section-label">Seus dados</div>
                     <div class="field-row">
                         <div class="field-group"><label>@ do Instagram</label><input type="text" id="instagram" placeholder="@seuperfil"></div>
-                        <div class="field-group"><label>Seguidores no Instagram</label><select id="seguidores"><option value="" disabled selected>Selecione</option><option value="ate_1k">Até 1.000</option><option value="1k_5k">1.000 a 5.000</option><option value="5k_10k">5.000 a 10.000</option><option value="10k_30k">10.000 a 30.000</option><option value="30k_mais">Acima de 30.000</option></select></div>
+                        <div class="field-group"><label>Seguidores no Instagram <span class="field-hint">(só números, ex.: 10350)</span></label><input type="text" id="seguidores" inputmode="numeric" placeholder="Ex.: 10350" oninput="this.value=this.value.replace(/[^0-9]/g,'')"></div>
                     </div>
                     <div class="field-row">
                         <div class="field-group"><label>Sua cidade</label><input type="text" id="cidade" placeholder="Ex.: Belo Horizonte, MG"></div>
@@ -189,24 +190,20 @@
         box.innerHTML = CAMP_ORDER.map(slug => {
             const c = CAMPANHAS[slug];
             const cond = c.extras.length ? '<div class="cond-block" id="cond_' + slug + '" style="display:none;">' + c.extras.map(f => renderExtraField(slug, f)).join('') + '</div>' : '';
-            return '<div class="camp-card" id="card_' + slug + '" onclick="toggleCamp(\'' + slug + '\')">'
-                + '<div class="camp-card-head">'
-                + '<span class="camp-check" id="check_' + slug + '">&#10003;</span>'
-                + '<div><div class="camp-card-title">' + c.emoji + ' ' + escapeHtml(c.nome) + '</div><div class="camp-card-desc">' + escapeHtml(c.desc) + '</div></div>'
-                + '</div>' + cond + '</div>';
+            return '<div class="camp-card" id="card_' + slug + '">'
+                + '<div class="camp-card-title">' + c.emoji + ' ' + escapeHtml(c.nome) + '</div>'
+                + '<div class="camp-card-desc">' + escapeHtml(c.desc) + '</div>'
+                + '<button type="button" class="camp-toggle" id="toggle_' + slug + '" onclick="toggleCamp(\'' + slug + '\')">Tenho interesse</button>'
+                + cond + '</div>';
         }).join('');
-        CAMP_ORDER.forEach(slug => {
-            const check = document.getElementById('check_' + slug);
-            if (check) check.style.visibility = 'hidden';
-        });
     }
     function toggleCamp(slug) {
         const i = selectedCamps.indexOf(slug);
         const card = document.getElementById('card_' + slug);
-        const check = document.getElementById('check_' + slug);
+        const btn = document.getElementById('toggle_' + slug);
         const cond = document.getElementById('cond_' + slug);
-        if (i > -1) { selectedCamps.splice(i, 1); card.classList.remove('selected'); if (check) check.style.visibility = 'hidden'; if (cond) cond.style.display = 'none'; }
-        else { selectedCamps.push(slug); card.classList.add('selected'); if (check) check.style.visibility = 'visible'; if (cond) cond.style.display = 'block'; }
+        if (i > -1) { selectedCamps.splice(i, 1); card.classList.remove('selected'); if (btn) btn.textContent = 'Tenho interesse'; if (cond) cond.style.display = 'none'; }
+        else { selectedCamps.push(slug); card.classList.add('selected'); if (btn) btn.textContent = '✓ Selecionada'; if (cond) cond.style.display = 'block'; }
     }
 
     /* ── ETAPA 1 → 2 ── */
@@ -239,7 +236,6 @@
             banner.classList.add('show');
             if (info.instagram) document.getElementById('instagram').value = info.instagram;
             if (info.cidade) document.getElementById('cidade').value = info.cidade + (info.estado ? ', ' + info.estado : '');
-            if (info.seguidores) document.getElementById('seguidores').value = info.seguidores;
         } else {
             banner.classList.remove('show');
         }
@@ -270,7 +266,7 @@
 
             if (!instagram) throw new Error('Preencha o seu @ do Instagram.');
             if (!cidade) throw new Error('Preencha a sua cidade.');
-            if (!seguidores) throw new Error('Selecione a sua faixa de seguidores.');
+            if (!seguidores) throw new Error('Preencha o seu número de seguidores (só números).');
             if (!portfolio) throw new Error('Coloque o link do seu portfólio ou melhor conteúdo.');
             if (!selectedCamps.length) throw new Error('Escolha pelo menos 1 campanha que te interessa.');
 
