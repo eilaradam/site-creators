@@ -1570,6 +1570,24 @@
                 <div id="dispProgressText" style="font-size:13px;color:var(--text-soft);margin-top:8px;text-align:center;"></div>
             </div>
             <div id="dispResult" style="margin-top:14px;"></div>
+
+            <div style="margin-top:16px;padding-top:16px;border-top:1px dashed var(--border);">
+                <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;">⏰ Ou agende pra depois</div>
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">Usa o mesmo assunto, mensagem e destinatário de cima. Envia sozinho na data/hora marcada (horário de Brasília).</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                    <input type="datetime-local" id="dispWhen" style="flex:1;min-width:200px;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;background:var(--cream);color:var(--text);outline:none;">
+                    <button type="button" onclick="agendarEmail(this)" style="padding:11px 18px;background:var(--card);border:1.5px solid var(--accent);color:var(--accent);border-radius:10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;">📅 Agendar envio</button>
+                </div>
+                <div id="dispAgendarMsg" style="font-size:12.5px;margin-top:8px;line-height:1.5;"></div>
+            </div>
+
+            <div style="margin-top:22px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                    <div style="font-size:14px;font-weight:800;color:var(--text);">📅 Emails agendados</div>
+                    <button type="button" onclick="loadAgendados()" style="background:var(--card);border:1px solid var(--border);border-radius:9px;padding:6px 12px;font-family:inherit;font-size:12px;font-weight:600;color:var(--text-soft);cursor:pointer;">↻ Atualizar</button>
+                </div>
+                <div id="agendadosList"></div>
+            </div>
         </div>
         <div style="flex:1;min-width:320px;position:sticky;top:14px;">
             <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:8px;">📱 Como vai chegar</div>
@@ -2519,6 +2537,7 @@
         if (!el) return;
         ['dispSubject', 'dispBody', 'dispBtnText', 'dispBtnLink', 'dispHtml'].forEach(id => { const f = document.getElementById(id); if (f) f.oninput = renderDispPreview; });
         setDispMode(dispMode);
+        loadAgendados();
         el.textContent = 'Contando...';
         const target = document.getElementById('dispTarget').value;
         const recs = await disparoRecipients(target);
@@ -2611,6 +2630,57 @@
         }
         result.innerHTML = '<div style="background:rgba(16,185,129,0.10);border:1px solid rgba(16,185,129,0.3);border-radius:12px;padding:16px;color:#0a7a55;font-size:14px;font-weight:700;">✅ Disparo concluído!<br><span style="font-weight:400;color:var(--text-soft);">' + sent + ' enviados · ' + failed + ' falhas · ' + skipped + ' descadastrados.</span></div>';
         sendBtn.disabled = false; sendBtn.style.opacity = '1';
+    }
+
+    /* ── AGENDAMENTO DE E-MAILS (tabela emails_agendados + cron) ── */
+    async function agendarEmail(btn) {
+        const msg = document.getElementById('dispAgendarMsg');
+        msg.textContent = '';
+        const subject = document.getElementById('dispSubject').value.trim();
+        if (!subject || dispContentEmpty()) { msg.style.color = 'var(--error)'; msg.textContent = 'Preencha o assunto e a mensagem primeiro (em cima).'; return; }
+        const whenRaw = document.getElementById('dispWhen').value;
+        if (!whenRaw) { msg.style.color = 'var(--error)'; msg.textContent = 'Escolha a data e a hora do envio.'; return; }
+        const when = new Date(whenRaw);
+        if (isNaN(when.getTime()) || when.getTime() < Date.now() + 60000) { msg.style.color = 'var(--error)'; msg.textContent = 'A data precisa ser no futuro (pelo menos 1 minuto à frente).'; return; }
+        const target = document.getElementById('dispTarget').value;
+        const html = buildFinalHtml();
+        const orig = btn.textContent; btn.textContent = 'Agendando...'; btn.disabled = true;
+        try {
+            const { error } = await sb.from('emails_agendados').insert([{ assunto: subject, html: html, destinatario: target, agendado_para: when.toISOString(), status: 'pendente' }]);
+            if (error) throw error;
+            const quando = when.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+            const dest = target === 'teste' ? ' (só pra você, teste)' : target === 'todos' ? ' (todos)' : ' (' + target + ')';
+            msg.style.color = 'var(--success)';
+            msg.textContent = '✅ Agendado para ' + quando + dest + '. Vai sair sozinho, não precisa deixar nada aberto.';
+            document.getElementById('dispWhen').value = '';
+            loadAgendados();
+        } catch (e) { msg.style.color = 'var(--error)'; msg.textContent = 'Erro ao agendar: ' + (e.message || e); }
+        finally { btn.textContent = orig; btn.disabled = false; }
+    }
+    async function loadAgendados() {
+        const el = document.getElementById('agendadosList');
+        if (!el) return;
+        el.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:8px;">Carregando...</div>';
+        const { data, error } = await sb.from('emails_agendados').select('*').order('agendado_para', { ascending: false }).limit(50);
+        if (error) { el.innerHTML = '<div style="color:var(--error);font-size:13px;">Erro ao carregar. (' + castingEsc(error.message || '') + ')</div>'; return; }
+        if (!data || !data.length) { el.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:14px;border:1px dashed var(--border);border-radius:10px;text-align:center;">Nenhum email agendado ainda.</div>'; return; }
+        const stMap = { pendente: ['⏳ Pendente', '#9a6a12', 'rgba(212,150,30,0.14)'], enviando: ['📤 Enviando', '#1f5c39', 'rgba(45,122,79,0.12)'], enviado: ['✅ Enviado', '#0a7a55', 'rgba(16,185,129,0.12)'], erro: ['⚠️ Erro', '#c4453c', 'rgba(196,69,60,0.10)'], cancelado: ['🚫 Cancelado', 'var(--text-muted)', 'rgba(0,0,0,0.06)'] };
+        el.innerHTML = data.map(a => {
+            const st = stMap[a.status] || [a.status, 'var(--text)', 'rgba(0,0,0,0.06)'];
+            const when = a.agendado_para ? new Date(a.agendado_para).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
+            const dest = a.destinatario === 'todos' ? 'Todos' : a.destinatario === 'teste' ? 'Teste (você)' : a.destinatario;
+            const res = a.status === 'enviado' ? '<span style="color:var(--text-muted);font-size:12px;"> · ' + (a.enviados || 0) + ' enviados' + (a.falhas ? ' · ' + a.falhas + ' falhas' : '') + '</span>' : (a.status === 'erro' && a.erro ? '<span style="color:var(--error);font-size:12px;"> · ' + castingEsc(a.erro) + '</span>' : '');
+            const cancelBtn = a.status === 'pendente' ? '<button type="button" onclick="cancelarAgendado(\'' + a.id + '\')" style="background:none;border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-family:inherit;font-size:12px;color:var(--text-soft);cursor:pointer;white-space:nowrap;">Cancelar</button>' : '';
+            return '<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">'
+                + '<div style="min-width:0;flex:1;"><div style="font-weight:700;font-size:14px;color:var(--text);">' + castingEsc(a.assunto || '(sem assunto)') + '</div>'
+                + '<div style="font-size:12px;color:var(--text-muted);margin-top:2px;">🗓️ ' + when + ' · ' + castingEsc(dest) + res + '</div></div>'
+                + '<div style="display:flex;gap:8px;align-items:center;"><span style="background:' + st[2] + ';color:' + st[1] + ';font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px;white-space:nowrap;">' + st[0] + '</span>' + cancelBtn + '</div>'
+                + '</div>';
+        }).join('');
+    }
+    function cancelarAgendado(id) {
+        if (!confirm('Cancelar este envio agendado? Ele não será enviado.')) return;
+        sb.from('emails_agendados').update({ status: 'cancelado' }).eq('id', id).eq('status', 'pendente').then(function () { loadAgendados(); });
     }
 
     /* ── CASTING: candidaturas ── */
