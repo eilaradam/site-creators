@@ -47,3 +47,23 @@ begin
     'cidade', v.cidade, 'estado', v.estado, 'seguidores', v.seguidores);
 end; $fn$;
 grant execute on function public.campanha_creator_lookup(text) to anon, authenticated;
+
+-- Eventos de visita (contador de cliques no link /campanhas). Insert público
+-- (a página registra a visita), leitura só logada (contador no admin).
+create table if not exists public.campanha_events (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  evento text not null default 'view',
+  origem text,        -- ?ref= / utm_source (ex.: 'email')
+  referrer text,
+  path text
+);
+alter table public.campanha_events enable row level security;
+drop policy if exists campanha_ev_insert_publico on public.campanha_events;
+create policy campanha_ev_insert_publico on public.campanha_events
+  for insert to public with check (true);
+drop policy if exists campanha_ev_select_auth on public.campanha_events;
+create policy campanha_ev_select_auth on public.campanha_events
+  for select to authenticated using (true);
+create index if not exists idx_campanha_ev_created on public.campanha_events(created_at desc);
+create index if not exists idx_campanha_ev_origem on public.campanha_events(origem);

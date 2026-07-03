@@ -154,6 +154,21 @@
     function initSb() { if (sb) return sb; try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch (e) {} return sb; }
     initSb();
 
+    /* ── Tracking de visita (contador de cliques no link) ── */
+    (function trackView() {
+        try { if (sessionStorage.getItem('camp_viewed')) return; sessionStorage.setItem('camp_viewed', '1'); } catch (e) {}
+        try {
+            if (!initSb()) return;
+            const p = new URLSearchParams(window.location.search);
+            sb.from('campanha_events').insert([{
+                evento: 'view',
+                origem: (p.get('ref') || p.get('utm_source') || null),
+                referrer: (document.referrer || '').slice(0, 300) || null,
+                path: (window.location.pathname + window.location.search).slice(0, 200)
+            }]).then(function () {}, function () {});
+        } catch (e) {}
+    })();
+
     /* ── Estado ── */
     let jaCadastrada = false;
     let selectedCamps = [];

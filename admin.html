@@ -1494,6 +1494,7 @@
                 <button type="button" onclick="exportCandidaturasCsv()" style="background:var(--accent);border:none;border-radius:10px;padding:9px 16px;font-family:inherit;font-size:13px;font-weight:700;color:#fff;cursor:pointer;">⬇ Exportar CSV</button>
             </div>
         </div>
+        <div id="candVisitas" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;"></div>
         <div id="candStats" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;"></div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
             <div id="candFilters" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
@@ -2878,6 +2879,21 @@
         }
         _candData = data || [];
         renderCandidaturas();
+        loadCandVisitas();
+    }
+    async function loadCandVisitas() {
+        const el = document.getElementById('candVisitas');
+        if (!el) return;
+        try {
+            const totalR = await sb.from('campanha_events').select('*', { count: 'exact', head: true });
+            const emailR = await sb.from('campanha_events').select('*', { count: 'exact', head: true }).eq('origem', 'email');
+            const total = totalR.count || 0, email = emailR.count || 0;
+            const pessoas = new Set(_candData.map(d => (d.email || d.instagram || '').toLowerCase()).filter(Boolean)).size;
+            const conv = total ? ' (' + Math.round(pessoas / total * 100) + '%)' : '';
+            el.innerHTML = castingStatChip('👀 Cliques no link', total)
+                + castingStatChip('📧 Vindos do email', email)
+                + castingStatChip('📝 Viraram candidatura', pessoas + conv);
+        } catch (e) { el.innerHTML = ''; }
     }
     function renderCandidaturas() {
         const list = document.getElementById('candList');
