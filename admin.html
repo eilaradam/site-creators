@@ -2922,16 +2922,17 @@
             + '<div style="font-size:16px;font-weight:800;color:var(--text);">' + castingEsc(d.nome || '(sem nome)') + '</div>'
             + '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">'
             + '<span style="background:rgba(212,87,42,0.12);color:var(--accent);font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px;">' + meta.emoji + ' ' + castingEsc(meta.nome) + '</span>'
+            + (r.ja_cadastrada ? '<span style="background:rgba(45,122,79,0.12);color:#1f5c39;font-size:10px;font-weight:700;padding:4px 9px;border-radius:100px;">na base ✓</span>' : '<span style="background:rgba(0,0,0,0.06);color:var(--text-muted);font-size:10px;font-weight:700;padding:4px 9px;border-radius:100px;">nova</span>')
             + '<span style="font-size:11px;color:var(--text-muted);">' + dt + '</span>'
             + '</div></div>' + rows + '</div>';
     }
     function exportCandidaturasCsv() {
         const rows = _candData.slice();
         if (!rows.length) { alert('Nenhuma candidatura pra exportar ainda.'); return; }
-        const head = ['campanha', 'nome', 'email', 'whatsapp', 'instagram', 'cidade', 'orcamento', 'seguidores', 'portfolio', 'ja_afiliado', 'data'];
+        const head = ['campanha', 'nome', 'email', 'whatsapp', 'instagram', 'cidade', 'orcamento', 'seguidores', 'portfolio', 'ja_afiliado', 'ja_cadastrada', 'data'];
         const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
         const lines = [head.join(',')];
-        rows.forEach(d => { const r = d.respostas || {}; lines.push([d.campanha, d.nome, d.email, d.whatsapp, d.instagram, d.cidade, r.orcamento, r.seguidores, r.portfolio, r.ja_afiliado, d.created_at].map(esc).join(',')); });
+        rows.forEach(d => { const r = d.respostas || {}; lines.push([d.campanha, d.nome, d.email, d.whatsapp, d.instagram, d.cidade, r.orcamento, r.seguidores, r.portfolio, r.ja_afiliado, r.ja_cadastrada, d.created_at].map(esc).join(',')); });
         const blob = new Blob(['﻿' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a'); a.href = url; a.download = 'candidaturas-campanhas.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);

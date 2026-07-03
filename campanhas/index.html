@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Candidatura · Campanhas | Lara Dam</title>
-    <meta name="description" content="Candidate-se às campanhas de marcas com a Lara Dam.">
+    <title>Campanhas em aberto | Lara Dam</title>
+    <meta name="description" content="Candidate-se às campanhas de marcas abertas com a Lara Dam.">
     <meta name="robots" content="noindex">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/png" href="/favicon.png">
@@ -14,44 +14,45 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.98.0" integrity="sha384-Sm2s7OXxsAMTyJ4iIyRBgVpeGUvMPk2lRQnnZhE78Wej7oggIoolKt+SCt0XJbUB" crossorigin="anonymous"></script>
     <style>
         :root {
-            --white: #FAFAF9;
-            --cream: #F5F3EF;
-            --warm: #E8E4DD;
-            --accent: #D4572A;
-            --accent-dark: #B8461F;
-            --accent-glow: rgba(212,87,42,0.12);
-            --text: #1A1816;
-            --text-soft: #6B645C;
-            --text-muted: #9C958C;
-            --border: #DDD8D0;
-            --card: #FFFFFF;
-            --success: #2D7A4F;
-            --error: #C4453C;
+            --white: #FAFAF9; --cream: #F5F3EF; --warm: #E8E4DD;
+            --accent: #D4572A; --accent-dark: #B8461F; --accent-glow: rgba(212,87,42,0.12);
+            --text: #1A1816; --text-soft: #6B645C; --text-muted: #9C958C;
+            --border: #DDD8D0; --card: #FFFFFF; --success: #2D7A4F; --error: #C4453C;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Outfit', sans-serif; background: var(--cream); color: var(--text); -webkit-font-smoothing: antialiased; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 32px 24px; }
         .page-logo { text-align: center; margin-bottom: 28px; }
         .page-logo a { font-family: 'Fraunces', serif; font-weight: 700; font-size: 28px; color: var(--text); text-decoration: none; }
         .page-logo a span { color: var(--accent); }
-        .form-wrapper { max-width: 540px; width: 100%; }
+        .form-wrapper { max-width: 560px; width: 100%; }
         .form-box { background: var(--card); border-radius: 24px; padding: 44px 36px; border: 1px solid var(--border); box-shadow: 0 4px 24px rgba(0,0,0,0.04); position: relative; overflow: hidden; }
         .form-box::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent), #E8784A, var(--accent)); }
         .camp-badge { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent); background: var(--accent-glow); padding: 5px 12px; border-radius: 100px; margin-bottom: 14px; }
-        .form-title { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.5px; line-height: 1.2; }
-        .form-subtitle { font-size: 14.5px; color: var(--text-soft); margin-bottom: 20px; line-height: 1.6; }
-        .brief-list { list-style: none; margin: 0 0 28px; padding: 16px 18px; background: var(--cream); border: 1px solid var(--border); border-radius: 14px; }
-        .brief-list li { font-size: 13.5px; color: var(--text); line-height: 1.5; padding: 3px 0 3px 20px; position: relative; }
-        .brief-list li::before { content: '•'; color: var(--accent); font-weight: 700; position: absolute; left: 4px; }
+        .form-title { font-family: 'Fraunces', serif; font-size: 27px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; line-height: 1.15; }
+        .form-subtitle { font-size: 14.5px; color: var(--text-soft); margin-bottom: 26px; line-height: 1.6; }
         .field-group { margin-bottom: 18px; }
         .field-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
         .field-group input, .field-group select, .field-group textarea { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 12px; font-family: 'Outfit', sans-serif; font-size: 15px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; }
-        .field-group textarea { resize: vertical; min-height: 84px; line-height: 1.5; }
+        .field-group textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
         .field-group input::placeholder, .field-group textarea::placeholder { color: var(--text-muted); }
         .field-group input:focus, .field-group select:focus, .field-group textarea:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
         .field-group select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239C958C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 40px; cursor: pointer; }
         .field-hint { color: var(--text-muted); font-weight: 400; }
         .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .form-submit { width: 100%; margin-top: 8px; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 14px; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .section-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin: 28px 0 12px; }
+        .welcome-banner { background: rgba(45,122,79,0.08); border: 1px solid rgba(45,122,79,0.22); color: #1f5c39; padding: 14px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; margin-bottom: 24px; display: none; }
+        .welcome-banner.show { display: block; }
+        .camp-card { border: 1.5px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s; background: var(--cream); }
+        .camp-card:hover { border-color: var(--accent); }
+        .camp-card.selected { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 3px var(--accent-glow); }
+        .camp-card-head { display: flex; gap: 12px; align-items: flex-start; }
+        .camp-check { flex-shrink: 0; width: 22px; height: 22px; border-radius: 7px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 13px; color: #fff; transition: all 0.2s; margin-top: 1px; }
+        .camp-card.selected .camp-check { background: var(--accent); border-color: var(--accent); }
+        .camp-card-title { font-size: 15.5px; font-weight: 700; color: var(--text); }
+        .camp-card-desc { font-size: 13px; color: var(--text-soft); line-height: 1.5; margin-top: 3px; }
+        .cond-block { margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--border); }
+        .cond-block .field-group:last-child { margin-bottom: 0; }
+        .form-submit { width: 100%; margin-top: 12px; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 14px; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
         .form-submit:hover { background: var(--accent-dark); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(212,87,42,0.3); }
         .form-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
         .form-footer { text-align: center; margin-top: 16px; font-size: 12px; color: var(--text-muted); line-height: 1.6; }
@@ -62,11 +63,7 @@
         @keyframes checkPop { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 1; } }
         .success-check-animated { width: 80px; height: 80px; border-radius: 50%; background: rgba(45,122,79,0.1); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 36px; animation: checkPop 0.6s cubic-bezier(0.175,0.885,0.32,1.275) both; }
         .success-title { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
-        .success-subtitle { font-size: 14px; color: var(--text-soft); line-height: 1.7; max-width: 380px; margin: 0 auto 6px; }
-        .other-camps { margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--border); }
-        .other-camps-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px; }
-        .other-camp-link { display: block; text-decoration: none; color: var(--text); background: var(--cream); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 8px; font-size: 14px; font-weight: 500; transition: all 0.2s; }
-        .other-camp-link:hover { border-color: var(--accent); color: var(--accent); }
+        .success-subtitle { font-size: 14px; color: var(--text-soft); line-height: 1.7; max-width: 400px; margin: 0 auto 6px; }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
         @media (max-width: 768px) {
             body { padding: 24px 16px; }
@@ -80,87 +77,68 @@
     <div class="form-wrapper">
         <div class="form-box">
             <div id="formContent">
-                <span class="camp-badge" id="campBadge">Campanha</span>
-                <h3 class="form-title" id="campTitle">Candidatura</h3>
-                <p class="form-subtitle" id="campSubtitle"></p>
-                <ul class="brief-list" id="campBrief" style="display:none;"></ul>
+                <span class="camp-badge">✨ Oportunidades</span>
+                <h3 class="form-title">Campanhas em aberto</h3>
+                <p class="form-subtitle">A gente está com campanhas de marcas abertas pra creators. Preenche aqui pra se candidatar (leva 2 minutinhos). Começa com o seu nome e e-mail.</p>
 
-                <form id="campForm">
+                <!-- ETAPA 1: PORTEIRA (nome + email) -->
+                <div id="gateSection">
+                    <div class="form-error" id="gateError"></div>
+                    <div class="field-group"><label>Nome completo</label><input type="text" id="gateNome" placeholder="Seu nome"></div>
+                    <div class="field-group"><label>E-mail</label><input type="email" id="gateEmail" placeholder="seuemail@exemplo.com"></div>
+                    <button type="button" class="form-submit" id="gateBtn">Continuar</button>
+                    <p class="form-footer">Se você já é da nossa base de creators, seus dados já vêm preenchidos. Se não, é só completar. 💛</p>
+                </div>
+
+                <!-- ETAPA 2: FORMULÁRIO -->
+                <form id="campForm" style="display:none;">
+                    <div class="welcome-banner" id="welcomeBanner"></div>
                     <div class="form-error" id="formError"></div>
-                    <div class="field-group"><label>Nome completo</label><input type="text" id="nome" placeholder="Seu nome"></div>
+
+                    <div class="section-label">Seus dados</div>
                     <div class="field-row">
-                        <div class="field-group"><label>WhatsApp (com DDD)</label><input type="tel" id="whatsapp" placeholder="(00) 00000-0000"></div>
                         <div class="field-group"><label>@ do Instagram</label><input type="text" id="instagram" placeholder="@seuperfil"></div>
+                        <div class="field-group"><label>Seguidores no Instagram</label><select id="seguidores"><option value="" disabled selected>Selecione</option><option value="ate_1k">Até 1.000</option><option value="1k_5k">1.000 a 5.000</option><option value="5k_10k">5.000 a 10.000</option><option value="10k_30k">10.000 a 30.000</option><option value="30k_mais">Acima de 30.000</option></select></div>
                     </div>
                     <div class="field-row">
                         <div class="field-group"><label>Sua cidade</label><input type="text" id="cidade" placeholder="Ex.: Belo Horizonte, MG"></div>
-                        <div class="field-group"><label>E-mail <span class="field-hint">(opcional)</span></label><input type="email" id="email" placeholder="seuemail@exemplo.com"></div>
+                        <div class="field-group"><label>WhatsApp <span class="field-hint">(com DDD)</span></label><input type="tel" id="whatsapp" placeholder="(00) 00000-0000"></div>
                     </div>
-                    <div id="extraFields"></div>
-                    <button type="submit" class="form-submit" id="submitBtn">Quero me candidatar</button>
-                    <p class="form-footer">A gente entra em contato pelo WhatsApp ou Instagram se o seu perfil encaixar. 💛</p>
+                    <div class="field-group"><label>Link do seu portfólio / melhor conteúdo <span class="field-hint">(Instagram, Drive, site...)</span></label><input type="text" id="portfolio" placeholder="instagram.com/... ou drive.google.com/..."></div>
+
+                    <div class="section-label">Quais campanhas te interessam? <span class="field-hint" style="text-transform:none;letter-spacing:0;font-weight:400;">(pode escolher mais de uma)</span></div>
+                    <div id="campCards"></div>
+
+                    <button type="submit" class="form-submit" id="submitBtn">Enviar candidatura</button>
+                    <p class="form-footer">A gente entra em contato pelo WhatsApp ou Instagram se o seu perfil encaixar em alguma. 💛</p>
                 </form>
             </div>
 
             <div class="success-state" id="successState">
                 <div class="success-check-animated">&#10003;</div>
                 <h3 class="success-title">Candidatura recebida! 💛</h3>
-                <p class="success-subtitle" id="successSub">Recebemos a sua candidatura. Se o seu perfil encaixar nessa campanha, a gente entra em contato pelo WhatsApp ou e-mail. Boa sorte!</p>
-                <div class="other-camps" id="otherCamps" style="display:none;">
-                    <div class="other-camps-title">Outras campanhas abertas</div>
-                    <div id="otherCampsList"></div>
-                </div>
+                <p class="success-subtitle" id="successSub">Recebemos a sua candidatura. Se o seu perfil encaixar, a gente entra em contato pelo WhatsApp ou e-mail. Boa sorte!</p>
             </div>
         </div>
     </div>
 
 <script>
-    /* ── Configuração das campanhas ── */
+    /* ── Campanhas abertas ── */
     const CAMPANHAS = {
         flores: {
-            emoji: '🌸',
-            badge: 'Campanha · Flores',
-            titulo: 'Campanha de flores 🌸',
-            subtitulo: 'Uma marca de flores está montando um time de creators pra um contrato de 3 meses. O perfil é bem específico: conteúdo aesthetic, com flores fazendo parte da sua rotina em casa.',
-            brief: [
-                'Por mês: 1 Reels + 4 telas de story + collab com a marca',
-                'Contrato de 3 meses',
-                'Pra creators de Goiânia, Porto Alegre, Salvador e Belo Horizonte',
-                'Perfis nano e micro'
-            ],
-            extras: [
-                { key: 'orcamento', label: 'Seu orçamento pro escopo completo', hint: '(por mês: 1 Reels + 4 stories + collab · contrato de 3 meses)', type: 'textarea', required: true, placeholder: 'Ex.: R$ ___ por mês (ou R$ ___ pelos 3 meses)' }
-            ]
+            emoji: '🌸', nome: 'Flores',
+            desc: 'Contrato de 3 meses. Conteúdo aesthetic, com flores na rotina da casa. Por mês: 1 Reels + 4 stories + collab. Pra creators de Goiânia, Porto Alegre, Salvador e Belo Horizonte.',
+            extras: [{ key: 'orcamento', label: 'Seu orçamento pro escopo completo', hint: '(por mês: 1 Reels + 4 stories + collab · contrato de 3 meses)', type: 'textarea', required: true, placeholder: 'Ex.: R$ ___ por mês (ou R$ ___ pelos 3 meses)' }]
         },
         pais: {
-            emoji: '👶',
-            badge: 'Campanha · Pais creators',
-            titulo: 'Campanha para pais creators 👶',
-            subtitulo: 'Uma marca está procurando pais que são creators pra gravar 1 Reels UGC. Se você (ou o seu marido/companheiro) é pai e já cria conteúdo, essa é pra você.',
-            brief: [
-                'Entrega: 1 Reels UGC',
-                'Pré-requisito: já ter portfólio como creator',
-                'Remuneração a combinar'
-            ],
-            extras: [
-                { key: 'portfolio', label: 'Link do seu portfólio de creator', hint: '(Instagram, Google Drive, site, etc.)', type: 'text', required: true, placeholder: 'instagram.com/... ou drive.google.com/...' }
-            ]
+            emoji: '👶', nome: 'Pais creators',
+            desc: '1 Reels UGC pra pais (homens) que já têm portfólio de creator. Remuneração a combinar. Se o seu marido ou companheiro é creator, marca aqui por ele!',
+            extras: []
         },
         decoracao: {
-            emoji: '🛋️',
-            badge: 'Campanha · Casa & Decoração',
-            titulo: 'Campanha de casa & decoração 🛋️',
-            subtitulo: 'Uma marca de produtos de decoração pra casa está procurando creators de casa & decoração pra trabalhar como afiliado (comissão por venda).',
-            brief: [
-                'Modelo: afiliado, com comissão por venda',
-                'Produtos de decoração pra casa',
-                'Pré-requisito: perfil de influencer com +10 mil seguidores'
-            ],
-            extras: [
-                { key: 'seguidores', label: 'Seguidores no Instagram', type: 'select', required: true, options: [['ate_1k','Até 1.000'],['1k_5k','1.000 a 5.000'],['5k_10k','5.000 a 10.000'],['10k_30k','10.000 a 30.000'],['30k_mais','Acima de 30.000']] },
-                { key: 'portfolio', label: 'Link do seu portfólio / melhor conteúdo', hint: '(Instagram, Drive, site...)', type: 'text', required: true, placeholder: 'instagram.com/...' },
-                { key: 'ja_afiliado', label: 'Você já trabalha com afiliado?', type: 'select', required: true, options: [['sim','Sim, já faço'],['as_vezes','Já fiz algumas vezes'],['nao','Ainda não, mas quero']] }
-            ]
+            emoji: '🛋️', nome: 'Casa & decoração',
+            desc: 'Afiliado (comissão por venda) de produtos de decoração pra casa. Precisa ter perfil de influencer com +10 mil seguidores.',
+            extras: [{ key: 'ja_afiliado', label: 'Você já trabalha com afiliado?', type: 'select', required: true, options: [['sim', 'Sim, já faço'], ['as_vezes', 'Já fiz algumas vezes'], ['nao', 'Ainda não, mas quero']] }]
         }
     };
     const CAMP_ORDER = ['flores', 'pais', 'decoracao'];
@@ -172,133 +150,166 @@
     function initSb() { if (sb) return sb; try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch (e) {} return sb; }
     initSb();
 
+    /* ── Estado ── */
+    let jaCadastrada = false;
+    let selectedCamps = [];
+    const preselect = (new URLSearchParams(window.location.search).get('c') || '').toLowerCase();
+
     /* ── Helpers ── */
     function gv(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
-    function escapeHtml(s) { return (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    function escapeHtml(s) { return (s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
     function formatUrl(url) { if (!url) return null; const s = url.trim(); if (!s) return null; if (/^https?:\/\//i.test(s)) return s; return 'https://' + s; }
-
-    /* ── Qual campanha? ── */
-    const slug = (new URLSearchParams(window.location.search).get('c') || '').toLowerCase();
-    const cfg = CAMPANHAS[slug];
-
-    if (!cfg) {
-        /* Sem campanha válida: mostra o menu das campanhas abertas */
-        document.getElementById('campBadge').textContent = 'Campanhas abertas';
-        document.getElementById('campTitle').textContent = 'Escolha uma campanha';
-        document.getElementById('campSubtitle').textContent = 'Essas são as campanhas abertas agora. Toca na que tem a ver com você pra se candidatar.';
-        document.getElementById('campForm').style.display = 'none';
-        const menu = document.getElementById('campBrief');
-        menu.className = '';
-        menu.style.cssText = 'list-style:none;margin:0;padding:0;display:block;';
-        menu.innerHTML = CAMP_ORDER.map(k => '<a class="other-camp-link" href="?c=' + k + '">' + CAMPANHAS[k].emoji + '  ' + escapeHtml(CAMPANHAS[k].titulo.replace(/[🌸👶🛋️]/g,'').trim()) + '</a>').join('');
-    } else {
-        renderCampaign();
-    }
-
-    function renderExtraField(f) {
-        const hint = f.hint ? ' <span class="field-hint">' + escapeHtml(f.hint) + '</span>' : '';
-        let control = '';
-        if (f.type === 'textarea') {
-            control = '<textarea id="x_' + f.key + '" placeholder="' + escapeHtml(f.placeholder || '') + '"></textarea>';
-        } else if (f.type === 'select') {
-            control = '<select id="x_' + f.key + '"><option value="" disabled selected>Selecione</option>' +
-                (f.options || []).map(o => '<option value="' + escapeHtml(o[0]) + '">' + escapeHtml(o[1]) + '</option>').join('') + '</select>';
-        } else {
-            control = '<input type="text" id="x_' + f.key + '" placeholder="' + escapeHtml(f.placeholder || '') + '">';
-        }
-        return '<div class="field-group"><label>' + escapeHtml(f.label) + hint + '</label>' + control + '</div>';
-    }
-
-    function renderCampaign() {
-        document.title = cfg.titulo.replace(/[🌸👶🛋️]/g,'').trim() + ' · Campanhas | Lara Dam';
-        document.getElementById('campBadge').textContent = cfg.badge;
-        document.getElementById('campTitle').textContent = cfg.titulo;
-        document.getElementById('campSubtitle').textContent = cfg.subtitulo;
-        if (cfg.brief && cfg.brief.length) {
-            const bl = document.getElementById('campBrief');
-            bl.innerHTML = cfg.brief.map(b => '<li>' + escapeHtml(b) + '</li>').join('');
-            bl.style.display = 'block';
-        }
-        document.getElementById('extraFields').innerHTML = (cfg.extras || []).map(renderExtraField).join('');
-        bindWhatsappMask();
-    }
 
     /* ── Máscara WhatsApp ── */
     function bindWhatsappMask() {
         const w = document.getElementById('whatsapp');
         if (!w) return;
-        w.addEventListener('input', function(e) {
+        w.addEventListener('input', function (e) {
             let v = e.target.value.replace(/\D/g, '');
             if (v.length > 11) v = v.slice(0, 11);
-            if (v.length > 6) v = '(' + v.slice(0,2) + ') ' + v.slice(2,7) + '-' + v.slice(7);
-            else if (v.length > 2) v = '(' + v.slice(0,2) + ') ' + v.slice(2);
+            if (v.length > 6) v = '(' + v.slice(0, 2) + ') ' + v.slice(2, 7) + '-' + v.slice(7);
+            else if (v.length > 2) v = '(' + v.slice(0, 2) + ') ' + v.slice(2);
             else if (v.length > 0) v = '(' + v;
             e.target.value = v;
         });
     }
 
-    /* ── Envio ── */
-    const formEl = document.getElementById('campForm');
-    if (formEl) formEl.addEventListener('submit', async function(e) {
+    /* ── Cards de campanha (multi-seleção) ── */
+    function renderExtraField(slug, f) {
+        const hint = f.hint ? ' <span class="field-hint">' + escapeHtml(f.hint) + '</span>' : '';
+        const id = 'x_' + slug + '_' + f.key;
+        let control = '';
+        if (f.type === 'textarea') control = '<textarea id="' + id + '" placeholder="' + escapeHtml(f.placeholder || '') + '"></textarea>';
+        else if (f.type === 'select') control = '<select id="' + id + '"><option value="" disabled selected>Selecione</option>' + (f.options || []).map(o => '<option value="' + escapeHtml(o[0]) + '">' + escapeHtml(o[1]) + '</option>').join('') + '</select>';
+        else control = '<input type="text" id="' + id + '" placeholder="' + escapeHtml(f.placeholder || '') + '">';
+        return '<div class="field-group"><label>' + escapeHtml(f.label) + hint + '</label>' + control + '</div>';
+    }
+    function renderCampCards() {
+        const box = document.getElementById('campCards');
+        box.innerHTML = CAMP_ORDER.map(slug => {
+            const c = CAMPANHAS[slug];
+            const cond = c.extras.length ? '<div class="cond-block" id="cond_' + slug + '" style="display:none;">' + c.extras.map(f => renderExtraField(slug, f)).join('') + '</div>' : '';
+            return '<div class="camp-card" id="card_' + slug + '" onclick="toggleCamp(\'' + slug + '\')">'
+                + '<div class="camp-card-head">'
+                + '<span class="camp-check" id="check_' + slug + '">&#10003;</span>'
+                + '<div><div class="camp-card-title">' + c.emoji + ' ' + escapeHtml(c.nome) + '</div><div class="camp-card-desc">' + escapeHtml(c.desc) + '</div></div>'
+                + '</div>' + cond + '</div>';
+        }).join('');
+        CAMP_ORDER.forEach(slug => {
+            const check = document.getElementById('check_' + slug);
+            if (check) check.style.visibility = 'hidden';
+        });
+    }
+    function toggleCamp(slug) {
+        const i = selectedCamps.indexOf(slug);
+        const card = document.getElementById('card_' + slug);
+        const check = document.getElementById('check_' + slug);
+        const cond = document.getElementById('cond_' + slug);
+        if (i > -1) { selectedCamps.splice(i, 1); card.classList.remove('selected'); if (check) check.style.visibility = 'hidden'; if (cond) cond.style.display = 'none'; }
+        else { selectedCamps.push(slug); card.classList.add('selected'); if (check) check.style.visibility = 'visible'; if (cond) cond.style.display = 'block'; }
+    }
+
+    /* ── ETAPA 1 → 2 ── */
+    document.getElementById('gateBtn').addEventListener('click', async function () {
+        const btn = this;
+        const err = document.getElementById('gateError');
+        err.classList.remove('show');
+        const nome = gv('gateNome');
+        const email = gv('gateEmail').toLowerCase();
+        if (!nome) { err.textContent = 'Digite o seu nome.'; err.classList.add('show'); return; }
+        if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { err.textContent = 'Digite um e-mail válido.'; err.classList.add('show'); return; }
+
+        btn.textContent = 'Verificando...'; btn.disabled = true;
+        let info = null;
+        try {
+            if (initSb()) {
+                const { data, error } = await sb.rpc('campanha_creator_lookup', { p_email: email });
+                if (!error) info = data;
+            }
+        } catch (e) { /* segue como nova */ }
+
+        jaCadastrada = !!(info && info.encontrado);
+        renderCampCards();
+        bindWhatsappMask();
+
+        const banner = document.getElementById('welcomeBanner');
+        if (jaCadastrada) {
+            const primeiro = ((info.nome || nome) || '').split(' ')[0];
+            banner.innerHTML = 'Oi, ' + escapeHtml(primeiro) + '! Achamos o seu cadastro na nossa base 💛. Já preenchemos os seus dados, é só conferir (e atualizar se mudou algo).';
+            banner.classList.add('show');
+            if (info.instagram) document.getElementById('instagram').value = info.instagram;
+            if (info.cidade) document.getElementById('cidade').value = info.cidade + (info.estado ? ', ' + info.estado : '');
+            if (info.seguidores) document.getElementById('seguidores').value = info.seguidores;
+        } else {
+            banner.classList.remove('show');
+        }
+
+        if (preselect && CAMPANHAS[preselect]) toggleCamp(preselect);
+
+        document.getElementById('gateSection').style.display = 'none';
+        document.getElementById('campForm').style.display = 'block';
+        btn.textContent = 'Continuar'; btn.disabled = false;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    /* ── ETAPA 2: envio ── */
+    document.getElementById('campForm').addEventListener('submit', async function (e) {
         e.preventDefault();
         const btn = document.getElementById('submitBtn');
         const errorEl = document.getElementById('formError');
         errorEl.classList.remove('show');
         try {
-            if (!cfg) throw new Error('Campanha não encontrada.');
             if (!initSb()) throw new Error('Erro de conexão. Recarregue a página.');
+            const nome = gv('gateNome');
+            const email = gv('gateEmail').toLowerCase();
+            const instagram = gv('instagram');
+            const cidade = gv('cidade');
+            const seguidores = gv('seguidores');
+            const whatsapp = gv('whatsapp');
+            const portfolio = gv('portfolio');
 
-            const nomeVal = gv('nome');
-            const whatsVal = gv('whatsapp');
-            const instaVal = gv('instagram');
-            const cidadeVal = gv('cidade');
-            const emailVal = gv('email').toLowerCase();
-            if (!nomeVal) throw new Error('Preencha o seu nome.');
-            if (whatsVal.replace(/\D/g, '').length < 10) throw new Error('Preencha um WhatsApp válido com DDD.');
-            if (!instaVal) throw new Error('Preencha o seu @ do Instagram.');
-            if (!cidadeVal) throw new Error('Preencha a sua cidade.');
-            if (emailVal && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(emailVal)) throw new Error('O e-mail parece inválido.');
+            if (!instagram) throw new Error('Preencha o seu @ do Instagram.');
+            if (!cidade) throw new Error('Preencha a sua cidade.');
+            if (!seguidores) throw new Error('Selecione a sua faixa de seguidores.');
+            if (!portfolio) throw new Error('Coloque o link do seu portfólio ou melhor conteúdo.');
+            if (!selectedCamps.length) throw new Error('Escolha pelo menos 1 campanha que te interessa.');
 
-            const respostas = {};
-            for (const f of (cfg.extras || [])) {
-                const val = gv('x_' + f.key);
-                if (f.required && !val) throw new Error('Preencha: ' + f.label + '.');
-                if (val) respostas[f.key] = (f.key === 'portfolio') ? formatUrl(val) : val;
+            const base = {
+                nome: nome,
+                email: email || null,
+                whatsapp: whatsapp || null,
+                instagram: instagram.toLowerCase(),
+                cidade: cidade
+            };
+            const comum = { seguidores: seguidores, portfolio: formatUrl(portfolio), ja_cadastrada: jaCadastrada };
+
+            const rows = [];
+            for (const slug of selectedCamps) {
+                const resp = Object.assign({}, comum);
+                for (const f of CAMPANHAS[slug].extras) {
+                    const val = gv('x_' + slug + '_' + f.key);
+                    if (f.required && !val) throw new Error('Na campanha "' + CAMPANHAS[slug].nome + '", preencha: ' + f.label + '.');
+                    if (val) resp[f.key] = val;
+                }
+                rows.push(Object.assign({ campanha: slug, respostas: resp }, base));
             }
 
             btn.textContent = 'Enviando...'; btn.disabled = true;
-
-            const { error } = await sb.from('campanha_candidaturas').insert([{
-                campanha: slug,
-                nome: nomeVal,
-                email: emailVal || null,
-                whatsapp: whatsVal,
-                instagram: instaVal.toLowerCase(),
-                cidade: cidadeVal,
-                respostas: respostas
-            }]);
+            const { error } = await sb.from('campanha_candidaturas').insert(rows);
             if (error) throw new Error('Não consegui enviar agora. Tenta de novo em instantes.');
 
+            const nomes = selectedCamps.map(s => CAMPANHAS[s].emoji + ' ' + CAMPANHAS[s].nome).join(', ');
+            document.getElementById('successSub').textContent = 'Recebemos a sua candidatura para: ' + nomes + '. Se o seu perfil encaixar, a gente entra em contato pelo WhatsApp ou e-mail. Boa sorte!';
             document.getElementById('formContent').style.display = 'none';
-            renderOtherCamps();
             document.getElementById('successState').classList.add('show');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } catch (err) {
             errorEl.textContent = err.message || 'Erro ao enviar. Tente novamente.';
             errorEl.classList.add('show');
             errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            btn.textContent = 'Quero me candidatar'; btn.disabled = false;
+            btn.textContent = 'Enviar candidatura'; btn.disabled = false;
         }
     });
-
-    function renderOtherCamps() {
-        const others = CAMP_ORDER.filter(k => k !== slug);
-        if (!others.length) return;
-        const box = document.getElementById('otherCamps');
-        const list = document.getElementById('otherCampsList');
-        list.innerHTML = others.map(k => '<a class="other-camp-link" href="?c=' + k + '">' + CAMPANHAS[k].emoji + '  ' + escapeHtml(CAMPANHAS[k].titulo.replace(/[🌸👶🛋️]/g,'').trim()) + '</a>').join('');
-        box.style.display = 'block';
-    }
 </script>
 </body>
 </html>
