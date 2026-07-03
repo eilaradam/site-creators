@@ -129,7 +129,10 @@
         flores: {
             emoji: '🌸', nome: 'Flores',
             desc: 'Contrato de 3 meses. Conteúdo aesthetic, com flores na rotina da casa. Por mês: 1 Reels + 4 stories + collab. Pra creators de Goiânia, Porto Alegre, Salvador e Belo Horizonte.',
-            extras: [{ key: 'orcamento', label: 'Seu orçamento pro escopo completo', hint: '(por mês: 1 Reels + 4 stories + collab · contrato de 3 meses)', type: 'textarea', required: true, placeholder: 'Ex.: R$ ___ por mês (ou R$ ___ pelos 3 meses)' }]
+            extras: [
+                { key: 'regiao', label: 'Qual a sua região?', type: 'select', required: true, options: [['goiania', 'Goiânia'], ['porto_alegre', 'Porto Alegre'], ['salvador', 'Salvador'], ['belo_horizonte', 'Belo Horizonte'], ['outra', 'Outra (não é nenhuma dessas)']] },
+                { key: 'orcamento', label: 'Seu orçamento pro escopo completo', hint: '(por mês: 1 Reels + 4 stories + collab · contrato de 3 meses)', type: 'textarea', required: true, placeholder: 'Ex.: R$ ___ por mês (ou R$ ___ pelos 3 meses)' }
+            ]
         },
         pais: {
             emoji: '👶', nome: 'Pais creators',
