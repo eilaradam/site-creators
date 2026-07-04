@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apostila · Dia 12 · Portfólio & Mídia Kit com Claude Code | Lara Dam</title>
+<meta name="description" content="Material de apoio da Imersão de Portfólio com Claude Code. Passo a passo + prompts prontos pra copiar.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.98.0" integrity="sha384-Sm2s7OXxsAMTyJ4iIyRBgVpeGUvMPk2lRQnnZhE78Wej7oggIoolKt+SCt0XJbUB" crossorigin="anonymous"></script>
+<style>
+:root{
+  --cream:#F5F3EF; --paper:#FBF9F6; --warm:#EDE7DF; --accent:#D4572A; --accent-dark:#B8461F;
+  --accent-soft:rgba(212,87,42,0.10); --plum:#3B2F46; --plum-soft:rgba(59,47,70,0.08);
+  --text:#1B1B1B; --text-soft:#5c554d; --text-muted:#9c948a; --border:#E2DBD1; --card:#FFFFFF;
+  --ok:#2D7A4F; --sidebar:288px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.6;}
+a{color:var(--accent);}
+/* ── Sidebar ── */
+.sidebar{position:fixed;top:0;left:0;width:var(--sidebar);height:100vh;background:var(--paper);border-right:1px solid var(--border);padding:26px 20px;overflow-y:auto;z-index:40;}
+.sb-brand{font-family:'Fraunces',serif;font-weight:900;font-size:23px;color:var(--text);text-decoration:none;display:block;margin-bottom:4px;}
+.sb-brand span{color:var(--accent);}
+.sb-tag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);margin-bottom:22px;}
+.sb-nav a{display:block;font-size:14px;font-weight:600;color:var(--text-soft);text-decoration:none;padding:9px 12px;border-radius:9px;margin-bottom:2px;transition:all .18s;border-left:3px solid transparent;}
+.sb-nav a:hover{background:var(--warm);color:var(--text);}
+.sb-nav a.active{background:var(--accent-soft);color:var(--accent-dark);border-left-color:var(--accent);}
+.sb-nav a .n{display:inline-block;width:22px;color:var(--text-muted);font-weight:800;}
+.sb-nav a.active .n{color:var(--accent);}
+.sb-sub{font-size:12.5px;font-weight:500;color:var(--text-muted);padding:5px 12px 5px 34px;}
+/* ── Layout ── */
+.main{margin-left:var(--sidebar);max-width:860px;padding:40px 40px 120px;}
+.topbar{display:none;}
+section{scroll-margin-top:24px;margin-bottom:20px;}
+.block{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px 34px;margin-bottom:22px;box-shadow:0 1px 3px rgba(0,0,0,0.02);}
+.eyebrow{display:inline-block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:var(--accent);background:var(--accent-soft);padding:5px 13px;border-radius:100px;margin-bottom:16px;}
+h1{font-family:'Fraunces',serif;font-weight:900;font-size:clamp(32px,5vw,50px);line-height:1.05;letter-spacing:-1px;margin-bottom:16px;}
+h1 em{font-style:normal;color:#FFE7B0;}
+h2{font-family:'Fraunces',serif;font-weight:700;font-size:clamp(24px,3.4vw,33px);line-height:1.12;letter-spacing:-0.5px;margin-bottom:8px;}
+h3{font-family:'Outfit',sans-serif;font-weight:800;font-size:19px;margin:22px 0 8px;}
+.block>p, .prose p{font-size:15.5px;color:var(--text-soft);margin-bottom:12px;}
+.block b, .prose b{color:var(--text);}
+.num{font-family:'Fraunces',serif;font-weight:900;font-size:15px;color:#fff;background:var(--accent);width:34px;height:34px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;}
+.meta-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;}
+.chip{font-size:12px;font-weight:600;color:var(--text-soft);background:var(--paper);border:1px solid var(--border);border-radius:100px;padding:6px 13px;}
+/* Hero */
+.hero{background:linear-gradient(135deg,var(--accent) 0%,#B8461F 55%,var(--plum) 130%);color:#fff;border:none;border-radius:24px;padding:44px 40px;box-shadow:0 12px 40px rgba(184,70,31,0.25);}
+.hero .eyebrow{background:rgba(255,255,255,0.16);color:#fff;}
+.hero p{color:rgba(255,255,255,0.92);font-size:16.5px;max-width:620px;}
+.hero .meta-row .chip{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.2);color:#fff;}
+/* InfoCard */
+.info{border-left:4px solid var(--accent);background:var(--paper);border-radius:0 14px 14px 0;padding:18px 22px;margin:16px 0;}
+.info.plum{border-left-color:var(--plum);}
+.info .it{font-weight:800;font-size:15px;margin-bottom:4px;display:flex;gap:8px;align-items:center;}
+.info p{font-size:14.5px;color:var(--text-soft);margin:0;}
+/* Prompt block */
+.prompt{border:1px solid var(--border);border-radius:14px;overflow:hidden;margin:14px 0 18px;background:#fff;}
+.prompt-head{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--plum);color:#fff;padding:10px 16px;}
+.prompt-head .pl{font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:7px;}
+.prompt-copy{background:rgba(255,255,255,0.16);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.prompt-copy:hover{background:rgba(255,255,255,0.28);}
+.prompt-code{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:13px;line-height:1.6;color:var(--text);padding:16px 18px;white-space:pre-wrap;word-break:break-word;background:#FFFDFB;}
+.ph{background:var(--accent-soft);color:var(--accent-dark);font-weight:700;border-radius:4px;padding:0 3px;}
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:16px 0;}
+.stat{background:var(--paper);border:1px solid var(--border);border-radius:14px;padding:16px;}
+.stat .v{font-family:'Fraunces',serif;font-weight:900;font-size:26px;color:var(--accent);line-height:1;}
+.stat .l{font-size:12px;color:var(--text-muted);margin-top:6px;font-weight:600;}
+/* Checklist */
+.check{list-style:none;margin:14px 0 4px;}
+.check li{display:flex;gap:11px;align-items:flex-start;padding:9px 12px;border:1px solid var(--border);border-radius:11px;margin-bottom:7px;background:var(--paper);cursor:pointer;transition:all .18s;font-size:14.5px;}
+.check li:hover{border-color:var(--accent);}
+.check li .box{width:20px;height:20px;border:2px solid var(--border);border-radius:6px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;transition:all .18s;}
+.check li.done .box{background:var(--ok);border-color:var(--ok);}
+.check li.done span{color:var(--text-muted);text-decoration:line-through;}
+/* Resource grid */
+.rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:16px;}
+.rcard{background:var(--paper);border:1px solid var(--border);border-radius:14px;padding:16px 18px;}
+.rcard .e{font-size:22px;}
+.rcard .t{font-weight:800;font-size:14.5px;margin:6px 0 3px;}
+.rcard .d{font-size:13px;color:var(--text-muted);}
+/* Troubleshooting */
+.tbl{width:100%;border-collapse:collapse;margin-top:14px;font-size:14px;}
+.tbl td{border:1px solid var(--border);padding:11px 13px;vertical-align:top;}
+.tbl tr td:first-child{font-weight:700;width:34%;}
+.tbl tr td:last-child{color:var(--text-soft);}
+/* Form */
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:13px;font-weight:700;margin-bottom:6px;}
+.field input{width:100%;padding:13px 15px;border:1.5px solid var(--border);border-radius:11px;font-family:inherit;font-size:15px;background:var(--paper);color:var(--text);outline:none;transition:all .2s;}
+.field input:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 4px var(--accent-soft);}
+.btn{width:100%;padding:15px;background:var(--accent);color:#fff;border:none;border-radius:13px;font-family:inherit;font-size:16px;font-weight:800;cursor:pointer;transition:all .25s;}
+.btn:hover{background:var(--accent-dark);}
+.btn:disabled{opacity:.6;cursor:not-allowed;}
+.form-msg{font-size:13.5px;margin-top:12px;line-height:1.5;}
+.cta{background:linear-gradient(135deg,var(--accent),#B8461F 60%,var(--plum));color:#fff;border-radius:22px;padding:40px 36px;text-align:center;}
+.cta h2{color:#fff;}
+.cta p{color:rgba(255,255,255,0.9);max-width:520px;margin:8px auto 0;}
+.foot{text-align:center;color:var(--text-muted);font-size:13px;padding:30px 0 0;border-top:1px solid var(--border);margin-top:30px;}
+/* Mobile */
+.menu-btn{display:none;}
+@media(max-width:1000px){
+  .sidebar{transform:translateX(-100%);transition:transform .25s;box-shadow:0 0 40px rgba(0,0,0,0.12);}
+  .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;padding:0 20px 100px;}
+  .topbar{display:flex;position:sticky;top:0;z-index:30;background:var(--paper);border-bottom:1px solid var(--border);align-items:center;gap:12px;padding:12px 16px;margin:0 -20px 20px;}
+  .menu-btn{display:inline-flex;background:var(--card);border:1px solid var(--border);border-radius:10px;width:42px;height:42px;align-items:center;justify-content:center;font-size:19px;cursor:pointer;}
+  .topbar .tb-brand{font-family:'Fraunces',serif;font-weight:900;font-size:18px;}
+  .topbar .tb-brand span{color:var(--accent);}
+  .block,.hero,.cta{padding:26px 22px;}
+}
+</style>
+</head>
+<body>
+
+<nav class="sidebar" id="sidebar">
+  <a href="#inicio" class="sb-brand">lara<span>.</span>dam</a>
+  <div class="sb-tag">Apostila · Dia 12</div>
+  <div class="sb-nav" id="sbNav">
+    <a href="#inicio"><span class="n">•</span> Início</a>
+    <a href="#antes"><span class="n">✓</span> Antes de começar</a>
+    <a href="#bloco1"><span class="n">1</span> Claude Code</a>
+    <a href="#bloco2"><span class="n">2</span> Seu site rodando</a>
+    <a href="#bloco3"><span class="n">3</span> Deixar profissional</a>
+    <a href="#bloco4"><span class="n">4</span> Colocar no ar</a>
+    <a href="#bloco5"><span class="n">5</span> Se mede sozinho</a>
+    <a href="#portfolio"><span class="n">🔗</span> Meu portfólio</a>
+    <a href="#ajuda"><span class="n">?</span> Deu ruim? Socorro</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <button class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+    <div class="tb-brand">lara<span>.</span>dam · Apostila</div>
+  </div>
+
+  <!-- HERO -->
+  <section id="inicio">
+    <div class="hero">
+      <span class="eyebrow">Imersão · Dia 12</span>
+      <h1>Seu portfólio profissional, <em>no ar</em>, feito por você.</h1>
+      <p>Hoje você sai daqui com um site de verdade, no seu próprio domínio, com as suas fotos, os seus vídeos e as suas métricas. Sem Canva, sem link na bio, sem PDF. Site. E sem escrever uma linha de código.</p>
+      <div class="meta-row">
+        <span class="chip">🎥 Ao vivo no Google Meet</span>
+        <span class="chip">💬 Suporte: Julia & Iza</span>
+        <span class="chip">⏱️ 9h às 17h</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMO USAR + ANTES -->
+  <section id="antes">
+    <div class="block">
+      <span class="eyebrow">Comece por aqui</span>
+      <h2>Como usar esta apostila</h2>
+      <p>Este é o seu material de apoio. Todos os <b>prompts</b> da aula estão aqui, prontos pra copiar (é só clicar em <b>Copiar</b>). Vai acompanhando bloco por bloco pela lista do lado. Perdeu um passo? Está tudo aqui, você não fica pra trás.</p>
+
+      <div class="info">
+        <div class="it">🚦 As 2 regras do dia</div>
+        <p>Terminou um passo? Digita <b>FEITO</b> no chat. Travou em alguma coisa? Digita <b>SOS</b> que a Iza te chama no privado e resolve com você. A aula não para e você não fica pra trás.</p>
+      </div>
+
+      <h3>✅ Antes de começar, confere se você tem tudo</h3>
+      <p>Marque cada item (fica salvo no seu navegador). Faltou algo? Manda <b>SOS</b> agora.</p>
+      <ul class="check" data-ck="antes">
+        <li><span class="box">✓</span><span><b>Claude Code</b> instalado e logado na sua conta (plano Pro ativo). Roda <b>claude update</b> pra garantir a versão atual.</span></li>
+        <li><span class="box">✓</span><span><b>Git</b> instalado e sua conta do <b>GitHub</b> criada e logada no computador. Sem isso, o Bloco 4 (colocar no ar) não acontece.</span></li>
+        <li><span class="box">✓</span><span><b>Domínio comprado</b> na Hostinger (só comprado; configurar é na aula).</span></li>
+        <li><span class="box">✓</span><span><b>Vídeos no YouTube como Não Listado</b> + um Google Docs com a lista no formato <b>Nome do trabalho + link</b> (ex.: Skincare noturno (marca X): https://youtu.be/...).</span></li>
+        <li><span class="box">✓</span><span>Pasta <b>meu-portfolio-assets</b> com: 1 foto de perfil boa, 3 a 6 fotos, prints das métricas (alcance, engajamento, seguidores) e o Docs dos links.</span></li>
+        <li><span class="box">✓</span><span><b>ZIP dos modelos</b> baixado (link no grupo).</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- BLOCO 1 -->
+  <section id="bloco1">
+    <div class="block">
+      <div class="num">1</div>
+      <span class="eyebrow">9:15 às 10:00</span>
+      <h2>Claude Code: a sua ferramenta</h2>
+      <p>O Claude do site é um chat: você pergunta, ele responde. O <b>Claude Code</b> é um chat que <b>trabalha no seu computador</b>: cria arquivo, edita, organiza pasta, roda o seu site. Você fala "troca a cor do fundo" e ele vai lá e troca. <b>Você não encosta no código. Nunca.</b> Seu trabalho é só um: pedir bem pedido.</p>
+      <div class="info plum"><div class="it">🎬 Pensa assim</div><p>Ele é um programador contratado que trabalha pra você. Você é a diretora. Ele executa.</p></div>
+
+      <h3>Planos e modelos (a parte que ninguém explica)</h3>
+      <p>Seu plano é o <b>Pro</b>. Ele <b>não</b> é crédito que acaba e você compra de novo. É <b>limite de uso</b>: uma cota que renova a cada ~5 horas + um teto por semana. É como franquia de internet, não saldo de celular.</p>
+      <p>O que gasta esse limite mais rápido ou mais devagar é o <b>modelo</b>, o cérebro que trabalha pra você:</p>
+      <div class="rgrid">
+        <div class="rcard"><div class="e">⚡</div><div class="t">Haiku</div><div class="d">O estagiário rápido. Coisa simples, gasta pouquíssimo.</div></div>
+        <div class="rcard" style="border-color:var(--accent);"><div class="e">🎯</div><div class="t">Sonnet <span style="color:var(--accent);">(o nosso)</span></div><div class="d">O profissional experiente. Resolve 95% do dia. É nele que a gente trabalha.</div></div>
+        <div class="rcard"><div class="e">🧠</div><div class="t">Opus</div><div class="d">O especialista sênior. Mais capaz, gasta mais rápido. Só se o Sonnet enroscar.</div></div>
+        <div class="rcard"><div class="e">🚀</div><div class="t">Fable</div><div class="d">O mais avançado, mas consome créditos extras no Pro. Pra portfólio é canhão pra matar mosca. Deixa quieto.</div></div>
+      </div>
+      <div class="info"><div class="it">🏠 Regra da casa</div><p><b>Sonnet no dia a dia.</b> Você não paga o profissional mais caro do mercado pra trocar uma lâmpada. (Ouviu falar de "Mythos"? É o mesmo cérebro do Fable, só liberado pra empresas aprovadas. Não é pra gente.)</p></div>
+
+      <h3>👉 Faça agora</h3>
+      <p>Abre o Claude Code, digita <b>/model</b> e dá enter. Escolhe <b>Sonnet</b>. Pronto, ficou salvo pra toda sessão. Digita <b>FEITO</b> no chat.</p>
+      <ul class="check" data-ck="b1">
+        <li><span class="box">✓</span><span>Configurei o modelo <b>Sonnet</b> com /model</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- BLOCO 2 -->
+  <section id="bloco2">
+    <div class="block">
+      <div class="num">2</div>
+      <span class="eyebrow">Módulo 1 · 10:00 às 12:30</span>
+      <h2>Seu site rodando, com a sua cara</h2>
+      <p>Todo portfólio profissional tem as mesmas peças: <b>Topo</b> (quem você é em 1 frase + melhor foto), <b>Sobre</b> (sua história curta), <b>Trabalhos por nicho</b> (a seção mais importante, seus vídeos organizados por nicho), <b>Serviços</b>, <b>Resultados</b> (métricas), <b>Depoimentos</b> e <b>Contato</b>. Você recebeu <b>19 estilos</b> no ZIP: a estrutura é a mesma, muda a roupa. Escolhe um com a sua cara em 2 minutos, sem travar.</p>
+
+      <h3>Passo 1 · Abrir o projeto e rodar no localhost</h3>
+      <p>Descompacta o ZIP, pega a pasta do <b>seu</b> estilo e arrasta pra área de trabalho. Abre o Claude Code <b>DENTRO dessa pasta</b> (esse é o erro nº 1 do dia, confere que abriu na pasta certa). Aí manda:</p>
+      <div class="prompt"><div class="prompt-head"><span class="pl">💻 Prompt · rodar no localhost</span><button class="prompt-copy" onclick="copiar(this)">Copiar</button></div><pre class="prompt-code">Este é o site do meu portfólio. Rode ele num servidor local e me diga o endereço pra eu abrir no navegador.</pre></div>
+      <p>Ele te dá um endereço tipo <b>http://localhost:3000</b>. Abre no navegador.</p>
+      <div class="info plum"><div class="it">🎨 O que é "localhost"</div><p>É "casa local": o site roda SÓ no seu computador, ninguém mais vê. É o seu ateliê. A gente monta tudo aqui e no fim da tarde abre a loja pro mundo. Fechou o computador? Os arquivos continuam na pasta, ele só fica offline até você rodar de novo.</p></div>
+
+      <h3>Passo 2 · Sua foto e seu nome</h3>
+      <p>Cria uma pasta chamada <b>fotos</b> dentro da pasta do site e arrasta suas fotos pra lá. Regra simples: o que está <b>dentro</b> da pasta, ele consegue usar; o que está fora, não existe pra ele. Agora preenche o prompt com os SEUS dados:</p>
+      <div class="prompt"><div class="prompt-head"><span class="pl">💻 Prompt · personalizar</span><button class="prompt-copy" onclick="copiar(this)">Copiar</button></div><pre class="prompt-code">Personalize este portfólio com minhas informações:
+- Nome: [SEU NOME]
+- Profissão: Creator UGC / Influenciadora [SEU NICHO]
+- Cidade: [SUA CIDADE]
+- Instagram: @[SEU ARROBA] ([X] seguidores)
+- TikTok: @[SEU ARROBA]
+- Minha foto de perfil está em fotos/[nome-do-arquivo]
+- Use as outras fotos da pasta fotos/ nas seções que fizerem sentido
+Escreva os textos em primeira pessoa, tom profissional mas próximo.
+Não invente números nem trabalhos que eu não informei.</pre></div>
+      <p>Dá enter, observa ele trabalhar e atualiza a página (F5).</p>
+      <div class="info"><div class="it">⚠️ Regra de ouro</div><p>Repara na última linha do prompt: <b>"não invente números"</b>. A IA preenche buraco com criatividade. Portfólio com métrica inventada é o jeito mais rápido de queimar seu nome com uma marca. A gente confere tudo no final.</p></div>
+
+      <h3>Passo 3 · Os vídeos (a seção que fecha contrato)</h3>
+      <p>Vídeo pesado deixa o site lento e site lento a marca fecha. Por isso YouTube <b>Não Listado</b>: carrega rápido no player deles e só quem tem o link vê (não aparece no seu canal nem em busca). <b>Atenção:</b> não listado é diferente de privado, privado ninguém vê nem no seu site. Abre seu Docs, copia a lista inteira (nome + link) e manda:</p>
+      <div class="prompt"><div class="prompt-head"><span class="pl">💻 Prompt · vídeos por nicho</span><button class="prompt-copy" onclick="copiar(this)">Copiar</button></div><pre class="prompt-code">Na seção "Trabalhos por nicho", substitua os cards de exemplo pelos meus vídeos reais do YouTube listados abaixo. Cada card deve ter o vídeo incorporado (embed do YouTube), o nome do trabalho e a etiqueta do nicho correto. Mantenha o filtro por nicho funcionando. Remova os cards de exemplo que sobrarem.
+
+Meus vídeos:
+[COLAR AQUI A LISTA: Nome do trabalho + link]</pre></div>
+      <div class="info plum"><div class="it">🗝️ O segredo de pedir bem</div><p>Repara como o prompt diz <b>ONDE</b> mexer (a seção), <b>O QUE</b> fazer (substituir pelos meus vídeos), <b>COMO</b> deve ficar (embed + nome + nicho) e o que fazer com a sobra (remover exemplos). Lugar, ação, resultado esperado. Quem pede "coloca meus vídeos aí" recebe surpresa. Quem pede assim recebe o que quer.</p></div>
+      <ul class="check" data-ck="b2">
+        <li><span class="box">✓</span><span>Meu site abrindo no <b>localhost</b></span></li>
+        <li><span class="box">✓</span><span>Meu <b>nome e minhas fotos</b> no site</span></li>
+        <li><span class="box">✓</span><span>Meus <b>vídeos tocando</b> na seção de trabalhos</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- BLOCO 3 -->
+  <section id="bloco3">
+    <div class="block">
+      <div class="num">3</div>
+      <span class="eyebrow">Módulo 2 · 14:00 às 15:20</span>
+      <h2>Deixar com nível profissional</h2>
+      <p>Fechou o computador no almoço? Abre o Claude Code na pasta do site e pede <b>"rode meu site de novo no servidor local"</b>. Marca contrata por 2 motivos: seu conteúdo (já está aí) e seus <b>números</b>.</p>
+
+      <h3>Passo 1 · Métricas e resultados</h3>
+      <div class="prompt"><div class="prompt-head"><span class="pl">💻 Prompt · resultados</span><button class="prompt-copy" onclick="copiar(this)">Copiar</button></div><pre class="prompt-code">Atualize a seção de resultados/métricas com meus números reais:
+- Seguidores Instagram: [X]
+- Seguidores TikTok: [X]
+- Alcance médio mensal: [X]
+- Taxa de engajamento: [X]%
+- Views totais nos últimos 90 dias: [X]
+- Marcas que já trabalhei: [listar]
+Apresente de forma visual e profissional. Não adicione nenhum número que eu não tenha informado.</pre></div>
+      <div class="info"><div class="it">💡 Começando agora?</div><p>Número pequeno REAL vale mais que número grande inventado. Se preferir, pede pra ele <b>destacar a taxa de engajamento</b> em vez de seguidores. Engajamento alto com base pequena é argumento de venda, não fraqueza.</p></div>
+
+      <h3>Passo 2 · Serviços e depoimentos</h3>
+      <div class="prompt"><div class="prompt-head"><span class="pl">💻 Prompt · serviços + depoimentos</span><button class="prompt-copy" onclick="copiar(this)">Copiar</button></div><pre class="prompt-code">Atualize a seção de serviços com o que eu ofereço:
+[ex.: vídeo UGC para tráfego pago, unboxing, review, combo 3 vídeos, presença em evento. Liste os seus]
+Não coloque preços, apenas os formatos.
+
+Nos depoimentos, substitua os exemplos por estes reais:
+[COLAR: "frase do depoimento" + Nome, Marca]
+Se eu não tiver depoimentos suficientes, remova os cards que sobrarem em vez de inventar.</pre></div>
+      <div class="info plum"><div class="it">💬 Por que sem preço no site?</div><p>Preço travado no site te impede de negociar por escopo. O site abre a conversa, o valor você fecha no privado.</p></div>
+
+      <h3>Passo 3 · Deixar com a SUA cara (iterar)</h3>
+      <p>Aqui não tem prompt fixo, tem conversa. Um pedido de cada vez, por exemplo:</p>
+      <div class="prompt"><div class="prompt-head"><span class="pl">💻 Exemplos · ajustes de estilo</span><button class="prompt-copy" onclick="copiar(this)">Copiar</button></div><pre class="prompt-code">Troque a paleta de cores para tons de [rosa queimado e creme], mantendo a legibilidade.
+
+Deixe a fonte dos títulos mais [elegante / moderna / divertida].
+
+Na seção sobre, reescreva meu texto assim: [colar o texto do seu jeito]</pre></div>
+      <div class="info"><div class="it">🌸 3 regras pra iterar</div><p><b>1.</b> Um pedido de cada vez (pediu 5 coisas juntas e não gostou, não sabe qual desfazer). <b>2.</b> Não gostou? Fala: "não gostei, o rosa ficou muito claro, quero mais fechado". Se quebrar feio: <b>"desfaça a última alteração e volte como estava"</b>. <b>3.</b> Sempre confere no celular: <b>"me mostre como o site fica em tela de celular e ajuste o que estiver quebrado"</b>. A marca abre no Instagram, ou seja, no celular. Quebrou lá, não existiu.</p></div>
+      <ul class="check" data-ck="b3">
+        <li><span class="box">✓</span><span>Métricas reais na seção Resultados</span></li>
+        <li><span class="box">✓</span><span>Serviços e depoimentos atualizados</span></li>
+        <li><span class="box">✓</span><span>Conferido no <b>celular</b></span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- BLOCO 4 -->
+  <section id="bloco4">
+    <div class="block">
+      <div class="num">4</div>
+      <span class="eyebrow">Módulo 3 · 15:20 às 16:00</span>
+      <h2>Colocar no ar, no seu domínio</h2>
+      <p>Quem entende o mapa não se perde. Hoje seu site mora no seu computador. Pra o mundo ver, ele precisa morar num computador ligado 24h: isso é <b>hospedagem</b> (vamos usar o <b>GitHub Pages</b>, de graça). O endereço do GitHub é feio (seunome.github.io); o bonito é o <b>domínio</b> que você comprou na Hostinger. Quem liga um no outro é o <b>DNS</b> (a lista telefônica da internet). São 3 passos: subir pro GitHub, ativar o Pages, apontar o domínio.</p>
+
+      <h3>Passo 1 · Subir pro GitHub Pages</h3>
+      <div class="prompt"><div class="prompt-head"><span class="pl">💻 Prompt · publicar</span><button class="prompt-copy" onclick="copiar(this)">Copiar</button></div><pre class="prompt-code">Publique este site no GitHub Pages:
+1. Crie um repositório público no meu GitHub chamado meu-portfolio
+2. Suba todos os arquivos do site
+3. Ative o GitHub Pages
+4. Me diga o endereço onde o site ficou no ar
+Se precisar que eu faça login ou autorize algo, me avise passo a passo.</pre></div>
+      <p>Se ele pedir autorização do GitHub, segue o que ele mandar (é uma vez só). No fim, ele te dá um link <b>.github.io</b>: é o seu site NO AR, de verdade. Já pode mandar pra quem quiser.</p>
+
+      <h3>Passo 2 · Apontar o domínio na Hostinger</h3>
+      <p>Hostinger → Domínios → seu domínio → <b>DNS / Nameservers</b>. Cria os registros:</p>
+      <ul class="check" data-ck="b4dns">
+        <li><span class="box">✓</span><span><b>CNAME</b>: nome <b>www</b> → valor <b>SEUUSUARIO.github.io</b></span></li>
+        <li><span class="box">✓</span><span><b>4 registros A</b>: nome <b>@</b> → <b>185.199.108.153</b>, <b>185.199.109.153</b>, <b>185.199.110.153</b>, <b>185.199.111.153</b></span></li>
+        <li><span class="box">✓</span><span>No GitHub: repositório → Settings → Pages → <b>Custom domain</b> → digita o domínio → salvar → marca <b>Enforce HTTPS</b> quando liberar</span></li>
+      </ul>
+      <p>Prefere não sair do fluxo? Pede pro próprio Claude Code:</p>
+      <div class="prompt"><div class="prompt-head"><span class="pl">💻 Prompt · DNS guiado</span><button class="prompt-copy" onclick="copiar(this)">Copiar</button></div><pre class="prompt-code">Me guie passo a passo pra apontar meu domínio da Hostinger pro GitHub Pages, me dizendo exatamente quais registros DNS criar.</pre></div>
+      <div class="info"><div class="it">⏳ Importante: o DNS não é instantâneo</div><p>Essa "lista telefônica" demora de minutos até algumas horas pra atualizar no mundo todo. Se o seu domínio ainda não abrir agora, está <b>TUDO certo</b>. O link github.io já está no ar e o domínio conecta sozinho ao longo do dia. Hoje à noite ele vai estar lá. Quando abrir, posta nos stories e marca a <b>@eilaradam</b>. 💛</p></div>
+    </div>
+  </section>
+
+  <!-- BLOCO 5 -->
+  <section id="bloco5">
+    <div class="block">
+      <div class="num">5</div>
+      <span class="eyebrow">Módulo 4 · 16:00 às 16:45</span>
+      <h2>O portfólio que se mede sozinho</h2>
+      <p>Seu site está no ar. Mas quantas marcas entraram nele essa semana? Qual vídeo elas mais assistiram? Você não sabe. <b>A ideia inteira cabe numa frase: dois sites que conversam por um banco de dados só.</b> Um site público (o portfólio que as marcas veem) e um painel privado (o admin, onde você, logada, enxerga tudo em números). Visita, clique, vídeo assistido, lead. Tudo vira dado, e dado vira decisão.</p>
+      <div class="rgrid">
+        <div class="rcard"><div class="e">🖼️</div><div class="t">A vitrine</div><div class="d">ugc.laradam.com — o portfólio que vai pras marcas.</div></div>
+        <div class="rcard"><div class="e">🧠</div><div class="t">A memória</div><div class="d">O Supabase — banco na nuvem que guarda cada evento e lead. Você não cuida de servidor.</div></div>
+        <div class="rcard"><div class="e">📊</div><div class="t">O painel</div><div class="d">creators.laradam.com — seu admin privado com login, onde você lê as métricas.</div></div>
+      </div>
+      <h3>O rastreador (o coração do sistema)</h3>
+      <p>Dentro do site tem um componente invisível que dispara um "evento" em 3 situações: <b>page_view</b> (abriu/trocou de página), <b>button_click</b> (clicaram num botão marcado, é só pôr uma marquinha) e <b>video_view</b> (assistiram um vídeo). Cada evento carrega uma ficha: <b>session_id</b> (código único por visitante, é o que separa "visitas" de "pessoas diferentes"), qual página, de onde veio e qual aparelho. Dois detalhes de gente grande: o envio acontece em segundo plano (não trava o site) e a chave secreta fica escondida numa "portaria" no servidor.</p>
+      <div class="info plum"><div class="it">🧯 A lição de ouro (o perrengue das 1000 linhas)</div><p>Um dia o painel mostrava MENOS gente do que a real. Por quê? O banco devolve 1000 linhas por vez, e os eventos passaram de 6 mil: o painel só olhava as 1000 mais recentes e subcontava. Moral: <b>o número na tela só vale se você buscou o dado inteiro.</b> Desconfia de dashboard bonito com dado incompleto.</p></div>
+      <h3>Como começar a SUA versão (lição de casa)</h3>
+      <p>Cria conta grátis no Supabase (o banco) e na Vercel (a hospedagem da portaria). Depois, com o seu site aberto, pede:</p>
+      <div class="prompt"><div class="prompt-head"><span class="pl">💻 Prompt · seu sistema de métricas</span><button class="prompt-copy" onclick="copiar(this)">Copiar</button></div><pre class="prompt-code">Quero medir as visitas do meu portfólio. Crie um sistema de analytics: registre page_view, cliques e vídeos assistidos num banco Supabase, com session_id por visitante, e uma página de admin com login onde só eu vejo os números. Me guie pra criar as contas e configurar as chaves com segurança.</pre></div>
+      <p style="font-size:14px;color:var(--text-muted);">Sendo honesta: isso é projeto pra uma tarde, não pra 40 minutos. Hoje você leva o mapa completo e o primeiro prompt. Quem quiser construir junto, com calma e suporte, a gente conversa em breve. 💛</p>
+    </div>
+  </section>
+
+  <!-- PORTFOLIO -->
+  <section id="portfolio">
+    <div class="block" style="border:2px solid var(--accent);">
+      <span class="eyebrow">🔗 Terminou? Cola aqui</span>
+      <h2>Manda o link do seu portfólio</h2>
+      <p>Assim que o seu site estiver no ar (pode ser o link <b>.github.io</b> ou o seu domínio), cola aqui embaixo. A <b>Lara acompanha ao vivo</b> e vai dando uma olhada em cada um. 💛</p>
+      <div id="pfForm">
+        <div class="field"><label>Seu nome</label><input type="text" id="pfNome" placeholder="Seu nome"></div>
+        <div class="field"><label>@ do seu Instagram</label><input type="text" id="pfInsta" placeholder="@seuperfil"></div>
+        <div class="field"><label>Link do seu portfólio no ar</label><input type="text" id="pfLink" placeholder="https://seunome.github.io  (ou seunome.com)"></div>
+        <div class="field"><label>E-mail <span style="color:var(--text-muted);font-weight:400;">(opcional)</span></label><input type="email" id="pfEmail" placeholder="seuemail@exemplo.com"></div>
+        <button type="button" class="btn" id="pfBtn" onclick="enviarPortfolio(this)">Enviar meu portfólio 🚀</button>
+        <div class="form-msg" id="pfMsg"></div>
+      </div>
+      <div id="pfOk" style="display:none;text-align:center;padding:16px 0;">
+        <div style="font-size:44px;">🎉</div>
+        <h3 style="margin-top:6px;">Recebido! A Lara já está acompanhando.</h3>
+        <p style="margin-top:4px;">Mandou muito bem. Pode atualizar o link quando melhorar o site, é só enviar de novo. 💛</p>
+        <button type="button" class="btn" style="max-width:260px;margin:14px auto 0;background:var(--card);color:var(--accent);border:1.5px solid var(--accent);" onclick="document.getElementById('pfOk').style.display='none';document.getElementById('pfForm').style.display='block';">Enviar outro / atualizar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section>
+    <div class="cta">
+      <span class="eyebrow" style="background:rgba(255,255,255,0.16);color:#fff;">Antes de ir</span>
+      <h2>Portfólio pronto é portfólio USADO.</h2>
+      <p>Essa semana ainda, manda o seu link pra <b>5 marcas</b>. O site não fecha contrato sozinho, mas ele fecha a porta na cara de quem te acharia amadora. Quando o domínio conectar, posta nos stories e marca a <b>@eilaradam</b>. Quero repostar cada um! 💛</p>
+    </div>
+  </section>
+
+  <!-- AJUDA -->
+  <section id="ajuda">
+    <div class="block">
+      <span class="eyebrow">Deu ruim?</span>
+      <h2>Socorro rápido</h2>
+      <p>Travou? Antes de mandar SOS, dá uma olhada aqui, a maioria dos perrengues é um destes:</p>
+      <div style="overflow-x:auto;">
+      <table class="tbl">
+        <tr><td>Claude Code não abre / pede login</td><td>Faz login de novo e roda <b>claude update</b>.</td></tr>
+        <tr><td>"Ele diz que não acha os arquivos"</td><td>Você abriu o Claude Code fora da pasta. Fecha e abre <b>DENTRO da pasta do estilo</b>.</td></tr>
+        <tr><td>Localhost não abre</td><td>Pede: <b>"o endereço não abriu, rode de novo em outra porta"</b>.</td></tr>
+        <tr><td>Dei F5 e nada mudou</td><td>Cache do navegador: <b>Cmd+Shift+R</b> (ou Ctrl+Shift+R). Confere se é a aba certa.</td></tr>
+        <tr><td>Vídeo aparece como indisponível</td><td>No YouTube, a visibilidade tem que ser <b>Não Listado</b> (privado ninguém vê).</td></tr>
+        <tr><td>"Atingi o limite de uso"</td><td>Renova sozinho. Confere se está no <b>Sonnet</b> (/model). Pausa e volta.</td></tr>
+        <tr><td>GitHub pede autorização</td><td>Segue o passo a passo que o Claude Code der. É uma vez só.</td></tr>
+        <tr><td>Meu domínio não abre</td><td>DNS propagando, normal (até algumas horas). O link <b>github.io</b> já funciona.</td></tr>
+        <tr><td>Fiz algo e o site quebrou</td><td>Pede: <b>"desfaça a última alteração e volte como estava"</b>.</td></tr>
+      </table>
+      </div>
+    </div>
+    <div class="foot">Feito com 💛 pela Lara Dam · Imersão de Portfólio com Claude Code · uso interno das alunas</div>
+  </section>
+</div>
+
+<script>
+/* ── Supabase ── */
+const SB_URL='https://mfrmnquvwwuxraqgemyh.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mcm1ucXV2d3d1eHJhcWdlbXloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNDI1NDIsImV4cCI6MjA4NzYxODU0Mn0.zmsi08dV5L1IlXJSr34vOii71w0g0OsD5_5DKio5g-o';
+let sbc=null; try{ sbc=window.supabase.createClient(SB_URL,SB_KEY);}catch(e){}
+
+/* ── Prompts: destacar [placeholders] e copiar texto limpo ── */
+document.querySelectorAll('.prompt-code').forEach(function(el){
+  const raw=el.textContent; el.dataset.raw=raw;
+  el.innerHTML=raw.replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}).replace(/\[[^\]]+\]/g,function(m){return '<span class="ph">'+m+'</span>';});
+});
+function copiar(btn){
+  const code=btn.closest('.prompt').querySelector('.prompt-code');
+  const txt=code.dataset.raw||code.textContent;
+  navigator.clipboard.writeText(txt).then(function(){
+    const o=btn.textContent; btn.textContent='Copiado! ✓';
+    setTimeout(function(){btn.textContent=o;},1600);
+  },function(){});
+}
+
+/* ── Checklists com localStorage ── */
+document.querySelectorAll('.check').forEach(function(ul){
+  const key='aula_ck_'+(ul.dataset.ck||'');
+  let saved={}; try{ saved=JSON.parse(localStorage.getItem(key)||'{}'); }catch(e){}
+  Array.prototype.forEach.call(ul.children,function(li,i){
+    if(saved[i]) li.classList.add('done');
+    li.addEventListener('click',function(){
+      li.classList.toggle('done');
+      const st={}; Array.prototype.forEach.call(ul.children,function(l,j){ if(l.classList.contains('done')) st[j]=1; });
+      try{ localStorage.setItem(key,JSON.stringify(st)); }catch(e){}
+    });
+  });
+});
+
+/* ── Sidebar: destacar bloco ativo no scroll ── */
+const navLinks=Array.prototype.slice.call(document.querySelectorAll('#sbNav a'));
+const secs=navLinks.map(function(a){ return document.querySelector(a.getAttribute('href')); }).filter(Boolean);
+const obs=new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if(en.isIntersecting){
+      const id='#'+en.target.id;
+      navLinks.forEach(function(a){ a.classList.toggle('active', a.getAttribute('href')===id); });
+    }
+  });
+},{rootMargin:'-30% 0px -60% 0px'});
+secs.forEach(function(s){ obs.observe(s); });
+navLinks.forEach(function(a){ a.addEventListener('click',function(){ document.getElementById('sidebar').classList.remove('open'); }); });
+
+/* ── Envio do portfólio ── */
+function pgv(id){ const e=document.getElementById(id); return e?e.value.trim():''; }
+async function enviarPortfolio(btn){
+  const msg=document.getElementById('pfMsg'); msg.textContent='';
+  const nome=pgv('pfNome'), insta=pgv('pfInsta'), link=pgv('pfLink'), email=pgv('pfEmail').toLowerCase();
+  if(!nome){ msg.style.color='var(--accent-dark)'; msg.textContent='Coloca o seu nome.'; return; }
+  if(!link || !/\./.test(link)){ msg.style.color='var(--accent-dark)'; msg.textContent='Coloca o link do seu portfólio no ar.'; return; }
+  let url=link; if(!/^https?:\/\//i.test(url)) url='https://'+url;
+  btn.textContent='Enviando...'; btn.disabled=true;
+  try{
+    if(!sbc) throw new Error('conexão');
+    const { error } = await sbc.from('aula_alunas').insert([{ nome:nome, instagram:insta.toLowerCase()||null, portfolio:url, email:email||null }]);
+    if(error) throw error;
+    document.getElementById('pfForm').style.display='none';
+    document.getElementById('pfOk').style.display='block';
+    document.getElementById('pfNome').value=''; document.getElementById('pfInsta').value=''; document.getElementById('pfLink').value=''; document.getElementById('pfEmail').value='';
+    window.scrollTo({top:document.getElementById('portfolio').offsetTop-20,behavior:'smooth'});
+  }catch(e){ msg.style.color='var(--accent-dark)'; msg.textContent='Não consegui enviar agora. Tenta de novo em instantes.'; }
+  finally{ btn.textContent='Enviar meu portfólio 🚀'; btn.disabled=false; }
+}
+</script>
+</body>
+</html>
