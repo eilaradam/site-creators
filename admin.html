@@ -2708,7 +2708,7 @@
         if (r.cria_conteudo_ingles === 'sim') {
             conteudo = 'Sim';
             if (r.tempo_ingles) conteudo += ' · há ' + lbl(tempoMap, r.tempo_ingles);
-            if (r.video_ingles) conteudo += ' · <a href="' + castingEsc(r.video_ingles) + '" target="_blank" style="color:var(--accent);font-weight:600;">ver vídeo ↗</a>';
+            if (r.video_ingles) conteudo += ' · <a href="' + (/^https?:\/\//i.test(r.video_ingles) ? castingEsc(r.video_ingles) : '#') + '" target="_blank" rel="noopener noreferrer" style="color:var(--accent);font-weight:600;">ver vídeo ↗</a>';
         } else if (r.cria_conteudo_ingles === 'nao') conteudo = 'Não';
         let tts = '—';
         if (r.tiktokshop === 'sim') {

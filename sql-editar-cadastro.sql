@@ -23,14 +23,17 @@ BEGIN
     FROM creators
     WHERE LOWER(TRIM(email)) = LOWER(TRIM(p_email));
 
+    -- Mensagem UNIFORME (não revelar se o e-mail existe ou não → evita
+    -- enumeração de e-mails). Mesmo texto pra "e-mail não existe" e
+    -- "whatsapp não confere".
     IF NOT FOUND THEN
-        RETURN json_build_object('encontrado', false, 'erro', 'Nenhum cadastro encontrado com esse e-mail.');
+        RETURN json_build_object('encontrado', false, 'erro', 'E-mail ou WhatsApp nao conferem.');
     END IF;
 
     v_db_whatsapp_clean := regexp_replace(v_creator.whatsapp, '\D', '', 'g');
 
     IF v_whatsapp_clean <> v_db_whatsapp_clean THEN
-        RETURN json_build_object('encontrado', false, 'erro', 'O WhatsApp nao confere com o cadastro desse e-mail.');
+        RETURN json_build_object('encontrado', false, 'erro', 'E-mail ou WhatsApp nao conferem.');
     END IF;
 
     RETURN json_build_object(
@@ -92,12 +95,13 @@ BEGIN
     FROM creators
     WHERE LOWER(TRIM(email)) = LOWER(TRIM(p_email));
 
+    -- Mensagem UNIFORME (mesmo motivo do creator_verify_identity acima).
     IF NOT FOUND THEN
-        RETURN json_build_object('sucesso', false, 'erro', 'Cadastro nao encontrado.');
+        RETURN json_build_object('sucesso', false, 'erro', 'E-mail ou WhatsApp nao conferem.');
     END IF;
 
     IF v_whatsapp_clean <> v_db_whatsapp_clean THEN
-        RETURN json_build_object('sucesso', false, 'erro', 'WhatsApp nao confere.');
+        RETURN json_build_object('sucesso', false, 'erro', 'E-mail ou WhatsApp nao conferem.');
     END IF;
 
     FOR v_key IN SELECT unnest(v_allowed_keys)

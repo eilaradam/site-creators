@@ -22,8 +22,14 @@ returns table (nome text, email text, whatsapp text, instagram text, cidade text
   regiao text, seguidores text, orcamento text, portfolio text, foto text, criado timestamptz)
 language plpgsql security definer set search_path to 'public' as $fn$
 begin
-  if p_token is null or p_token <> (select token from public.link_tokens where campanha = p_campanha) then
-    return;  -- token inválido → vazio
+  -- FALHA FECHADA: só libera se existir um token cadastrado pra essa campanha
+  -- E ele bater exatamente. Se a campanha não tem token em link_tokens, a versão
+  -- antiga comparava com NULL (p_token <> NULL = NULL, tratado como falso) e
+  -- ACABAVA RETORNANDO TUDO. Agora, sem token cadastrado → não vaza nada.
+  if p_token is null or p_token = ''
+     or not exists (select 1 from public.link_tokens
+                    where campanha = p_campanha and token = p_token) then
+    return;  -- token ausente/inválido → vazio
   end if;
   return query
     select c.nome, c.email, c.whatsapp, c.instagram, c.cidade,
