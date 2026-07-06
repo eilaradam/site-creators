@@ -5046,12 +5046,8 @@
     function badgeClass(status) {
         return { 'novo': 'badge-novo', 'aprovado': 'badge-aprovado', 'ativo': 'badge-ativo' }[status] || 'badge-novo';
     }
-    function escapeHtml(str) {
-        if (!str) return '';
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
-    }
+    /* escapeHtml: usar a definição única (escapa & < > " '). A duplicata que
+       ficava aqui NÃO escapava aspas → permitia XSS em atributos/onclick. */
 
     function safeUrl(url) {
         if (!url) return '#';

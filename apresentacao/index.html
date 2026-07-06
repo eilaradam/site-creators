@@ -457,8 +457,10 @@
   async function fetchStats() {
     try {
       const sb = window.supabase.createClient(SB_URL, SB_KEY);
-      let res = await sb.rpc('casting_agencia_full', { p_casting: 'internacional' });
-      if (res.error) res = await sb.rpc('casting_agencia', { p_casting: 'internacional' });
+      // Função MASCARADA no servidor (sem nome completo, @instagram, cidade,
+      // estado nem data de nascimento). Não cair pras funções completas aqui:
+      // esta página é pública e não pode carregar PII crua no payload.
+      const res = await sb.rpc('casting_vitrine', { p_casting: 'internacional' });
       const { data, error } = res;
       if (error || !data) return null;
       _rows = data;
@@ -545,7 +547,7 @@
         g.forEach(r => {
           const ns = parseNichos(r.nicho);
           const nicho = ns.length ? (ns.slice(0, 2).join(', ') + (ns.length > 2 ? ' +' + (ns.length - 2) : '')) : '·';
-          html += '<tr>' + nmCell(r) + '<td>' + lbl(NIVEL, r.ingles_nivel) + '</td><td>' + lbl(SOTAQUE, r.ingles_sotaque) + '</td><td>' + idade(r.data_nascimento) + '</td><td>' + (SEGUID[r.seguidores] || r.seguidores || '·') + '</td><td>' + nicho + '</td></tr>';
+          html += '<tr>' + nmCell(r) + '<td>' + lbl(NIVEL, r.ingles_nivel) + '</td><td>' + lbl(SOTAQUE, r.ingles_sotaque) + '</td><td>' + (r.idade ? r.idade + ' anos' : '·') + '</td><td>' + (SEGUID[r.seguidores] || r.seguidores || '·') + '</td><td>' + nicho + '</td></tr>';
         });
       });
     } else {
