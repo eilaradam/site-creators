@@ -1209,16 +1209,13 @@
             <label class="ig-label">Em quais posts <span class="ig-hint">(vazio = todos os posts)</span></label>
             <button type="button" id="igMediaBtn" class="ig-btn ghost" style="width:100%;text-align:left;">Todos os posts</button>
             <div id="igMediaGrid" style="display:none;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:6px;margin-top:10px;max-height:220px;overflow-y:auto;"></div>
-            <label class="ig-label">Mensagem pedindo pra seguir <span class="ig-hint">(1ª DM enviada)</span></label>
-            <textarea id="igf_ask" class="ig-input"></textarea>
-            <label class="ig-label">Mensagem com o link <span class="ig-hint">(escreva {LINK} onde o link deve entrar)</span></label>
+            <label class="ig-label">Mensagem que a pessoa recebe <span class="ig-hint">(escreva {LINK} onde o link deve entrar)</span></label>
             <textarea id="igf_linkmsg" class="ig-input"></textarea>
             <label class="ig-label">Link a entregar</label>
             <input id="igf_linkurl" class="ig-input" placeholder="https://...">
             <label class="ig-label">Resposta pública no comentário <span class="ig-hint">(opcional)</span></label>
             <input id="igf_public" class="ig-input" placeholder="te chamei no direct 💌">
-            <label style="display:flex;align-items:center;gap:8px;margin-top:16px;font-size:13px;color:var(--text);cursor:pointer;"><input type="checkbox" id="igf_require"> Pedir pra seguir antes de mandar o link</label>
-            <label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px;color:var(--text);cursor:pointer;"><input type="checkbox" id="igf_active"> Automação ativa</label>
+            <label style="display:flex;align-items:center;gap:8px;margin-top:16px;font-size:13px;color:var(--text);cursor:pointer;"><input type="checkbox" id="igf_active"> Automação ativa</label>
             <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px;">
                 <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:4px;">🔀 Fluxo com botões <span class="ig-hint">(opcional)</span></div>
                 <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Monte uma conversa com botões que a pessoa toca pra avançar. Se você criar passos aqui, eles substituem a "mensagem com o link" acima. Use <b>{LINK}</b> no texto pra inserir o link do passo.</div>
@@ -5387,7 +5384,7 @@
             + '<div style="flex:1;min-width:220px;">'
             + '<div style="font-weight:800;color:var(--text);font-size:15px;margin-bottom:5px;">' + escapeHtml(a.nome || 'Automação') + (a.active ? '' : ' <span style="color:var(--text-muted);font-weight:600;font-size:12px;">(pausada)</span>') + '</div>'
             + '<div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">' + (a.match_any ? '<b style="color:var(--accent);">Qualquer palavra</b>' : 'Palavras: <b style="color:var(--accent);">' + escapeHtml(a.keyword || '') + '</b>') + ' · ' + ((a.media_ids && a.media_ids.length) ? a.media_ids.length + ' post(s)' : 'todos os posts') + '</div>'
-            + '<div style="font-size:12px;color:var(--text-muted);">🔗 ' + escapeHtml(a.link_url || '(sem link)') + (a.require_follow ? ' · pede follow antes' : '') + '</div>'
+            + '<div style="font-size:12px;color:var(--text-muted);">🔗 ' + escapeHtml(a.link_url || '(sem link)') + '</div>'
             + '</div>'
             + '<div style="display:flex;gap:6px;flex-shrink:0;">'
             + '<button class="ig-btn ghost" type="button" data-ig-act="toggle" data-ig-id="' + a.id + '">' + (a.active ? 'Pausar' : 'Ativar') + '</button>'
@@ -5419,11 +5416,9 @@
         document.getElementById('igf_id').value = a ? a.id : '';
         document.getElementById('igf_nome').value = a ? (a.nome || '') : '';
         document.getElementById('igf_keyword').value = a ? (a.keyword || '') : '';
-        document.getElementById('igf_ask').value = a ? (a.ask_follow_message || '') : 'Oiii! Que alegria ver seu interesse 💛 Antes de te mandar o link, me segue aqui no perfil? Assim que me seguir, responde com "segui" que eu te envio tudo ✨';
         document.getElementById('igf_linkmsg').value = a ? (a.link_message || '') : 'Prontinho! Aqui está o que você pediu: {LINK} 💌';
         document.getElementById('igf_linkurl').value = a ? (a.link_url || '') : '';
         document.getElementById('igf_public').value = a ? (a.public_reply || '') : 'te chamei no direct 💌';
-        document.getElementById('igf_require').checked = a ? !!a.require_follow : true;
         document.getElementById('igf_active').checked = a ? !!a.active : true;
         document.getElementById('igf_matchany').checked = a ? !!a.match_any : false;
         igSelMedia = new Set((a && a.media_ids) ? a.media_ids : []);
@@ -5451,11 +5446,10 @@
         const rec = {
             nome: document.getElementById('igf_nome').value.trim() || 'Automação',
             keyword: document.getElementById('igf_keyword').value.trim(),
-            ask_follow_message: document.getElementById('igf_ask').value,
             link_message: document.getElementById('igf_linkmsg').value,
             link_url: document.getElementById('igf_linkurl').value.trim(),
             public_reply: document.getElementById('igf_public').value,
-            require_follow: document.getElementById('igf_require').checked,
+            require_follow: false,
             active: document.getElementById('igf_active').checked,
             match_any: document.getElementById('igf_matchany').checked,
             media_ids: Array.from(igSelMedia),
@@ -5495,12 +5489,9 @@
     function igRenderPreview() {
         const box = document.getElementById('igPreview'); if (!box) return;
         const pub = document.getElementById('igf_public').value;
-        const req = document.getElementById('igf_require').checked;
-        const ask = document.getElementById('igf_ask').value;
         let h = '';
         if (pub) h += '<div style="text-align:center;color:#8a8f98;font-size:10.5px;margin-bottom:8px;">💬 resposta no comentário: "' + escapeHtml(pub) + '"</div>';
         if (igFlow.steps.length) {
-            if (req) { h += igBubble(ask, false); h += igBubble('segui', true); }
             igFlow.steps.forEach(s => {
                 const url = s.link || 'seu-link.com';
                 const msg = (s.message || '').indexOf('{LINK}') >= 0 ? s.message.split('{LINK}').join(url) : (s.message + (s.link ? ' ' + url : ''));
@@ -5512,8 +5503,7 @@
             const linkMsg = document.getElementById('igf_linkmsg').value;
             const linkUrl = document.getElementById('igf_linkurl').value || 'seu-link.com';
             const rendered = linkMsg.indexOf('{LINK}') >= 0 ? linkMsg.split('{LINK}').join(linkUrl) : (linkMsg + ' ' + linkUrl);
-            if (req) { h += igBubble(ask, false); h += igBubble('segui', true); h += igBubble(rendered, false); }
-            else { h += igBubble(rendered, false); }
+            h += igBubble(rendered, false);
         }
         box.innerHTML = h;
     }
@@ -5852,8 +5842,7 @@
             const tip = document.getElementById('igReachTip'); if (tip) tip.style.display = 'none';
         });
         const md = document.getElementById('igModal'); if (md) md.addEventListener('click', (e) => { if (e.target === md) igCloseModal(); });
-        ['igf_ask', 'igf_linkmsg', 'igf_linkurl', 'igf_public'].forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('input', igRenderPreview); });
-        const rq = document.getElementById('igf_require'); if (rq) rq.addEventListener('change', igRenderPreview);
+        ['igf_linkmsg', 'igf_linkurl', 'igf_public'].forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('input', igRenderPreview); });
         const mb = document.getElementById('igMediaBtn'); if (mb) mb.addEventListener('click', igToggleMediaGrid);
         const mg = document.getElementById('igMediaGrid'); if (mg) mg.addEventListener('click', (e) => {
             const cell = e.target.closest('[data-ig-media]'); if (!cell) return;
