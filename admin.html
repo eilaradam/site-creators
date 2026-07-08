@@ -5446,14 +5446,28 @@
     let igLogRows = [];
     async function igLoadHealth() {
         const host = document.getElementById('igHealth'); if (!host) return;
+        let html = '';
+        // chip do token (renova sozinho toda semana)
+        try {
+            const { data: tk } = await sb.from('ig_token_status').select('expires_at,last_ok').eq('id', 'main').maybeSingle();
+            if (tk && tk.expires_at) {
+                const dias = Math.floor((new Date(tk.expires_at).getTime() - Date.now()) / 86400000);
+                const emoji = (tk.last_ok === false) ? '🔴' : (dias <= 3 ? '🔴' : (dias <= 10 ? '🟡' : '🟢'));
+                const txt = dias >= 0 ? ('Token ' + dias + ' dia' + (dias === 1 ? '' : 's')) : 'Token vencido';
+                html += '<span class="ig-hchip' + (dias <= 10 ? ' bad' : '') + '" style="cursor:default;" title="Token do Instagram — renova sozinho toda semana">' + emoji + ' ' + txt + '</span>';
+            }
+        } catch (e) { /* sem status ainda */ }
+        // chip das entregas (clicável -> tela de Entregas)
         const since = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
         const { data, error } = await sb.from('ig_deliveries').select('status').gte('ts', since);
-        if (error) { host.innerHTML = ''; return; }
-        const total = (data || []).length;
-        const fails = (data || []).filter(d => d.status === 'erro').length;
-        const bad = fails > 0;
-        host.innerHTML = '<button class="ig-hchip' + (bad ? ' bad' : '') + '" type="button" title="Ver todas as entregas">✉️ ' + total + ' entrega' + (total === 1 ? '' : 's')
-            + (bad ? ' · <b>' + fails + ' falha' + (fails === 1 ? '' : 's') + '</b>' : '') + ' <span style="opacity:.55;">24h</span></button>';
+        if (!error) {
+            const total = (data || []).length;
+            const fails = (data || []).filter(d => d.status === 'erro').length;
+            const bad = fails > 0;
+            html += '<button class="ig-hchip' + (bad ? ' bad' : '') + '" type="button" data-ig-deliv="1" title="Ver todas as entregas">✉️ ' + total + ' entrega' + (total === 1 ? '' : 's')
+                + (bad ? ' · <b>' + fails + ' falha' + (fails === 1 ? '' : 's') + '</b>' : '') + ' <span style="opacity:.55;">24h</span></button>';
+        }
+        host.innerHTML = html;
     }
     function igLogAutoName(id) { const a = igAutomations.find(x => x.id === id); return a ? (a.nome || 'Automação') : '—'; }
     async function igOpenDeliveries() {
@@ -6155,7 +6169,7 @@
             const tip = document.getElementById('igReachTip'); if (tip) tip.style.display = 'none';
         });
         const md = document.getElementById('igModal'); if (md) md.addEventListener('click', (e) => { if (e.target === md) igCloseModal(); });
-        const hh = document.getElementById('igHealth'); if (hh) hh.addEventListener('click', (e) => { if (e.target.closest('.ig-hchip')) igOpenDeliveries(); });
+        const hh = document.getElementById('igHealth'); if (hh) hh.addEventListener('click', (e) => { if (e.target.closest('[data-ig-deliv]')) igOpenDeliveries(); });
         const lc = document.getElementById('igLogClose'); if (lc) lc.addEventListener('click', igCloseDeliveries);
         const lm = document.getElementById('igLogModal'); if (lm) lm.addEventListener('click', (e) => { if (e.target === lm) igCloseDeliveries(); });
         const lf = document.getElementById('igLogFilters'); if (lf) lf.addEventListener('click', (e) => {
