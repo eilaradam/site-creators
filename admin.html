@@ -1244,6 +1244,8 @@
             </div>
             <label class="ig-label">Mensagem que a pessoa recebe <span class="ig-hint">(escreva {LINK} onde o link deve entrar)</span></label>
             <textarea id="igf_linkmsg" class="ig-input"></textarea>
+            <div id="igLinkMsgVars"></div>
+            <button type="button" id="igLinkMsgVarAdd" class="ig-btn ghost" style="font-size:12px;padding:4px 10px;margin-top:4px;">➕ variação (A/B) da mensagem</button>
             <label class="ig-label">Link a entregar</label>
             <input id="igf_linkurl" class="ig-input" placeholder="https://...">
             <label class="ig-label">📎 Arquivos que a pessoa recebe <span class="ig-hint">(opcional: PDF, áudio, imagem, vídeo)</span></label>
@@ -1253,6 +1255,9 @@
             <div id="igfAssetsNote" style="display:none;font-size:11.5px;color:var(--text-muted);background:var(--warm);border-radius:8px;padding:8px 10px;margin-top:8px;line-height:1.5;">💡 Como o Instagram só deixa enviar arquivo depois que a pessoa responde, ela recebe sua mensagem com um botão <b>"🎁 Receber material"</b>. Ao tocar, os arquivos chegam na DM.</div>
             <label class="ig-label">Resposta pública no comentário <span class="ig-hint">(opcional)</span></label>
             <input id="igf_public" class="ig-input" placeholder="te chamei no direct 💌">
+            <div id="igPubVars"></div>
+            <button type="button" id="igPubVarAdd" class="ig-btn ghost" style="font-size:12px;padding:4px 10px;margin-top:4px;">➕ variação (A/B) da resposta</button>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">💡 Com variações, o sistema alterna entre elas automaticamente (ex: "te enviei!" / "enviado! 💌").</div>
             <label style="display:flex;align-items:center;gap:8px;margin-top:16px;font-size:13px;color:var(--text);cursor:pointer;"><input type="checkbox" id="igf_active"> Automação ativa</label>
             <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px;">
                 <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:4px;">🔀 Fluxo com botões <span class="ig-hint">(opcional)</span></div>
@@ -5786,6 +5791,9 @@
         document.getElementById('igfAssetsGrid').style.display = 'none';
         igRenderAssetSel();
         if (!igAssets.length) igLoadAssets().then(igRenderAssetSel);
+        igLinkMsgVars = (a && a.link_message_variants) ? a.link_message_variants.slice() : [];
+        igPubVars = (a && a.public_reply_variants) ? a.public_reply_variants.slice() : [];
+        igRenderVars('link'); igRenderVars('pub');
         igFlow = { steps: [] }; igFlowSeq = 0;
         if (a && a.flow && Array.isArray(a.flow.steps)) {
             igFlow = { steps: a.flow.steps.map(s => {
@@ -5807,6 +5815,28 @@
         const story = el.value === 'story_reply';
         const ps = document.getElementById('igPostsSection'); if (ps) ps.style.display = story ? 'none' : 'block';
     }
+    // ---- Variações A/B (mensagem da DM e resposta pública) ----
+    let igLinkMsgVars = [], igPubVars = [];
+    function igVarsArr(kind) { return kind === 'link' ? igLinkMsgVars : igPubVars; }
+    function igSyncVars(kind) {
+        const arr = [];
+        document.querySelectorAll('[data-var="' + kind + '"]').forEach(el => arr.push(el.value));
+        if (kind === 'link') igLinkMsgVars = arr; else igPubVars = arr;
+    }
+    function igRenderVars(kind) {
+        const box = document.getElementById(kind === 'link' ? 'igLinkMsgVars' : 'igPubVars'); if (!box) return;
+        const isText = kind === 'link';
+        box.innerHTML = igVarsArr(kind).map((v, i) =>
+            '<div style="display:flex;gap:6px;align-items:flex-start;margin-top:6px;">'
+            + (isText
+                ? '<textarea class="ig-input" data-var="' + kind + '" style="margin:0;min-height:44px;">' + escapeHtml(v || '') + '</textarea>'
+                : '<input class="ig-input" data-var="' + kind + '" style="margin:0;" value="' + igEsc(v || '') + '">')
+            + '<button type="button" data-varx="' + kind + '" data-vi="' + i + '" class="ig-iconbtn" title="Remover" style="flex-shrink:0;">✕</button>'
+            + '</div>'
+        ).join('');
+    }
+    function igAddVar(kind) { igSyncVars(kind); igVarsArr(kind).push(''); igRenderVars(kind); }
+    function igRemoveVar(kind, i) { igSyncVars(kind); igVarsArr(kind).splice(i, 1); igRenderVars(kind); }
     function igRenderAssetSel() {
         const host = document.getElementById('igfAssetsSel'); if (!host) return;
         const ids = Array.from(igSelAssets);
@@ -5855,6 +5885,8 @@
             active: document.getElementById('igf_active').checked,
             match_any: document.getElementById('igf_matchany').checked,
             trigger_type: document.getElementById('igf_trigger').value,
+            public_reply_variants: (igSyncVars('pub'), igPubVars.map(s => (s || '').trim()).filter(Boolean)),
+            link_message_variants: (igSyncVars('link'), igLinkMsgVars.map(s => (s || '').trim()).filter(Boolean)),
             media_ids: Array.from(igSelMedia),
             asset_ids: Array.from(igSelAssets),
             flow: igFlow.steps.length ? {
@@ -6281,6 +6313,9 @@
         });
         const ma = document.getElementById('igf_matchany'); if (ma) ma.addEventListener('change', () => { const k = document.getElementById('igf_keyword'); k.disabled = ma.checked; k.style.opacity = ma.checked ? '.5' : '1'; });
         const tg = document.getElementById('igf_trigger'); if (tg) tg.addEventListener('change', igUpdateTriggerUI);
+        const lmv = document.getElementById('igLinkMsgVarAdd'); if (lmv) lmv.addEventListener('click', () => igAddVar('link'));
+        const pvv = document.getElementById('igPubVarAdd'); if (pvv) pvv.addEventListener('click', () => igAddVar('pub'));
+        const mdv = document.getElementById('igModal'); if (mdv) mdv.addEventListener('click', (e) => { const x = e.target.closest('[data-varx]'); if (x) igRemoveVar(x.dataset.varx, +x.dataset.vi); });
         const mab = document.getElementById('igMarcasBtn'); if (mab) mab.addEventListener('click', igAnalyzeDMs);
         const sl = document.getElementById('igSortLoad'); if (sl) sl.addEventListener('click', igLoadSorteio);
         const mbox = document.getElementById('igMarcasBox');
