@@ -1381,6 +1381,40 @@
             </div>
 
             <div style="margin-bottom:16px;">
+                <label style="display:block;font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;">Estado <span style="font-weight:400;color:var(--text-muted);">(filtra por UF · opcional)</span></label>
+                <select id="dispUF" onchange="loadDisparo()" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;background:var(--cream);color:var(--text);outline:none;">
+                    <option value="">Todos os estados</option>
+                    <option value="AC">Acre (AC)</option>
+                    <option value="AL">Alagoas (AL)</option>
+                    <option value="AP">Amapá (AP)</option>
+                    <option value="AM">Amazonas (AM)</option>
+                    <option value="BA">Bahia (BA)</option>
+                    <option value="CE">Ceará (CE)</option>
+                    <option value="DF">Distrito Federal (DF)</option>
+                    <option value="ES">Espírito Santo (ES)</option>
+                    <option value="GO">Goiás (GO)</option>
+                    <option value="MA">Maranhão (MA)</option>
+                    <option value="MT">Mato Grosso (MT)</option>
+                    <option value="MS">Mato Grosso do Sul (MS)</option>
+                    <option value="MG">Minas Gerais (MG)</option>
+                    <option value="PA">Pará (PA)</option>
+                    <option value="PB">Paraíba (PB)</option>
+                    <option value="PR">Paraná (PR)</option>
+                    <option value="PE">Pernambuco (PE)</option>
+                    <option value="PI">Piauí (PI)</option>
+                    <option value="RJ">Rio de Janeiro (RJ)</option>
+                    <option value="RN">Rio Grande do Norte (RN)</option>
+                    <option value="RS">Rio Grande do Sul (RS)</option>
+                    <option value="RO">Rondônia (RO)</option>
+                    <option value="RR">Roraima (RR)</option>
+                    <option value="SC">Santa Catarina (SC)</option>
+                    <option value="SP">São Paulo (SP)</option>
+                    <option value="SE">Sergipe (SE)</option>
+                    <option value="TO">Tocantins (TO)</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom:16px;">
                 <label style="display:block;font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;">Assunto</label>
                 <input id="dispSubject" placeholder="Ex.: Surgiu uma nova oportunidade de campanha pra você 🌎" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;background:var(--cream);color:var(--text);outline:none;">
             </div>
@@ -2252,11 +2286,14 @@
     /* ══ DISPARO DE E-MAIL EM MASSA (via função send-bulk-email + Resend) ══ */
     async function disparoRecipients(target) {
         if (target === 'teste') return [{ nome: 'Lara', email: 'laradam.ugc@gmail.com' }];
+        const ufEl = document.getElementById('dispUF');
+        const uf = ufEl ? ufEl.value : '';
         const all = [];
         const PAGE = 1000;
         for (let from = 0; from < 100000; from += PAGE) {
             let q = sb.from('creators').select('nome,email').range(from, from + PAGE - 1);
             if (target && target !== 'todos') q = q.eq('status', target);
+            if (uf) q = q.eq('estado', uf);
             const { data, error } = await q;
             if (error) return null;
             if (!data || !data.length) break;
@@ -2276,7 +2313,7 @@
         const recs = await disparoRecipients(target);
         if (recs === null) { el.innerHTML = '<span style="color:var(--error);">Erro ao contar destinatários.</span>'; return; }
         if (target === 'teste') el.innerHTML = '🧪 Modo teste — vai só pra <b>laradam.ugc@gmail.com</b>.';
-        else el.innerHTML = '<b style="color:var(--accent);">' + recs.length + '</b> creators vão receber este e-mail.';
+        else { const uf = (document.getElementById('dispUF') || {}).value || ''; el.innerHTML = '<b style="color:var(--accent);">' + recs.length + '</b> creators' + (uf ? ' de <b>' + uf + '</b>' : '') + ' vão receber este e-mail.'; }
     }
     function renderDispPreview() {
         const el = document.getElementById('dispPreview');
