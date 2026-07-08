@@ -1235,6 +1235,11 @@
             <textarea id="igf_linkmsg" class="ig-input"></textarea>
             <label class="ig-label">Link a entregar</label>
             <input id="igf_linkurl" class="ig-input" placeholder="https://...">
+            <label class="ig-label">📎 Arquivos que a pessoa recebe <span class="ig-hint">(opcional: PDF, áudio, imagem, vídeo)</span></label>
+            <div id="igfAssetsSel" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;"></div>
+            <button type="button" id="igfAssetsPick" class="ig-btn ghost" style="width:100%;text-align:left;">➕ Escolher da biblioteca</button>
+            <div id="igfAssetsGrid" style="display:none;grid-template-columns:repeat(auto-fill,minmax(116px,1fr));gap:6px;margin-top:8px;max-height:210px;overflow-y:auto;"></div>
+            <div id="igfAssetsNote" style="display:none;font-size:11.5px;color:var(--text-muted);background:var(--warm);border-radius:8px;padding:8px 10px;margin-top:8px;line-height:1.5;">💡 Como o Instagram só deixa enviar arquivo depois que a pessoa responde, ela recebe sua mensagem com um botão <b>"🎁 Receber material"</b>. Ao tocar, os arquivos chegam na DM.</div>
             <label class="ig-label">Resposta pública no comentário <span class="ig-hint">(opcional)</span></label>
             <input id="igf_public" class="ig-input" placeholder="te chamei no direct 💌">
             <label style="display:flex;align-items:center;gap:8px;margin-top:16px;font-size:13px;color:var(--text);cursor:pointer;"><input type="checkbox" id="igf_active"> Automação ativa</label>
@@ -5244,6 +5249,7 @@
     let igAutomations = [];
     let igLeads = [];
     let igSelMedia = new Set();
+    let igSelAssets = new Set();
     let igMediaCache = null;
     let igMediaPromise = null;
     let igFlow = { steps: [] };
@@ -5331,6 +5337,7 @@
         if (file.type === 'audio/mpeg' || ext === 'mp3') { alert('O Instagram não aceita MP3 no áudio. 🙏\n\nExporta o áudio em .m4a (o formato que o iPhone/gravador de voz já usa) e sobe de novo.'); return; }
         const tipo = igAssetTipo(file);
         if (!tipo) { alert('Tipo de arquivo não suportado.\nUse imagem, áudio (.m4a), vídeo (.mp4) ou PDF.'); return; }
+        if (tipo === 'image' && file.size > 8 * 1024 * 1024) { alert('Imagem grande demais (' + igFmtSize(file.size) + ').\nO Instagram aceita imagem até 8MB. (áudio, vídeo e PDF até 25MB.)'); return; }
         if (file.size > 25 * 1024 * 1024) { alert('Arquivo grande demais (' + igFmtSize(file.size) + ').\nO Instagram aceita até 25MB.'); return; }
         status.style.display = 'block';
         status.textContent = '⏳ Subindo "' + file.name + '"...';
@@ -5610,6 +5617,10 @@
         igSelMedia = new Set((a && a.media_ids) ? a.media_ids : []);
         document.getElementById('igMediaGrid').style.display = 'none';
         igUpdateMediaBtn();
+        igSelAssets = new Set((a && a.asset_ids) ? a.asset_ids : []);
+        document.getElementById('igfAssetsGrid').style.display = 'none';
+        igRenderAssetSel();
+        if (!igAssets.length) igLoadAssets().then(igRenderAssetSel);
         igFlow = { steps: [] }; igFlowSeq = 0;
         if (a && a.flow && Array.isArray(a.flow.steps)) {
             igFlow = { steps: a.flow.steps.map(s => {
@@ -5626,6 +5637,41 @@
     }
     function igEdit(id) { const a = igAutomations.find(x => x.id === id); if (a) igOpenModal(a); }
     function igCloseModal() { document.getElementById('igModal').style.display = 'none'; }
+    function igRenderAssetSel() {
+        const host = document.getElementById('igfAssetsSel'); if (!host) return;
+        const ids = Array.from(igSelAssets);
+        host.innerHTML = ids.map(id => {
+            const a = igAssets.find(x => x.id === id);
+            const label = a ? (igAssetIcon(a.tipo) + ' ' + a.nome) : '📎 arquivo';
+            return '<span style="display:inline-flex;align-items:center;gap:6px;background:var(--accent-glow);color:var(--accent);border-radius:999px;font-size:12px;font-weight:700;padding:4px 10px;max-width:100%;">' + '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(label) + '</span><span data-ig-unpick="' + id + '" style="cursor:pointer;flex-shrink:0;">✕</span></span>';
+        }).join('');
+        igUpdateAssetsHint();
+    }
+    function igUpdateAssetsHint() {
+        const note = document.getElementById('igfAssetsNote'); if (!note) return;
+        const hasAssets = igSelAssets.size > 0;
+        const withFlow = (typeof igFlow !== 'undefined') && igFlow.steps && igFlow.steps.length > 0;
+        if (hasAssets && withFlow) {
+            note.style.display = 'block'; note.style.background = 'rgba(200,68,26,0.08)';
+            note.innerHTML = '⚠️ Automações com <b>fluxo de botões</b> ainda não enviam os arquivos anexados. Pra enviar mídia, remova o fluxo abaixo (ou os arquivos).';
+        } else if (hasAssets) {
+            note.style.display = 'block'; note.style.background = 'var(--warm)';
+            note.innerHTML = '💡 Como o Instagram só deixa enviar arquivo depois que a pessoa responde, ela recebe sua mensagem com um botão <b>"🎁 Receber material"</b>. Ao tocar, os arquivos chegam na DM.';
+        } else {
+            note.style.display = 'none';
+        }
+    }
+    function igRenderAssetPicker() {
+        const grid = document.getElementById('igfAssetsGrid'); if (!grid) return;
+        if (!igAssets.length) { grid.innerHTML = '<div style="grid-column:1/-1;color:var(--text-muted);font-size:12px;padding:10px;">Nenhum arquivo ainda. Suba em <b>📁 Mídia</b> primeiro.</div>'; return; }
+        grid.innerHTML = igAssets.map(a => {
+            const sel = igSelAssets.has(a.id);
+            const thumb = a.tipo === 'image'
+                ? '<img src="' + escapeHtml(a.public_url) + '" style="width:100%;height:56px;object-fit:cover;border-radius:6px;">'
+                : '<div style="height:56px;display:flex;align-items:center;justify-content:center;font-size:22px;background:var(--warm);border-radius:6px;">' + igAssetIcon(a.tipo) + '</div>';
+            return '<div data-ig-pick="' + a.id + '" style="cursor:pointer;border:2px solid ' + (sel ? 'var(--accent)' : 'transparent') + ';border-radius:8px;padding:3px;">' + thumb + '<div style="font-size:10px;color:var(--text-muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (sel ? '✓ ' : '') + escapeHtml(a.nome) + '</div></div>';
+        }).join('');
+    }
 
     async function igSave() {
         const id = document.getElementById('igf_id').value;
@@ -5639,6 +5685,7 @@
             active: document.getElementById('igf_active').checked,
             match_any: document.getElementById('igf_matchany').checked,
             media_ids: Array.from(igSelMedia),
+            asset_ids: Array.from(igSelAssets),
             flow: igFlow.steps.length ? {
                 steps: igFlow.steps.map(s => ({
                     id: s.id,
@@ -5701,7 +5748,7 @@
         const box = document.getElementById('igFlowSteps'); if (!box) return;
         if (!igFlow.steps.length) {
             box.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:4px 0 8px;">Sem fluxo. A automação usa a "mensagem com o link" acima. Clique em "+ Adicionar passo" pra criar um fluxo com botões.</div>';
-            igRenderPreview(); return;
+            igRenderPreview(); igUpdateAssetsHint(); return;
         }
         const opts = (sel) => igFlow.steps.map((s, i) => '<option value="' + s.id + '"' + (String(s.id) === String(sel) ? ' selected' : '') + '>Passo ' + (i + 1) + '</option>').join('');
         box.innerHTML = igFlow.steps.map((s, si) => {
@@ -5732,6 +5779,7 @@
                 + '</div>';
         }).join('');
         igRenderPreview();
+        igUpdateAssetsHint();
     }
 
     function igUpdateMediaBtn() {
@@ -6041,6 +6089,9 @@
         const asm = document.getElementById('igAssetsModal'); if (asm) asm.addEventListener('click', (e) => { if (e.target === asm) igCloseAssets(); });
         const asi = document.getElementById('igAssetInput'); if (asi) asi.addEventListener('change', (e) => { const f = e.target.files && e.target.files[0]; if (f) igUploadAsset(f); e.target.value = ''; });
         const asg = document.getElementById('igAssetsGrid'); if (asg) asg.addEventListener('click', (e) => { const b = e.target.closest('[data-ig-asset-del]'); if (b) igDeleteAsset(b.dataset.igAssetDel); });
+        const ap = document.getElementById('igfAssetsPick'); if (ap) ap.addEventListener('click', () => { const g = document.getElementById('igfAssetsGrid'); const show = g.style.display === 'none'; g.style.display = show ? 'grid' : 'none'; if (show) igRenderAssetPicker(); });
+        const apg = document.getElementById('igfAssetsGrid'); if (apg) apg.addEventListener('click', (e) => { const c = e.target.closest('[data-ig-pick]'); if (!c) return; const id = c.dataset.igPick; if (igSelAssets.has(id)) igSelAssets.delete(id); else igSelAssets.add(id); igRenderAssetPicker(); igRenderAssetSel(); });
+        const asel = document.getElementById('igfAssetsSel'); if (asel) asel.addEventListener('click', (e) => { const x = e.target.closest('[data-ig-unpick]'); if (!x) return; igSelAssets.delete(x.dataset.igUnpick); igRenderAssetSel(); igRenderAssetPicker(); });
         ['igf_linkmsg', 'igf_linkurl', 'igf_public'].forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('input', igRenderPreview); });
         const mb = document.getElementById('igMediaBtn'); if (mb) mb.addEventListener('click', igToggleMediaGrid);
         const mg = document.getElementById('igMediaGrid'); if (mg) mg.addEventListener('click', (e) => {
