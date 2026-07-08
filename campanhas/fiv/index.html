@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campanha especial: FIV e congelamento de óvulos | Lara Dam</title>
+    <meta name="description" content="Candidate-se à campanha especial de FIV e congelamento de óvulos (SP e Brasília) com a Lara Dam.">
+    <meta name="robots" content="noindex">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.98.0" integrity="sha384-Sm2s7OXxsAMTyJ4iIyRBgVpeGUvMPk2lRQnnZhE78Wej7oggIoolKt+SCt0XJbUB" crossorigin="anonymous"></script>
+    <style>
+        :root {
+            --white: #FAFAF9; --cream: #F5F3EF; --warm: #E8E4DD;
+            --accent: #D4572A; --accent-dark: #B8461F; --accent-glow: rgba(212,87,42,0.12);
+            --text: #1A1816; --text-soft: #6B645C; --text-muted: #9C958C;
+            --border: #DDD8D0; --card: #FFFFFF; --success: #2D7A4F; --error: #C4453C;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background: var(--cream); color: var(--text); -webkit-font-smoothing: antialiased; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 32px 24px; }
+        .page-logo { text-align: center; margin-bottom: 28px; }
+        .page-logo a { font-family: 'Fraunces', serif; font-weight: 700; font-size: 28px; color: var(--text); text-decoration: none; }
+        .page-logo a span { color: var(--accent); }
+        .form-wrapper { max-width: 560px; width: 100%; }
+        .form-box { background: var(--card); border-radius: 24px; padding: 44px 36px; border: 1px solid var(--border); box-shadow: 0 4px 24px rgba(0,0,0,0.04); position: relative; overflow: hidden; }
+        .form-box::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent), #E8784A, var(--accent)); }
+        .camp-badge { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent); background: var(--accent-glow); padding: 5px 12px; border-radius: 100px; margin-bottom: 14px; }
+        .form-title { font-family: 'Fraunces', serif; font-size: 27px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; line-height: 1.15; }
+        .form-subtitle { font-size: 14.5px; color: var(--text-soft); margin-bottom: 26px; line-height: 1.6; }
+        .field-group { margin-bottom: 18px; }
+        .field-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+        .field-group input, .field-group select, .field-group textarea { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 12px; font-family: 'Outfit', sans-serif; font-size: 15px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; }
+        .field-group textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+        .field-group input::placeholder, .field-group textarea::placeholder { color: var(--text-muted); }
+        .field-group input:focus, .field-group select:focus, .field-group textarea:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
+        .field-group select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239C958C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 40px; cursor: pointer; }
+        .field-hint { color: var(--text-muted); font-weight: 400; }
+        .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .section-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin: 28px 0 12px; }
+        .welcome-banner { background: rgba(45,122,79,0.08); border: 1px solid rgba(45,122,79,0.22); color: #1f5c39; padding: 14px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; margin-bottom: 24px; display: none; }
+        .welcome-banner.show { display: block; }
+        .care-note { background: var(--accent-glow); border: 1px solid rgba(212,87,42,0.18); color: var(--accent-dark); padding: 13px 15px; border-radius: 12px; font-size: 13px; line-height: 1.55; margin-bottom: 22px; }
+        .cond-block { margin-top: 4px; padding-top: 14px; border-top: 1px dashed var(--border); }
+        .cond-block .field-group:last-child { margin-bottom: 0; }
+        .form-submit { width: 100%; margin-top: 12px; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 14px; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .form-submit:hover { background: var(--accent-dark); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(212,87,42,0.3); }
+        .form-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+        .form-footer { text-align: center; margin-top: 16px; font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+        .form-error { background: rgba(196,69,60,0.08); border: 1px solid rgba(196,69,60,0.2); color: var(--error); padding: 12px 16px; border-radius: 10px; font-size: 13px; margin-bottom: 16px; display: none; }
+        .form-error.show { display: block; }
+        .success-state { display: none; text-align: center; padding: 32px 12px; }
+        .success-state.show { display: block; animation: fadeUp 0.5s ease-out; }
+        @keyframes checkPop { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 1; } }
+        .success-check-animated { width: 80px; height: 80px; border-radius: 50%; background: rgba(45,122,79,0.1); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 36px; animation: checkPop 0.6s cubic-bezier(0.175,0.885,0.32,1.275) both; }
+        .success-title { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .success-subtitle { font-size: 14px; color: var(--text-soft); line-height: 1.7; max-width: 400px; margin: 0 auto 6px; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 768px) {
+            body { padding: 24px 16px; }
+            .field-row { grid-template-columns: 1fr; }
+            .form-box { padding: 32px 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-logo"><a href="/">lara<span>.</span>dam</a></div>
+    <div class="form-wrapper">
+        <div class="form-box">
+            <div id="formContent">
+                <span class="camp-badge">💛 Campanha especial</span>
+                <h3 class="form-title">FIV e congelamento de óvulos</h3>
+                <p class="form-subtitle">Estamos com uma marca parceira buscando criadoras de <strong>São Paulo</strong> ou <strong>Brasília</strong> que sonham em fazer FIV ou congelar óvulos e topam compartilhar essa jornada em conteúdo, com acompanhamento médico completo e total respeito ao que você quer (ou não) mostrar. Comece com o seu nome e e-mail.</p>
+
+                <!-- ETAPA 1: PORTEIRA (nome + email) -->
+                <div id="gateSection">
+                    <div class="form-error" id="gateError"></div>
+                    <div class="field-group"><label>Nome completo</label><input type="text" id="gateNome" placeholder="Seu nome"></div>
+                    <div class="field-group"><label>E-mail</label><input type="email" id="gateEmail" placeholder="seuemail@exemplo.com"></div>
+                    <button type="button" class="form-submit" id="gateBtn">Continuar</button>
+                    <p class="form-footer">Se você já é da nossa base de creators, seus dados já vêm preenchidos. Se não, é só completar. 💛</p>
+                </div>
+
+                <!-- ETAPA 2: FORMULÁRIO -->
+                <form id="campForm" style="display:none;">
+                    <div class="welcome-banner" id="welcomeBanner"></div>
+                    <div class="form-error" id="formError"></div>
+
+                    <div class="care-note">Tudo que você compartilhar aqui fica entre a gente e a equipe da campanha. A participação depende de avaliação médica da clínica. 💛</div>
+
+                    <div class="section-label">Seus dados</div>
+                    <div class="field-row">
+                        <div class="field-group"><label>@ do Instagram</label><input type="text" id="instagram" placeholder="@seuperfil"></div>
+                        <div class="field-group"><label>Seguidores no Instagram <span class="field-hint">(só números, ex.: 10350)</span></label><input type="text" id="seguidores" inputmode="numeric" placeholder="Ex.: 10350" oninput="this.value=this.value.replace(/[^0-9]/g,'')"></div>
+                    </div>
+                    <div class="field-row">
+                        <div class="field-group"><label>Sua cidade</label><input type="text" id="cidade" placeholder="Ex.: São Paulo, SP"></div>
+                        <div class="field-group"><label>WhatsApp <span class="field-hint">(com DDD)</span></label><input type="tel" id="whatsapp" placeholder="(00) 00000-0000"></div>
+                    </div>
+                    <div class="field-group"><label>Link do seu portfólio / melhor conteúdo <span class="field-hint">(Instagram, Drive, site...)</span></label><input type="text" id="portfolio" placeholder="instagram.com/... ou drive.google.com/..."></div>
+
+                    <div class="section-label">Sobre a campanha</div>
+
+                    <div class="field-group">
+                        <label>Essa jornada é pra você ou pra presentear alguém próximo?</label>
+                        <select id="para_quem" onchange="onParaQuem()">
+                            <option value="" disabled selected>Selecione</option>
+                            <option value="mim">É pra mim</option>
+                            <option value="presente">Quero presentear alguém próximo (irmã, mãe, amiga...)</option>
+                        </select>
+                    </div>
+
+                    <div class="cond-block" id="condPresente" style="display:none;">
+                        <div class="field-group">
+                            <label>Quem você quer presentear?</label>
+                            <select id="presente_relacao">
+                                <option value="" disabled selected>Selecione</option>
+                                <option value="irma">Minha irmã</option>
+                                <option value="mae">Minha mãe</option>
+                                <option value="amiga">Uma amiga querida</option>
+                                <option value="outro">Outra pessoa próxima</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label>Qual é o desejo?</label>
+                        <select id="desejo">
+                            <option value="" disabled selected>Selecione</option>
+                            <option value="fiv">FIV (fertilização in vitro)</option>
+                            <option value="congelamento">Congelamento de óvulos</option>
+                            <option value="ambos">Os dois</option>
+                            <option value="decidindo">Ainda estou decidindo</option>
+                        </select>
+                    </div>
+
+                    <div class="field-row">
+                        <div class="field-group">
+                            <label>A pessoa que faria o procedimento é de qual cidade?</label>
+                            <select id="regiao">
+                                <option value="" disabled selected>Selecione</option>
+                                <option value="sao_paulo">São Paulo</option>
+                                <option value="brasilia">Brasília</option>
+                                <option value="outra">Outra cidade</option>
+                            </select>
+                        </div>
+                        <div class="field-group">
+                            <label>Faixa de idade dela</label>
+                            <select id="idade">
+                                <option value="" disabled selected>Selecione</option>
+                                <option value="ate_29">Até 29 anos</option>
+                                <option value="30_34">30 a 34 anos</option>
+                                <option value="35_37">35 a 37 anos</option>
+                                <option value="38_40">38 a 40 anos</option>
+                                <option value="41_mais">41 anos ou mais</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label>Conta um pouquinho da sua história <span class="field-hint">(opcional, no seu tempo)</span></label>
+                        <textarea id="historia" placeholder="Por que esse sonho é importante pra você? O que te faz querer participar?"></textarea>
+                    </div>
+
+                    <div class="field-group">
+                        <label>Você topa compartilhar essa jornada em conteúdo?</label>
+                        <select id="compartilhar">
+                            <option value="" disabled selected>Selecione</option>
+                            <option value="topo">Sim, topo compartilhar</option>
+                            <option value="combinar">Topo, combinando o que mostrar ou não</option>
+                            <option value="conversar">Prefiro conversar antes de decidir</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="form-submit" id="submitBtn">Enviar inscrição</button>
+                    <p class="form-footer">Todos os perfis são avaliados com carinho pela equipe. Se o seu for aprovado, a gente entra em contato individualmente pra combinar tudo. 💛</p>
+                </form>
+            </div>
+
+            <div class="success-state" id="successState">
+                <div class="success-check-animated">&#10003;</div>
+                <h3 class="success-title">Inscrição recebida! 💛</h3>
+                <p class="success-subtitle" id="successSub">Recebemos a sua inscrição na campanha de FIV e congelamento de óvulos. Todos os perfis são avaliados com carinho e, se o seu for aprovado, a gente entra em contato individualmente. Qualquer dúvida, é só me chamar.</p>
+            </div>
+        </div>
+    </div>
+
+<script>
+    /* ── Campanha FIV e congelamento de óvulos ── */
+    const CAMPANHA_SLUG = 'fiv';
+
+    /* ── Supabase (anon) ── */
+    const SUPABASE_URL = 'https://mfrmnquvwwuxraqgemyh.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mcm1ucXV2d3d1eHJhcWdlbXloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNDI1NDIsImV4cCI6MjA4NzYxODU0Mn0.zmsi08dV5L1IlXJSr34vOii71w0g0OsD5_5DKio5g-o';
+    let sb = null;
+    function initSb() { if (sb) return sb; try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch (e) {} return sb; }
+    initSb();
+
+    /* ── Tracking de visita (contador de cliques no link) ── */
+    (function trackView() {
+        try { if (sessionStorage.getItem('camp_fiv_viewed')) return; sessionStorage.setItem('camp_fiv_viewed', '1'); } catch (e) {}
+        try {
+            if (!initSb()) return;
+            const p = new URLSearchParams(window.location.search);
+            sb.from('campanha_events').insert([{
+                evento: 'view',
+                origem: (p.get('ref') || p.get('utm_source') || null),
+                referrer: (document.referrer || '').slice(0, 300) || null,
+                path: (window.location.pathname + window.location.search).slice(0, 200)
+            }]).then(function () {}, function () {});
+        } catch (e) {}
+    })();
+
+    /* ── Estado ── */
+    let jaCadastrada = false;
+
+    /* ── Helpers ── */
+    function gv(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+    function escapeHtml(s) { return (s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+    function formatUrl(url) { if (!url) return null; const s = url.trim(); if (!s) return null; if (/^https?:\/\//i.test(s)) return s; return 'https://' + s; }
+
+    /* ── Condicional: presentear alguém ── */
+    function onParaQuem() {
+        const v = gv('para_quem');
+        document.getElementById('condPresente').style.display = (v === 'presente') ? 'block' : 'none';
+    }
+
+    /* ── Máscara WhatsApp ── */
+    function bindWhatsappMask() {
+        const w = document.getElementById('whatsapp');
+        if (!w) return;
+        w.addEventListener('input', function (e) {
+            let v = e.target.value.replace(/\D/g, '');
+            if (v.length > 11) v = v.slice(0, 11);
+            if (v.length > 6) v = '(' + v.slice(0, 2) + ') ' + v.slice(2, 7) + '-' + v.slice(7);
+            else if (v.length > 2) v = '(' + v.slice(0, 2) + ') ' + v.slice(2);
+            else if (v.length > 0) v = '(' + v;
+            e.target.value = v;
+        });
+    }
+
+    /* ── ETAPA 1 → 2 ── */
+    document.getElementById('gateBtn').addEventListener('click', async function () {
+        const btn = this;
+        const err = document.getElementById('gateError');
+        err.classList.remove('show');
+        const nome = gv('gateNome');
+        const email = gv('gateEmail').toLowerCase();
+        if (!nome) { err.textContent = 'Digite o seu nome.'; err.classList.add('show'); return; }
+        if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { err.textContent = 'Digite um e-mail válido.'; err.classList.add('show'); return; }
+
+        btn.textContent = 'Verificando...'; btn.disabled = true;
+        let info = null;
+        try {
+            if (initSb()) {
+                const { data, error } = await sb.rpc('campanha_creator_lookup', { p_email: email });
+                if (!error) info = data;
+            }
+        } catch (e) { /* segue como nova */ }
+
+        jaCadastrada = !!(info && info.encontrado);
+        bindWhatsappMask();
+
+        const banner = document.getElementById('welcomeBanner');
+        if (jaCadastrada) {
+            const primeiro = ((info.nome || nome) || '').split(' ')[0];
+            banner.innerHTML = 'Oi, ' + escapeHtml(primeiro) + '! Achamos o seu cadastro na nossa base 💛. Já preenchemos os seus dados, é só conferir (e atualizar se mudou algo).';
+            banner.classList.add('show');
+            if (info.instagram) document.getElementById('instagram').value = info.instagram;
+            if (info.cidade) document.getElementById('cidade').value = info.cidade + (info.estado ? ', ' + info.estado : '');
+        } else {
+            banner.classList.remove('show');
+        }
+
+        document.getElementById('gateSection').style.display = 'none';
+        document.getElementById('campForm').style.display = 'block';
+        btn.textContent = 'Continuar'; btn.disabled = false;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    /* ── ETAPA 2: envio ── */
+    document.getElementById('campForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        const errorEl = document.getElementById('formError');
+        errorEl.classList.remove('show');
+        try {
+            if (!initSb()) throw new Error('Erro de conexão. Recarregue a página.');
+            const nome = gv('gateNome');
+            const email = gv('gateEmail').toLowerCase();
+            const instagram = gv('instagram');
+            const cidade = gv('cidade');
+            const seguidores = gv('seguidores');
+            const whatsapp = gv('whatsapp');
+            const portfolio = gv('portfolio');
+            const para_quem = gv('para_quem');
+            const presente_relacao = gv('presente_relacao');
+            const desejo = gv('desejo');
+            const regiao = gv('regiao');
+            const idade = gv('idade');
+            const historia = gv('historia');
+            const compartilhar = gv('compartilhar');
+
+            if (!instagram) throw new Error('Preencha o seu @ do Instagram.');
+            if (!cidade) throw new Error('Preencha a sua cidade.');
+            if (!seguidores) throw new Error('Preencha o seu número de seguidores (só números).');
+            if (!portfolio) throw new Error('Coloque o link do seu portfólio ou melhor conteúdo.');
+            if (!para_quem) throw new Error('Conta pra gente: essa jornada é pra você ou pra presentear alguém?');
+            if (para_quem === 'presente' && !presente_relacao) throw new Error('Escolha quem você quer presentear.');
+            if (!desejo) throw new Error('Escolha o desejo (FIV, congelamento ou os dois).');
+            if (!regiao) throw new Error('Escolha a cidade da pessoa que faria o procedimento.');
+            if (!idade) throw new Error('Escolha a faixa de idade.');
+            if (!compartilhar) throw new Error('Conta se você topa compartilhar a jornada em conteúdo.');
+
+            const base = {
+                nome: nome,
+                email: email || null,
+                whatsapp: whatsapp || null,
+                instagram: instagram.toLowerCase(),
+                cidade: cidade
+            };
+            const resp = {
+                seguidores: seguidores,
+                portfolio: formatUrl(portfolio),
+                para_quem: para_quem,
+                desejo: desejo,
+                regiao: regiao,
+                idade: idade,
+                compartilhar: compartilhar,
+                ja_cadastrada: jaCadastrada
+            };
+            if (para_quem === 'presente' && presente_relacao) resp.presente_relacao = presente_relacao;
+            if (historia) resp.historia = historia;
+
+            btn.textContent = 'Enviando...'; btn.disabled = true;
+            const { error } = await sb.from('campanha_candidaturas').insert([Object.assign({ campanha: CAMPANHA_SLUG, respostas: resp }, base)]);
+            if (error) throw new Error('Não consegui enviar agora. Tenta de novo em instantes.');
+
+            document.getElementById('formContent').style.display = 'none';
+            document.getElementById('successState').classList.add('show');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (err) {
+            errorEl.textContent = err.message || 'Erro ao enviar. Tente novamente.';
+            errorEl.classList.add('show');
+            errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            btn.textContent = 'Enviar inscrição'; btn.disabled = false;
+        }
+    });
+</script>
+</body>
+</html>

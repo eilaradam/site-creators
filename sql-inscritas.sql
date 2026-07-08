@@ -19,7 +19,7 @@ alter table public.link_tokens enable row level security;
 drop function if exists public.campanha_inscritas(text, text);
 create function public.campanha_inscritas(p_campanha text, p_token text)
 returns table (nome text, email text, whatsapp text, instagram text, cidade text,
-  regiao text, seguidores text, orcamento text, portfolio text, foto text, criado timestamptz)
+  regiao text, seguidores text, orcamento text, portfolio text, foto text, respostas jsonb, criado timestamptz)
 language plpgsql security definer set search_path to 'public' as $fn$
 begin
   -- FALHA FECHADA: só libera se existir um token cadastrado pra essa campanha
@@ -34,7 +34,7 @@ begin
   return query
     select c.nome, c.email, c.whatsapp, c.instagram, c.cidade,
       c.respostas->>'regiao', c.respostas->>'seguidores', c.respostas->>'orcamento', c.respostas->>'portfolio',
-      f.foto_perfil, c.created_at
+      f.foto_perfil, c.respostas, c.created_at
     from campanha_candidaturas c
     left join lateral (
       select cr.foto_perfil from creators cr

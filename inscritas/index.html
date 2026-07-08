@@ -69,8 +69,13 @@
     const params = new URLSearchParams(window.location.search);
     const campanha = (params.get('c') || 'flores').toLowerCase();
     const token = params.get('k') || '';
-    const NOMES = { flores: 'Campanha de Flores 🌸', pais: 'Campanha Pais Creators 👶', decoracao: 'Campanha Casa & Decoração 🛋️' };
-    const REGIAO = { goiania: 'Goiânia', porto_alegre: 'Porto Alegre', salvador: 'Salvador', belo_horizonte: 'Belo Horizonte', outra: 'Outra região' };
+    const NOMES = { flores: 'Campanha de Flores 🌸', pais: 'Campanha Pais Creators 👶', decoracao: 'Campanha Casa & Decoração 🛋️', fiv: 'Campanha FIV & Congelamento 🌱' };
+    const REGIAO = { goiania: 'Goiânia', porto_alegre: 'Porto Alegre', salvador: 'Salvador', belo_horizonte: 'Belo Horizonte', outra: 'Outra região', sao_paulo: 'São Paulo', brasilia: 'Brasília' };
+    const FIV_PARAQUEM = { mim: 'Pra ela mesma', presente: 'Pra presentear alguém' };
+    const FIV_RELACAO = { irma: 'Irmã', mae: 'Mãe', amiga: 'Amiga', outro: 'Outra pessoa próxima' };
+    const FIV_DESEJO = { fiv: 'FIV', congelamento: 'Congelamento de óvulos', ambos: 'FIV + congelamento', decidindo: 'Ainda decidindo' };
+    const FIV_IDADE = { ate_29: 'Até 29 anos', '30_34': '30 a 34', '35_37': '35 a 37', '38_40': '38 a 40', '41_mais': '41+' };
+    const FIV_COMPART = { topo: 'Topa compartilhar', combinar: 'Topa, combinando o que mostrar', conversar: 'Prefere conversar antes' };
 
     function esc(s) { return (s == null ? '' : String(s)).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
     function fmtSeg(s) { const n = parseInt(String(s).replace(/\D/g, ''), 10); return isNaN(n) ? esc(s || '') : n.toLocaleString('pt-BR'); }
@@ -92,6 +97,14 @@
         if (r.email) g += '<div class="row"><span class="k">E-mail</span><span class="v"><a href="mailto:' + esc(r.email) + '">' + esc(r.email) + '</a></span></div>';
         if (r.portfolio) g += '<div class="row"><span class="k">Portfólio</span><span class="v"><a href="' + esc(urlify(r.portfolio)) + '" target="_blank">abrir ↗</a></span></div>';
         if (r.orcamento) g += '<div class="row orc"><span class="k">Orçamento</span><span class="v">' + esc(r.orcamento) + '</span></div>';
+        if (campanha === 'fiv' && r.respostas) {
+            const q = r.respostas;
+            if (q.para_quem) g += '<div class="row"><span class="k">Pra quem</span><span class="v">' + esc((FIV_PARAQUEM[q.para_quem] || q.para_quem) + (q.presente_relacao ? ' · ' + (FIV_RELACAO[q.presente_relacao] || q.presente_relacao) : '')) + '</span></div>';
+            if (q.desejo) g += '<div class="row"><span class="k">Desejo</span><span class="v">' + esc(FIV_DESEJO[q.desejo] || q.desejo) + '</span></div>';
+            if (q.idade) g += '<div class="row"><span class="k">Faixa de idade</span><span class="v">' + esc(FIV_IDADE[q.idade] || q.idade) + '</span></div>';
+            if (q.compartilhar) g += '<div class="row"><span class="k">Conteúdo</span><span class="v">' + esc(FIV_COMPART[q.compartilhar] || q.compartilhar) + '</span></div>';
+            if (q.historia) g += '<div class="row orc"><span class="k">História</span><span class="v">' + esc(q.historia) + '</span></div>';
+        }
         const initials = ((r.nome || '?').trim().split(/\s+/).slice(0, 2).map(w => (w[0] || '')).join('').toUpperCase()) || '?';
         const avatar = '<div class="avatar-wrap"><div class="avatar-ph">' + esc(initials) + '</div>' + (r.foto ? '<img class="avatar" src="' + esc(r.foto) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">' : '') + '</div>';
         return '<div class="card">' + avatar + '<div class="card-body"><div class="card-top"><div class="nome">' + esc(r.nome || '(sem nome)') + regBadge + '</div><div class="when">🗓️ ' + fmtWhen(r.criado) + '</div></div><div class="grid">' + g + '</div></div></div>';

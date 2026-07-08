@@ -1343,7 +1343,7 @@
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
             <div>
                 <h2 style="font-size:22px;font-weight:800;margin:0;color:var(--text);">📥 Candidaturas das campanhas</h2>
-                <p style="color:var(--text-muted);font-size:13px;margin-top:2px;">Quem se candidatou pelos formulários · abrir: <a href="/campanhas/?c=flores" target="_blank" style="color:var(--accent);font-weight:600;">🌸 flores</a> · <a href="/campanhas/?c=pais" target="_blank" style="color:var(--accent);font-weight:600;">👶 pais</a> · <a href="/campanhas/?c=decoracao" target="_blank" style="color:var(--accent);font-weight:600;">🛋️ decoração</a></p>
+                <p style="color:var(--text-muted);font-size:13px;margin-top:2px;">Quem se candidatou pelos formulários · abrir: <a href="/campanhas/?c=flores" target="_blank" style="color:var(--accent);font-weight:600;">🌸 flores</a> · <a href="/campanhas/?c=pais" target="_blank" style="color:var(--accent);font-weight:600;">👶 pais</a> · <a href="/campanhas/?c=decoracao" target="_blank" style="color:var(--accent);font-weight:600;">🛋️ decoração</a> · <a href="/campanhas/fiv" target="_blank" style="color:var(--accent);font-weight:600;">🌱 FIV</a></p>
             </div>
             <div style="display:flex;gap:8px;">
                 <button type="button" onclick="loadCandidaturas()" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 16px;font-family:inherit;font-size:13px;font-weight:600;color:var(--text-soft);cursor:pointer;">↻ Atualizar</button>
@@ -2661,10 +2661,15 @@
     }
 
     /* ── CANDIDATURAS DAS CAMPANHAS (form público campanhas/?c=slug) ── */
-    const CAMP_META = { flores: { emoji: '🌸', nome: 'Flores' }, pais: { emoji: '👶', nome: 'Pais creators' }, decoracao: { emoji: '🛋️', nome: 'Casa & Decoração' } };
+    const CAMP_META = { flores: { emoji: '🌸', nome: 'Flores' }, pais: { emoji: '👶', nome: 'Pais creators' }, decoracao: { emoji: '🛋️', nome: 'Casa & Decoração' }, fiv: { emoji: '🌱', nome: 'FIV & congelamento' } };
     const CAND_SEG_MAP = { ate_1k: 'Até 1.000', '1k_5k': '1.000–5.000', '5k_10k': '5.000–10.000', '10k_30k': '10.000–30.000', '30k_mais': 'Acima de 30.000' };
     const CAND_AFIL_MAP = { sim: 'Sim, já faz', as_vezes: 'Já fez algumas vezes', nao: 'Ainda não, mas quer' };
-    const CAND_REGIAO_MAP = { goiania: 'Goiânia', porto_alegre: 'Porto Alegre', salvador: 'Salvador', belo_horizonte: 'Belo Horizonte', outra: 'Outra região' };
+    const CAND_REGIAO_MAP = { goiania: 'Goiânia', porto_alegre: 'Porto Alegre', salvador: 'Salvador', belo_horizonte: 'Belo Horizonte', outra: 'Outra região', sao_paulo: 'São Paulo', brasilia: 'Brasília' };
+    const CAND_PARAQUEM_MAP = { mim: 'Pra ela mesma', presente: 'Pra presentear alguém' };
+    const CAND_RELACAO_MAP = { irma: 'Irmã', mae: 'Mãe', amiga: 'Amiga', outro: 'Outra pessoa próxima' };
+    const CAND_DESEJO_MAP = { fiv: 'FIV', congelamento: 'Congelamento de óvulos', ambos: 'FIV + congelamento', decidindo: 'Ainda decidindo' };
+    const CAND_IDADE_MAP = { ate_29: 'Até 29 anos', '30_34': '30 a 34', '35_37': '35 a 37', '38_40': '38 a 40', '41_mais': '41+' };
+    const CAND_COMPART_MAP = { topo: 'Topa compartilhar', combinar: 'Topa, combinando o que mostrar', conversar: 'Prefere conversar antes' };
     let _candData = [];
     let candFilter = 'todos';
     async function loadCandidaturas() {
@@ -2705,10 +2710,10 @@
         const filt = document.getElementById('candFilters');
         if (!list) return;
         const all = _candData;
-        const cnt = { todos: all.length, flores: 0, pais: 0, decoracao: 0 };
+        const cnt = { todos: all.length, flores: 0, pais: 0, decoracao: 0, fiv: 0 };
         all.forEach(d => { if (cnt[d.campanha] != null) cnt[d.campanha]++; });
-        if (stats) stats.innerHTML = castingStatChip('Total', all.length) + castingStatChip('🌸 Flores', cnt.flores) + castingStatChip('👶 Pais', cnt.pais) + castingStatChip('🛋️ Decoração', cnt.decoracao);
-        const chips = [['todos', 'Todas'], ['flores', '🌸 Flores'], ['pais', '👶 Pais'], ['decoracao', '🛋️ Decoração']];
+        if (stats) stats.innerHTML = castingStatChip('Total', all.length) + castingStatChip('🌸 Flores', cnt.flores) + castingStatChip('👶 Pais', cnt.pais) + castingStatChip('🛋️ Decoração', cnt.decoracao) + castingStatChip('🌱 FIV', cnt.fiv);
+        const chips = [['todos', 'Todas'], ['flores', '🌸 Flores'], ['pais', '👶 Pais'], ['decoracao', '🛋️ Decoração'], ['fiv', '🌱 FIV']];
         if (filt) filt.innerHTML = chips.map(c => '<button type="button" onclick="candSetFilter(\'' + c[0] + '\')" style="background:' + (candFilter === c[0] ? 'var(--accent)' : 'var(--card)') + ';color:' + (candFilter === c[0] ? '#fff' : 'var(--text-soft)') + ';border:1px solid ' + (candFilter === c[0] ? 'var(--accent)' : 'var(--border)') + ';border-radius:100px;padding:8px 14px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">' + c[1] + ' (' + (cnt[c[0]] || 0) + ')</button>').join('');
         const buscaEl = document.getElementById('candBusca');
         const busca = (buscaEl ? buscaEl.value : '').toLowerCase().trim();
@@ -2733,8 +2738,13 @@
         rows += castingRow('WhatsApp', wppDigits ? '<a href="https://wa.me/55' + wppDigits + '" target="_blank" style="color:var(--accent);font-weight:600;">' + castingEsc(d.whatsapp) + '</a>' : castingEsc(d.whatsapp || '—'));
         rows += castingRow('Cidade', castingEsc(d.cidade || '—'));
         if (d.email) rows += castingRow('E-mail', castingEsc(d.email));
-        if (r.regiao) rows += castingRow('Região', castingEsc(CAND_REGIAO_MAP[r.regiao] || r.regiao));
+        if (r.regiao) rows += castingRow(d.campanha === 'fiv' ? 'Cidade do procedimento' : 'Região', castingEsc(CAND_REGIAO_MAP[r.regiao] || r.regiao));
         if (r.orcamento) rows += castingRow('Orçamento', castingEsc(r.orcamento));
+        if (r.para_quem) rows += castingRow('Pra quem', castingEsc((CAND_PARAQUEM_MAP[r.para_quem] || r.para_quem) + (r.presente_relacao ? ' · ' + (CAND_RELACAO_MAP[r.presente_relacao] || r.presente_relacao) : '')));
+        if (r.desejo) rows += castingRow('Desejo', castingEsc(CAND_DESEJO_MAP[r.desejo] || r.desejo));
+        if (r.idade) rows += castingRow('Faixa de idade', castingEsc(CAND_IDADE_MAP[r.idade] || r.idade));
+        if (r.compartilhar) rows += castingRow('Conteúdo', castingEsc(CAND_COMPART_MAP[r.compartilhar] || r.compartilhar));
+        if (r.historia) rows += castingRow('História', castingEsc(r.historia));
         if (r.seguidores) rows += castingRow('Seguidores', castingEsc(CAND_SEG_MAP[r.seguidores] || r.seguidores));
         if (r.ja_afiliado) rows += castingRow('Já faz afiliado?', castingEsc(CAND_AFIL_MAP[r.ja_afiliado] || r.ja_afiliado));
         if (r.portfolio) rows += castingRow('Portfólio', '<a href="' + castingEsc(r.portfolio) + '" target="_blank" style="color:var(--accent);font-weight:600;">abrir ↗</a>');
@@ -2750,10 +2760,10 @@
     function exportCandidaturasCsv() {
         const rows = _candData.slice();
         if (!rows.length) { alert('Nenhuma candidatura pra exportar ainda.'); return; }
-        const head = ['campanha', 'nome', 'email', 'whatsapp', 'instagram', 'cidade', 'regiao', 'orcamento', 'seguidores', 'portfolio', 'ja_afiliado', 'ja_cadastrada', 'data'];
+        const head = ['campanha', 'nome', 'email', 'whatsapp', 'instagram', 'cidade', 'regiao', 'orcamento', 'para_quem', 'presente_relacao', 'desejo', 'idade', 'compartilhar', 'historia', 'seguidores', 'portfolio', 'ja_afiliado', 'ja_cadastrada', 'data'];
         const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
         const lines = [head.join(',')];
-        rows.forEach(d => { const r = d.respostas || {}; lines.push([d.campanha, d.nome, d.email, d.whatsapp, d.instagram, d.cidade, r.regiao, r.orcamento, r.seguidores, r.portfolio, r.ja_afiliado, r.ja_cadastrada, d.created_at].map(esc).join(',')); });
+        rows.forEach(d => { const r = d.respostas || {}; lines.push([d.campanha, d.nome, d.email, d.whatsapp, d.instagram, d.cidade, r.regiao, r.orcamento, r.para_quem, r.presente_relacao, r.desejo, r.idade, r.compartilhar, r.historia, r.seguidores, r.portfolio, r.ja_afiliado, r.ja_cadastrada, d.created_at].map(esc).join(',')); });
         const blob = new Blob(['﻿' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a'); a.href = url; a.download = 'candidaturas-campanhas.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
