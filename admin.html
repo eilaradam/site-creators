@@ -1147,6 +1147,7 @@
     #tabInstagram .ig-empty .em{font-size:30px;}
     #tabInstagram .ig-empty h4{margin:10px 0 4px;font-size:15px;font-weight:800;color:var(--text);}
     #tabInstagram .ig-empty p{margin:0 0 14px;font-size:13px;color:var(--text-muted);}
+    @keyframes igpulse{0%,100%{opacity:1;}50%{opacity:.3;}}
     </style>
     <div style="max-width:1140px;margin:0 auto;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin:0 0 18px;">
@@ -1285,6 +1286,22 @@
                 <div style="margin-top:6px;">Clique pra escolher um arquivo<br><span style="font-weight:400;">imagem · áudio (.m4a) · vídeo (.mp4) · PDF</span></div>
                 <input id="igAssetInput" type="file" accept="image/*,audio/*,video/*,application/pdf" style="display:none;">
             </label>
+            <div id="igRecPanel" style="border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:16px;">
+                <div id="igRecIdle"><button id="igRecStartBtn" class="ig-btn ghost" type="button" style="width:100%;">🎙️ Gravar áudio agora (sua voz)</button></div>
+                <div id="igRecActive" style="display:none;align-items:center;gap:12px;justify-content:center;">
+                    <span style="width:11px;height:11px;border-radius:50%;background:var(--error);display:inline-block;animation:igpulse 1s infinite;"></span>
+                    <span id="igRecTime" style="font-weight:800;font-variant-numeric:tabular-nums;color:var(--text);">0:00</span>
+                    <button id="igRecStopBtn" class="ig-btn" type="button">⏹ Parar</button>
+                </div>
+                <div id="igRecPreview" style="display:none;">
+                    <div id="igRecStatus" style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">Ouça e salve, ou grave de novo:</div>
+                    <audio id="igRecAudio" controls style="width:100%;height:38px;"></audio>
+                    <div style="display:flex;gap:8px;margin-top:8px;">
+                        <button id="igRecSaveBtn" class="ig-btn" type="button" style="flex:1;">✅ Salvar na biblioteca</button>
+                        <button id="igRecDiscardBtn" class="ig-btn ghost" type="button">Descartar</button>
+                    </div>
+                </div>
+            </div>
             <div id="igAssetsStatus" style="font-size:13px;color:var(--text-muted);margin-bottom:12px;display:none;"></div>
             <div id="igAssetsGrid"></div>
         </div>
@@ -5303,8 +5320,8 @@
         if (ext === 'pdf') return 'file';
         return null;
     }
-    async function igOpenAssets() { document.getElementById('igAssetsModal').style.display = 'flex'; await igLoadAssets(); }
-    function igCloseAssets() { document.getElementById('igAssetsModal').style.display = 'none'; }
+    async function igOpenAssets() { document.getElementById('igAssetsModal').style.display = 'flex'; igRecUI('idle'); await igLoadAssets(); }
+    function igCloseAssets() { igRecStop(); document.getElementById('igAssetsModal').style.display = 'none'; }
     async function igLoadAssets() {
         const grid = document.getElementById('igAssetsGrid'); if (!grid) return;
         grid.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);">Carregando...</div>';
@@ -5352,6 +5369,69 @@
         setTimeout(() => { const s = document.getElementById('igAssetsStatus'); if (s) s.style.display = 'none'; }, 2500);
         await igLoadAssets();
     }
+    // ---- Gravador de áudio no navegador (grava -> converte pra WAV -> vira asset) ----
+    let igRec = null, igRecChunks = [], igRecStream = null, igRecTimer = null, igRecSecs = 0, igRecBlob = null, igRecUrl = null;
+    function igRecUI(state) {
+        const show = (id, on) => { const el = document.getElementById(id); if (el) el.style.display = on ? (id === 'igRecActive' ? 'flex' : 'block') : 'none'; };
+        show('igRecIdle', state === 'idle'); show('igRecActive', state === 'recording'); show('igRecPreview', state === 'preview');
+    }
+    function igRecFmt(s) { const m = Math.floor(s / 60), ss = s % 60; return m + ':' + (ss < 10 ? '0' : '') + ss; }
+    function igRecTick() { const t = document.getElementById('igRecTime'); if (t) t.textContent = igRecFmt(igRecSecs); }
+    async function igRecStart() {
+        if (!navigator.mediaDevices || !window.MediaRecorder) { alert('Seu navegador não suporta gravar áudio aqui. Grave no celular (.m4a) e suba o arquivo.'); return; }
+        try { igRecStream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+        catch (e) { alert('Não consegui acessar o microfone. Permita o acesso no navegador (cadeadinho na barra) e tente de novo.'); return; }
+        igRecChunks = []; igRecBlob = null; igRecSecs = 0;
+        igRec = new MediaRecorder(igRecStream);
+        igRec.ondataavailable = (e) => { if (e.data && e.data.size) igRecChunks.push(e.data); };
+        igRec.onstop = async () => {
+            if (igRecStream) igRecStream.getTracks().forEach(t => t.stop());
+            const raw = new Blob(igRecChunks, { type: (igRec && igRec.mimeType) || 'audio/webm' });
+            const st = document.getElementById('igRecStatus'); if (st) st.textContent = 'Processando o áudio...';
+            igRecUI('preview');
+            try { igRecBlob = await igToWav(raw); }
+            catch (e) { alert('Não consegui processar o áudio: ' + (e.message || e) + '\nTente de novo ou suba um arquivo .m4a.'); igRecUI('idle'); return; }
+            if (igRecUrl) URL.revokeObjectURL(igRecUrl);
+            igRecUrl = URL.createObjectURL(igRecBlob);
+            const au = document.getElementById('igRecAudio'); if (au) au.src = igRecUrl;
+            if (st) st.textContent = 'Ouça e salve, ou grave de novo:';
+        };
+        igRec.start();
+        igRecUI('recording'); igRecTick();
+        igRecTimer = setInterval(() => { igRecSecs++; igRecTick(); if (igRecSecs >= 180) igRecStop(); }, 1000);
+    }
+    function igRecStop() { if (igRecTimer) { clearInterval(igRecTimer); igRecTimer = null; } if (igRec && igRec.state !== 'inactive') igRec.stop(); }
+    function igRecDiscard() { if (igRecUrl) { URL.revokeObjectURL(igRecUrl); igRecUrl = null; } igRecBlob = null; igRecUI('idle'); }
+    async function igRecSave() {
+        if (!igRecBlob) return;
+        const stamp = new Date().toISOString().slice(0, 16).replace('T', '_').replace(/:/g, '-');
+        const file = new File([igRecBlob], 'audio-' + stamp + '.wav', { type: 'audio/wav' });
+        igRecDiscard();
+        await igUploadAsset(file);
+    }
+    // decodifica o áudio gravado e re-encoda como WAV mono (formato que o IG aceita).
+    async function igToWav(blob) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        const ctx = new AC();
+        let mono, rate;
+        try {
+            const buf = await ctx.decodeAudioData(await blob.arrayBuffer());
+            const len = buf.length, chs = buf.numberOfChannels;
+            mono = new Float32Array(len);
+            for (let c = 0; c < chs; c++) { const d = buf.getChannelData(c); for (let i = 0; i < len; i++) mono[i] += d[i] / chs; }
+            rate = buf.sampleRate;
+        } finally { try { ctx.close(); } catch (e) { /* */ } }
+        const n = mono.length, ab = new ArrayBuffer(44 + n * 2), dv = new DataView(ab);
+        const wr = (off, s) => { for (let i = 0; i < s.length; i++) dv.setUint8(off + i, s.charCodeAt(i)); };
+        wr(0, 'RIFF'); dv.setUint32(4, 36 + n * 2, true); wr(8, 'WAVE'); wr(12, 'fmt ');
+        dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 1, true);
+        dv.setUint32(24, rate, true); dv.setUint32(28, rate * 2, true); dv.setUint16(32, 2, true); dv.setUint16(34, 16, true);
+        wr(36, 'data'); dv.setUint32(40, n * 2, true);
+        let off = 44;
+        for (let i = 0; i < n; i++) { const s = Math.max(-1, Math.min(1, mono[i])); dv.setInt16(off, s < 0 ? s * 0x8000 : s * 0x7FFF, true); off += 2; }
+        return new Blob([ab], { type: 'audio/wav' });
+    }
+
     async function igDeleteAsset(id) {
         const a = igAssets.find(x => x.id === id); if (!a) return;
         if (!confirm('Apagar "' + a.nome + '"? Se alguma automação usa esse arquivo, ela para de enviá-lo.')) return;
@@ -6089,6 +6169,10 @@
         const asm = document.getElementById('igAssetsModal'); if (asm) asm.addEventListener('click', (e) => { if (e.target === asm) igCloseAssets(); });
         const asi = document.getElementById('igAssetInput'); if (asi) asi.addEventListener('change', (e) => { const f = e.target.files && e.target.files[0]; if (f) igUploadAsset(f); e.target.value = ''; });
         const asg = document.getElementById('igAssetsGrid'); if (asg) asg.addEventListener('click', (e) => { const b = e.target.closest('[data-ig-asset-del]'); if (b) igDeleteAsset(b.dataset.igAssetDel); });
+        const rs = document.getElementById('igRecStartBtn'); if (rs) rs.addEventListener('click', igRecStart);
+        const rp = document.getElementById('igRecStopBtn'); if (rp) rp.addEventListener('click', igRecStop);
+        const rv = document.getElementById('igRecSaveBtn'); if (rv) rv.addEventListener('click', igRecSave);
+        const rd = document.getElementById('igRecDiscardBtn'); if (rd) rd.addEventListener('click', igRecDiscard);
         const ap = document.getElementById('igfAssetsPick'); if (ap) ap.addEventListener('click', () => { const g = document.getElementById('igfAssetsGrid'); const show = g.style.display === 'none'; g.style.display = show ? 'grid' : 'none'; if (show) igRenderAssetPicker(); });
         const apg = document.getElementById('igfAssetsGrid'); if (apg) apg.addEventListener('click', (e) => { const c = e.target.closest('[data-ig-pick]'); if (!c) return; const id = c.dataset.igPick; if (igSelAssets.has(id)) igSelAssets.delete(id); else igSelAssets.add(id); igRenderAssetPicker(); igRenderAssetSel(); });
         const asel = document.getElementById('igfAssetsSel'); if (asel) asel.addEventListener('click', (e) => { const x = e.target.closest('[data-ig-unpick]'); if (!x) return; igSelAssets.delete(x.dataset.igUnpick); igRenderAssetSel(); igRenderAssetPicker(); });
