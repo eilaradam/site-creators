@@ -138,12 +138,12 @@
 
                     <div class="field-row">
                         <div class="field-group">
-                            <label>A pessoa que faria o procedimento é de qual cidade?</label>
+                            <label>A pessoa que faria o procedimento é de qual estado?</label>
                             <select id="regiao">
                                 <option value="" disabled selected>Selecione</option>
                                 <option value="sao_paulo">São Paulo</option>
-                                <option value="brasilia">Brasília</option>
-                                <option value="outra">Outra cidade</option>
+                                <option value="brasilia">Distrito Federal (Brasília)</option>
+                                <option value="outra">Outro estado</option>
                             </select>
                         </div>
                         <div class="field-group">
@@ -310,7 +310,7 @@
             if (!para_quem) throw new Error('Conta pra gente: essa jornada é pra você ou pra presentear alguém?');
             if (para_quem === 'presente' && !presente_relacao) throw new Error('Escolha quem você quer presentear.');
             if (!desejo) throw new Error('Escolha o desejo (FIV, congelamento ou os dois).');
-            if (!regiao) throw new Error('Escolha a cidade da pessoa que faria o procedimento.');
+            if (!regiao) throw new Error('Escolha o estado da pessoa que faria o procedimento.');
             if (!idade) throw new Error('Escolha a faixa de idade.');
             if (!compartilhar) throw new Error('Conta se você topa compartilhar a jornada em conteúdo.');
 
