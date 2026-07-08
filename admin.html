@@ -1164,7 +1164,8 @@
         <div id="igPaneAutomacoes">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;flex-wrap:wrap;">
                 <div id="igAutoCount" style="color:var(--text-muted);font-size:13px;"></div>
-                <div style="display:flex;gap:8px;">
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button id="igMenuBtn" class="ig-btn ghost" type="button">👋 Menu da DM</button>
                     <button id="igAssetsBtn" class="ig-btn ghost" type="button">📁 Mídia</button>
                     <button id="igNewBtn" class="ig-btn" type="button">+ Nova automação</button>
                 </div>
@@ -1313,6 +1314,20 @@
             </div>
             <div id="igAssetsStatus" style="font-size:13px;color:var(--text-muted);margin-bottom:12px;display:none;"></div>
             <div id="igAssetsGrid"></div>
+        </div>
+    </div>
+    <div id="igMenuModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:20px;">
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;max-width:560px;width:100%;max-height:88vh;overflow:auto;padding:22px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;gap:10px;">
+                <h3 style="margin:0;color:var(--text);font-size:18px;font-weight:800;">👋 Menu de abertura da DM</h3>
+                <button id="igMenuClose" class="ig-btn ghost" type="button">Fechar</button>
+            </div>
+            <p style="color:var(--text-muted);font-size:13px;margin:0 0 14px;">Até 4 opções que aparecem quando alguém abre sua DM. Cada uma dispara uma automação. <b>Só aparece pra quem nunca te mandou DM.</b></p>
+            <div id="igMenuRows"></div>
+            <div id="igMenuStatus" style="display:none;font-size:13px;margin:10px 0;padding:8px 10px;border-radius:8px;background:var(--warm);color:var(--text);"></div>
+            <div style="display:flex;justify-content:flex-end;margin-top:8px;">
+                <button id="igMenuSave" class="ig-btn" type="button">Salvar e sincronizar</button>
+            </div>
         </div>
     </div>
 </div>
@@ -5331,6 +5346,51 @@
     }
     async function igOpenAssets() { document.getElementById('igAssetsModal').style.display = 'flex'; igRecUI('idle'); await igLoadAssets(); }
     function igCloseAssets() { igRecStop(); document.getElementById('igAssetsModal').style.display = 'none'; }
+
+    // ---- Menu de abertura da DM (ice breakers) ----
+    let igMenuData = [];
+    async function igOpenMenu() {
+        document.getElementById('igMenuModal').style.display = 'flex';
+        const st = document.getElementById('igMenuStatus'); if (st) st.style.display = 'none';
+        const { data } = await sb.from('ig_ice_breakers').select('*').order('ordem');
+        igMenuData = data || [];
+        igRenderMenuRows();
+    }
+    function igCloseMenu() { document.getElementById('igMenuModal').style.display = 'none'; }
+    function igRenderMenuRows() {
+        const box = document.getElementById('igMenuRows'); if (!box) return;
+        const opts = igAutomations.filter(a => (a.trigger_type || 'comment') !== 'story_reply');
+        const optionsHtml = (sel) => '<option value="">— escolha a automação —</option>' + opts.map(a => '<option value="' + a.id + '"' + (a.id === sel ? ' selected' : '') + '>' + escapeHtml(a.nome || 'Automação') + '</option>').join('');
+        let html = '';
+        for (let i = 0; i < 4; i++) {
+            const r = igMenuData[i] || {};
+            html += '<div style="border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px;">'
+                + '<input class="ig-input" data-menu-q="' + i + '" maxlength="80" placeholder="Opção ' + (i + 1) + ' (ex: Quero a Imersão)" value="' + igEsc(r.question || '') + '" style="margin-bottom:6px;">'
+                + '<select class="ig-input" data-menu-a="' + i + '">' + optionsHtml(r.automation_id || '') + '</select>'
+                + '</div>';
+        }
+        box.innerHTML = html;
+    }
+    async function igSaveMenu() {
+        const st = document.getElementById('igMenuStatus'); st.style.display = 'block'; st.textContent = '⏳ Salvando e sincronizando...';
+        const rows = [];
+        for (let i = 0; i < 4; i++) {
+            const qEl = document.querySelector('[data-menu-q="' + i + '"]');
+            const aEl = document.querySelector('[data-menu-a="' + i + '"]');
+            const q = qEl ? qEl.value.trim() : '';
+            const a = aEl ? aEl.value : '';
+            if (q && a) rows.push({ ordem: i, question: q, automation_id: a, active: true });
+        }
+        const del = await sb.from('ig_ice_breakers').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+        if (del.error) { st.textContent = '❌ Erro ao salvar: ' + del.error.message; return; }
+        if (rows.length) { const ins = await sb.from('ig_ice_breakers').insert(rows); if (ins.error) { st.textContent = '❌ Erro ao salvar: ' + ins.error.message; return; } }
+        const { data, error } = await sb.functions.invoke('ig-ice-breakers-sync');
+        if (error || !data || data.error || !data.ok) {
+            st.textContent = '⚠️ Salvei, mas a sincronização com o Instagram deu erro: ' + ((data && data.error) || (error && error.message) || 'desconhecido');
+            return;
+        }
+        st.textContent = rows.length ? ('✅ Menu no ar! ' + data.count + ' opção' + (data.count === 1 ? '' : 'ões') + '.') : '✅ Menu limpo.';
+    }
     async function igLoadAssets() {
         const grid = document.getElementById('igAssetsGrid'); if (!grid) return;
         grid.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);">Carregando...</div>';
@@ -6204,6 +6264,10 @@
         const rp = document.getElementById('igRecStopBtn'); if (rp) rp.addEventListener('click', igRecStop);
         const rv = document.getElementById('igRecSaveBtn'); if (rv) rv.addEventListener('click', igRecSave);
         const rd = document.getElementById('igRecDiscardBtn'); if (rd) rd.addEventListener('click', igRecDiscard);
+        const mnb = document.getElementById('igMenuBtn'); if (mnb) mnb.addEventListener('click', igOpenMenu);
+        const mnc = document.getElementById('igMenuClose'); if (mnc) mnc.addEventListener('click', igCloseMenu);
+        const mnm = document.getElementById('igMenuModal'); if (mnm) mnm.addEventListener('click', (e) => { if (e.target === mnm) igCloseMenu(); });
+        const mns = document.getElementById('igMenuSave'); if (mns) mns.addEventListener('click', igSaveMenu);
         const ap = document.getElementById('igfAssetsPick'); if (ap) ap.addEventListener('click', () => { const g = document.getElementById('igfAssetsGrid'); const show = g.style.display === 'none'; g.style.display = show ? 'grid' : 'none'; if (show) igRenderAssetPicker(); });
         const apg = document.getElementById('igfAssetsGrid'); if (apg) apg.addEventListener('click', (e) => { const c = e.target.closest('[data-ig-pick]'); if (!c) return; const id = c.dataset.igPick; if (igSelAssets.has(id)) igSelAssets.delete(id); else igSelAssets.add(id); igRenderAssetPicker(); igRenderAssetSel(); });
         const asel = document.getElementById('igfAssetsSel'); if (asel) asel.addEventListener('click', (e) => { const x = e.target.closest('[data-ig-unpick]'); if (!x) return; igSelAssets.delete(x.dataset.igUnpick); igRenderAssetSel(); igRenderAssetPicker(); });
