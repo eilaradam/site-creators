@@ -1161,9 +1161,12 @@
             <button class="ig-subtab-btn" data-ig-sub="sorteio" type="button">🎲 Sorteio</button>
         </div>
         <div id="igPaneAutomacoes">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;flex-wrap:wrap;">
                 <div id="igAutoCount" style="color:var(--text-muted);font-size:13px;"></div>
-                <button id="igNewBtn" class="ig-btn" type="button">+ Nova automação</button>
+                <div style="display:flex;gap:8px;">
+                    <button id="igAssetsBtn" class="ig-btn ghost" type="button">📁 Mídia</button>
+                    <button id="igNewBtn" class="ig-btn" type="button">+ Nova automação</button>
+                </div>
             </div>
             <div id="igAutoList"></div>
         </div>
@@ -1263,6 +1266,22 @@
                 <button class="ig-period-btn" data-ig-log="erro" type="button">Só falhas</button>
             </div>
             <div id="igLogList"></div>
+        </div>
+    </div>
+    <div id="igAssetsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:20px;">
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;max-width:640px;width:100%;max-height:88vh;overflow:auto;padding:22px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;gap:10px;">
+                <h3 style="margin:0;color:var(--text);font-size:18px;font-weight:800;">📁 Biblioteca de mídia</h3>
+                <button id="igAssetsClose" class="ig-btn ghost" type="button">Fechar</button>
+            </div>
+            <p style="color:var(--text-muted);font-size:13px;margin:0 0 14px;">Suba os arquivos que suas automações vão enviar: PDF, áudio da sua voz, imagem ou vídeo. <b>Áudio precisa ser .m4a</b> (o formato que o iPhone já usa), não .mp3. Máx 25MB.</p>
+            <label id="igUploadZone" style="display:block;border:2px dashed var(--border);border-radius:14px;padding:24px;text-align:center;cursor:pointer;color:var(--text-muted);font-size:13px;font-weight:600;margin-bottom:16px;">
+                <div style="font-size:26px;">⬆️</div>
+                <div style="margin-top:6px;">Clique pra escolher um arquivo<br><span style="font-weight:400;">imagem · áudio (.m4a) · vídeo (.mp4) · PDF</span></div>
+                <input id="igAssetInput" type="file" accept="image/*,audio/*,video/*,application/pdf" style="display:none;">
+            </label>
+            <div id="igAssetsStatus" style="font-size:13px;color:var(--text-muted);margin-bottom:12px;display:none;"></div>
+            <div id="igAssetsGrid"></div>
         </div>
     </div>
 </div>
@@ -5261,6 +5280,80 @@
         await Promise.all([igLoadAutomations(), igLoadLeads()]);
     }
 
+    // ---- Biblioteca de mídia (ig_assets) ----
+    let igAssets = [];
+    function igFmtSize(b) { b = +b || 0; return b < 1024 ? b + ' B' : (b < 1048576 ? (b / 1024).toFixed(0) + ' KB' : (b / 1048576).toFixed(1) + ' MB'); }
+    function igAssetIcon(t) { return t === 'image' ? '🖼️' : (t === 'audio' ? '🎧' : (t === 'video' ? '🎬' : '📄')); }
+    function igAssetTipo(file) {
+        const m = (file.type || '').toLowerCase();
+        if (m.startsWith('image/')) return 'image';
+        if (m.startsWith('audio/')) return 'audio';
+        if (m.startsWith('video/')) return 'video';
+        if (m === 'application/pdf') return 'file';
+        const ext = (file.name.split('.').pop() || '').toLowerCase();
+        if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext)) return 'image';
+        if (['m4a', 'aac', 'wav'].includes(ext)) return 'audio';
+        if (['mp4', 'mov', 'webm', 'ogg'].includes(ext)) return 'video';
+        if (ext === 'pdf') return 'file';
+        return null;
+    }
+    async function igOpenAssets() { document.getElementById('igAssetsModal').style.display = 'flex'; await igLoadAssets(); }
+    function igCloseAssets() { document.getElementById('igAssetsModal').style.display = 'none'; }
+    async function igLoadAssets() {
+        const grid = document.getElementById('igAssetsGrid'); if (!grid) return;
+        grid.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);">Carregando...</div>';
+        const { data, error } = await sb.from('ig_assets').select('*').order('created_at', { ascending: false });
+        if (error) { grid.innerHTML = '<div style="color:var(--error);padding:12px;">Erro: ' + escapeHtml(error.message) + '</div>'; return; }
+        igAssets = data || [];
+        igRenderAssets();
+    }
+    function igRenderAssets() {
+        const grid = document.getElementById('igAssetsGrid'); if (!grid) return;
+        if (!igAssets.length) { grid.innerHTML = '<div class="ig-empty"><div class="em">📂</div><h4>Nenhum arquivo ainda</h4><p>Suba seu primeiro PDF, áudio ou vídeo aí em cima.</p></div>'; return; }
+        grid.innerHTML = igAssets.map(a => {
+            const preview = a.tipo === 'image'
+                ? '<img src="' + escapeHtml(a.public_url) + '" style="width:54px;height:54px;object-fit:cover;border-radius:8px;flex-shrink:0;">'
+                : '<div style="width:54px;height:54px;border-radius:8px;background:var(--warm);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">' + igAssetIcon(a.tipo) + '</div>';
+            return '<div style="display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--border);border-radius:12px;margin-bottom:8px;">'
+                + preview
+                + '<div style="flex:1;min-width:0;">'
+                + '<div style="font-weight:700;color:var(--text);font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(a.nome) + '</div>'
+                + '<div style="font-size:11.5px;color:var(--text-muted);">' + igAssetIcon(a.tipo) + ' ' + a.tipo + ' · ' + igFmtSize(a.size_bytes) + '</div>'
+                + (a.tipo === 'audio' ? '<audio controls preload="none" src="' + escapeHtml(a.public_url) + '" style="height:32px;margin-top:6px;max-width:100%;"></audio>' : '')
+                + '</div>'
+                + '<button class="ig-iconbtn" type="button" title="Apagar" data-ig-asset-del="' + a.id + '">🗑</button>'
+                + '</div>';
+        }).join('');
+    }
+    async function igUploadAsset(file) {
+        const status = document.getElementById('igAssetsStatus');
+        const ext = (file.name.split('.').pop() || '').toLowerCase();
+        if (file.type === 'audio/mpeg' || ext === 'mp3') { alert('O Instagram não aceita MP3 no áudio. 🙏\n\nExporta o áudio em .m4a (o formato que o iPhone/gravador de voz já usa) e sobe de novo.'); return; }
+        const tipo = igAssetTipo(file);
+        if (!tipo) { alert('Tipo de arquivo não suportado.\nUse imagem, áudio (.m4a), vídeo (.mp4) ou PDF.'); return; }
+        if (file.size > 25 * 1024 * 1024) { alert('Arquivo grande demais (' + igFmtSize(file.size) + ').\nO Instagram aceita até 25MB.'); return; }
+        status.style.display = 'block';
+        status.textContent = '⏳ Subindo "' + file.name + '"...';
+        const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const path = tipo + '/' + Date.now() + '_' + Math.random().toString(36).slice(2, 8) + '_' + safe;
+        const up = await sb.storage.from('ig-assets').upload(path, file, { contentType: file.type || undefined, upsert: false });
+        if (up.error) { status.textContent = '❌ Erro ao subir: ' + up.error.message; return; }
+        const { data: pub } = sb.storage.from('ig-assets').getPublicUrl(path);
+        const ins = await sb.from('ig_assets').insert({ tipo, nome: file.name, storage_path: path, public_url: pub.publicUrl, mime: file.type || null, size_bytes: file.size });
+        if (ins.error) { status.textContent = '❌ Erro ao salvar: ' + ins.error.message; return; }
+        status.textContent = '✅ "' + file.name + '" adicionado!';
+        setTimeout(() => { const s = document.getElementById('igAssetsStatus'); if (s) s.style.display = 'none'; }, 2500);
+        await igLoadAssets();
+    }
+    async function igDeleteAsset(id) {
+        const a = igAssets.find(x => x.id === id); if (!a) return;
+        if (!confirm('Apagar "' + a.nome + '"? Se alguma automação usa esse arquivo, ela para de enviá-lo.')) return;
+        const { error } = await sb.from('ig_assets').delete().eq('id', id);
+        if (error) { alert('Erro ao apagar: ' + error.message); return; }
+        await sb.storage.from('ig-assets').remove([a.storage_path]);
+        await igLoadAssets();
+    }
+
     // ---- Faixa de saúde (entregas) + tela de Entregas ----
     let igLogFilter = 'all';
     let igLogRows = [];
@@ -5943,6 +6036,11 @@
             document.querySelectorAll('#igLogFilters .ig-period-btn').forEach(x => x.classList.toggle('active', x === b));
             igRenderLog();
         });
+        const asb = document.getElementById('igAssetsBtn'); if (asb) asb.addEventListener('click', igOpenAssets);
+        const asc = document.getElementById('igAssetsClose'); if (asc) asc.addEventListener('click', igCloseAssets);
+        const asm = document.getElementById('igAssetsModal'); if (asm) asm.addEventListener('click', (e) => { if (e.target === asm) igCloseAssets(); });
+        const asi = document.getElementById('igAssetInput'); if (asi) asi.addEventListener('change', (e) => { const f = e.target.files && e.target.files[0]; if (f) igUploadAsset(f); e.target.value = ''; });
+        const asg = document.getElementById('igAssetsGrid'); if (asg) asg.addEventListener('click', (e) => { const b = e.target.closest('[data-ig-asset-del]'); if (b) igDeleteAsset(b.dataset.igAssetDel); });
         ['igf_linkmsg', 'igf_linkurl', 'igf_public'].forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('input', igRenderPreview); });
         const mb = document.getElementById('igMediaBtn'); if (mb) mb.addEventListener('click', igToggleMediaGrid);
         const mg = document.getElementById('igMediaGrid'); if (mg) mg.addEventListener('click', (e) => {
