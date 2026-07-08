@@ -1226,12 +1226,21 @@
             <input type="hidden" id="igf_id">
             <label class="ig-label">Nome da automação</label>
             <input id="igf_nome" class="ig-input" placeholder="Ex: Portfólio UGC">
+            <div id="igTriggerSection" style="display:none;">
+                <label class="ig-label">Quando dispara</label>
+                <select id="igf_trigger" class="ig-input">
+                    <option value="comment">💬 Quando comentam num post</option>
+                    <option value="story_reply">📖 Quando respondem um story seu</option>
+                </select>
+            </div>
             <label class="ig-label">Palavras-chave <span class="ig-hint">(separadas por vírgula, ex: quero, portfolio, link)</span></label>
             <input id="igf_keyword" class="ig-input" placeholder="quero, portfolio">
             <label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:var(--text);cursor:pointer;"><input type="checkbox" id="igf_matchany"> Qualquer palavra <span class="ig-hint">(dispara em qualquer comentário)</span></label>
+            <div id="igPostsSection">
             <label class="ig-label">Em quais posts <span class="ig-hint">(vazio = todos os posts)</span></label>
             <button type="button" id="igMediaBtn" class="ig-btn ghost" style="width:100%;text-align:left;">Todos os posts</button>
             <div id="igMediaGrid" style="display:none;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:6px;margin-top:10px;max-height:220px;overflow-y:auto;"></div>
+            </div>
             <label class="ig-label">Mensagem que a pessoa recebe <span class="ig-hint">(escreva {LINK} onde o link deve entrar)</span></label>
             <textarea id="igf_linkmsg" class="ig-input"></textarea>
             <label class="ig-label">Link a entregar</label>
@@ -5667,7 +5676,7 @@
                 + '<div style="flex:1;min-width:0;">'
                 + '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:7px;">'
                 + '<span style="font-weight:800;color:var(--text);font-size:15px;">' + escapeHtml(a.nome || 'Automação') + '</span>'
-                + '<span class="ig-badge">💬 Comentário</span>'
+                + '<span class="ig-badge">' + (a.trigger_type === 'story_reply' ? '📖 Story' : '💬 Comentário') + '</span>'
                 + '</div>'
                 + '<div style="margin-bottom:7px;line-height:1.7;">' + kws + '<span style="font-size:11px;color:var(--text-muted);">· ' + posts + '</span></div>'
                 + '<div style="font-size:12px;color:var(--text-muted);">🔗 ' + escapeHtml(a.link_url || '(sem link)') + '</div>'
@@ -5708,6 +5717,8 @@
         document.getElementById('igf_public').value = a ? (a.public_reply || '') : 'te chamei no direct 💌';
         document.getElementById('igf_active').checked = a ? !!a.active : true;
         document.getElementById('igf_matchany').checked = a ? !!a.match_any : false;
+        document.getElementById('igf_trigger').value = (a && a.trigger_type) ? a.trigger_type : 'comment';
+        igUpdateTriggerUI();
         igSelMedia = new Set((a && a.media_ids) ? a.media_ids : []);
         document.getElementById('igMediaGrid').style.display = 'none';
         igUpdateMediaBtn();
@@ -5731,6 +5742,11 @@
     }
     function igEdit(id) { const a = igAutomations.find(x => x.id === id); if (a) igOpenModal(a); }
     function igCloseModal() { document.getElementById('igModal').style.display = 'none'; }
+    function igUpdateTriggerUI() {
+        const el = document.getElementById('igf_trigger'); if (!el) return;
+        const story = el.value === 'story_reply';
+        const ps = document.getElementById('igPostsSection'); if (ps) ps.style.display = story ? 'none' : 'block';
+    }
     function igRenderAssetSel() {
         const host = document.getElementById('igfAssetsSel'); if (!host) return;
         const ids = Array.from(igSelAssets);
@@ -5778,6 +5794,7 @@
             require_follow: false,
             active: document.getElementById('igf_active').checked,
             match_any: document.getElementById('igf_matchany').checked,
+            trigger_type: document.getElementById('igf_trigger').value,
             media_ids: Array.from(igSelMedia),
             asset_ids: Array.from(igSelAssets),
             flow: igFlow.steps.length ? {
@@ -6199,6 +6216,7 @@
             igRenderMediaGrid(); igUpdateMediaBtn();
         });
         const ma = document.getElementById('igf_matchany'); if (ma) ma.addEventListener('change', () => { const k = document.getElementById('igf_keyword'); k.disabled = ma.checked; k.style.opacity = ma.checked ? '.5' : '1'; });
+        const tg = document.getElementById('igf_trigger'); if (tg) tg.addEventListener('change', igUpdateTriggerUI);
         const mab = document.getElementById('igMarcasBtn'); if (mab) mab.addEventListener('click', igAnalyzeDMs);
         const sl = document.getElementById('igSortLoad'); if (sl) sl.addEventListener('click', igLoadSorteio);
         const mbox = document.getElementById('igMarcasBox');
