@@ -6062,12 +6062,17 @@
         try { const d = new Date(s); return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); } catch (e) { return s; }
     }
 
+    function igLeadTags(l) {
+        const t = l.tags || [];
+        if (!t.length) return '<span style="color:var(--text-muted);">—</span>';
+        return t.map(x => '<span style="display:inline-block;background:var(--warm);color:var(--text-muted);border-radius:999px;font-size:10.5px;font-weight:700;padding:2px 8px;margin:0 3px 3px 0;white-space:nowrap;">' + escapeHtml(x) + '</span>').join('');
+    }
     function igRenderLeads() {
         const stats = document.getElementById('igLeadStats');
         const list = document.getElementById('igLeadList');
         if (!stats || !list) return;
         const q = (document.getElementById('igLeadSearch').value || '').toLowerCase();
-        const filtered = igLeads.filter(l => !q || (l.username || '').toLowerCase().includes(q) || (l.last_keyword || '').toLowerCase().includes(q));
+        const filtered = igLeads.filter(l => !q || (l.username || '').toLowerCase().includes(q) || (l.last_keyword || '').toLowerCase().includes(q) || (l.tags || []).join(' ').toLowerCase().includes(q) || (l.intent || '').toLowerCase().includes(q));
         const total = igLeads.length;
         const receberam = igLeads.filter(l => l.link_sent).length;
         stats.innerHTML = '<div class="ig-chip"><b>' + total + '</b>Leads captados</div>'
@@ -6079,11 +6084,12 @@
             return;
         }
         list.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:auto;"><table><thead><tr>'
-            + '<th>Conta</th><th>Origem</th><th>Palavra</th><th>Recebeu?</th><th>Interações</th><th>Última vez</th></tr></thead><tbody>'
+            + '<th>Conta</th><th>Origem</th><th>Palavra</th><th>🏷️ Etiqueta</th><th>Recebeu?</th><th>Interações</th><th>Última vez</th></tr></thead><tbody>'
             + filtered.map(l => '<tr>'
                 + '<td>' + (l.username ? '<a href="https://instagram.com/' + encodeURIComponent(l.username) + '" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;font-weight:700;">@' + escapeHtml(l.username) + '</a>' : escapeHtml(l.ig_user_id || '')) + '</td>'
                 + '<td>' + (l.last_source === 'comment' ? '💬 Comentário' : '📩 Direct') + '</td>'
                 + '<td>' + escapeHtml(l.last_keyword || '') + '</td>'
+                + '<td style="white-space:normal;max-width:180px;">' + igLeadTags(l) + '</td>'
                 + '<td>' + (l.link_sent ? '✅' : '—') + '</td>'
                 + '<td>' + (l.interactions || 1) + '</td>'
                 + '<td>' + escapeHtml(igFmtDate(l.updated_at)) + '</td>'
