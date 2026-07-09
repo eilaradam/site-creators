@@ -1201,6 +1201,7 @@
             <button class="ig-subtab-btn" data-ig-sub="leads" type="button">Leads</button>
             <button class="ig-subtab-btn" data-ig-sub="insights" type="button">Análises</button>
             <button class="ig-subtab-btn" data-ig-sub="marcas" type="button">Marcas</button>
+            <button class="ig-subtab-btn" data-ig-sub="propostas" type="button">📤 Propostas</button>
             <button class="ig-subtab-btn" data-ig-sub="sorteio" type="button">🎲 Sorteio</button>
         </div>
         <div id="igPaneVisao"><div id="igVisaoBox"><div style="padding:44px;text-align:center;color:var(--text-muted);">Carregando resumo...</div></div></div>
@@ -1248,6 +1249,16 @@
                 <button id="igMarcasBtn" class="ig-btn" type="button">🔍 Analisar minhas DMs</button>
             </div>
             <div id="igMarcasBox"></div>
+        </div>
+        <div id="igPaneProps" style="display:none;">
+            <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">As marcas pra quem <b>você enviou proposta</b> (aquele seu texto padrão) e se já responderam. Eu vou varrendo seu histórico de DMs automaticamente e a lista fica salva, então não precisa reanalisar toda vez. 💛</div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
+                <button id="igPropsScan" class="ig-btn" type="button">🔍 Buscar novas propostas</button>
+                <div id="igPropsProgress" style="font-size:12px;color:var(--text-muted);"></div>
+            </div>
+            <div id="igPropsStats" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;"></div>
+            <div id="igPropsFilters" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;"></div>
+            <div id="igPropsBox"></div>
         </div>
         <div id="igPaneSorteio" style="display:none;">
             <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">Sorteie um ganhador entre quem te <b>marcou nos stories</b>. A captura automática pega todo mundo que te marcar de agora em diante; e eu também tento recuperar as menções recentes dos seus directs.</div>
@@ -5412,11 +5423,13 @@
         document.getElementById('igPaneLeads').style.display = sub === 'leads' ? '' : 'none';
         document.getElementById('igPaneInsights').style.display = sub === 'insights' ? '' : 'none';
         document.getElementById('igPaneMarcas').style.display = sub === 'marcas' ? '' : 'none';
+        document.getElementById('igPaneProps').style.display = sub === 'propostas' ? '' : 'none';
         document.getElementById('igPaneSorteio').style.display = sub === 'sorteio' ? '' : 'none';
         if (sub === 'visao' && igLeadsReady) igLoadVisao();
         if (sub === 'leads') igRenderLeads();
         if (sub === 'insights' && !igInsightsLoaded) { igInsightsLoaded = true; igLoadInsights(); }
         if (sub === 'marcas' && !igMarcasLoaded) { igMarcasLoaded = true; igLoadMarcas(); }
+        if (sub === 'propostas' && !igPropsLoaded) { igPropsLoaded = true; igLoadProps(); }
         if (sub === 'sorteio' && !igSorteioLoaded) { igSorteioLoaded = true; igLoadSorteio(); }
     }
 
@@ -5426,6 +5439,68 @@
         await Promise.all([igLoadAutomations(), igLoadLeads()]);
         igLeadsReady = true;
         igLoadVisao();
+    }
+
+    // ---- Propostas enviadas (marcas que você prospectou) ----
+    let igPropsLoaded = false, igPropsData = [], igPropsFilter = 'todas';
+    async function igLoadProps() {
+        const box = document.getElementById('igPropsBox'); if (!box) return;
+        box.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando…</div>';
+        try {
+            const { data, error } = await sb.functions.invoke('ig-propostas', { body: { list: true } });
+            if (error || !data || data.error) throw new Error((data && data.error) || 'erro');
+            igPropsData = data.propostas || [];
+            igPropsProgress(data.scan);
+        } catch (e) { box.innerHTML = '<div style="padding:20px;color:var(--error);">Não consegui carregar as propostas agora.</div>'; return; }
+        igPropsRender();
+    }
+    function igPropsProgress(scan) {
+        const el = document.getElementById('igPropsProgress'); if (!el) return;
+        if (!scan) { el.textContent = ''; return; }
+        if (scan.done) el.innerHTML = '✅ Histórico inteiro varrido (' + igNum(scan.scanned || 0) + ' conversas).';
+        else el.innerHTML = '⏳ Ainda varrendo seu histórico de DMs… ' + igNum(scan.scanned || 0) + ' conversas até agora. A lista cresce sozinha (recarregue pra ver mais).';
+    }
+    async function igPropsScanNow() {
+        const btn = document.getElementById('igPropsScan'); if (btn) { btn.disabled = true; btn.textContent = 'Buscando…'; }
+        try { await sb.functions.invoke('ig-propostas', { body: { recent: true } }); } catch (e) { /* */ }
+        if (btn) { btn.disabled = false; btn.textContent = '🔍 Buscar novas propostas'; }
+        igLoadProps();
+    }
+    function igPropsSetFilter(k) { igPropsFilter = k; igPropsRender(); }
+    function igPropsRender() {
+        const box = document.getElementById('igPropsBox'), stats = document.getElementById('igPropsStats'), filt = document.getElementById('igPropsFilters');
+        if (!box) return;
+        const all = igPropsData;
+        const nAg = all.filter(p => p.status === 'aguardando').length;
+        const nResp = all.filter(p => p.replied).length;
+        const nEmail = all.filter(p => p.email).length;
+        if (stats) stats.innerHTML = castingStatChip('Total', all.length) + castingStatChip('⏳ Aguardando', nAg) + castingStatChip('✅ Responderam', nResp) + castingStatChip('📧 Deram e-mail', nEmail);
+        const chips = [['todas', 'Todas'], ['aguardando', '⏳ Aguardando'], ['respondeu', '✅ Responderam'], ['email', '📧 Com e-mail']];
+        if (filt) filt.innerHTML = chips.map(c => '<button type="button" onclick="igPropsSetFilter(\'' + c[0] + '\')" style="background:' + (igPropsFilter === c[0] ? 'var(--accent)' : 'var(--card)') + ';color:' + (igPropsFilter === c[0] ? '#fff' : 'var(--text-soft)') + ';border:1px solid ' + (igPropsFilter === c[0] ? 'var(--accent)' : 'var(--border)') + ';border-radius:100px;padding:7px 13px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">' + c[1] + '</button>').join('');
+        let rows = all.slice();
+        if (igPropsFilter === 'aguardando') rows = rows.filter(p => p.status === 'aguardando');
+        else if (igPropsFilter === 'respondeu') rows = rows.filter(p => p.replied);
+        else if (igPropsFilter === 'email') rows = rows.filter(p => p.email);
+        if (!all.length) { box.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:34px;text-align:center;color:var(--text-muted);">Nenhuma proposta encontrada ainda. Se acabei de começar, ainda estou varrendo seu histórico — volte daqui a pouco. 💛</div>'; return; }
+        if (!rows.length) { box.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;text-align:center;color:var(--text-muted);">Nenhuma nesse filtro.</div>'; return; }
+        box.innerHTML = rows.map(igPropsCard).join('');
+    }
+    function igPropsCard(p) {
+        const u = (p.username || '').replace(/^@+/, '');
+        let dt = '';
+        try { if (p.sent_at) { dt = new Date(p.sent_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' }); } } catch (e) {}
+        const badge = p.status === 'aguardando'
+            ? '<span style="background:rgba(212,140,20,0.16);color:#a86a00;font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px;">⏳ Aguardando resposta</span>'
+            : (p.email
+                ? '<span style="background:rgba(45,122,79,0.14);color:#1f5c39;font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px;">📧 Respondeu + deu e-mail</span>'
+                : '<span style="background:rgba(45,122,79,0.14);color:#1f5c39;font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px;">✅ Respondeu</span>');
+        let rows = '<div style="font-size:13px;color:var(--text-soft);margin-top:8px;">Proposta enviada' + (dt ? ' em <b>' + dt + '</b>' : '') + '</div>';
+        if (p.replied && p.reply_text) rows += '<div style="font-size:13px;color:var(--text);margin-top:6px;background:var(--cream);border-radius:10px;padding:9px 12px;"><span style="color:var(--text-muted);">Resposta:</span> ' + escapeHtml(String(p.reply_text).slice(0, 220)) + '</div>';
+        if (p.email) rows += '<div style="font-size:13px;margin-top:6px;">📧 <a href="mailto:' + escapeHtml(p.email) + '" style="color:var(--accent);font-weight:600;">' + escapeHtml(p.email) + '</a></div>';
+        return '<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px 18px;margin-bottom:10px;">'
+            + '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">'
+            + '<a href="https://instagram.com/' + encodeURIComponent(u) + '" target="_blank" rel="noopener" style="font-size:15px;font-weight:800;color:var(--accent);text-decoration:none;">@' + escapeHtml(u || 'sem @') + '</a>'
+            + badge + '</div>' + rows + '</div>';
     }
 
     // ---- Visão geral (resumo de tudo) ----
@@ -6516,6 +6591,7 @@
         const pvv = document.getElementById('igPubVarAdd'); if (pvv) pvv.addEventListener('click', () => igAddVar('pub'));
         const mdv = document.getElementById('igModal'); if (mdv) mdv.addEventListener('click', (e) => { const x = e.target.closest('[data-varx]'); if (x) igRemoveVar(x.dataset.varx, +x.dataset.vi); });
         const mab = document.getElementById('igMarcasBtn'); if (mab) mab.addEventListener('click', igAnalyzeDMs);
+        const psb = document.getElementById('igPropsScan'); if (psb) psb.addEventListener('click', igPropsScanNow);
         const sl = document.getElementById('igSortLoad'); if (sl) sl.addEventListener('click', igLoadSorteio);
         const mbox = document.getElementById('igMarcasBox');
         if (mbox) mbox.addEventListener('click', (e) => {
