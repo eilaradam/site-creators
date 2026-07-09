@@ -6157,14 +6157,14 @@
     function igNum(v) { return (v === null || v === undefined || v === '') ? '—' : Number(v).toLocaleString('pt-BR'); }
     function igCard(label, val) { return '<div class="ig-chip" style="min-width:132px;"><b>' + val + '</b>' + label + '</div>'; }
 
-    async function igLoadInsights(refresh) {
+    async function igLoadInsights(refresh, rescan) {
         const box = document.getElementById('igInsightsBox');
         box.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted);">'
             + (refresh
                 ? 'Recalculando com <b>TODOS os posts</b>...<br><span style="font-size:12px;">Estou lendo todos os comentários do seu perfil. Isso pode levar 1-2 minutos, pode deixar aberto. ☕</span>'
                 : 'Carregando análises...<br><span style="font-size:12px;">(pode levar alguns segundos)</span>')
             + '</div>';
-        const { data, error } = await sb.functions.invoke('ig-insights', { body: { days: igDays, refresh: !!refresh } });
+        const { data, error } = await sb.functions.invoke('ig-insights', { body: { days: igDays, refresh: !!refresh, rescan: !!rescan } });
         if (error || (data && data.error)) {
             box.innerHTML = '<div style="color:var(--error);padding:16px;">Erro ao carregar: ' + escapeHtml((error && error.message) || (data && data.error) || 'desconhecido') + '</div>';
             return;
@@ -6302,7 +6302,7 @@
         const se = document.getElementById('igLeadSearch'); if (se) se.addEventListener('input', igRenderLeads);
         const sv = document.getElementById('igSaveBtn'); if (sv) sv.addEventListener('click', igSave);
         const cc = document.getElementById('igCancelBtn'); if (cc) cc.addEventListener('click', igCloseModal);
-        const ri = document.getElementById('igRefreshInsights'); if (ri) ri.addEventListener('click', () => igLoadInsights());
+        const ri = document.getElementById('igRefreshInsights'); if (ri) ri.addEventListener('click', () => igLoadInsights(true));
         const pb = document.getElementById('igPeriodBtns');
         if (pb) pb.addEventListener('click', (e) => {
             const b = e.target.closest('[data-ig-days]'); if (!b) return;
@@ -6312,7 +6312,7 @@
         });
         const ib = document.getElementById('igInsightsBox');
         if (ib) ib.addEventListener('click', (e) => {
-            if (e.target.closest('#igRecalc')) { igLoadInsights(true); return; }
+            if (e.target.closest('#igRecalc')) { igLoadInsights(true, true); return; }
             const op = e.target.closest('[data-ig-opp]');
             if (op) { igOppFilter = op.dataset.igOpp; igRenderInsights(); return; }
             const b = e.target.closest('[data-ig-sort]'); if (!b) return;
