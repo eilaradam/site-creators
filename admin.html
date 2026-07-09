@@ -5760,7 +5760,7 @@
     async function igLoadAutomations() {
         const list = document.getElementById('igAutoList');
         list.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando...</div>';
-        const { data, error } = await sb.from('ig_automations').select('*').order('created_at', { ascending: true });
+        const { data, error } = await sb.from('ig_automations').select('*').order('created_at', { ascending: false });
         if (error) { list.innerHTML = '<div style="color:var(--error);padding:16px;">Erro ao carregar: ' + escapeHtml(error.message) + '</div>'; return; }
         igAutomations = data || [];
         igRenderAutomations();
