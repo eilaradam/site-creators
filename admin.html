@@ -1189,6 +1189,7 @@
     #tabInstagram .ov-srow .ic{width:32px;height:32px;border-radius:9px;background:var(--warm);display:flex;align-items:center;justify-content:center;font-size:15px;}
     #tabInstagram .ov-srow .k{flex:1;font-size:13px;font-weight:600;color:var(--text);}
     #tabInstagram .ov-srow .v{font-size:15px;font-weight:800;color:var(--text);}
+    #tabInstagram .tnum{font-variant-numeric:tabular-nums;}
     </style>
     <div style="max-width:1140px;margin:0 auto;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin:0 0 18px;">
@@ -5477,9 +5478,8 @@
     async function loadInstagram() {
         igSetSub('visao');
         igLoadHealth();
-        await Promise.all([igLoadAutomations(), igLoadLeads()]);
-        igLeadsReady = true;
-        igLoadVisao();
+        try { await Promise.all([igLoadAutomations(), igLoadLeads()]); }
+        finally { igLeadsReady = true; igLoadVisao(); }
     }
 
     // ---- Propostas enviadas (marcas que você prospectou) ----
@@ -5688,14 +5688,15 @@
     }
 
     async function igVisaoInsights() {
-        let d = igVisaoInsData || (igInsightsData && igInsightsData.days === 15 ? igInsightsData : null);
-        if (!d) { try { const r = await sb.functions.invoke('ig-insights', { body: { days: 15 } }); if (r.data && !r.data.error) { d = r.data; igVisaoInsData = r.data; } } catch (e) { /* */ } }
+        // a função só aceita 7/30/90 (15 vira "all"); pego 30 e fatio os últimos 15 no cliente.
+        let d = igVisaoInsData;
+        if (!d) { try { const r = await sb.functions.invoke('ig-insights', { body: { days: 30 } }); if (r.data && !r.data.error) { d = r.data; igVisaoInsData = r.data; } } catch (e) { /* */ } }
         const fEl = document.getElementById('ovFollowers'), ffEl = document.getElementById('ovFollowersF'), rEl = document.getElementById('ovReach'), gEl = document.getElementById('ovGrowth');
         if (!d) { if (fEl) fEl.textContent = '—'; if (ffEl) ffEl.textContent = 'Instagram indisponível'; if (rEl) rEl.textContent = '—'; if (gEl) { const n = gEl.querySelector('.ov-note'); if (n) n.textContent = 'Não consegui carregar os dados do Instagram agora.'; } return; }
         const followers = (d.account && d.account.followers_count) || 0;
         const gArr = (d.follower_growth || []).slice(-15);
         const newF = gArr.reduce((s, x) => s + (x.value || 0), 0);
-        const reachTotal = (d.reach || []).reduce((s, x) => s + (x.value || 0), 0);
+        const reachTotal = (d.reach || []).slice(-15).reduce((s, x) => s + (x.value || 0), 0);
         if (fEl) fEl.textContent = igNum(followers);
         if (ffEl) ffEl.innerHTML = '<span class="ov-up">↑ +' + igNum(newF) + '</span> em 15 dias';
         if (rEl) rEl.textContent = igNum(reachTotal);
