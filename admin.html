@@ -1254,6 +1254,7 @@
             <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">As marcas pra quem <b>você enviou proposta</b> (aquele seu texto padrão) e se já responderam. Eu vou varrendo seu histórico de DMs automaticamente e a lista fica salva, então não precisa reanalisar toda vez. 💛</div>
             <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
                 <button id="igPropsScan" class="ig-btn" type="button">🔍 Buscar novas propostas</button>
+                <button id="igPropsCsv" class="ig-btn ghost" type="button">⬇ Exportar CSV</button>
                 <div id="igPropsProgress" style="font-size:12px;color:var(--text-muted);"></div>
             </div>
             <div id="igPropsStats" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;"></div>
@@ -5467,6 +5468,22 @@
         igLoadProps();
     }
     function igPropsSetFilter(k) { igPropsFilter = k; igPropsRender(); }
+    function igPropsExportCsv() {
+        const rows = igPropsData.slice();
+        if (!rows.length) { alert('Nada pra exportar ainda.'); return; }
+        const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+        const stMap = { aguardando: 'Aguardando resposta', respondeu: 'Respondeu', respondeu_email: 'Respondeu + deu e-mail' };
+        const head = ['marca', 'instagram', 'status', 'seguidores', 'proposta_enviada', 'resposta', 'email'];
+        const lines = [head.join(',')];
+        rows.forEach(p => {
+            let dt = ''; try { if (p.sent_at) dt = new Date(p.sent_at).toLocaleDateString('pt-BR'); } catch (e) {}
+            const seg = (p.followers != null && p.followers >= 0) ? p.followers : '';
+            lines.push([p.nome || ('@' + (p.username || '')), '@' + (p.username || ''), stMap[p.status] || p.status, seg, dt, p.reply_text || '', p.email || ''].map(esc).join(','));
+        });
+        const blob = new Blob(['﻿' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = 'propostas-marcas.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    }
     function igPropsRender() {
         const box = document.getElementById('igPropsBox'), stats = document.getElementById('igPropsStats'), filt = document.getElementById('igPropsFilters');
         if (!box) return;
@@ -6592,6 +6609,7 @@
         const mdv = document.getElementById('igModal'); if (mdv) mdv.addEventListener('click', (e) => { const x = e.target.closest('[data-varx]'); if (x) igRemoveVar(x.dataset.varx, +x.dataset.vi); });
         const mab = document.getElementById('igMarcasBtn'); if (mab) mab.addEventListener('click', igAnalyzeDMs);
         const psb = document.getElementById('igPropsScan'); if (psb) psb.addEventListener('click', igPropsScanNow);
+        const pcb = document.getElementById('igPropsCsv'); if (pcb) pcb.addEventListener('click', igPropsExportCsv);
         const sl = document.getElementById('igSortLoad'); if (sl) sl.addEventListener('click', igLoadSorteio);
         const mbox = document.getElementById('igMarcasBox');
         if (mbox) mbox.addEventListener('click', (e) => {
