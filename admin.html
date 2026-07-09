@@ -5621,13 +5621,14 @@
         const leads = igLeads || [];
         const leadsTotal = leads.length;
         const leads15 = leads.filter(l => l.created_at && new Date(l.created_at).getTime() >= d15).length;
-        let dels = [], cres = [];
+        let dels = [], cres = [], creTotalReal = 0;
         try {
-            const [dr, cr] = await Promise.all([
+            const [dr, cr, ccnt] = await Promise.all([
                 sb.from('ig_deliveries').select('status,motivo,ts').gte('ts', new Date(d30).toISOString()),
-                sb.from('creators').select('created_at'),
+                sb.from('creators').select('created_at').gte('created_at', new Date(now - 16 * dayMs).toISOString()),
+                sb.from('creators').select('*', { count: 'exact', head: true }), // total REAL (count exato, sem o cap de 1000 do PostgREST)
             ]);
-            dels = dr.data || []; cres = cr.data || [];
+            dels = dr.data || []; cres = cr.data || []; creTotalReal = ccnt.count || 0;
         } catch (e) { /* segue com o que tem */ }
         igVisaoBusy = false;
 
@@ -5651,7 +5652,7 @@
         dels.filter(x => x.status === 'erro' && x.motivo).forEach(x => { mmv[x.motivo] = (mmv[x.motivo] || 0) + 1; });
         const motivos = Object.keys(mmv).map(k => [k, mmv[k]]).sort((a, b) => b[1] - a[1]).slice(0, 3);
 
-        const creTotal = cres.length;
+        const creTotal = creTotalReal;
         const start = new Date(now - 14 * dayMs); start.setHours(0, 0, 0, 0);
         const perDay = new Array(15).fill(0);
         cres.forEach(c => { if (!c.created_at) return; const idx = Math.floor((new Date(c.created_at).getTime() - start.getTime()) / dayMs); if (idx >= 0 && idx < 15) perDay[idx]++; });
