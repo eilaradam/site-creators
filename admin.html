@@ -1251,6 +1251,43 @@
             <div id="igMarcasBox"></div>
         </div>
         <div id="igPaneProps" style="display:none;">
+            <style>
+            /* ---- Propostas: planilha ---- */
+            .props-controls { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:14px; }
+            .props-fchips { display:flex; gap:8px; flex-wrap:wrap; }
+            .props-fchip { background:var(--card); color:var(--text-soft); border:1px solid var(--border); border-radius:100px; padding:7px 13px; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; transition:border-color .15s ease, color .15s ease, background .15s ease; }
+            .props-fchip:hover { border-color:var(--accent); color:var(--accent); }
+            .props-fchip.on { background:var(--accent); color:#fff; border-color:var(--accent); }
+            #igPaneProps .props-search { width:auto; min-width:210px; flex:1 1 210px; max-width:330px; margin-left:auto; padding:8px 13px; font-size:13px; }
+            .props-wrap { overflow-x:auto; max-height:72vh; overflow-y:auto; background:var(--card); border:1px solid var(--border); border-radius:14px; box-shadow:0 1px 2px rgba(33,29,26,0.04), 0 2px 6px rgba(33,29,26,0.05); }
+            .props-table { width:100%; min-width:900px; border-collapse:separate; border-spacing:0; font-size:13.5px; }
+            .props-table th { position:sticky; top:0; z-index:2; background:#FBF6F0; text-align:left; font-size:10.5px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--text-soft); padding:12px 14px; border-bottom:1px solid var(--border); white-space:nowrap; user-select:none; -webkit-user-select:none; }
+            .props-table th.props-sortable { cursor:pointer; transition:color .15s ease; }
+            .props-table th.props-sortable:hover { color:var(--accent); }
+            .props-table th.props-sorted { color:var(--accent); }
+            .props-arrow { font-size:9px; opacity:.45; margin-left:2px; }
+            th.props-sorted .props-arrow { opacity:1; }
+            .props-table td { padding:12px 14px; border-bottom:1px solid var(--border); vertical-align:top; background:var(--card); }
+            .props-table tbody tr:nth-child(even) td { background:#FCF9F5; }
+            .props-table tbody tr:hover td { background:var(--accent-glow); }
+            .props-table tbody tr:last-child td { border-bottom:none; }
+            .props-marca a { color:var(--accent); font-weight:700; text-decoration:none; white-space:nowrap; }
+            .props-marca a:hover { text-decoration:underline; }
+            .props-nome { font-size:12px; color:var(--text-muted); margin-top:2px; max-width:190px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+            .props-dia { white-space:nowrap; color:var(--text-soft); font-variant-numeric:tabular-nums; }
+            .props-msg { max-width:340px; min-width:220px; color:var(--text-soft); line-height:1.45; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; cursor:pointer; }
+            .props-msg.open { display:block; -webkit-line-clamp:unset; }
+            .props-badge { display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:700; padding:4px 11px; border-radius:100px; white-space:nowrap; }
+            .props-badge.yes { background:rgba(16,185,129,0.13); color:#0B7A55; }
+            .props-badge.no { background:rgba(212,140,20,0.15); color:#A86A00; }
+            .props-contact a { display:block; color:var(--accent); font-weight:600; text-decoration:none; font-size:12.5px; white-space:nowrap; max-width:210px; overflow:hidden; text-overflow:ellipsis; }
+            .props-contact a:hover { text-decoration:underline; }
+            .props-contact a + a, .props-contact a + span { margin-top:4px; }
+            .props-nicho-chip { display:inline-block; background:var(--warm); color:var(--text-soft); font-size:11.5px; font-weight:600; padding:3px 10px; border-radius:100px; white-space:nowrap; }
+            .props-dash { color:var(--text-muted); }
+            .props-count { font-size:12px; color:var(--text-muted); margin-top:9px; }
+            .props-empty { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:30px; text-align:center; color:var(--text-muted); }
+            </style>
             <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">As marcas pra quem <b>você enviou proposta</b> (aquele seu texto padrão) e se já responderam. Eu vou varrendo seu histórico de DMs automaticamente e a lista fica salva, então não precisa reanalisar toda vez. 💛</div>
             <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
                 <button id="igPropsScan" class="ig-btn" type="button">🔍 Buscar novas propostas</button>
@@ -1258,7 +1295,10 @@
                 <div id="igPropsProgress" style="font-size:12px;color:var(--text-muted);"></div>
             </div>
             <div id="igPropsStats" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;"></div>
-            <div id="igPropsFilters" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;"></div>
+            <div class="props-controls">
+                <div id="igPropsFilters" class="props-fchips"></div>
+                <input id="igPropsSearch" class="ig-input props-search" type="search" placeholder="🔎 Buscar marca, nicho ou e-mail…" oninput="igPropsSetSearch(this.value)">
+            </div>
             <div id="igPropsBox"></div>
         </div>
         <div id="igPaneSorteio" style="display:none;">
@@ -5444,6 +5484,7 @@
 
     // ---- Propostas enviadas (marcas que você prospectou) ----
     let igPropsLoaded = false, igPropsData = [], igPropsFilter = 'todas';
+    let igPropsSearchQ = '', igPropsSortKey = 'envio', igPropsSortDir = -1;
     async function igLoadProps() {
         const box = document.getElementById('igPropsBox'); if (!box) return;
         box.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando…</div>';
@@ -5468,21 +5509,64 @@
         igLoadProps();
     }
     function igPropsSetFilter(k) { igPropsFilter = k; igPropsRender(); }
+    function igPropsSetSearch(v) { igPropsSearchQ = String(v || ''); igPropsRender(); }
+    function igPropsSortBy(k) {
+        if (igPropsSortKey === k) igPropsSortDir *= -1;
+        else { igPropsSortKey = k; igPropsSortDir = (k === 'envio' || k === 'respondeu') ? -1 : 1; }
+        igPropsRender();
+    }
+    function igPropsSortVal(p, k) {
+        if (k === 'marca') { const s = String(p.nome || p.username || '').replace(/^@+/, '').trim().toLowerCase(); return s || null; }
+        if (k === 'envio') { const t = p.sent_at ? Date.parse(p.sent_at) : NaN; return isNaN(t) ? null : t; }
+        if (k === 'respondeu') return (p.replied ? 2 : 0) + (p.email ? 1 : 0);
+        if (k === 'contato') { const s = String(p.email || p.phone || '').trim().toLowerCase(); return s || null; }
+        if (k === 'nicho') { const s = String(p.nicho || '').trim().toLowerCase(); return s || null; }
+        return null;
+    }
+    function igPropsCompare(a, b) {
+        const va = igPropsSortVal(a, igPropsSortKey), vb = igPropsSortVal(b, igPropsSortKey);
+        if (va === null && vb === null) return 0;
+        if (va === null) return 1;  // vazios sempre no fim
+        if (vb === null) return -1;
+        if (typeof va === 'string') return igPropsSortDir * va.localeCompare(vb, 'pt-BR');
+        return igPropsSortDir * (va - vb);
+    }
+    function igPropsFiltered() {
+        let rows = igPropsData.slice();
+        if (igPropsFilter === 'aguardando') rows = rows.filter(p => p.status === 'aguardando');
+        else if (igPropsFilter === 'respondeu') rows = rows.filter(p => p.replied);
+        else if (igPropsFilter === 'email') rows = rows.filter(p => p.email);
+        const q = igPropsSearchQ.trim().toLowerCase();
+        if (q) rows = rows.filter(p => [p.username, p.nome, p.nicho, p.email].some(v => v && String(v).toLowerCase().includes(q)));
+        rows.sort(igPropsCompare);
+        return rows;
+    }
+    function igPropsWa(phone) {
+        let d = String(phone || '').replace(/\D/g, '');
+        if (d.length < 8) return null;
+        if (d.length >= 10 && d.length <= 11) d = '55' + d; // número BR sem código do país
+        return 'https://wa.me/' + d;
+    }
     function igPropsExportCsv() {
-        const rows = igPropsData.slice();
+        const rows = igPropsData.slice().sort(igPropsCompare); // exporta tudo, na ordenação atual
         if (!rows.length) { alert('Nada pra exportar ainda.'); return; }
         const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
-        const stMap = { aguardando: 'Aguardando resposta', respondeu: 'Respondeu', respondeu_email: 'Respondeu + deu e-mail' };
-        const head = ['marca', 'instagram', 'status', 'seguidores', 'proposta_enviada', 'resposta', 'email'];
+        const head = ['marca', 'instagram', 'dia_de_envio', 'mensagem_da_marca', 'respondeu', 'contato', 'nicho'];
         const lines = [head.join(',')];
         rows.forEach(p => {
             let dt = ''; try { if (p.sent_at) dt = new Date(p.sent_at).toLocaleDateString('pt-BR'); } catch (e) {}
-            const seg = (p.followers != null && p.followers >= 0) ? p.followers : '';
-            lines.push([p.nome || ('@' + (p.username || '')), '@' + (p.username || ''), stMap[p.status] || p.status, seg, dt, p.reply_text || '', p.email || ''].map(esc).join(','));
+            const contato = [p.email, p.phone].filter(Boolean).join('; ');
+            lines.push([p.nome || ('@' + (p.username || '')), '@' + (p.username || ''), dt, p.reply_text || '', p.replied ? 'Sim' : 'Não', contato, p.nicho || ''].map(esc).join(','));
         });
         const blob = new Blob(['﻿' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a'); a.href = url; a.download = 'propostas-marcas.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    }
+    function igPropsTh(key, label) {
+        if (!key) return '<th>' + label + '</th>';
+        const on = igPropsSortKey === key;
+        const arrow = on ? (igPropsSortDir === 1 ? '▲' : '▼') : '⇅';
+        return '<th class="props-sortable' + (on ? ' props-sorted' : '') + '" onclick="igPropsSortBy(\'' + key + '\')" title="Ordenar por ' + label + '">' + label + ' <span class="props-arrow">' + arrow + '</span></th>';
     }
     function igPropsRender() {
         const box = document.getElementById('igPropsBox'), stats = document.getElementById('igPropsStats'), filt = document.getElementById('igPropsFilters');
@@ -5491,33 +5575,42 @@
         const nAg = all.filter(p => p.status === 'aguardando').length;
         const nResp = all.filter(p => p.replied).length;
         const nEmail = all.filter(p => p.email).length;
-        if (stats) stats.innerHTML = castingStatChip('Total', all.length) + castingStatChip('⏳ Aguardando', nAg) + castingStatChip('✅ Responderam', nResp) + castingStatChip('📧 Deram e-mail', nEmail);
+        if (stats) stats.innerHTML = castingStatChip('Total', all.length) + castingStatChip('⏳ Aguardando', nAg) + castingStatChip('✅ Responderam', nResp) + castingStatChip('📧 Com e-mail', nEmail);
         const chips = [['todas', 'Todas'], ['aguardando', '⏳ Aguardando'], ['respondeu', '✅ Responderam'], ['email', '📧 Com e-mail']];
-        if (filt) filt.innerHTML = chips.map(c => '<button type="button" onclick="igPropsSetFilter(\'' + c[0] + '\')" style="background:' + (igPropsFilter === c[0] ? 'var(--accent)' : 'var(--card)') + ';color:' + (igPropsFilter === c[0] ? '#fff' : 'var(--text-soft)') + ';border:1px solid ' + (igPropsFilter === c[0] ? 'var(--accent)' : 'var(--border)') + ';border-radius:100px;padding:7px 13px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">' + c[1] + '</button>').join('');
-        let rows = all.slice();
-        if (igPropsFilter === 'aguardando') rows = rows.filter(p => p.status === 'aguardando');
-        else if (igPropsFilter === 'respondeu') rows = rows.filter(p => p.replied);
-        else if (igPropsFilter === 'email') rows = rows.filter(p => p.email);
-        if (!all.length) { box.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:34px;text-align:center;color:var(--text-muted);">Nenhuma proposta encontrada ainda. Se acabei de começar, ainda estou varrendo seu histórico — volte daqui a pouco. 💛</div>'; return; }
-        if (!rows.length) { box.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;text-align:center;color:var(--text-muted);">Nenhuma nesse filtro.</div>'; return; }
-        box.innerHTML = rows.map(igPropsCard).join('');
+        if (filt) filt.innerHTML = chips.map(c => '<button type="button" class="props-fchip' + (igPropsFilter === c[0] ? ' on' : '') + '" onclick="igPropsSetFilter(\'' + c[0] + '\')">' + c[1] + '</button>').join('');
+        if (!all.length) { box.innerHTML = '<div class="props-empty" style="padding:34px;">Nenhuma proposta encontrada ainda. Se acabei de começar, ainda estou varrendo seu histórico — volte daqui a pouco. 💛</div>'; return; }
+        const rows = igPropsFiltered();
+        if (!rows.length) { box.innerHTML = '<div class="props-empty">Nenhuma proposta nesse filtro' + (igPropsSearchQ.trim() ? ' / busca' : '') + '.</div>'; return; }
+        const head = igPropsTh('marca', 'Marca') + igPropsTh('envio', 'Dia de envio') + igPropsTh(null, 'Mensagem da marca') + igPropsTh('respondeu', 'Respondeu?') + igPropsTh('contato', 'Contato') + igPropsTh('nicho', 'Nicho / produto');
+        box.innerHTML = '<div class="props-wrap"><table class="props-table"><thead><tr>' + head + '</tr></thead><tbody>'
+            + rows.map(igPropsRowHtml).join('') + '</tbody></table></div>'
+            + '<div class="props-count">Mostrando <b>' + rows.length + '</b> de ' + all.length + ' proposta' + (all.length === 1 ? '' : 's') + '. Clique no cabeçalho pra ordenar; clique na mensagem pra ver o texto completo.</div>';
     }
-    function igPropsCard(p) {
+    function igPropsRowHtml(p) {
+        const dash = '<span class="props-dash">—</span>';
         const u = (p.username || '').replace(/^@+/, '');
+        // 1. Marca
+        let cMarca = '<a href="https://instagram.com/' + encodeURIComponent(u) + '" target="_blank" rel="noopener">@' + escapeHtml(u || 'sem @') + '</a>'
+            + (p.nome ? '<div class="props-nome" title="' + escapeHtml(p.nome) + '">' + escapeHtml(p.nome) + '</div>' : '');
+        // 2. Dia de envio
         let dt = '';
-        try { if (p.sent_at) { dt = new Date(p.sent_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' }); } } catch (e) {}
-        const badge = p.status === 'aguardando'
-            ? '<span style="background:rgba(212,140,20,0.16);color:#a86a00;font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px;">⏳ Aguardando resposta</span>'
-            : (p.email
-                ? '<span style="background:rgba(45,122,79,0.14);color:#1f5c39;font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px;">📧 Respondeu + deu e-mail</span>'
-                : '<span style="background:rgba(45,122,79,0.14);color:#1f5c39;font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px;">✅ Respondeu</span>');
-        let rows = '<div style="font-size:13px;color:var(--text-soft);margin-top:8px;">Proposta enviada' + (dt ? ' em <b>' + dt + '</b>' : '') + '</div>';
-        if (p.replied && p.reply_text) rows += '<div style="font-size:13px;color:var(--text);margin-top:6px;background:var(--cream);border-radius:10px;padding:9px 12px;"><span style="color:var(--text-muted);">Resposta:</span> ' + escapeHtml(String(p.reply_text).slice(0, 220)) + '</div>';
-        if (p.email) rows += '<div style="font-size:13px;margin-top:6px;">📧 <a href="mailto:' + escapeHtml(p.email) + '" style="color:var(--accent);font-weight:600;">' + escapeHtml(p.email) + '</a></div>';
-        return '<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px 18px;margin-bottom:10px;">'
-            + '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">'
-            + '<a href="https://instagram.com/' + encodeURIComponent(u) + '" target="_blank" rel="noopener" style="font-size:15px;font-weight:800;color:var(--accent);text-decoration:none;">@' + escapeHtml(u || 'sem @') + '</a>'
-            + badge + '</div>' + rows + '</div>';
+        try { if (p.sent_at) dt = new Date(p.sent_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }); } catch (e) {}
+        const cDia = dt ? '<span class="props-dia">' + dt + '</span>' : dash;
+        // 3. Mensagem da marca (clique expande; title mostra o texto inteiro)
+        const msg = p.reply_text ? String(p.reply_text) : '';
+        const cMsg = msg
+            ? '<div class="props-msg" title="' + escapeHtml(msg) + '" onclick="this.classList.toggle(\'open\')">' + escapeHtml(msg) + '</div>'
+            : dash;
+        // 4. Respondeu?
+        const cResp = p.replied ? '<span class="props-badge yes">✅ Sim</span>' : '<span class="props-badge no">⏳ Não</span>';
+        // 5. Contato
+        let cCont = '';
+        if (p.email) cCont += '<a href="mailto:' + escapeHtml(p.email) + '" title="' + escapeHtml(p.email) + '">📧 ' + escapeHtml(p.email) + '</a>';
+        if (p.phone) { const wa = igPropsWa(p.phone); if (wa) cCont += '<a href="' + escapeHtml(wa) + '" target="_blank" rel="noopener" title="Chamar no WhatsApp">💬 ' + escapeHtml(p.phone) + '</a>'; else cCont += '<span style="display:block;font-size:12.5px;color:var(--text-soft);">💬 ' + escapeHtml(p.phone) + '</span>'; }
+        if (!cCont) cCont = dash;
+        // 6. Nicho / produto
+        const cNicho = p.nicho ? '<span class="props-nicho-chip">' + escapeHtml(p.nicho) + '</span>' : dash;
+        return '<tr><td class="props-marca">' + cMarca + '</td><td>' + cDia + '</td><td>' + cMsg + '</td><td>' + cResp + '</td><td class="props-contact">' + cCont + '</td><td>' + cNicho + '</td></tr>';
     }
 
     // ---- Visão geral (resumo de tudo) ----
