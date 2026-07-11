@@ -2485,7 +2485,10 @@
         const recipients = await disparoRecipients(document.getElementById('dispTarget').value);
         if (recipients === null) { alert('Erro ao carregar destinatários.'); return; }
         if (!recipients.length) { alert('Nenhum destinatário nessa seleção.'); return; }
-        if (!confirm('Disparar este e-mail pra ' + recipients.length + ' creators?\n\nNão dá pra desfazer. (Recomendo enviar um teste antes!)')) return;
+        // Ultimo portao antes de um envio irreversivel: deixa CLARO qual lista foi escolhida.
+        const alvo = document.getElementById('dispTarget');
+        const nomeLista = alvo.options[alvo.selectedIndex].text;
+        if (!confirm('Disparar este e-mail pra ' + recipients.length + ' pessoa(s)?\n\nLista: ' + nomeLista + '\n\nNão dá pra desfazer. (Recomendo enviar um teste antes!)')) return;
         const html = buildFinalHtml();
         const sendBtn = document.getElementById('dispSendBtn'), wrap = document.getElementById('dispProgressWrap'), bar = document.getElementById('dispProgressBar'), txt = document.getElementById('dispProgressText'), result = document.getElementById('dispResult');
         sendBtn.disabled = true; sendBtn.style.opacity = '.6';
