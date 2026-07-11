@@ -1469,6 +1469,7 @@
                 <select id="dispTarget" onchange="loadDisparo()" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;background:var(--cream);color:var(--text);outline:none;">
                     <option value="todos">Todos os creators da base</option>
                     <option value="teste">🧪 Teste — só laradam.ugc@gmail.com</option>
+                    <option value="imersao">🎓 Imersão — só as alunas</option>
                     <option value="novo">Só status: Novo</option>
                     <option value="aprovado">Só status: Aprovado</option>
                     <option value="ativo">Só status: Ativo</option>
@@ -2382,6 +2383,13 @@
     /* ══ DISPARO DE E-MAIL EM MASSA (via função send-bulk-email + Resend) ══ */
     async function disparoRecipients(target) {
         if (target === 'teste') return [{ nome: 'Lara', email: 'laradam.ugc@gmail.com' }];
+        // Lista da Imersao: tabela propria (imersao_alunas), nao mistura com a base de creators.
+        if (target === 'imersao') {
+            const { data, error } = await sb.from('imersao_alunas').select('nome,email').eq('ativo', true);
+            if (error) return null;
+            return (data || []).filter(a => a.email && String(a.email).includes('@'))
+                               .map(a => ({ nome: a.nome || '', email: String(a.email).trim() }));
+        }
         const ufEl = document.getElementById('dispUF');
         const uf = ufEl ? ufEl.value : '';
         const all = [];
@@ -2409,6 +2417,7 @@
         const recs = await disparoRecipients(target);
         if (recs === null) { el.innerHTML = '<span style="color:var(--error);">Erro ao contar destinatários.</span>'; return; }
         if (target === 'teste') el.innerHTML = '🧪 Modo teste — vai só pra <b>laradam.ugc@gmail.com</b>.';
+        else if (target === 'imersao') el.innerHTML = '<b style="color:var(--accent);">' + recs.length + '</b> alunas da <b>Imersão</b> vão receber este e-mail. (o filtro de estado não vale aqui)';
         else { const uf = (document.getElementById('dispUF') || {}).value || ''; el.innerHTML = '<b style="color:var(--accent);">' + recs.length + '</b> creators' + (uf ? ' de <b>' + uf + '</b>' : '') + ' vão receber este e-mail.'; }
     }
     function renderDispPreview() {

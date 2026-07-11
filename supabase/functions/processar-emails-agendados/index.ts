@@ -45,6 +45,15 @@ Deno.serve(async (req) => {
       const recs: { nome: string; email: string }[] = [];
       if (job.destinatario === "teste") {
         recs.push({ nome: "Lara", email: "laradam.ugc@gmail.com" });
+      } else if (job.destinatario === "imersao") {
+        // Lista da Imersao: tabela propria, nao e a base de creators.
+        const { data, error } = await admin.from("imersao_alunas").select("nome,email").eq("ativo", true);
+        if (error) throw error;
+        const seen = new Set<string>();
+        for (const a of (data || [])) {
+          const email = String(a.email || "").trim().toLowerCase();
+          if (email && email.includes("@") && !seen.has(email)) { seen.add(email); recs.push({ nome: a.nome || "", email }); }
+        }
       } else {
         const seen = new Set<string>();
         const PAGE = 1000;
