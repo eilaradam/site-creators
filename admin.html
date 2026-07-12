@@ -1106,6 +1106,18 @@
         <div class="bio-card-title">Cliques por botão da página</div>
         <div id="imCtaList"><div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando...</div></div>
     </div>
+
+    <div class="bio-chart-card" style="margin-top:18px;">
+        <div class="bio-card-title" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+            <span>💛 Lista de espera da próxima turma <span id="leCount" style="color:var(--text-muted);font-weight:600;"></span></span>
+            <span style="display:flex;gap:8px;">
+                <button type="button" onclick="loadListaEspera()" style="background:var(--card);border:1px solid var(--border);border-radius:9px;padding:7px 13px;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--text-soft);cursor:pointer;">↻ Atualizar</button>
+                <button type="button" onclick="exportListaEsperaCsv()" style="background:var(--card);border:1px solid var(--border);border-radius:9px;padding:7px 13px;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--text-soft);cursor:pointer;">⬇ Exportar CSV</button>
+            </span>
+        </div>
+        <p style="margin:0 0 12px 0;color:var(--text-muted);font-size:12.5px;">Quem se inscreveu em <b>creators.laradam.com/lista-espera</b> (o link que a automação do Instagram manda na DM). Quando abrir a próxima turma, exporta o CSV ou dispara e-mail pra essa lista.</p>
+        <div id="leBox"><div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando...</div></div>
+    </div>
 </div>
 
 <!-- ── TAB: INSTAGRAM (ManyChat próprio) ── -->
@@ -3121,7 +3133,64 @@
         return all;
     }
 
+    /* ── Lista de espera da próxima turma (tabela lista_espera) ── */
+    let leCache = [];
+    async function loadListaEspera() {
+        const box = document.getElementById('leBox');
+        const cnt = document.getElementById('leCount');
+        if (!box) return;
+        box.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando...</div>';
+        try {
+            const { data, error } = await sb.from('lista_espera')
+                .select('nome,email,whatsapp,instagram,origem,created_at')
+                .eq('interesse', 'imersao')
+                .order('created_at', { ascending: false });
+            if (error) throw error;
+            leCache = data || [];
+            if (cnt) cnt.textContent = '(' + leCache.length + ')';
+            if (!leCache.length) {
+                box.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">Ninguém na lista ainda. Assim que alguém comentar nos posts da imersão, a automação manda o link e as inscritas aparecem aqui.</div>';
+                return;
+            }
+            const dt = s => { const d = new Date(s); return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); };
+            box.innerHTML = '<div style="border:1px solid var(--border);border-radius:12px;overflow:auto;">'
+                + '<table style="width:100%;border-collapse:collapse;font-size:13px;">'
+                + '<thead><tr style="background:var(--warm);text-align:left;">'
+                + '<th style="padding:9px 12px;">Quando</th><th style="padding:9px 12px;">Nome</th><th style="padding:9px 12px;">E-mail</th><th style="padding:9px 12px;">WhatsApp</th><th style="padding:9px 12px;">Instagram</th><th style="padding:9px 12px;">Veio de</th>'
+                + '</tr></thead><tbody>'
+                + leCache.map(r => {
+                    const ig = (r.instagram || '').replace(/^@/, '');
+                    const zap = (r.whatsapp || '').replace(/\D/g, '');
+                    return '<tr style="border-top:1px solid var(--border);">'
+                        + '<td style="padding:9px 12px;color:var(--text-muted);white-space:nowrap;">' + dt(r.created_at) + '</td>'
+                        + '<td style="padding:9px 12px;font-weight:600;">' + escapeHtml(r.nome || '') + '</td>'
+                        + '<td style="padding:9px 12px;">' + escapeHtml(r.email || '') + '</td>'
+                        + '<td style="padding:9px 12px;">' + (zap ? '<a href="https://wa.me/55' + zap + '" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;">' + escapeHtml(r.whatsapp) + '</a>' : '<span style="color:var(--text-muted);">—</span>') + '</td>'
+                        + '<td style="padding:9px 12px;">' + (ig ? '<a href="https://instagram.com/' + encodeURIComponent(ig) + '" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;">@' + escapeHtml(ig) + '</a>' : '<span style="color:var(--text-muted);">—</span>') + '</td>'
+                        + '<td style="padding:9px 12px;color:var(--text-muted);">' + escapeHtml(r.origem || 'direto') + '</td>'
+                        + '</tr>';
+                }).join('')
+                + '</tbody></table></div>';
+        } catch (e) {
+            console.error('[lista-espera] erro', e);
+            box.innerHTML = '<div style="padding:30px;text-align:center;color:#c00;">Erro ao carregar. Confirme que a tabela <b>lista_espera</b> existe no Supabase (rode o sql-lista-espera.sql).</div>';
+        }
+    }
+    function exportListaEsperaCsv() {
+        if (!leCache.length) { alert('Ninguém na lista ainda.'); return; }
+        const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+        const linhas = [['nome', 'email', 'whatsapp', 'instagram', 'origem', 'data'].join(',')]
+            .concat(leCache.map(r => [r.nome, r.email, r.whatsapp, r.instagram, r.origem, r.created_at].map(esc).join(',')));
+        const blob = new Blob(['﻿' + linhas.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'lista-espera-imersao.csv';
+        a.click();
+        URL.revokeObjectURL(a.href);
+    }
+
     async function loadImersao() {
+        loadListaEspera();
         const setTxt = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
         const fmt = n => (Number(n) || 0).toLocaleString('pt-BR');
         ['imStatVisits','imStatUnique','imStatClicks','imStatRate','imStatToday'].forEach(id => setTxt(id, '...'));

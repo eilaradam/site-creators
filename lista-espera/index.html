@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de espera | Imersão Portfólio | Lara Dam</title>
+    <meta name="description" content="Entre na lista de espera da próxima turma da Imersão de Portfólio da Lara Dam.">
+    <meta name="robots" content="noindex">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.98.0" integrity="sha384-Sm2s7OXxsAMTyJ4iIyRBgVpeGUvMPk2lRQnnZhE78Wej7oggIoolKt+SCt0XJbUB" crossorigin="anonymous"></script>
+    <style>
+        :root {
+            --white: #FAFAF9; --cream: #F5F3EF; --warm: #E8E4DD;
+            --accent: #D4572A; --accent-dark: #B8461F; --accent-glow: rgba(212,87,42,0.12);
+            --text: #1A1816; --text-soft: #6B645C; --text-muted: #9C958C;
+            --border: #DDD8D0; --card: #FFFFFF; --success: #2D7A4F; --error: #C4453C;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background: var(--cream); color: var(--text); -webkit-font-smoothing: antialiased; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 32px 24px; }
+        .page-logo { text-align: center; margin-bottom: 28px; }
+        .page-logo a { font-family: 'Fraunces', serif; font-weight: 700; font-size: 28px; color: var(--text); text-decoration: none; }
+        .page-logo a span { color: var(--accent); }
+        .form-wrapper { max-width: 520px; width: 100%; }
+        .form-box { background: var(--card); border-radius: 24px; padding: 44px 36px; border: 1px solid var(--border); box-shadow: 0 4px 24px rgba(0,0,0,0.04); position: relative; overflow: hidden; }
+        .form-box::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent), #E8784A, var(--accent)); }
+        .camp-badge { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent); background: var(--accent-glow); padding: 5px 12px; border-radius: 100px; margin-bottom: 14px; }
+        .form-title { font-family: 'Fraunces', serif; font-size: 27px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; line-height: 1.15; }
+        .form-subtitle { font-size: 14.5px; color: var(--text-soft); margin-bottom: 22px; line-height: 1.6; }
+        .perks { background: var(--cream); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; margin-bottom: 26px; }
+        .perks li { list-style: none; font-size: 13.5px; color: var(--text-soft); line-height: 1.5; padding: 5px 0 5px 24px; position: relative; }
+        .perks li::before { content: '✓'; position: absolute; left: 0; top: 5px; color: var(--accent); font-weight: 800; }
+        .field-group { margin-bottom: 18px; }
+        .field-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+        .field-group input { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 12px; font-family: 'Outfit', sans-serif; font-size: 15px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; }
+        .field-group input::placeholder { color: var(--text-muted); }
+        .field-group input:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
+        .field-hint { color: var(--text-muted); font-weight: 400; }
+        .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-submit { width: 100%; margin-top: 6px; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 14px; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .form-submit:hover { background: var(--accent-dark); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(212,87,42,0.3); }
+        .form-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+        .form-footer { text-align: center; margin-top: 16px; font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+        .form-footer a { color: var(--text-soft); text-decoration: none; font-weight: 600; }
+        .form-error { background: rgba(196,69,60,0.08); border: 1px solid rgba(196,69,60,0.2); color: var(--error); padding: 12px 16px; border-radius: 10px; font-size: 13px; margin-bottom: 16px; display: none; }
+        .form-error.show { display: block; }
+        .success-state { display: none; text-align: center; padding: 32px 12px; }
+        .success-state.show { display: block; animation: fadeUp 0.5s ease-out; }
+        @keyframes checkPop { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 1; } }
+        .success-check-animated { width: 80px; height: 80px; border-radius: 50%; background: rgba(45,122,79,0.1); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 36px; animation: checkPop 0.6s cubic-bezier(0.175,0.885,0.32,1.275) both; }
+        .success-title { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .success-subtitle { font-size: 14px; color: var(--text-soft); line-height: 1.7; max-width: 400px; margin: 0 auto 18px; }
+        .success-cta { display: inline-block; padding: 13px 24px; background: var(--accent); color: #fff; border-radius: 12px; text-decoration: none; font-size: 14.5px; font-weight: 700; transition: all 0.25s; }
+        .success-cta:hover { background: var(--accent-dark); }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 768px) {
+            body { padding: 24px 16px; }
+            .field-row { grid-template-columns: 1fr; }
+            .form-box { padding: 32px 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-logo"><a href="/">lara<span>.</span>dam</a></div>
+    <div class="form-wrapper">
+        <div class="form-box">
+            <div id="formContent">
+                <span class="camp-badge">💛 Próxima turma</span>
+                <h3 class="form-title">Lista de espera da Imersão</h3>
+                <p class="form-subtitle">As vagas dessa turma já encerraram, mas já já vem a próxima. Deixa seu nome aqui que você fica sabendo em primeira mão.</p>
+
+                <ul class="perks">
+                    <li>Você é avisada antes de abrir pro público</li>
+                    <li>Prioridade na vaga (a turma é pequena de propósito)</li>
+                    <li>Sem compromisso nenhum, é só pra eu te achar quando abrir</li>
+                </ul>
+
+                <form id="leForm">
+                    <div class="form-error" id="formError"></div>
+
+                    <div class="field-group">
+                        <label>Seu nome</label>
+                        <input type="text" id="nome" placeholder="Como você quer ser chamada" autocomplete="name">
+                    </div>
+                    <div class="field-group">
+                        <label>Seu melhor e-mail</label>
+                        <input type="email" id="email" placeholder="seuemail@exemplo.com" autocomplete="email">
+                    </div>
+                    <div class="field-row">
+                        <div class="field-group">
+                            <label>WhatsApp <span class="field-hint">(opcional)</span></label>
+                            <input type="tel" id="whatsapp" placeholder="(00) 00000-0000">
+                        </div>
+                        <div class="field-group">
+                            <label>@ do Instagram <span class="field-hint">(opcional)</span></label>
+                            <input type="text" id="instagram" placeholder="@seuperfil">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="form-submit" id="submitBtn">Quero entrar na lista</button>
+                    <p class="form-footer">Prometo não encher sua caixa de entrada. Só te aviso quando a próxima turma abrir. 💛<br><a href="https://instagram.com/eilaradam" target="_blank" rel="noopener">@eilaradam</a></p>
+                </form>
+            </div>
+
+            <div class="success-state" id="successState">
+                <div class="success-check-animated">&#10003;</div>
+                <h3 class="success-title" id="successTitle">Você está na lista! 💛</h3>
+                <p class="success-subtitle" id="successSub">Assim que a próxima turma abrir, você é uma das primeiras a saber. Enquanto isso, me segue no Instagram que eu solto muita dica por lá.</p>
+                <a class="success-cta" href="https://instagram.com/eilaradam" target="_blank" rel="noopener">Me seguir no Instagram</a>
+            </div>
+        </div>
+    </div>
+
+<script>
+    /* ── Supabase (anon) ── */
+    const SUPABASE_URL = 'https://mfrmnquvwwuxraqgemyh.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mcm1ucXV2d3d1eHJhcWdlbXloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNDI1NDIsImV4cCI6MjA4NzYxODU0Mn0.zmsi08dV5L1IlXJSr34vOii71w0g0OsD5_5DKio5g-o';
+    let sb = null;
+    function initSb() { if (sb) return sb; try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch (e) {} return sb; }
+    initSb();
+
+    /* De onde a pessoa veio (?ref=dm, ?ref=bio...) */
+    const ORIGEM = (new URLSearchParams(window.location.search).get('ref') || '').slice(0, 40) || null;
+
+    function gv(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+
+    /* Máscara do WhatsApp */
+    (function bindWhatsappMask() {
+        const w = document.getElementById('whatsapp');
+        if (!w) return;
+        w.addEventListener('input', function (e) {
+            let v = e.target.value.replace(/\D/g, '');
+            if (v.length > 11) v = v.slice(0, 11);
+            if (v.length > 6) v = '(' + v.slice(0, 2) + ') ' + v.slice(2, 7) + '-' + v.slice(7);
+            else if (v.length > 2) v = '(' + v.slice(0, 2) + ') ' + v.slice(2);
+            else if (v.length > 0) v = '(' + v;
+            e.target.value = v;
+        });
+    })();
+
+    function showSuccess(title, sub) {
+        if (title) document.getElementById('successTitle').textContent = title;
+        if (sub) document.getElementById('successSub').textContent = sub;
+        document.getElementById('formContent').style.display = 'none';
+        document.getElementById('successState').classList.add('show');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    document.getElementById('leForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        const errorEl = document.getElementById('formError');
+        errorEl.classList.remove('show');
+        try {
+            if (!initSb()) throw new Error('Erro de conexão. Recarregue a página.');
+            const nome = gv('nome');
+            const email = gv('email').toLowerCase();
+            if (!nome) throw new Error('Digite o seu nome.');
+            if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw new Error('Digite um e-mail válido.');
+
+            let instagram = gv('instagram').toLowerCase();
+            if (instagram.startsWith('@')) instagram = instagram.slice(1);
+
+            btn.textContent = 'Entrando na lista...'; btn.disabled = true;
+
+            const { error } = await sb.from('lista_espera').insert([{
+                nome: nome,
+                email: email,
+                whatsapp: gv('whatsapp') || null,
+                instagram: instagram || null,
+                origem: ORIGEM,
+                interesse: 'imersao'
+            }]);
+
+            /* 23505 = e-mail já está na lista. Pra pessoa, isso é sucesso. */
+            if (error && error.code !== '23505') throw new Error('Não consegui te inscrever agora. Tenta de novo em instantes.');
+
+            if (error && error.code === '23505') {
+                showSuccess('Você já estava na lista! 💛', 'Achei o seu e-mail aqui, então você já está garantida. Assim que a próxima turma abrir, eu te aviso.');
+            } else {
+                showSuccess(null, null);
+            }
+        } catch (err) {
+            errorEl.textContent = err.message || 'Erro ao enviar. Tente novamente.';
+            errorEl.classList.add('show');
+            btn.textContent = 'Quero entrar na lista'; btn.disabled = false;
+        }
+    });
+</script>
+</body>
+</html>
