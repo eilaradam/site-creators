@@ -1370,6 +1370,16 @@
             <button type="button" id="igLinkMsgVarAdd" class="ig-btn ghost" style="font-size:12px;padding:4px 10px;margin-top:4px;">➕ variação (A/B) da mensagem</button>
             <label class="ig-label">Link a entregar</label>
             <input id="igf_linkurl" class="ig-input" placeholder="https://...">
+            <div style="border-top:1px solid var(--border);margin:16px 0 4px;padding-top:14px;">
+              <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer;font-weight:600;"><input type="checkbox" id="igf_askon"> 💬 Pedir pra tocar num botão antes de mandar o link <span class="ig-hint">(estilo ManyChat, tira a cara de spam)</span></label>
+              <div id="igAskSection" style="display:none;margin-top:10px;">
+                <label class="ig-label">Mensagem do convite <span class="ig-hint">(o 1º recado, SEM o link)</span></label>
+                <textarea id="igf_askmsg" class="ig-input" placeholder="Opa! Vi seu comentário 🔥 Toca no botão aqui embaixo que eu te mando o link na hora! 👇"></textarea>
+                <label class="ig-label">Texto do botão</label>
+                <input id="igf_askbtn" class="ig-input" placeholder="Quero! 👉">
+                <div style="font-size:11.5px;color:var(--text-muted);background:var(--warm);border-radius:8px;padding:8px 10px;margin-top:8px;line-height:1.5;">💡 A pessoa recebe o convite com um botão. Só depois de tocar ela recebe a mensagem do link acima. Isso cria a interação que o Instagram gosta.</div>
+              </div>
+            </div>
             <label class="ig-label">📎 Arquivos que a pessoa recebe <span class="ig-hint">(opcional: PDF, áudio, imagem, vídeo)</span></label>
             <div id="igfAssetsSel" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;"></div>
             <button type="button" id="igfAssetsPick" class="ig-btn ghost" style="width:100%;text-align:left;">➕ Escolher da biblioteca</button>
@@ -6256,6 +6266,10 @@
         document.getElementById('igf_keyword').value = a ? (a.keyword || '') : '';
         document.getElementById('igf_linkmsg').value = a ? (a.link_message || '') : 'Prontinho! Aqui está o que você pediu: {LINK} 💌';
         document.getElementById('igf_linkurl').value = a ? (a.link_url || '') : '';
+        document.getElementById('igf_askmsg').value = a ? (a.ask_message || '') : 'Opa! Vi seu comentário 🔥 Toca no botão aqui embaixo que eu te mando o link na hora! 👇';
+        document.getElementById('igf_askbtn').value = (a && a.ask_button) ? a.ask_button : 'Quero! 👉';
+        document.getElementById('igf_askon').checked = !!(a && a.ask_message && a.ask_message.trim());
+        document.getElementById('igAskSection').style.display = document.getElementById('igf_askon').checked ? '' : 'none';
         document.getElementById('igf_public').value = a ? (a.public_reply || '') : 'te chamei no direct 💌';
         document.getElementById('igf_active').checked = a ? !!a.active : true;
         document.getElementById('igf_matchany').checked = a ? !!a.match_any : false;
@@ -6357,6 +6371,8 @@
             keyword: document.getElementById('igf_keyword').value.trim(),
             link_message: document.getElementById('igf_linkmsg').value,
             link_url: document.getElementById('igf_linkurl').value.trim(),
+            ask_message: document.getElementById('igf_askon').checked ? document.getElementById('igf_askmsg').value.trim() : '',
+            ask_button: document.getElementById('igf_askbtn').value.trim() || 'Quero! 👉',
             public_reply: document.getElementById('igf_public').value,
             require_follow: false,
             active: document.getElementById('igf_active').checked,
@@ -6795,6 +6811,7 @@
             igRenderMediaGrid(); igUpdateMediaBtn();
         });
         const ma = document.getElementById('igf_matchany'); if (ma) ma.addEventListener('change', () => { const k = document.getElementById('igf_keyword'); k.disabled = ma.checked; k.style.opacity = ma.checked ? '.5' : '1'; });
+        const askon = document.getElementById('igf_askon'); if (askon) askon.addEventListener('change', () => { document.getElementById('igAskSection').style.display = askon.checked ? '' : 'none'; });
         const tg = document.getElementById('igf_trigger'); if (tg) tg.addEventListener('change', igUpdateTriggerUI);
         const lmv = document.getElementById('igLinkMsgVarAdd'); if (lmv) lmv.addEventListener('click', () => igAddVar('link'));
         const pvv = document.getElementById('igPubVarAdd'); if (pvv) pvv.addEventListener('click', () => igAddVar('pub'));
