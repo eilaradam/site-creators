@@ -6291,7 +6291,7 @@
             igFlow = { steps: a.flow.steps.map(s => {
                 const d = s.delay || null; let dv = '', du = 'm', dn = '';
                 if (d && d.seconds) { dn = (d.next == null ? '' : d.next); if (d.seconds % 3600 === 0) { dv = d.seconds / 3600; du = 'h'; } else if (d.seconds % 60 === 0) { dv = d.seconds / 60; du = 'm'; } else { dv = d.seconds; du = 's'; } }
-                return { id: s.id, message: s.message || '', link: s.link || '', buttons: (s.buttons || []).map(b => ({ title: b.title || '', next: (b.next === null || b.next === undefined) ? '' : b.next })), delayValue: dv, delayUnit: du, delayNext: dn };
+                return { id: s.id, message: s.message || '', link: s.link || '', buttons: (s.buttons || []).map(b => ({ title: b.title || '', next: (b.next === null || b.next === undefined) ? '' : b.next })), delayValue: dv, delayUnit: du, delayNext: dn, assets: Array.isArray(s.assets) ? s.assets.slice() : [] };
             }) };
             igFlowSeq = igFlow.steps.reduce((m, s) => Math.max(m, +s.id || 0), 0);
         }
@@ -6395,7 +6395,8 @@
                     delay: (+s.delayValue > 0 && s.delayNext) ? {
                         seconds: Math.round((+s.delayValue) * ({ s: 1, m: 60, h: 3600 }[s.delayUnit] || 60)),
                         next: (isNaN(+s.delayNext) ? s.delayNext : +s.delayNext)
-                    } : null
+                    } : null,
+                    assets: Array.isArray(s.assets) ? s.assets.filter(Boolean) : []
                 }))
             } : null,
             updated_at: new Date().toISOString()
@@ -6446,7 +6447,7 @@
        Bloco 100% isolado (só adiciona). Edita o MESMO estado igFlow que o igSave já
        serializa. Não altera nenhuma função existente. ============================== */
     let igBSel = null;
-    let igBMode = 'step', igBSim = null;
+    let igBMode = 'step', igBSim = null, igBAssetPick = false;
     function igBEnsure() {
         if (document.getElementById('igBuilder')) return;
         const st = document.createElement('style');
@@ -6515,6 +6516,10 @@
             igFlow.steps.push({ id: ++igFlowSeq, message: msg, link: url, buttons: [] });
         }
         igBSel = igFlow.steps[0].id;
+        igBAssetPick = false; igBMode = 'step';
+        if (typeof igLoadAssets === 'function' && (!igAssets || !igAssets.length)) {
+            igLoadAssets().then(() => { const b = document.getElementById('igBuilder'); if (b && b.classList.contains('open')) igBRenderEditor(); });
+        }
         igBRender();
         document.getElementById('igBuilder').classList.add('open');
     }
@@ -6548,8 +6553,8 @@
     function igBIncoming() {
         const inc = {};
         igFlow.steps.forEach(s => {
-            (s.buttons || []).forEach(b => { if (b.next != null) inc[b.next] = (inc[b.next] || 0) + 1; });
-            if (s.delay && s.delay.next != null) inc[s.delay.next] = (inc[s.delay.next] || 0) + 1;
+            (s.buttons || []).forEach(b => { if (b.next != null && b.next !== '') inc[b.next] = (inc[b.next] || 0) + 1; });
+            if (igBDelaySec(s) && s.delayNext !== '' && s.delayNext != null) inc[s.delayNext] = (inc[s.delayNext] || 0) + 1;
         });
         return inc;
     }
@@ -6571,11 +6576,26 @@
         h += '<button type="button" class="igb-add" data-bact="addbtn">+ Botão</button></div>';
         h += '<div class="igb-sect"><label class="igb-l" style="margin-top:0">Atraso (opcional)</label>'
             + '<div class="igb-btnrow"><span style="font-size:12.5px;color:var(--text-muted)">Depois de</span>'
-            + '<input class="igb-in" data-b="delayval" type="number" min="1" style="max-width:70px" value="' + (s.delay ? igBSecToVal(s.delay.seconds) : '') + '">'
-            + '<select class="igb-in" data-b="delayunit" style="max-width:90px">' + igBUnitOpts(s.delay ? igBSecToUnit(s.delay.seconds) : 'seg') + '</select>'
+            + '<input class="igb-in" data-b="delayval" type="number" min="1" style="max-width:70px" value="' + (s.delayValue || '') + '">'
+            + '<select class="igb-in" data-b="delayunit" style="max-width:90px">' + igBUnitOpts(s.delayUnit || 's') + '</select>'
             + '<span style="font-size:12.5px;color:var(--text-muted)">ir para</span>'
-            + '<select class="igb-in" data-b="delaynext" style="max-width:110px">' + igBOptsFor(s.delay ? s.delay.next : '', s.id) + '</select></div>'
+            + '<select class="igb-in" data-b="delaynext" style="max-width:110px">' + igBOptsFor(s.delayNext, s.id) + '</select></div>'
             + '<div style="font-size:11px;color:var(--text-muted);">Deixe vazio pra não ter atraso.</div></div>';
+        h += '<div class="igb-sect"><label class="igb-l" style="margin-top:0">Arquivos deste passo (opcional)</label>';
+        (s.assets || []).forEach((aid, ai) => {
+            const a = igAssets.find(x => x.id === aid);
+            h += '<div class="igb-btnrow"><span style="flex:1;font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (a ? (igAssetIcon(a.tipo) + ' ' + igEsc(a.nome)) : '(arquivo)') + '</span><button type="button" class="igb-del" data-bact="assetdel" data-ai="' + ai + '">tirar</button></div>';
+        });
+        h += '<button type="button" class="igb-add" data-bact="assetpick">+ Arquivo da biblioteca</button>';
+        if (igBAssetPick) {
+            h += '<div style="margin-top:8px;border:1px solid var(--border);border-radius:10px;padding:8px;max-height:200px;overflow-y:auto;">';
+            const avail = igAssets.filter(a => !(s.assets || []).includes(a.id));
+            if (!igAssets.length) h += '<div style="font-size:12px;color:var(--text-muted);">Nenhum arquivo na biblioteca ainda. Suba em "📁 Mídia".</div>';
+            else if (!avail.length) h += '<div style="font-size:12px;color:var(--text-muted);">Todos os arquivos já foram adicionados.</div>';
+            else avail.forEach(a => { h += '<div class="igb-btnrow" style="cursor:pointer;" data-bact="assetadd" data-aid="' + a.id + '"><span style="flex:1;font-size:12.5px;color:var(--text);">' + igAssetIcon(a.tipo) + ' ' + igEsc(a.nome) + '</span><span style="color:var(--accent);font-weight:700;font-size:12px;">+ adicionar</span></div>'; });
+            h += '</div>';
+        }
+        h += '<div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Os arquivos chegam na DM depois da mensagem deste passo.</div></div>';
         if (igFlow.steps.length > 1) h += '<div class="igb-sect"><button type="button" class="igb-del" data-bact="delstep">🗑 Apagar esta etapa</button></div>';
         box.innerHTML = h;
     }
@@ -6589,7 +6609,7 @@
         if (s.link) msg = msg.indexOf('{LINK}') >= 0 ? msg.replace(/{LINK}/g, s.link) : (msg + ' ' + s.link);
         let h = igBubble(msg, false);
         (s.buttons || []).forEach(b => { if (b.title) h += '<div style="display:flex;justify-content:flex-end;margin:5px 0;"><div style="border:1px solid #2f6bff;color:#7aa2ff;border-radius:16px;padding:6px 14px;font-size:12px;font-weight:600;">' + igEsc(b.title) + '</div></div>'; });
-        if (s.delay && s.delay.seconds) h += '<div style="text-align:center;color:#8a8a8a;font-size:11px;margin:9px 0;">⏳ espera ' + igBHuman(s.delay.seconds) + '</div>';
+        const _dsp = igBDelaySec(s); if (_dsp) h += '<div style="text-align:center;color:#8a8a8a;font-size:11px;margin:9px 0;">⏳ espera ' + igBHumanSec(_dsp) + '</div>';
         box.innerHTML = h;
     }
     function igBRenderSim(box, hint) {
@@ -6600,15 +6620,13 @@
         if (s.link) msg = msg.indexOf('{LINK}') >= 0 ? msg.replace(/{LINK}/g, s.link) : (msg + ' ' + s.link);
         let h = igBubble(msg, false);
         (s.buttons || []).forEach(b => { if (b.title) h += '<div style="display:flex;justify-content:flex-end;margin:5px 0;"><button type="button" data-bact="simgo" data-next="' + (b.next == null ? '' : b.next) + '" style="border:1px solid #2f6bff;background:#182642;color:#9cc0ff;border-radius:16px;padding:7px 15px;font-size:12px;font-weight:600;cursor:pointer;">' + igEsc(b.title) + '</button></div>'; });
-        if (s.delay && s.delay.seconds) h += '<div style="text-align:center;color:#8a8a8a;font-size:11px;margin:9px 0;">⏳ espera ' + igBHuman(s.delay.seconds) + ' <button type="button" data-bact="simgo" data-next="' + (s.delay.next == null ? '' : s.delay.next) + '" style="border:none;background:none;color:#7aa2ff;cursor:pointer;text-decoration:underline;font-size:11px;">continuar</button></div>';
+        const _dss = igBDelaySec(s); if (_dss) h += '<div style="text-align:center;color:#8a8a8a;font-size:11px;margin:9px 0;">⏳ espera ' + igBHumanSec(_dss) + ' <button type="button" data-bact="simgo" data-next="' + (s.delayNext === '' || s.delayNext == null ? '' : s.delayNext) + '" style="border:none;background:none;color:#7aa2ff;cursor:pointer;text-decoration:underline;font-size:11px;">continuar</button></div>';
         box.innerHTML = h;
         if (hint) hint.innerHTML = 'Toque nos botões pra navegar. <button type="button" data-bact="simreset" style="border:none;background:none;color:var(--accent);cursor:pointer;font-weight:700;">↻ reiniciar</button>';
     }
-    function igBSecToUnit(sec) { sec = +sec || 0; if (sec >= 3600 && sec % 3600 === 0) return 'horas'; if (sec >= 60 && sec % 60 === 0) return 'min'; return 'seg'; }
-    function igBSecToVal(sec) { const u = igBSecToUnit(sec); return u === 'horas' ? sec / 3600 : u === 'min' ? sec / 60 : sec; }
-    function igBUnitOpts(sel) { return ['seg', 'min', 'horas'].map(u => '<option value="' + u + '"' + (u === sel ? ' selected' : '') + '>' + u + '</option>').join(''); }
-    function igBToSec(val, unit) { val = +val || 0; return unit === 'horas' ? val * 3600 : unit === 'min' ? val * 60 : val; }
-    function igBHuman(sec) { if (sec >= 3600) return (sec / 3600) + 'h'; if (sec >= 60) return (sec / 60) + 'min'; return sec + 's'; }
+    function igBUnitOpts(sel) { return [['s', 'seg'], ['m', 'min'], ['h', 'horas']].map(u => '<option value="' + u[0] + '"' + (u[0] === sel ? ' selected' : '') + '>' + u[1] + '</option>').join(''); }
+    function igBDelaySec(s) { return (+s.delayValue > 0) ? Math.round((+s.delayValue) * ({ s: 1, m: 60, h: 3600 }[s.delayUnit] || 60)) : 0; }
+    function igBHumanSec(sec) { if (sec >= 3600) return (sec / 3600) + 'h'; if (sec >= 60) return (sec / 60) + 'min'; return sec + 's'; }
     function igBClick(e) {
         const el = e.target.closest('[data-bact]'); if (!el) return;
         const act = el.dataset.bact;
@@ -6630,11 +6648,14 @@
             return;
         }
         if (act === 'simreset') { igBSim = igFlow.steps[0] ? igFlow.steps[0].id : null; igBRenderPreview(); return; }
-        if (act === 'sel') { igBSel = +el.dataset.id; igBRender(); return; }
+        if (act === 'sel') { igBSel = +el.dataset.id; igBAssetPick = false; igBRender(); return; }
         if (act === 'addstep') { igFlow.steps.push({ id: ++igFlowSeq, message: '', link: '', buttons: [] }); igBSel = igFlow.steps[igFlow.steps.length - 1].id; igBRender(); return; }
         if (act === 'delstep') { const i = igBStepIndex(igBSel); if (i >= 0 && igFlow.steps.length > 1) { igFlow.steps.splice(i, 1); igBSel = igFlow.steps[0].id; igBRender(); } return; }
         if (act === 'addbtn') { const s = igBStep(igBSel); s.buttons = s.buttons || []; s.buttons.push({ title: '', next: null }); igBRender(); return; }
         if (act === 'delbtn') { const s = igBStep(igBSel); s.buttons.splice(+el.dataset.bi, 1); igBRender(); return; }
+        if (act === 'assetpick') { igBAssetPick = !igBAssetPick; igBRenderEditor(); return; }
+        if (act === 'assetadd') { const s = igBStep(igBSel); s.assets = s.assets || []; if (!s.assets.includes(el.dataset.aid)) s.assets.push(el.dataset.aid); igBAssetPick = false; igBRender(); return; }
+        if (act === 'assetdel') { const s = igBStep(igBSel); (s.assets || []).splice(+el.dataset.ai, 1); igBRender(); return; }
     }
     function igBInput(e) {
         const el = e.target, b = el.dataset.b; if (!b) return; const s = igBStep(igBSel); if (!s) return;
@@ -6657,10 +6678,11 @@
     function igBUpdateDelay(s) {
         const box = document.getElementById('igbEditor'); if (!box) return;
         const val = (box.querySelector('[data-b="delayval"]') || {}).value;
-        const unit = (box.querySelector('[data-b="delayunit"]') || {}).value || 'seg';
+        const unit = (box.querySelector('[data-b="delayunit"]') || {}).value || 's';
         const next = (box.querySelector('[data-b="delaynext"]') || {}).value;
-        if (val && +val > 0) s.delay = { seconds: igBToSec(val, unit), next: next ? +next : null };
-        else delete s.delay;
+        s.delayValue = (val && +val > 0) ? +val : '';
+        s.delayUnit = unit;
+        s.delayNext = s.delayValue ? (next ? +next : '') : '';
     }
     function igBSyncBack() {
         try { if (typeof igFlowRender === 'function') igFlowRender(); } catch (e) {}
