@@ -1429,6 +1429,10 @@
 #igModal .iga-insert:hover{background:#FBEDE6}
 #igModal .iga-txt{width:100%;border:1.5px solid var(--border);border-radius:14px;background:var(--card);padding:13px 15px;font-size:14.5px;line-height:1.55;resize:vertical;min-height:100px;font-family:inherit;color:var(--text)}
 #igModal .iga-txt:focus{outline:none;border-color:var(--accent)}
+#igModal .iga-emojis{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+#igModal .iga-emoji{font-size:19px;line-height:1;background:var(--warm);border:none;border-radius:11px;padding:6px 9px;cursor:pointer;transition:transform .1s ease,background .15s ease}
+#igModal .iga-emoji:hover{background:#FBEDE6;transform:translateY(-1px)}
+#igModal .iga-emoji:active{transform:scale(.9)}
 #igModal .iga-linkrow{position:relative}
 #igModal .iga-linkrow .ico{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none}
 #igModal .iga-tin{width:100%;border:1.5px solid var(--border);border-radius:14px;background:var(--card);padding:12px 15px;font-size:14px;font-family:inherit;color:var(--text)}
@@ -1637,6 +1641,20 @@
               <button type="button" class="iga-insert" id="igaInsertLink">+ inserir {LINK}</button>
             </div>
             <textarea class="iga-txt" id="igf_linkmsg" rows="4"></textarea>
+            <div class="iga-emojis" id="igaEmojis" title="Clique pra adicionar na mensagem">
+              <button type="button" class="iga-emoji" data-emoji="🫶">🫶</button>
+              <button type="button" class="iga-emoji" data-emoji="👀">👀</button>
+              <button type="button" class="iga-emoji" data-emoji="😍">😍</button>
+              <button type="button" class="iga-emoji" data-emoji="🥰">🥰</button>
+              <button type="button" class="iga-emoji" data-emoji="😂">😂</button>
+              <button type="button" class="iga-emoji" data-emoji="😮">😮</button>
+              <button type="button" class="iga-emoji" data-emoji="🔥">🔥</button>
+              <button type="button" class="iga-emoji" data-emoji="✨">✨</button>
+              <button type="button" class="iga-emoji" data-emoji="💌">💌</button>
+              <button type="button" class="iga-emoji" data-emoji="👇">👇</button>
+              <button type="button" class="iga-emoji" data-emoji="🙌">🙌</button>
+              <button type="button" class="iga-emoji" data-emoji="💕">💕</button>
+            </div>
             <p class="iga-fhint">Onde tiver {LINK}, entra o seu link automaticamente.</p>
           </div>
 
@@ -6718,9 +6736,18 @@
         (function () { const k = document.getElementById('igf_keyword'), m = document.getElementById('igf_matchany'); k.disabled = m.checked; k.style.opacity = m.checked ? '.5' : '1'; })();
         document.getElementById('igModal').style.display = 'flex';
         igRenderPreview();
+        igaDirty = false; // acabou de carregar: ainda não tem alteração pendente
     }
     function igEdit(id) { const a = igAutomations.find(x => x.id === id); if (a) igOpenModal(a); }
-    function igCloseModal() { document.getElementById('igModal').style.display = 'none'; }
+    // igaDirty: vira true quando a Lara mexe em qualquer campo do editor. Serve pra não
+    // fechar (e perder tudo) sem avisar. É var (global no window) porque o editor visual
+    // roda num <script>/IIFE separado e precisa marcar dirty ao inserir emoji/{LINK}.
+    var igaDirty = false;
+    function igCloseModal(force) {
+        if (!force && igaDirty && !confirm('Você tem alterações que ainda não foram salvas nessa automação. Quer sair mesmo sem salvar?')) return;
+        igaDirty = false;
+        document.getElementById('igModal').style.display = 'none';
+    }
     function igUpdateTriggerUI() {
         const el = document.getElementById('igf_trigger'); if (!el) return;
         const story = el.value === 'story_reply';
@@ -6827,7 +6854,7 @@
         if (id) { ({ error } = await sb.from('ig_automations').update(rec).eq('id', id)); }
         else { ({ error } = await sb.from('ig_automations').insert(rec)); }
         if (error) { alert('Erro ao salvar: ' + error.message); return; }
-        igCloseModal();
+        igCloseModal(true); // salvou: pode fechar sem perguntar
         igLoadAutomations();
     }
 
@@ -7462,7 +7489,7 @@
         const ex = document.getElementById('igExportBtn'); if (ex) ex.addEventListener('click', igExportCSV);
         const se = document.getElementById('igLeadSearch'); if (se) se.addEventListener('input', igRenderLeads);
         const sv = document.getElementById('igSaveBtn'); if (sv) sv.addEventListener('click', igSave);
-        const cc = document.getElementById('igCancelBtn'); if (cc) cc.addEventListener('click', igCloseModal);
+        const cc = document.getElementById('igCancelBtn'); if (cc) cc.addEventListener('click', () => igCloseModal());
         const ri = document.getElementById('igRefreshInsights'); if (ri) ri.addEventListener('click', () => igLoadInsights(true));
         const pb = document.getElementById('igPeriodBtns');
         if (pb) pb.addEventListener('click', (e) => {
@@ -7491,7 +7518,11 @@
             if (!e.target.closest('.ig-bar')) return;
             const tip = document.getElementById('igReachTip'); if (tip) tip.style.display = 'none';
         });
-        const md = document.getElementById('igModal'); if (md) md.addEventListener('click', (e) => { if (e.target === md) igCloseModal(); });
+        // Clicar na margem (fora do painel) NÃO fecha mais o editor: a Lara perdia tudo
+        // que tinha escrito ao clicar fora por engano. Sai só pelo "voltar" ou salvando.
+        // Qualquer digitação/mudança marca o formulário como "tem alteração pendente".
+        const md = document.getElementById('igModal');
+        if (md) { md.addEventListener('input', () => { igaDirty = true; }); md.addEventListener('change', () => { igaDirty = true; }); }
         const hh = document.getElementById('igHealth'); if (hh) hh.addEventListener('click', (e) => { if (e.target.closest('[data-ig-deliv]')) igOpenDeliveries(); });
         const lc = document.getElementById('igLogClose'); if (lc) lc.addEventListener('click', igCloseDeliveries);
         const lm = document.getElementById('igLogModal'); if (lm) lm.addEventListener('click', (e) => { if (e.target === lm) igCloseDeliveries(); });
@@ -8048,7 +8079,18 @@ body { background: var(--cream); letter-spacing: -0.01em; }
 
     var adv=$('igaAdvBtn'); if(adv && !adv._iga){ adv._iga=1; adv.addEventListener('click',function(){adv.classList.toggle('open');var b=$('igaAdvBody');if(b)b.classList.toggle('open');}); }
 
-    var il=$('igaInsertLink'); if(il && !il._iga){ il._iga=1; il.addEventListener('click',function(){var ta=$('igf_linkmsg');if(!ta)return;var s=ta.selectionStart||ta.value.length,e=ta.selectionEnd||ta.value.length;ta.value=ta.value.slice(0,s)+'{LINK}'+ta.value.slice(e);ta.focus();ta.selectionStart=ta.selectionEnd=s+6;igaRenderPreview();}); }
+    // insere um texto na posição do cursor da mensagem (usado pelo {LINK} e pelos emojis)
+    function igaInsertInMsg(str){
+      var ta=$('igf_linkmsg'); if(!ta) return;
+      var s=(ta.selectionStart==null?ta.value.length:ta.selectionStart);
+      var e=(ta.selectionEnd==null?ta.value.length:ta.selectionEnd);
+      ta.value=ta.value.slice(0,s)+str+ta.value.slice(e);
+      ta.focus(); ta.selectionStart=ta.selectionEnd=s+str.length;
+      window.igaDirty=true;
+      igaRenderPreview();
+    }
+    var il=$('igaInsertLink'); if(il && !il._iga){ il._iga=1; il.addEventListener('click',function(){ igaInsertInMsg('{LINK}'); }); }
+    var em=$('igaEmojis'); if(em && !em._iga){ em._iga=1; em.addEventListener('click',function(e){ var b=e.target.closest('[data-emoji]'); if(b) igaInsertInMsg(b.getAttribute('data-emoji')); }); }
 
     var pv=$('igPreview'); if(pv && !pv._iga){ pv._iga=1;
       pv.addEventListener('click',function(e){
