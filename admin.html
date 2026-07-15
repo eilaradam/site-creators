@@ -6446,6 +6446,7 @@
        Bloco 100% isolado (só adiciona). Edita o MESMO estado igFlow que o igSave já
        serializa. Não altera nenhuma função existente. ============================== */
     let igBSel = null;
+    let igBMode = 'step', igBSim = null;
     function igBEnsure() {
         if (document.getElementById('igBuilder')) return;
         const st = document.createElement('style');
@@ -6479,6 +6480,11 @@
         #igBuilder .igb-sect{border-top:1px solid var(--border);margin-top:16px;padding-top:12px;}
         #igBuilder .igb-phone{max-width:270px;margin:0 auto;background:#0f0f12;border-radius:26px;padding:12px 9px;box-shadow:0 14px 34px -14px rgba(0,0,0,.45);}
         #igBuilder .igb-phone .scr{background:#101216;border-radius:16px;padding:12px 10px;min-height:340px;}
+        #igBuilder .igb-modes{display:flex;gap:6px;margin-bottom:12px;}
+        #igBuilder .igb-mode{flex:1;border:1px solid var(--border);background:var(--card);color:var(--text-muted);font-weight:700;font-size:12px;padding:7px;border-radius:8px;cursor:pointer;font-family:inherit;}
+        #igBuilder .igb-mode.sel{background:var(--accent);color:#fff;border-color:var(--accent);}
+        #igBuilder .igb-orphan{font-size:10.5px;color:#b8791a;background:rgba(184,121,26,.13);border-radius:6px;padding:2px 7px;margin-top:5px;display:inline-block;font-weight:700;}
+        #igBuilder .igb-from{font-size:10.5px;color:var(--text-muted);margin-top:4px;}
         `;
         document.head.appendChild(st);
         const ov = document.createElement('div');
@@ -6491,8 +6497,10 @@
             + '<div class="igb-col igb-left"><div class="igb-h">Etapas</div><div id="igbSteps"></div>'
             + '<button type="button" class="igb-addstep" data-bact="addstep">+ Criar nova etapa</button></div>'
             + '<div class="igb-col igb-mid" id="igbEditor"></div>'
-            + '<div class="igb-col igb-right"><div class="igb-h">Prévia (como a pessoa recebe)</div>'
-            + '<div class="igb-phone"><div class="scr" id="igbPreview"></div></div></div>'
+            + '<div class="igb-col igb-right"><div class="igb-h">Prévia</div>'
+            + '<div class="igb-modes"><button type="button" class="igb-mode sel" data-bact="mode" data-m="step">Passo atual</button><button type="button" class="igb-mode" data-bact="mode" data-m="sim">▶ Simular</button></div>'
+            + '<div class="igb-phone"><div class="scr" id="igbPreview"></div></div>'
+            + '<div id="igbSimHint" style="text-align:center;font-size:11px;color:var(--text-muted);margin-top:9px;"></div></div>'
             + '</div>';
         document.body.appendChild(ov);
         ov.addEventListener('click', igBClick);
@@ -6516,13 +6524,16 @@
     function igBRender() { igBRenderSteps(); igBRenderEditor(); igBRenderPreview(); }
     function igBRenderSteps() {
         const box = document.getElementById('igbSteps'); if (!box) return;
+        const inc = igBIncoming();
         box.innerHTML = igFlow.steps.map((s, i) => {
             const t = (s.message || '').split('\n')[0].slice(0, 34) || ('Passo ' + (i + 1));
             const nb = (s.buttons || []).length;
+            const orphan = i > 0 && !inc[s.id];
             return '<div class="igb-step' + (s.id === igBSel ? ' sel' : '') + '" data-bact="sel" data-id="' + s.id + '">'
                 + '<div class="n">' + (i === 0 ? 'PASSO INICIAL' : 'PASSO ' + (i + 1)) + '</div>'
                 + '<div class="txt">' + igEsc(t) + '</div>'
-                + (nb ? '<div class="badge">' + nb + ' bot' + (nb > 1 ? 'ões' : 'ão') + '</div>' : '') + '</div>';
+                + (nb ? '<div class="badge">' + nb + ' bot' + (nb > 1 ? 'ões' : 'ão') + '</div>' : '')
+                + (orphan ? '<div class="igb-orphan">⚠ passo solto (nenhum botão leva aqui)</div>' : '') + '</div>';
         }).join('');
     }
     function igBOptsFor(cur, selfId) {
@@ -6531,7 +6542,16 @@
             if (st.id === selfId) return;
             o += '<option value="' + st.id + '"' + (String(cur) === String(st.id) ? ' selected' : '') + '>Passo ' + (i + 1) + '</option>';
         });
+        o += '<option value="__new__">➕ criar novo passo</option>';
         return o;
+    }
+    function igBIncoming() {
+        const inc = {};
+        igFlow.steps.forEach(s => {
+            (s.buttons || []).forEach(b => { if (b.next != null) inc[b.next] = (inc[b.next] || 0) + 1; });
+            if (s.delay && s.delay.next != null) inc[s.delay.next] = (inc[s.delay.next] || 0) + 1;
+        });
+        return inc;
     }
     function igBRenderEditor() {
         const box = document.getElementById('igbEditor'); if (!box) return;
@@ -6561,6 +6581,9 @@
     }
     function igBRenderPreview() {
         const box = document.getElementById('igbPreview'); if (!box) return;
+        const hint = document.getElementById('igbSimHint');
+        if (igBMode === 'sim') { igBRenderSim(box, hint); return; }
+        if (hint) hint.textContent = '';
         const s = igBStep(igBSel); if (!s) { box.innerHTML = ''; return; }
         let msg = s.message || '(mensagem vazia)';
         if (s.link) msg = msg.indexOf('{LINK}') >= 0 ? msg.replace(/{LINK}/g, s.link) : (msg + ' ' + s.link);
@@ -6568,6 +6591,18 @@
         (s.buttons || []).forEach(b => { if (b.title) h += '<div style="display:flex;justify-content:flex-end;margin:5px 0;"><div style="border:1px solid #2f6bff;color:#7aa2ff;border-radius:16px;padding:6px 14px;font-size:12px;font-weight:600;">' + igEsc(b.title) + '</div></div>'; });
         if (s.delay && s.delay.seconds) h += '<div style="text-align:center;color:#8a8a8a;font-size:11px;margin:9px 0;">⏳ espera ' + igBHuman(s.delay.seconds) + '</div>';
         box.innerHTML = h;
+    }
+    function igBRenderSim(box, hint) {
+        if (igBSim == null || !igBStep(igBSim)) igBSim = igFlow.steps[0] ? igFlow.steps[0].id : null;
+        const s = igBStep(igBSim);
+        if (!s) { box.innerHTML = ''; if (hint) hint.textContent = ''; return; }
+        let msg = s.message || '(mensagem vazia)';
+        if (s.link) msg = msg.indexOf('{LINK}') >= 0 ? msg.replace(/{LINK}/g, s.link) : (msg + ' ' + s.link);
+        let h = igBubble(msg, false);
+        (s.buttons || []).forEach(b => { if (b.title) h += '<div style="display:flex;justify-content:flex-end;margin:5px 0;"><button type="button" data-bact="simgo" data-next="' + (b.next == null ? '' : b.next) + '" style="border:1px solid #2f6bff;background:#182642;color:#9cc0ff;border-radius:16px;padding:7px 15px;font-size:12px;font-weight:600;cursor:pointer;">' + igEsc(b.title) + '</button></div>'; });
+        if (s.delay && s.delay.seconds) h += '<div style="text-align:center;color:#8a8a8a;font-size:11px;margin:9px 0;">⏳ espera ' + igBHuman(s.delay.seconds) + ' <button type="button" data-bact="simgo" data-next="' + (s.delay.next == null ? '' : s.delay.next) + '" style="border:none;background:none;color:#7aa2ff;cursor:pointer;text-decoration:underline;font-size:11px;">continuar</button></div>';
+        box.innerHTML = h;
+        if (hint) hint.innerHTML = 'Toque nos botões pra navegar. <button type="button" data-bact="simreset" style="border:none;background:none;color:var(--accent);cursor:pointer;font-weight:700;">↻ reiniciar</button>';
     }
     function igBSecToUnit(sec) { sec = +sec || 0; if (sec >= 3600 && sec % 3600 === 0) return 'horas'; if (sec >= 60 && sec % 60 === 0) return 'min'; return 'seg'; }
     function igBSecToVal(sec) { const u = igBSecToUnit(sec); return u === 'horas' ? sec / 3600 : u === 'min' ? sec / 60 : sec; }
@@ -6578,6 +6613,23 @@
         const el = e.target.closest('[data-bact]'); if (!el) return;
         const act = el.dataset.bact;
         if (act === 'done') { igBSyncBack(); igBClose(); return; }
+        if (act === 'mode') {
+            igBMode = el.dataset.m;
+            if (igBMode === 'sim') igBSim = igFlow.steps[0] ? igFlow.steps[0].id : null;
+            document.querySelectorAll('#igBuilder .igb-mode').forEach(x => x.classList.toggle('sel', x.dataset.m === igBMode));
+            igBRenderPreview(); return;
+        }
+        if (act === 'simgo') {
+            const nx = el.dataset.next;
+            if (nx) { igBSim = +nx; igBRenderPreview(); }
+            else {
+                document.getElementById('igbPreview').innerHTML = '<div style="text-align:center;color:#8a8a8a;font-size:12px;padding:40px 0;">✓ Conversa encerrada</div>';
+                const hint = document.getElementById('igbSimHint');
+                if (hint) hint.innerHTML = '<button type="button" data-bact="simreset" style="border:none;background:none;color:var(--accent);cursor:pointer;font-weight:700;">↻ reiniciar</button>';
+            }
+            return;
+        }
+        if (act === 'simreset') { igBSim = igFlow.steps[0] ? igFlow.steps[0].id : null; igBRenderPreview(); return; }
         if (act === 'sel') { igBSel = +el.dataset.id; igBRender(); return; }
         if (act === 'addstep') { igFlow.steps.push({ id: ++igFlowSeq, message: '', link: '', buttons: [] }); igBSel = igFlow.steps[igFlow.steps.length - 1].id; igBRender(); return; }
         if (act === 'delstep') { const i = igBStepIndex(igBSel); if (i >= 0 && igFlow.steps.length > 1) { igFlow.steps.splice(i, 1); igBSel = igFlow.steps[0].id; igBRender(); } return; }
@@ -6593,8 +6645,13 @@
     }
     function igBChange(e) {
         const el = e.target, b = el.dataset.b; if (!b) return; const s = igBStep(igBSel); if (!s) return;
-        if (b === 'btnnext') { s.buttons[+el.dataset.bi].next = el.value ? +el.value : null; }
-        else if (b === 'delayunit' || b === 'delaynext' || b === 'delayval') { igBUpdateDelay(s); }
+        if (b === 'btnnext') {
+            if (el.value === '__new__') { const ns = { id: ++igFlowSeq, message: '', link: '', buttons: [] }; igFlow.steps.push(ns); s.buttons[+el.dataset.bi].next = ns.id; igBRender(); return; }
+            s.buttons[+el.dataset.bi].next = el.value ? +el.value : null;
+        } else if (b === 'delaynext') {
+            if (el.value === '__new__') { const ns = { id: ++igFlowSeq, message: '', link: '', buttons: [] }; igFlow.steps.push(ns); el.value = String(ns.id); igBUpdateDelay(s); igBRender(); return; }
+            igBUpdateDelay(s);
+        } else if (b === 'delayunit' || b === 'delayval') { igBUpdateDelay(s); }
         igBRenderPreview();
     }
     function igBUpdateDelay(s) {
