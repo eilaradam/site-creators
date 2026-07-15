@@ -6291,7 +6291,8 @@
             igFlow = { steps: a.flow.steps.map(s => {
                 const d = s.delay || null; let dv = '', du = 'm', dn = '';
                 if (d && d.seconds) { dn = (d.next == null ? '' : d.next); if (d.seconds % 3600 === 0) { dv = d.seconds / 3600; du = 'h'; } else if (d.seconds % 60 === 0) { dv = d.seconds / 60; du = 'm'; } else { dv = d.seconds; du = 's'; } }
-                return { id: s.id, message: s.message || '', link: s.link || '', buttons: (s.buttons || []).map(b => ({ title: b.title || '', next: (b.next === null || b.next === undefined) ? '' : b.next })), delayValue: dv, delayUnit: du, delayNext: dn, assets: Array.isArray(s.assets) ? s.assets.slice() : [] };
+                const c = s.collect || null;
+                return { id: s.id, message: s.message || '', link: s.link || '', buttons: (s.buttons || []).map(b => ({ title: b.title || '', next: (b.next === null || b.next === undefined) ? '' : b.next })), delayValue: dv, delayUnit: du, delayNext: dn, assets: Array.isArray(s.assets) ? s.assets.slice() : [], collectOn: !!(c && c.field), collectField: (c && c.field) || 'email', collectNext: (c && c.next != null) ? c.next : '' };
             }) };
             igFlowSeq = igFlow.steps.reduce((m, s) => Math.max(m, +s.id || 0), 0);
         }
@@ -6396,7 +6397,8 @@
                         seconds: Math.round((+s.delayValue) * ({ s: 1, m: 60, h: 3600 }[s.delayUnit] || 60)),
                         next: (isNaN(+s.delayNext) ? s.delayNext : +s.delayNext)
                     } : null,
-                    assets: Array.isArray(s.assets) ? s.assets.filter(Boolean) : []
+                    assets: Array.isArray(s.assets) ? s.assets.filter(Boolean) : [],
+                    collect: (s.collectOn && s.collectNext) ? { field: s.collectField || 'email', next: (isNaN(+s.collectNext) ? s.collectNext : +s.collectNext) } : null
                 }))
             } : null,
             updated_at: new Date().toISOString()
@@ -6556,6 +6558,7 @@
         igFlow.steps.forEach(s => {
             (s.buttons || []).forEach(b => { if (b.next != null && b.next !== '') inc[b.next] = (inc[b.next] || 0) + 1; });
             if (igBDelaySec(s) && s.delayNext !== '' && s.delayNext != null) inc[s.delayNext] = (inc[s.delayNext] || 0) + 1;
+            if (s.collectOn && s.collectNext !== '' && s.collectNext != null) inc[s.collectNext] = (inc[s.collectNext] || 0) + 1;
         });
         return inc;
     }
@@ -6598,6 +6601,16 @@
             h += '</div>';
         }
         h += '<div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Os arquivos chegam na DM depois da mensagem deste passo.</div></div>';
+        h += '<div class="igb-sect"><label class="igb-l" style="margin-top:0">Coleta de dado (opcional)</label>'
+            + '<label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text);cursor:pointer;"><input type="checkbox" data-b="collecton"' + (s.collectOn ? ' checked' : '') + '> Este passo pede um dado da pessoa</label>';
+        if (s.collectOn) {
+            h += '<div class="igb-btnrow" style="margin-top:8px;"><span style="font-size:12.5px;color:var(--text-muted)">Pedir</span>'
+                + '<select class="igb-in" data-b="collectfield" style="max-width:120px"><option value="email"' + (s.collectField !== 'telefone' ? ' selected' : '') + '>email</option><option value="telefone"' + (s.collectField === 'telefone' ? ' selected' : '') + '>telefone</option></select>'
+                + '<span style="font-size:12.5px;color:var(--text-muted)">e ir para</span>'
+                + '<select class="igb-in" data-b="collectnext" style="max-width:110px">' + igBOptsFor(s.collectNext, s.id) + '</select></div>'
+                + '<div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Escreva a pergunta na mensagem acima (ex: "Me manda seu melhor email"). A resposta da pessoa vira o dado salvo, e ela segue pro passo escolhido.</div>';
+        }
+        h += '</div>';
         if (igFlow.steps.length > 1) h += '<div class="igb-sect"><button type="button" class="igb-del" data-bact="delstep">🗑 Apagar esta etapa</button></div>';
         box.innerHTML = h;
     }
@@ -6676,6 +6689,12 @@
             if (el.value === '__new__') { const ns = { id: ++igFlowSeq, message: '', link: '', buttons: [] }; igFlow.steps.push(ns); el.value = String(ns.id); igBUpdateDelay(s); igBRender(); return; }
             igBUpdateDelay(s);
         } else if (b === 'delayunit' || b === 'delayval') { igBUpdateDelay(s); }
+        else if (b === 'collecton') { s.collectOn = el.checked; if (!s.collectOn) s.collectNext = ''; igBRenderEditor(); return; }
+        else if (b === 'collectfield') { s.collectField = el.value; return; }
+        else if (b === 'collectnext') {
+            if (el.value === '__new__') { const ns = { id: ++igFlowSeq, message: '', link: '', buttons: [] }; igFlow.steps.push(ns); s.collectNext = ns.id; igBRender(); return; }
+            s.collectNext = el.value ? +el.value : ''; igBRender(); return;
+        }
         igBRenderPreview();
     }
     function igBUpdateDelay(s) {
@@ -6841,11 +6860,12 @@
             return;
         }
         list.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:auto;"><table><thead><tr>'
-            + '<th>Conta</th><th>Origem</th><th>Palavra</th><th>🏷️ Etiqueta</th><th>Recebeu?</th><th>Interações</th><th>Última vez</th></tr></thead><tbody>'
+            + '<th>Conta</th><th>Origem</th><th>Palavra</th><th>📧 Contato</th><th>🏷️ Etiqueta</th><th>Recebeu?</th><th>Interações</th><th>Última vez</th></tr></thead><tbody>'
             + filtered.map(l => '<tr>'
                 + '<td>' + (l.username ? '<a href="https://instagram.com/' + encodeURIComponent(l.username) + '" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;font-weight:700;">@' + escapeHtml(l.username) + '</a>' : escapeHtml(l.ig_user_id || '')) + '</td>'
                 + '<td>' + (l.last_source === 'comment' ? '💬 Comentário' : '📩 Direct') + '</td>'
                 + '<td>' + escapeHtml(l.last_keyword || '') + '</td>'
+                + '<td style="white-space:normal;max-width:170px;">' + ((l.email || l.telefone) ? ((l.email ? '<a href="mailto:' + escapeHtml(l.email) + '" style="color:var(--accent);text-decoration:none;">' + escapeHtml(l.email) + '</a>' : '') + (l.telefone ? ' <span>' + escapeHtml(l.telefone) + '</span>' : '')) : '<span style="color:var(--text-muted);">—</span>') + '</td>'
                 + '<td style="white-space:normal;max-width:180px;">' + igLeadTags(l) + '</td>'
                 + '<td>' + (l.link_sent ? '✅' : '—') + '</td>'
                 + '<td>' + (l.interactions || 1) + '</td>'
