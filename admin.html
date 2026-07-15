@@ -616,7 +616,12 @@
 
 <!-- ── TAB: LINK NA BIO (editor do /bio) ── -->
 <div class="dashboard" id="tabBio">
+    <div class="bio-subnav">
+        <button class="bio-subbtn active" data-biosub="editar" type="button">Editar bio</button>
+        <button class="bio-subbtn" data-biosub="leads" type="button">Contatos capturados</button>
+    </div>
     <div id="bioEditorRoot"><div style="padding:40px;text-align:center;color:var(--text-muted)">Carregando...</div></div>
+    <div id="bioLeadsRoot" style="display:none"></div>
 </div>
 
 <!-- ── TAB: DASHBOARD ── -->
@@ -6941,7 +6946,19 @@ body { background: var(--cream); letter-spacing: -0.01em; }
 
 <!-- ══ Editor do /bio (Link na Bio) ══ -->
 <style>
+  #tabBio .bio-subnav{display:flex;gap:8px;margin-bottom:16px;}
+  #tabBio .bio-subbtn{padding:8px 16px;border-radius:999px;border:1px solid var(--border);background:#fff;color:var(--text-muted);font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;}
+  #tabBio .bio-subbtn.active{background:var(--text);color:#fff;border-color:var(--text);}
   #tabBio .bio-wrap{max-width:760px;margin:0 auto;}
+  #tabBio .bl-list{max-width:760px;margin:0 auto;}
+  #tabBio .bl-row{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;}
+  #tabBio .bl-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  #tabBio .bl-name{font-weight:800;font-size:15px;}
+  #tabBio .bl-date{margin-left:auto;font-size:12px;color:var(--text-muted);}
+  #tabBio .bl-meta{font-size:13px;color:var(--text-muted);margin-top:6px;display:flex;gap:14px;flex-wrap:wrap;}
+  #tabBio .bl-meta a{color:var(--accent);text-decoration:none;font-weight:600;}
+  #tabBio .bl-prod{display:inline-block;margin-top:8px;font-size:12px;background:var(--accent-glow);color:var(--accent);padding:3px 10px;border-radius:999px;font-weight:700;}
+  #tabBio .bl-empty{text-align:center;color:var(--text-muted);padding:50px 0;}
   #tabBio .bio-sec{background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px 20px;margin-bottom:16px;}
   #tabBio .bio-sec h3{font-size:16px;font-weight:800;margin:0 0 14px;}
   #tabBio .bio-f{display:block;margin-bottom:12px;}
@@ -7077,6 +7094,42 @@ body { background: var(--cream); letter-spacing: -0.01em; }
     if(res.error) msg('Erro ao salvar: '+res.error.message, true);
     else msg('Salvo! Abra o /bio e atualize (F5).', false);
   }
+
+  // ── Contatos capturados (bio_leads) ──
+  async function loadBioLeads(){
+    var root=document.getElementById('bioLeadsRoot'); if(!root) return;
+    root.innerHTML='<div class="bl-empty">Carregando...</div>';
+    var res=await sb().from('bio_leads').select('*').order('created_at',{ascending:false}).limit(500);
+    if(res.error){ root.innerHTML='<div class="bl-empty">Erro: '+esc(res.error.message)+'</div>'; return; }
+    var leads=res.data||[];
+    if(!leads.length){ root.innerHTML='<div class="bl-empty">Nenhum contato capturado ainda. Quando alguem preencher no chat do /bio, aparece aqui. 🌱</div>'; return; }
+    var h='<div class="bl-list"><div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">'+leads.length+' contato(s)</div>';
+    leads.forEach(function(l){
+      var wa=(l.whatsapp||'').replace(/\D/g,'');
+      var d=''; try{ d=new Date(l.created_at).toLocaleString('pt-BR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}); }catch(e){}
+      var tags=(l.respostas&&l.respostas.tags&&l.respostas.tags.join)?l.respostas.tags.join(', '):'';
+      h+='<div class="bl-row"><div class="bl-top"><span class="bl-name">'+esc(l.nome||'—')+'</span><span class="bl-date">'+esc(d)+'</span></div><div class="bl-meta">'
+        +(l.whatsapp?'<span>📱 <a href="https://wa.me/'+wa+'" target="_blank" rel="noopener">'+esc(l.whatsapp)+'</a></span>':'')
+        +(l.instagram?'<span>📷 '+esc(l.instagram)+'</span>':'')
+        +(tags?'<span>🏷️ '+esc(tags)+'</span>':'')
+        +'</div>'+(l.produto?'<span class="bl-prod">Recomendado: '+esc(l.produto)+'</span>':'')+'</div>';
+    });
+    root.innerHTML=h+'</div>';
+  }
+
+  // sub-menu Editar / Contatos
+  (function(){
+    var btns=document.querySelectorAll('#tabBio .bio-subbtn');
+    btns.forEach(function(b){
+      b.addEventListener('click', function(){
+        btns.forEach(function(x){x.classList.remove('active');}); b.classList.add('active');
+        var sub=b.dataset.biosub;
+        document.getElementById('bioEditorRoot').style.display = sub==='editar'?'':'none';
+        document.getElementById('bioLeadsRoot').style.display = sub==='leads'?'':'none';
+        if(sub==='leads') loadBioLeads();
+      });
+    });
+  })();
 })();
 </script>
 </body>
