@@ -6492,6 +6492,7 @@
         ov.id = 'igBuilder';
         ov.innerHTML =
             '<div class="igb-top"><span class="t">🧱 Construtor de fluxo</span><span class="sp"></span>'
+            + '<button type="button" data-bact="test" style="border:1px solid var(--border);background:var(--card);color:var(--text);font-weight:700;font-size:13px;padding:9px 15px;border-radius:9px;cursor:pointer;font-family:inherit;">🧪 Testar</button>'
             + '<button type="button" class="igb-x" data-bact="done" title="Fechar">✕</button>'
             + '<button type="button" class="igb-done" data-bact="done">Concluir</button></div>'
             + '<div class="igb-body">'
@@ -6573,14 +6574,15 @@
                 + '<select class="igb-in" data-b="btnnext" data-bi="' + bi + '" style="max-width:140px">' + igBOptsFor(b.next, s.id) + '</select>'
                 + '<button type="button" class="igb-del" data-bact="delbtn" data-bi="' + bi + '">apagar</button></div>';
         });
-        h += '<button type="button" class="igb-add" data-bact="addbtn">+ Botão</button></div>';
+        h += '<button type="button" class="igb-add" data-bact="addbtn">+ Botão</button>'
+            + '<div style="font-size:11px;color:var(--text-muted);margin-top:6px;">Até 13 botões por passo, máximo 20 letras cada.</div></div>';
         h += '<div class="igb-sect"><label class="igb-l" style="margin-top:0">Atraso (opcional)</label>'
             + '<div class="igb-btnrow"><span style="font-size:12.5px;color:var(--text-muted)">Depois de</span>'
             + '<input class="igb-in" data-b="delayval" type="number" min="1" style="max-width:70px" value="' + (s.delayValue || '') + '">'
             + '<select class="igb-in" data-b="delayunit" style="max-width:90px">' + igBUnitOpts(s.delayUnit || 's') + '</select>'
             + '<span style="font-size:12.5px;color:var(--text-muted)">ir para</span>'
             + '<select class="igb-in" data-b="delaynext" style="max-width:110px">' + igBOptsFor(s.delayNext, s.id) + '</select></div>'
-            + '<div style="font-size:11px;color:var(--text-muted);">Deixe vazio pra não ter atraso.</div></div>';
+            + '<div style="font-size:11px;color:var(--text-muted);">Deixe vazio pra não ter atraso. Atrasos abaixo de 1 minuto chegam em até ~2 min (o robô checa por minuto).</div></div>';
         h += '<div class="igb-sect"><label class="igb-l" style="margin-top:0">Arquivos deste passo (opcional)</label>';
         (s.assets || []).forEach((aid, ai) => {
             const a = igAssets.find(x => x.id === aid);
@@ -6631,6 +6633,7 @@
         const el = e.target.closest('[data-bact]'); if (!el) return;
         const act = el.dataset.bact;
         if (act === 'done') { igBSyncBack(); igBClose(); return; }
+        if (act === 'test') { igBTest(el); return; }
         if (act === 'mode') {
             igBMode = el.dataset.m;
             if (igBMode === 'sim') igBSim = igFlow.steps[0] ? igFlow.steps[0].id : null;
@@ -6687,6 +6690,19 @@
     function igBSyncBack() {
         try { if (typeof igFlowRender === 'function') igFlowRender(); } catch (e) {}
         try { if (typeof igRenderPreview === 'function') igRenderPreview(); } catch (e) {}
+    }
+    async function igBTest(btn) {
+        const id = (document.getElementById('igf_id') || {}).value;
+        if (!id) { alert('Salve a automação primeiro (botão "Salvar" do formulário). Aí o teste envia a 1ª mensagem pra sua conta de teste.'); return; }
+        const old = btn ? btn.textContent : '';
+        if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
+        try {
+            const { data, error } = await sb.functions.invoke('ig-test-send', { body: { automation_id: id } });
+            if (error) alert('Erro no teste: ' + error.message);
+            else if (data && data.error) alert(data.error);
+            else alert('Enviado! 🎉 Abra o @meumanager (sua conta de teste) e veja a mensagem no direct.\n\nSe não chegou: a conta de teste precisa ter te mandado um DM nas últimas 24h pra abrir a janela.');
+        } catch (e) { alert('Erro: ' + e); }
+        if (btn) { btn.disabled = false; btn.textContent = old || '🧪 Testar'; }
     }
     function igFlowRender() {
         const box = document.getElementById('igFlowSteps'); if (!box) return;
