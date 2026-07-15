@@ -591,6 +591,10 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
                 <span>Instagram</span>
             </button>
+            <button class="tab nav-item" data-tab="bio" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2.5"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+                <span>Link na Bio</span>
+            </button>
         </nav>
         <div class="sidebar-foot">
             <div class="sidebar-user">
@@ -609,6 +613,11 @@
             <div class="topbar-actions" id="topbarActions"></div>
         </header>
         <main class="app-content">
+
+<!-- ── TAB: LINK NA BIO (editor do /bio) ── -->
+<div class="dashboard" id="tabBio">
+    <div id="bioEditorRoot"><div style="padding:40px;text-align:center;color:var(--text-muted)">Carregando...</div></div>
+</div>
 
 <!-- ── TAB: DASHBOARD ── -->
 <div class="dashboard show" id="tabDashboard">
@@ -2270,7 +2279,7 @@
     document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
 
     /* ── Tabs ── */
-    const PAGE_TITLES = { dashboard: 'Dashboard', creators: 'Creators', admin: 'Administração', portfolio: 'Portfólio', orcamentos: 'Propostas', casting: 'Casting', candidaturas: 'Candidaturas', disparo: 'Disparo de E-mail', imersao: 'Imersão', instagram: 'Instagram' };
+    const PAGE_TITLES = { dashboard: 'Dashboard', creators: 'Creators', admin: 'Administração', portfolio: 'Portfólio', orcamentos: 'Propostas', casting: 'Casting', candidaturas: 'Candidaturas', disparo: 'Disparo de E-mail', imersao: 'Imersão', instagram: 'Instagram', bio: 'Link na Bio' };
     function setPageTitle(target) {
         const el = document.getElementById('pageTitle');
         if (el && PAGE_TITLES[target]) el.textContent = PAGE_TITLES[target];
@@ -2291,6 +2300,7 @@
             document.getElementById('tabDisparo').classList.toggle('show', target === 'disparo');
             document.getElementById('tabImersao').classList.toggle('show', target === 'imersao');
             document.getElementById('tabInstagram').classList.toggle('show', target === 'instagram');
+            document.getElementById('tabBio').classList.toggle('show', target === 'bio');
             setPageTitle(target);
             document.getElementById('sidebar').classList.remove('open');
             document.getElementById('sidebarBackdrop').classList.remove('show');
@@ -2305,6 +2315,7 @@
             if (target === 'disparo') loadDisparo();
             if (target === 'imersao') loadImersao();
             if (target === 'instagram') loadInstagram();
+            if (target === 'bio' && window.loadBioEditor) window.loadBioEditor();
         });
     });
 
@@ -6927,5 +6938,146 @@ body { background: var(--cream); letter-spacing: -0.01em; }
     .app-shell.collapsed .sidebar-collapse:hover { background: var(--accent-glow); color: var(--accent); }
 }
 </style>
+
+<!-- ══ Editor do /bio (Link na Bio) ══ -->
+<style>
+  #tabBio .bio-wrap{max-width:760px;margin:0 auto;}
+  #tabBio .bio-sec{background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px 20px;margin-bottom:16px;}
+  #tabBio .bio-sec h3{font-size:16px;font-weight:800;margin:0 0 14px;}
+  #tabBio .bio-f{display:block;margin-bottom:12px;}
+  #tabBio .bio-f>span{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:4px;}
+  #tabBio input[type=text],#tabBio textarea,#tabBio select{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:9px;font-size:14px;font-family:inherit;box-sizing:border-box;background:#fff;color:var(--text);}
+  #tabBio textarea{resize:vertical;}
+  #tabBio .bio-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  #tabBio .bio-item{border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;background:#FAF9F7;}
+  #tabBio .bio-item-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  #tabBio .bio-item-head b{font-size:12px;color:var(--text-muted);}
+  #tabBio .bio-rm{color:#e5484d;background:none;border:none;font-size:11px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.04em;}
+  #tabBio .bio-add{font-size:13px;padding:8px 14px;border-radius:999px;border:1px solid var(--accent);color:var(--accent);background:none;font-weight:700;cursor:pointer;font-family:inherit;}
+  #tabBio .bio-img{display:flex;gap:12px;align-items:flex-start;}
+  #tabBio .bio-img .thumb{width:60px;height:60px;border-radius:10px;background:#eee;object-fit:cover;flex:none;border:1px solid var(--border);}
+  #tabBio .bio-up{display:inline-block;font-size:12px;padding:7px 12px;border-radius:999px;background:var(--text);color:#fff;font-weight:700;cursor:pointer;}
+  #tabBio .bio-color{display:flex;gap:8px;align-items:center;}
+  #tabBio .bio-color input[type=color]{width:44px;height:36px;border:1px solid var(--border);border-radius:8px;background:#fff;padding:2px;flex:none;}
+  #tabBio .bio-savebar{position:sticky;bottom:0;background:rgba(255,255,255,.97);border-top:1px solid var(--border);padding:14px 2px;display:flex;align-items:center;gap:16px;margin-top:8px;}
+  #tabBio .bio-save{margin-left:auto;background:var(--accent);color:#fff;border:none;padding:12px 26px;border-radius:12px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;}
+  #tabBio .bio-save:disabled{opacity:.6;}
+  #tabBio .bio-msg{font-size:13px;font-weight:600;}
+</style>
+<script>
+(function(){
+  function sb(){ return window.Auth && window.Auth.sb; }
+  var cfg=null, loaded=false, listening=false;
+
+  window.loadBioEditor = async function(){
+    var root=document.getElementById('bioEditorRoot'); if(!root) return;
+    if(loaded) return;
+    root.innerHTML='<div style="padding:40px;text-align:center;color:var(--text-muted)">Carregando conteúdo...</div>';
+    try{
+      var res=await sb().from('bio_config').select('config').eq('id',1).single();
+      if(res.error) throw res.error;
+      cfg=res.data.config||{};
+      loaded=true;
+      render(); attachOnce(root);
+    }catch(err){ root.innerHTML='<div style="padding:40px;text-align:center;color:#e5484d">Erro ao carregar: '+esc(err.message||err)+'</div>'; }
+  };
+
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function get(p){ return p.split('.').reduce(function(o,k){ return o==null?undefined:o[k]; }, cfg); }
+  function setP(p,v){ var a=p.split('.'),o=cfg; for(var i=0;i<a.length-1;i++){ if(o[a[i]]==null)o[a[i]]={}; o=o[a[i]]; } o[a[a.length-1]]=v; }
+
+  function f(l,p,ph){ return '<label class="bio-f"><span>'+esc(l)+'</span><input type="text" data-path="'+p+'" value="'+esc(get(p))+'" placeholder="'+esc(ph||'')+'"></label>'; }
+  function ta(l,p,r){ return '<label class="bio-f"><span>'+esc(l)+'</span><textarea rows="'+(r||2)+'" data-path="'+p+'">'+esc(get(p))+'</textarea></label>'; }
+  function color(l,p){ var v=get(p)||'#FF5A4D'; return '<label class="bio-f"><span>'+esc(l)+'</span><span class="bio-color"><input type="color" data-path="'+p+'" value="'+esc(v)+'"><input type="text" data-path="'+p+'" value="'+esc(v)+'"></span></label>'; }
+  function img(l,p,folder){ var v=get(p)||''; return '<div class="bio-f"><span>'+esc(l)+'</span><div class="bio-img">'+(v?'<img class="thumb" src="'+esc(v)+'">':'<div class="thumb"></div>')+'<div style="flex:1"><label class="bio-up">Subir foto<input type="file" accept="image/*" data-upload="'+p+'" data-folder="'+folder+'" style="display:none"></label><input type="text" data-path="'+p+'" value="'+esc(v)+'" placeholder="ou cole uma URL" style="margin-top:6px"></div></div></div>'; }
+
+  function render(){
+    var c=cfg, h='<div class="bio-wrap">';
+    h+='<div class="bio-sec"><h3>Perfil</h3>'+f('Nome','perfil.nome')+ta('Subtítulo','perfil.subtitulo',2)+img('Foto de perfil','perfil.foto','perfil')+'</div>';
+    h+='<div class="bio-sec"><h3>Títulos das seções</h3>'+f('Título do 1º carrossel','textos.tituloCarrossel')+f('Título do catálogo','textos.tituloCatalogo')+'</div>';
+    h+='<div class="bio-sec"><h3>Redes sociais</h3>';
+    (c.redes||[]).forEach(function(r,i){ h+='<div class="bio-row" style="align-items:end;margin-bottom:6px"><label class="bio-f" style="margin:0"><span>Rede</span><select data-path="redes.'+i+'.rede">'+['instagram','tiktok','youtube','linkedin'].map(function(x){return '<option '+(r.rede===x?'selected':'')+'>'+x+'</option>';}).join('')+'</select></label><label class="bio-f" style="margin:0"><span>Link</span><input type="text" data-path="redes.'+i+'.url" value="'+esc(r.url)+'"></label></div><div style="text-align:right;margin-bottom:10px"><button class="bio-rm" data-action="rm" data-arr="redes" data-i="'+i+'">Remover</button></div>'; });
+    h+='<button class="bio-add" data-action="add" data-arr="redes">+ Adicionar rede</button></div>';
+    h+='<div class="bio-sec"><h3>Produtos</h3>';
+    (c.produtos||[]).forEach(function(p,i){ h+='<div class="bio-item"><div class="bio-item-head"><b>Produto '+(i+1)+'</b><button class="bio-rm" data-action="rm" data-arr="produtos" data-i="'+i+'">Remover</button></div>'+f('Título','produtos.'+i+'.titulo')+'<div class="bio-row">'+f('Preço','produtos.'+i+'.preco')+f('Texto do botão','produtos.'+i+'.cta')+'</div>'+ta('Descrição','produtos.'+i+'.descricao',3)+f('Link de compra','produtos.'+i+'.checkout')+'<div class="bio-row">'+color('Cor da capa','produtos.'+i+'.capaCor')+'<label class="bio-f"><span>Tags (vírgula)</span><input type="text" data-path="produtos.'+i+'.tags" value="'+esc((p.tags||[]).join(', '))+'"></label></div>'+img('Capa (opcional)','produtos.'+i+'.imagem','produtos')+'</div>'; });
+    h+='<button class="bio-add" data-action="add" data-arr="produtos">+ Adicionar produto</button></div>';
+    h+='<div class="bio-sec"><h3>Link externo (ex: livro)</h3>'+f('Título','linkExterno.titulo')+ta('Descrição','linkExterno.descricao',2)+f('Link','linkExterno.url')+'<div class="bio-row">'+color('Cor da miniatura','linkExterno.thumbCor')+img('Miniatura','linkExterno.imagem','link')+'</div></div>';
+    h+='<div class="bio-sec"><h3>WhatsApp</h3>';
+    (c.whatsapp||[]).forEach(function(w,i){ h+='<div class="bio-item"><div class="bio-item-head"><b>Contato '+(i+1)+'</b><button class="bio-rm" data-action="rm" data-arr="whatsapp" data-i="'+i+'">Remover</button></div>'+f('Categoria','whatsapp.'+i+'.categoria')+'<div class="bio-row">'+f('Número (só dígitos, com DDI)','whatsapp.'+i+'.numero','5511999999999')+f('Número (como aparece)','whatsapp.'+i+'.numeroExibicao','+55 11 99999-9999')+'</div>'+ta('Mensagem pronta','whatsapp.'+i+'.mensagem',2)+color('Cor do card','whatsapp.'+i+'.cor')+'</div>'; });
+    h+='<button class="bio-add" data-action="add" data-arr="whatsapp">+ Adicionar WhatsApp</button></div>';
+    h+='<div class="bio-sec"><h3>Spotify (podcast)</h3>'+f('Nome do podcast','spotify.nome')+f('Link do Spotify','spotify.url')+'</div>';
+    h+='<div class="bio-sec"><h3>Feed do Instagram</h3><div class="bio-row">'+f('Usuário (@)','instagram.usuario')+f('Link do perfil','instagram.url')+'</div>';
+    ((c.instagram&&c.instagram.posts)||[]).forEach(function(p,i){ h+='<div class="bio-item"><div class="bio-item-head"><b>Post '+(i+1)+'</b><button class="bio-rm" data-action="rm" data-arr="instagram.posts" data-i="'+i+'">Remover</button></div>'+f('Legenda','instagram.posts.'+i+'.legenda')+'<div class="bio-row">'+color('Cor (se sem foto)','instagram.posts.'+i+'.cor')+img('Foto do post','instagram.posts.'+i+'.imagem','instagram')+'</div></div>'; });
+    h+='<button class="bio-add" data-action="add" data-arr="instagram.posts">+ Adicionar post</button></div>';
+    h+='<div class="bio-sec"><h3>Rodapé / plataforma</h3>'+f('Nome','plataforma.nome')+f('Descrição','plataforma.descricao')+f('Link','plataforma.url')+f('Atribuição','plataforma.atribuicao')+'</div>';
+    h+='<div class="bio-sec"><h3>Chat / Concierge de IA</h3>'+f('Título do card','chat.tituloCard')+f('Nome da atendente','chat.atendente')+ta('Mensagem de boas-vindas','chat.boasVindas',2)+'<label class="bio-f"><span>Perguntas do chat (avançado — JSON)</span><textarea id="bioChatJson" rows="12" style="font-family:monospace;font-size:12px">'+esc(JSON.stringify((c.chat&&c.chat.passos)||{},null,2))+'</textarea></label></div>';
+    h+='<div class="bio-savebar"><span class="bio-msg" id="bioMsg"></span><a href="https://ugc.laradam.com/bio" target="_blank" rel="noopener" style="margin-left:auto;font-size:12px;font-weight:700;color:var(--text-muted);text-decoration:none">Ver /bio ↗</a><button class="bio-save" id="bioSaveBtn">Salvar alterações</button></div>';
+    h+='</div>';
+    document.getElementById('bioEditorRoot').innerHTML=h;
+  }
+
+  function attachOnce(root){
+    if(listening) return; listening=true;
+    root.addEventListener('input', function(e){
+      var el=e.target; if(!el.dataset||!el.dataset.path) return;
+      if(el.tagName==='TEXTAREA'||el.tagName==='SELECT'||(el.tagName==='INPUT'&&(el.type==='text'||el.type==='color'))){
+        if(el.dataset.path.slice(-5)==='.tags') setP(el.dataset.path, el.value.split(',').map(function(t){return t.trim();}).filter(Boolean));
+        else setP(el.dataset.path, el.value);
+        if(el.type==='color'){ var t=root.querySelector('input[type=text][data-path="'+el.dataset.path+'"]'); if(t)t.value=el.value; }
+      }
+    });
+    root.addEventListener('change', function(e){
+      var el=e.target;
+      if(el.matches&&el.matches('input[type=file]')&&el.dataset.upload){
+        var file=el.files&&el.files[0]; if(!file) return;
+        var lbl=el.closest('.bio-up'); if(lbl)lbl.firstChild.nodeValue='Enviando...';
+        uploadImg(file, el.dataset.folder).then(function(url){
+          if(lbl)lbl.firstChild.nodeValue='Subir foto';
+          if(!url) return;
+          setP(el.dataset.upload, url);
+          var wrap=el.closest('.bio-img'); if(!wrap) return;
+          var thumb=wrap.querySelector('.thumb');
+          if(thumb&&thumb.tagName!=='IMG'){ var im=document.createElement('img'); im.className='thumb'; wrap.insertBefore(im,wrap.firstChild); thumb.remove(); thumb=im; }
+          if(thumb) thumb.src=url;
+          var ui=wrap.querySelector('input[type=text][data-path="'+el.dataset.upload+'"]'); if(ui)ui.value=url;
+        });
+      }
+    });
+    root.addEventListener('click', function(e){
+      if(e.target.id==='bioSaveBtn'){ save(); return; }
+      var b=e.target.closest('[data-action]'); if(!b) return;
+      var arr=b.dataset.arr, list=arr.split('.').reduce(function(o,k){return o[k];},cfg);
+      if(!list) return;
+      if(b.dataset.action==='rm') list.splice(parseInt(b.dataset.i,10),1);
+      if(b.dataset.action==='add') list.push(defItem(arr));
+      render();
+    });
+  }
+  function defItem(a){
+    if(a==='redes') return {rede:'instagram',url:''};
+    if(a==='produtos') return {id:'prod'+Date.now(),titulo:'Novo produto',capaCor:'#FF5A4D',imagem:'',preco:'R$ 0',descricao:'',cta:'Acessar',checkout:'',tags:[]};
+    if(a==='whatsapp') return {categoria:'',numero:'',numeroExibicao:'',mensagem:'',cor:'#25D366'};
+    if(a==='instagram.posts') return {cor:'#FF5A4D',imagem:'',legenda:''};
+    return {};
+  }
+  async function uploadImg(file,folder){
+    var ext=(file.name.split('.').pop()||'jpg').toLowerCase();
+    var path=folder+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,7)+'.'+ext;
+    var res=await sb().storage.from('bio').upload(path,file,{upsert:true,cacheControl:'3600'});
+    if(res.error){ alert('Erro no upload: '+res.error.message); return null; }
+    return sb().storage.from('bio').getPublicUrl(path).data.publicUrl;
+  }
+  function msg(t,err){ var m=document.getElementById('bioMsg'); if(m){ m.textContent=t; m.style.color=err?'#e5484d':'#2a9d5c'; } }
+  async function save(){
+    try{ cfg.chat=cfg.chat||{}; cfg.chat.passos=JSON.parse(document.getElementById('bioChatJson').value); }
+    catch(e){ msg('O JSON do chat está inválido. Corrija antes de salvar.', true); return; }
+    var btn=document.getElementById('bioSaveBtn'); btn.disabled=true; msg('Salvando...');
+    var res=await sb().from('bio_config').update({ config: cfg, updated_at: new Date().toISOString() }).eq('id',1);
+    btn.disabled=false;
+    if(res.error) msg('Erro ao salvar: '+res.error.message, true);
+    else msg('Salvo! Abra o /bio e atualize (F5).', false);
+  }
+})();
+</script>
 </body>
 </html>
