@@ -1459,7 +1459,9 @@
 #igModal .iga-adv .iga-chev{margin-left:auto}
 #igModal .iga-adv.open .iga-chev{transform:rotate(90deg)}
 #igModal .iga-adv-body{max-height:0;overflow:hidden;transition:max-height .3s ease,opacity .25s;opacity:0}
-#igModal .iga-adv-body.open{max-height:1600px;opacity:1;margin-bottom:20px}
+#igModal .iga-adv-body.open{max-height:2400px;opacity:1;margin-bottom:20px}
+#igModal .iga-flowhelp{font-size:12.5px;line-height:1.6;color:var(--text-soft);background:var(--warm);border-radius:12px;padding:12px 15px;margin-bottom:14px}
+#igModal .iga-flowhelp b{color:var(--text);font-weight:700}
 
 /* save area desktop */
 #igModal .iga-sais{display:flex;align-items:center;gap:14px;margin-top:6px}
@@ -1676,6 +1678,7 @@
               <div class="iga-field">
                 <div class="iga-flabel">Mensagem do convite <span class="ig-hint">(sem o link)</span></div>
                 <textarea class="iga-txt" id="igf_askmsg" rows="3" style="min-height:82px"></textarea>
+                <p class="iga-fhint">Já vem igual à sua mensagem lá de cima. Edite só se quiser algo diferente aqui.</p>
               </div>
               <div class="iga-field">
                 <div class="iga-flabel">Texto do botão</div>
@@ -1737,13 +1740,16 @@
         <!-- avançado -->
         <button type="button" class="iga-adv" id="igaAdvBtn">
           <span class="iga-opt-emoji" style="background:#FBEDE6">🧩</span>
-          <span class="iga-opt-info"><span class="iga-opt-name">Modo avançado</span><span class="iga-opt-desc">Construtor de fluxo com vários botões e caminhos</span></span>
+          <span class="iga-opt-info"><span class="iga-opt-name">Mais mensagens depois do clique</span><span class="iga-opt-desc">Monte uma conversa: a pessoa toca num botão e recebe a próxima mensagem.</span></span>
           <svg class="iga-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
         </button>
         <div class="iga-adv-body" id="igaAdvBody">
-          <button type="button" id="igBuilderOpen" style="width:100%;margin:0 0 12px;background:var(--accent);color:#fff;border:none;font-weight:800;padding:12px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:14px;">🧱 Abrir no construtor visual</button>
+          <div class="iga-flowhelp">
+            <b>Como funciona:</b> cada <b>passo</b> é uma mensagem. No passo, você coloca um <b>botão</b> e escolhe pra qual passo ele leva. Quando a pessoa toca no botão, ela recebe a mensagem do passo seguinte. É assim que dá pra mandar mais mensagens depois do clique.<br>
+            Deixe o botão em <b>"(termina)"</b> pra encerrar a conversa naquele ponto.
+          </div>
           <div id="igFlowSteps"></div>
-          <button type="button" id="igFlowAdd" class="ig-btn ghost" style="width:100%;margin-top:6px;">+ Adicionar passo</button>
+          <button type="button" id="igFlowAdd" class="ig-btn ghost" style="width:100%;margin-top:6px;">➕ Adicionar mensagem (passo)</button>
         </div>
 
         <div class="iga-sais">
@@ -7171,7 +7177,7 @@
     function igFlowRender() {
         const box = document.getElementById('igFlowSteps'); if (!box) return;
         if (!igFlow.steps.length) {
-            box.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:4px 0 8px;">Sem fluxo. A automação usa a "mensagem com o link" acima. Clique em "+ Adicionar passo" pra criar um fluxo com botões.</div>';
+            box.innerHTML = '<div style="font-size:12.5px;color:var(--text-muted);padding:2px 0 10px;line-height:1.6;">Ainda sem passos. Do jeito que está, a automação manda só a mensagem lá de cima. Clique em <b style="color:var(--text)">➕ Adicionar mensagem (passo)</b> pra começar uma conversa com botões.</div>';
             igRenderPreview(); igUpdateAssetsHint(); return;
         }
         const opts = (sel) => igFlow.steps.map((s, i) => '<option value="' + s.id + '"' + (String(s.id) === String(sel) ? ' selected' : '') + '>Passo ' + (i + 1) + '</option>').join('');
@@ -7573,7 +7579,8 @@
             if (e.target.closest('#igMarcasCsv')) igMarcasExport();
         });
         const fa = document.getElementById('igFlowAdd'); if (fa) fa.addEventListener('click', igFlowAddStep);
-        const bo = document.getElementById('igBuilderOpen'); if (bo) bo.addEventListener('click', igBOpen);
+        // O construtor visual em tela separada (igBOpen) foi removido: a Lara quer tudo
+        // numa tela só. O fluxo agora é editado inline aqui mesmo (igFlowRender/#igFlowSteps).
         const fs = document.getElementById('igFlowSteps');
         if (fs) {
             fs.addEventListener('input', (e) => {
@@ -8073,7 +8080,20 @@ body { background: var(--cream); letter-spacing: -0.01em; }
       });
     });
     var askon=$('igf_askon'); if(askon && !askon._iga2){ askon._iga2=1;
-      askon.addEventListener('change',function(){ var ab=$('igaOptBtn'); if(ab) ab.classList.toggle('open',askon.checked); igaReveal=false; igaRenderPreview(); });
+      askon.addEventListener('change',function(){
+        var ab=$('igaOptBtn'); if(ab) ab.classList.toggle('open',askon.checked);
+        if(askon.checked){
+          var am=$('igf_askmsg'), lm=$('igf_linkmsg');
+          var IGA_ASK_DEFAULT='Opa! Vi seu comentário 🔥 Toca no botão aqui embaixo que eu te mando o link na hora! 👇';
+          // Reaproveita a mensagem de cima: se o convite está vazio ou ainda é o texto
+          // padrão, copia a "Sua mensagem" (sem o {LINK}) pra Lara não reescrever tudo.
+          if(am && lm && (!am.value.trim() || am.value.trim()===IGA_ASK_DEFAULT)){
+            var base=lm.value.replace(/\{LINK\}/g,'').replace(/[ \t]{2,}/g,' ').trim();
+            if(base){ am.value=base; window.igaDirty=true; }
+          }
+        }
+        igaReveal=false; igaRenderPreview();
+      });
     }
     var act=$('igf_active'); if(act && !act._iga){ act._iga=1; act.addEventListener('change',function(){igaUpdateStatusLbl();igaRenderPreview();}); }
 
