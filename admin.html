@@ -8014,15 +8014,25 @@ body { background: var(--cream); letter-spacing: -0.01em; }
     if(($('igf_deliverymode')||{}).value==='msg' && igFlow.steps && igFlow.steps[0]){
       igFlow.steps[0].message=($('igf_linkmsg')||{}).value||'';
       var bt=(($('igf_askbtn')||{}).value||'').trim()||'Quero! 👉';
-      if(!igFlow.steps[0].buttons||!igFlow.steps[0].buttons.length) igFlow.steps[0].buttons=[{title:bt,next:''}];
-      else igFlow.steps[0].buttons[0].title=bt;
+      var nx=igFlow.steps[1]?igFlow.steps[1].id:'';
+      if(!igFlow.steps[0].buttons||!igFlow.steps[0].buttons.length) igFlow.steps[0].buttons=[{title:bt,next:nx}];
+      else { igFlow.steps[0].buttons[0].title=bt; igFlow.steps[0].buttons[0].next=nx; }
     }
     var h='';
     igFlow.steps.forEach(function(s){
       var url=s.link||'seu-link.com';
       var msg=(s.message||'').indexOf('{LINK}')>=0?s.message.split('{LINK}').join(url):((s.message||'')+(s.link?' '+url:''));
-      h+='<div class="iga-mrow"><span class="iga-mava">L</span><div class="iga-bubble">'+igaMsgHtml(msg||'(mensagem vazia)','')+'</div></div>';
-      (s.buttons||[]).forEach(function(b){if((b.title||'').trim()){var isUrl=b.url&&String(b.url).trim();h+='<div style="display:flex;justify-content:flex-start;margin:-4px 0 2px 31px;"><div style="border:1px solid #3797F0;color:#3797F0;padding:6px 14px;border-radius:16px;font-size:12.5px;font-weight:700;">'+(isUrl?'🔗 ':'')+escapeHtml(b.title)+'</div></div>';}});
+      // botões ANEXADOS à mensagem (estilo ManyChat, igual chega de verdade). Botão sem
+      // destino (nem link nem próxima mensagem) não é enviado -> não aparece aqui também.
+      var btnsHtml='';
+      (s.buttons||[]).forEach(function(b){
+        var t=(b.title||'').trim(); if(!t) return;
+        var isUrl=b.url&&String(b.url).trim();
+        var advances=b.next!=null&&String(b.next).trim()!=='';
+        if(!isUrl&&!advances) return;
+        btnsHtml+='<button type="button" class="iga-bbtn">'+(isUrl?'🔗 ':'')+escapeHtml(t)+'</button>';
+      });
+      h+='<div class="iga-mrow"><span class="iga-mava">L</span><div class="iga-bubble"'+(btnsHtml?' style="min-width:190px"':'')+'>'+igaMsgHtml(msg||'(mensagem vazia)','')+btnsHtml+'</div></div>';
     });
     return h;
   }
