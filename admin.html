@@ -1675,11 +1675,8 @@
               <label class="iga-switch" onclick="event.stopPropagation()"><input type="checkbox" id="igf_askon"><span class="iga-slider"></span></label>
             </div>
             <div class="iga-opt-body" id="igAskSection">
-              <div class="iga-field">
-                <div class="iga-flabel">Mensagem do convite <span class="ig-hint">(sem o link)</span></div>
-                <textarea class="iga-txt" id="igf_askmsg" rows="3" style="min-height:82px"></textarea>
-                <p class="iga-fhint">Já vem igual à sua mensagem lá de cima. Edite só se quiser algo diferente aqui.</p>
-              </div>
+              <p class="iga-fhint" style="margin:2px 0 14px;line-height:1.6;">A pessoa recebe a <b>sua mensagem</b> lá de cima já com esse botão embaixo. Quando ela toca, o link vai na <b>mensagem seguinte</b> — você não precisa escrever nada duas vezes.</p>
+              <textarea id="igf_askmsg" style="display:none"></textarea>
               <div class="iga-field">
                 <div class="iga-flabel">Texto do botão</div>
                 <input class="iga-tin" id="igf_askbtn" maxlength="24" placeholder="Quero! 👉">
@@ -6707,12 +6704,18 @@
         document.getElementById('igf_id').value = a ? a.id : '';
         document.getElementById('igf_nome').value = a ? (a.nome || '') : '';
         document.getElementById('igf_keyword').value = a ? (a.keyword || '') : '';
-        document.getElementById('igf_linkmsg').value = a ? (a.link_message || '') : 'Prontinho! Aqui está o que você pediu: {LINK} 💌';
+        // "Sua mensagem" = MENSAGEM 1 (o convite que a pessoa recebe). Com o botão ligado, ela
+        // é guardada em ask_message e o link (Mensagem 2) sai só DEPOIS do clique. Botão LIGADO
+        // por padrão nas automações novas. (igf_askmsg virou campo oculto/legado, não usado.)
+        const igBtnOn = a ? !!(a.ask_message && a.ask_message.trim()) : true;
+        document.getElementById('igf_linkmsg').value = a
+            ? (igBtnOn ? (a.ask_message || '') : (a.link_message || ''))
+            : 'Oieee! 🥰 Vi que você quer saber mais! Toca no botão aqui embaixo que eu te mando tudo 👇';
         document.getElementById('igf_linkurl').value = a ? (a.link_url || '') : '';
-        document.getElementById('igf_askmsg').value = a ? (a.ask_message || '') : 'Opa! Vi seu comentário 🔥 Toca no botão aqui embaixo que eu te mando o link na hora! 👇';
         document.getElementById('igf_askbtn').value = (a && a.ask_button) ? a.ask_button : 'Quero! 👉';
-        document.getElementById('igf_askon').checked = !!(a && a.ask_message && a.ask_message.trim());
-        document.getElementById('igAskSection').style.display = document.getElementById('igf_askon').checked ? '' : 'none';
+        document.getElementById('igf_askon').checked = igBtnOn;
+        document.getElementById('igAskSection').style.display = igBtnOn ? '' : 'none';
+        (function(){ var ob = document.getElementById('igaOptBtn'); if (ob) ob.classList.toggle('open', igBtnOn); })();
         document.getElementById('igf_public').value = a ? (a.public_reply || '') : 'te chamei no direct 💌';
         document.getElementById('igf_active').checked = a ? !!a.active : true;
         document.getElementById('igf_matchany').checked = a ? !!a.match_any : false;
@@ -6817,14 +6820,21 @@
         }).join('');
     }
 
+    // Mensagem 2 automática: o que a pessoa recebe DEPOIS de tocar no botão (o link). Fica
+    // igual em toda automação com botão — a Lara só escreve a Mensagem 1 ("Sua mensagem").
+    var IGA_LINK_DELIVERY = 'Perfeito! 💌 Segue o link com mais detalhes:\n{LINK}\n\nQualquer dúvida, é só me chamar por aqui 🥰';
     async function igSave() {
         const id = document.getElementById('igf_id').value;
+        // "Sua mensagem" = MENSAGEM 1 (o convite). Com o botão ligado ela vira ask_message e o
+        // link (Mensagem 2 = IGA_LINK_DELIVERY) só é entregue quando a pessoa toca no botão.
+        const igBtnOn = document.getElementById('igf_askon').checked;
+        const igMsg1 = document.getElementById('igf_linkmsg').value;
         const rec = {
             nome: document.getElementById('igf_nome').value.trim() || 'Automação',
             keyword: document.getElementById('igf_keyword').value.trim(),
-            link_message: document.getElementById('igf_linkmsg').value,
+            link_message: igBtnOn ? IGA_LINK_DELIVERY : igMsg1,
             link_url: document.getElementById('igf_linkurl').value.trim(),
-            ask_message: document.getElementById('igf_askon').checked ? document.getElementById('igf_askmsg').value.trim() : '',
+            ask_message: igBtnOn ? igMsg1.replace(/\{LINK\}/g, '').replace(/[ \t]{2,}/g, ' ').trim() : '',
             ask_button: document.getElementById('igf_askbtn').value.trim() || 'Quero! 👉',
             public_reply: document.getElementById('igf_public').value,
             require_follow: false,
@@ -7936,6 +7946,14 @@ body { background: var(--cream); letter-spacing: -0.01em; }
     h+=igaFileBubbles();
     return h;
   }
+  // MENSAGEM 2 (só depois do clique): o link automático. NÃO repete a "Sua mensagem".
+  function igaDeliveryBundle(){
+    var url=($('igf_linkurl')||{}).value||'';
+    var msg=window.IGA_LINK_DELIVERY||'Perfeito! Segue o link: {LINK}';
+    var h='<div class="iga-mrow"><span class="iga-mava">L</span><div class="iga-bubble">'+igaMsgHtml(msg,url)+'</div></div>';
+    h+=igaFileBubbles();
+    return h;
+  }
   function igaFlowPreview(){
     var h='';
     igFlow.steps.forEach(function(s){
@@ -7970,11 +7988,11 @@ body { background: var(--cream); letter-spacing: -0.01em; }
       if(hasFlow){
         h+=igaFlowPreview();
       } else if(askon){
-        var invite=($('igf_askmsg')||{}).value||'';
+        var invite=($('igf_linkmsg')||{}).value||'';
         var btn=(($('igf_askbtn')||{}).value||'').trim()||'Quero! 👉';
         h+='<div class="iga-mrow"><span class="iga-mava">L</span><div class="iga-bubble" style="min-width:180px">'+escapeHtml(invite).replace(/\n/g,'<br>')
           +'<button type="button" class="iga-bbtn'+(igaReveal?' done':'')+'" id="igaTapBtn">'+(igaReveal?'✓ ':'')+escapeHtml(btn)+'</button></div></div>';
-        if(igaReveal){ h+=igaMainBundle(); h+='<button type="button" class="iga-replay" id="igaReplayBtn">↺ ver de novo</button>'; }
+        if(igaReveal){ h+=igaDeliveryBundle(); h+='<button type="button" class="iga-replay" id="igaReplayBtn">↺ ver de novo</button>'; }
       } else {
         h+=igaMainBundle();
       }
@@ -8080,20 +8098,7 @@ body { background: var(--cream); letter-spacing: -0.01em; }
       });
     });
     var askon=$('igf_askon'); if(askon && !askon._iga2){ askon._iga2=1;
-      askon.addEventListener('change',function(){
-        var ab=$('igaOptBtn'); if(ab) ab.classList.toggle('open',askon.checked);
-        if(askon.checked){
-          var am=$('igf_askmsg'), lm=$('igf_linkmsg');
-          var IGA_ASK_DEFAULT='Opa! Vi seu comentário 🔥 Toca no botão aqui embaixo que eu te mando o link na hora! 👇';
-          // Reaproveita a mensagem de cima: se o convite está vazio ou ainda é o texto
-          // padrão, copia a "Sua mensagem" (sem o {LINK}) pra Lara não reescrever tudo.
-          if(am && lm && (!am.value.trim() || am.value.trim()===IGA_ASK_DEFAULT)){
-            var base=lm.value.replace(/\{LINK\}/g,'').replace(/[ \t]{2,}/g,' ').trim();
-            if(base){ am.value=base; window.igaDirty=true; }
-          }
-        }
-        igaReveal=false; igaRenderPreview();
-      });
+      askon.addEventListener('change',function(){ var ab=$('igaOptBtn'); if(ab) ab.classList.toggle('open',askon.checked); igaReveal=false; igaRenderPreview(); });
     }
     var act=$('igf_active'); if(act && !act._iga){ act._iga=1; act.addEventListener('change',function(){igaUpdateStatusLbl();igaRenderPreview();}); }
 
@@ -8120,7 +8125,7 @@ body { background: var(--cream); letter-spacing: -0.01em; }
     }
 
     // prévia ao vivo p/ os campos novos (linkmsg/linkurl/public já têm listener no admin)
-    ['igf_askmsg','igf_askbtn'].forEach(function(id){
+    ['igf_askbtn'].forEach(function(id){
       var el=$(id); if(el && !el._igaPv){ el._igaPv=1; el.addEventListener('input',igaRenderPreview); }
     });
 
