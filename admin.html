@@ -1683,7 +1683,7 @@
               <label class="iga-switch" onclick="event.stopPropagation()"><input type="checkbox" id="igf_askon"><span class="iga-slider"></span></label>
             </div>
             <div class="iga-opt-body" id="igAskSection">
-              <p class="iga-fhint" style="margin:2px 0 14px;line-height:1.6;">A pessoa recebe a <b>sua mensagem</b> lá de cima já com esse botão embaixo. Ao tocar, o toque vira uma mensagem dela e ela recebe o que você escolher aqui.</p>
+              <p class="iga-fhint" style="margin:2px 0 14px;line-height:1.6;">A pessoa recebe a <b>sua mensagem</b> lá de cima já com esse botão embaixo. Ao tocar, o botão faz o que você escolher aqui.</p>
               <textarea id="igf_askmsg" style="display:none"></textarea>
               <div class="iga-field">
                 <div class="iga-flabel">Texto do botão</div>
@@ -1691,19 +1691,18 @@
               </div>
 
               <div class="iga-field">
-                <div class="iga-flabel">O que a pessoa recebe quando toca</div>
+                <div class="iga-flabel">O que o botão faz quando ela toca</div>
                 <input type="hidden" id="igf_deliverymode" value="link">
                 <div class="iga-seg" id="igDeliverMode">
-                  <button type="button" class="iga-segbtn" data-dmode="link">🔗 Um link<span>abre outro site</span></button>
-                  <button type="button" class="iga-segbtn" data-dmode="msg">💬 Uma mensagem<span>um texto no chat</span></button>
+                  <button type="button" class="iga-segbtn" data-dmode="link">🔗 Um link<span>leva ela pra um site</span></button>
+                  <button type="button" class="iga-segbtn" data-dmode="msg">💬 Continua a conversa<span>ela te responde e você segue</span></button>
                 </div>
                 <div id="igDelivLink" style="margin-top:12px;">
                   <div class="iga-linkrow"><span class="ico">🔗</span><input class="iga-tin" id="igf_linkurl" type="url" placeholder="https://..."></div>
                   <p class="iga-fhint">Ela toca no botão "Acessar agora" e abre esse site.</p>
                 </div>
                 <div id="igDelivMsg" style="margin-top:12px;display:none;">
-                  <textarea class="iga-txt" id="igf_replymsg" rows="3" placeholder="Ex: Prontinho! 🥰 Qualquer dúvida é só me chamar por aqui."></textarea>
-                  <p class="iga-fhint">Ela toca no botão e recebe esse texto no chat.</p>
+                  <p class="iga-fhint" style="line-height:1.6;margin:0;">Ao tocar, a pessoa te <b>envia</b> o próprio texto do botão (ex: "Sim, quero") — abre a conversa no seu direct. A partir daí você <b>encadeia</b> a próxima mensagem com um novo botão, quantas quiser. Monte a sequência em <b>"Mais mensagens depois do clique"</b>, logo abaixo. 👇</p>
                 </div>
               </div>
 
@@ -6712,11 +6711,9 @@
         document.getElementById('igf_linkmsg').value = a
             ? (igBtnOn ? (a.ask_message || '') : (a.link_message || ''))
             : 'Oieee! 🥰 Vi que você quer saber mais! Toca no botão aqui embaixo que eu te mando tudo 👇';
-        // modo de entrega do botão: 'link' (abre site) ou 'msg' (texto no chat).
-        const igHasUrl = !!(a && a.link_url && /^https?:\/\//i.test(a.link_url));
-        const igDMode = (igBtnOn && !igHasUrl && !!(a && (a.link_message || '').trim())) ? 'msg' : 'link';
+        // modo do botão: 'link' (abre um site) ou 'msg' (continua a conversa = tem fluxo).
+        const igDMode = (a && a.flow && Array.isArray(a.flow.steps) && a.flow.steps.length) ? 'msg' : 'link';
         document.getElementById('igf_linkurl').value = a ? (a.link_url || '') : '';
-        document.getElementById('igf_replymsg').value = (igDMode === 'msg' && a) ? (a.link_message || '') : '';
         document.getElementById('igf_askbtn').value = (a && a.ask_button) ? a.ask_button : 'Quero! 👉';
         document.getElementById('igf_askon').checked = igBtnOn;
         document.getElementById('igAskSection').style.display = igBtnOn ? '' : 'none';
@@ -6839,14 +6836,13 @@
         const igMsg1 = document.getElementById('igf_linkmsg').value;
         const igDMode = (document.getElementById('igf_deliverymode') || {}).value || 'link';
         const igUrl = document.getElementById('igf_linkurl').value.trim();
-        const igReply = (document.getElementById('igf_replymsg') || {}).value;
-        // Com botão: a resposta ao clique é um LINK (botão web_url, guarda a url) ou uma
-        // MENSAGEM no chat (texto em link_message, sem url). Sem botão: manda a Msg 1 direto.
+        // Botão "Um link": clique abre a url (botão web_url). Botão "Continua a conversa":
+        // clique faz a pessoa te enviar o texto do botão e a conversa segue pelo fluxo.
         const igMsgMode = igBtnOn && igDMode === 'msg';
         const rec = {
             nome: document.getElementById('igf_nome').value.trim() || 'Automação',
             keyword: document.getElementById('igf_keyword').value.trim(),
-            link_message: !igBtnOn ? igMsg1 : (igMsgMode ? (igReply.trim() || 'Prontinho! 🥰') : IGA_LINK_DELIVERY),
+            link_message: !igBtnOn ? igMsg1 : (igMsgMode ? 'Perfeito! 🥰 Já anotei aqui, um instante!' : IGA_LINK_DELIVERY),
             link_url: igMsgMode ? '' : igUrl,
             ask_message: igBtnOn ? igMsg1.replace(/\{LINK\}/g, '').replace(/[ \t]{2,}/g, ' ').trim() : '',
             ask_button: document.getElementById('igf_askbtn').value.trim() || 'Quero! 👉',
@@ -7964,9 +7960,8 @@ body { background: var(--cream); letter-spacing: -0.01em; }
   function igaDeliveryBundle(){
     var mode=($('igf_deliverymode')||{}).value||'link';
     if(mode==='msg'){
-      var rmsg=($('igf_replymsg')||{}).value||'Prontinho! 🥰';
-      var hm='<div class="iga-mrow"><span class="iga-mava">L</span><div class="iga-bubble">'+igaMsgHtml(rmsg,'')+'</div></div>';
-      return hm+igaFileBubbles();
+      // ela ENVIA o texto do botão; a conversa segue pelo fluxo (se você montar)
+      return '<div class="iga-flowdelay">↪️ a conversa continua conforme você montar o fluxo abaixo</div>';
     }
     var url=($('igf_linkurl')||{}).value||'';
     var msg=window.IGA_LINK_DELIVERY||'Perfeito! É só tocar aqui embaixo 💌';
@@ -8140,7 +8135,6 @@ body { background: var(--cream); letter-spacing: -0.01em; }
     var seg=$('igDeliverMode'); if(seg && !seg._iga){ seg._iga=1;
       seg.addEventListener('click',function(e){ var b=e.target.closest('.iga-segbtn'); if(b) igaSetDeliveryMode(b.getAttribute('data-dmode')); });
     }
-    var rm=$('igf_replymsg'); if(rm && !rm._igaPv){ rm._igaPv=1; rm.addEventListener('input',function(){igaReveal=false;igaRenderPreview();}); }
     var act=$('igf_active'); if(act && !act._iga){ act._iga=1; act.addEventListener('change',function(){igaUpdateStatusLbl();igaRenderPreview();}); }
 
     var adv=$('igaAdvBtn'); if(adv && !adv._iga){ adv._iga=1; adv.addEventListener('click',function(){adv.classList.toggle('open');var b=$('igaAdvBody');if(b)b.classList.toggle('open');}); }
