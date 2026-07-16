@@ -7230,7 +7230,9 @@
         html += steps.map((s, si) => {
             if (si === 0) return '';
             const btns = (s.buttons || []).map((b, bi) => {
-                const mode = (b.url && String(b.url).trim()) ? 'link' : (b.next ? String(b.next) : 'end');
+                // _destLink guarda que a Lara escolheu "abre um link" mesmo antes de colar a URL
+                // (senão, sem URL, o modo voltava sozinho pra "termina").
+                const mode = (b._destLink || (b.url && String(b.url).trim())) ? 'link' : (b.next ? String(b.next) : 'end');
                 return '<div style="margin-top:6px;">'
                     + '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">'
                     + '<input class="ig-input" style="margin:0;flex:1;min-width:110px;" data-flow="btntitle" data-si="' + si + '" data-bi="' + bi + '" maxlength="20" placeholder="Nome do botão (ex: Acessar)" value="' + igEsc(b.title) + '">'
@@ -7644,15 +7646,15 @@
                 const f = el.dataset.flow, si = +el.dataset.si;
                 if (f === 'btndest') {
                     const b = igFlow.steps[si].buttons[+el.dataset.bi];
-                    if (el.value === 'end') { b.next = ''; b.url = ''; }
+                    if (el.value === 'end') { b.next = ''; b.url = ''; b._destLink = false; }
                     else if (el.value === 'link') {
-                        b.next = '';
+                        b.next = ''; b._destLink = true; // marca "é link" mesmo com a URL ainda vazia
                         // se a Lara colou o link no NOME do botão, joga pro campo certo e dá um nome
                         const t = (b.title || '').trim();
                         if (/^https?:\/\//i.test(t)) { if (!(b.url || '').trim()) b.url = t; b.title = 'Acessar 👉'; }
                         else { b.url = b.url || ''; if (!t) b.title = 'Acessar 👉'; }
                     }
-                    else { b.next = el.value; b.url = ''; }
+                    else { b.next = el.value; b.url = ''; b._destLink = false; }
                     window.igaDirty = true; igFlowRender();
                 }
             });
