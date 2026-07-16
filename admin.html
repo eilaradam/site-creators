@@ -1514,6 +1514,8 @@
 #igModal .iga-ctx-reply{margin-top:6px;padding-left:12px;border-left:2px solid #E8E8E8;color:#555;line-height:1.45}
 #igModal .iga-ctx-reply b{color:#262626}
 #igModal .iga-mrow{display:flex;align-items:flex-end;gap:7px;max-width:88%}
+#igModal .iga-mrow.me{align-self:flex-end;max-width:80%}
+#igModal .iga-bubble.me{background:#3797F0;color:#fff;border-radius:20px;border-bottom-right-radius:6px;border-bottom-left-radius:20px;font-weight:600}
 #igModal .iga-mava{flex:none;width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#E8875A,#C8441A);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center}
 #igModal .iga-bubble{background:#EFEFEF;border-radius:20px;border-bottom-left-radius:6px;padding:11px 14px;font-size:13.5px;line-height:1.5;color:#111;overflow-wrap:break-word;word-break:break-word;animation:igaBub .3s cubic-bezier(.3,1.25,.6,1);transform-origin:bottom left}
 @keyframes igaBub{from{transform:scale(.85) translateY(8px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
@@ -6822,7 +6824,8 @@
 
     // Mensagem 2 automática: o que a pessoa recebe DEPOIS de tocar no botão (o link). Fica
     // igual em toda automação com botão — a Lara só escreve a Mensagem 1 ("Sua mensagem").
-    var IGA_LINK_DELIVERY = 'Perfeito! 💌 Segue o link com mais detalhes:\n{LINK}\n\nQualquer dúvida, é só me chamar por aqui 🥰';
+    var IGA_LINK_DELIVERY = 'Perfeito! 💌 É só tocar no botão aqui embaixo pra acessar tudo. Qualquer dúvida, é só me chamar por aqui 🥰';
+    var IGA_LINK_BTN = 'Acessar agora 👉'; // rótulo do botão do link (Mensagem 2) — igual ao do webhook
     async function igSave() {
         const id = document.getElementById('igf_id').value;
         // "Sua mensagem" = MENSAGEM 1 (o convite). Com o botão ligado ela vira ask_message e o
@@ -7946,11 +7949,14 @@ body { background: var(--cream); letter-spacing: -0.01em; }
     h+=igaFileBubbles();
     return h;
   }
-  // MENSAGEM 2 (só depois do clique): o link automático. NÃO repete a "Sua mensagem".
+  // MENSAGEM 2 (só depois do clique): o texto + o link num BOTÃO (que abre o conteúdo).
   function igaDeliveryBundle(){
     var url=($('igf_linkurl')||{}).value||'';
-    var msg=window.IGA_LINK_DELIVERY||'Perfeito! Segue o link: {LINK}';
-    var h='<div class="iga-mrow"><span class="iga-mava">L</span><div class="iga-bubble">'+igaMsgHtml(msg,url)+'</div></div>';
+    var msg=window.IGA_LINK_DELIVERY||'Perfeito! É só tocar aqui embaixo 💌';
+    var btn=window.IGA_LINK_BTN||'Acessar agora 👉';
+    var h='<div class="iga-mrow"><span class="iga-mava">L</span><div class="iga-bubble" style="min-width:200px">'+igaMsgHtml(msg,'')
+      +'<button type="button" class="iga-bbtn">'+escapeHtml(btn)+'</button>'
+      +'<div style="font-size:10.5px;color:#9A9A9A;margin-top:6px;text-align:center;">🔗 abre '+escapeHtml(igaPrettyLink(url))+'</div></div></div>';
     h+=igaFileBubbles();
     return h;
   }
@@ -7992,7 +7998,12 @@ body { background: var(--cream); letter-spacing: -0.01em; }
         var btn=(($('igf_askbtn')||{}).value||'').trim()||'Quero! 👉';
         h+='<div class="iga-mrow"><span class="iga-mava">L</span><div class="iga-bubble" style="min-width:180px">'+escapeHtml(invite).replace(/\n/g,'<br>')
           +'<button type="button" class="iga-bbtn'+(igaReveal?' done':'')+'" id="igaTapBtn">'+(igaReveal?'✓ ':'')+escapeHtml(btn)+'</button></div></div>';
-        if(igaReveal){ h+=igaDeliveryBundle(); h+='<button type="button" class="iga-replay" id="igaReplayBtn">↺ ver de novo</button>'; }
+        if(igaReveal){
+          // o toque no botão vira uma mensagem DELA (aparece como se tivesse digitado a palavra do botão)
+          h+='<div class="iga-mrow me"><div class="iga-bubble me">'+escapeHtml(btn)+'</div></div>';
+          h+=igaDeliveryBundle();
+          h+='<button type="button" class="iga-replay" id="igaReplayBtn">↺ ver de novo</button>';
+        }
       } else {
         h+=igaMainBundle();
       }
