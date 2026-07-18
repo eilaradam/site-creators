@@ -5938,6 +5938,13 @@
 
     let igLeadsReady = false, igVisaoBusy = false, igVisaoInsData = null;
 
+    // ---- Gráfico "Leads e interações por dia" (Visão geral) ----
+    let igDailyMetric = 'leads';   // 'leads' | 'interacoes'
+    let igDailyDays = 30;          // 7 | 15 | 30 | 90 | 'all'
+    let igDailyOrigin = 'all';     // 'all' | 'comment' | 'dm' | 'story_reply'
+    let igDeliveries = null;       // cache das entregas (só ts) — carrega sob demanda
+    let igDeliveriesLoading = false;
+
     function igSetSub(sub) {
         document.querySelectorAll('#tabInstagram .ig-subtab-btn').forEach(b => b.classList.toggle('active', b.dataset.igSub === sub));
         document.getElementById('igPaneVisao').style.display = sub === 'visao' ? '' : 'none';
@@ -6145,6 +6152,7 @@
             + '<div class="ov-metric"><div class="l">🌟 Creators cadastradas</div><div class="n tnum">' + igNum(creTotal) + '</div><div class="f"><span class="ov-up">↑ +' + cre15 + '</span> em 15 dias</div></div>'
             + '<div class="ov-metric"><div class="l">📣 Alcance</div><div class="n tnum" id="ovReach">…</div><div class="f">contas alcançadas · 15 dias</div></div>'
             + '</div>'
+            + '<div class="ov-panel" id="igDailyPanel" style="margin-bottom:15px;"></div>'
             + '<div class="ov-grid2">'
             + '<div class="ov-panel" id="ovGrowth"><div class="ov-t">📈 Crescimento do perfil <span class="s">novos seguidores por dia · 15 dias</span></div><div class="ov-note" style="margin-top:14px;">carregando dados do Instagram…</div></div>'
             + '<div class="ov-panel" id="ovReachDaily"><div class="ov-t">📣 Alcance <span class="s">contas alcançadas por dia · 15 dias · passe o mouse</span></div><div class="ov-note" style="margin-top:14px;">carregando dados do Instagram…</div></div>'
@@ -6160,6 +6168,7 @@
             + '<div class="ov-panel"><div class="ov-t">💡 O que as pessoas querem <span class="s">por interação</span></div><div class="ov-bars">' + intentHtml + '</div><div class="ov-note" style="margin-top:12px;">📍 ' + sc + ' comentário · ' + sd + ' direct · ' + ss + ' story</div></div>'
             + '</div>';
         box.innerHTML = h;
+        igRenderDaily();
         igVisaoInsights();
     }
 
@@ -6245,6 +6254,122 @@
             ovWireTip(rdEl);
         }
     }
+
+    // ══════ Gráfico "Leads e interações por dia" ══════
+    // Chave do dia em horário local (Brasília) pra agrupar os eventos.
+    function igDayKey(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+    function igDayLabelD(d) { try { return d.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' }).replace(/\./g, ''); } catch (e) { return ''; } }
+    // Normaliza a origem de um lead pros 3 baldes que a UI conhece.
+    function igLeadOrigin(l) { const s = l && l.last_source; if (s === 'comment') return 'comment'; if (s === 'story_reply') return 'story_reply'; return 'dm'; }
+
+    // Carrega as entregas (só a coluna ts) paginando — PostgREST corta em 1000 linhas.
+    async function igFetchDeliveries() {
+        if (igDeliveries || igDeliveriesLoading) return;
+        igDeliveriesLoading = true;
+        const PAGE = 1000; let all = [];
+        try {
+            for (let from = 0; ; from += PAGE) {
+                const { data, error } = await sb.from('ig_deliveries').select('ts').order('ts', { ascending: true }).range(from, from + PAGE - 1);
+                if (error) { console.error('[ig] deliveries fetch error', error); break; }
+                if (!data || !data.length) break;
+                all = all.concat(data);
+                if (data.length < PAGE) break;
+            }
+            igDeliveries = all;
+        } finally { igDeliveriesLoading = false; }
+    }
+
+    // Monta a série diária (um balde por dia no período) pro estado atual.
+    function igDailySeries() {
+        const times = [];
+        if (igDailyMetric === 'interacoes') {
+            (igDeliveries || []).forEach(x => { if (x.ts) times.push(new Date(x.ts)); });
+        } else {
+            (igLeads || []).forEach(l => {
+                if (!l.created_at) return;
+                if (igDailyOrigin !== 'all' && igLeadOrigin(l) !== igDailyOrigin) return;
+                times.push(new Date(l.created_at));
+            });
+        }
+        const counts = {};
+        times.forEach(d => { const k = igDayKey(d); counts[k] = (counts[k] || 0) + 1; });
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        let start;
+        if (igDailyDays === 'all') {
+            if (times.length) { let mn = times[0]; times.forEach(d => { if (d < mn) mn = d; }); start = new Date(mn); start.setHours(0, 0, 0, 0); }
+            else { start = new Date(today.getTime() - 6 * 86400000); }
+        } else {
+            start = new Date(today.getTime() - (igDailyDays - 1) * 86400000);
+        }
+        let bars = [];
+        for (let t = start.getTime(); t <= today.getTime(); t += 86400000) { const d = new Date(t); bars.push({ date: d, value: counts[igDayKey(d)] || 0 }); }
+        if (bars.length > 120) bars = bars.slice(bars.length - 120); // 'Tudo' não estoura a largura
+        const total = bars.reduce((s, b) => s + b.value, 0);
+        let best = null; bars.forEach(b => { if (best === null || b.value > best.value) best = b; });
+        return { bars: bars, total: total, best: best, days: bars.length };
+    }
+
+    // Barras (reusa o CSS .ov-days/.ov-day + tooltip via ovWireTip).
+    function igDailyBarsHtml(bars) {
+        const max = Math.max(1, ...bars.map(b => b.value || 0));
+        const inner = bars.map(b => '<div class="ov-day" data-d="' + escapeHtml(igDayLabelD(b.date)) + '" data-v="' + escapeHtml(igNum(b.value)) + '"><i style="height:' + Math.max(3, Math.round((b.value || 0) / max * 100)) + '%"></i></div>').join('');
+        return '<div class="ov-days" style="position:relative;">' + inner + '<div class="ov-tip" style="display:none;position:absolute;bottom:100%;margin-bottom:6px;transform:translateX(-50%);background:#1B1B1B;color:#fff;font-size:11px;font-weight:700;padding:4px 9px;border-radius:6px;white-space:nowrap;pointer-events:none;z-index:5;box-shadow:0 2px 8px rgba(0,0,0,.22);"></div></div>';
+    }
+
+    // Cabeçalho: título + botões de métrica, período e origem.
+    function igDailyHeaderHtml() {
+        const isInter = igDailyMetric === 'interacoes';
+        const sub = isInter ? 'respostas que a automação enviou por dia' : 'pessoas novas que interagiram por dia';
+        const metricBtns =
+            '<button type="button" class="ig-period-btn' + (!isInter ? ' active' : '') + '" onclick="igDailySetMetric(\'leads\')">🎯 Novos leads</button>'
+            + '<button type="button" class="ig-period-btn' + (isInter ? ' active' : '') + '" onclick="igDailySetMetric(\'interacoes\')">💬 Interações</button>';
+        const periods = [['7', '7 dias'], ['15', '15 dias'], ['30', '30 dias'], ['90', '90 dias'], ['all', 'Tudo']];
+        const periodBtns = periods.map(p => '<button type="button" class="ig-period-btn' + (String(igDailyDays) === p[0] ? ' active' : '') + '" onclick="igDailySetDays(\'' + p[0] + '\')">' + p[1] + '</button>').join('');
+        let originRow = '';
+        if (!isInter) {
+            const map = { comment: '💬 Comentário', dm: '📩 Direct', story_reply: '📖 Story' };
+            const present = [];
+            (igLeads || []).forEach(l => { const o = igLeadOrigin(l); if (present.indexOf(o) < 0) present.push(o); });
+            const order = ['comment', 'dm', 'story_reply'].filter(o => present.indexOf(o) >= 0);
+            if (order.length > 1) {
+                const chips = [['all', 'Todas']].concat(order.map(o => [o, map[o]]));
+                originRow = '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px;">'
+                    + chips.map(c => '<button type="button" class="ig-sortbtn' + (igDailyOrigin === c[0] ? ' active' : '') + '" onclick="igDailySetOrigin(\'' + c[0] + '\')">' + c[1] + '</button>').join('')
+                    + '</div>';
+            }
+        }
+        return '<div class="ov-t">📊 Leads e interações por dia <span class="s">' + sub + '</span></div>'
+            + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:11px;">' + metricBtns + '</div>'
+            + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px;">' + periodBtns + '</div>'
+            + originRow;
+    }
+
+    function igRenderDaily() {
+        const box = document.getElementById('igDailyPanel'); if (!box) return;
+        const isInter = igDailyMetric === 'interacoes';
+        if (isInter && igDeliveries === null) {
+            box.innerHTML = igDailyHeaderHtml() + '<div class="ov-note" style="margin-top:16px;">Carregando interações…</div>';
+            igFetchDeliveries().then(igRenderDaily);
+            return;
+        }
+        const s = igDailySeries();
+        const periodLbl = igDailyDays === 'all' ? 'todo o período' : ('últimos ' + igDailyDays + ' dias');
+        const avg = s.days ? (s.total / s.days) : 0;
+        const avgTxt = avg >= 100 ? Math.round(avg).toLocaleString('pt-BR') : avg.toFixed(1).replace('.', ',');
+        const bestTxt = (s.best && s.best.value > 0) ? ' · pico <b>' + igNum(s.best.value) + '</b> em ' + igDayLabelD(s.best.date) : '';
+        const unit = isInter ? 'interações' : 'leads';
+        const startLbl = s.bars.length ? igDayLabelD(s.bars[0].date) : '';
+        box.innerHTML = igDailyHeaderHtml()
+            + '<div class="ov-big" style="margin-top:13px;">' + igNum(s.total) + ' <span style="font-size:14px;font-weight:600;color:var(--text-muted);">' + unit + ' · ' + periodLbl + '</span></div>'
+            + igDailyBarsHtml(s.bars)
+            + '<div class="ov-daylbl"><span>' + escapeHtml(startLbl) + '</span><span>hoje</span></div>'
+            + '<div class="ov-note">média <b>' + avgTxt + '/dia</b>' + bestTxt + '</div>';
+        ovWireTip(box);
+    }
+
+    function igDailySetMetric(m) { igDailyMetric = m; igRenderDaily(); }
+    function igDailySetDays(d) { igDailyDays = (d === 'all') ? 'all' : parseInt(d, 10); igRenderDaily(); }
+    function igDailySetOrigin(o) { igDailyOrigin = o; igRenderDaily(); }
 
     // ---- Biblioteca de mídia (ig_assets) ----
     let igAssets = [];
