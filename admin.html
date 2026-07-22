@@ -1153,6 +1153,7 @@
         <div class="stat-card"><div class="stat-value" id="dnStatUnique">--</div><div class="stat-label">Pessoas diferentes</div></div>
         <div class="stat-card accent"><div class="stat-value" id="dnStatAnswer">--</div><div class="stat-label">Responderam o chat</div></div>
         <div class="stat-card"><div class="stat-value" id="dnStatClicks">--</div><div class="stat-label">Cliques em comprar</div></div>
+        <div class="stat-card"><div class="stat-value" id="dnStatLeads">--</div><div class="stat-label">E-mails na lista</div></div>
         <div class="stat-card"><div class="stat-value" id="dnStatToday">--</div><div class="stat-label">Visitas hoje</div></div>
     </div>
 
@@ -1173,6 +1174,18 @@
     <div class="bio-chart-card" style="margin-top:18px;">
         <div class="bio-card-title">Cliques em comprar, por botão</div>
         <div id="dnCtaList"><div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando...</div></div>
+    </div>
+
+    <div class="bio-chart-card" style="margin-top:18px;">
+        <div class="bio-card-title" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+            <span>💌 Quem pediu pra ser avisada <span id="dnLeadCount" style="color:var(--text-muted);font-weight:600;"></span></span>
+            <span style="display:flex;gap:8px;">
+                <button type="button" onclick="loadDirectLeads()" style="background:var(--card);border:1px solid var(--border);border-radius:9px;padding:7px 13px;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--text-soft);cursor:pointer;">↻ Atualizar</button>
+                <button type="button" onclick="exportDirectLeadsCsv()" style="background:var(--card);border:1px solid var(--border);border-radius:9px;padding:7px 13px;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--text-soft);cursor:pointer;">⬇ Exportar CSV</button>
+            </span>
+        </div>
+        <p style="margin:0 0 12px 0;color:var(--text-muted);font-size:12.5px;">Gente que entrou em <b>direct.laradam.com</b>, não comprou agora e deixou o e-mail pra ser avisada. Quando abrir condição nova ou sair aula nova, exporta o CSV e dispara e-mail pra essa lista.</p>
+        <div id="dnLeadBox"><div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando...</div></div>
     </div>
 </div>
 
@@ -3676,11 +3689,60 @@
     }
 
     /* ── Direct no Automático (direct.laradam.com) ── */
+    let dnLeadsCache = [];
+    async function loadDirectLeads() {
+        const box = document.getElementById('dnLeadBox');
+        const cnt = document.getElementById('dnLeadCount');
+        if (!box) return;
+        box.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando...</div>';
+        try {
+            const { data, error } = await sb.from('direct_leads')
+                .select('nome,email,referrer,created_at')
+                .order('created_at', { ascending: false });
+            if (error) throw error;
+            dnLeadsCache = data || [];
+            if (cnt) cnt.textContent = '(' + dnLeadsCache.length + ')';
+            if (!dnLeadsCache.length) {
+                box.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">Ninguém deixou o e-mail ainda.</div>';
+                return;
+            }
+            const dt = s => { const d = new Date(s); return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); };
+            box.innerHTML = '<div style="border:1px solid var(--border);border-radius:12px;overflow:auto;">'
+                + '<table style="width:100%;border-collapse:collapse;font-size:13px;">'
+                + '<thead><tr style="background:var(--warm);text-align:left;">'
+                + '<th style="padding:9px 12px;">Quando</th><th style="padding:9px 12px;">Nome</th><th style="padding:9px 12px;">E-mail</th><th style="padding:9px 12px;">Veio de</th>'
+                + '</tr></thead><tbody>'
+                + dnLeadsCache.map(r => '<tr style="border-top:1px solid var(--border);">'
+                    + '<td style="padding:9px 12px;color:var(--text-muted);white-space:nowrap;">' + dt(r.created_at) + '</td>'
+                    + '<td style="padding:9px 12px;font-weight:600;">' + escapeHtml(r.nome || '—') + '</td>'
+                    + '<td style="padding:9px 12px;">' + escapeHtml(r.email || '') + '</td>'
+                    + '<td style="padding:9px 12px;color:var(--text-muted);">' + escapeHtml(r.referrer || 'direto') + '</td>'
+                    + '</tr>').join('')
+                + '</tbody></table></div>';
+        } catch (e) {
+            console.error('[direct-leads] erro', e);
+            box.innerHTML = '<div style="padding:30px;text-align:center;color:#c00;">Erro ao carregar. Confirme que a tabela <b>direct_leads</b> existe no Supabase (rode o sql-direct-leads.sql).</div>';
+        }
+    }
+    function exportDirectLeadsCsv() {
+        if (!dnLeadsCache.length) { alert('Ninguém deixou o e-mail ainda.'); return; }
+        const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+        const linhas = [['nome', 'email', 'veio_de', 'data'].join(',')]
+            .concat(dnLeadsCache.map(r => [r.nome, r.email, r.referrer, r.created_at].map(esc).join(',')));
+        const blob = new Blob(['﻿' + linhas.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'direct-no-automatico-lista.csv';
+        a.click();
+        URL.revokeObjectURL(a.href);
+    }
+
     async function loadDirect() {
+        loadDirectLeads();
         const setTxt = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
         const fmt = n => (Number(n) || 0).toLocaleString('pt-BR');
         const pct = (a, b) => b > 0 ? (a / b * 100).toFixed(1).replace('.', ',') + '%' : '--';
-        const ids = ['dnStatVisits','dnStatUnique','dnStatAnswer','dnStatClicks','dnStatToday'];
+        const ids = ['dnStatVisits','dnStatUnique','dnStatAnswer','dnStatClicks','dnStatLeads','dnStatToday'];
         ids.forEach(id => setTxt(id, '...'));
         const elFunil = document.getElementById('dnFunil');
         const elResp  = document.getElementById('dnRespostas');
@@ -3699,8 +3761,10 @@
             setTxt('dnStatUnique', fmt(unicos));
             setTxt('dnStatAnswer', pct(responderam, unicos));
             setTxt('dnStatClicks', fmt(s.cliques_total));
+            setTxt('dnStatLeads',  fmt(s.leads_total));
             setTxt('dnStatToday',  fmt(s.visitas_hoje));
-            setTxt('dnInfo7d', 'Últimos 7 dias: ' + fmt(s.visitas_7d) + ' visitas · hoje ' + fmt(s.cliques_hoje) + ' cliques em comprar');
+            setTxt('dnInfo7d', 'Últimos 7 dias: ' + fmt(s.visitas_7d) + ' visitas · hoje ' + fmt(s.cliques_hoje)
+                + ' cliques em comprar e ' + fmt(s.leads_hoje) + ' e-mails novos na lista');
 
             /* funil */
             const etapas = [
@@ -3710,7 +3774,8 @@
                 ['Viram "como funciona"', Number(secoes.como) || 0],
                 ['Chegaram no preço', Number(secoes.curso) || 0],
                 ['Leram as dúvidas', Number(secoes.duvidas) || 0],
-                ['Clicaram em comprar', clicaram]
+                ['Clicaram em comprar', clicaram],
+                ['Deixaram o e-mail na lista', Number(s.leads_total) || 0]
             ];
             elFunil.innerHTML = unicos === 0 ? '<div style="padding:30px;text-align:center;color:var(--text-muted);">' + vazio + '</div>'
               : etapas.map(([nome, n]) => {
