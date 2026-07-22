@@ -1172,6 +1172,12 @@
     </div>
 
     <div class="bio-chart-card" style="margin-top:18px;">
+        <div class="bio-card-title">De onde vem o pessoal</div>
+        <p style="margin:0 0 14px 0;color:var(--text-muted);font-size:12.5px;">Quem chega pela automação do Instagram vem com <b>?ref=dm</b> no link, então dá pra separar do resto.</p>
+        <div id="dnOrigens"><div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando...</div></div>
+    </div>
+
+    <div class="bio-chart-card" style="margin-top:18px;">
         <div class="bio-card-title">Cliques em comprar, por botão</div>
         <div id="dnCtaList"><div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando...</div></div>
     </div>
@@ -3815,6 +3821,24 @@
                 }).join('');
             }
 
+            /* de onde vem o pessoal */
+            const elOrigens = document.getElementById('dnOrigens');
+            const orig = s.origens || {};
+            const listaOrig = Object.keys(orig).map(k => [k, Number(orig[k]) || 0]).sort((a, b) => b[1] - a[1]);
+            if (!listaOrig.length) {
+                elOrigens.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">Ninguém entrou ainda.</div>';
+            } else {
+                const totOrig = listaOrig.reduce((acc, o) => acc + o[1], 0) || 1;
+                elOrigens.innerHTML = listaOrig.map(([k, c]) => {
+                    const p = Math.round(c / totOrig * 100);
+                    return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">'
+                        + '<div style="flex:0 0 190px;font-size:13.5px;font-weight:600;">' + escapeHtml(k) + '</div>'
+                        + '<div style="flex:1;height:10px;background:var(--accent-glow);border-radius:6px;overflow:hidden;"><div style="height:100%;width:' + p + '%;background:var(--accent);border-radius:6px;"></div></div>'
+                        + '<div style="flex:0 0 108px;text-align:right;font-weight:700;font-size:14px;">' + fmt(c) + ' <span style="color:var(--text-muted);font-weight:600;font-size:12.5px;">(' + p + '%)</span></div>'
+                        + '</div>';
+                }).join('');
+            }
+
             /* cliques por botão */
             const labels = { preco: 'Card de preço', final: 'Final da página', barra: 'Barra fixa embaixo', '?': 'Sem origem' };
             const por = s.por_cta || {};
@@ -3836,7 +3860,7 @@
             console.error('[direct] erro', e);
             ids.forEach(id => setTxt(id, '--'));
             const msg = '<div style="padding:30px;text-align:center;color:#c00;">Erro ao carregar. Confirme que a tabela <b>direct_events</b> e a função <b>direct_stats</b> existem no Supabase (rode o sql-direct-events.sql).</div>';
-            [elFunil, elResp, elCta].forEach(el => { if (el) el.innerHTML = msg; });
+            [elFunil, elResp, elCta, document.getElementById('dnOrigens')].forEach(el => { if (el) el.innerHTML = msg; });
         }
     }
 
