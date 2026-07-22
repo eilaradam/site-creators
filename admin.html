@@ -587,6 +587,10 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
                 <span>Imersão</span>
             </button>
+            <button class="tab nav-item" data-tab="direct" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l2-5.2A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg>
+                <span>Direct</span>
+            </button>
             <button class="tab nav-item" data-tab="instagram" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
                 <span>Instagram</span>
@@ -1131,6 +1135,44 @@
         </div>
         <p style="margin:0 0 12px 0;color:var(--text-muted);font-size:12.5px;">Quem se inscreveu em <b>creators.laradam.com/lista-espera</b> (o link que a automação do Instagram manda na DM). Quando abrir a próxima turma, exporta o CSV ou dispara e-mail pra essa lista.</p>
         <div id="leBox"><div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando...</div></div>
+    </div>
+</div>
+
+<!-- ── TAB: DIRECT NO AUTOMÁTICO (direct.laradam.com) ── -->
+<div class="dashboard" id="tabDirect">
+    <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+            <h2 style="margin:0 0 4px 0;font-family:'DM Sans',sans-serif;font-weight:700;font-size:24px;">Direct no Automático · direct.laradam.com</h2>
+            <p style="margin:0;color:var(--text-muted);font-size:13px;">Quem chegou, o que respondeu no chat, até onde rolou e quem clicou em comprar.</p>
+        </div>
+        <button type="button" onclick="loadDirect()" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 16px;font-family:inherit;font-size:13px;font-weight:600;color:var(--text-soft);cursor:pointer;">↻ Atualizar</button>
+    </div>
+
+    <div class="stats-row" style="margin-bottom:14px;">
+        <div class="stat-card accent"><div class="stat-value" id="dnStatVisits">--</div><div class="stat-label">Visitas</div></div>
+        <div class="stat-card"><div class="stat-value" id="dnStatUnique">--</div><div class="stat-label">Pessoas diferentes</div></div>
+        <div class="stat-card accent"><div class="stat-value" id="dnStatAnswer">--</div><div class="stat-label">Responderam o chat</div></div>
+        <div class="stat-card"><div class="stat-value" id="dnStatClicks">--</div><div class="stat-label">Cliques em comprar</div></div>
+        <div class="stat-card"><div class="stat-value" id="dnStatToday">--</div><div class="stat-label">Visitas hoje</div></div>
+    </div>
+
+    <p id="dnInfo7d" style="margin:0 0 22px 0;color:var(--text-muted);font-size:12.5px;"></p>
+
+    <div class="bio-chart-card">
+        <div class="bio-card-title">Funil: até onde cada pessoa foi</div>
+        <p style="margin:0 0 14px 0;color:var(--text-muted);font-size:12.5px;">Cada linha é a porcentagem sobre as pessoas diferentes que abriram a página.</p>
+        <div id="dnFunil"><div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando...</div></div>
+    </div>
+
+    <div class="bio-chart-card" style="margin-top:18px;">
+        <div class="bio-card-title">O que responderam no chat</div>
+        <p style="margin:0 0 14px 0;color:var(--text-muted);font-size:12.5px;">Serve pra saber qual dor é a mais comum na sua audiência, e qual caminho elas escolhem no fim.</p>
+        <div id="dnRespostas"><div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando...</div></div>
+    </div>
+
+    <div class="bio-chart-card" style="margin-top:18px;">
+        <div class="bio-card-title">Cliques em comprar, por botão</div>
+        <div id="dnCtaList"><div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando...</div></div>
     </div>
 </div>
 
@@ -2667,7 +2709,7 @@
     document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
 
     /* ── Tabs ── */
-    const PAGE_TITLES = { dashboard: 'Dashboard', creators: 'Creators', admin: 'Administração', portfolio: 'Portfólio', orcamentos: 'Propostas', casting: 'Casting', candidaturas: 'Candidaturas', disparo: 'Disparo de E-mail', imersao: 'Imersão', instagram: 'Instagram', bio: 'Link na Bio' };
+    const PAGE_TITLES = { dashboard: 'Dashboard', creators: 'Creators', admin: 'Administração', portfolio: 'Portfólio', orcamentos: 'Propostas', casting: 'Casting', candidaturas: 'Candidaturas', disparo: 'Disparo de E-mail', imersao: 'Imersão', direct: 'Direct no Automático', instagram: 'Instagram', bio: 'Link na Bio' };
     function setPageTitle(target) {
         const el = document.getElementById('pageTitle');
         if (el && PAGE_TITLES[target]) el.textContent = PAGE_TITLES[target];
@@ -2687,6 +2729,7 @@
             document.getElementById('tabCandidaturas').classList.toggle('show', target === 'candidaturas');
             document.getElementById('tabDisparo').classList.toggle('show', target === 'disparo');
             document.getElementById('tabImersao').classList.toggle('show', target === 'imersao');
+            document.getElementById('tabDirect').classList.toggle('show', target === 'direct');
             document.getElementById('tabInstagram').classList.toggle('show', target === 'instagram');
             document.getElementById('tabBio').classList.toggle('show', target === 'bio');
             setPageTitle(target);
@@ -2702,6 +2745,7 @@
             if (target === 'candidaturas') loadCandidaturas();
             if (target === 'disparo') loadDisparo();
             if (target === 'imersao') loadImersao();
+            if (target === 'direct') loadDirect();
             if (target === 'instagram') loadInstagram();
             if (target === 'bio' && window.loadBioEditor) window.loadBioEditor();
         });
@@ -3628,6 +3672,106 @@
             console.error('[imersao] erro', e);
             ['imStatVisits','imStatUnique','imStatClicks','imStatRate','imStatToday'].forEach(id => setTxt(id, '--'));
             if (listEl) listEl.innerHTML = '<div style="padding:30px;text-align:center;color:#c00;">Erro ao carregar. Confirme que a tabela <b>imersao_events</b> e a função <b>imersao_stats</b> existem no Supabase (rode o sql-imersao-events.sql).</div>';
+        }
+    }
+
+    /* ── Direct no Automático (direct.laradam.com) ── */
+    async function loadDirect() {
+        const setTxt = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+        const fmt = n => (Number(n) || 0).toLocaleString('pt-BR');
+        const pct = (a, b) => b > 0 ? (a / b * 100).toFixed(1).replace('.', ',') + '%' : '--';
+        const ids = ['dnStatVisits','dnStatUnique','dnStatAnswer','dnStatClicks','dnStatToday'];
+        ids.forEach(id => setTxt(id, '...'));
+        const elFunil = document.getElementById('dnFunil');
+        const elResp  = document.getElementById('dnRespostas');
+        const elCta   = document.getElementById('dnCtaList');
+        const vazio = 'Nada registrado ainda.';
+        try {
+            const { data, error } = await sb.rpc('direct_stats');
+            if (error) throw error;
+            const s = data || {};
+            const unicos   = Number(s.visitantes_unicos) || 0;
+            const secoes   = s.secoes || {};
+            const responderam = Number(s.sessoes_responderam) || 0;
+            const clicaram = Number(s.sessoes_clicaram) || 0;
+
+            setTxt('dnStatVisits', fmt(s.visitas_total));
+            setTxt('dnStatUnique', fmt(unicos));
+            setTxt('dnStatAnswer', pct(responderam, unicos));
+            setTxt('dnStatClicks', fmt(s.cliques_total));
+            setTxt('dnStatToday',  fmt(s.visitas_hoje));
+            setTxt('dnInfo7d', 'Últimos 7 dias: ' + fmt(s.visitas_7d) + ' visitas · hoje ' + fmt(s.cliques_hoje) + ' cliques em comprar');
+
+            /* funil */
+            const etapas = [
+                ['Abriram a página', unicos],
+                ['Responderam a 1ª pergunta do chat', responderam],
+                ['Foram até o fim do chat', Number(s.sessoes_fim_chat) || 0],
+                ['Viram "como funciona"', Number(secoes.como) || 0],
+                ['Chegaram no preço', Number(secoes.curso) || 0],
+                ['Leram as dúvidas', Number(secoes.duvidas) || 0],
+                ['Clicaram em comprar', clicaram]
+            ];
+            elFunil.innerHTML = unicos === 0 ? '<div style="padding:30px;text-align:center;color:var(--text-muted);">' + vazio + '</div>'
+              : etapas.map(([nome, n]) => {
+                const p = unicos > 0 ? Math.round(n / unicos * 100) : 0;
+                return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">'
+                    + '<div style="flex:0 0 240px;font-size:13.5px;font-weight:600;">' + nome + '</div>'
+                    + '<div style="flex:1;height:10px;background:var(--accent-glow);border-radius:6px;overflow:hidden;"><div style="height:100%;width:' + p + '%;background:var(--accent);border-radius:6px;"></div></div>'
+                    + '<div style="flex:0 0 108px;text-align:right;font-weight:700;font-size:14px;">' + fmt(n) + ' <span style="color:var(--text-muted);font-weight:600;font-size:12.5px;">(' + p + '%)</span></div>'
+                    + '</div>';
+              }).join('');
+
+            /* respostas do chat, agrupadas por pergunta */
+            const escolhas = Array.isArray(s.escolhas) ? s.escolhas : [];
+            const titulos = {
+                inicio:  'Pergunta: "quem responde quem comenta pedindo o link?"',
+                solucao: 'No fim do chat, ela escolheu:'
+            };
+            if (!escolhas.length) {
+                elResp.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">' + vazio + '</div>';
+            } else {
+                const grupos = {};
+                escolhas.forEach(e => { (grupos[e.passo] = grupos[e.passo] || []).push(e); });
+                elResp.innerHTML = Object.keys(grupos).map(passo => {
+                    const linhas = grupos[passo].sort((a, b) => b.sessoes - a.sessoes);
+                    const total = linhas.reduce((acc, l) => acc + Number(l.sessoes), 0) || 1;
+                    return '<div style="margin-bottom:20px;">'
+                        + '<div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;">' + (titulos[passo] || passo) + '</div>'
+                        + linhas.map(l => {
+                            const p = Math.round(Number(l.sessoes) / total * 100);
+                            return '<div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--border);">'
+                                + '<div style="flex:0 0 240px;font-size:13.5px;font-weight:600;">' + l.escolha + '</div>'
+                                + '<div style="flex:1;height:10px;background:var(--accent-glow);border-radius:6px;overflow:hidden;"><div style="height:100%;width:' + p + '%;background:var(--accent);border-radius:6px;"></div></div>'
+                                + '<div style="flex:0 0 108px;text-align:right;font-weight:700;font-size:14px;">' + fmt(l.sessoes) + ' <span style="color:var(--text-muted);font-weight:600;font-size:12.5px;">(' + p + '%)</span></div>'
+                                + '</div>';
+                        }).join('')
+                        + '</div>';
+                }).join('');
+            }
+
+            /* cliques por botão */
+            const labels = { preco: 'Card de preço', final: 'Final da página', barra: 'Barra fixa embaixo', '?': 'Sem origem' };
+            const por = s.por_cta || {};
+            const entries = Object.keys(por).map(k => [k, Number(por[k]) || 0]).sort((a, b) => b[1] - a[1]);
+            if (!entries.length) {
+                elCta.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">Nenhum clique registrado ainda.</div>';
+            } else {
+                const max = entries[0][1] || 1;
+                elCta.innerHTML = entries.map(([k, c]) => {
+                    const p = Math.round(c / max * 100);
+                    return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">'
+                        + '<div style="flex:0 0 190px;font-size:13.5px;font-weight:600;">' + (labels[k] || k) + '</div>'
+                        + '<div style="flex:1;height:10px;background:var(--accent-glow);border-radius:6px;overflow:hidden;"><div style="height:100%;width:' + p + '%;background:var(--accent);border-radius:6px;"></div></div>'
+                        + '<div style="flex:0 0 54px;text-align:right;font-weight:700;font-size:14px;">' + fmt(c) + '</div>'
+                        + '</div>';
+                }).join('');
+            }
+        } catch (e) {
+            console.error('[direct] erro', e);
+            ids.forEach(id => setTxt(id, '--'));
+            const msg = '<div style="padding:30px;text-align:center;color:#c00;">Erro ao carregar. Confirme que a tabela <b>direct_events</b> e a função <b>direct_stats</b> existem no Supabase (rode o sql-direct-events.sql).</div>';
+            [elFunil, elResp, elCta].forEach(el => { if (el) el.innerHTML = msg; });
         }
     }
 
