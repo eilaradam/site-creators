@@ -742,6 +742,33 @@
         .cal-btn-del:hover { text-decoration: underline; }
         .cal-btn-del.hidden { display: none; }
 
+        /* card de insights do Instagram (postagens feitas + crescimento) */
+        .ig-insight-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 16px; box-shadow: var(--shadow-xs); }
+        .ig-card-msg { color: var(--text-muted); font-size: 13px; padding: 6px 2px; }
+        .ig-card-head { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .ig-card-head span { color: var(--accent); text-transform: none; letter-spacing: 0; font-size: 12px; }
+        .ig-card-inner { display: grid; grid-template-columns: 1.15fr 1fr; gap: 20px; align-items: center; }
+        .ig-card-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px 16px; }
+        .ig-stat-v { font-family: 'DM Sans', sans-serif; font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; line-height: 1; }
+        .ig-stat-v.pos { color: #0B7A54; } .ig-stat-v.neg { color: var(--error); } .ig-stat-v.warn { color: #C2410C; }
+        .ig-stat-l { font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 4px; }
+        .ig-card-chart { height: 92px; min-width: 0; }
+        .ig-card-foot { font-size: 12px; color: var(--text-soft); margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+        .ig-refresh-link { background: none; border: none; color: var(--accent); font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 12px; cursor: pointer; padding: 0; }
+        .ig-refresh-link:hover { text-decoration: underline; }
+
+        /* chip/marcador de postagem feita */
+        .cal-ev--post { background: rgba(193,53,132,0.10); color: #A62576; }
+        .cal-post-dot { width: 8px; height: 8px; border-radius: 2px; background: linear-gradient(135deg,#F58529,#DD2A7B,#8134AF); flex-shrink: 0; }
+        .evdot-post { background: linear-gradient(135deg,#F58529,#DD2A7B,#8134AF) !important; }
+        .ev-post { background: rgba(193,53,132,0.12); color: #A62576; }
+        .cal-di-thumb { width: 36px; height: 36px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: var(--cream); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .cal-di-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+        @media (max-width: 640px) {
+            .ig-card-inner { grid-template-columns: 1fr; gap: 12px; }
+            .ig-card-chart { height: 72px; }
+        }
         @media (max-width: 860px) {
             .cal-layout { grid-template-columns: 1fr; }
             .cal-side { position: static; }
@@ -876,6 +903,7 @@
 
     <!-- VIEW: CALENDÁRIO -->
     <div id="agViewCal">
+        <div id="igInsightCard" class="ig-insight-card" style="display:none"></div>
         <div class="cal-toolbar">
             <div class="cal-nav">
                 <button class="cal-arrow" id="calPrev" type="button" aria-label="Mês anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
@@ -5104,10 +5132,11 @@
         { key: 'postagem', label: 'Postagem' },
         { key: 'aula', label: 'Aula' },
         { key: 'outro', label: 'Outro' },
-        { key: 'tarefa', label: 'Pendências' }
+        { key: 'tarefa', label: 'Pendências' },
+        { key: 'post', label: 'Postagens feitas' }
     ];
-    const CAL_TIPO_LABEL = { gravacao: 'Gravação', entrega: 'Entrega', postagem: 'Postagem', aula: 'Aula', outro: 'Outro', tarefa: 'Pendência' };
-    const CAL_TIPO_COLOR = { gravacao: '#0E7C86', entrega: '#10B981', postagem: '#D6336C', aula: '#7850B4', outro: '#B8AFA4', tarefa: '#E6A100' };
+    const CAL_TIPO_LABEL = { gravacao: 'Gravação', entrega: 'Entrega', postagem: 'Postagem', aula: 'Aula', outro: 'Outro', tarefa: 'Pendência', post: 'Postagem feita' };
+    const CAL_TIPO_COLOR = { gravacao: '#0E7C86', entrega: '#10B981', postagem: '#D6336C', aula: '#7850B4', outro: '#B8AFA4', tarefa: '#E6A100', post: '#C13584' };
     let calYear, calMonth, calSel = null, calInited = false, calEditingId = null;
     const calFilterOff = new Set();
 
@@ -5181,7 +5210,7 @@
             const dt = new Date(gridStart); dt.setDate(gridStart.getDate() + i);
             const ds = calDateStr(dt.getFullYear(), dt.getMonth(), dt.getDate());
             const other = dt.getMonth() !== calMonth;
-            const evs = other ? [] : calEventsByDate(ds);
+            const evs = other ? [] : calEventsByDate(ds).concat(calPostsFor(ds));
             html += '<div class="cal-cell' + (other ? ' other' : '') + (ds === today ? ' today' : '') + (ds === calSel ? ' sel' : '') + '"'
                 + (other ? '' : ' onclick="calSelectDay(\'' + ds + '\')"') + '>'
                 + '<div class="cal-daynum">' + dt.getDate() + '</div>'
@@ -5195,6 +5224,12 @@
         calRenderUpcoming();
     }
     function calEvChip(e) {
+        if (e.source === 'post') {
+            const p = e.post;
+            return '<div class="cal-ev cal-ev--post" onclick="event.stopPropagation();igOpenPost(\'' + p.id + '\')" title="' + agendaEsc('Postagem · ' + (p.like_count || 0) + ' curtidas') + '">'
+                + '<i class="cal-post-dot"></i>'
+                + '<span class="cal-ev-txt">📷 ' + (p.like_count || 0) + '</span></div>';
+        }
         return '<div class="cal-ev ev-' + e.tipo + (e.feito ? ' done' : '') + '" onclick="event.stopPropagation();calEvClick(\'' + e.source + '\',\'' + e.id + '\')" title="' + agendaEsc((e.hora ? e.hora + ' · ' : '') + e.titulo) + '">'
             + '<i class="cal-ev-dot evdot-' + e.tipo + '"></i>'
             + '<span class="cal-ev-txt">' + (e.hora ? '<b>' + agendaEsc(e.hora) + '</b> ' : '') + agendaEsc(e.titulo) + '</span>'
@@ -5209,12 +5244,26 @@
     function calRenderDay() {
         const ds = calSel || agendaTodayStr();
         document.getElementById('calDayTitle').textContent = calDayLabel(ds);
-        const evs = calEventsByDate(ds, true);
+        const evs = calEventsByDate(ds, true).concat((igPostsByDate[ds] || []).map(igPostItem));
         const list = document.getElementById('calDayList');
         list.innerHTML = evs.length ? evs.map(calDayItemHtml).join('')
             : '<div class="cal-day-empty">Nada marcado nesse dia. Toque em “+ Evento” pra adicionar.</div>';
     }
     function calDayItemHtml(e) {
+        if (e.source === 'post') {
+            const p = e.post;
+            const meta = ['<span class="cal-di-tag ev-post">Postagem</span>', '❤ ' + (p.like_count || 0)];
+            if (p.comments_count) meta.push('💬 ' + p.comments_count);
+            if (p.reach) meta.push('👁 ' + Number(p.reach).toLocaleString('pt-BR'));
+            const thumb = (p.thumbnail_url || p.media_url)
+                ? '<img src="' + agendaEsc(p.thumbnail_url || p.media_url) + '" loading="lazy" onerror="this.parentNode.textContent=\'📷\'">' : '📷';
+            return '<div class="cal-day-item" style="border-left-color:' + CAL_TIPO_COLOR.post + '">'
+                + '<div class="cal-di-thumb">' + thumb + '</div>'
+                + '<div class="cal-di-body" onclick="igOpenPost(\'' + p.id + '\')">'
+                + '<div class="cal-di-title">' + agendaEsc((p.caption || 'Postagem').trim() || 'Postagem') + '</div>'
+                + '<div class="cal-di-meta">' + meta.join(' · ') + '</div>'
+                + '</div></div>';
+        }
         const meta = [];
         if (e.hora) meta.push('<span class="cal-di-time">' + agendaEsc(e.hora) + '</span>');
         meta.push('<span class="cal-di-tag ev-' + e.tipo + '">' + agendaEsc(CAL_TIPO_LABEL[e.tipo] || 'Evento') + '</span>');
@@ -5337,7 +5386,107 @@
         if (vl) vl.style.display = isCal ? 'none' : '';
         document.querySelectorAll('#tabAgenda .agenda-subbtn').forEach(b => b.classList.toggle('active', b.dataset.agsub === (isCal ? 'cal' : 'lista')));
         try { localStorage.setItem('agendaSubview', isCal ? 'cal' : 'lista'); } catch (e) {}
-        if (isCal) calRender();
+        if (isCal) { calRender(); igCalFetch(); }
+    }
+
+    /* ── Instagram no calendário: postagens feitas + consistência/crescimento ── */
+    let igCalData = null, igCalLoading = false, igCalError = false, igPostsByDate = {}, igCalChart = null;
+
+    function igPostItem(p) { return { source: 'post', tipo: 'post', id: p.id, titulo: (p.caption || '').trim() || 'Postagem', hora: null, valor: null, feito: false, post: p }; }
+    function calPostsFor(ds) { return calFilterOff.has('post') ? [] : (igPostsByDate[ds] || []).map(igPostItem); }
+    function igNum(n) { return (Number(n) || 0).toLocaleString('pt-BR'); }
+    function igFmtDias(n) { return n == null ? '—' : (n === 0 ? 'hoje' : (n === 1 ? 'ontem' : 'há ' + n + ' dias')); }
+    function igOpenPost(id) {
+        const p = (igCalData && igCalData.posts || []).find(x => x.id === id);
+        if (p && p.permalink) window.open(p.permalink, '_blank', 'noopener');
+    }
+
+    async function igCalFetch(force) {
+        if (igCalLoading) return;
+        if (igCalData && !force) return;
+        igCalLoading = true; igCalError = false;
+        igRenderInsightCard();
+        try {
+            const r = await sb.functions.invoke('ig-insights', { body: force ? { days: 30, refresh: true } : { days: 30 } });
+            if (r && r.data && !r.data.error) { igCalData = r.data; igIndexPosts(); }
+            else igCalError = true;
+        } catch (e) { igCalError = true; }
+        igCalLoading = false;
+        igRenderInsightCard();
+        calRender();
+    }
+    function igIndexPosts() {
+        igPostsByDate = {};
+        (igCalData && igCalData.posts || []).forEach(p => {
+            if (!p.timestamp) return;
+            const d = new Date(p.timestamp);
+            const ds = calDateStr(d.getFullYear(), d.getMonth(), d.getDate());
+            (igPostsByDate[ds] = igPostsByDate[ds] || []).push(p);
+        });
+    }
+    function igStats() {
+        if (!igCalData) return null;
+        const acc = igCalData.account || {};
+        const posts = (igCalData.posts || []).slice().sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        const ganhos = (igCalData.follower_growth || []).reduce((s, x) => s + (x.value || 0), 0);
+        const now = Date.now();
+        const last = posts.length ? new Date(posts[posts.length - 1].timestamp).getTime() : null;
+        const diasUltimo = last != null ? Math.max(0, Math.floor((now - last) / 86400000)) : null;
+        const gaps = [];
+        for (let i = 1; i < posts.length; i++) gaps.push((new Date(posts[i].timestamp) - new Date(posts[i - 1].timestamp)) / 86400000);
+        const media = gaps.length ? gaps.reduce((s, g) => s + g, 0) / gaps.length : null;
+        const maior = gaps.length ? Math.max.apply(null, gaps) : null;
+        const post30 = posts.filter(p => (now - new Date(p.timestamp).getTime()) / 86400000 <= 30).length;
+        return { followers: Number(acc.followers_count) || 0, ganhos, post30, diasUltimo, media, maior };
+    }
+    function igCurve() {
+        const acc = igCalData.account || {}, fg = igCalData.follower_growth || [];
+        const totalNet = fg.reduce((s, x) => s + (x.value || 0), 0);
+        let run = (Number(acc.followers_count) || 0) - totalNet;
+        return fg.map(x => { run += (x.value || 0); return { date: String(x.date || ''), value: run }; });
+    }
+    function igStatTile(v, l, cls) { return '<div class="ig-stat"><div class="ig-stat-v ' + (cls || '') + '">' + v + '</div><div class="ig-stat-l">' + l + '</div></div>'; }
+    function igRenderInsightCard() {
+        const box = document.getElementById('igInsightCard'); if (!box) return;
+        box.style.display = '';
+        if (!igCalData) {
+            box.innerHTML = igCalError
+                ? '<div class="ig-card-msg">Não consegui puxar o Instagram agora. <button class="ig-refresh-link" onclick="igCalFetch(true)">tentar de novo</button></div>'
+                : '<div class="ig-card-msg">Carregando suas postagens do Instagram…</div>';
+            return;
+        }
+        const s = igStats();
+        const foot = 'Intervalo médio: ' + (s.media != null ? 'a cada ' + Math.max(1, Math.round(s.media)) + ' dia' + (Math.round(s.media) === 1 ? '' : 's') : '—')
+            + (s.maior != null ? ' · maior pausa: ' + Math.round(s.maior) + ' dias' : '')
+            + ' · <button class="ig-refresh-link" onclick="igCalFetch(true)">atualizar</button>';
+        box.innerHTML =
+            '<div class="ig-card-head">Consistência &amp; crescimento <span>@' + agendaEsc((igCalData.account || {}).username || 'eilaradam') + '</span></div>'
+            + '<div class="ig-card-inner"><div class="ig-card-stats">'
+            + igStatTile(igNum(s.followers), 'seguidores agora')
+            + igStatTile((s.ganhos >= 0 ? '+' : '') + igNum(s.ganhos), 'ganhos em 30 dias', s.ganhos >= 0 ? 'pos' : 'neg')
+            + igStatTile(igNum(s.post30), 'posts em 30 dias')
+            + igStatTile(igFmtDias(s.diasUltimo), 'última postagem', (s.diasUltimo != null && s.diasUltimo > 7) ? 'warn' : '')
+            + '</div><div class="ig-card-chart"><canvas id="igGrowthChart"></canvas></div></div>'
+            + '<div class="ig-card-foot">' + foot + '</div>';
+        try {
+            const curve = igCurve();
+            const cv = document.getElementById('igGrowthChart');
+            if (igCalChart) { igCalChart.destroy(); igCalChart = null; }
+            if (cv && curve.length && window.Chart) {
+                igCalChart = new Chart(cv.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: curve.map(c => c.date.slice(8, 10) + '/' + c.date.slice(5, 7)),
+                        datasets: [{ data: curve.map(c => c.value), borderColor: '#C8441A', backgroundColor: 'rgba(200,68,26,0.09)', borderWidth: 2, fill: true, tension: 0.3, pointRadius: 0 }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => igNum(c.parsed.y) + ' seguidores' } } },
+                        scales: { y: { display: false, grace: '8%' }, x: { display: false } }
+                    }
+                });
+            }
+        } catch (e) { /* chart best-effort */ }
     }
 
     (function calInitUI() {
