@@ -1671,6 +1671,29 @@
     #tabInstagram .ov-srow .k{flex:1;font-size:13px;font-weight:600;color:var(--text);}
     #tabInstagram .ov-srow .v{font-size:15px;font-weight:800;color:var(--text);}
     #tabInstagram .tnum{font-variant-numeric:tabular-nums;}
+    /* Card "Seu estrategista" (review IA da Visão geral) */
+    #tabInstagram .ig-review-card{background:linear-gradient(135deg,#fff,#FFF6F1);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:16px;padding:18px 20px;margin-bottom:20px;box-shadow:var(--shadow-sm);}
+    #tabInstagram .igr-loading{color:var(--text-muted);font-size:14px;padding:10px 2px;}
+    #tabInstagram .igr-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:13px;}
+    #tabInstagram .igr-persona{display:flex;align-items:center;gap:11px;}
+    #tabInstagram .igr-ava{width:38px;height:38px;border-radius:11px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+    #tabInstagram .igr-persona b{font-size:15px;color:var(--text);display:block;line-height:1.2;}
+    #tabInstagram .igr-persona small{font-size:12px;color:var(--text-muted);}
+    #tabInstagram .igr-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+    #tabInstagram .igr-nota{font-family:'DM Sans',sans-serif;font-weight:800;font-size:23px;color:var(--accent);line-height:1;}
+    #tabInstagram .igr-nota i{font-size:12px;font-weight:600;color:var(--text-muted);font-style:normal;}
+    #tabInstagram .igr-refresh{background:none;border:1px solid var(--border);color:var(--text-soft);border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;line-height:1;}
+    #tabInstagram .igr-refresh:hover{border-color:var(--accent);color:var(--accent);}
+    #tabInstagram .igr-abertura{font-size:15.5px;line-height:1.5;color:var(--text);font-weight:600;margin-bottom:14px;}
+    #tabInstagram .igr-pontos{display:flex;flex-direction:column;gap:10px;}
+    #tabInstagram .igr-p{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.45;color:var(--text);}
+    #tabInstagram .igr-ic{width:20px;height:20px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;margin-top:1px;}
+    #tabInstagram .igr-p.positivo .igr-ic{background:#10B981;}
+    #tabInstagram .igr-p.alerta .igr-ic{background:#E6A100;}
+    #tabInstagram .igr-p.acao .igr-ic{background:var(--accent);}
+    #tabInstagram .igr-p.ideia .igr-ic{background:#7850B4;}
+    #tabInstagram .igr-foco{margin-top:15px;padding:12px 14px;background:var(--accent-glow);border-radius:11px;font-size:14px;color:var(--text);line-height:1.45;}
+    #tabInstagram .igr-foco b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:4px;}
     </style>
     <div style="max-width:1140px;margin:0 auto;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin:0 0 18px;">
@@ -1686,7 +1709,7 @@
             <button class="ig-subtab-btn" data-ig-sub="propostas" type="button">📤 Propostas</button>
             <button class="ig-subtab-btn" data-ig-sub="sorteio" type="button">🎲 Sorteio</button>
         </div>
-        <div id="igPaneVisao"><div id="igVisaoBox"><div style="padding:44px;text-align:center;color:var(--text-muted);">Carregando resumo...</div></div></div>
+        <div id="igPaneVisao"><div id="igReviewBox"></div><div id="igVisaoBox"><div style="padding:44px;text-align:center;color:var(--text-muted);">Carregando resumo...</div></div></div>
         <div id="igPaneAutomacoes" style="display:none;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;flex-wrap:wrap;">
                 <div id="igAutoCount" style="color:var(--text-muted);font-size:13px;"></div>
@@ -7388,7 +7411,43 @@
     }
 
     // ---- Visão geral (resumo de tudo) ----
+    /* ── "Seu estrategista": review IA diária (ig-review) ── */
+    let igReviewLoaded = false;
+    const IGR_TIPO = { positivo: { ic: '✓', cls: 'positivo' }, alerta: { ic: '!', cls: 'alerta' }, acao: { ic: '→', cls: 'acao' }, ideia: { ic: '★', cls: 'ideia' } };
+    function igReviewShell(inner) { return '<div class="ig-review-card">' + inner + '</div>'; }
+    function igReviewWhen(iso) { try { const d = new Date(iso), t = new Date(); return d.toDateString() === t.toDateString() ? 'review de hoje' : ('review de ' + d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })); } catch (e) { return 'review de hoje'; } }
+    async function igLoadReview(force) {
+        const box = document.getElementById('igReviewBox'); if (!box) return;
+        if (igReviewLoaded && !force) return;
+        igReviewLoaded = true;
+        box.innerHTML = igReviewShell('<div class="igr-loading">📣 ' + (force ? 'Atualizando a análise…' : 'Seu estrategista está analisando seu perfil…') + '</div>');
+        try {
+            const r = await sb.functions.invoke('ig-review', { body: force ? { refresh: true } : {} });
+            if (r && r.data && !r.data.error) igRenderReview(r.data);
+            else box.innerHTML = igReviewShell('<div class="igr-loading">Não consegui gerar a análise agora. <button class="igr-refresh" style="width:auto;padding:2px 10px" onclick="igLoadReview(true)">tentar de novo</button></div>');
+        } catch (e) {
+            box.innerHTML = igReviewShell('<div class="igr-loading">Não consegui gerar a análise agora. <button class="igr-refresh" style="width:auto;padding:2px 10px" onclick="igLoadReview(true)">tentar de novo</button></div>');
+        }
+    }
+    function igRenderReview(d) {
+        const box = document.getElementById('igReviewBox'); if (!box) return;
+        const pontos = (d.pontos || []).map(p => {
+            const t = IGR_TIPO[p.tipo] || IGR_TIPO.acao;
+            return '<div class="igr-p ' + t.cls + '"><span class="igr-ic">' + t.ic + '</span><span>' + escapeHtml(p.texto || '') + '</span></div>';
+        }).join('');
+        const nota = (d.nota != null && d.nota !== '') ? '<span class="igr-nota">' + escapeHtml(String(d.nota)) + '<i>/10</i></span>' : '';
+        const foco = d.foco_semana ? '<div class="igr-foco"><b>Foco da semana</b>' + escapeHtml(d.foco_semana) + '</div>' : '';
+        box.innerHTML = igReviewShell(
+            '<div class="igr-head"><div class="igr-persona"><span class="igr-ava">📣</span><div><b>Seu estrategista</b><small>' + igReviewWhen(d.generated_at) + ' · @eilaradam' + (d.ai === false ? ' · modo básico' : '') + '</small></div></div>'
+            + '<div class="igr-right">' + nota + '<button class="igr-refresh" onclick="igLoadReview(true)" title="Gerar de novo">↻</button></div></div>'
+            + (d.abertura ? '<div class="igr-abertura">' + escapeHtml(d.abertura) + '</div>' : '')
+            + '<div class="igr-pontos">' + pontos + '</div>'
+            + foco
+        );
+    }
+
     async function igLoadVisao() {
+        igLoadReview();
         const box = document.getElementById('igVisaoBox'); if (!box || !igLeadsReady || igVisaoBusy) return;
         igVisaoBusy = true;
         const now = Date.now(), dayMs = 86400000, d15 = now - 15 * dayMs, d30 = now - 30 * dayMs;
