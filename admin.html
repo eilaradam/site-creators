@@ -1694,6 +1694,18 @@
     #tabInstagram .igr-p.ideia .igr-ic{background:#7850B4;}
     #tabInstagram .igr-foco{margin-top:15px;padding:12px 14px;background:var(--accent-glow);border-radius:11px;font-size:14px;color:var(--text);line-height:1.45;}
     #tabInstagram .igr-foco b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:4px;}
+    #tabInstagram .igr-conc{margin-top:16px;border-top:1px solid var(--border);padding-top:14px;}
+    #tabInstagram .igr-conc-h{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:8px;display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+    #tabInstagram .igr-conc-h small{font-size:10px;font-weight:600;letter-spacing:0;text-transform:none;}
+    #tabInstagram .igr-rrow{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:8px;font-size:13.5px;}
+    #tabInstagram .igr-rrow.eu{background:var(--accent-glow);}
+    #tabInstagram .igr-rnome{flex:1;color:var(--text);font-weight:600;display:flex;align-items:center;gap:7px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    #tabInstagram .igr-rrow.eu .igr-rnome{color:var(--accent);font-weight:800;}
+    #tabInstagram .igr-rseg{width:78px;text-align:right;color:var(--text-soft);font-variant-numeric:tabular-nums;flex-shrink:0;}
+    #tabInstagram .igr-rtax{width:66px;text-align:right;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;flex-shrink:0;}
+    #tabInstagram .igr-cat{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:1px 6px;border-radius:20px;flex-shrink:0;}
+    #tabInstagram .igr-cat.ref{background:#EEE9F5;color:#6C4FB0;}
+    #tabInstagram .igr-cat.men{background:var(--accent-glow);color:var(--accent);}
     </style>
     <div style="max-width:1140px;margin:0 auto;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin:0 0 18px;">
@@ -7437,12 +7449,21 @@
         }).join('');
         const nota = (d.nota != null && d.nota !== '') ? '<span class="igr-nota">' + escapeHtml(String(d.nota)) + '<i>/10</i></span>' : '';
         const foco = d.foco_semana ? '<div class="igr-foco"><b>Foco da semana</b>' + escapeHtml(d.foco_semana) + '</div>' : '';
+        const rk = d.ranking || [];
+        const conc = rk.length ? '<div class="igr-conc"><div class="igr-conc-h">Você vs. concorrência<small>seguidores · % engajamento</small></div>'
+            + rk.map(r => {
+                const seg = (Number(r.followers) || 0).toLocaleString('pt-BR');
+                const tax = (r.taxa != null) ? (String(r.taxa).replace('.', ',') + '%') : '—';
+                const cat = r.categoria === 'referencia' ? '<span class="igr-cat ref">ref</span>' : (r.categoria === 'mentora' && !r.eu ? '<span class="igr-cat men">mentora</span>' : '');
+                return '<div class="igr-rrow' + (r.eu ? ' eu' : '') + '"><span class="igr-rnome">' + escapeHtml(r.nome || '') + cat + '</span><span class="igr-rseg">' + seg + '</span><span class="igr-rtax">' + tax + '</span></div>';
+            }).join('') + '</div>' : '';
         box.innerHTML = igReviewShell(
             '<div class="igr-head"><div class="igr-persona"><span class="igr-ava">📣</span><div><b>Seu estrategista</b><small>' + igReviewWhen(d.generated_at) + ' · @eilaradam' + (d.ai === false ? ' · modo básico' : '') + '</small></div></div>'
             + '<div class="igr-right">' + nota + '<button class="igr-refresh" onclick="igLoadReview(true)" title="Gerar de novo">↻</button></div></div>'
             + (d.abertura ? '<div class="igr-abertura">' + escapeHtml(d.abertura) + '</div>' : '')
             + '<div class="igr-pontos">' + pontos + '</div>'
             + foco
+            + conc
         );
     }
 
