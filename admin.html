@@ -537,6 +537,94 @@
             .col-card-body-inner { grid-template-columns: 1fr; }
             .col-card.expanded .col-card-body { max-height: 700px; }
         }
+
+        /* ── Sidebar: seções agrupadas ── */
+        .nav-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); padding: 16px 14px 6px; }
+        .nav-section-label:first-child { padding-top: 4px; }
+        .app-shell.collapsed .nav-section-label { font-size: 0; padding: 0; height: 0; border-top: 1px solid var(--border); margin: 10px 14px; }
+        @media (max-width: 900px) {
+            .app-shell.collapsed .nav-section-label { font-size: 10px; padding: 16px 14px 6px; height: auto; border-top: none; margin: 0; }
+        }
+
+        /* ── Agenda (novo dashboard / organização) ── */
+        .agenda-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 4px 0 18px; flex-wrap: wrap; }
+        .agenda-head h2 { font-family: 'DM Sans', sans-serif; font-size: 23px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
+        .agenda-head .agenda-sub { font-size: 13px; color: var(--text-soft); margin-top: 2px; }
+        .agenda-save { font-size: 12px; color: var(--text-muted); display: inline-flex; align-items: center; gap: 6px; }
+        .agenda-save.ok { color: var(--success); }
+
+        /* Radar */
+        .radar-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 22px; }
+        .radar-tile { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 16px 14px; cursor: pointer; text-align: left; transition: all 0.18s; box-shadow: var(--shadow-xs); position: relative; overflow: hidden; }
+        .radar-tile:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+        .radar-tile .radar-ico { width: 30px; height: 30px; border-radius: 9px; background: var(--accent-glow); color: var(--accent); display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
+        .radar-tile .radar-ico svg { width: 17px; height: 17px; }
+        .radar-tile .radar-num { font-family: 'DM Sans', sans-serif; font-size: 28px; font-weight: 700; color: var(--text); line-height: 1; letter-spacing: -1px; }
+        .radar-tile .radar-num small { font-size: 12px; font-weight: 600; color: var(--text-muted); letter-spacing: 0; margin-left: 4px; }
+        .radar-tile .radar-label { font-size: 12px; color: var(--text-soft); font-weight: 600; margin-top: 6px; }
+        .radar-tile .radar-total { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .radar-tile .radar-go { position: absolute; top: 14px; right: 14px; color: var(--text-muted); opacity: 0; transition: opacity 0.18s; }
+        .radar-tile:hover .radar-go { opacity: 1; }
+
+        /* Quick add */
+        .agenda-add { display: flex; gap: 8px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; margin-bottom: 20px; box-shadow: var(--shadow-xs); flex-wrap: wrap; align-items: center; }
+        .agenda-add input.agenda-text { flex: 1 1 260px; min-width: 180px; border: none; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 15px; color: var(--text); padding: 8px 10px; outline: none; }
+        .agenda-add input.agenda-text::placeholder { color: var(--text-muted); }
+        .agenda-add select, .agenda-add input.agenda-date { border: 1px solid var(--border); background: var(--cream); border-radius: 9px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text-soft); padding: 8px 10px; outline: none; cursor: pointer; }
+        .agenda-add select:focus, .agenda-add input.agenda-date:focus { border-color: var(--accent); }
+        .agenda-add button.agenda-addbtn { background: var(--accent); color: #fff; border: none; border-radius: 9px; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 14px; padding: 9px 18px; cursor: pointer; transition: background 0.15s; white-space: nowrap; }
+        .agenda-add button.agenda-addbtn:hover { background: var(--accent-dark); }
+
+        /* Groups */
+        .agenda-group { margin-bottom: 22px; }
+        .agenda-group-title { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 10px; }
+        .agenda-group-title .agenda-count { background: var(--warm, #F0E7DD); color: var(--text-soft); border-radius: 20px; padding: 1px 8px; font-size: 11px; letter-spacing: 0; }
+        .agenda-group.hoje .agenda-group-title { color: var(--accent); }
+        .agenda-list { display: flex; flex-direction: column; gap: 8px; }
+
+        .agenda-item { display: flex; align-items: flex-start; gap: 12px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; box-shadow: var(--shadow-xs); transition: border-color 0.15s; }
+        .agenda-item:hover { border-color: var(--border-strong); }
+        .agenda-item.done { opacity: 0.62; }
+        .agenda-check { flex-shrink: 0; width: 20px; height: 20px; border-radius: 6px; border: 2px solid var(--border-strong); background: #fff; cursor: pointer; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; padding: 0; }
+        .agenda-check:hover { border-color: var(--accent); }
+        .agenda-item.done .agenda-check { background: var(--success); border-color: var(--success); }
+        .agenda-check svg { width: 12px; height: 12px; color: #fff; opacity: 0; }
+        .agenda-item.done .agenda-check svg { opacity: 1; }
+        .agenda-main { flex: 1; min-width: 0; }
+        .agenda-txt { font-size: 15px; color: var(--text); line-height: 1.35; word-break: break-word; outline: none; border-radius: 4px; }
+        .agenda-txt[contenteditable="true"] { box-shadow: 0 0 0 2px var(--accent-glow); background: var(--cream); padding: 2px 4px; margin: -2px -4px; }
+        .agenda-item.done .agenda-txt { text-decoration: line-through; color: var(--text-muted); }
+        .agenda-meta { display: flex; align-items: center; gap: 8px; margin-top: 7px; flex-wrap: wrap; }
+        .area-badge { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 2px 8px; border-radius: 20px; }
+        .area-agencia { background: rgba(200,68,26,0.10); color: var(--accent); }
+        .area-creator { background: rgba(20,120,130,0.10); color: #0E7C86; }
+        .area-org { background: rgba(120,80,180,0.12); color: #6C4FB0; }
+        .area-geral { background: #F0EDE8; color: var(--text-soft); }
+        .prazo-badge { font-size: 11px; color: var(--text-soft); background: var(--cream); border: 1px solid var(--border); border-radius: 20px; padding: 1px 8px; display: inline-flex; align-items: center; gap: 4px; }
+        .prazo-badge.atrasada { color: var(--error); background: rgba(220,38,38,0.07); border-color: rgba(220,38,38,0.25); font-weight: 600; }
+        .prio-dot { width: 20px; height: 20px; border: none; background: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 0; border-radius: 50%; }
+        .prio-dot i { width: 9px; height: 9px; border-radius: 50%; display: block; }
+        .prio-alta i { background: var(--error); }
+        .prio-media i { background: #E6A100; }
+        .prio-baixa i { background: #C9C2B8; }
+        .prio-dot:hover { background: var(--cream); }
+        .agenda-tools { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+        .agenda-when { border: 1px solid var(--border); background: var(--cream); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--text-soft); padding: 4px 6px; outline: none; cursor: pointer; }
+        .agenda-del { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 5px; border-radius: 7px; display: flex; transition: all 0.15s; }
+        .agenda-del:hover { color: var(--error); background: rgba(220,38,38,0.08); }
+        .agenda-del svg { width: 15px; height: 15px; }
+        .agenda-empty { text-align: center; padding: 46px 20px; color: var(--text-muted); }
+        .agenda-empty svg { width: 40px; height: 40px; opacity: 0.4; margin-bottom: 12px; }
+        .agenda-done-toggle { background: none; border: none; color: var(--text-muted); font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; padding: 4px 0; display: inline-flex; align-items: center; gap: 6px; }
+        .agenda-done-toggle:hover { color: var(--accent); }
+        @media (max-width: 720px) {
+            .radar-row { grid-template-columns: repeat(2, 1fr); }
+            .agenda-item { flex-wrap: wrap; }
+            .agenda-tools { flex-basis: 100%; margin-left: 32px; margin-top: 8px; }
+        }
+        @media (max-width: 420px) {
+            .radar-row { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body style="visibility:hidden">
@@ -551,21 +639,14 @@
             </button>
         </div>
         <nav class="sidebar-nav">
-            <button class="tab nav-item active" data-tab="dashboard" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
-                <span>Dashboard</span>
+            <div class="nav-section-label">Agência</div>
+            <button class="tab nav-item" data-tab="dashboard" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>
+                <span>Visão geral</span>
             </button>
             <button class="tab nav-item" data-tab="creators" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 <span>Creators</span>
-            </button>
-            <button class="tab nav-item" data-tab="admin" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                <span>Administração</span>
-            </button>
-            <button class="tab nav-item" data-tab="portfolio" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-                <span>Portfólio</span>
             </button>
             <button class="tab nav-item" data-tab="orcamentos" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>
@@ -575,13 +656,19 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
                 <span>Casting</span>
             </button>
+            <button class="tab nav-item" data-tab="candidaturas" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+                <span>Candidaturas</span>
+            </button>
             <button class="tab nav-item" data-tab="disparo" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9z"/></svg>
                 <span>Disparo</span>
             </button>
-            <button class="tab nav-item" data-tab="candidaturas" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
-                <span>Candidaturas</span>
+
+            <div class="nav-section-label">Creator</div>
+            <button class="tab nav-item" data-tab="portfolio" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                <span>Portfólio</span>
             </button>
             <button class="tab nav-item" data-tab="imersao" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
@@ -598,6 +685,16 @@
             <button class="tab nav-item" data-tab="bio" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2.5"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
                 <span>Link na Bio</span>
+            </button>
+
+            <div class="nav-section-label">Organização</div>
+            <button class="tab nav-item active" data-tab="agenda" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
+                <span>Agenda</span>
+            </button>
+            <button class="tab nav-item" data-tab="admin" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <span>Administração</span>
             </button>
         </nav>
         <div class="sidebar-foot">
@@ -629,7 +726,69 @@
 </div>
 
 <!-- ── TAB: DASHBOARD ── -->
-<div class="dashboard show" id="tabDashboard">
+<!-- ── TAB: AGENDA (novo dashboard / Organização) ── -->
+<div class="dashboard show" id="tabAgenda">
+    <div class="agenda-head">
+        <div>
+            <h2 id="agendaHello">Minha rotina</h2>
+            <div class="agenda-sub" id="agendaSub">O que precisa de atenção</div>
+        </div>
+        <span class="agenda-save" id="agendaSave"></span>
+    </div>
+
+    <div class="radar-row" id="agendaRadar">
+        <button class="radar-tile" type="button" onclick="agendaGoTab('candidaturas')">
+            <div class="radar-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></div>
+            <div class="radar-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+            <div class="radar-num" id="radarCand">--</div>
+            <div class="radar-label">Candidaturas</div>
+            <div class="radar-total" id="radarCandTot">últimos 7 dias</div>
+        </button>
+        <button class="radar-tile" type="button" onclick="agendaGoTab('casting')">
+            <div class="radar-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></div>
+            <div class="radar-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+            <div class="radar-num" id="radarCast">--</div>
+            <div class="radar-label">Casting</div>
+            <div class="radar-total" id="radarCastTot">últimos 7 dias</div>
+        </button>
+        <button class="radar-tile" type="button" onclick="agendaGoTab('creators')">
+            <div class="radar-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></div>
+            <div class="radar-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></div>
+            <div class="radar-num" id="radarCad">--</div>
+            <div class="radar-label">Novos cadastros</div>
+            <div class="radar-total" id="radarCadTot">últimos 7 dias</div>
+        </button>
+        <button class="radar-tile" type="button" onclick="agendaGoTab('imersao')">
+            <div class="radar-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></div>
+            <div class="radar-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+            <div class="radar-num" id="radarLista">--</div>
+            <div class="radar-label">Lista de espera</div>
+            <div class="radar-total" id="radarListaTot">últimos 7 dias</div>
+        </button>
+    </div>
+
+    <div class="agenda-add">
+        <input type="text" class="agenda-text" id="agendaInput" placeholder="Escrever uma pendência e apertar Enter..." maxlength="220" autocomplete="off">
+        <select id="agendaArea" title="Área">
+            <option value="geral">Geral</option>
+            <option value="agencia">Agência</option>
+            <option value="creator">Creator</option>
+            <option value="org">Organização</option>
+        </select>
+        <select id="agendaQuando" title="Quando">
+            <option value="hoje">Hoje</option>
+            <option value="semana">Esta semana</option>
+            <option value="depois">Depois</option>
+        </select>
+        <input type="date" class="agenda-date" id="agendaPrazo" title="Prazo (opcional)">
+        <button class="agenda-addbtn" type="button" id="agendaAddBtn">Adicionar</button>
+    </div>
+
+    <div id="agendaGroups"><div style="padding:30px;text-align:center;color:var(--text-muted)">Carregando...</div></div>
+</div>
+
+<!-- ── TAB: VISÃO GERAL (números de cadastro) ── -->
+<div class="dashboard" id="tabDashboard">
     <div class="stats-row">
         <div class="stat-card accent"><div class="stat-value" id="dashTotal">--</div><div class="stat-label">Total de Creators</div></div>
         <div class="stat-card"><div class="stat-value" id="dashHoje">--</div><div class="stat-label">Cadastros Hoje</div></div>
@@ -2710,14 +2869,14 @@
 
         await Promise.all([loadSavedIds(), loadPopularity()]);
         loadCreators();
-        loadDashboard();
+        loadAgenda();
 
         // Restaura a última aba aberta (sobrevive ao refresh) — os handlers de .tab
         // já estão registrados e os dados-base carregados, então um clique sintético
         // reaproveita toda a lógica de troca (toggle + loader + título).
         try {
             const savedTab = localStorage.getItem('adminActiveTab');
-            if (savedTab && savedTab !== 'dashboard') {
+            if (savedTab && savedTab !== 'agenda') {
                 const tabEl = document.querySelector('.tab[data-tab="' + savedTab + '"]');
                 if (tabEl) tabEl.click();
             }
@@ -2728,7 +2887,7 @@
     document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
 
     /* ── Tabs ── */
-    const PAGE_TITLES = { dashboard: 'Dashboard', creators: 'Creators', admin: 'Administração', portfolio: 'Portfólio', orcamentos: 'Propostas', casting: 'Casting', candidaturas: 'Candidaturas', disparo: 'Disparo de E-mail', imersao: 'Imersão', direct: 'Direct no Automático', instagram: 'Instagram', bio: 'Link na Bio' };
+    const PAGE_TITLES = { agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Creators', admin: 'Administração', portfolio: 'Portfólio', orcamentos: 'Propostas', casting: 'Casting', candidaturas: 'Candidaturas', disparo: 'Disparo de E-mail', imersao: 'Imersão', direct: 'Direct no Automático', instagram: 'Instagram', bio: 'Link na Bio' };
     function setPageTitle(target) {
         const el = document.getElementById('pageTitle');
         if (el && PAGE_TITLES[target]) el.textContent = PAGE_TITLES[target];
@@ -2739,6 +2898,7 @@
             this.classList.add('active');
             const target = this.dataset.tab;
             try { localStorage.setItem('adminActiveTab', target); } catch {}
+            document.getElementById('tabAgenda').classList.toggle('show', target === 'agenda');
             document.getElementById('tabDashboard').classList.toggle('show', target === 'dashboard');
             document.getElementById('tabCreators').classList.toggle('show', target === 'creators');
             document.getElementById('tabAdmin').classList.toggle('show', target === 'admin');
@@ -2756,6 +2916,7 @@
             document.getElementById('sidebarBackdrop').classList.remove('show');
             const _ta = document.getElementById('topbarActions');
             if (_ta && target !== 'planejamento') _ta.innerHTML = '';
+            if (target === 'agenda') loadAgenda();
             if (target === 'dashboard') loadDashboard();
             if (target === 'portfolio') loadPortfolio();
             if (target === 'admin') showAdminSubtab('alunas');
@@ -4466,6 +4627,265 @@
             console.error('Erro ao carregar dashboard:', err);
         }
     }
+
+    /* ═══════════════ AGENDA (Organização) — agenda de pendências da Lara ═══════════════ */
+    const AGENDA_ROW = 'lara';
+    const AGENDA_TABLE = 'agenda_notas';
+    let agendaState = { tarefas: [], updatedAt: null };
+    let agendaLoaded = false;
+    let agendaSaveTimer = null;
+    let agendaShowDone = false;
+
+    const AGENDA_AREAS = { geral: 'Geral', agencia: 'Agência', creator: 'Creator', org: 'Organização' };
+    const AGENDA_GRUPOS = [
+        { key: 'hoje', label: 'Hoje', cls: 'hoje' },
+        { key: 'semana', label: 'Esta semana', cls: '' },
+        { key: 'depois', label: 'Depois', cls: '' }
+    ];
+    const AGENDA_PRIO_RANK = { alta: 0, media: 1, baixa: 2 };
+
+    function agendaEsc(s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+    function agendaUid() { return 't_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+    function agendaGoTab(tab) { const el = document.querySelector('.tab[data-tab="' + tab + '"]'); if (el) el.click(); }
+    function agendaFind(id) { return (agendaState.tarefas || []).find(t => t.id === id); }
+    function agendaTodayStr() {
+        const d = new Date();
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+    function agendaFmtPrazo(iso) {
+        const p = String(iso).split('-');
+        return p.length === 3 ? (p[2] + '/' + p[1]) : iso;
+    }
+
+    async function loadAgenda() {
+        await agendaFetch();
+        agendaRefreshRadar();
+    }
+
+    async function agendaFetch() {
+        if (agendaLoaded) return;
+        try {
+            const { data, error } = await sb.from(AGENDA_TABLE).select('conteudo').eq('id', AGENDA_ROW).maybeSingle();
+            if (error) throw error;
+            if (data && data.conteudo) {
+                try {
+                    const parsed = typeof data.conteudo === 'string' ? JSON.parse(data.conteudo) : data.conteudo;
+                    if (parsed && Array.isArray(parsed.tarefas)) agendaState = parsed;
+                } catch (e) { console.warn('Agenda: JSON inválido', e); }
+            }
+            agendaLoaded = true;
+        } catch (err) {
+            console.error('Erro ao carregar agenda:', err);
+        }
+        agendaRender();
+    }
+
+    async function agendaCount(table, filterFn) {
+        let q = sb.from(table).select('*', { count: 'exact', head: true });
+        if (filterFn) q = filterFn(q);
+        const { count, error } = await q;
+        if (error) throw error;
+        return count || 0;
+    }
+
+    async function agendaRefreshRadar() {
+        const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+        const setNum = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = (v == null ? '--' : v); };
+        const setTot = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = (v == null ? '' : v + ' no total'); };
+        const tiles = [
+            { table: 'campanha_candidaturas', flt: null, num: 'radarCand', tot: 'radarCandTot' },
+            { table: 'casting_candidaturas', flt: q => q.eq('casting', 'internacional'), num: 'radarCast', tot: 'radarCastTot' },
+            { table: 'creators', flt: null, num: 'radarCad', tot: 'radarCadTot' },
+            { table: 'lista_espera', flt: null, num: 'radarLista', tot: 'radarListaTot' }
+        ];
+        await Promise.all(tiles.map(async (ti) => {
+            try {
+                const [c7, total] = await Promise.all([
+                    agendaCount(ti.table, q => (ti.flt ? ti.flt(q) : q).gte('created_at', since)),
+                    agendaCount(ti.table, ti.flt)
+                ]);
+                setNum(ti.num, c7);
+                setTot(ti.tot, total);
+            } catch (err) {
+                console.warn('Radar ' + ti.table + ':', err && err.message);
+                setNum(ti.num, '–');
+                const el = document.getElementById(ti.tot); if (el) el.textContent = 'indisponível';
+            }
+        }));
+    }
+
+    function agendaRender() {
+        const root = document.getElementById('agendaGroups');
+        if (!root) return;
+        const tarefas = agendaState.tarefas || [];
+        const pend = tarefas.filter(t => !t.feita);
+        const done = tarefas.filter(t => t.feita);
+
+        const hojeCount = pend.filter(t => (t.quando || 'hoje') === 'hoje').length;
+        const subEl = document.getElementById('agendaSub');
+        if (subEl) {
+            subEl.textContent = pend.length === 0
+                ? 'Tudo em dia por aqui ✦'
+                : (hojeCount > 0
+                    ? (hojeCount + (hojeCount === 1 ? ' pendência' : ' pendências') + ' pra hoje')
+                    : (pend.length + (pend.length === 1 ? ' pendência' : ' pendências') + ' na fila'));
+        }
+
+        let html = '';
+        if (pend.length === 0 && done.length === 0) {
+            html = '<div class="agenda-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg><div>Sua agenda está vazia.<br>Escreva a primeira pendência ali em cima.</div></div>';
+        } else {
+            AGENDA_GRUPOS.forEach(g => {
+                const items = pend.filter(t => (t.quando || 'hoje') === g.key)
+                    .sort((a, b) => (AGENDA_PRIO_RANK[a.prioridade] ?? 1) - (AGENDA_PRIO_RANK[b.prioridade] ?? 1));
+                if (!items.length) return;
+                html += '<div class="agenda-group ' + g.cls + '">'
+                    + '<div class="agenda-group-title">' + g.label + ' <span class="agenda-count">' + items.length + '</span></div>'
+                    + '<div class="agenda-list">' + items.map(agendaItemHtml).join('') + '</div></div>';
+            });
+            if (done.length) {
+                const sortedDone = done.slice().sort((a, b) => String(b.concluidoEm || '').localeCompare(String(a.concluidoEm || '')));
+                html += '<div class="agenda-group"><button class="agenda-done-toggle" onclick="agendaToggleDone()">'
+                    + (agendaShowDone ? '▾' : '▸') + ' Concluídas (' + done.length + ')</button>'
+                    + (agendaShowDone ? '<div class="agenda-list" style="margin-top:10px">' + sortedDone.map(agendaItemHtml).join('') + '</div>' : '')
+                    + '</div>';
+            }
+        }
+        root.innerHTML = html;
+    }
+
+    function agendaItemHtml(t) {
+        const area = t.area || 'geral';
+        const prio = t.prioridade || 'media';
+        const id = t.id;
+        let prazoBadge = '';
+        if (t.prazo) {
+            const atrasada = !t.feita && t.prazo < agendaTodayStr();
+            prazoBadge = '<span class="prazo-badge' + (atrasada ? ' atrasada' : '') + '">'
+                + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'
+                + agendaFmtPrazo(t.prazo) + (atrasada ? ' · atrasada' : '') + '</span>';
+        }
+        const whenSel = AGENDA_GRUPOS.map(g => '<option value="' + g.key + '"' + ((t.quando || 'hoje') === g.key ? ' selected' : '') + '>' + g.label + '</option>').join('');
+        return '<div class="agenda-item' + (t.feita ? ' done' : '') + '" data-id="' + id + '">'
+            + '<button class="agenda-check" onclick="agendaToggle(\'' + id + '\')" title="Concluir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button>'
+            + '<div class="agenda-main">'
+            + '<div class="agenda-txt" id="txt_' + id + '" ondblclick="agendaEditStart(\'' + id + '\')" title="Clique 2x pra editar">' + agendaEsc(t.texto) + '</div>'
+            + '<div class="agenda-meta">'
+            + '<span class="area-badge area-' + area + '">' + agendaEsc(AGENDA_AREAS[area] || 'Geral') + '</span>'
+            + prazoBadge
+            + '<button class="prio-dot prio-' + prio + '" onclick="agendaCyclePrio(\'' + id + '\')" title="Prioridade (clique pra mudar)"><i></i></button>'
+            + '</div>'
+            + '</div>'
+            + '<div class="agenda-tools">'
+            + '<select class="agenda-when" onchange="agendaSetWhen(\'' + id + '\', this.value)" title="Mover">' + whenSel + '</select>'
+            + '<button class="agenda-del" onclick="agendaDelete(\'' + id + '\')" title="Excluir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>'
+            + '</div>'
+            + '</div>';
+    }
+
+    function agendaAdd() {
+        const input = document.getElementById('agendaInput');
+        const txt = (input.value || '').trim();
+        if (!txt) { input.focus(); return; }
+        agendaState.tarefas.unshift({
+            id: agendaUid(),
+            texto: txt,
+            area: document.getElementById('agendaArea').value || 'geral',
+            quando: document.getElementById('agendaQuando').value || 'hoje',
+            prioridade: 'media',
+            prazo: document.getElementById('agendaPrazo').value || null,
+            feita: false,
+            criadoEm: new Date().toISOString(),
+            concluidoEm: null
+        });
+        input.value = '';
+        document.getElementById('agendaPrazo').value = '';
+        agendaRender();
+        agendaSave();
+        input.focus();
+    }
+    function agendaToggle(id) {
+        const t = agendaFind(id); if (!t) return;
+        t.feita = !t.feita;
+        t.concluidoEm = t.feita ? new Date().toISOString() : null;
+        agendaRender(); agendaSave();
+    }
+    function agendaDelete(id) {
+        const t = agendaFind(id); if (!t) return;
+        if (!confirm('Excluir esta pendência?')) return;
+        agendaState.tarefas = agendaState.tarefas.filter(x => x.id !== id);
+        agendaRender(); agendaSave();
+    }
+    function agendaSetWhen(id, val) {
+        const t = agendaFind(id); if (!t) return;
+        t.quando = val;
+        agendaRender(); agendaSave();
+    }
+    function agendaCyclePrio(id) {
+        const t = agendaFind(id); if (!t) return;
+        const order = ['alta', 'media', 'baixa'];
+        t.prioridade = order[(order.indexOf(t.prioridade || 'media') + 1) % order.length];
+        agendaRender(); agendaSave();
+    }
+    function agendaToggleDone() { agendaShowDone = !agendaShowDone; agendaRender(); }
+    function agendaEditStart(id) {
+        const el = document.getElementById('txt_' + id);
+        if (!el) return;
+        el.setAttribute('contenteditable', 'true');
+        el.focus();
+        try {
+            const range = document.createRange(); range.selectNodeContents(el); range.collapse(false);
+            const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+        } catch (e) {}
+        const finish = (save) => {
+            el.removeEventListener('blur', onBlur);
+            el.removeEventListener('keydown', onKey);
+            el.removeAttribute('contenteditable');
+            const t = agendaFind(id);
+            if (t && save) {
+                const nv = (el.textContent || '').trim();
+                if (nv && nv !== t.texto) { t.texto = nv; agendaSave(); }
+            }
+            agendaRender();
+        };
+        const onBlur = () => finish(true);
+        const onKey = (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
+            else if (e.key === 'Escape') { e.preventDefault(); el.removeEventListener('blur', onBlur); finish(false); }
+        };
+        el.addEventListener('blur', onBlur);
+        el.addEventListener('keydown', onKey);
+    }
+
+    function agendaSave() {
+        const saveEl = document.getElementById('agendaSave');
+        if (saveEl) { saveEl.textContent = 'salvando...'; saveEl.classList.remove('ok'); }
+        agendaState.updatedAt = new Date().toISOString();
+        clearTimeout(agendaSaveTimer);
+        agendaSaveTimer = setTimeout(async () => {
+            try {
+                const { error } = await sb.from(AGENDA_TABLE)
+                    .update({ conteudo: JSON.stringify(agendaState), updated_at: new Date().toISOString() })
+                    .eq('id', AGENDA_ROW);
+                if (error) throw error;
+                if (saveEl) { saveEl.textContent = '✓ tudo salvo'; saveEl.classList.add('ok'); }
+            } catch (err) {
+                console.error('Erro ao salvar agenda:', err);
+                if (saveEl) { saveEl.textContent = 'erro ao salvar'; saveEl.classList.remove('ok'); }
+            }
+        }, 600);
+    }
+
+    (function agendaInitUI() {
+        const input = document.getElementById('agendaInput');
+        const btn = document.getElementById('agendaAddBtn');
+        if (btn) btn.addEventListener('click', agendaAdd);
+        if (input) input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); agendaAdd(); } });
+    })();
 
     function renderMetricList(elementId, items) {
         const el = document.getElementById(elementId);
