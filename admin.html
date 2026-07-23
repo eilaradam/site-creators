@@ -1706,6 +1706,30 @@
     #tabInstagram .igr-cat{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:1px 6px;border-radius:20px;flex-shrink:0;}
     #tabInstagram .igr-cat.ref{background:#EEE9F5;color:#6C4FB0;}
     #tabInstagram .igr-cat.men{background:var(--accent-glow);color:var(--accent);}
+    /* Aba Concorrência */
+    #tabInstagram .conc-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px;}
+    #tabInstagram .conc-head h3{font-size:17px;font-weight:800;margin:0;color:var(--text);}
+    #tabInstagram .conc-head p{font-size:12.5px;color:var(--text-muted);margin:3px 0 0;}
+    #tabInstagram .conc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
+    #tabInstagram .conc-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow-xs);min-width:0;}
+    #tabInstagram .conc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:12px;}
+    #tabInstagram .conc-nome{font-weight:800;font-size:15px;color:var(--text);line-height:1.2;}
+    #tabInstagram .conc-user{font-size:12.5px;color:var(--text-muted);margin-top:2px;}
+    #tabInstagram .conc-tag{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:2px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+    #tabInstagram .conc-tag.ref{background:#EEE9F5;color:#6C4FB0;}
+    #tabInstagram .conc-tag.men{background:var(--accent-glow);color:var(--accent);}
+    #tabInstagram .conc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:12px;}
+    #tabInstagram .conc-stat{text-align:center;min-width:0;}
+    #tabInstagram .conc-stat b{display:block;font-family:'DM Sans',sans-serif;font-size:17px;font-weight:800;color:var(--text);letter-spacing:-.3px;}
+    #tabInstagram .conc-stat span{font-size:10px;color:var(--text-muted);font-weight:600;}
+    #tabInstagram .conc-posts-t{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:6px;}
+    #tabInstagram .conc-post{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:12.5px;border-bottom:1px solid var(--border);min-width:0;}
+    #tabInstagram .conc-post:last-child{border-bottom:none;}
+    #tabInstagram .conc-post .cp-date{color:var(--text-muted);width:42px;flex-shrink:0;font-variant-numeric:tabular-nums;}
+    #tabInstagram .conc-post .cp-eng{color:var(--text-soft);flex-shrink:0;font-weight:600;white-space:nowrap;}
+    #tabInstagram .conc-post .cp-cap{flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
+    #tabInstagram .conc-post a{color:var(--accent);text-decoration:none;flex-shrink:0;font-size:14px;}
+    @media(max-width:760px){ #tabInstagram .conc-grid{grid-template-columns:1fr;} }
     </style>
     <div style="max-width:1140px;margin:0 auto;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin:0 0 18px;">
@@ -1717,11 +1741,13 @@
             <button class="ig-subtab-btn" data-ig-sub="automacoes" type="button">Automações</button>
             <button class="ig-subtab-btn" data-ig-sub="leads" type="button">Leads</button>
             <button class="ig-subtab-btn" data-ig-sub="insights" type="button">Análises</button>
+            <button class="ig-subtab-btn" data-ig-sub="concorrencia" type="button">🏆 Concorrência</button>
             <button class="ig-subtab-btn" data-ig-sub="marcas" type="button">Marcas</button>
             <button class="ig-subtab-btn" data-ig-sub="propostas" type="button">📤 Propostas</button>
             <button class="ig-subtab-btn" data-ig-sub="sorteio" type="button">🎲 Sorteio</button>
         </div>
         <div id="igPaneVisao"><div id="igReviewBox"></div><div id="igVisaoBox"><div style="padding:44px;text-align:center;color:var(--text-muted);">Carregando resumo...</div></div></div>
+        <div id="igPaneConcorrencia" style="display:none;"><div id="igConcBox"></div></div>
         <div id="igPaneAutomacoes" style="display:none;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;flex-wrap:wrap;">
                 <div id="igAutoCount" style="color:var(--text-muted);font-size:13px;"></div>
@@ -7273,15 +7299,77 @@
         document.getElementById('igPaneAutomacoes').style.display = sub === 'automacoes' ? '' : 'none';
         document.getElementById('igPaneLeads').style.display = sub === 'leads' ? '' : 'none';
         document.getElementById('igPaneInsights').style.display = sub === 'insights' ? '' : 'none';
+        document.getElementById('igPaneConcorrencia').style.display = sub === 'concorrencia' ? '' : 'none';
         document.getElementById('igPaneMarcas').style.display = sub === 'marcas' ? '' : 'none';
         document.getElementById('igPaneProps').style.display = sub === 'propostas' ? '' : 'none';
         document.getElementById('igPaneSorteio').style.display = sub === 'sorteio' ? '' : 'none';
         if (sub === 'visao' && igLeadsReady) igLoadVisao();
         if (sub === 'leads') igRenderLeads();
         if (sub === 'insights' && !igInsightsLoaded) { igInsightsLoaded = true; igLoadInsights(); }
+        if (sub === 'concorrencia' && !igConcLoaded) { igConcLoaded = true; igLoadConcorrencia(); }
         if (sub === 'marcas' && !igMarcasLoaded) { igMarcasLoaded = true; igLoadMarcas(); }
         if (sub === 'propostas' && !igPropsLoaded) { igPropsLoaded = true; igLoadProps(); }
         if (sub === 'sorteio' && !igSorteioLoaded) { igSorteioLoaded = true; igLoadSorteio(); }
+    }
+
+    /* ── Aba Concorrência (métricas dos concorrentes) ── */
+    let igConcLoaded = false;
+    function igConcNum(n) { return (Number(n) || 0).toLocaleString('pt-BR'); }
+    async function igConcRefresh() {
+        const box = document.getElementById('igConcBox'); if (!box) return;
+        box.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)">Atualizando os concorrentes ao vivo… (uns segundos)</div>';
+        try { await sb.functions.invoke('ig-competitors', { body: {} }); } catch (e) {}
+        igLoadConcorrencia(true);
+    }
+    async function igLoadConcorrencia(force) {
+        const box = document.getElementById('igConcBox'); if (!box) return;
+        if (!force) box.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)">Carregando concorrência…</div>';
+        try {
+            const [compsR, snapsR] = await Promise.all([
+                sb.from('ig_competitors').select('username,nome,categoria,ativo').eq('ativo', true),
+                sb.from('ig_competitor_snapshots').select('username,followers,perfil,posts,dia').order('dia', { ascending: false })
+            ]);
+            const meta = {}; (compsR.data || []).forEach(c => meta[c.username] = c);
+            const latest = {}, hist = {};
+            (snapsR.data || []).forEach(s => { if (!latest[s.username]) latest[s.username] = s; (hist[s.username] = hist[s.username] || []).push(s); });
+            const now = Date.now();
+            const cards = Object.keys(meta).map(u => {
+                const s = latest[u]; if (!s) return null;
+                const p = s.perfil || {};
+                const posts = Array.isArray(s.posts) ? s.posts.slice() : [];
+                const eng = (p.avg_likes || 0) + (p.avg_comments || 0);
+                const taxa = s.followers ? (eng / s.followers * 100) : null;
+                const posts7 = posts.filter(x => (now - new Date(x.timestamp).getTime()) / 864e5 <= 7).length;
+                const h = hist[u] || [];
+                const growth = h.length >= 2 ? ((s.followers || 0) - (h[h.length - 1].followers || 0)) : null;
+                const top = posts.slice().sort((a, b) => ((b.like_count || 0) + (b.comments_count || 0)) - ((a.like_count || 0) + (a.comments_count || 0))).slice(0, 3);
+                return { u, nome: meta[u].nome || u, categoria: meta[u].categoria, followers: s.followers, taxa, posts7, growth, top };
+            }).filter(Boolean).sort((a, b) => (b.followers || 0) - (a.followers || 0));
+
+            if (!cards.length) { box.innerHTML = '<div class="ig-empty"><div class="em">🏆</div><h4>Sem dados de concorrência ainda</h4><p>Clica em atualizar pra puxar agora.</p><button class="ig-btn" type="button" onclick="igConcRefresh()">Atualizar agora</button></div>'; return; }
+
+            const cardHtml = c => {
+                const tag = c.categoria === 'referencia' ? '<span class="conc-tag ref">referência</span>' : '<span class="conc-tag men">mentora</span>';
+                const growthTxt = c.growth != null ? ('<div class="conc-stat"><b>' + (c.growth >= 0 ? '+' : '') + igConcNum(c.growth) + '</b><span>seguidores/período</span></div>') : '';
+                const posts = c.top.map(p => {
+                    const d = new Date(p.timestamp);
+                    const dt = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0');
+                    const link = (p.permalink && /^https?:/.test(p.permalink)) ? '<a href="' + escapeHtml(p.permalink) + '" target="_blank" rel="noopener">↗</a>' : '';
+                    const cap = escapeHtml((p.caption || '(sem legenda)').replace(/\s+/g, ' ').trim() || '(sem legenda)');
+                    return '<div class="conc-post"><span class="cp-date">' + dt + '</span><span class="cp-eng">❤ ' + igConcNum(p.like_count || 0) + ' · 💬 ' + igConcNum(p.comments_count || 0) + '</span><span class="cp-cap">' + cap + '</span>' + link + '</div>';
+                }).join('') || '<div style="color:var(--text-muted);font-size:12.5px;padding:6px 0">Sem posts recentes.</div>';
+                return '<div class="conc-card"><div class="conc-top"><div><div class="conc-nome">' + escapeHtml(c.nome) + '</div><div class="conc-user">@' + escapeHtml(c.u) + '</div></div>' + tag + '</div>'
+                    + '<div class="conc-stats"><div class="conc-stat"><b>' + igConcNum(c.followers) + '</b><span>seguidores</span></div>'
+                    + '<div class="conc-stat"><b>' + (c.taxa != null ? c.taxa.toFixed(2).replace('.', ',') + '%' : '—') + '</b><span>engajamento</span></div>'
+                    + '<div class="conc-stat"><b>' + c.posts7 + '</b><span>posts/7 dias</span></div>' + growthTxt + '</div>'
+                    + '<div class="conc-posts-t">Posts que mais bombaram</div>' + posts + '</div>';
+            };
+            box.innerHTML = '<div class="conc-head"><div><h3>🏆 Sua concorrência</h3><p>Dados públicos via API oficial da Meta. Atualiza sozinho todo dia de manhã.</p></div>'
+                + '<button class="ig-btn ghost" type="button" onclick="igConcRefresh()">↻ Atualizar agora</button></div>'
+                + '<div class="conc-grid">' + cards.map(cardHtml).join('') + '</div>';
+        } catch (e) {
+            box.innerHTML = '<div style="padding:30px;text-align:center;color:#c00">Erro ao carregar: ' + escapeHtml(e.message || String(e)) + '</div>';
+        }
     }
 
     async function loadInstagram() {
