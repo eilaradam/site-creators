@@ -8164,6 +8164,9 @@ body { background: var(--cream); letter-spacing: -0.01em; }
   #tabBio .bio-up{display:inline-block;font-size:12px;padding:7px 12px;border-radius:999px;background:var(--text);color:#fff;font-weight:700;cursor:pointer;}
   #tabBio .bio-color{display:flex;gap:8px;align-items:center;}
   #tabBio .bio-color input[type=color]{width:44px;height:36px;border:1px solid var(--border);border-radius:8px;background:#fff;padding:2px;flex:none;}
+  #tabBio .bio-toggle{display:flex;align-items:center;gap:9px;margin-top:12px;padding:10px 12px;border:1px solid var(--border);border-radius:9px;background:#fff;cursor:pointer;font-size:13px;color:var(--text);user-select:none;}
+  #tabBio .bio-toggle input[type=checkbox]{width:18px;height:18px;margin:0;flex:none;cursor:pointer;accent-color:var(--accent);}
+  #tabBio .bio-eye{font-size:17px;line-height:1;}
   #tabBio .bio-savebar{position:sticky;bottom:0;background:rgba(255,255,255,.97);border-top:1px solid var(--border);padding:14px 2px;display:flex;align-items:center;gap:16px;margin-top:8px;}
   #tabBio .bio-save{margin-left:auto;background:var(--accent);color:#fff;border:none;padding:12px 26px;border-radius:12px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;}
   #tabBio .bio-save:disabled{opacity:.6;}
@@ -8195,6 +8198,8 @@ body { background: var(--cream); letter-spacing: -0.01em; }
   function ta(l,p,r){ return '<label class="bio-f"><span>'+esc(l)+'</span><textarea rows="'+(r||2)+'" data-path="'+p+'">'+esc(get(p))+'</textarea></label>'; }
   function color(l,p){ var v=get(p)||'#FF5A4D'; return '<label class="bio-f"><span>'+esc(l)+'</span><span class="bio-color"><input type="color" data-path="'+p+'" value="'+esc(v)+'"><input type="text" data-path="'+p+'" value="'+esc(v)+'"></span></label>'; }
   function img(l,p,folder){ var v=get(p)||''; return '<div class="bio-f"><span>'+esc(l)+'</span><div class="bio-img">'+(v?'<img class="thumb" src="'+esc(v)+'">':'<div class="thumb"></div>')+'<div style="flex:1"><label class="bio-up">Subir foto<input type="file" accept="image/*" data-upload="'+p+'" data-folder="'+folder+'" style="display:none"></label><input type="text" data-path="'+p+'" value="'+esc(v)+'" placeholder="ou cole uma URL" style="margin-top:6px"></div></div></div>'; }
+  // olhinho liga/desliga (checkbox). def = valor quando o campo ainda nao existe.
+  function toggle(l,p,def){ var v=get(p); if(v==null)v=(def!==false); return '<label class="bio-toggle"><input type="checkbox" data-bool="'+p+'"'+(v?' checked':'')+'><span class="bio-eye">'+(v?'👁️':'🙈')+'</span><span>'+esc(l)+'</span></label>'; }
 
   function render(){
     var c=cfg, h='<div class="bio-wrap">';
@@ -8204,7 +8209,7 @@ body { background: var(--cream); letter-spacing: -0.01em; }
     (c.redes||[]).forEach(function(r,i){ h+='<div class="bio-row" style="align-items:end;margin-bottom:6px"><label class="bio-f" style="margin:0"><span>Rede</span><select data-path="redes.'+i+'.rede">'+['instagram','tiktok','youtube','linkedin'].map(function(x){return '<option '+(r.rede===x?'selected':'')+'>'+x+'</option>';}).join('')+'</select></label><label class="bio-f" style="margin:0"><span>Link</span><input type="text" data-path="redes.'+i+'.url" value="'+esc(r.url)+'"></label></div><div style="text-align:right;margin-bottom:10px"><button class="bio-rm" data-action="rm" data-arr="redes" data-i="'+i+'">Remover</button></div>'; });
     h+='<button class="bio-add" data-action="add" data-arr="redes">+ Adicionar rede</button></div>';
     h+='<div class="bio-sec"><h3>Produtos</h3>';
-    (c.produtos||[]).forEach(function(p,i){ h+='<div class="bio-item"><div class="bio-item-head"><b>Produto '+(i+1)+'</b><button class="bio-rm" data-action="rm" data-arr="produtos" data-i="'+i+'">Remover</button></div>'+f('Título','produtos.'+i+'.titulo')+'<div class="bio-row">'+f('Preço','produtos.'+i+'.preco')+f('Texto do botão','produtos.'+i+'.cta')+'</div>'+ta('Descrição','produtos.'+i+'.descricao',3)+f('Link de compra','produtos.'+i+'.checkout')+'<div class="bio-row">'+color('Cor da capa','produtos.'+i+'.capaCor')+'<label class="bio-f"><span>Tags (vírgula)</span><input type="text" data-path="produtos.'+i+'.tags" value="'+esc((p.tags||[]).join(', '))+'"></label></div>'+img('Capa (opcional)','produtos.'+i+'.imagem','produtos')+'</div>'; });
+    (c.produtos||[]).forEach(function(p,i){ h+='<div class="bio-item"><div class="bio-item-head"><b>Produto '+(i+1)+'</b><button class="bio-rm" data-action="rm" data-arr="produtos" data-i="'+i+'">Remover</button></div>'+f('Título','produtos.'+i+'.titulo')+'<div class="bio-row">'+f('Preço','produtos.'+i+'.preco')+f('Texto do botão','produtos.'+i+'.cta')+'</div>'+ta('Descrição','produtos.'+i+'.descricao',3)+f('Link de compra','produtos.'+i+'.checkout')+'<div class="bio-row">'+color('Cor da capa','produtos.'+i+'.capaCor')+'<label class="bio-f"><span>Tags (vírgula)</span><input type="text" data-path="produtos.'+i+'.tags" value="'+esc((p.tags||[]).join(', '))+'"></label></div>'+img('Capa (opcional)','produtos.'+i+'.imagem','produtos')+toggle('Mostrar o nome do curso escrito sobre a capa','produtos.'+i+'.tituloNaCapa',true)+'</div>'; });
     h+='<button class="bio-add" data-action="add" data-arr="produtos">+ Adicionar produto</button></div>';
     h+='<div class="bio-sec"><h3>Link externo (ex: livro)</h3>'+f('Título','linkExterno.titulo')+ta('Descrição','linkExterno.descricao',2)+f('Link','linkExterno.url')+'<div class="bio-row">'+color('Cor da miniatura','linkExterno.thumbCor')+img('Miniatura','linkExterno.imagem','link')+'</div></div>';
     h+='<div class="bio-sec"><h3>WhatsApp</h3>';
@@ -8233,6 +8238,11 @@ body { background: var(--cream); letter-spacing: -0.01em; }
     });
     root.addEventListener('change', function(e){
       var el=e.target;
+      if(el.matches&&el.matches('input[type=checkbox][data-bool]')){
+        setP(el.dataset.bool, el.checked);
+        var eye=el.parentNode.querySelector('.bio-eye'); if(eye)eye.textContent=el.checked?'👁️':'🙈';
+        return;
+      }
       if(el.matches&&el.matches('input[type=file]')&&el.dataset.upload){
         var file=el.files&&el.files[0]; if(!file) return;
         var lbl=el.closest('.bio-up'); if(lbl)lbl.firstChild.nodeValue='Enviando...';
@@ -8260,7 +8270,7 @@ body { background: var(--cream); letter-spacing: -0.01em; }
   }
   function defItem(a){
     if(a==='redes') return {rede:'instagram',url:''};
-    if(a==='produtos') return {id:'prod'+Date.now(),titulo:'Novo produto',capaCor:'#FF5A4D',imagem:'',preco:'R$ 0',descricao:'',cta:'Acessar',checkout:'',tags:[]};
+    if(a==='produtos') return {id:'prod'+Date.now(),titulo:'Novo produto',capaCor:'#FF5A4D',imagem:'',tituloNaCapa:true,preco:'R$ 0',descricao:'',cta:'Acessar',checkout:'',tags:[]};
     if(a==='whatsapp') return {categoria:'',numero:'',numeroExibicao:'',mensagem:'',cor:'#25D366'};
     if(a==='instagram.posts') return {cor:'#FF5A4D',imagem:'',legenda:'',link:''};
     return {};
