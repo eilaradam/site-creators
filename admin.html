@@ -5390,7 +5390,7 @@
     }
 
     /* ── Instagram no calendário: postagens feitas + consistência/crescimento ── */
-    let igCalData = null, igCalLoading = false, igCalError = false, igPostsByDate = {}, igCalChart = null;
+    let igCalData = null, igCalLoading = false, igCalError = false, igPostsByDate = {}, igCalChart = null, igFollowersHist = [];
 
     function igPostItem(p) { return { source: 'post', tipo: 'post', id: p.id, titulo: (p.caption || '').trim() || 'Postagem', hora: null, valor: null, feito: false, post: p }; }
     function calPostsFor(ds) { return calFilterOff.has('post') ? [] : (igPostsByDate[ds] || []).map(igPostItem); }
@@ -5407,9 +5407,13 @@
         igCalLoading = true; igCalError = false;
         igRenderInsightCard();
         try {
-            const r = await sb.functions.invoke('ig-insights', { body: force ? { days: 30, refresh: true } : { days: 30 } });
+            const [r, h] = await Promise.all([
+                sb.functions.invoke('ig-insights', { body: force ? { days: 30, refresh: true } : { days: 30 } }),
+                sb.from('ig_followers_daily').select('dia,followers').order('dia', { ascending: true })
+            ]);
             if (r && r.data && !r.data.error) { igCalData = r.data; igIndexPosts(); }
             else igCalError = true;
+            if (h && h.data && h.data.length) igFollowersHist = h.data;
         } catch (e) { igCalError = true; }
         igCalLoading = false;
         igRenderInsightCard();
@@ -5428,7 +5432,16 @@
         if (!igCalData) return null;
         const acc = igCalData.account || {};
         const posts = (igCalData.posts || []).slice().sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-        const ganhos = (igCalData.follower_growth || []).reduce((s, x) => s + (x.value || 0), 0);
+        let ganhos;
+        if (igFollowersHist && igFollowersHist.length >= 2) {
+            const c = new Date(); c.setDate(c.getDate() - 30);
+            const cutoff = calDateStr(c.getFullYear(), c.getMonth(), c.getDate());
+            const lastF = igFollowersHist[igFollowersHist.length - 1].followers;
+            const pastF = (igFollowersHist.find(r => r.dia >= cutoff) || igFollowersHist[0]).followers;
+            ganhos = (Number(lastF) || 0) - (Number(pastF) || 0);
+        } else {
+            ganhos = (igCalData.follower_growth || []).reduce((s, x) => s + (x.value || 0), 0);
+        }
         const now = Date.now();
         const last = posts.length ? new Date(posts[posts.length - 1].timestamp).getTime() : null;
         const diasUltimo = last != null ? Math.max(0, Math.floor((now - last) / 86400000)) : null;
@@ -5440,6 +5453,9 @@
         return { followers: Number(acc.followers_count) || 0, ganhos, post30, diasUltimo, media, maior };
     }
     function igCurve() {
+        if (igFollowersHist && igFollowersHist.length >= 2) {
+            return igFollowersHist.map(r => ({ date: String(r.dia), value: Number(r.followers) || 0 }));
+        }
         const acc = igCalData.account || {}, fg = igCalData.follower_growth || [];
         const totalNet = fg.reduce((s, x) => s + (x.value || 0), 0);
         let run = (Number(acc.followers_count) || 0) - totalNet;
