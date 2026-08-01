@@ -71,26 +71,17 @@ const CARDS: Card[] = [
     focos: ["center", "center 30%", "center 30%"],
   },
   {
-    data: "AGOSTO",
-    nome: "AGOSTO LILÁS",
+    data: "07/08",
+    nome: "DIA INTERNACIONAL DA CERVEJA",
     para:
-      "Mês inteiro dedicado à **conscientização contra a violência às mulheres**, com mobilização oficial do Governo Federal.",
+      "**Cai numa sexta-feira**, ótimo pra ativação de fim de semana. Bar, cervejaria, delivery, empório e petisco entram todos na conta.",
     ugc:
-      "O que sustenta esse conteúdo é informação e rede de apoio real. Trocar só a cor do feed pra lilás sem contexto não convence ninguém.",
+      "O UGC é o encontro: harmonização, combo de happy hour, resenha de rótulo, roteiro de bar.",
     dica:
-      "antes de oferecer esse ângulo pra uma marca, confirma se ela tem alguma ação concreta por trás. Sem isso a publi vira oportunismo, e o público sente na hora.",
-    ideias: ["canal Ligue 180", "conteúdo educativo", "posicionamento da marca"],
-  },
-  {
-    data: "10 e 11/08",
-    nome: "ROSALÍA NO RIO DE JANEIRO",
-    para:
-      "A turnê do álbum Lux traz dois shows na Farmasi Arena, **um dos discos mais comentados do ano**. Isso move moda, beleza, hotel, transporte e restaurante na cidade. Público apaixonado e ávido por registrar tudo.",
-    ugc:
-      "O UGC é a experiência: GRWM pro show, look do dia, vlog do Rio, a chegada no show.",
-    dica:
-      "moda, beleza e hotelaria no Rio querem pegar carona em evento assim, mas quase ninguém oferece UGC de “indo pro show”. Chega com um pacote de experiência antes mesmo de te pedirem.",
-    ideias: ["outfit do show", "produto de beleza", "multidão no show"],
+      "sempre reforça consumo responsável na peça, e usa esse ângulo também de forma metafórica pra marca fora do setor, tipo fim de expediente ou cultura de equipe.",
+    ideias: ["mesa de bar com petisco", "brinde entre amigos", "rótulo em destaque"],
+    imagens: ["agosto/cerveja1.jpg", "agosto/cerveja2.jpg", "agosto/cerveja3.jpg"],
+    focos: ["center", "center 45%", "center"],
   },
 ];
 
@@ -174,7 +165,7 @@ export const CarrosselAgosto: React.FC<AgostoProps> = ({ indice }) => {
           <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
             <div style={{ background: ORANGE, color: "#fff", fontWeight: 800, fontSize: 26, letterSpacing: 4, padding: "10px 24px", transform: "rotate(-2deg)", textTransform: "uppercase", boxShadow: "0 12px 24px rgba(244,84,30,.26)" }}>☀ Guia de Agosto</div>
             <div style={{ marginTop: 46, fontSize: 96, fontWeight: 900, lineHeight: 1.04, letterSpacing: -2 }}>
-              <span style={{ color: ORANGE }}>5</span> propostas para enviar em{" "}
+              <span style={{ color: ORANGE }}>4</span> propostas para enviar em{" "}
               <span style={{ color: ORANGE, position: "relative" }}>AGOSTO<span style={{ position: "absolute", left: 0, right: 0, bottom: -8, height: 10, borderRadius: 999, background: ORANGE }} /></span>
             </div>
             <div style={{ marginTop: 42, display: "inline-block", background: AZUL, color: "#fff", fontSize: 40, fontWeight: 800, lineHeight: 1.25, padding: "20px 30px", transform: "rotate(-1.5deg)" }}>
