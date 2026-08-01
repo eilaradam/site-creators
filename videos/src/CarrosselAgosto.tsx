@@ -28,6 +28,7 @@ type Card = {
   ideias: [string, string, string];
   imagens?: [string?, string?, string?];
   focos?: (string | undefined)[];
+  fits?: (string | undefined)[]; // "contain" p/ mostrar a foto inteira (2 pessoas)
 };
 
 const CARDS: Card[] = [
@@ -42,7 +43,8 @@ const CARDS: Card[] = [
       "e-commerce e varejo precisam de conteúdo de curadoria e urgência de última hora entre 05/08 e 09/08. Ofereça um pacote de vídeos pra essa reta final, proposta que quase ninguém faz.",
     ideias: ["unboxing de presente", "pai e filho", "churrasco em família"],
     imagens: ["agosto/pais1.webp", "agosto/pais2.webp", "agosto/pais3.webp"],
-    focos: ["center 30%", "center 18%", "center 22%"],
+    focos: ["center 30%", "center", "center 22%"],
+    fits: [undefined, "contain", undefined],
   },
   {
     data: "01 a 07/08",
@@ -130,7 +132,16 @@ const Tarja: React.FC<{ texto: string }> = ({ texto }) => (
   </div>
 );
 
-const Slot: React.FC<{ label: string; src?: string; foco?: string }> = ({ label, src, foco }) => {
+const Slot: React.FC<{ label: string; src?: string; foco?: string; fit?: string }> = ({ label, src, foco, fit }) => {
+  if (src && fit === "contain")
+    return (
+      <div style={{ flex: 1, height: 224, borderRadius: 16, overflow: "hidden", position: "relative", background: "#DCD8D1" }}>
+        {/* fundo desfocado preenchendo as laterais */}
+        <Img src={staticFile(src)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", filter: "blur(16px)", transform: "scale(1.15)", opacity: 0.65 }} />
+        {/* foto inteira (mostra as 2 pessoas) */}
+        <Img src={staticFile(src)} style={{ position: "relative", width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
+      </div>
+    );
   if (src)
     return (
       <div style={{ flex: 1, height: 224, borderRadius: 16, overflow: "hidden" }}>
@@ -192,7 +203,7 @@ export const CarrosselAgosto: React.FC<AgostoProps> = ({ indice }) => {
               <div style={{ fontSize: 23, letterSpacing: 2, color: MUT, fontWeight: 700, marginBottom: 14 }}>ideias de conteúdo:</div>
               <div style={{ display: "flex", gap: 16 }}>
                 {card.ideias.map((l, i) => (
-                  <Slot key={i} label={l} src={card.imagens?.[i]} foco={card.focos?.[i]} />
+                  <Slot key={i} label={l} src={card.imagens?.[i]} foco={card.focos?.[i]} fit={card.fits?.[i]} />
                 ))}
               </div>
             </div>

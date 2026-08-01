@@ -12,7 +12,7 @@ const CARDS = [
     para: "**A maior data comercial do segundo semestre.** Moda, beleza, perfumaria, tecnologia, alimentação, bebidas, experiências e turismo entram todos na conta.",
     ugc: "O UGC é a emoção por trás do presente: unboxing, guia de presente por perfil de pai, storytelling de quem cuida.",
     dica: "e-commerce e varejo precisam de conteúdo de curadoria e urgência de última hora entre 05/08 e 09/08. Ofereça um pacote de vídeos pra essa reta final, proposta que quase ninguém faz.",
-    imgs: ["pais1.webp", "pais2.webp", "pais3.webp"], focos: ["center 30%", "center 18%", "center 22%"],
+    imgs: ["pais1.webp", "pais2.webp", "pais3.webp"], focos: ["center 30%", "center", "center 22%"], fits: [null, "contain", null],
   },
   {
     data: "01 a 07/08", nome: "AGOSTO DOURADO",
@@ -42,7 +42,9 @@ const tamData = (d) => (d.length <= 6 ? 54 : d.length <= 12 ? 42 : 34);
 const PAGE = `width:1080px;height:1350px;position:relative;background:${CREME};font-family:Helvetica,Arial,sans-serif;color:${INK};overflow:hidden;box-sizing:border-box;`;
 const handles = () => `<div style="display:flex;justify-content:space-between;padding:56px 70px 0;">${[0,1,2].map(()=>`<span style="font-size:24px;font-style:italic;color:${MUT};opacity:.6;">@eilaradam</span>`).join("")}</div>`;
 const footer = () => `<div style="font-size:26px;font-weight:700;">Lara Dam <span style="color:${ORANGE};">· @eilaradam</span></div>`;
-const fotos = (imgs, focos) => `<div style="display:flex;gap:16px;width:100%;">${imgs.map((f,i)=>`<div style="flex:1;height:224px;border-radius:16px;overflow:hidden;"><img src="${RAW}${f}" style="width:100%;height:100%;object-fit:cover;object-position:${focos[i]||"center"};display:block;"/></div>`).join("")}</div>`;
+const fotos = (imgs, focos, fits) => `<div style="display:flex;gap:16px;width:100%;">${imgs.map((f,i)=>(fits&&fits[i]==="contain")
+  ? `<div style="flex:1;height:224px;border-radius:16px;overflow:hidden;position:relative;background:#DCD8D1;"><img src="${RAW}${f}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:blur(16px);transform:scale(1.15);opacity:.65;"/><img src="${RAW}${f}" style="position:relative;width:100%;height:100%;object-fit:contain;display:block;"/></div>`
+  : `<div style="flex:1;height:224px;border-radius:16px;overflow:hidden;"><img src="${RAW}${f}" style="width:100%;height:100%;object-fit:cover;object-position:${focos[i]||"center"};display:block;"/></div>`).join("")}</div>`;
 
 const capa = `
 <div data-document-role="page" data-label="Capa" style="${PAGE}">
@@ -64,7 +66,7 @@ const cards = CARDS.map((c) => `
     <div style="margin-top:30px;font-size:31px;line-height:1.32;font-weight:500;max-width:870px;">${bold(c.para)}</div>
     <div style="margin-top:14px;font-size:30px;line-height:1.28;color:${ORANGE};font-weight:800;max-width:870px;">${c.ugc}</div>
     <div style="margin-top:14px;background:${SOFT};border-radius:18px;padding:16px 26px;max-width:870px;"><span style="color:${ORANGE};font-weight:900;font-size:25px;">Dica: </span><span style="font-size:25px;line-height:1.26;font-weight:500;">${c.dica}</span></div>
-    <div style="margin-top:30px;width:100%;"><div style="font-size:23px;letter-spacing:2px;color:${MUT};font-weight:700;margin-bottom:14px;">ideias de conteúdo:</div>${fotos(c.imgs, c.focos)}</div>
+    <div style="margin-top:30px;width:100%;"><div style="font-size:23px;letter-spacing:2px;color:${MUT};font-weight:700;margin-bottom:14px;">ideias de conteúdo:</div>${fotos(c.imgs, c.focos, c.fits)}</div>
   </div>
   <div style="position:absolute;left:0;right:0;bottom:60px;text-align:center;">${footer()}</div>
 </div>`).join("");
