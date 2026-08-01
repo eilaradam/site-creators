@@ -12,7 +12,7 @@ const CARDS = [
     para: "**A maior data comercial do segundo semestre.** Moda, beleza, perfumaria, tecnologia, alimentação, bebidas, experiências e turismo entram todos na conta.",
     ugc: "O UGC é a emoção por trás do presente: unboxing, guia de presente por perfil de pai, storytelling de quem cuida.",
     dica: "e-commerce e varejo precisam de conteúdo de curadoria e urgência de última hora entre 05/08 e 09/08. Ofereça um pacote de vídeos pra essa reta final, proposta que quase ninguém faz.",
-    imgs: ["pais1.webp", "pais2.webp", "pais3.webp"], focos: ["center 30%", "center 32%", "center 22%"],
+    imgs: ["pais1.webp", "pais2.webp", "pais3.webp"], focos: ["center 30%", "center 18%", "center 22%"],
   },
   {
     data: "01 a 07/08", nome: "AGOSTO DOURADO",

@@ -42,7 +42,7 @@ const CARDS: Card[] = [
       "e-commerce e varejo precisam de conteúdo de curadoria e urgência de última hora entre 05/08 e 09/08. Ofereça um pacote de vídeos pra essa reta final, proposta que quase ninguém faz.",
     ideias: ["unboxing de presente", "pai e filho", "churrasco em família"],
     imagens: ["agosto/pais1.webp", "agosto/pais2.webp", "agosto/pais3.webp"],
-    focos: ["center 30%", "center 32%", "center 22%"],
+    focos: ["center 30%", "center 18%", "center 22%"],
   },
   {
     data: "01 a 07/08",
