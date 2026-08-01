@@ -27,6 +27,7 @@ type Card = {
   dica: string;
   ideias: [string, string, string];
   imagens?: [string?, string?, string?];
+  focos?: (string | undefined)[];
 };
 
 const CARDS: Card[] = [
@@ -40,6 +41,8 @@ const CARDS: Card[] = [
     dica:
       "e-commerce e varejo precisam de conteúdo de curadoria e urgência de última hora entre 05/08 e 09/08. Ofereça um pacote de vídeos pra essa reta final, proposta que quase ninguém faz.",
     ideias: ["unboxing de presente", "pai e filho", "churrasco em família"],
+    imagens: ["agosto/pais1.webp", "agosto/pais2.webp", "agosto/pais3.webp"],
+    focos: ["center 30%", "center 32%", "center 22%"],
   },
   {
     data: "01 a 07/08",
@@ -51,6 +54,8 @@ const CARDS: Card[] = [
     dica:
       "evite tom prescritivo. Marca de maternidade paga bem por conteúdo que acolhe em vez de ensinar.",
     ideias: ["mãe com bebê", "produto de maternidade", "ambiente aconchegante"],
+    imagens: ["agosto/dourado1.png", "agosto/dourado2.webp", "agosto/dourado3.jpg"],
+    focos: ["center 35%", "center", "center 40%"],
   },
   {
     data: "11 e 12/08",
@@ -62,6 +67,8 @@ const CARDS: Card[] = [
     dica:
       "educação sempre quer creator universitário mostrando o produto dentro da rotina real de estudo, não numa aula genérica.",
     ideias: ["mesa de estudo", "planner aberto", "pessoa estudando"],
+    imagens: ["agosto/estudante1.jpg", "agosto/estudante2.jpg", "agosto/estudante3.jpg"],
+    focos: ["center", "center 30%", "center 30%"],
   },
   {
     data: "AGOSTO",
@@ -132,11 +139,11 @@ const Tarja: React.FC<{ texto: string }> = ({ texto }) => (
   </div>
 );
 
-const Slot: React.FC<{ label: string; src?: string }> = ({ label, src }) => {
+const Slot: React.FC<{ label: string; src?: string; foco?: string }> = ({ label, src, foco }) => {
   if (src)
     return (
       <div style={{ flex: 1, height: 224, borderRadius: 16, overflow: "hidden" }}>
-        <Img src={staticFile(src)} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        <Img src={staticFile(src)} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: foco ?? "center", display: "block" }} />
       </div>
     );
   return (
@@ -194,7 +201,7 @@ export const CarrosselAgosto: React.FC<AgostoProps> = ({ indice }) => {
               <div style={{ fontSize: 23, letterSpacing: 2, color: MUT, fontWeight: 700, marginBottom: 14 }}>ideias de conteúdo:</div>
               <div style={{ display: "flex", gap: 16 }}>
                 {card.ideias.map((l, i) => (
-                  <Slot key={i} label={l} src={card.imagens?.[i]} />
+                  <Slot key={i} label={l} src={card.imagens?.[i]} foco={card.focos?.[i]} />
                 ))}
               </div>
             </div>
