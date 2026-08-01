@@ -12,10 +12,10 @@ export type AgostoProps = z.infer<typeof agostoSchema>;
 
 const CREME = "#EFE9DF";
 const INK = "#2B2622";
-const ORANGE = "#F4541E";
-const AZUL = "#0C40ED";
+const ORANGE = "#1641EC"; // (antes laranja) agora azul
+const AZUL = "#1641EC";
 const MUT = "#928777";
-const SOFT = "#F8E7DD";
+const SOFT = "#E7ECFD";
 const FONTE = "Helvetica, Arial, sans-serif";
 const SERIF = '"Georgia", "Times New Roman", serif';
 
@@ -125,7 +125,7 @@ const Rodape: React.FC = () => (
 const tamData = (d: string) => (d.length <= 6 ? 54 : d.length <= 12 ? 42 : 34);
 
 const Tarja: React.FC<{ texto: string }> = ({ texto }) => (
-  <div style={{ display: "inline-block", background: ORANGE, transform: "rotate(-2deg)", padding: "16px 40px", boxShadow: "0 14px 30px rgba(244,84,30,.28)" }}>
+  <div style={{ display: "inline-block", background: ORANGE, transform: "rotate(-2deg)", padding: "16px 40px", boxShadow: "0 14px 30px rgba(22,65,236,.28)" }}>
     <div style={{ color: "#fff", fontFamily: FONTE, fontSize: 44, fontWeight: 900, lineHeight: 1.08, letterSpacing: 1, textTransform: "uppercase", textAlign: "center" }}>{texto}</div>
   </div>
 );
@@ -138,7 +138,7 @@ const Slot: React.FC<{ label: string; src?: string; foco?: string }> = ({ label,
       </div>
     );
   return (
-    <div style={{ flex: 1, height: 224, borderRadius: 16, background: "#E7E0D2", border: "3px dashed rgba(244,84,30,.5)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, padding: 14, textAlign: "center" }}>
+    <div style={{ flex: 1, height: 224, borderRadius: 16, background: "#E7E0D2", border: "3px dashed rgba(22,65,236,.5)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, padding: 14, textAlign: "center" }}>
       <svg width={44} height={44} viewBox="0 0 24 24" fill="none">
         <rect x="2.5" y="4.5" width="19" height="15" rx="2.5" stroke={ORANGE} strokeWidth="1.8" />
         <circle cx="8.5" cy="10" r="2" fill={ORANGE} />
@@ -163,7 +163,7 @@ export const CarrosselAgosto: React.FC<AgostoProps> = ({ indice }) => {
         <div style={{ padding: "60px 76px 78px", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
           <div style={{ alignSelf: "stretch" }}><Handles /></div>
           <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
-            <div style={{ background: ORANGE, color: "#fff", fontWeight: 800, fontSize: 26, letterSpacing: 4, padding: "10px 24px", transform: "rotate(-2deg)", textTransform: "uppercase", boxShadow: "0 12px 24px rgba(244,84,30,.26)" }}>☀ Guia de Agosto</div>
+            <div style={{ background: ORANGE, color: "#fff", fontWeight: 800, fontSize: 26, letterSpacing: 4, padding: "10px 24px", transform: "rotate(-2deg)", textTransform: "uppercase", boxShadow: "0 12px 24px rgba(22,65,236,.26)" }}>☀ Guia de Agosto</div>
             <div style={{ marginTop: 46, fontSize: 96, fontWeight: 900, lineHeight: 1.04, letterSpacing: -2 }}>
               <span style={{ color: ORANGE }}>4</span> propostas para enviar em{" "}
               <span style={{ color: ORANGE, position: "relative" }}>AGOSTO<span style={{ position: "absolute", left: 0, right: 0, bottom: -8, height: 10, borderRadius: 999, background: ORANGE }} /></span>
@@ -219,7 +219,7 @@ export const CarrosselAgosto: React.FC<AgostoProps> = ({ indice }) => {
             <div style={{ marginTop: 36, fontSize: 32, fontWeight: 600, color: MUT, maxWidth: 740 }}>
               E <b style={{ color: INK, fontWeight: 900 }}>salva</b> esse carrossel pra usar o mês todo como guia.
             </div>
-            <div style={{ marginTop: 34, display: "inline-flex", alignItems: "center", gap: 14, background: ORANGE, color: "#fff", fontWeight: 900, fontSize: 42, padding: "20px 46px", borderRadius: 999, transform: "rotate(-1.5deg)", boxShadow: "0 16px 32px rgba(244,84,30,.32)" }}>
+            <div style={{ marginTop: 34, display: "inline-flex", alignItems: "center", gap: 14, background: ORANGE, color: "#fff", fontWeight: 900, fontSize: 42, padding: "20px 46px", borderRadius: 999, transform: "rotate(-1.5deg)", boxShadow: "0 16px 32px rgba(22,65,236,.32)" }}>
               <svg width={34} height={34} viewBox="0 0 24 24" fill="none"><path d="M4 4h16v12H8l-4 4V4z" fill="#fff" /><circle cx="9" cy="10" r="1.3" fill={ORANGE} /><circle cx="12.5" cy="10" r="1.3" fill={ORANGE} /><circle cx="16" cy="10" r="1.3" fill={ORANGE} /></svg>
               AGOSTO
             </div>

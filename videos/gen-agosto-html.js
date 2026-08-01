@@ -4,7 +4,7 @@ const fs = require("fs");
 const RAW =
   "https://raw.githubusercontent.com/eilaradam/site-creators/refs/heads/claude/remotion-video-setup-gn5dhb/videos/public/agosto/";
 
-const CREME = "#EFE9DF", INK = "#2B2622", ORANGE = "#F4541E", AZUL = "#0C40ED", MUT = "#928777", SOFT = "#F8E7DD";
+const CREME = "#EFE9DF", INK = "#2B2622", ORANGE = "#1641EC", AZUL = "#1641EC", MUT = "#928777", SOFT = "#E7ECFD";
 
 const CARDS = [
   {
