@@ -6,6 +6,7 @@ import { CarrosselJulho, julhoSchema } from "./CarrosselJulho";
 import { CarrosselJulhoEstilos, julhoEstilosSchema } from "./CarrosselJulhoEstilos";
 import { LogoCreators, logoSchema } from "./LogoCreators";
 import { FraseConexao, fraseSchema } from "./FraseConexao";
+import { CarrosselAgosto, agostoSchema } from "./CarrosselAgosto";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -110,6 +111,18 @@ export const RemotionRoot: React.FC = () => {
         height={1920}
         schema={fraseSchema}
         defaultProps={{ variante: 1, fundo: "#00E100" }}
+      />
+
+      {/* Carrossel de AGOSTO — 1080x1350, 7 lâminas (capa, 5 datas, CTA) */}
+      <Composition
+        id="CarrosselAgosto"
+        component={CarrosselAgosto}
+        durationInFrames={1}
+        fps={30}
+        width={1080}
+        height={1350}
+        schema={agostoSchema}
+        defaultProps={{ indice: 0 }}
       />
     </>
   );
