@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking de creators · Campanha | Lara Dam</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.98.0" integrity="sha384-Sm2s7OXxsAMTyJ4iIyRBgVpeGUvMPk2lRQnnZhE78Wej7oggIoolKt+SCt0XJbUB" crossorigin="anonymous"></script>
+    <style>
+        :root { --cream:#F5F3EF; --warm:#E8E4DD; --accent:#D4572A; --accent-dark:#B8461F; --accent-glow:rgba(212,87,42,0.12); --text:#1A1816; --text-soft:#6B645C; --text-muted:#9C958C; --border:#DDD8D0; --card:#FFFFFF; --gold:#C9962B; --silver:#8D8D93; --bronze:#B07A47; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Outfit',sans-serif; background:var(--cream); color:var(--text); -webkit-font-smoothing:antialiased; padding:30px 18px 70px; }
+        .wrap { max-width:820px; margin:0 auto; }
+        .topbar { display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:22px; }
+        .brand { font-family:'Fraunces',serif; font-weight:700; font-size:22px; color:var(--text); text-decoration:none; }
+        .brand span { color:var(--accent); }
+        .live { display:flex; align-items:center; gap:7px; font-size:12px; color:var(--text-muted); }
+        .dot { width:8px; height:8px; border-radius:50%; background:#2D7A4F; }
+        .hero { margin-bottom:8px; }
+        .eyebrow { font-size:12.5px; font-weight:700; letter-spacing:1.4px; text-transform:uppercase; color:var(--accent); margin-bottom:8px; }
+        h1 { font-family:'Fraunces',serif; font-size:34px; font-weight:700; letter-spacing:-0.6px; line-height:1.08; margin-bottom:10px; }
+        .sub { color:var(--text-soft); font-size:15px; max-width:60ch; line-height:1.5; }
+        .stats { display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 8px; }
+        .stat { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:12px 18px; flex:1; min-width:130px; }
+        .stat .num { font-family:'Fraunces',serif; font-size:26px; font-weight:700; color:var(--text); line-height:1; }
+        .stat .lbl { font-size:12px; color:var(--text-muted); margin-top:5px; }
+        .legend { font-size:12.5px; color:var(--text-muted); margin:16px 0 20px; display:flex; align-items:center; gap:7px; }
+        .legend b { color:var(--text-soft); font-weight:600; }
+
+        .card { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:16px 18px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,0.03); display:flex; gap:14px; align-items:center; transition:box-shadow .18s, transform .18s; }
+        .card:hover { box-shadow:0 6px 20px rgba(0,0,0,0.07); transform:translateY(-1px); }
+        .card.top { border-color:rgba(201,150,43,0.5); box-shadow:0 3px 16px rgba(201,150,43,0.12); }
+        .rank { flex-shrink:0; width:40px; text-align:center; font-family:'Fraunces',serif; font-weight:700; font-size:22px; color:var(--text-muted); }
+        .rank .medal { font-size:26px; }
+        .avatar-wrap { position:relative; width:60px; height:60px; flex-shrink:0; }
+        .avatar-ph { position:absolute; inset:0; border-radius:50%; background:var(--accent-glow); color:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:20px; font-family:'Fraunces',serif; }
+        .avatar { position:absolute; inset:0; width:100%; height:100%; border-radius:50%; object-fit:cover; border:2px solid var(--warm); }
+        .info { flex:1; min-width:0; }
+        .nome { font-size:17px; font-weight:800; color:var(--text); line-height:1.2; }
+        .handle { font-size:13.5px; margin-top:2px; }
+        .handle a { color:var(--accent); font-weight:600; text-decoration:none; }
+        .handle a:hover { text-decoration:underline; }
+        .meta-line { font-size:12.5px; color:var(--text-muted); margin-top:5px; display:flex; flex-wrap:wrap; gap:6px 12px; align-items:center; }
+        .tag { display:inline-block; font-size:11px; font-weight:700; padding:2px 9px; border-radius:100px; background:var(--accent-glow); color:var(--accent); }
+        .tag.soft { background:rgba(0,0,0,0.05); color:var(--text-soft); }
+        .metrics { flex-shrink:0; display:flex; gap:8px; }
+        .m { text-align:center; min-width:62px; padding:8px 6px; border-radius:12px; background:var(--cream); }
+        .m.hl { background:var(--accent-glow); }
+        .m .mv { font-family:'Fraunces',serif; font-weight:700; font-size:17px; color:var(--text); line-height:1; }
+        .m.hl .mv { color:var(--accent-dark); }
+        .m .ml { font-size:10px; color:var(--text-muted); margin-top:4px; text-transform:uppercase; letter-spacing:.4px; }
+        .port { font-size:12.5px; }
+        .port a { color:var(--accent); font-weight:600; text-decoration:none; }
+
+        .divider { display:flex; align-items:center; gap:12px; margin:30px 0 16px; color:var(--text-muted); font-size:12.5px; font-weight:600; }
+        .divider::before, .divider::after { content:''; height:1px; background:var(--border); flex:1; }
+        .card.nodata { opacity:.92; }
+        .card.nodata .metrics { opacity:.6; }
+        .nd-note { font-size:12px; color:var(--text-muted); font-style:italic; }
+
+        .empty, .msg { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:44px 24px; text-align:center; color:var(--text-muted); font-size:15px; }
+        .foot { text-align:center; color:var(--text-muted); font-size:12px; margin-top:30px; line-height:1.6; }
+        @media (max-width:680px){
+            h1 { font-size:27px; }
+            .card { flex-wrap:wrap; }
+            .metrics { width:100%; order:5; justify-content:space-between; gap:6px; }
+            .m { flex:1; }
+            .rank { width:32px; font-size:19px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="topbar">
+            <a class="brand" href="#">lara<span>.</span>dam</a>
+            <div class="live" id="live" style="visibility:hidden;"><span class="dot"></span><span id="liveTxt">métricas do Instagram</span></div>
+        </div>
+
+        <div class="hero">
+            <div class="eyebrow" id="eyebrow">Seleção de creators</div>
+            <h1 id="titulo">Ranking de engajamento</h1>
+            <div class="sub" id="sub">Carregando as métricas do Instagram...</div>
+        </div>
+
+        <div class="stats" id="stats"></div>
+        <div class="legend" id="legend"></div>
+        <div id="list"></div>
+        <div class="foot" id="foot"></div>
+    </div>
+
+<script>
+    const SUPABASE_URL = 'https://mfrmnquvwwuxraqgemyh.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mcm1ucXV2d3d1eHJhcWdlbXloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNDI1NDIsImV4cCI6MjA4NzYxODU0Mn0.zmsi08dV5L1IlXJSr34vOii71w0g0OsD5_5DKio5g-o';
+    let sb = null;
+    try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch (e) {}
+
+    const params = new URLSearchParams(window.location.search);
+    const campanha = (params.get('c') || 'decoracao').toLowerCase();
+    const token = params.get('k') || '';
+    const NOMES = { flores: 'Campanha de Flores', pais: 'Campanha Pais Creators', decoracao: 'Casa & Decoração', fiv: 'Campanha FIV & Congelamento' };
+
+    function esc(s) { return (s == null ? '' : String(s)).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+    function urlify(u) { if (!u) return ''; const s = String(u).trim(); return /^https?:\/\//i.test(s) ? s : 'https://' + s; }
+    function fmtFull(n) { return (n == null || isNaN(n)) ? '-' : Number(n).toLocaleString('pt-BR'); }
+    function fmtCompact(n) {
+        if (n == null || isNaN(n)) return '-';
+        n = Number(n);
+        if (n >= 1000000) return (n / 1000000).toFixed(n % 1000000 === 0 ? 0 : 1).replace('.', ',') + ' mi';
+        if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace('.', ',').replace(',0', '') + ' mil';
+        return String(n);
+    }
+    function fmtDate(iso) { try { return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }); } catch (e) { return ''; } }
+    function initials(nome) { return ((nome || '?').trim().split(/\s+/).slice(0, 2).map(w => (w[0] || '')).join('').toUpperCase()) || '?'; }
+    const AFIL = { sim: 'Já faz afiliado', as_vezes: 'Faz afiliado às vezes' };
+
+    document.getElementById('titulo').textContent = NOMES[campanha] || 'Ranking de creators';
+    document.getElementById('eyebrow').textContent = 'Creators inscritas · ranking de engajamento';
+
+    function medal(i) {
+        if (i === 0) return '<span class="medal">🥇</span>';
+        if (i === 1) return '<span class="medal">🥈</span>';
+        if (i === 2) return '<span class="medal">🥉</span>';
+        return (i + 1) + 'º';
+    }
+
+    function metricTile(val, label, hl) {
+        return '<div class="m' + (hl ? ' hl' : '') + '"><div class="mv">' + val + '</div><div class="ml">' + label + '</div></div>';
+    }
+
+    function cardLive(r, i) {
+        const ig = (r.instagram || '').replace(/^@+/, '').replace(/\s+/g, '');
+        const av = '<div class="avatar-wrap"><div class="avatar-ph">' + esc(initials(r.nome)) + '</div>' +
+            (r.foto ? '<img class="avatar" src="' + esc(r.foto) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">' : '') + '</div>';
+        const afil = r.ja_afiliado && AFIL[r.ja_afiliado] ? '<span class="tag">' + AFIL[r.ja_afiliado] + '</span>' : '';
+        const cidade = r.cidade ? '<span>📍 ' + esc(r.cidade) + '</span>' : '';
+        const port = r.portfolio ? '<span class="port">· <a href="' + esc(urlify(r.portfolio)) + '" target="_blank" rel="noopener">portfólio ↗</a></span>' : '';
+        const metrics =
+            metricTile(fmtCompact(r.avg_likes), 'curtidas', true) +
+            metricTile(fmtCompact(r.avg_comments), 'coment.', false) +
+            metricTile(fmtCompact(r.followers), 'seguidores', false) +
+            metricTile((r.engagement_rate != null ? String(r.engagement_rate).replace('.', ',') + '%' : '-'), 'engaj.', false);
+        return '<div class="card' + (i < 3 ? ' top' : '') + '">' +
+            '<div class="rank">' + medal(i) + '</div>' + av +
+            '<div class="info"><div class="nome">' + esc(r.nome || '(sem nome)') + '</div>' +
+            '<div class="handle"><a href="https://instagram.com/' + encodeURIComponent(ig) + '" target="_blank" rel="noopener">@' + esc(ig) + '</a></div>' +
+            '<div class="meta-line">' + cidade + afil + port + '</div></div>' +
+            '<div class="metrics">' + metrics + '</div></div>';
+    }
+
+    function cardNoData(r) {
+        const ig = (r.instagram || '').replace(/^@+/, '').replace(/\s+/g, '');
+        const av = '<div class="avatar-wrap"><div class="avatar-ph">' + esc(initials(r.nome)) + '</div>' +
+            (r.foto ? '<img class="avatar" src="' + esc(r.foto) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">' : '') + '</div>';
+        const decl = r.seguidores_declarado ? fmtCompact(parseInt(String(r.seguidores_declarado).replace(/\D/g, ''), 10)) : '-';
+        const cidade = r.cidade ? '<span>📍 ' + esc(r.cidade) + '</span>' : '';
+        const port = r.portfolio ? '<span class="port">· <a href="' + esc(urlify(r.portfolio)) + '" target="_blank" rel="noopener">portfólio ↗</a></span>' : '';
+        return '<div class="card nodata">' +
+            '<div class="rank">–</div>' + av +
+            '<div class="info"><div class="nome">' + esc(r.nome || '(sem nome)') + '</div>' +
+            '<div class="handle"><a href="https://instagram.com/' + encodeURIComponent(ig) + '" target="_blank" rel="noopener">@' + esc(ig) + '</a></div>' +
+            '<div class="meta-line">' + cidade + port + '<span class="nd-note">métrica ao vivo indisponível (conta pessoal ou privada)</span></div></div>' +
+            '<div class="metrics">' + metricTile(decl, 'declarou', false) + '</div></div>';
+    }
+
+    async function carregar() {
+        const sub = document.getElementById('sub'), list = document.getElementById('list');
+        if (!sb) { sub.textContent = ''; list.innerHTML = '<div class="msg">Erro de conexão. Recarregue a página.</div>'; return; }
+        if (!token) { sub.textContent = ''; list.innerHTML = '<div class="msg">Link inválido. Peça o link completo pra Lara. 💛</div>'; return; }
+        const { data, error } = await sb.rpc('campanha_ranking', { p_campanha: campanha, p_token: token });
+        if (error) { list.innerHTML = '<div class="msg">Não consegui carregar agora. Tente recarregar.</div>'; return; }
+        const rows = data || [];
+        if (!rows.length) { sub.textContent = ''; list.innerHTML = '<div class="msg">Link inválido ou campanha sem inscritas. Peça o link pra Lara. 💛</div>'; return; }
+
+        const live = rows.filter(r => r.status === 'ok' && r.avg_likes != null);
+        const nodata = rows.filter(r => !(r.status === 'ok' && r.avg_likes != null));
+        const totalSeg = live.reduce((s, r) => s + (r.followers || 0), 0);
+        const topLikes = live.length ? live[0].avg_likes : 0;
+        const atualizado = live.map(r => r.atualizado).filter(Boolean).sort().pop();
+
+        sub.textContent = 'Selecionei estas creators pela campanha e ranqueei da mais engajada pra menos, usando a média de curtidas dos posts recentes de cada perfil (direto da API do Instagram).';
+
+        document.getElementById('stats').innerHTML =
+            '<div class="stat"><div class="num">' + rows.length + '</div><div class="lbl">creators inscritas</div></div>' +
+            '<div class="stat"><div class="num">' + live.length + '</div><div class="lbl">com métrica ao vivo</div></div>' +
+            '<div class="stat"><div class="num">' + fmtCompact(topLikes) + '</div><div class="lbl">maior média de curtidas</div></div>' +
+            '<div class="stat"><div class="num">' + fmtCompact(live.length ? Math.round(totalSeg / live.length) : 0) + '</div><div class="lbl">média de seguidores</div></div>';
+
+        document.getElementById('legend').innerHTML = '⭐ <b>Ranqueado por média de curtidas</b> nos posts recentes. Engaj. = (curtidas + comentários) ÷ seguidores.';
+
+        let html = live.map((r, i) => cardLive(r, i)).join('');
+        if (nodata.length) {
+            html += '<div class="divider">Sem métrica ao vivo · ' + nodata.length + ' creator' + (nodata.length > 1 ? 's' : '') + '</div>';
+            html += nodata.map(cardNoData).join('');
+        }
+        list.innerHTML = html;
+
+        document.getElementById('foot').innerHTML = 'Métricas públicas do Instagram' + (atualizado ? ', atualizadas em ' + fmtDate(atualizado) : '') + '.<br>Ranking preparado por Lara Dam 💛';
+        const el = document.getElementById('live');
+        el.style.visibility = 'visible';
+        document.getElementById('liveTxt').textContent = 'métricas do Instagram';
+    }
+    carregar();
+</script>
+</body>
+</html>
