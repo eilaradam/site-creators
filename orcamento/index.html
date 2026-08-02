@@ -54,17 +54,22 @@
         .why p { font-size:14.5px; color:var(--accent-dark); line-height:1.6; }
         .why b { font-weight:800; }
 
-        .packs { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; align-items:start; }
-        .pack { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:22px 20px; position:relative; }
-        .pack.feat { border:2px solid var(--accent); box-shadow:0 8px 28px rgba(212,87,42,0.14); }
-        .pack .flag { position:absolute; top:-11px; left:20px; background:var(--accent); color:#fff; font-size:11px; font-weight:800; letter-spacing:.4px; padding:4px 12px; border-radius:100px; text-transform:uppercase; }
-        .pack .pn { font-family:'Fraunces',serif; font-size:19px; font-weight:700; margin-bottom:4px; }
-        .pack .pp { font-family:'Fraunces',serif; font-size:31px; font-weight:700; color:var(--accent-dark); line-height:1; margin:8px 0 2px; }
-        .pack .psuf { font-size:12px; color:var(--text-muted); margin-bottom:16px; }
-        .pack ul { list-style:none; }
-        .pack li { font-size:13px; color:var(--text-soft); line-height:1.4; padding:7px 0 7px 22px; position:relative; border-top:1px solid var(--border); }
-        .pack li:first-child { border-top:none; }
-        .pack li::before { content:'✓'; position:absolute; left:0; color:var(--accent); font-weight:800; }
+        .offer { background:var(--card); border:2px solid var(--accent); border-radius:20px; overflow:hidden; box-shadow:0 8px 30px rgba(212,87,42,0.12); display:grid; grid-template-columns:1.35fr 1fr; }
+        .offer-left { padding:26px 26px; }
+        .offer-title { font-family:'Fraunces',serif; font-size:22px; font-weight:700; margin-bottom:4px; }
+        .offer-sub { font-size:13.5px; color:var(--text-muted); margin-bottom:16px; }
+        .incl { list-style:none; column-count:1; }
+        .incl li { font-size:13.5px; color:var(--text-soft); line-height:1.4; padding:6px 0 6px 24px; position:relative; }
+        .incl li::before { content:'✓'; position:absolute; left:0; color:var(--accent); font-weight:800; }
+        .offer-right { background:var(--ink); color:#fff; padding:30px 24px; display:flex; flex-direction:column; justify-content:center; text-align:center; }
+        .price-anchor { font-size:14px; color:#B9B1A9; margin-bottom:2px; }
+        .price-anchor s { color:#E8B9A6; }
+        .price-main { font-family:'Fraunces',serif; font-size:44px; font-weight:700; color:#fff; line-height:1; }
+        .price-main span { font-size:.4em; color:#C9C1B9; font-weight:400; }
+        .price-div { height:1px; background:rgba(255,255,255,0.15); margin:18px 6px; }
+        .price-total-l { font-size:12.5px; color:#B9B1A9; }
+        .price-total { font-family:'Fraunces',serif; font-size:34px; font-weight:700; color:#fff; line-height:1.1; }
+        .price-note { display:inline-block; margin-top:12px; font-size:11px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--accent); background:var(--accent-glow); padding:5px 12px; border-radius:100px; }
 
         .model-note { font-size:13px; color:var(--text-muted); margin-top:16px; line-height:1.6; background:var(--card); border:1px dashed var(--border); border-radius:12px; padding:14px 16px; }
         .model-note b { color:var(--text-soft); }
@@ -76,7 +81,7 @@
         .cta:hover { transform:translateY(-2px); }
         .foot { text-align:center; color:var(--text-muted); font-size:12px; margin-top:30px; }
 
-        @media (max-width:760px){ .band{ grid-template-columns:repeat(2,1fr); } .packs{ grid-template-columns:1fr; } }
+        @media (max-width:760px){ .band{ grid-template-columns:repeat(2,1fr); } .offer{ grid-template-columns:1fr; } }
     </style>
 </head>
 <body>
@@ -117,8 +122,8 @@
 
         <div class="sec">
             <h2>Investimento</h2>
-            <div class="desc">Como é campanha de afiliados, as creators ganham por comissão de venda, direto do seu programa. Você investe só na gestão. Escolha o nível de acompanhamento:</div>
-            <div class="packs" id="packs"></div>
+            <div class="desc">Como é campanha de afiliados, as creators ganham por comissão de venda, direto do seu programa. Você investe só na minha gestão completa, do recrutamento ao relatório final:</div>
+            <div class="offer" id="offer"></div>
             <div class="model-note" id="modelNote"></div>
         </div>
 
@@ -131,30 +136,25 @@
     </div>
 
 <script>
-    // ===== NUMEROS DA PROPOSTA (edite aqui pra mudar preco/pacotes) =====
-    const N_CREATORS = 50;
+    // ===== NUMEROS DA PROPOSTA (edite aqui pra mudar preco) =====
+    const N_CREATORS = 50;               // quantos creators a campanha quer
+    const PRECO_POR_CREATOR = 80;        // valor cobrado NESTA campanha
+    const PRECO_NORMAL = 120;            // valor de tabela (ancora de desconto)
     const WHATSAPP = '5512988729264';
-    const PACOTES = [
-        { nome:'Essencial', preco:6000, sufixo:'setup único', feat:false, itens:[
-            'Recrutamento e seleção dos 50 creators',
-            'Curadoria pelas métricas reais de engajamento',
-            'Onboarding no seu programa de afiliados',
-            'Kit de briefing (o que postar, como marcar, link)',
-            'Lista final com perfis e contatos' ] },
-        { nome:'Completo', preco:12000, sufixo:'campanha de 2 meses', feat:true, itens:[
-            'Tudo do Essencial',
-            'Grupo de gestão com as 50 creators',
-            'Acompanhamento e cobrança das postagens',
-            'Reposição de quem não postar',
-            '1 relatório de performance da campanha' ] },
-        { nome:'Premium', preco:18000, sufixo:'campanha de 2 meses', feat:false, itens:[
-            'Tudo do Completo',
-            'Relatórios quinzenais de alcance e vendas',
-            'Curadoria e aprovação de conteúdo',
-            'Otimização contínua da campanha',
-            'Reunião de resultados ao vivo' ] },
+    const INCLUSO = [
+        'Recrutamento e seleção dos creators',
+        'Curadoria pelas métricas reais de engajamento',
+        'Onboarding no programa de afiliados',
+        'Kit de briefing (o que postar, como marcar, link)',
+        'Lista final com perfis e contatos',
+        'Grupo no WhatsApp com todas as creators',
+        'Acompanhamento e cobrança de postagem',
+        'Reposição de quem não postar',
+        'Relatório de performance',
+        'Curadoria e aprovação de conteúdo',
+        'Reunião de resultados',
     ];
-    // ====================================================================
+    // ============================================================
 
     const SUPABASE_URL = 'https://mfrmnquvwwuxraqgemyh.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mcm1ucXV2d3d1eHJhcWdlbXloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNDI1NDIsImV4cCI6MjA4NzYxODU0Mn0.zmsi08dV5L1IlXJSr34vOii71w0g0OsD5_5DKio5g-o';
@@ -187,19 +187,28 @@
     const msg = 'Oi Lara! Vi a proposta da campanha de decoração' + (cliente ? ' (' + cliente + ')' : '') + ' e quero seguir.';
     document.getElementById('cta').href = 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg);
 
-    function renderPacotes() {
-        document.getElementById('packs').innerHTML = PACOTES.map(p =>
-            '<div class="pack' + (p.feat ? ' feat' : '') + '">' + (p.feat ? '<div class="flag">Mais escolhido</div>' : '') +
-            '<div class="pn">' + esc(p.nome) + '</div>' +
-            '<div class="pp">' + fmtReais(p.preco) + '</div>' +
-            '<div class="psuf">' + esc(p.sufixo) + '</div>' +
-            '<ul>' + p.itens.map(i => '<li>' + esc(i) + '</li>').join('') + '</ul></div>'
-        ).join('');
-        document.getElementById('modelNote').innerHTML = '<b>Como funciona o pagamento das creators:</b> elas entram no programa de afiliados da marca e ganham comissão por venda que gerarem. O valor acima é só da minha gestão. Assim o custo da marca é previsível e o resto é performance.';
+    function renderInvestimento(nCreators) {
+        const n = nCreators || N_CREATORS;
+        const total = n * PRECO_POR_CREATOR;
+        document.getElementById('offer').innerHTML =
+            '<div class="offer-left">' +
+                '<div class="offer-title">Gestão completa da campanha</div>' +
+                '<div class="offer-sub">Tudo incluso, do recrutamento ao relatório final:</div>' +
+                '<ul class="incl">' + INCLUSO.map(i => '<li>' + esc(i) + '</li>').join('') + '</ul>' +
+            '</div>' +
+            '<div class="offer-right">' +
+                '<div class="price-anchor">de <s>' + fmtReais(PRECO_NORMAL) + '</s> por creator</div>' +
+                '<div class="price-main">' + fmtReais(PRECO_POR_CREATOR) + '<span> /creator</span></div>' +
+                '<div class="price-div"></div>' +
+                '<div class="price-total-l">' + n + ' creators, total</div>' +
+                '<div class="price-total">' + fmtReais(total) + '</div>' +
+                '<div class="price-note">valor especial desta campanha</div>' +
+            '</div>';
+        document.getElementById('modelNote').innerHTML = '<b>Como funciona o pagamento das creators:</b> elas entram no programa de afiliados da marca e ganham comissão por venda que gerarem. O valor acima é só da minha gestão, então o custo da marca é previsível e o resto é performance.';
     }
 
     async function carregar() {
-        renderPacotes();
+        renderInvestimento(N_CREATORS);
         if (!sb || !token) return;
         const { data } = await sb.rpc('campanha_ranking', { p_campanha: campanha, p_token: token });
         const rows = (data || []).filter(r => r.status === 'ok' && r.avg_likes != null).sort((a, b) => b.avg_likes - a.avg_likes);
