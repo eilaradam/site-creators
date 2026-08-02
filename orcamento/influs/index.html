@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proposta · Campanha | Lara Dam</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.98.0" integrity="sha384-Sm2s7OXxsAMTyJ4iIyRBgVpeGUvMPk2lRQnnZhE78Wej7oggIoolKt+SCt0XJbUB" crossorigin="anonymous"></script>
+    <style>
+        :root { --cream:#F5F3EF; --warm:#E8E4DD; --accent:#D4572A; --accent-dark:#B8461F; --accent-glow:rgba(212,87,42,0.12); --text:#1A1816; --text-soft:#6B645C; --text-muted:#9C958C; --border:#DDD8D0; --card:#FFFFFF; --ink:#221E1B; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Outfit',sans-serif; background:var(--cream); color:var(--text); -webkit-font-smoothing:antialiased; }
+        .wrap { max-width:880px; margin:0 auto; padding:34px 20px 80px; }
+        .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:40px; }
+        .brand { font-family:'Fraunces',serif; font-weight:700; font-size:22px; color:var(--text); text-decoration:none; }
+        .brand span { color:var(--accent); }
+        .topbar .who { font-size:12.5px; color:var(--text-muted); text-align:right; }
+
+        .eyebrow { font-size:12.5px; font-weight:700; letter-spacing:1.6px; text-transform:uppercase; color:var(--accent); margin-bottom:12px; }
+        h1 { font-family:'Fraunces',serif; font-size:clamp(34px,6vw,52px); font-weight:700; letter-spacing:-1px; line-height:1.02; margin-bottom:16px; }
+        h1 em { color:var(--accent); font-style:italic; }
+        .lead { font-size:17px; color:var(--text-soft); line-height:1.55; max-width:60ch; }
+        .para-quem { margin-top:18px; font-size:14px; color:var(--text-muted); }
+        .para-quem b { color:var(--text); font-weight:700; }
+
+        .band { background:var(--ink); border-radius:22px; padding:30px 26px; margin:38px 0; display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
+        .band .st { color:#fff; }
+        .band .st .n { font-family:'Fraunces',serif; font-size:clamp(26px,4.5vw,38px); font-weight:700; line-height:1; }
+        .band .st .n .u { font-size:.5em; color:#E8B9A6; margin-left:2px; }
+        .band .st .l { font-size:12px; color:#B9B1A9; margin-top:8px; line-height:1.3; }
+
+        .sec { margin:52px 0; }
+        .sec h2 { font-family:'Fraunces',serif; font-size:27px; font-weight:700; letter-spacing:-0.4px; margin-bottom:8px; }
+        .sec .desc { color:var(--text-soft); font-size:15px; line-height:1.55; max-width:64ch; margin-bottom:22px; }
+
+        .creators-strip { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; }
+        .mini { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:12px; text-align:center; }
+        .mini .av { width:52px; height:52px; border-radius:50%; margin:0 auto 8px; background:var(--accent-glow); background-size:cover; background-position:center; border:2px solid var(--warm); display:flex; align-items:center; justify-content:center; font-family:'Fraunces',serif; font-weight:800; color:var(--accent); }
+        .mini .mh { font-size:12.5px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .mini .mm { font-size:11px; color:var(--text-muted); margin-top:3px; }
+        .verlink { display:inline-block; margin-top:18px; font-size:14px; font-weight:700; color:var(--accent); text-decoration:none; border-bottom:2px solid var(--accent-glow); padding-bottom:2px; }
+
+        .steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; }
+        .step { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:18px; }
+        .step .num { font-family:'Fraunces',serif; font-size:15px; font-weight:700; color:#fff; background:var(--accent); width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:12px; }
+        .step h3 { font-size:15px; font-weight:800; margin-bottom:5px; }
+        .step p { font-size:13px; color:var(--text-soft); line-height:1.5; }
+
+        .why { background:var(--accent-glow); border-radius:18px; padding:22px 24px; margin-top:22px; }
+        .why p { font-size:14.5px; color:var(--accent-dark); line-height:1.6; }
+        .why b { font-weight:800; }
+
+        .offer { background:var(--card); border:2px solid var(--accent); border-radius:20px; overflow:hidden; box-shadow:0 8px 30px rgba(212,87,42,0.12); display:grid; grid-template-columns:1.35fr 1fr; }
+        .offer-left { padding:26px 26px; }
+        .offer-title { font-family:'Fraunces',serif; font-size:22px; font-weight:700; margin-bottom:4px; }
+        .offer-sub { font-size:13.5px; color:var(--text-muted); margin-bottom:16px; }
+        .incl { list-style:none; column-count:1; }
+        .incl li { font-size:13.5px; color:var(--text-soft); line-height:1.4; padding:6px 0 6px 24px; position:relative; }
+        .incl li::before { content:'✓'; position:absolute; left:0; color:var(--accent); font-weight:800; }
+        .offer-right { background:var(--ink); color:#fff; padding:30px 24px; display:flex; flex-direction:column; justify-content:center; text-align:center; }
+        .price-anchor { font-size:14px; color:#B9B1A9; margin-bottom:2px; }
+        .price-anchor s { color:#E8B9A6; }
+        .price-main { font-family:'Fraunces',serif; font-size:44px; font-weight:700; color:#fff; line-height:1; }
+        .price-main span { font-size:.4em; color:#C9C1B9; font-weight:400; }
+        .price-div { height:1px; background:rgba(255,255,255,0.15); margin:18px 6px; }
+        .price-total-l { font-size:12.5px; color:#B9B1A9; }
+        .price-total { font-family:'Fraunces',serif; font-size:34px; font-weight:700; color:#fff; line-height:1.1; }
+        .price-note { display:inline-block; margin-top:12px; font-size:11px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--accent); background:var(--accent-glow); padding:5px 12px; border-radius:100px; }
+
+        .model-note { font-size:13px; color:var(--text-muted); margin-top:16px; line-height:1.6; background:var(--card); border:1px dashed var(--border); border-radius:12px; padding:14px 16px; }
+        .model-note b { color:var(--text-soft); }
+
+        .close { background:var(--ink); border-radius:22px; padding:38px 30px; text-align:center; margin-top:52px; color:#fff; }
+        .close h2 { font-family:'Fraunces',serif; color:#fff; font-size:28px; margin-bottom:10px; }
+        .close p { color:#C9C1B9; font-size:15px; max-width:48ch; margin:0 auto 22px; line-height:1.55; }
+        .cta { display:inline-block; background:var(--accent); color:#fff; font-weight:700; font-size:16px; padding:15px 32px; border-radius:100px; text-decoration:none; transition:transform .15s; }
+        .cta:hover { transform:translateY(-2px); }
+        .foot { text-align:center; color:var(--text-muted); font-size:12px; margin-top:30px; }
+
+        @media (max-width:760px){ .band{ grid-template-columns:repeat(2,1fr); } .offer{ grid-template-columns:1fr; } }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="topbar">
+            <a class="brand" href="#">lara<span>.</span>dam</a>
+            <div class="who" id="who"></div>
+        </div>
+
+        <div class="eyebrow">Proposta de campanha · Casa &amp; Decoração</div>
+        <h1>50 creators certas pra <em>vender de verdade</em>.</h1>
+        <div class="lead" id="lead">Uma seleção de 50 criadoras escolhidas pelo engajamento real, não pelo número de seguidores, pra divulgar seus produtos de casa e decoração no modelo de afiliados.</div>
+        <div class="para-quem" id="paraQuem"></div>
+
+        <div class="band" id="band"></div>
+
+        <div class="sec">
+            <h2>Não é achismo. É dado.</h2>
+            <div class="desc">Cada creator dessa lista foi puxada direto da API do Instagram: seguidores reais, curtidas e comentários médios dos posts recentes. Ranqueei da mais engajada pra menos e selecionei as 50 melhores pra sua campanha.</div>
+            <div class="creators-strip" id="strip"></div>
+            <a class="verlink" id="verRanking" href="#" target="_blank">Ver o ranking completo das creators, com as métricas de cada uma ↗</a>
+            <div class="why">
+                <p><b>Por que micro e nano creators?</b> Elas convertem mais. O engajamento médio dessa seleção é <b id="whyEng">quase 3x</b> o de perfis grandes, e a audiência confia mais em quem parece próximo. Pra venda por afiliado, isso é o que importa.</p>
+            </div>
+        </div>
+
+        <div class="sec">
+            <h2>Como funciona</h2>
+            <div class="desc">Você não se preocupa com nada da operação. Eu cuido de ponta a ponta.</div>
+            <div class="steps">
+                <div class="step"><div class="num">1</div><h3>Recrutamento</h3><p>Trago creators de casa e decoração da minha base e por campanha aberta.</p></div>
+                <div class="step"><div class="num">2</div><h3>Curadoria</h3><p>Seleciono as 50 pelas métricas reais de engajamento, não pelo tamanho.</p></div>
+                <div class="step"><div class="num">3</div><h3>Onboarding</h3><p>Coloco cada uma no seu programa de afiliados com link e briefing prontos.</p></div>
+                <div class="step"><div class="num">4</div><h3>Gestão</h3><p>Acompanho as postagens, cobro entregas e mantenho o grupo ativo.</p></div>
+                <div class="step"><div class="num">5</div><h3>Resultado</h3><p>Você recebe relatório de alcance, conteúdo publicado e performance.</p></div>
+            </div>
+        </div>
+
+        <div class="sec">
+            <h2>Investimento</h2>
+            <div class="desc">Como é campanha de afiliados, as creators ganham por comissão de venda, direto do seu programa. Você investe só na minha gestão completa, do recrutamento ao relatório final:</div>
+            <div class="offer" id="offer"></div>
+            <div class="model-note" id="modelNote"></div>
+        </div>
+
+        <div class="close">
+            <h2>Bora fazer acontecer?</h2>
+            <p>Me chama que a gente fecha os detalhes e eu já começo o recrutamento da sua campanha.</p>
+            <a class="cta" id="cta" href="#" target="_blank">Falar com a Lara no WhatsApp</a>
+        </div>
+        <div class="foot" id="foot">Métricas públicas do Instagram. Proposta preparada por Lara Dam.</div>
+    </div>
+
+<script>
+    // ===== NUMEROS DA PROPOSTA (edite aqui pra mudar preco) =====
+    const N_CREATORS = 50;               // quantos creators a campanha quer
+    const PRECO_POR_CREATOR = 80;        // valor cobrado NESTA campanha
+    const PRECO_NORMAL = 120;            // valor de tabela (ancora de desconto)
+    const WHATSAPP = '5512988729264';
+    const INCLUSO = [
+        'Recrutamento e seleção dos creators',
+        'Curadoria pelas métricas reais de engajamento',
+        'Onboarding no programa de afiliados',
+        'Kit de briefing (o que postar, como marcar, link)',
+        'Lista final com perfis e contatos',
+        'Grupo no WhatsApp com todas as creators',
+        'Acompanhamento e cobrança de postagem',
+        'Reposição de quem não postar',
+        'Relatório de performance',
+        'Curadoria e aprovação de conteúdo',
+        'Reunião de resultados',
+    ];
+    // Link curto: campanha e token embutidos (a URL fica so /orcamento/influs/).
+    const CAMPANHA_FIXA = 'decoracao';
+    const TOKEN_FIXO = '24c0cb1d056231fd9e56f316cd7a4da4';
+    // ============================================================
+
+    const SUPABASE_URL = 'https://mfrmnquvwwuxraqgemyh.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mcm1ucXV2d3d1eHJhcWdlbXloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNDI1NDIsImV4cCI6MjA4NzYxODU0Mn0.zmsi08dV5L1IlXJSr34vOii71w0g0OsD5_5DKio5g-o';
+    let sb = null;
+    try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch (e) {}
+
+    const params = new URLSearchParams(window.location.search);
+    const campanha = (params.get('c') || CAMPANHA_FIXA).toLowerCase();
+    const token = params.get('k') || TOKEN_FIXO;
+    const cliente = params.get('cliente') || params.get('marca') || '';
+
+    function esc(s) { return (s == null ? '' : String(s)).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+    function fmtInt(n) { return (n == null || isNaN(n)) ? '-' : Number(n).toLocaleString('pt-BR'); }
+    function fmtReais(n) { return 'R$ ' + Number(n).toLocaleString('pt-BR'); }
+    function fmtBig(n) {
+        n = Number(n) || 0;
+        if (n >= 1000000) return { v: (n / 1000000).toFixed(n >= 10000000 ? 0 : 1).replace('.', ',').replace(',0', ''), u: 'mi' };
+        if (n >= 1000) return { v: (n / 1000).toFixed(0), u: 'mil' };
+        return { v: String(n), u: '' };
+    }
+    function initials(nome) { return ((nome || '?').trim().split(/\s+/).slice(0, 2).map(w => (w[0] || '')).join('').toUpperCase()) || '?'; }
+
+    if (cliente) document.getElementById('who').innerHTML = 'Preparado para<br><b style="color:var(--text)">' + esc(cliente) + '</b>';
+    document.getElementById('paraQuem').innerHTML = cliente ? 'Uma proposta pensada pra <b>' + esc(cliente) + '</b>.' : '';
+
+    // ranking link (mesmo token de leitura)
+    document.getElementById('verRanking').href = '/ranking/?c=' + encodeURIComponent(campanha) + '&k=' + encodeURIComponent(token);
+
+    // WhatsApp CTA
+    const msg = 'Oi Lara! Vi a proposta da campanha de decoração' + (cliente ? ' (' + cliente + ')' : '') + ' e quero seguir.';
+    document.getElementById('cta').href = 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg);
+
+    function renderInvestimento(nCreators) {
+        const n = nCreators || N_CREATORS;
+        const total = n * PRECO_POR_CREATOR;
+        document.getElementById('offer').innerHTML =
+            '<div class="offer-left">' +
+                '<div class="offer-title">Gestão completa da campanha</div>' +
+                '<div class="offer-sub">Tudo incluso, do recrutamento ao relatório final:</div>' +
+                '<ul class="incl">' + INCLUSO.map(i => '<li>' + esc(i) + '</li>').join('') + '</ul>' +
+            '</div>' +
+            '<div class="offer-right">' +
+                '<div class="price-anchor">de <s>' + fmtReais(PRECO_NORMAL) + '</s> por creator</div>' +
+                '<div class="price-main">' + fmtReais(PRECO_POR_CREATOR) + '<span> /creator</span></div>' +
+                '<div class="price-div"></div>' +
+                '<div class="price-total-l">' + n + ' creators, total</div>' +
+                '<div class="price-total">' + fmtReais(total) + '</div>' +
+                '<div class="price-note">valor especial desta campanha</div>' +
+            '</div>';
+        document.getElementById('modelNote').innerHTML = '<b>Como funciona o pagamento das creators:</b> elas entram no programa de afiliados da marca e ganham comissão por venda que gerarem. O valor acima é só da minha gestão, então o custo da marca é previsível e o resto é performance.';
+    }
+
+    async function carregar() {
+        renderInvestimento(N_CREATORS);
+        if (!sb || !token) return;
+        const { data } = await sb.rpc('campanha_ranking', { p_campanha: campanha, p_token: token });
+        const rows = (data || []).filter(r => r.status === 'ok' && r.avg_likes != null).sort((a, b) => b.avg_likes - a.avg_likes);
+        const sel = rows.slice(0, N_CREATORS);
+        if (!sel.length) return;
+
+        const alcance = sel.reduce((s, r) => s + (r.followers || 0), 0);
+        const eng = sel.reduce((s, r) => s + (r.engagement_rate || 0), 0) / sel.length;
+        const segMedio = Math.round(alcance / sel.length);
+        const ab = fmtBig(alcance);
+
+        document.getElementById('band').innerHTML =
+            '<div class="st"><div class="n">' + sel.length + '</div><div class="l">creators selecionadas pelo engajamento</div></div>' +
+            '<div class="st"><div class="n">' + ab.v + '<span class="u">' + ab.u + '</span></div><div class="l">de alcance somado</div></div>' +
+            '<div class="st"><div class="n">' + eng.toFixed(1).replace('.', ',') + '<span class="u">%</span></div><div class="l">engajamento médio (mercado: ~1%)</div></div>' +
+            '<div class="st"><div class="n">' + fmtInt(segMedio) + '</div><div class="l">seguidores em média por creator</div></div>';
+
+        const mult = Math.max(2, Math.round(eng / 1)); // ~vezes o mercado (base 1%)
+        document.getElementById('whyEng').textContent = 'quase ' + mult + 'x';
+
+        document.getElementById('strip').innerHTML = sel.slice(0, 10).map(r => {
+            const ig = (r.instagram || '').replace(/^@+/, '');
+            const av = r.foto ? '<div class="av" style="background-image:url(\'' + esc(r.foto) + '\')"></div>' : '<div class="av">' + esc(initials(r.nome)) + '</div>';
+            return '<div class="mini">' + av + '<div class="mh">@' + esc(ig) + '</div><div class="mm">' + fmtBig(r.followers).v + fmtBig(r.followers).u + ' · ' + (r.engagement_rate != null ? String(r.engagement_rate).replace('.', ',') + '%' : '-') + '</div></div>';
+        }).join('') + (sel.length > 10 ? '<div class="mini" style="display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--accent);font-family:Fraunces,serif">+' + (sel.length - 10) + '</div>' : '');
+    }
+    carregar();
+</script>
+</body>
+</html>
