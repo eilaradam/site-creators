@@ -11,65 +11,69 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.98.0" integrity="sha384-Sm2s7OXxsAMTyJ4iIyRBgVpeGUvMPk2lRQnnZhE78Wej7oggIoolKt+SCt0XJbUB" crossorigin="anonymous"></script>
     <style>
-        :root { --cream:#F5F3EF; --warm:#E8E4DD; --accent:#D4572A; --accent-dark:#B8461F; --accent-glow:rgba(212,87,42,0.12); --text:#1A1816; --text-soft:#6B645C; --text-muted:#9C958C; --border:#DDD8D0; --card:#FFFFFF; --gold:#C9962B; --silver:#8D8D93; --bronze:#B07A47; }
+        :root { --cream:#F5F3EF; --warm:#E8E4DD; --accent:#D4572A; --accent-dark:#B8461F; --accent-glow:rgba(212,87,42,0.12); --text:#1A1816; --text-soft:#6B645C; --text-muted:#9C958C; --border:#DDD8D0; --card:#FFFFFF; --gold:#C9962B; --heart:#E23B5A; --heart-glow:rgba(226,59,90,0.10); }
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:'Outfit',sans-serif; background:var(--cream); color:var(--text); -webkit-font-smoothing:antialiased; padding:30px 18px 70px; }
-        .wrap { max-width:820px; margin:0 auto; }
+        .wrap { max-width:840px; margin:0 auto; }
         .topbar { display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:22px; }
         .brand { font-family:'Fraunces',serif; font-weight:700; font-size:22px; color:var(--text); text-decoration:none; }
         .brand span { color:var(--accent); }
         .live { display:flex; align-items:center; gap:7px; font-size:12px; color:var(--text-muted); }
         .dot { width:8px; height:8px; border-radius:50%; background:#2D7A4F; }
-        .hero { margin-bottom:8px; }
         .eyebrow { font-size:12.5px; font-weight:700; letter-spacing:1.4px; text-transform:uppercase; color:var(--accent); margin-bottom:8px; }
         h1 { font-family:'Fraunces',serif; font-size:34px; font-weight:700; letter-spacing:-0.6px; line-height:1.08; margin-bottom:10px; }
-        .sub { color:var(--text-soft); font-size:15px; max-width:60ch; line-height:1.5; }
+        .sub { color:var(--text-soft); font-size:15px; max-width:64ch; line-height:1.5; }
+        .editbar { margin:16px 0 0; background:var(--heart-glow); border:1px solid rgba(226,59,90,0.3); color:#9B2038; border-radius:12px; padding:10px 14px; font-size:13px; font-weight:600; display:flex; align-items:center; gap:8px; }
         .stats { display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 8px; }
-        .stat { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:12px 18px; flex:1; min-width:130px; }
+        .stat { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:12px 18px; flex:1; min-width:120px; }
         .stat .num { font-family:'Fraunces',serif; font-size:26px; font-weight:700; color:var(--text); line-height:1; }
         .stat .lbl { font-size:12px; color:var(--text-muted); margin-top:5px; }
-        .legend { font-size:12.5px; color:var(--text-muted); margin:16px 0 20px; display:flex; align-items:center; gap:7px; }
+        .legend { font-size:12.5px; color:var(--text-muted); margin:16px 0 20px; }
         .legend b { color:var(--text-soft); font-weight:600; }
 
-        .card { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:16px 18px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,0.03); display:flex; gap:14px; align-items:center; transition:box-shadow .18s, transform .18s; }
+        .card { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:16px 16px 16px 10px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,0.03); display:flex; gap:12px; align-items:center; transition:box-shadow .18s, transform .18s; }
         .card:hover { box-shadow:0 6px 20px rgba(0,0,0,0.07); transform:translateY(-1px); }
-        .card.top { border-color:rgba(201,150,43,0.5); box-shadow:0 3px 16px rgba(201,150,43,0.12); }
-        .rank { flex-shrink:0; width:40px; text-align:center; font-family:'Fraunces',serif; font-weight:700; font-size:22px; color:var(--text-muted); }
-        .rank .medal { font-size:26px; }
-        .avatar-wrap { position:relative; width:60px; height:60px; flex-shrink:0; }
-        .avatar-ph { position:absolute; inset:0; border-radius:50%; background:var(--accent-glow); color:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:20px; font-family:'Fraunces',serif; }
+        .card.fav { border-color:rgba(226,59,90,0.45); box-shadow:0 3px 16px rgba(226,59,90,0.12); background:linear-gradient(0deg, var(--heart-glow), #fff 40%); }
+        .card.top:not(.fav) { border-color:rgba(201,150,43,0.5); }
+        .heart { flex-shrink:0; width:30px; height:30px; border:none; background:none; cursor:default; font-size:22px; line-height:1; color:var(--border); padding:0; display:flex; align-items:center; justify-content:center; transition:transform .12s, color .12s; }
+        .heart.on { color:var(--heart); }
+        .heart.click { cursor:pointer; }
+        .heart.click:hover { transform:scale(1.18); color:var(--heart); }
+        .heart.empty.ro { visibility:hidden; }
+        .rank { flex-shrink:0; width:38px; text-align:center; font-family:'Fraunces',serif; font-weight:700; font-size:21px; color:var(--text-muted); }
+        .rank .medal { font-size:25px; }
+        .avatar-wrap { position:relative; width:58px; height:58px; flex-shrink:0; }
+        .avatar-ph { position:absolute; inset:0; border-radius:50%; background:var(--accent-glow); color:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:19px; font-family:'Fraunces',serif; }
         .avatar { position:absolute; inset:0; width:100%; height:100%; border-radius:50%; object-fit:cover; border:2px solid var(--warm); }
         .info { flex:1; min-width:0; }
-        .nome { font-size:17px; font-weight:800; color:var(--text); line-height:1.2; }
+        .nome { font-size:16.5px; font-weight:800; color:var(--text); line-height:1.2; }
         .handle { font-size:13.5px; margin-top:2px; }
         .handle a { color:var(--accent); font-weight:600; text-decoration:none; }
         .handle a:hover { text-decoration:underline; }
-        .meta-line { font-size:12.5px; color:var(--text-muted); margin-top:5px; display:flex; flex-wrap:wrap; gap:6px 12px; align-items:center; }
+        .meta-line { font-size:12.5px; color:var(--text-muted); margin-top:5px; display:flex; flex-wrap:wrap; gap:6px 10px; align-items:center; }
         .tag { display:inline-block; font-size:11px; font-weight:700; padding:2px 9px; border-radius:100px; background:var(--accent-glow); color:var(--accent); }
+        .tag.base { background:#EAF1EE; color:#2D7A4F; }
         .tag.soft { background:rgba(0,0,0,0.05); color:var(--text-soft); }
-        .metrics { flex-shrink:0; display:flex; gap:8px; }
-        .m { text-align:center; min-width:62px; padding:8px 6px; border-radius:12px; background:var(--cream); }
+        .port a { color:var(--accent); font-weight:600; text-decoration:none; font-size:12.5px; }
+        .metrics { flex-shrink:0; display:flex; gap:7px; }
+        .m { text-align:center; min-width:58px; padding:8px 6px; border-radius:12px; background:var(--cream); }
         .m.hl { background:var(--accent-glow); }
-        .m .mv { font-family:'Fraunces',serif; font-weight:700; font-size:17px; color:var(--text); line-height:1; }
+        .m .mv { font-family:'Fraunces',serif; font-weight:700; font-size:16px; color:var(--text); line-height:1; }
         .m.hl .mv { color:var(--accent-dark); }
-        .m .ml { font-size:10px; color:var(--text-muted); margin-top:4px; text-transform:uppercase; letter-spacing:.4px; }
-        .port { font-size:12.5px; }
-        .port a { color:var(--accent); font-weight:600; text-decoration:none; }
+        .m .ml { font-size:9.5px; color:var(--text-muted); margin-top:4px; text-transform:uppercase; letter-spacing:.4px; }
 
         .divider { display:flex; align-items:center; gap:12px; margin:30px 0 16px; color:var(--text-muted); font-size:12.5px; font-weight:600; }
         .divider::before, .divider::after { content:''; height:1px; background:var(--border); flex:1; }
-        .card.nodata { opacity:.92; }
         .card.nodata .metrics { opacity:.6; }
         .nd-note { font-size:12px; color:var(--text-muted); font-style:italic; }
-
         .empty, .msg { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:44px 24px; text-align:center; color:var(--text-muted); font-size:15px; }
         .foot { text-align:center; color:var(--text-muted); font-size:12px; margin-top:30px; line-height:1.6; }
-        @media (max-width:680px){
+        @media (max-width:700px){
             h1 { font-size:27px; }
             .card { flex-wrap:wrap; }
             .metrics { width:100%; order:5; justify-content:space-between; gap:6px; }
             .m { flex:1; }
-            .rank { width:32px; font-size:19px; }
+            .rank { width:30px; font-size:18px; }
         }
     </style>
 </head>
@@ -79,13 +83,10 @@
             <a class="brand" href="#">lara<span>.</span>dam</a>
             <div class="live" id="live" style="visibility:hidden;"><span class="dot"></span><span id="liveTxt">métricas do Instagram</span></div>
         </div>
-
-        <div class="hero">
-            <div class="eyebrow" id="eyebrow">Seleção de creators</div>
-            <h1 id="titulo">Ranking de engajamento</h1>
-            <div class="sub" id="sub">Carregando as métricas do Instagram...</div>
-        </div>
-
+        <div class="eyebrow" id="eyebrow">Creators · ranking de engajamento</div>
+        <h1 id="titulo">Ranking de engajamento</h1>
+        <div class="sub" id="sub">Carregando as métricas do Instagram...</div>
+        <div id="editbar"></div>
         <div class="stats" id="stats"></div>
         <div class="legend" id="legend"></div>
         <div id="list"></div>
@@ -101,11 +102,13 @@
     const params = new URLSearchParams(window.location.search);
     const campanha = (params.get('c') || 'decoracao').toLowerCase();
     const token = params.get('k') || '';
+    const editToken = params.get('e') || '';
+    const editMode = !!editToken;
     const NOMES = { flores: 'Campanha de Flores', pais: 'Campanha Pais Creators', decoracao: 'Casa & Decoração', fiv: 'Campanha FIV & Congelamento' };
+    const AFIL = { sim: 'Já faz afiliado', as_vezes: 'Faz afiliado às vezes' };
 
     function esc(s) { return (s == null ? '' : String(s)).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
     function urlify(u) { if (!u) return ''; const s = String(u).trim(); return /^https?:\/\//i.test(s) ? s : 'https://' + s; }
-    function fmtFull(n) { return (n == null || isNaN(n)) ? '-' : Number(n).toLocaleString('pt-BR'); }
     function fmtCompact(n) {
         if (n == null || isNaN(n)) return '-';
         n = Number(n);
@@ -115,55 +118,61 @@
     }
     function fmtDate(iso) { try { return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }); } catch (e) { return ''; } }
     function initials(nome) { return ((nome || '?').trim().split(/\s+/).slice(0, 2).map(w => (w[0] || '')).join('').toUpperCase()) || '?'; }
-    const AFIL = { sim: 'Já faz afiliado', as_vezes: 'Faz afiliado às vezes' };
 
     document.getElementById('titulo').textContent = NOMES[campanha] || 'Ranking de creators';
-    document.getElementById('eyebrow').textContent = 'Creators inscritas · ranking de engajamento';
 
-    function medal(i) {
-        if (i === 0) return '<span class="medal">🥇</span>';
-        if (i === 1) return '<span class="medal">🥈</span>';
-        if (i === 2) return '<span class="medal">🥉</span>';
-        return (i + 1) + 'º';
+    function medal(pos) {
+        if (pos == null) return '<span class="nd-note" style="font-style:normal">–</span>';
+        if (pos === 1) return '<span class="medal">🥇</span>';
+        if (pos === 2) return '<span class="medal">🥈</span>';
+        if (pos === 3) return '<span class="medal">🥉</span>';
+        return pos + 'º';
     }
-
-    function metricTile(val, label, hl) {
-        return '<div class="m' + (hl ? ' hl' : '') + '"><div class="mv">' + val + '</div><div class="ml">' + label + '</div></div>';
+    function heartHtml(r) {
+        if (editMode) return '<button class="heart click ' + (r.favorito ? 'on' : '') + '" title="favoritar / fixar no topo" onclick="toggleFav(this, \'' + esc(r.username) + '\', ' + (r.favorito ? 'true' : 'false') + ')">♥</button>';
+        return r.favorito ? '<span class="heart on ro">♥</span>' : '<span class="heart empty ro">♥</span>';
     }
-
-    function cardLive(r, i) {
-        const ig = (r.instagram || '').replace(/^@+/, '').replace(/\s+/g, '');
-        const av = '<div class="avatar-wrap"><div class="avatar-ph">' + esc(initials(r.nome)) + '</div>' +
+    function tile(val, label, hl) { return '<div class="m' + (hl ? ' hl' : '') + '"><div class="mv">' + val + '</div><div class="ml">' + label + '</div></div>'; }
+    function avatarHtml(r) {
+        return '<div class="avatar-wrap"><div class="avatar-ph">' + esc(initials(r.nome)) + '</div>' +
             (r.foto ? '<img class="avatar" src="' + esc(r.foto) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">' : '') + '</div>';
+    }
+
+    function card(r) {
+        const live = r.status === 'ok' && r.avg_likes != null;
+        const ig = (r.instagram || '').replace(/^@+/, '').replace(/\s+/g, '');
+        const baseTag = r.fonte === 'base' ? '<span class="tag base">da base</span>' : '';
         const afil = r.ja_afiliado && AFIL[r.ja_afiliado] ? '<span class="tag">' + AFIL[r.ja_afiliado] + '</span>' : '';
         const cidade = r.cidade ? '<span>📍 ' + esc(r.cidade) + '</span>' : '';
         const port = r.portfolio ? '<span class="port">· <a href="' + esc(urlify(r.portfolio)) + '" target="_blank" rel="noopener">portfólio ↗</a></span>' : '';
-        const metrics =
-            metricTile(fmtCompact(r.avg_likes), 'curtidas', true) +
-            metricTile(fmtCompact(r.avg_comments), 'coment.', false) +
-            metricTile(fmtCompact(r.followers), 'seguidores', false) +
-            metricTile((r.engagement_rate != null ? String(r.engagement_rate).replace('.', ',') + '%' : '-'), 'engaj.', false);
-        return '<div class="card' + (i < 3 ? ' top' : '') + '">' +
-            '<div class="rank">' + medal(i) + '</div>' + av +
+        let metrics, meta;
+        if (live) {
+            metrics = tile(fmtCompact(r.avg_likes), 'curtidas', true) +
+                tile(fmtCompact(r.avg_comments), 'coment.', false) +
+                tile(fmtCompact(r.followers), 'seguidores', false) +
+                tile((r.engagement_rate != null ? String(r.engagement_rate).replace('.', ',') + '%' : '-'), 'engaj.', false);
+            meta = cidade + baseTag + afil + port;
+        } else {
+            const decl = r.seguidores_declarado ? fmtCompact(parseInt(String(r.seguidores_declarado).replace(/\D/g, ''), 10)) : '-';
+            metrics = tile(decl, 'declarou', false);
+            meta = cidade + baseTag + afil + port + '<span class="nd-note">métrica ao vivo indisponível</span>';
+        }
+        const cls = 'card' + (r.favorito ? ' fav' : '') + (r.posicao && r.posicao <= 3 ? ' top' : '') + (live ? '' : ' nodata');
+        return '<div class="' + cls + '">' + heartHtml(r) +
+            '<div class="rank">' + medal(r.posicao || null) + '</div>' + avatarHtml(r) +
             '<div class="info"><div class="nome">' + esc(r.nome || '(sem nome)') + '</div>' +
             '<div class="handle"><a href="https://instagram.com/' + encodeURIComponent(ig) + '" target="_blank" rel="noopener">@' + esc(ig) + '</a></div>' +
-            '<div class="meta-line">' + cidade + afil + port + '</div></div>' +
+            '<div class="meta-line">' + meta + '</div></div>' +
             '<div class="metrics">' + metrics + '</div></div>';
     }
 
-    function cardNoData(r) {
-        const ig = (r.instagram || '').replace(/^@+/, '').replace(/\s+/g, '');
-        const av = '<div class="avatar-wrap"><div class="avatar-ph">' + esc(initials(r.nome)) + '</div>' +
-            (r.foto ? '<img class="avatar" src="' + esc(r.foto) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">' : '') + '</div>';
-        const decl = r.seguidores_declarado ? fmtCompact(parseInt(String(r.seguidores_declarado).replace(/\D/g, ''), 10)) : '-';
-        const cidade = r.cidade ? '<span>📍 ' + esc(r.cidade) + '</span>' : '';
-        const port = r.portfolio ? '<span class="port">· <a href="' + esc(urlify(r.portfolio)) + '" target="_blank" rel="noopener">portfólio ↗</a></span>' : '';
-        return '<div class="card nodata">' +
-            '<div class="rank">–</div>' + av +
-            '<div class="info"><div class="nome">' + esc(r.nome || '(sem nome)') + '</div>' +
-            '<div class="handle"><a href="https://instagram.com/' + encodeURIComponent(ig) + '" target="_blank" rel="noopener">@' + esc(ig) + '</a></div>' +
-            '<div class="meta-line">' + cidade + port + '<span class="nd-note">métrica ao vivo indisponível (conta pessoal ou privada)</span></div></div>' +
-            '<div class="metrics">' + metricTile(decl, 'declarou', false) + '</div></div>';
+    let rowsCache = [];
+    async function toggleFav(btn, username, current) {
+        if (!editMode) return;
+        btn.classList.toggle('on', !current);
+        const { data, error } = await sb.rpc('campanha_fav_toggle', { p_campanha: campanha, p_edit_token: editToken, p_username: username, p_fav: !current });
+        if (error || data === null) { btn.classList.toggle('on', current); alert('Não consegui salvar. Confira se o link de edição está completo.'); return; }
+        carregar();
     }
 
     async function carregar() {
@@ -173,35 +182,40 @@
         const { data, error } = await sb.rpc('campanha_ranking', { p_campanha: campanha, p_token: token });
         if (error) { list.innerHTML = '<div class="msg">Não consegui carregar agora. Tente recarregar.</div>'; return; }
         const rows = data || [];
-        if (!rows.length) { sub.textContent = ''; list.innerHTML = '<div class="msg">Link inválido ou campanha sem inscritas. Peça o link pra Lara. 💛</div>'; return; }
+        rowsCache = rows;
+        if (!rows.length) { sub.textContent = ''; list.innerHTML = '<div class="msg">Link inválido ou campanha sem creators. Peça o link pra Lara. 💛</div>'; return; }
 
-        const live = rows.filter(r => r.status === 'ok' && r.avg_likes != null);
-        const nodata = rows.filter(r => !(r.status === 'ok' && r.avg_likes != null));
-        const totalSeg = live.reduce((s, r) => s + (r.followers || 0), 0);
-        const topLikes = live.length ? live[0].avg_likes : 0;
-        const atualizado = live.map(r => r.atualizado).filter(Boolean).sort().pop();
+        const liveRows = rows.filter(r => r.status === 'ok' && r.avg_likes != null);
+        const inscritas = rows.filter(r => r.fonte === 'candidatura').length;
+        const daBase = rows.filter(r => r.fonte === 'base').length;
+        const topLikes = liveRows.length ? Math.max.apply(null, liveRows.map(r => r.avg_likes)) : 0;
+        const atualizado = liveRows.map(r => r.atualizado).filter(Boolean).sort().pop();
 
-        sub.textContent = 'Selecionei estas creators pela campanha e ranqueei da mais engajada pra menos, usando a média de curtidas dos posts recentes de cada perfil (direto da API do Instagram).';
+        sub.textContent = 'Creators inscritas na campanha mais nomes da minha base (10 a 30 mil seguidores), ranqueadas da mais engajada pra menos pela média de curtidas dos posts recentes, direto da API do Instagram.';
+
+        if (editMode) document.getElementById('editbar').innerHTML = '❤️ Modo edição: clique no coração pra favoritar (fixa no topo do ranking). Este link é só seu, não mande pro cliente.';
 
         document.getElementById('stats').innerHTML =
-            '<div class="stat"><div class="num">' + rows.length + '</div><div class="lbl">creators inscritas</div></div>' +
-            '<div class="stat"><div class="num">' + live.length + '</div><div class="lbl">com métrica ao vivo</div></div>' +
-            '<div class="stat"><div class="num">' + fmtCompact(topLikes) + '</div><div class="lbl">maior média de curtidas</div></div>' +
-            '<div class="stat"><div class="num">' + fmtCompact(live.length ? Math.round(totalSeg / live.length) : 0) + '</div><div class="lbl">média de seguidores</div></div>';
+            '<div class="stat"><div class="num">' + rows.length + '</div><div class="lbl">no ranking</div></div>' +
+            '<div class="stat"><div class="num">' + inscritas + '</div><div class="lbl">inscritas na campanha</div></div>' +
+            '<div class="stat"><div class="num">' + daBase + '</div><div class="lbl">da base (10-30k)</div></div>' +
+            '<div class="stat"><div class="num">' + fmtCompact(topLikes) + '</div><div class="lbl">maior média de curtidas</div></div>';
 
-        document.getElementById('legend').innerHTML = '⭐ <b>Ranqueado por média de curtidas</b> nos posts recentes. Engaj. = (curtidas + comentários) ÷ seguidores.';
+        document.getElementById('legend').innerHTML = '⭐ <b>Ranqueado por média de curtidas</b> nos posts recentes. Engaj. = (curtidas + comentários) ÷ seguidores. <span class="tag base" style="margin-left:4px">da base</span> = creator da base que não se inscreveu.';
 
-        let html = live.map((r, i) => cardLive(r, i)).join('');
-        if (nodata.length) {
-            html += '<div class="divider">Sem métrica ao vivo · ' + nodata.length + ' creator' + (nodata.length > 1 ? 's' : '') + '</div>';
-            html += nodata.map(cardNoData).join('');
+        const favRows = rows.filter(r => r.favorito);
+        const restRows = rows.filter(r => !r.favorito);
+        let html = '';
+        if (favRows.length) {
+            html += '<div class="divider">❤️ Favoritas da Lara · ' + favRows.length + '</div>';
+            html += favRows.map(card).join('');
+            html += '<div class="divider">Ranking por engajamento</div>';
         }
+        html += restRows.map(card).join('');
         list.innerHTML = html;
 
         document.getElementById('foot').innerHTML = 'Métricas públicas do Instagram' + (atualizado ? ', atualizadas em ' + fmtDate(atualizado) : '') + '.<br>Ranking preparado por Lara Dam 💛';
-        const el = document.getElementById('live');
-        el.style.visibility = 'visible';
-        document.getElementById('liveTxt').textContent = 'métricas do Instagram';
+        document.getElementById('live').style.visibility = 'visible';
     }
     carregar();
 </script>
