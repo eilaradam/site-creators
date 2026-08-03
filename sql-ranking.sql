@@ -27,6 +27,7 @@ create table if not exists public.campanha_metrics (
   posts               jsonb,
   status              text,            -- 'ok' | 'rate_limit' | 'sem_dados'
   erro                text,
+  oculto              boolean default false,  -- removida do ranking na mao (o refresh nao traz de volta)
   captured_at         timestamptz default now()
 );
 create unique index if not exists campanha_metrics_camp_user_uidx on public.campanha_metrics (campanha, username);
@@ -78,6 +79,7 @@ begin
     left join campanha_favoritos fav on fav.campanha = m.campanha and fav.username = m.username
     where m.campanha = p_campanha
       and (m.fonte = 'candidatura' or m.status = 'ok')   -- base entra só com métrica ao vivo
+      and not coalesce(m.oculto, false)                  -- esconde as removidas na mão
   ),
   pos as (
     select b2.username as u, row_number() over (order by b2.avg_likes desc) as p
