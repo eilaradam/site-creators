@@ -723,11 +723,20 @@
                     img.onerror = () => reject(new Error('Erro ao carregar foto. Tente outro arquivo.'));
                     img.src = URL.createObjectURL(arquivo);
                 });
-                const nomeArquivo = Date.now() + '_' + Math.random().toString(36).slice(2, 8) + '.jpg';
-                const { error: uploadError } = await sb.storage.from('fotos-perfil').upload(nomeArquivo, compressedBlob, { cacheControl: '3600', upsert: true, contentType: 'image/jpeg' });
-                if (uploadError) throw new Error('Erro ao enviar foto: ' + uploadError.message);
-                const { data: urlData } = sb.storage.from('fotos-perfil').getPublicUrl(nomeArquivo);
-                fotoUrl = urlData.publicUrl;
+                /* upsert:false = INSERT puro. Anon tem permissao de INSERT no bucket, mas NAO de UPDATE;
+                   com upsert:true um reenvio (retry de rede/clique duplo) vira UPDATE e da erro de RLS.
+                   Nome unico; se por acaso colidir, tenta de novo com outro nome. */
+                let ultimoErro = null;
+                for (let tentativa = 0; tentativa < 3 && !fotoUrl; tentativa++) {
+                    const nomeArquivo = Date.now() + '_' + Math.random().toString(36).slice(2, 12) + '.jpg';
+                    const { error: uploadError } = await sb.storage.from('fotos-perfil').upload(nomeArquivo, compressedBlob, { cacheControl: '3600', upsert: false, contentType: 'image/jpeg' });
+                    if (!uploadError) {
+                        fotoUrl = sb.storage.from('fotos-perfil').getPublicUrl(nomeArquivo).data.publicUrl;
+                    } else {
+                        ultimoErro = uploadError;
+                    }
+                }
+                if (!fotoUrl) throw new Error('Erro ao enviar foto: ' + (ultimoErro?.message || 'tente de novo'));
             }
 
             const cidadeEl = document.getElementById('cidade');
