@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Convite pra campanha | Lara Dam</title>
     <meta name="description" content="Você foi convidada pra uma campanha de UGC com a Lara Dam. Preencha seus dados pra participar.">
+    <meta property="og:title" content="Convite pra campanha | Lara Dam">
+    <meta property="og:description" content="Você foi convidada pra uma campanha de UGC com a Lara Dam.">
+    <meta property="og:type" content="website">
     <meta name="robots" content="noindex">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/png" href="/favicon.png">
@@ -14,47 +17,115 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.98.0" integrity="sha384-Sm2s7OXxsAMTyJ4iIyRBgVpeGUvMPk2lRQnnZhE78Wej7oggIoolKt+SCt0XJbUB" crossorigin="anonymous"></script>
     <style>
         :root {
-            --white: #FAFAF9; --cream: #F5F3EF; --warm: #E8E4DD;
-            --accent: #D4572A; --accent-dark: #B8461F; --accent-glow: rgba(212,87,42,0.12);
-            --text: #1A1816; --text-soft: #6B645C; --text-muted: #9C958C;
-            --border: #DDD8D0; --card: #FFFFFF; --success: #2D7A4F; --error: #C4453C;
+            --black: #0A0A0A;
+            --white: #FAFAF9;
+            --cream: #F5F3EF;
+            --warm: #E8E4DD;
+            --accent: #D4572A;
+            --accent-dark: #B8461F;
+            --accent-glow: rgba(212,87,42,0.12);
+            --text: #1A1816;
+            --text-soft: #6B645C;
+            --text-muted: #9C958C;
+            --border: #DDD8D0;
+            --card: #FFFFFF;
+            --success: #2D7A4F;
+            --error: #C4453C;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Outfit', sans-serif; background: var(--cream); color: var(--text); -webkit-font-smoothing: antialiased; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 32px 24px; }
-        .page-logo { text-align: center; margin-bottom: 28px; }
+        .page-logo { text-align: center; margin-bottom: 32px; }
         .page-logo a { font-family: 'Fraunces', serif; font-weight: 700; font-size: 28px; color: var(--text); text-decoration: none; }
         .page-logo a span { color: var(--accent); }
-        .form-wrapper { max-width: 560px; width: 100%; }
+        .form-wrapper { max-width: 540px; width: 100%; }
         .form-box { background: var(--card); border-radius: 24px; padding: 44px 36px; border: 1px solid var(--border); box-shadow: 0 4px 24px rgba(0,0,0,0.04); position: relative; overflow: hidden; }
         .form-box::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent), #E8784A, var(--accent)); }
-        .camp-badge { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent); background: var(--accent-glow); padding: 5px 12px; border-radius: 100px; margin-bottom: 14px; }
-        .form-title { font-family: 'Fraunces', serif; font-size: 27px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; line-height: 1.15; }
-        .form-subtitle { font-size: 14.5px; color: var(--text-soft); margin-bottom: 26px; line-height: 1.6; }
-        .field-group { margin-bottom: 18px; }
+        .form-title { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.5px; }
+        .form-subtitle { font-size: 14px; color: var(--text-soft); margin-bottom: 32px; line-height: 1.6; }
+        .field-group { margin-bottom: 20px; }
         .field-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
-        .field-group input, .field-group select, .field-group textarea { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 12px; font-family: 'Outfit', sans-serif; font-size: 15px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; }
-        .field-group textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
-        .field-group input::placeholder, .field-group textarea::placeholder { color: var(--text-muted); }
-        .field-group input:focus, .field-group select:focus, .field-group textarea:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
-        .field-hint { color: var(--text-muted); font-weight: 400; }
+        .field-group input, .field-group select { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 12px; font-family: 'Outfit', sans-serif; font-size: 15px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; }
+        .field-group input::placeholder { color: var(--text-muted); }
+        .field-group input:focus, .field-group select:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
+        .field-group select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239C958C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 40px; cursor: pointer; }
+        .field-group textarea { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 12px; font-family: 'Outfit', sans-serif; font-size: 15px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; resize: vertical; min-height: 80px; line-height: 1.5; }
+        .field-group textarea::placeholder { color: var(--text-muted); }
+        .field-group textarea:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
+        .char-counter { font-size: 12px; color: var(--text-muted); text-align: right; margin-top: 4px; }
+        .char-counter.limit { color: var(--error); font-weight: 600; }
+        .nicho-picker { border: 1.5px solid var(--border); border-radius: 12px; background: var(--cream); padding: 16px; max-height: 320px; overflow-y: auto; transition: border-color 0.25s; }
+        .nicho-picker:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
+        .nicho-category { margin-bottom: 14px; }
+        .nicho-category:last-child { margin-bottom: 0; }
+        .nicho-category-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 8px; }
+        .nicho-options { display: flex; flex-wrap: wrap; gap: 6px; }
+        .nicho-chip { display: inline-flex; align-items: center; padding: 6px 14px; border-radius: 100px; border: 1.5px solid var(--border); background: var(--card); font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; color: var(--text-soft); cursor: pointer; transition: all 0.2s; user-select: none; }
+        .nicho-chip:hover { border-color: var(--accent); color: var(--accent); }
+        .nicho-chip.selected { background: var(--accent); border-color: var(--accent); color: white; font-weight: 600; }
+        .nicho-chip.disabled { opacity: 0.4; cursor: not-allowed; }
+        .nicho-chip.disabled:hover { border-color: var(--border); color: var(--text-soft); }
+        .nicho-counter { font-size: 12px; color: var(--text-muted); margin-top: 8px; text-align: right; }
+        .nicho-counter.limit { color: var(--accent); font-weight: 600; }
+        .tipo-creator-group { display: flex; gap: 8px; flex-wrap: wrap; }
+        .tipo-creator-option { flex: 1; min-width: 140px; }
+        .tipo-creator-option input[type="radio"] { display: none; }
+        .tipo-creator-option label { display: block; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 12px; background: var(--cream); font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 500; color: var(--text-soft); text-align: center; cursor: pointer; transition: all 0.25s; }
+        .tipo-creator-option label:hover { border-color: var(--accent); color: var(--accent); }
+        .tipo-creator-option input[type="radio"]:checked + label { background: var(--accent); border-color: var(--accent); color: white; font-weight: 700; }
         .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .section-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin: 28px 0 12px; }
-        .welcome-banner { background: rgba(45,122,79,0.08); border: 1px solid rgba(45,122,79,0.22); color: #1f5c39; padding: 14px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; margin-bottom: 24px; display: none; }
-        .welcome-banner.show { display: block; }
-        .care-note { background: var(--accent-glow); border: 1px solid rgba(212,87,42,0.18); color: var(--accent-dark); padding: 13px 15px; border-radius: 12px; font-size: 13px; line-height: 1.55; margin-bottom: 22px; }
-        .form-submit { width: 100%; margin-top: 12px; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 14px; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .form-submit { width: 100%; margin-top: 8px; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 14px; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
         .form-submit:hover { background: var(--accent-dark); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(212,87,42,0.3); }
         .form-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
         .form-footer { text-align: center; margin-top: 16px; font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+        .photo-upload { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 24px; }
+        .photo-preview { width: 96px; height: 96px; border-radius: 50%; background: var(--warm); border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; transition: all 0.3s; }
+        .photo-preview:hover { border-color: var(--accent); background: var(--accent-glow); }
+        .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .photo-preview .photo-icon { font-size: 28px; color: var(--text-muted); line-height: 1; }
+        .photo-label { font-size: 13px; color: var(--accent); font-weight: 600; cursor: pointer; }
+        .photo-label:hover { text-decoration: underline; }
         .form-error { background: rgba(196,69,60,0.08); border: 1px solid rgba(196,69,60,0.2); color: var(--error); padding: 12px 16px; border-radius: 10px; font-size: 13px; margin-bottom: 16px; display: none; }
         .form-error.show { display: block; }
-        .success-state { display: none; text-align: center; padding: 32px 12px; }
+        .form-error.duplicate { background: rgba(212,87,42,0.08); border: 1px solid rgba(212,87,42,0.25); color: var(--accent-dark); font-size: 14px; font-weight: 500; padding: 16px 20px; }
+        .edit-mode-banner { background: rgba(212,87,42,0.08); border: 1px solid rgba(212,87,42,0.25); color: var(--accent-dark); padding: 12px 16px; border-radius: 10px; font-size: 13px; font-weight: 500; text-align: center; margin-bottom: 16px; }
+        .field-locked { opacity: 0.6; pointer-events: none; }
+        .ref-link-box { background: var(--cream); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 20px; }
+        .ref-link-box .ref-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px; }
+        .ref-link-box .ref-url { display: flex; align-items: center; gap: 8px; }
+        .ref-link-box .ref-url input { flex: 1; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-family: 'Outfit', sans-serif; font-size: 13px; color: var(--text); }
+        .ref-link-box .ref-url button { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+        .ref-link-box .ref-url button:hover { background: var(--accent-dark); }
+        .terms-checkbox { display: flex; align-items: flex-start; gap: 10px; margin: 24px 0 8px; padding: 16px; background: rgba(212,87,42,0.04); border-radius: 10px; border: 1px solid var(--border); }
+        .terms-checkbox input[type="checkbox"] { accent-color: var(--accent); width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; cursor: pointer; }
+        .terms-checkbox label { font-size: 13px; color: var(--text-soft); line-height: 1.5; cursor: pointer; }
+        .terms-checkbox a { color: var(--accent); font-weight: 600; text-decoration: underline; }
+        .success-state { display: none; text-align: center; padding: 40px 20px; }
         .success-state.show { display: block; animation: fadeUp 0.5s ease-out; }
         @keyframes checkPop { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 1; } }
         .success-check-animated { width: 80px; height: 80px; border-radius: 50%; background: rgba(45,122,79,0.1); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 36px; animation: checkPop 0.6s cubic-bezier(0.175,0.885,0.32,1.275) both; }
         .success-title { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
-        .success-subtitle { font-size: 14px; color: var(--text-soft); line-height: 1.7; max-width: 400px; margin: 0 auto 6px; }
+        .success-subtitle { font-size: 14px; color: var(--text-soft); line-height: 1.7; max-width: 380px; margin: 0 auto 6px; }
+        .success-small { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+        .success-block { margin-bottom: 28px; }
+        .success-block:last-child { margin-bottom: 0; }
+        .share-section { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--border); }
+        .share-label { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+        .share-sublabel { font-size: 13px; color: var(--text-muted); margin-bottom: 14px; }
+        .share-buttons { display: flex; flex-direction: column; gap: 10px; }
+        .share-btn { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 20px; border-radius: 12px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; }
+        .share-btn:hover { transform: translateY(-1px); }
+        .share-btn-whatsapp { background: #25D366; color: white; }
+        .share-btn-whatsapp:hover { box-shadow: 0 6px 24px rgba(37,211,102,0.3); }
+        .ref-link-box { display: flex; gap: 8px; margin: 12px 0; }
+        .ref-link-input { flex: 1; padding: 10px 14px; font-size: 13px; font-family: 'Outfit', sans-serif; border: 1px solid var(--border); border-radius: 10px; background: var(--cream); color: var(--text); outline: none; }
+        .btn-copy-ref { padding: 10px 18px; font-size: 13px; font-weight: 600; font-family: 'Outfit', sans-serif; border: none; border-radius: 10px; background: var(--accent); color: white; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+        .btn-copy-ref:hover { background: #B8461F; }
+        .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 200; overflow: hidden; }
+        .confetti-piece { position: absolute; width: 10px; height: 10px; top: -10px; border-radius: 2px; animation: confettiFall linear forwards; }
+        @keyframes confettiFall { 0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+        .page-footer { text-align: center; margin-top: 32px; font-size: 13px; color: var(--text-muted); }
+        .page-footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
         @media (max-width: 768px) {
             body { padding: 24px 16px; }
             .field-row { grid-template-columns: 1fr; }
@@ -67,190 +138,790 @@
     <div class="form-wrapper">
         <div class="form-box">
             <div id="formContent">
-                <span class="camp-badge">✨ Convite especial</span>
-                <h3 class="form-title">Achei o seu perfil e quero te convidar</h3>
-                <p class="form-subtitle">Gostei muito do seu conteúdo e quero te chamar pra uma <strong>campanha de UGC com uma marca parceira</strong>. Preencha os seus dados aqui embaixo pra eu te avaliar com carinho. Comece com o seu nome e e-mail.</p>
-
-                <!-- ETAPA 1: PORTEIRA (nome + email) -->
-                <div id="gateSection">
-                    <div class="form-error" id="gateError"></div>
-                    <div class="field-group"><label>Nome completo</label><input type="text" id="gateNome" placeholder="Seu nome"></div>
-                    <div class="field-group"><label>E-mail</label><input type="email" id="gateEmail" placeholder="seuemail@exemplo.com"></div>
-                    <button type="button" class="form-submit" id="gateBtn">Continuar</button>
-                    <p class="form-footer">Se você já é da nossa base de creators, seus dados já vêm preenchidos. Se não, é só completar. 💛</p>
+                <!-- Link editar cadastro -->
+                <div id="editarLink" style="display:none; text-align:center; margin-bottom:18px;">
+                    <span style="font-size:13px; color:var(--text-soft);">Ja se cadastrou?</span>
+                    <a href="#" id="btnEditarCadastro" style="font-size:13px; color:var(--accent); font-weight:600; text-decoration:underline; margin-left:4px;">Editar cadastro</a>
                 </div>
-
-                <!-- ETAPA 2: FORMULÁRIO -->
-                <form id="campForm" style="display:none;">
-                    <div class="welcome-banner" id="welcomeBanner"></div>
-                    <div class="form-error" id="formError"></div>
-
-                    <div class="care-note">Seus dados ficam entre a gente. Depois que você enviar, avalio o seu perfil e, se rolar match, te chamo no direct ou no WhatsApp pra combinar tudo. 💛</div>
-
-                    <div class="section-label">Seus dados</div>
-                    <div class="field-row">
-                        <div class="field-group"><label>@ do Instagram</label><input type="text" id="instagram" placeholder="@seuperfil"></div>
-                        <div class="field-group"><label>Seguidores no Instagram <span class="field-hint">(só números, ex.: 10350)</span></label><input type="text" id="seguidores" inputmode="numeric" placeholder="Ex.: 10350" oninput="this.value=this.value.replace(/[^0-9]/g,'')"></div>
+                <!-- Secao verificacao -->
+                <div id="verifySection" style="display:none;">
+                    <h3 class="form-title">Editar cadastro</h3>
+                    <p class="form-subtitle">Informe o e-mail e WhatsApp que voce usou no cadastro para verificar sua identidade.</p>
+                    <div class="form-error" id="verifyError"></div>
+                    <div class="field-group">
+                        <label>E-mail do cadastro</label>
+                        <input type="email" id="verifyEmail" required placeholder="seuemail@exemplo.com">
+                    </div>
+                    <div class="field-group">
+                        <label>WhatsApp do cadastro (com DDD)</label>
+                        <input type="tel" id="verifyWhatsapp" required placeholder="(00) 00000-0000">
+                    </div>
+                    <button type="button" class="form-submit" id="btnVerificar">Verificar identidade</button>
+                    <p style="text-align:center; margin-top:12px;">
+                        <a href="#" id="btnVoltarCadastro" style="font-size:13px; color:var(--text-muted); text-decoration:underline;">Voltar para o cadastro</a>
+                    </p>
+                </div>
+                <!-- Formulario -->
+                <h3 class="form-title" id="formTitleEl">Achei o seu perfil e quero te convidar 💛</h3>
+                <p class="form-subtitle" id="formSubtitleEl">Gostei muito do seu conteúdo e quero te chamar pra uma campanha de UGC com uma marca parceira. Preencha os seus dados aqui embaixo pra eu te avaliar com carinho.</p>
+                <div class="form-error" id="formError"></div>
+                <form id="creatorForm">
+                    <div class="photo-upload">
+                        <div class="photo-preview" id="photoPreview" onclick="document.getElementById('fotoInput').click()"><span class="photo-icon">+</span></div>
+                        <label class="photo-label" onclick="document.getElementById('fotoInput').click()">Enviar foto de perfil (obrigatório)</label>
+                        <input type="file" id="fotoInput" accept="image/*" style="display:none">
                     </div>
                     <div class="field-row">
-                        <div class="field-group"><label>Sua cidade</label><input type="text" id="cidade" placeholder="Ex.: São Paulo, SP"></div>
-                        <div class="field-group"><label>WhatsApp <span class="field-hint">(com DDD)</span></label><input type="tel" id="whatsapp" placeholder="(00) 00000-0000"></div>
+                        <div class="field-group"><label>Nome completo</label><input type="text" name="nome" required placeholder="Seu nome" id="nome"></div>
+                        <div class="field-group"><label>WhatsApp (com DDD)</label><input type="tel" name="whatsapp" required placeholder="(00) 00000-0000" id="whatsapp"></div>
                     </div>
-                    <div class="field-group"><label>Link do seu portfólio / melhor conteúdo <span class="field-hint">(Instagram, Drive, site...)</span></label><input type="text" id="portfolio" placeholder="instagram.com/... ou drive.google.com/..."></div>
-
-                    <button type="submit" class="form-submit" id="submitBtn">Quero participar</button>
-                    <p class="form-footer">Todos os perfis são avaliados com carinho. Se o seu for aprovado, a gente entra em contato individualmente. 💛</p>
+                    <div class="field-group"><label>E-mail</label><input type="email" name="email" required placeholder="seuemail@exemplo.com" id="email"></div>
+                    <div class="field-row">
+                        <div class="field-group"><label>Data de nascimento</label><input type="date" name="nascimento" required id="nascimento" max="2015-12-31" min="1940-01-01"></div>
+                        <div class="field-group"><label>Genero</label><select name="genero" required id="genero"><option value="" disabled selected>Selecione</option><option value="feminino">Feminino</option><option value="masculino">Masculino</option><option value="nao_binario">Nao-binario</option><option value="prefiro_nao_dizer">Prefiro nao dizer</option></select></div>
+                    </div>
+                    <div class="field-row">
+                        <div class="field-group"><label>@ do Instagram</label><input type="text" name="instagram" required placeholder="@seuperfil" id="instagram"></div>
+                        <div class="field-group"><label>@ do TikTok <span style="color: var(--text-muted); font-weight: 400;">(opcional)</span></label><input type="text" name="tiktok" placeholder="@seuperfil" id="tiktok"></div>
+                    </div>
+                    <div class="field-group"><label>Seguidores no Instagram</label><select name="seguidores" required id="seguidores"><option value="" disabled selected>Selecione</option><option value="ate_1k">Ate 1.000</option><option value="1k_5k">1.000 a 5.000</option><option value="5k_10k">5.000 a 10.000</option><option value="10k_30k">10.000 a 30.000</option><option value="30k_mais">Acima de 30.000</option></select></div>
+                    <div class="field-row">
+                        <div class="field-group"><label>Estado</label><select name="estado" required id="estado"><option value="" disabled selected>Selecione o estado</option></select></div>
+                        <div class="field-group"><label>Cidade</label><select name="cidade" required id="cidade" disabled><option value="" disabled selected>Selecione o estado primeiro</option></select></div>
+                    </div>
+                    <div class="field-group">
+                        <label>Nichos do seu conteudo <span style="color: var(--text-muted); font-weight: 400;">(selecione ate 10)</span></label>
+                        <div class="nicho-picker" id="nichoPicker"></div>
+                        <div class="nicho-counter" id="nichoCounter">0 / 10 selecionados</div>
+                    </div>
+                    <div class="field-group">
+                        <label>Tipo de creator</label>
+                        <div class="tipo-creator-group">
+                            <div class="tipo-creator-option"><input type="radio" name="tipo_creator" id="tipo_ugc" value="ugc_creator"><label for="tipo_ugc">UGC Creator</label></div>
+                            <div class="tipo-creator-option"><input type="radio" name="tipo_creator" id="tipo_influenciadora" value="influenciadora"><label for="tipo_influenciadora">Influenciadora</label></div>
+                            <div class="tipo-creator-option"><input type="radio" name="tipo_creator" id="tipo_ambos" value="ugc_influenciadora"><label for="tipo_ambos">UGC + Influenciadora</label></div>
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <label>Sobre voce <span style="color: var(--text-muted); font-weight: 400;">(opcional, max 200 caracteres)</span></label>
+                        <textarea id="sobre" maxlength="200" placeholder="Conte um pouco sobre voce, seu estilo de conteudo e o que te diferencia..."></textarea>
+                        <div class="char-counter" id="sobreCounter">0 / 200</div>
+                    </div>
+                    <div class="field-group"><label>Ja fez campanha paga para marcas?</label><select name="experiencia" id="experiencia"><option value="" disabled selected>Selecione</option><option value="sim">Sim, ja fiz</option><option value="nao">Nao, seria minha primeira</option><option value="permuta">So permuta</option></select></div>
+                    <div class="field-group"><label>Link do portfolio <span style="color: var(--text-muted); font-weight: 400;">(Google Drive, Behance, site, etc.)</span></label><input type="text" name="portfolio" id="portfolio" placeholder="drive.google.com/..." required></div>
+                    <div class="field-group"><label>Link do seu melhor conteudo <span style="color: var(--text-muted); font-weight: 400;">(Instagram, TikTok, YouTube, Drive...)</span></label><input type="text" name="melhor_conteudo" id="melhor_conteudo" placeholder="instagram.com/reel/..." required></div>
+                    <div class="terms-checkbox">
+                        <input type="checkbox" id="aceiteTermos" required>
+                        <label for="aceiteTermos">Li e aceito os <a href="/termos.html" target="_blank">Termos de Uso do Banco de Creators</a></label>
+                    </div>
+                    <button type="submit" class="form-submit" id="submitBtn">Quero receber oportunidades</button>
+                    <div class="form-error" id="formErrorBottom" style="margin-top:14px;"></div>
                 </form>
+                <p class="form-footer">Ao se cadastrar, voce aceita receber contato sobre campanhas.<br>Seus dados estao seguros.</p>
             </div>
-
             <div class="success-state" id="successState">
-                <div class="success-check-animated">&#10003;</div>
-                <h3 class="success-title">Recebido! 💛</h3>
-                <p class="success-subtitle" id="successSub">Prontinho, recebi os seus dados. Vou avaliar o seu perfil com carinho e, se for aprovado, te chamo individualmente pra combinar tudo. Qualquer dúvida, é só me chamar no direct.</p>
+                <div class="success-block">
+                    <div class="success-check-animated">&#10003;</div>
+                    <h3 class="success-title">Recebido! 💛</h3>
+                    <p class="success-subtitle">Prontinho, seu cadastro entrou na nossa base e você já está nesta campanha. Vou avaliar o seu perfil com carinho e, se rolar, te chamo individualmente pra combinar tudo.</p>
+                    <p class="success-small">Enviamos um e-mail de confirmacao — confira sua caixa de entrada.</p>
+                </div>
+                <div class="success-block share-section">
+                    <div class="share-label">Indique para uma amiga!</div>
+                    <div class="share-sublabel">Compartilhe seu link exclusivo. Quando ela se cadastrar, saberemos que foi sua indicacao.</div>
+                    <div class="ref-link-box" id="refLinkBox" style="display:none;">
+                        <input type="text" id="refLinkInput" readonly class="ref-link-input">
+                        <button class="btn-copy-ref" id="btnCopyRef">Copiar</button>
+                    </div>
+                    <div class="share-buttons">
+                        <button class="share-btn share-btn-whatsapp" id="shareBtn">Enviar por WhatsApp</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
 <script>
-    /* ── Convite direto pra campanha (entra na base + na planilha como Pendente) ── */
-    const CAMPANHA_ID = 'a44c402b-cade-4b7c-91f6-93f46e98e030'; /* Hoomy · Ago/26 */
-    const MARCA_ID    = '273e6efe-a7e7-4cf4-b3d8-e066e49036d4'; /* Hoomy */
-    const TRACK_SLUG  = 'convite_hoomy';
+    /* Foto de perfil */
+    document.getElementById('fotoInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 15 * 1024 * 1024) { alert('A foto deve ter no maximo 15MB.'); e.target.value = ''; return; }
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            document.getElementById('photoPreview').innerHTML = '<img src="' + ev.target.result + '" alt="Preview">';
+        };
+        reader.readAsDataURL(file);
+    });
 
-    /* ── Supabase (anon) ── */
+    /* Mascara WhatsApp */
+    document.getElementById('whatsapp').addEventListener('input', function(e) {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length > 11) v = v.slice(0, 11);
+        if (v.length > 6) v = '(' + v.slice(0,2) + ') ' + v.slice(2,7) + '-' + v.slice(7);
+        else if (v.length > 2) v = '(' + v.slice(0,2) + ') ' + v.slice(2);
+        else if (v.length > 0) v = '(' + v;
+        e.target.value = v;
+    });
+
+    /* IBGE: Estados e Cidades */
+    const estadoSelect = document.getElementById('estado');
+    const cidadeSelect = document.getElementById('cidade');
+    async function carregarEstados() {
+        try {
+            const res = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome');
+            const estados = await res.json();
+            estados.forEach(estado => { const opt = document.createElement('option'); opt.value = estado.sigla; opt.textContent = estado.nome + ' (' + estado.sigla + ')'; estadoSelect.appendChild(opt); });
+        } catch (err) {
+            const ufs = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
+            ufs.forEach(uf => { const opt = document.createElement('option'); opt.value = uf; opt.textContent = uf; estadoSelect.appendChild(opt); });
+        }
+    }
+    estadoSelect.addEventListener('change', async function() {
+        const uf = this.value;
+        cidadeSelect.innerHTML = '<option value="" disabled selected>Carregando cidades...</option>';
+        cidadeSelect.disabled = true;
+        try {
+            const res = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados/' + uf + '/municipios?orderBy=nome');
+            const cidades = await res.json();
+            cidadeSelect.innerHTML = '<option value="" disabled selected>Selecione a cidade</option>';
+            cidades.forEach(cidade => { const opt = document.createElement('option'); opt.value = cidade.nome; opt.textContent = cidade.nome; cidadeSelect.appendChild(opt); });
+            cidadeSelect.disabled = false;
+        } catch (err) {
+            cidadeSelect.innerHTML = '';
+            const input = document.createElement('input');
+            input.type = 'text'; input.name = 'cidade'; input.id = 'cidade'; input.required = true; input.placeholder = 'Digite sua cidade';
+            cidadeSelect.replaceWith(input);
+        }
+    });
+    carregarEstados();
+
+    /* Nicho Multi-Select */
+    const NICHO_CATEGORIES = {
+        'Beleza & Cuidados Pessoais': ['Skincare','Maquiagem','Cabelos','Unhas','Perfumaria','Corpo & Banho'],
+        'Moda & Estilo': ['Roupas femininas','Roupas masculinas','Acessorios','Calcados','Moda sustentavel','Moda plus size'],
+        'Saude & Bem-estar': ['Fitness','Nutricao','Suplementos','Yoga/Meditacao','Saude mental','Saude feminina'],
+        'Alimentacao': ['Receitas saudaveis','Confeitaria','Drinks','Cozinha pratica','Alimentacao vegana/vegetariana'],
+        'Casa & Decoracao': ['Decoracao','Organizacao','DIY/Faca voce mesma','Jardinagem','Smart home'],
+        'Tecnologia': ['Gadgets','Apps','Produtividade digital','Games'],
+        'Maternidade & Familia': ['Gestacao','Bebes','Criancas','Familia'],
+        'Pets': ['Cachorros','Gatos','Pets exoticos'],
+        'Viagem & Turismo': ['Viagens nacionais','Viagens internacionais','Turismo gastronomico','Viagem economica'],
+        'Educacao & Carreira': ['Cursos/Mentorias','Empreendedorismo','Marketing digital','Financas pessoais'],
+        'Entretenimento': ['Humor','Musica','Livros/Leitura','Filmes & Series'],
+        'Lifestyle': ['Dia a dia','Rotina','Minimalismo','Sustentabilidade'],
+        'Servicos & Locais': ['Restaurantes','Clinicas de estetica','Saloes de beleza','Academias','Hoteis/Pousadas'],
+        'Automotivo': ['Carros','Motos','Acessorios automotivos']
+    };
+    const MAX_NICHOS = 10;
+    let selectedNichos = [];
+
+    function renderNichoPicker(containerId, counterId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        let html = '';
+        for (const [category, options] of Object.entries(NICHO_CATEGORIES)) {
+            html += '<div class="nicho-category"><div class="nicho-category-title">' + category + '</div><div class="nicho-options">';
+            options.forEach(opt => {
+                html += '<span class="nicho-chip" data-value="' + opt + '" onclick="toggleNicho(this,\'' + counterId + '\')">' + opt + '</span>';
+            });
+            html += '</div></div>';
+        }
+        container.innerHTML = html;
+    }
+
+    function toggleNicho(chip, counterId) {
+        const value = chip.dataset.value;
+        const idx = selectedNichos.indexOf(value);
+        if (idx > -1) { selectedNichos.splice(idx, 1); chip.classList.remove('selected'); }
+        else { if (selectedNichos.length >= MAX_NICHOS) return; selectedNichos.push(value); chip.classList.add('selected'); }
+        updateNichoCounter(counterId);
+        updateNichoChipStates();
+    }
+
+    function updateNichoCounter(counterId) {
+        const counter = document.getElementById(counterId);
+        if (!counter) return;
+        counter.textContent = selectedNichos.length + ' / ' + MAX_NICHOS + ' selecionados';
+        counter.classList.toggle('limit', selectedNichos.length >= MAX_NICHOS);
+    }
+
+    function updateNichoChipStates() {
+        const atLimit = selectedNichos.length >= MAX_NICHOS;
+        document.querySelectorAll('.nicho-chip').forEach(chip => {
+            if (!chip.classList.contains('selected')) chip.classList.toggle('disabled', atLimit);
+        });
+    }
+
+    renderNichoPicker('nichoPicker', 'nichoCounter');
+
+    /* Sobre: contador */
+    const sobreField = document.getElementById('sobre');
+    if (sobreField) {
+        sobreField.addEventListener('input', function() {
+            const counter = document.getElementById('sobreCounter');
+            const len = this.value.length;
+            counter.textContent = len + ' / 200';
+            counter.classList.toggle('limit', len >= 200);
+        });
+    }
+
+    function formatUrl(url) {
+        if (!url) return null;
+        const s = url.trim();
+        if (!s) return null;
+        if (/^https?:\/\//i.test(s)) return s;
+        return 'https://' + s;
+    }
+
+    /* Campanha alvo (Hoomy · Ago/26): novo cadastro entra na base + no fim desta planilha como "Pendente" */
+    const CAMPANHA_ID = 'a44c402b-cade-4b7c-91f6-93f46e98e030';
+    const MARCA_ID    = '273e6efe-a7e7-4cf4-b3d8-e066e49036d4';
+
+    /* Supabase */
     const SUPABASE_URL = 'https://mfrmnquvwwuxraqgemyh.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mcm1ucXV2d3d1eHJhcWdlbXloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNDI1NDIsImV4cCI6MjA4NzYxODU0Mn0.zmsi08dV5L1IlXJSr34vOii71w0g0OsD5_5DKio5g-o';
     let sb = null;
     function initSb() { if (sb) return sb; try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch (e) {} return sb; }
     initSb();
 
-    /* ── Tracking de visita ── */
-    (function trackView() {
-        try { if (sessionStorage.getItem('camp_convhoomy_viewed')) return; sessionStorage.setItem('camp_convhoomy_viewed', '1'); } catch (e) {}
+    /* Modo edicao */
+    let isEditMode = false;
+    let editCreatorEmail = null;
+    let editCreatorWhatsapp = null;
+
+    /* Mascara WhatsApp no campo de verificacao */
+    document.getElementById('verifyWhatsapp').addEventListener('input', function(e) {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length > 11) v = v.slice(0, 11);
+        if (v.length > 6) v = '(' + v.slice(0,2) + ') ' + v.slice(2,7) + '-' + v.slice(7);
+        else if (v.length > 2) v = '(' + v.slice(0,2) + ') ' + v.slice(2);
+        else if (v.length > 0) v = '(' + v;
+        e.target.value = v;
+    });
+
+    /* Mostrar secao de verificacao */
+    document.getElementById('btnEditarCadastro').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('editarLink').style.display = 'none';
+        document.getElementById('formTitleEl').style.display = 'none';
+        document.getElementById('formSubtitleEl').style.display = 'none';
+        document.getElementById('creatorForm').style.display = 'none';
+        document.querySelector('.form-footer').style.display = 'none';
+        document.getElementById('verifySection').style.display = 'block';
+    });
+
+    /* Voltar pro cadastro */
+    document.getElementById('btnVoltarCadastro').addEventListener('click', function(e) {
+        e.preventDefault();
+        exitEditMode();
+    });
+
+    /* Verificar identidade */
+    document.getElementById('btnVerificar').addEventListener('click', async function() {
+        const btn = this;
+        const errorEl = document.getElementById('verifyError');
+        errorEl.classList.remove('show');
+
+        const email = document.getElementById('verifyEmail').value.trim().toLowerCase();
+        const whatsapp = document.getElementById('verifyWhatsapp').value.trim();
+
+        if (!email || !whatsapp) {
+            errorEl.textContent = 'Preencha o e-mail e o WhatsApp.';
+            errorEl.classList.add('show');
+            return;
+        }
+
+        if (!initSb()) {
+            errorEl.textContent = 'Erro de conexao. Recarregue a pagina.';
+            errorEl.classList.add('show');
+            return;
+        }
+
+        btn.textContent = 'Verificando...';
+        btn.disabled = true;
+
         try {
-            if (!initSb()) return;
-            const p = new URLSearchParams(window.location.search);
-            sb.from('campanha_events').insert([{
-                evento: 'view',
-                origem: (p.get('ref') || p.get('utm_source') || TRACK_SLUG),
-                referrer: (document.referrer || '').slice(0, 300) || null,
-                path: (window.location.pathname + window.location.search).slice(0, 200)
-            }]).then(function () {}, function () {});
-        } catch (e) {}
-    })();
+            const { data: result, error } = await sb.rpc('creator_verify_identity', {
+                p_email: email,
+                p_whatsapp: whatsapp
+            });
+            if (error) throw error;
 
-    /* ── Estado ── */
-    let jaCadastrada = false;
+            if (result && result.encontrado) {
+                enterEditMode(email, whatsapp, result.dados);
+            } else {
+                errorEl.textContent = result?.erro || 'Cadastro nao encontrado.';
+                errorEl.classList.add('show');
+            }
+        } catch (err) {
+            errorEl.textContent = err.message || 'Erro ao verificar. Tente novamente.';
+            errorEl.classList.add('show');
+        } finally {
+            btn.textContent = 'Verificar identidade';
+            btn.disabled = false;
+        }
+    });
 
-    /* ── Helpers ── */
-    function gv(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
-    function escapeHtml(s) { return (s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
-    function formatUrl(url) { if (!url) return null; const s = url.trim(); if (!s) return null; if (/^https?:\/\//i.test(s)) return s; return 'https://' + s; }
+    /* Entrar no modo edicao */
+    async function enterEditMode(email, whatsapp, dados) {
+        isEditMode = true;
+        editCreatorEmail = email;
+        editCreatorWhatsapp = whatsapp;
 
-    /* ── Máscara WhatsApp ── */
-    function bindWhatsappMask() {
-        const w = document.getElementById('whatsapp');
-        if (!w) return;
-        w.addEventListener('input', function (e) {
-            let v = e.target.value.replace(/\D/g, '');
-            if (v.length > 11) v = v.slice(0, 11);
-            if (v.length > 6) v = '(' + v.slice(0, 2) + ') ' + v.slice(2, 7) + '-' + v.slice(7);
-            else if (v.length > 2) v = '(' + v.slice(0, 2) + ') ' + v.slice(2);
-            else if (v.length > 0) v = '(' + v;
-            e.target.value = v;
+        document.getElementById('verifySection').style.display = 'none';
+        document.getElementById('editarLink').style.display = 'none';
+
+        document.getElementById('formTitleEl').textContent = 'Editar cadastro';
+        document.getElementById('formTitleEl').style.display = '';
+        /* Link de indicacao */
+        let refCode = dados.codigo_indicacao || '';
+        if (!refCode) {
+            refCode = gerarCodigoIndicacao();
+            try {
+                await sb.rpc('creator_update_self', {
+                    p_email: email,
+                    p_whatsapp: whatsapp,
+                    p_data: { codigo_indicacao: refCode }
+                });
+            } catch (e) { refCode = ''; }
+        }
+        const refUrl = refCode ? 'https://creators.laradam.com/cadastro?ref=' + refCode : '';
+        const refHtml = refUrl
+            ? '<div class="ref-link-box"><div class="ref-label">Seu link de indicacao</div><div class="ref-url"><input type="text" value="' + refUrl + '" readonly id="refLinkInput"><button onclick="copyRefLink()">Copiar</button></div></div>'
+            : '';
+        document.getElementById('formSubtitleEl').innerHTML = '<div class="edit-mode-banner">Voce esta editando seu cadastro. O e-mail nao pode ser alterado.</div>' + refHtml;
+        document.getElementById('formSubtitleEl').style.display = '';
+
+        document.getElementById('creatorForm').style.display = '';
+        document.querySelector('.form-footer').style.display = '';
+
+        /* Preencher campos */
+        document.getElementById('nome').value = dados.nome || '';
+        document.getElementById('whatsapp').value = dados.whatsapp || '';
+        document.getElementById('email').value = dados.email || '';
+        document.getElementById('instagram').value = dados.instagram || '';
+        document.getElementById('tiktok').value = dados.tiktok || '';
+        document.getElementById('nascimento').value = dados.data_nascimento || '';
+        document.getElementById('genero').value = dados.genero || '';
+        document.getElementById('seguidores').value = dados.seguidores || '';
+        document.getElementById('sobre').value = dados.sobre || '';
+        document.getElementById('experiencia').value = dados.experiencia || '';
+        document.getElementById('portfolio').value = dados.portfolio || '';
+        document.getElementById('melhor_conteudo').value = dados.melhor_conteudo || '';
+
+        /* Contador do sobre */
+        const sobreLen = (dados.sobre || '').length;
+        const sobreCounter = document.getElementById('sobreCounter');
+        if (sobreCounter) {
+            sobreCounter.textContent = sobreLen + ' / 200';
+            sobreCounter.classList.toggle('limit', sobreLen >= 200);
+        }
+
+        /* Bloquear email */
+        const emailField = document.getElementById('email');
+        emailField.readOnly = true;
+        emailField.closest('.field-group').classList.add('field-locked');
+
+        /* Foto atual */
+        if (dados.foto_perfil) {
+            const fotoImg = document.createElement('img');
+            fotoImg.src = dados.foto_perfil;
+            fotoImg.alt = 'Foto atual';
+            fotoImg.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%';
+            const preview = document.getElementById('photoPreview');
+            preview.innerHTML = '';
+            preview.appendChild(fotoImg);
+            document.querySelector('.photo-label').textContent = 'Alterar foto (opcional)';
+        }
+
+        /* Tipo creator */
+        if (dados.tipo_creator) {
+            const radio = document.querySelector('input[name="tipo_creator"][value="' + dados.tipo_creator + '"]');
+            if (radio) radio.checked = true;
+        }
+
+        /* Estado e cidade */
+        if (dados.estado) {
+            const estadoSelect = document.getElementById('estado');
+            estadoSelect.value = dados.estado;
+
+            if (dados.cidade) {
+                const cidadeSelect = document.getElementById('cidade');
+                cidadeSelect.innerHTML = '<option value="" disabled selected>Carregando...</option>';
+                cidadeSelect.disabled = true;
+                try {
+                    const res = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados/' + dados.estado + '/municipios?orderBy=nome');
+                    const cidades = await res.json();
+                    cidadeSelect.innerHTML = '<option value="" disabled selected>Selecione a cidade</option>';
+                    cidades.forEach(function(c) {
+                        const opt = document.createElement('option');
+                        opt.value = c.nome; opt.textContent = c.nome;
+                        cidadeSelect.appendChild(opt);
+                    });
+                    cidadeSelect.disabled = false;
+                    cidadeSelect.value = dados.cidade;
+                } catch (err) {
+                    const input = document.createElement('input');
+                    input.type = 'text'; input.name = 'cidade'; input.id = 'cidade'; input.required = true; input.value = dados.cidade;
+                    cidadeSelect.replaceWith(input);
+                }
+            }
+        }
+
+        /* Nichos */
+        selectedNichos = [];
+        if (dados.nicho) {
+            try {
+                const parsed = JSON.parse(dados.nicho);
+                if (Array.isArray(parsed)) {
+                    selectedNichos = parsed;
+                    document.querySelectorAll('#nichoPicker .nicho-chip').forEach(function(chip) {
+                        if (selectedNichos.includes(chip.dataset.value)) {
+                            chip.classList.add('selected');
+                        }
+                    });
+                    updateNichoCounter('nichoCounter');
+                    updateNichoChipStates();
+                }
+            } catch (e) {}
+        }
+
+        /* Ocultar termos (ja aceitou) */
+        const termsSection = document.querySelector('.terms-checkbox');
+        if (termsSection) {
+            termsSection.style.display = 'none';
+            document.getElementById('aceiteTermos').checked = true;
+        }
+
+        /* Botao salvar */
+        document.getElementById('submitBtn').textContent = 'Salvar alteracoes';
+
+        /* Link cancelar */
+        if (!document.getElementById('cancelEditLink')) {
+            const cancelP = document.createElement('p');
+            cancelP.id = 'cancelEditLink';
+            cancelP.style.cssText = 'text-align:center;margin-top:12px;';
+            cancelP.innerHTML = '<a href="#" style="font-size:13px;color:var(--text-muted);text-decoration:underline;">Cancelar e voltar ao cadastro</a>';
+            cancelP.querySelector('a').addEventListener('click', function(e) { e.preventDefault(); exitEditMode(); });
+            document.getElementById('submitBtn').parentNode.insertBefore(cancelP, document.getElementById('submitBtn').nextSibling);
+        }
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* Sair do modo edicao */
+    function exitEditMode() {
+        isEditMode = false;
+        editCreatorEmail = null;
+        editCreatorWhatsapp = null;
+
+        document.getElementById('verifySection').style.display = 'none';
+        document.getElementById('editarLink').style.display = '';
+
+        document.getElementById('formTitleEl').textContent = 'Seus dados';
+        document.getElementById('formTitleEl').style.display = '';
+        document.getElementById('formSubtitleEl').textContent = 'Preencha abaixo para entrar na nossa base e receber oportunidades de campanhas.';
+        document.getElementById('formSubtitleEl').style.display = '';
+
+        document.getElementById('creatorForm').style.display = '';
+        document.querySelector('.form-footer').style.display = '';
+        document.getElementById('creatorForm').reset();
+
+        const emailField = document.getElementById('email');
+        emailField.readOnly = false;
+        emailField.closest('.field-group').classList.remove('field-locked');
+
+        document.getElementById('photoPreview').innerHTML = '<span class="photo-icon">+</span>';
+        document.querySelector('.photo-label').textContent = 'Enviar foto de perfil (obrigatorio)';
+
+        selectedNichos = [];
+        document.querySelectorAll('#nichoPicker .nicho-chip').forEach(function(chip) {
+            chip.classList.remove('selected', 'disabled');
+        });
+        updateNichoCounter('nichoCounter');
+
+        const termsSection = document.querySelector('.terms-checkbox');
+        if (termsSection) {
+            termsSection.style.display = '';
+            document.getElementById('aceiteTermos').checked = false;
+        }
+
+        document.getElementById('submitBtn').textContent = 'Quero receber oportunidades';
+        const cancelLink = document.getElementById('cancelEditLink');
+        if (cancelLink) cancelLink.remove();
+
+        const cidadeEl = document.getElementById('cidade');
+        if (cidadeEl && cidadeEl.tagName === 'SELECT') {
+            cidadeEl.innerHTML = '<option value="" disabled selected>Selecione o estado primeiro</option>';
+            cidadeEl.disabled = true;
+        }
+    }
+
+    function copyRefLink() {
+        const input = document.getElementById('refLinkInput');
+        if (!input) return;
+        navigator.clipboard.writeText(input.value).then(() => {
+            const btn = input.nextElementSibling;
+            btn.textContent = 'Copiado!';
+            setTimeout(() => { btn.textContent = 'Copiar'; }, 2000);
+        }).catch(() => {
+            input.select();
+            document.execCommand('copy');
         });
     }
 
-    /* ── ETAPA 1 → 2 ── */
-    document.getElementById('gateBtn').addEventListener('click', async function () {
-        const btn = this;
-        const err = document.getElementById('gateError');
-        err.classList.remove('show');
-        const nome = gv('gateNome');
-        const email = gv('gateEmail').toLowerCase();
-        if (!nome) { err.textContent = 'Digite o seu nome.'; err.classList.add('show'); return; }
-        if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { err.textContent = 'Digite um e-mail válido.'; err.classList.add('show'); return; }
+    /* UTM e Indicacao */
+    const _params = new URLSearchParams(window.location.search);
+    const utmOrigem = _params.get('utm') || 'direto';
+    const refCode = _params.get('ref') || null;
 
-        btn.textContent = 'Verificando...'; btn.disabled = true;
-        let info = null;
-        try {
-            if (initSb()) {
-                const { data, error } = await sb.rpc('campanha_creator_lookup', { p_email: email });
-                if (!error) info = data;
-            }
-        } catch (e) { /* segue como nova */ }
+    function gerarCodigoIndicacao() {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let code = '';
+        for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+        return code;
+    }
 
-        jaCadastrada = !!(info && info.encontrado);
-        bindWhatsappMask();
-
-        const banner = document.getElementById('welcomeBanner');
-        if (jaCadastrada) {
-            const primeiro = ((info.nome || nome) || '').split(' ')[0];
-            banner.innerHTML = 'Oi, ' + escapeHtml(primeiro) + '! Achamos o seu cadastro na nossa base 💛. Já preenchemos os seus dados, é só conferir (e atualizar se mudou algo).';
-            banner.classList.add('show');
-            if (info.instagram) document.getElementById('instagram').value = info.instagram;
-            if (info.cidade) document.getElementById('cidade').value = info.cidade + (info.estado ? ', ' + info.estado : '');
-        } else {
-            banner.classList.remove('show');
-        }
-
-        document.getElementById('gateSection').style.display = 'none';
-        document.getElementById('campForm').style.display = 'block';
-        btn.textContent = 'Continuar'; btn.disabled = false;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-
-    /* ── ETAPA 2: envio ── */
-    document.getElementById('campForm').addEventListener('submit', async function (e) {
+    /* Submit */
+    document.getElementById('creatorForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const btn = document.getElementById('submitBtn');
-        const errorEl = document.getElementById('formError');
-        errorEl.classList.remove('show');
+        const errorEl = document.getElementById('formErrorBottom');
+        errorEl.classList.remove('show', 'duplicate');
+        document.getElementById('formError').classList.remove('show');
+        btn.textContent = isEditMode ? 'Salvando...' : 'Enviando...';
+        btn.disabled = true;
+
         try {
-            if (!initSb()) throw new Error('Erro de conexão. Recarregue a página.');
-            const nome = gv('gateNome');
-            const email = gv('gateEmail').toLowerCase();
-            const instagram = gv('instagram');
-            const cidade = gv('cidade');
-            const seguidores = gv('seguidores');
-            const whatsapp = gv('whatsapp');
-            const portfolio = gv('portfolio');
+            if (!initSb()) throw new Error('Erro de conexao. Recarregue a pagina.');
+            if (selectedNichos.length === 0) throw new Error('Selecione pelo menos 1 nicho do seu conteudo.');
+            if (!document.querySelector('input[name="tipo_creator"]:checked')) throw new Error('Selecione o tipo de creator.');
 
-            if (!instagram) throw new Error('Preencha o seu @ do Instagram.');
-            if (!cidade) throw new Error('Preencha a sua cidade.');
-            if (!seguidores) throw new Error('Preencha o seu número de seguidores (só números).');
-            if (!whatsapp) throw new Error('Preencha o seu WhatsApp com DDD.');
-            if (!portfolio) throw new Error('Coloque o link do seu portfólio ou melhor conteúdo.');
+            /* Foto: obrigatoria no cadastro, opcional na edicao */
+            const fotoField = document.getElementById('fotoInput');
+            const temNovaFoto = fotoField && fotoField.files && fotoField.files[0];
+            if (!isEditMode && !temNovaFoto) throw new Error('Envie sua foto de perfil.');
+            let fotoUrl = null;
 
-            btn.textContent = 'Enviando...'; btn.disabled = true;
-            const { data, error } = await sb.rpc('campanha_creator_signup', {
-                p_campanha_id: CAMPANHA_ID,
-                p_marca_id: MARCA_ID,
-                p_nome: nome,
-                p_email: email,
-                p_whatsapp: whatsapp,
-                p_instagram: instagram,
-                p_cidade: cidade,
-                p_seguidores: seguidores,
-                p_portfolio: formatUrl(portfolio)
-            });
-            if (error) throw new Error('Não consegui enviar agora. Tenta de novo em instantes.');
-            if (data && data.ok === false) {
-                if (data.erro === 'email_invalido') throw new Error('E-mail inválido, confere pra mim.');
-                if (data.erro === 'nome_obrigatorio') throw new Error('Preencha o seu nome.');
-                throw new Error('Não consegui enviar agora. Tenta de novo em instantes.');
+            if (temNovaFoto) {
+                const arquivo = fotoField.files[0];
+                /* Comprimir e redimensionar para 400x400 JPEG */
+                const compressedBlob = await new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = 400;
+                        canvas.height = 400;
+                        const ctx = canvas.getContext('2d');
+                        const size = Math.min(img.width, img.height);
+                        const sx = (img.width - size) / 2;
+                        const sy = (img.height - size) / 2;
+                        ctx.drawImage(img, sx, sy, size, size, 0, 0, 400, 400);
+                        canvas.toBlob(b => b ? resolve(b) : reject(new Error('Erro ao processar foto.')), 'image/jpeg', 0.85);
+                    };
+                    img.onerror = () => reject(new Error('Erro ao carregar foto. Tente outro arquivo.'));
+                    img.src = URL.createObjectURL(arquivo);
+                });
+                const nomeArquivo = Date.now() + '_' + Math.random().toString(36).slice(2, 8) + '.jpg';
+                const { error: uploadError } = await sb.storage.from('fotos-perfil').upload(nomeArquivo, compressedBlob, { cacheControl: '3600', upsert: true, contentType: 'image/jpeg' });
+                if (uploadError) throw new Error('Erro ao enviar foto: ' + uploadError.message);
+                const { data: urlData } = sb.storage.from('fotos-perfil').getPublicUrl(nomeArquivo);
+                fotoUrl = urlData.publicUrl;
             }
 
-            document.getElementById('formContent').style.display = 'none';
-            document.getElementById('successState').classList.add('show');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            const cidadeEl = document.getElementById('cidade');
+            const cidadeValue = cidadeEl.tagName === 'SELECT' ? cidadeEl.value : cidadeEl.value.trim();
+
+            if (isEditMode) {
+                /* ═══ MODO EDICAO ═══ */
+                const updateData = {
+                    nome: document.getElementById('nome').value.trim(),
+                    whatsapp: document.getElementById('whatsapp').value.trim(),
+                    instagram: document.getElementById('instagram').value.trim().toLowerCase(),
+                    tiktok: document.getElementById('tiktok').value.trim().toLowerCase() || '',
+                    data_nascimento: document.getElementById('nascimento').value || '',
+                    genero: document.getElementById('genero').value,
+                    seguidores: document.getElementById('seguidores').value,
+                    estado: document.getElementById('estado').value,
+                    cidade: cidadeValue,
+                    nicho: JSON.stringify(selectedNichos),
+                    tipo_creator: document.querySelector('input[name="tipo_creator"]:checked')?.value || '',
+                    sobre: (document.getElementById('sobre')?.value || '').trim().substring(0, 200) || '',
+                    experiencia: document.getElementById('experiencia').value,
+                    portfolio: formatUrl(document.getElementById('portfolio').value) || '',
+                    melhor_conteudo: formatUrl(document.getElementById('melhor_conteudo').value) || ''
+                };
+                if (fotoUrl) updateData.foto_perfil = fotoUrl;
+
+                const { data: updateResult, error: updateError } = await sb.rpc('creator_update_self', {
+                    p_email: editCreatorEmail,
+                    p_whatsapp: editCreatorWhatsapp,
+                    p_data: updateData
+                });
+
+                if (updateError) {
+                    if ((updateError.message || '').includes('23505') || updateError.code === '23505') {
+                        throw new Error('Esse Instagram ja esta em uso por outra creator.');
+                    }
+                    throw updateError;
+                }
+                if (updateResult && !updateResult.sucesso) {
+                    throw new Error(updateResult.erro || 'Erro ao atualizar cadastro.');
+                }
+
+                /* Sucesso na edicao */
+                document.getElementById('formContent').style.display = 'none';
+                const successState = document.getElementById('successState');
+                const successTitle = successState.querySelector('.success-title');
+                const successSubtitle = successState.querySelector('.success-subtitle');
+                const successSmall = successState.querySelector('.success-small');
+                if (successTitle) successTitle.textContent = 'Cadastro atualizado!';
+                if (successSubtitle) successSubtitle.textContent = 'Suas alteracoes foram salvas com sucesso.';
+                if (successSmall) successSmall.textContent = '';
+                const shareSection = successState.querySelector('.share-section');
+                if (shareSection) shareSection.style.display = 'none';
+                successState.classList.add('show');
+
+            } else {
+                /* ═══ MODO CADASTRO (original) ═══ */
+                const creatorData = {
+                    nome: document.getElementById('nome').value.trim(),
+                    email: document.getElementById('email').value.trim().toLowerCase(),
+                    whatsapp: document.getElementById('whatsapp').value.trim(),
+                    instagram: document.getElementById('instagram').value.trim().toLowerCase(),
+                    tiktok: document.getElementById('tiktok').value.trim().toLowerCase() || null,
+                    data_nascimento: document.getElementById('nascimento').value || null,
+                    genero: document.getElementById('genero').value,
+                    seguidores: document.getElementById('seguidores').value,
+                    estado: document.getElementById('estado').value,
+                    cidade: cidadeValue,
+                    nicho: JSON.stringify(selectedNichos),
+                    tipo_creator: document.querySelector('input[name="tipo_creator"]:checked')?.value || null,
+                    sobre: (document.getElementById('sobre')?.value || '').trim().substring(0, 200) || null,
+                    experiencia: document.getElementById('experiencia').value,
+                    portfolio: formatUrl(document.getElementById('portfolio').value),
+                    melhor_conteudo: formatUrl(document.getElementById('melhor_conteudo').value),
+                    foto_perfil: fotoUrl,
+                    origem: 'convite',
+                    utm_origem: utmOrigem,
+                    codigo_indicacao: gerarCodigoIndicacao(),
+                    indicada_por: refCode,
+                    status: 'novo',
+                    aceite_termos: true,
+                    data_aceite_termos: new Date().toISOString()
+                };
+
+                let tentativas = 0;
+                let error;
+                let jaExistia = false;
+                do {
+                    ({ error } = await sb.from('creators').insert([creatorData]));
+                    if (error && error.message?.includes('codigo_indicacao') && tentativas < 3) {
+                        creatorData.codigo_indicacao = gerarCodigoIndicacao();
+                        tentativas++;
+                    } else break;
+                } while (true);
+                if (error) {
+                    /* Ja e da base (email/@ ja existem): segue e adiciona na campanha do mesmo jeito */
+                    if (error.code === '23505') { jaExistia = true; }
+                    else throw error;
+                }
+                const codigoRef = creatorData.codigo_indicacao;
+
+                /* Adiciona no FIM da planilha da campanha como "Pendente" (nova OU ja existente) */
+                try {
+                    await sb.rpc('campanha_add_creator_pendente', {
+                        p_campanha_id: CAMPANHA_ID,
+                        p_marca_id: MARCA_ID,
+                        p_email: creatorData.email
+                    });
+                } catch (campErr) {}
+
+                /* E-mail de boas-vindas so pra quem entrou agora */
+                if (!jaExistia) {
+                    try {
+                        const emailRes = await sb.functions.invoke('send-welcome-email', {
+                            body: { nome: creatorData.nome, email: creatorData.email }
+                        });
+                        if (!emailRes.error) {
+                            await sb.from('creators').update({
+                                email_boas_vindas_enviado: true,
+                                email_boas_vindas_data: new Date().toISOString()
+                            }).eq('email', creatorData.email);
+                        }
+                    } catch (emailErr) {}
+                }
+
+                document.getElementById('formContent').style.display = 'none';
+                const _ss = document.getElementById('successState');
+                if (jaExistia) {
+                    const _t = _ss.querySelector('.success-title');
+                    const _s = _ss.querySelector('.success-subtitle');
+                    const _sm = _ss.querySelector('.success-small');
+                    const _sh = _ss.querySelector('.share-section');
+                    if (_t) _t.textContent = 'Recebido! 💛';
+                    if (_s) _s.textContent = 'Voce ja fazia parte da nossa base — coloquei voce nesta campanha. Vou avaliar o seu perfil com carinho e, se rolar, te chamo individualmente.';
+                    if (_sm) _sm.textContent = '';
+                    if (_sh) _sh.style.display = 'none';
+                }
+                _ss.classList.add('show');
+                if (!jaExistia) { setupShareButtons(codigoRef); launchConfetti(); }
+            }
         } catch (err) {
+            const isDuplicate = (err.message || '').includes('ja esta cadastrad') || (err.message || '').includes('ja esta em uso');
             errorEl.textContent = err.message || 'Erro ao enviar. Tente novamente.';
+            errorEl.classList.remove('duplicate');
+            if (isDuplicate) errorEl.classList.add('duplicate');
             errorEl.classList.add('show');
             errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            btn.textContent = 'Quero participar'; btn.disabled = false;
+            btn.textContent = isEditMode ? 'Salvar alteracoes' : 'Quero receber oportunidades';
+            btn.disabled = false;
         }
     });
+
+    /* Confetti */
+    function launchConfetti() {
+        const container = document.createElement('div');
+        container.className = 'confetti-container';
+        document.body.appendChild(container);
+        const colors = ['#D4572A','#E8784A','#2D7A4F','#F5C842','#B8461F','#6B645C'];
+        for (let i = 0; i < 60; i++) {
+            const p = document.createElement('div');
+            p.className = 'confetti-piece';
+            p.style.left = Math.random() * 100 + '%';
+            p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            p.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            p.style.animationDelay = (Math.random() * 1.5) + 's';
+            p.style.width = (Math.random() * 8 + 6) + 'px';
+            p.style.height = (Math.random() * 8 + 6) + 'px';
+            container.appendChild(p);
+        }
+        setTimeout(() => container.remove(), 5000);
+    }
+
+    /* Share */
+    function setupShareButtons(codigoRef) {
+        const refUrl = codigoRef ? 'https://creators.laradam.com/cadastro?ref=' + codigoRef : 'https://creators.laradam.com/cadastro';
+        const shareText = 'Oi! Me cadastrei no Banco de Creators da Lara Dam — e gratuito e conecta creators com oportunidades de campanhas UGC. Se cadastra tambem: ' + refUrl;
+
+        const refBox = document.getElementById('refLinkBox');
+        const refInput = document.getElementById('refLinkInput');
+        if (refBox && refInput && codigoRef) { refInput.value = refUrl; refBox.style.display = 'flex'; }
+
+        const btnCopy = document.getElementById('btnCopyRef');
+        if (btnCopy) {
+            btnCopy.addEventListener('click', async function() {
+                try { await navigator.clipboard.writeText(refUrl); this.textContent = 'Copiado!'; setTimeout(() => { this.textContent = 'Copiar'; }, 2500); } catch(e) {}
+            });
+        }
+
+        const btn = document.getElementById('shareBtn');
+        if (!btn) return;
+        btn.addEventListener('click', function() {
+            window.open('https://wa.me/?text=' + encodeURIComponent(shareText), '_blank');
+        });
+    }
 </script>
 </body>
 </html>
