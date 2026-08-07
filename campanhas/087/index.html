@@ -382,7 +382,10 @@
     const SUPABASE_URL = 'https://mfrmnquvwwuxraqgemyh.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mcm1ucXV2d3d1eHJhcWdlbXloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNDI1NDIsImV4cCI6MjA4NzYxODU0Mn0.zmsi08dV5L1IlXJSr34vOii71w0g0OsD5_5DKio5g-o';
     let sb = null;
-    function initSb() { if (sb) return sb; try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch (e) {} return sb; }
+    /* persistSession:false + storageKey proprio => o form roda SEMPRE como anon, mesmo se a Lara
+       estiver logada no admin no mesmo dominio (senao herda a sessao autenticada e o upload de foto
+       no bucket fotos-perfil, que so libera INSERT pra anon, da "row-level security policy"). */
+    function initSb() { if (sb) return sb; try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false, storageKey: 'sb-convite-anon' } }); } catch (e) {} return sb; }
     initSb();
 
     /* Modo edicao */
