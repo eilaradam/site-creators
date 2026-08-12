@@ -632,6 +632,121 @@
         .agenda-subbtn svg { width: 16px; height: 16px; }
         .agenda-subbtn:hover { border-color: var(--border-strong); color: var(--text); }
         .agenda-subbtn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .agenda-subnav { flex-wrap: wrap; }
+
+        /* ── Agenda: Metas (sonhos) e Lançamentos ── */
+        .ag-sec-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
+        .ag-sec-head h3 { font-family: 'DM Sans', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: -0.3px; color: var(--text); }
+        .ag-sec-sub { font-size: 13px; color: var(--text-soft); margin-top: 3px; }
+        .ag-btn-add { background: var(--accent); color: #fff; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 13px; padding: 9px 15px; cursor: pointer; transition: background 0.15s; }
+        .ag-btn-add:hover { background: var(--accent-dark); }
+        .ag-eyebrow { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); }
+
+        /* faixa "pra guardar neste mês" */
+        .mt-mes { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 18px 20px; margin-bottom: 22px; }
+        .mt-mes-top { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+        .mt-mes-val { font-family: 'DM Sans', sans-serif; font-size: 30px; font-weight: 700; letter-spacing: -1.2px; color: var(--text); line-height: 1.1; margin-top: 3px; }
+        .mt-mes-val small { font-size: 13.5px; font-weight: 600; color: var(--text-soft); letter-spacing: 0; }
+        .mt-mes-side { text-align: right; font-size: 12.5px; color: var(--text-soft); line-height: 1.5; }
+        .mt-mes-side b { color: var(--text); }
+        .mt-mes-list { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
+        .mt-line { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--cream); }
+        .mt-line.pago { background: rgba(16,159,110,0.08); border-color: rgba(16,159,110,0.25); }
+        .mt-line-ico { font-size: 17px; line-height: 1; }
+        .mt-line-nome { font-weight: 700; font-size: 13.5px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .mt-line-val { font-weight: 700; font-size: 13.5px; color: var(--text); white-space: nowrap; }
+        .mt-line-ok { font-size: 12.5px; font-weight: 700; color: #0B7A54; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; }
+        .mt-guardei { background: var(--accent); color: #fff; border: none; border-radius: 9px; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 12.5px; padding: 7px 13px; cursor: pointer; white-space: nowrap; transition: background 0.15s; }
+        .mt-guardei:hover { background: var(--accent-dark); }
+        .mt-mini { background: none; border: 1px solid var(--border); color: var(--text-muted); border-radius: 8px; padding: 6px 8px; cursor: pointer; display: inline-flex; transition: all 0.15s; }
+        .mt-mini:hover { border-color: var(--accent); color: var(--accent); }
+        .mt-mini svg { width: 14px; height: 14px; }
+
+        /* cards de meta */
+        .mt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 12px; }
+        .mt-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-xs); padding: 16px 18px 15px; display: flex; flex-direction: column; }
+        .mt-card.feita { border-color: rgba(16,159,110,0.4); background: rgba(16,159,110,0.04); }
+        .mt-card-top { display: flex; align-items: flex-start; gap: 10px; }
+        .mt-card-ico { font-size: 20px; line-height: 1.2; }
+        .mt-card-nome { font-family: 'DM Sans', sans-serif; font-size: 15.5px; font-weight: 700; color: var(--text); flex: 1; min-width: 0; letter-spacing: -0.2px; }
+        .mt-chip { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+        .mt-chip.adiantada { background: rgba(16,159,110,0.15); color: #0B7A54; }
+        .mt-chip.ritmo { background: rgba(200,68,26,0.10); color: var(--accent); }
+        .mt-chip.gas { background: rgba(230,161,0,0.17); color: #966400; }
+        .mt-chip.feita { background: #0B7A54; color: #fff; }
+        .mt-valores { display: flex; align-items: baseline; gap: 7px; margin-top: 12px; }
+        .mt-v-atual { font-family: 'DM Sans', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: -0.8px; color: var(--text); }
+        .mt-v-alvo { font-size: 12.5px; color: var(--text-soft); font-weight: 600; }
+        .mt-bar { position: relative; height: 10px; border-radius: 999px; background: #F0E7DD; margin: 16px 0 8px; }
+        .mt-bar-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; background: var(--accent); transition: width 0.35s ease; min-width: 3px; }
+        .mt-card.feita .mt-bar-fill { background: #0B7A54; }
+        .mt-bar-mark { position: absolute; top: -5px; bottom: -5px; width: 2px; background: var(--text); border-radius: 2px; }
+        .mt-bar-mark span { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.3px; white-space: nowrap; }
+        .mt-ritmo { font-size: 12.5px; color: var(--text-soft); line-height: 1.5; }
+        .mt-ritmo b { color: var(--text); }
+        .mt-card-foot { display: flex; align-items: center; gap: 8px; margin-top: 13px; padding-top: 13px; border-top: 1px solid var(--border); }
+        .mt-card-foot .mt-guardei { flex: 1; }
+        .mt-meses { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 12px; }
+        .mt-mq { flex: 1; min-width: 17px; text-align: center; }
+        .mt-mq i { display: block; height: 6px; border-radius: 3px; background: #EDE6DE; }
+        .mt-mq.ok i { background: var(--accent); }
+        .mt-mq.parcial i { background: rgba(200,68,26,0.42); }
+        .mt-mq.atual i { box-shadow: 0 0 0 2px rgba(200,68,26,0.25); }
+        .mt-mq span { font-size: 8.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.2px; display: block; margin-top: 3px; }
+        .mt-vazio { text-align: center; padding: 44px 20px; color: var(--text-muted); background: var(--card); border: 1px dashed var(--border-strong); border-radius: var(--radius); }
+        .mt-vazio p { font-size: 14.5px; color: var(--text-soft); margin-bottom: 14px; font-weight: 600; }
+        .mt-algumdia { margin-top: 22px; }
+        .mt-algumdia-btn { background: none; border: none; color: var(--text-muted); font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; padding: 4px 0; }
+        .mt-algumdia-btn:hover { color: var(--accent); }
+
+        /* faixa de metas dentro do calendário */
+        .cal-meta-strip { display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 12px; padding: 11px 15px; margin-bottom: 14px; cursor: pointer; font-size: 13px; color: var(--text-soft); box-shadow: var(--shadow-xs); transition: border-color 0.15s; }
+        .cal-meta-strip:hover { border-color: var(--border-strong); border-left-color: var(--accent); }
+        .cal-meta-strip b { color: var(--text); }
+        .cal-meta-strip .cms-go { margin-left: auto; color: var(--accent); font-weight: 700; font-size: 12.5px; white-space: nowrap; }
+
+        /* lançamentos */
+        .lanc-map { display: grid; grid-template-columns: repeat(12, 1fr); gap: 5px; margin-bottom: 20px; }
+        .lanc-mblock { border: 1px solid var(--border); background: var(--card); border-radius: 9px; padding: 7px 2px 6px; text-align: center; cursor: pointer; transition: all 0.15s; }
+        .lanc-mblock:hover { border-color: var(--border-strong); }
+        .lanc-mblock .lm-l { font-size: 11px; font-weight: 700; color: var(--text-soft); }
+        .lanc-mblock .lm-d { height: 5px; display: flex; gap: 2px; justify-content: center; margin-top: 5px; }
+        .lanc-mblock .lm-d i { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); display: block; }
+        .lanc-mblock.now { border-color: var(--accent); background: var(--accent-glow); }
+        .lanc-mblock.now .lm-l { color: var(--accent); }
+        .lanc-mes { margin-bottom: 18px; }
+        .lanc-mes-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 9px; }
+        .lanc-mes.now .lanc-mes-title { color: var(--accent); }
+        .lanc-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-xs); padding: 14px 16px; margin-bottom: 9px; }
+        .lanc-mes.now .lanc-card { border-color: rgba(200,68,26,0.35); }
+        .lanc-card-top { display: flex; align-items: center; gap: 10px; }
+        .lanc-nome { font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); flex: 1; min-width: 0; letter-spacing: -0.2px; cursor: pointer; }
+        .lanc-nome:hover { color: var(--accent); }
+        .lanc-st { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 9px; border-radius: 999px; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; }
+        .lanc-st.ideia { background: #EFEAE4; color: #6B635B; }
+        .lanc-st.preparando { background: rgba(230,161,0,0.17); color: #966400; }
+        .lanc-st.noar { background: rgba(200,68,26,0.12); color: var(--accent); }
+        .lanc-st.feito { background: rgba(16,159,110,0.15); color: #0B7A54; }
+        .lanc-meta { display: flex; align-items: center; gap: 10px; margin-top: 11px; flex-wrap: wrap; }
+        .lanc-meta-txt { font-size: 12.5px; color: var(--text-soft); font-weight: 600; }
+        .lanc-meta-txt b { color: var(--text); font-size: 14px; }
+        .lanc-prog { flex: 1; min-width: 120px; height: 8px; border-radius: 999px; background: #F0E7DD; position: relative; }
+        .lanc-prog i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; background: var(--accent); display: block; }
+        .lanc-bump { background: var(--cream); border: 1px solid var(--border); color: var(--text-soft); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 12px; padding: 5px 10px; cursor: pointer; }
+        .lanc-bump:hover { border-color: var(--accent); color: var(--accent); }
+        .lanc-quando { font-size: 12px; color: var(--text-muted); margin-top: 9px; }
+
+        /* linhas de formulário dos modais de meta/lançamento */
+        .ag-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .ag-row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .ag-row-ico { display: grid; grid-template-columns: 136px 1fr; gap: 10px; }
+
+        @media (max-width: 640px) {
+            .mt-mes-side { text-align: left; }
+            .mt-grid { grid-template-columns: 1fr; }
+            .lanc-map { grid-template-columns: repeat(6, 1fr); }
+            .ag-row2, .ag-row3 { grid-template-columns: 1fr; }
+        }
 
         /* ── Calendário ── */
         .cal-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
@@ -683,9 +798,11 @@
         .ev-aula     { background: rgba(120,80,180,0.14); color: #5E3EA6; }
         .ev-tarefa   { background: rgba(230,161,0,0.17); color: #966400; }
         .ev-outro    { background: #EEEAE4; color: #6B635B; }
+        .ev-lancamento { background: rgba(200,68,26,0.13); color: var(--accent); }
         .evdot-gravacao { background: #0E7C86; } .evdot-entrega { background: #10B981; }
         .evdot-postagem { background: #D6336C; } .evdot-aula { background: #7850B4; }
         .evdot-tarefa { background: #E6A100; } .evdot-outro { background: #B8AFA4; }
+        .evdot-lancamento { background: #C8441A; }
 
         /* painel lateral do dia */
         .cal-side { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow-xs); position: sticky; top: 16px; }
@@ -899,10 +1016,13 @@
     <div class="agenda-subnav">
         <button class="agenda-subbtn active" data-agsub="cal" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Calendário</button>
         <button class="agenda-subbtn" data-agsub="lista" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg> Pendências</button>
+        <button class="agenda-subbtn" data-agsub="metas" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4"/></svg> Metas</button>
+        <button class="agenda-subbtn" data-agsub="lanc" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13c0-5 3.5-9.5 7-11 3.5 1.5 7 6 7 11l-2.5 3h-9L5 13z"/><circle cx="12" cy="10" r="2"/><path d="M9.5 19c-1 1.5-1 3-1 3s1.5 0 3-1M14.5 19c1 1.5 1 3 1 3s-1.5 0-3-1"/></svg> Lançamentos</button>
     </div>
 
     <!-- VIEW: CALENDÁRIO -->
     <div id="agViewCal">
+        <div class="cal-meta-strip" id="calMetaStrip" style="display:none" onclick="agShowSub('metas', true)"></div>
         <div id="igInsightCard" class="ig-insight-card" style="display:none"></div>
         <div class="cal-toolbar">
             <div class="cal-nav">
@@ -929,6 +1049,34 @@
                 <div id="calUpcoming"></div>
             </aside>
         </div>
+    </div>
+
+    <!-- VIEW: METAS (sonhos de longo prazo) -->
+    <div id="agViewMetas" style="display:none">
+        <div class="ag-sec-head">
+            <div>
+                <h3>Meus sonhos</h3>
+                <div class="ag-sec-sub">Cada sonho vira um valor por mês. É assim que ele sai do papel.</div>
+            </div>
+            <button class="ag-btn-add" id="mtNovaBtn" type="button">+ Nova meta</button>
+        </div>
+        <div id="mtMesBox"></div>
+        <div id="mtCards"></div>
+        <div class="mt-algumdia" id="mtAlgumDia"></div>
+    </div>
+
+    <!-- VIEW: LANÇAMENTOS (plano do ano) -->
+    <div id="agViewLanc" style="display:none">
+        <div class="ag-sec-head">
+            <div>
+                <h3>Plano do ano</h3>
+                <div class="ag-sec-sub">Tudo que você quer lançar, abrir e vender, mês a mês.</div>
+            </div>
+            <button class="ag-btn-add" id="lancNovoBtn" type="button">+ Novo lançamento</button>
+        </div>
+        <div class="ag-eyebrow" id="lancAnoLabel" style="margin-bottom:8px"></div>
+        <div class="lanc-map" id="lancMap"></div>
+        <div id="lancLista"></div>
     </div>
 
     <!-- VIEW: PENDÊNCIAS (lista) -->
@@ -1005,7 +1153,7 @@
                 <label class="cal-fl">Hora<input type="time" id="cf_hora"></label>
             </div>
             <div class="cal-form-row">
-                <label class="cal-fl">Valor R$<input type="number" id="cf_valor" min="0" step="0.01" placeholder="opcional — pra entregas e aulas"></label>
+                <label class="cal-fl">Valor R$<input type="number" id="cf_valor" min="0" step="0.01" placeholder="opcional, pra entregas e aulas"></label>
                 <label class="cal-fl">Marca / cliente<input type="text" id="cf_cliente" maxlength="80" placeholder="opcional"></label>
             </div>
             <label class="cal-fl">Notas<textarea id="cf_notas" rows="2" maxlength="400" placeholder="opcional"></textarea></label>
@@ -1016,6 +1164,108 @@
             <div style="flex:1"></div>
             <button class="cal-btn-ghost" id="calCancel2" type="button">Cancelar</button>
             <button class="cal-btn-save" id="calSave" type="button">Salvar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: meta de longo prazo -->
+<div class="cal-modal-overlay" id="mtModal">
+    <div class="cal-modal">
+        <h3><span id="mtModalTitle">Nova meta</span><button class="cal-modal-close" id="mtCancel" type="button" aria-label="Fechar">&times;</button></h3>
+        <div class="cal-form">
+            <div class="ag-row-ico">
+                <label class="cal-fl">Ícone
+                    <select id="mf_icone">
+                        <option value="✈️">✈️ Viagem</option>
+                        <option value="🚗">🚗 Carro</option>
+                        <option value="🏠">🏠 Casa</option>
+                        <option value="🛠️">🛠️ Reforma</option>
+                        <option value="💻">💻 Equipamento</option>
+                        <option value="🎓">🎓 Estudo</option>
+                        <option value="💍">💍 Especial</option>
+                        <option value="🐾">🐾 Pet</option>
+                        <option value="💰">💰 Reserva</option>
+                        <option value="⭐">⭐ Outro</option>
+                    </select>
+                </label>
+                <label class="cal-fl">O sonho<input type="text" id="mf_nome" maxlength="60" placeholder="Ex.: Viagem pro Japão" autocomplete="off"></label>
+            </div>
+            <div class="ag-row2">
+                <label class="cal-fl"><span id="mf_alvoLabel">Quanto custa (R$)</span><input type="number" id="mf_alvo" min="0" step="1" placeholder="30000"></label>
+                <label class="cal-fl">Quero até<input type="month" id="mf_prazo"></label>
+            </div>
+            <div class="ag-row2">
+                <label class="cal-fl">Já tenho guardado<input type="number" id="mf_inicial" min="0" step="1" placeholder="0"></label>
+                <label class="cal-fl">Tipo de meta
+                    <select id="mf_tipo">
+                        <option value="dinheiro">Dinheiro em R$</option>
+                        <option value="contagem">Quantidade (marcas, alunas, vendas)</option>
+                    </select>
+                </label>
+            </div>
+            <label class="cal-check-line"><input type="checkbox" id="mf_algumdia"> Guardar em "Algum dia" (sem cobrança mensal por enquanto)</label>
+        </div>
+        <div class="cal-modal-actions">
+            <button class="cal-btn-del hidden" id="mtDelete" type="button">Excluir</button>
+            <div style="flex:1"></div>
+            <button class="cal-btn-ghost" id="mtCancel2" type="button">Cancelar</button>
+            <button class="cal-btn-save" id="mtSave" type="button">Salvar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: registrar quanto guardei no mês -->
+<div class="cal-modal-overlay" id="mtAporteModal">
+    <div class="cal-modal" style="max-width:420px">
+        <h3><span id="mtAporteTitle">Quanto você guardou?</span><button class="cal-modal-close" id="mtApCancel" type="button" aria-label="Fechar">&times;</button></h3>
+        <div class="cal-form">
+            <label class="cal-fl"><span id="mtApLabel">Valor guardado no mês</span><input type="number" id="mtApValor" min="0" step="1" placeholder="0"></label>
+            <div class="ag-sec-sub" id="mtApHint"></div>
+        </div>
+        <div class="cal-modal-actions">
+            <div style="flex:1"></div>
+            <button class="cal-btn-ghost" id="mtApCancel2" type="button">Cancelar</button>
+            <button class="cal-btn-save" id="mtApSave" type="button">Salvar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: lançamento do plano do ano -->
+<div class="cal-modal-overlay" id="lancModal">
+    <div class="cal-modal">
+        <h3><span id="lancModalTitle">Novo lançamento</span><button class="cal-modal-close" id="lancCancel" type="button" aria-label="Fechar">&times;</button></h3>
+        <div class="cal-form">
+            <label class="cal-fl">O que você vai lançar<input type="text" id="lf_nome" maxlength="80" placeholder="Ex.: Imersão UGC turma 2" autocomplete="off"></label>
+            <div class="ag-row2">
+                <label class="cal-fl">Quando<input type="date" id="lf_data"></label>
+                <label class="cal-fl">Como está
+                    <select id="lf_status">
+                        <option value="ideia">Ideia</option>
+                        <option value="preparando">Preparando</option>
+                        <option value="noar">No ar</option>
+                        <option value="feito">Feito</option>
+                    </select>
+                </label>
+            </div>
+            <div class="ag-row3">
+                <label class="cal-fl">Meta
+                    <select id="lf_metaTipo">
+                        <option value="">Sem meta</option>
+                        <option value="contagem">Quantidade</option>
+                        <option value="dinheiro">Dinheiro (R$)</option>
+                    </select>
+                </label>
+                <label class="cal-fl">Quero chegar em<input type="number" id="lf_metaAlvo" min="0" step="1" placeholder="40"></label>
+                <label class="cal-fl">Já consegui<input type="number" id="lf_metaFeito" min="0" step="1" placeholder="0"></label>
+            </div>
+            <label class="cal-fl">Unidade (opcional)<input type="text" id="lf_unidade" maxlength="20" placeholder="vagas, alunas, marcas..." autocomplete="off"></label>
+            <label class="cal-fl">Notas<textarea id="lf_notas" rows="2" maxlength="400" placeholder="opcional"></textarea></label>
+        </div>
+        <div class="cal-modal-actions">
+            <button class="cal-btn-del hidden" id="lancDelete" type="button">Excluir</button>
+            <div style="flex:1"></div>
+            <button class="cal-btn-ghost" id="lancCancel2" type="button">Cancelar</button>
+            <button class="cal-btn-save" id="lancSave" type="button">Salvar</button>
         </div>
     </div>
 </div>
@@ -4960,7 +5210,7 @@
         agendaRefreshRadar();
         calEnsureInit();
         let pref = null; try { pref = localStorage.getItem('agendaSubview'); } catch (e) {}
-        agShowSub(pref === 'lista' ? 'lista' : 'cal');
+        agShowSub(pref || 'cal');
     }
 
     async function agendaFetch() {
@@ -4975,6 +5225,8 @@
                 } catch (e) { console.warn('Agenda: JSON inválido', e); }
             }
             if (!Array.isArray(agendaState.eventos)) agendaState.eventos = [];
+            if (!Array.isArray(agendaState.metas)) agendaState.metas = [];
+            if (!Array.isArray(agendaState.lancamentos)) agendaState.lancamentos = [];
             agendaLoaded = true;
         } catch (err) {
             console.error('Erro ao carregar agenda:', err);
@@ -5193,11 +5445,12 @@
         { key: 'postagem', label: 'Postagem' },
         { key: 'aula', label: 'Aula' },
         { key: 'outro', label: 'Outro' },
+        { key: 'lancamento', label: 'Lançamentos' },
         { key: 'tarefa', label: 'Pendências' },
         { key: 'post', label: 'Postagens feitas' }
     ];
-    const CAL_TIPO_LABEL = { gravacao: 'Gravação', entrega: 'Entrega', postagem: 'Postagem', aula: 'Aula', outro: 'Outro', tarefa: 'Pendência', post: 'Postagem feita' };
-    const CAL_TIPO_COLOR = { gravacao: '#0E7C86', entrega: '#10B981', postagem: '#D6336C', aula: '#7850B4', outro: '#B8AFA4', tarefa: '#E6A100', post: '#C13584' };
+    const CAL_TIPO_LABEL = { gravacao: 'Gravação', entrega: 'Entrega', postagem: 'Postagem', aula: 'Aula', outro: 'Outro', lancamento: 'Lançamento', tarefa: 'Pendência', post: 'Postagem feita' };
+    const CAL_TIPO_COLOR = { gravacao: '#0E7C86', entrega: '#10B981', postagem: '#D6336C', aula: '#7850B4', outro: '#B8AFA4', lancamento: '#C8441A', tarefa: '#E6A100', post: '#C13584' };
     let calYear, calMonth, calSel = null, calInited = false, calEditingId = null;
     const calFilterOff = new Set();
 
@@ -5214,7 +5467,8 @@
     function calAllEvents() {
         const evs = (agendaState.eventos || []).map(e => ({ id: e.id, tipo: e.tipo || 'outro', titulo: e.titulo, data: e.data, hora: e.hora || null, valor: e.valor || null, cliente: e.cliente || null, feito: !!e.feito, source: 'evento' }));
         const tks = (agendaState.tarefas || []).filter(t => t.prazo).map(t => ({ id: t.id, tipo: 'tarefa', titulo: t.texto, data: t.prazo, hora: null, valor: null, cliente: null, feito: !!t.feita, source: 'tarefa' }));
-        return evs.concat(tks);
+        const lns = (agendaState.lancamentos || []).filter(l => l.data).map(l => ({ id: l.id, tipo: 'lancamento', titulo: l.nome, data: l.data, hora: null, valor: null, cliente: null, feito: l.status === 'feito', source: 'lanc' }));
+        return evs.concat(tks).concat(lns);
     }
     function calEventsByDate(ds, ignoreFilter) {
         return calAllEvents().filter(e => e.data === ds && (ignoreFilter || !calFilterOff.has(e.tipo)))
@@ -5283,6 +5537,7 @@
         document.getElementById('calGrid').innerHTML = html;
         calRenderDay();
         calRenderUpcoming();
+        metaRenderStrip();
     }
     function calEvChip(e) {
         if (e.source === 'post') {
@@ -5298,6 +5553,7 @@
     }
     function calEvClick(source, id) {
         if (source === 'evento') calOpenModal(id);
+        else if (source === 'lanc') lancOpenModal(id);
         else { const t = agendaFind(id); if (t && t.prazo) calSelectDay(t.prazo); }
     }
     function calSelectDay(ds) { calSel = ds; calRender(); }
@@ -5330,8 +5586,10 @@
         meta.push('<span class="cal-di-tag ev-' + e.tipo + '">' + agendaEsc(CAL_TIPO_LABEL[e.tipo] || 'Evento') + '</span>');
         if (e.cliente) meta.push(agendaEsc(e.cliente));
         if (e.valor) meta.push('<span class="cal-di-val">' + calBRL(e.valor) + '</span>');
-        const toggle = e.source === 'evento' ? "calToggleEvento('" + e.id + "')" : "calToggleTarefa('" + e.id + "')";
-        const bodyClick = e.source === 'evento' ? " onclick=\"calOpenModal('" + e.id + "')\"" : '';
+        const toggle = e.source === 'evento' ? "calToggleEvento('" + e.id + "')"
+            : (e.source === 'lanc' ? "lancToggleFeito('" + e.id + "')" : "calToggleTarefa('" + e.id + "')");
+        const bodyClick = e.source === 'evento' ? " onclick=\"calOpenModal('" + e.id + "')\""
+            : (e.source === 'lanc' ? " onclick=\"lancOpenModal('" + e.id + "')\"" : '');
         return '<div class="cal-day-item' + (e.feito ? ' done' : '') + '" style="border-left-color:' + (CAL_TIPO_COLOR[e.tipo] || '#ccc') + '">'
             + '<button class="cal-di-check" onclick="' + toggle + '" title="Concluir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button>'
             + '<div class="cal-di-body"' + bodyClick + '>'
@@ -5349,7 +5607,8 @@
         el.innerHTML = up.map(e => {
             const d = new Date(e.data + 'T00:00:00');
             const sub = (CAL_TIPO_LABEL[e.tipo] || '') + (e.hora ? ' · ' + e.hora : '') + (e.valor ? ' · ' + calBRL(e.valor) : '');
-            const go = e.source === 'evento' ? "calOpenModal('" + e.id + "')" : "calSelectDay('" + e.data + "')";
+            const go = e.source === 'evento' ? "calOpenModal('" + e.id + "')"
+                : (e.source === 'lanc' ? "lancOpenModal('" + e.id + "')" : "calSelectDay('" + e.data + "')");
             return '<div class="cal-up-item" onclick="' + go + '">'
                 + '<div class="cal-up-date"><div class="u-d">' + d.getDate() + '</div><div class="u-m">' + CAL_MESES[d.getMonth()].slice(0, 3) + '</div></div>'
                 + '<div class="cal-up-body"><div class="cal-up-title"><i class="cal-ev-dot evdot-' + e.tipo + '" style="display:inline-block;margin-right:6px;vertical-align:middle"></i>' + agendaEsc(e.titulo) + '</div><div class="cal-up-sub">' + agendaEsc(sub) + '</div></div>'
@@ -5440,15 +5699,537 @@
         calRender(); agendaRender(); agendaSave();
     }
 
-    function agShowSub(sub) {
-        const isCal = sub !== 'lista';
-        const vc = document.getElementById('agViewCal'), vl = document.getElementById('agViewLista');
-        if (vc) vc.style.display = isCal ? '' : 'none';
-        if (vl) vl.style.display = isCal ? 'none' : '';
-        document.querySelectorAll('#tabAgenda .agenda-subbtn').forEach(b => b.classList.toggle('active', b.dataset.agsub === (isCal ? 'cal' : 'lista')));
-        try { localStorage.setItem('agendaSubview', isCal ? 'cal' : 'lista'); } catch (e) {}
-        if (isCal) { calRender(); igCalFetch(); }
+    const AG_VIEWS = { cal: 'agViewCal', lista: 'agViewLista', metas: 'agViewMetas', lanc: 'agViewLanc' };
+    function agShowSub(sub, semPersistir) {
+        if (!AG_VIEWS[sub]) sub = 'cal';
+        Object.keys(AG_VIEWS).forEach(k => {
+            const el = document.getElementById(AG_VIEWS[k]);
+            if (el) el.style.display = (k === sub ? '' : 'none');
+        });
+        document.querySelectorAll('#tabAgenda .agenda-subbtn').forEach(b => b.classList.toggle('active', b.dataset.agsub === sub));
+        if (!semPersistir) { try { localStorage.setItem('agendaSubview', sub); } catch (e) {} }
+        if (sub === 'cal') { calRender(); igCalFetch(); }
+        else if (sub === 'metas') metaRender();
+        else if (sub === 'lanc') lancRender();
     }
+
+    /* ═══════════════ METAS DE LONGO PRAZO (os sonhos) ═══════════════ */
+    let mtEditingId = null, mtAporteCtx = null, mtVerAlgumDia = false;
+
+    function mtUid(p) { return p + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+    function mtMesAtual() { const d = new Date(); return d.getFullYear() + '-' + calPad(d.getMonth() + 1); }
+    function mtMesLabel(mk) {
+        const p = String(mk || '').split('-');
+        if (p.length < 2) return mk || '';
+        return (CAL_MESES[Number(p[1]) - 1] || '').toLowerCase() + ' de ' + p[0];
+    }
+    function mtMesCurto(mk) {
+        const p = String(mk || '').split('-');
+        return p.length < 2 ? mk : (CAL_MESES[Number(p[1]) - 1] || '').slice(0, 3).toLowerCase();
+    }
+    /* meses de a até b, inclusive: ('2026-08','2026-08') = 1 */
+    function mtMesesEntre(a, b) {
+        const pa = String(a || '').split('-'), pb = String(b || '').split('-');
+        if (pa.length < 2 || pb.length < 2) return 0;
+        return (Number(pb[0]) - Number(pa[0])) * 12 + (Number(pb[1]) - Number(pa[1])) + 1;
+    }
+    function mtMesSoma(mk, n) {
+        const p = String(mk || '').split('-');
+        let y = Number(p[0]) || 0, m = (Number(p[1]) || 1) - 1 + n;
+        y += Math.floor(m / 12); m = ((m % 12) + 12) % 12;
+        return y + '-' + calPad(m + 1);
+    }
+    function mtUnidade(un, v) {
+        if (!un) return '';
+        un = String(un).trim();
+        if (Math.round(Number(v) || 0) === 1 && /s$/i.test(un)) un = un.slice(0, -1);
+        return ' ' + un;
+    }
+    function mtFmt(meta, v) {
+        v = Math.round(Number(v) || 0);
+        if (meta && meta.tipo === 'contagem') return v.toLocaleString('pt-BR') + mtUnidade(meta.unidade, v);
+        return calBRL(v);
+    }
+    function mtGuardado(meta) {
+        const ap = meta.aportes || {};
+        let s = Number(meta.inicial) || 0;
+        Object.keys(ap).forEach(k => { s += Number(ap[k]) || 0; });
+        return s;
+    }
+    function mtFind(id) { return (agendaState.metas || []).find(m => m.id === id); }
+    function mtAtivas() { return (agendaState.metas || []).filter(m => !m.algumDia); }
+
+    function mtCalc(meta) {
+        const hoje = mtMesAtual();
+        const alvo = Number(meta.alvo) || 0;
+        const guardado = mtGuardado(meta);
+        const falta = Math.max(0, alvo - guardado);
+        const inicio = meta.inicio || hoje;
+        const prazo = meta.prazo || hoje;
+        const totalMeses = Math.max(1, mtMesesEntre(inicio, prazo));
+        const cumpridos = Math.max(0, Math.min(totalMeses, mtMesesEntre(inicio, hoje) - 1));
+        const restantes = Math.max(0, mtMesesEntre(hoje, prazo));
+        const porMes = restantes > 0 ? Math.ceil(falta / restantes) : falta;
+        const esperado = alvo * (cumpridos / totalMeses);
+        const dif = guardado - esperado;
+        const pct = alvo > 0 ? Math.min(100, (guardado / alvo) * 100) : 0;
+        const pctEsperado = alvo > 0 ? Math.min(100, (esperado / alvo) * 100) : 0;
+        const concluida = alvo > 0 && guardado >= alvo;
+        const doMes = Number((meta.aportes || {})[hoje]) || 0;
+        const faltaNoMes = Math.max(0, porMes - doMes);
+        let estado = 'ritmo';
+        if (concluida) estado = 'feita';
+        else if (dif >= alvo * 0.03) estado = 'adiantada';
+        else if (dif <= -alvo * 0.03) estado = 'gas';
+        return { alvo, guardado, falta, porMes, restantes, esperado, dif, pct, pctEsperado, concluida, estado, doMes, faltaNoMes, totalMeses, cumpridos, hoje };
+    }
+    const MT_ESTADO_LABEL = { adiantada: 'Adiantada', ritmo: 'No ritmo', gas: 'Precisa de um gás', feita: 'Conseguiu!' };
+
+    /* ── faixa do mês: o número único ── */
+    function mtRenderMesBox() {
+        const box = document.getElementById('mtMesBox'); if (!box) return;
+        /* meta vencida sai da conta do mês: cobrar o valor cheio de uma vez só gera culpa */
+        const metas = mtAtivas().filter(m => { const c = mtCalc(m); return !c.concluida && c.restantes > 0; });
+        if (!metas.length) { box.innerHTML = ''; return; }
+        const hoje = mtMesAtual();
+        let precisa = 0, jaFoi = 0, temDinheiro = false;
+        const linhas = metas.map(m => {
+            const c = mtCalc(m);
+            if (m.tipo !== 'contagem') { precisa += c.porMes; jaFoi += Math.min(c.doMes, c.porMes); temDinheiro = true; }
+            const pago = c.faltaNoMes <= 0;
+            const lapis = '<button class="mt-mini" type="button" title="Colocar outro valor" onclick="mtAporteOpen(\'' + m.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>';
+            let acao;
+            if (m.tipo === 'contagem') {
+                acao = '<span class="mt-line-val">' + mtFmt(m, c.doMes) + ' de ' + mtFmt(m, c.porMes + c.doMes) + '</span>'
+                    + '<button class="mt-guardei" type="button" onclick="mtSomar(\'' + m.id + '\', 1)">+1</button>';
+            } else if (pago) {
+                acao = '<span class="mt-line-ok">✓ ' + mtFmt(m, c.doMes) + ' neste mês</span>';
+            } else {
+                acao = '<span class="mt-line-val">' + mtFmt(m, c.faltaNoMes) + '</span>'
+                    + '<button class="mt-guardei" type="button" onclick="mtGuardei(\'' + m.id + '\')">Guardei</button>';
+            }
+            return '<div class="mt-line' + (pago && m.tipo !== 'contagem' ? ' pago' : '') + '">'
+                + '<span class="mt-line-ico">' + agendaEsc(m.icone || '⭐') + '</span>'
+                + '<span class="mt-line-nome">' + agendaEsc(m.nome) + '</span>'
+                + acao + lapis
+                + '</div>';
+        }).join('');
+
+        const restante = Math.max(0, precisa - jaFoi);
+        /* receita do MÊS CORRENTE (não do mês que o calendário está mostrando) */
+        let receitaPrev = 0;
+        (agendaState.eventos || []).forEach(e => {
+            if (String(e.data || '').slice(0, 7) === hoje) receitaPrev += Number(e.valor) || 0;
+        });
+        let side = '';
+        if (temDinheiro) {
+            side = '<div><b>' + calBRL(jaFoi) + '</b> já guardados</div>';
+            if (receitaPrev > 0) {
+                const pctReceita = Math.round((precisa / receitaPrev) * 100);
+                side += '<div>Você previu receber <b>' + calBRL(receitaPrev) + '</b> neste mês' + (pctReceita > 0 ? ' (as metas pedem ' + pctReceita + '%)' : '') + '</div>';
+            }
+        }
+        let numero;
+        if (!temDinheiro) numero = metas.length + (metas.length === 1 ? ' meta' : ' metas') + ' <small>pra empurrar neste mês</small>';
+        else if (restante <= 0) numero = 'Tudo pago <small>neste mês</small>';
+        else numero = calBRL(restante);
+        box.innerHTML = '<div class="mt-mes">'
+            + '<div class="mt-mes-top">'
+            + '<div><div class="ag-eyebrow">Pra guardar em ' + agendaEsc(mtMesLabel(hoje)) + '</div>'
+            + '<div class="mt-mes-val">' + numero + '</div></div>'
+            + '<div class="mt-mes-side">' + side + '</div>'
+            + '</div>'
+            + '<div class="mt-mes-list">' + linhas + '</div>'
+            + '</div>';
+    }
+
+    /* ── faixa dentro do calendário (pra meta não virar aba fantasma) ── */
+    function mtRenderStrip() {
+        const el = document.getElementById('calMetaStrip'); if (!el) return;
+        const metas = mtAtivas().filter(m => { const c = mtCalc(m); return !c.concluida && c.restantes > 0; });
+        const hoje = mtMesAtual();
+        const lancMes = (agendaState.lancamentos || []).filter(l => String(l.data || '').slice(0, 7) === hoje && l.status !== 'feito');
+        if (!metas.length && !lancMes.length) { el.style.display = 'none'; return; }
+        let falta = 0;
+        metas.forEach(m => { if (m.tipo !== 'contagem') falta += mtCalc(m).faltaNoMes; });
+        const partes = [];
+        if (metas.length) {
+            partes.push(falta > 0
+                ? 'Falta guardar <b>' + calBRL(falta) + '</b> das suas metas neste mês.'
+                : 'Suas metas do mês estão <b>em dia</b>.');
+        }
+        if (lancMes.length) partes.push('<b>' + lancMes.length + '</b> ' + (lancMes.length === 1 ? 'lançamento' : 'lançamentos') + ' neste mês.');
+        el.innerHTML = '<span>🎯</span><span>' + partes.join(' ') + '</span><span class="cms-go">ver metas →</span>';
+        el.style.display = '';
+    }
+    function metaRenderStrip() { try { mtRenderStrip(); } catch (e) { console.warn('strip de metas:', e); } }
+
+    /* ── cards das metas ── */
+    function mtBarra(m, c) {
+        const mark = Math.max(0, Math.min(100, c.pctEsperado));
+        /* a etiqueta "hoje" não pode vazar nas pontas */
+        const lbl = mark < 6 ? ' style="left:0;transform:none"' : (mark > 94 ? ' style="left:auto;right:0;transform:none"' : '');
+        return '<div class="mt-bar">'
+            + '<div class="mt-bar-fill" style="width:' + Math.max(0, Math.min(100, c.pct)) + '%"></div>'
+            + (c.concluida ? '' : '<div class="mt-bar-mark" style="left:' + mark + '%"><span' + lbl + '>hoje</span></div>')
+            + '</div>';
+    }
+    function mtMesesGrid(m, c) {
+        const total = Math.min(12, c.totalMeses);
+        let start = m.inicio || c.hoje;
+        if (c.totalMeses > 12) {
+            let s = mtMesSoma(c.hoje, -3);
+            if (mtMesesEntre(m.inicio || c.hoje, s) < 1) s = m.inicio || c.hoje;
+            if (mtMesesEntre(s, m.prazo) < total) s = mtMesSoma(m.prazo, -(total - 1));
+            start = s;
+        }
+        const ideal = c.totalMeses > 0 ? (c.alvo / c.totalMeses) : 0;
+        let html = '';
+        for (let i = 0; i < total; i++) {
+            const mk = mtMesSoma(start, i);
+            const v = Number((m.aportes || {})[mk]) || 0;
+            const cls = v >= ideal * 0.9 && v > 0 ? 'ok' : (v > 0 ? 'parcial' : '');
+            html += '<div class="mt-mq ' + cls + (mk === c.hoje ? ' atual' : '') + '" title="' + agendaEsc(mtMesLabel(mk) + ': ' + mtFmt(m, v)) + '">'
+                + '<i></i><span>' + mtMesCurto(mk) + '</span></div>';
+        }
+        return '<div class="mt-meses">' + html + '</div>';
+    }
+    function mtCardHtml(m) {
+        const c = mtCalc(m);
+        let ritmo;
+        if (c.concluida) ritmo = 'Meta batida. Agora vai lá viver isso.';
+        else if (c.restantes <= 0) ritmo = 'O prazo chegou e faltam <b>' + mtFmt(m, c.falta) + '</b>. Que tal esticar a data?';
+        else if (c.estado === 'gas') ritmo = 'Ficou pra trás? Sem drama, o ritmo se ajusta: <b>' + mtFmt(m, c.porMes) + ' por mês</b> até ' + agendaEsc(mtMesLabel(m.prazo)) + '.';
+        else ritmo = 'Faltam <b>' + mtFmt(m, c.falta) + '</b>: dá <b>' + mtFmt(m, c.porMes) + ' por mês</b> até ' + agendaEsc(mtMesLabel(m.prazo)) + '.';
+        const botao = m.tipo === 'contagem'
+            ? '<button class="mt-guardei" type="button" onclick="mtSomar(\'' + m.id + '\', 1)">+1 neste mês (' + mtFmt(m, c.doMes) + ' até agora)</button>'
+            : (c.faltaNoMes > 0
+                ? '<button class="mt-guardei" type="button" onclick="mtGuardei(\'' + m.id + '\')">Guardei ' + mtFmt(m, c.faltaNoMes) + ' este mês</button>'
+                : '<span class="mt-line-ok" style="flex:1">✓ ' + agendaEsc(mtMesLabel(c.hoje)) + ' pago</span>');
+        const foot = c.concluida ? ''
+            : '<div class="mt-card-foot">'
+              + botao
+              + '<button class="mt-mini" type="button" title="Outro valor" onclick="mtAporteOpen(\'' + m.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>'
+              + '</div>';
+        return '<div class="mt-card' + (c.concluida ? ' feita' : '') + '">'
+            + '<div class="mt-card-top">'
+            + '<span class="mt-card-ico">' + agendaEsc(m.icone || '⭐') + '</span>'
+            + '<span class="mt-card-nome" style="cursor:pointer" onclick="mtOpenModal(\'' + m.id + '\')">' + agendaEsc(m.nome) + '</span>'
+            + '<span class="mt-chip ' + c.estado + '">' + MT_ESTADO_LABEL[c.estado] + '</span>'
+            + '</div>'
+            + '<div class="mt-valores"><span class="mt-v-atual">' + mtFmt(m, c.guardado) + '</span><span class="mt-v-alvo">de ' + mtFmt(m, c.alvo) + '</span></div>'
+            + mtBarra(m, c)
+            + '<div class="mt-ritmo">' + ritmo + '</div>'
+            + mtMesesGrid(m, c)
+            + foot
+            + '</div>';
+    }
+
+    function metaRender() {
+        const wrap = document.getElementById('mtCards'); if (!wrap) return;
+        calEnsureInit();
+        const todas = agendaState.metas || [];
+        if (!todas.length) {
+            document.getElementById('mtMesBox').innerHTML = '';
+            wrap.innerHTML = '<div class="mt-vazio"><p>Qual sonho a gente vai tirar do papel primeiro?</p>'
+                + '<button class="ag-btn-add" type="button" onclick="mtOpenModal()">Criar minha primeira meta</button></div>';
+            document.getElementById('mtAlgumDia').innerHTML = '';
+            return;
+        }
+        mtRenderMesBox();
+        const ativas = todas.filter(m => !m.algumDia);
+        wrap.innerHTML = ativas.length
+            ? '<div class="mt-grid">' + ativas.map(mtCardHtml).join('') + '</div>'
+            : '<div class="mt-vazio"><p>Nenhuma meta ativa agora. Suas ideias estão guardadas ali embaixo.</p></div>';
+
+        const guardadas = todas.filter(m => m.algumDia);
+        const ad = document.getElementById('mtAlgumDia');
+        ad.innerHTML = guardadas.length
+            ? '<button class="mt-algumdia-btn" type="button" onclick="mtToggleAlgumDia()">' + (mtVerAlgumDia ? '▾' : '▸') + ' Algum dia (' + guardadas.length + ')</button>'
+              + (mtVerAlgumDia ? '<div class="mt-grid" style="margin-top:12px">' + guardadas.map(mtCardHtml).join('') + '</div>' : '')
+            : '';
+    }
+    function mtToggleAlgumDia() { mtVerAlgumDia = !mtVerAlgumDia; metaRender(); }
+
+    /* ── registrar quanto guardei ── */
+    function mtGuardei(id) {
+        const m = mtFind(id); if (!m) return;
+        const c = mtCalc(m);
+        if (!m.aportes) m.aportes = {};
+        m.aportes[c.hoje] = c.doMes + c.faltaNoMes;
+        metaRender(); agendaSave();
+    }
+    /* metas de contagem andam de 1 em 1 (fechar marcas, vender vagas) */
+    function mtSomar(id, n) {
+        const m = mtFind(id); if (!m) return;
+        const c = mtCalc(m);
+        if (!m.aportes) m.aportes = {};
+        const novo = Math.max(0, c.doMes + n);
+        if (novo > 0) m.aportes[c.hoje] = novo; else delete m.aportes[c.hoje];
+        metaRender(); agendaSave();
+    }
+    function mtAporteOpen(id) {
+        const m = mtFind(id); if (!m) return;
+        const c = mtCalc(m);
+        mtAporteCtx = { id: id, mes: c.hoje };
+        document.getElementById('mtAporteTitle').textContent = 'Quanto você guardou em ' + mtMesLabel(c.hoje) + '?';
+        document.getElementById('mtApLabel').textContent = m.tipo === 'contagem' ? 'Quantidade no mês' : 'Valor guardado no mês (R$)';
+        document.getElementById('mtApValor').value = c.doMes || '';
+        document.getElementById('mtApHint').innerHTML = 'Pra ficar em dia com o plano: <b>' + mtFmt(m, c.porMes) + '</b> neste mês.'
+            + (c.doMes > 0 ? '<br>Hoje está registrado ' + mtFmt(m, c.doMes) + '.' : '');
+        document.getElementById('mtAporteModal').classList.add('show');
+        setTimeout(() => { const i = document.getElementById('mtApValor'); if (i) { i.focus(); i.select(); } }, 30);
+    }
+    function mtAporteClose() { document.getElementById('mtAporteModal').classList.remove('show'); mtAporteCtx = null; }
+    function mtAporteSave() {
+        if (!mtAporteCtx) return;
+        const m = mtFind(mtAporteCtx.id); if (!m) { mtAporteClose(); return; }
+        const raw = document.getElementById('mtApValor').value;
+        const v = raw === '' ? 0 : Math.max(0, Number(raw) || 0);
+        if (!m.aportes) m.aportes = {};
+        if (v > 0) m.aportes[mtAporteCtx.mes] = v; else delete m.aportes[mtAporteCtx.mes];
+        mtAporteClose();
+        metaRender(); agendaSave();
+    }
+
+    /* ── modal de meta ── */
+    function mtOpenModal(id) {
+        mtEditingId = id || null;
+        const m = id ? mtFind(id) : null;
+        document.getElementById('mtModalTitle').textContent = m ? 'Editar meta' : 'Nova meta';
+        document.getElementById('mf_nome').value = m ? (m.nome || '') : '';
+        document.getElementById('mf_icone').value = m && m.icone ? m.icone : '✈️';
+        document.getElementById('mf_tipo').value = m ? (m.tipo || 'dinheiro') : 'dinheiro';
+        document.getElementById('mf_alvo').value = m && m.alvo ? m.alvo : '';
+        document.getElementById('mf_prazo').value = m ? (m.prazo || '') : mtMesSoma(mtMesAtual(), 12);
+        document.getElementById('mf_inicial').value = m && m.inicial ? m.inicial : '';
+        document.getElementById('mf_algumdia').checked = m ? !!m.algumDia : false;
+        document.getElementById('mtDelete').classList.toggle('hidden', !m);
+        mtSyncTipoLabel();
+        document.getElementById('mtModal').classList.add('show');
+        setTimeout(() => { const i = document.getElementById('mf_nome'); if (i) i.focus(); }, 30);
+    }
+    function mtSyncTipoLabel() {
+        const tipo = document.getElementById('mf_tipo').value;
+        document.getElementById('mf_alvoLabel').textContent = tipo === 'contagem' ? 'Quero chegar em quanto' : 'Quanto custa (R$)';
+    }
+    function mtCloseModal() { document.getElementById('mtModal').classList.remove('show'); mtEditingId = null; }
+    function mtSaveModal() {
+        const nome = document.getElementById('mf_nome').value.trim();
+        const alvo = Number(document.getElementById('mf_alvo').value) || 0;
+        const prazo = document.getElementById('mf_prazo').value;
+        if (!nome) { document.getElementById('mf_nome').focus(); return; }
+        if (!alvo) { document.getElementById('mf_alvo').focus(); return; }
+        if (!prazo) { document.getElementById('mf_prazo').focus(); return; }
+        const dados = {
+            nome: nome,
+            icone: document.getElementById('mf_icone').value || '⭐',
+            tipo: document.getElementById('mf_tipo').value || 'dinheiro',
+            alvo: alvo,
+            prazo: prazo,
+            inicial: Number(document.getElementById('mf_inicial').value) || 0,
+            algumDia: document.getElementById('mf_algumdia').checked
+        };
+        if (!Array.isArray(agendaState.metas)) agendaState.metas = [];
+        if (mtEditingId) {
+            const m = mtFind(mtEditingId);
+            if (m) Object.assign(m, dados);
+        } else {
+            dados.id = mtUid('m');
+            dados.inicio = mtMesAtual();
+            dados.aportes = {};
+            dados.criadoEm = new Date().toISOString();
+            agendaState.metas.push(dados);
+        }
+        mtCloseModal();
+        metaRender(); agendaSave();
+    }
+    function mtDelete() {
+        if (!mtEditingId) return;
+        const m = mtFind(mtEditingId);
+        if (!confirm('Excluir a meta "' + (m ? m.nome : '') + '"? O histórico do que você guardou vai junto.')) return;
+        agendaState.metas = (agendaState.metas || []).filter(x => x.id !== mtEditingId);
+        mtCloseModal();
+        metaRender(); agendaSave();
+    }
+
+    /* ═══════════════ LANÇAMENTOS (plano do ano) ═══════════════ */
+    const LANC_STATUS = { ideia: 'Ideia', preparando: 'Preparando', noar: 'No ar', feito: 'Feito' };
+    let lancEditingId = null;
+
+    function lancFind(id) { return (agendaState.lancamentos || []).find(l => l.id === id); }
+    function lancOrdenados() {
+        return (agendaState.lancamentos || []).slice().sort((a, b) => String(a.data || '9999').localeCompare(String(b.data || '9999')));
+    }
+    function lancRender() {
+        const mapEl = document.getElementById('lancMap'), listEl = document.getElementById('lancLista');
+        if (!mapEl || !listEl) return;
+        const itens = lancOrdenados();
+        const ano = new Date().getFullYear();
+        const mesAtual = mtMesAtual();
+        const foraDoAno = itens.filter(l => l.data && l.data.slice(0, 4) !== String(ano)).length;
+        const noAr = itens.filter(l => l.status === 'noar').length;
+        const feitos = itens.filter(l => l.status === 'feito').length;
+        const lbl = document.getElementById('lancAnoLabel');
+        if (lbl) {
+            const resumo = [];
+            if (noAr) resumo.push(noAr + (noAr === 1 ? ' no ar' : ' no ar'));
+            if (feitos) resumo.push(feitos + (feitos === 1 ? ' feito' : ' feitos'));
+            if (foraDoAno) resumo.push(foraDoAno + (foraDoAno === 1 ? ' em outro ano' : ' em outros anos'));
+            lbl.textContent = ano + (resumo.length ? ' · ' + resumo.join(' · ') : '');
+        }
+
+        mapEl.innerHTML = CAL_MESES.map((nome, i) => {
+            const mk = ano + '-' + calPad(i + 1);
+            const doMes = itens.filter(l => String(l.data || '').slice(0, 7) === mk);
+            return '<div class="lanc-mblock' + (mk === mesAtual ? ' now' : '') + '" title="' + agendaEsc(nome + ': ' + doMes.length + ' lançamento(s)') + '" onclick="lancScrollTo(\'' + mk + '\')">'
+                + '<div class="lm-l">' + nome.slice(0, 3) + '</div>'
+                + '<div class="lm-d">' + doMes.slice(0, 3).map(() => '<i></i>').join('') + '</div></div>';
+        }).join('');
+
+        if (!itens.length) {
+            listEl.innerHTML = '<div class="mt-vazio"><p>O que você quer lançar esse ano? Escreve aqui que a gente organiza.</p>'
+                + '<button class="ag-btn-add" type="button" onclick="lancOpenModal()">Criar o primeiro lançamento</button></div>';
+            return;
+        }
+        const grupos = {};
+        itens.forEach(l => {
+            const mk = String(l.data || '').slice(0, 7) || 'sem-data';
+            (grupos[mk] = grupos[mk] || []).push(l);
+        });
+        listEl.innerHTML = Object.keys(grupos).sort().map(mk => {
+            const titulo = mk === 'sem-data' ? 'Sem data ainda'
+                : (mk.slice(0, 4) === String(ano) ? (CAL_MESES[Number(mk.slice(5, 7)) - 1] || '') : mtMesLabel(mk));
+            return '<div class="lanc-mes' + (mk === mesAtual ? ' now' : '') + '" id="lancmes-' + mk + '">'
+                + '<div class="lanc-mes-title">' + agendaEsc(titulo) + '</div>'
+                + grupos[mk].map(lancCardHtml).join('')
+                + '</div>';
+        }).join('');
+    }
+    function lancCardHtml(l) {
+        const st = l.status || 'ideia';
+        const stCls = st === 'noar' ? 'noar' : st;
+        let metaHtml = '';
+        if (l.metaTipo) {
+            const alvo = Number(l.metaAlvo) || 0, feito = Number(l.metaFeito) || 0;
+            const pct = alvo > 0 ? Math.min(100, (feito / alvo) * 100) : 0;
+            const fmt = (v) => l.metaTipo === 'dinheiro' ? calBRL(v) : (Number(v) || 0).toLocaleString('pt-BR') + agendaEsc(mtUnidade(l.unidade, v));
+            metaHtml = '<div class="lanc-meta">'
+                + '<span class="lanc-meta-txt"><b>' + fmt(feito) + '</b> de ' + fmt(alvo) + '</span>'
+                + '<span class="lanc-prog"><i style="width:' + pct + '%"></i></span>'
+                + (l.metaTipo === 'contagem'
+                    ? '<button class="lanc-bump" type="button" onclick="lancBump(\'' + l.id + '\')">+1</button>'
+                    : '<button class="lanc-bump" type="button" onclick="lancOpenModal(\'' + l.id + '\')">Atualizar</button>')
+                + '</div>';
+        }
+        const quando = l.data
+            ? (Number(l.data.slice(8, 10)) + ' de ' + (CAL_MESES[Number(l.data.slice(5, 7)) - 1] || '').toLowerCase() + (l.data.slice(0, 4) !== String(new Date().getFullYear()) ? ' de ' + l.data.slice(0, 4) : ''))
+            : 'Sem data definida';
+        return '<div class="lanc-card">'
+            + '<div class="lanc-card-top">'
+            + '<span class="lanc-nome" onclick="lancOpenModal(\'' + l.id + '\')">' + agendaEsc(l.nome) + '</span>'
+            + '<button class="lanc-st ' + stCls + '" type="button" title="Clique pra mudar o status" onclick="lancCycleStatus(\'' + l.id + '\')">' + LANC_STATUS[st] + '</button>'
+            + '</div>'
+            + metaHtml
+            + '<div class="lanc-quando">' + agendaEsc(quando) + (l.notas ? ' · ' + agendaEsc(l.notas) : '') + '</div>'
+            + '</div>';
+    }
+    function lancScrollTo(mk) {
+        const el = document.getElementById('lancmes-' + mk);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    function lancCycleStatus(id) {
+        const l = lancFind(id); if (!l) return;
+        const ordem = ['ideia', 'preparando', 'noar', 'feito'];
+        const i = ordem.indexOf(l.status || 'ideia');
+        l.status = ordem[(i + 1) % ordem.length];
+        lancRender(); agendaSave();
+    }
+    function lancToggleFeito(id) {
+        const l = lancFind(id); if (!l) return;
+        l.status = l.status === 'feito' ? 'noar' : 'feito';
+        calRender(); lancRender(); agendaSave();
+    }
+    function lancBump(id) {
+        const l = lancFind(id); if (!l) return;
+        l.metaFeito = (Number(l.metaFeito) || 0) + 1;
+        lancRender(); agendaSave();
+    }
+    function lancOpenModal(id) {
+        lancEditingId = id || null;
+        const l = id ? lancFind(id) : null;
+        document.getElementById('lancModalTitle').textContent = l ? 'Editar lançamento' : 'Novo lançamento';
+        document.getElementById('lf_nome').value = l ? (l.nome || '') : '';
+        document.getElementById('lf_data').value = l ? (l.data || '') : '';
+        document.getElementById('lf_status').value = l ? (l.status || 'ideia') : 'ideia';
+        document.getElementById('lf_metaTipo').value = l ? (l.metaTipo || '') : '';
+        document.getElementById('lf_metaAlvo').value = l && l.metaAlvo ? l.metaAlvo : '';
+        document.getElementById('lf_metaFeito').value = l && l.metaFeito ? l.metaFeito : '';
+        document.getElementById('lf_unidade').value = l ? (l.unidade || '') : '';
+        document.getElementById('lf_notas').value = l ? (l.notas || '') : '';
+        document.getElementById('lancDelete').classList.toggle('hidden', !l);
+        document.getElementById('lancModal').classList.add('show');
+        setTimeout(() => { const i = document.getElementById('lf_nome'); if (i) i.focus(); }, 30);
+    }
+    function lancCloseModal() { document.getElementById('lancModal').classList.remove('show'); lancEditingId = null; }
+    function lancSaveModal() {
+        const nome = document.getElementById('lf_nome').value.trim();
+        if (!nome) { document.getElementById('lf_nome').focus(); return; }
+        const dados = {
+            nome: nome,
+            data: document.getElementById('lf_data').value || null,
+            status: document.getElementById('lf_status').value || 'ideia',
+            metaTipo: document.getElementById('lf_metaTipo').value || null,
+            metaAlvo: Number(document.getElementById('lf_metaAlvo').value) || 0,
+            metaFeito: Number(document.getElementById('lf_metaFeito').value) || 0,
+            unidade: document.getElementById('lf_unidade').value.trim() || null,
+            notas: document.getElementById('lf_notas').value.trim() || null
+        };
+        if (!Array.isArray(agendaState.lancamentos)) agendaState.lancamentos = [];
+        if (lancEditingId) {
+            const l = lancFind(lancEditingId);
+            if (l) Object.assign(l, dados);
+        } else {
+            dados.id = mtUid('l');
+            dados.criadoEm = new Date().toISOString();
+            agendaState.lancamentos.push(dados);
+        }
+        lancCloseModal();
+        lancRender(); calRender(); agendaSave();
+    }
+    function lancDelete() {
+        if (!lancEditingId) return;
+        const l = lancFind(lancEditingId);
+        if (!confirm('Excluir o lançamento "' + (l ? l.nome : '') + '"?')) return;
+        agendaState.lancamentos = (agendaState.lancamentos || []).filter(x => x.id !== lancEditingId);
+        lancCloseModal();
+        lancRender(); calRender(); agendaSave();
+    }
+
+    (function metasInitUI() {
+        const on = (id, ev, fn) => { const el = document.getElementById(id); if (el) el.addEventListener(ev, fn); };
+        on('mtNovaBtn', 'click', () => mtOpenModal());
+        on('mtSave', 'click', mtSaveModal);
+        on('mtDelete', 'click', mtDelete);
+        on('mtCancel', 'click', mtCloseModal);
+        on('mtCancel2', 'click', mtCloseModal);
+        on('mf_tipo', 'change', mtSyncTipoLabel);
+        on('mf_nome', 'keydown', e => { if (e.key === 'Enter') { e.preventDefault(); mtSaveModal(); } });
+        on('mtApSave', 'click', mtAporteSave);
+        on('mtApCancel', 'click', mtAporteClose);
+        on('mtApCancel2', 'click', mtAporteClose);
+        on('mtApValor', 'keydown', e => { if (e.key === 'Enter') { e.preventDefault(); mtAporteSave(); } });
+        on('lancNovoBtn', 'click', () => lancOpenModal());
+        on('lancSave', 'click', lancSaveModal);
+        on('lancDelete', 'click', lancDelete);
+        on('lancCancel', 'click', lancCloseModal);
+        on('lancCancel2', 'click', lancCloseModal);
+        on('lf_nome', 'keydown', e => { if (e.key === 'Enter') { e.preventDefault(); lancSaveModal(); } });
+        [['mtModal', mtCloseModal], ['mtAporteModal', mtAporteClose], ['lancModal', lancCloseModal]].forEach(([id, close]) => {
+            const ov = document.getElementById(id);
+            if (ov) ov.addEventListener('click', e => { if (e.target === ov) close(); });
+        });
+    })();
 
     /* ── Instagram no calendário: postagens feitas + consistência/crescimento ── */
     let igCalData = null, igCalLoading = false, igCalError = false, igPostsByDate = {}, igCalChart = null, igFollowersHist = [];
