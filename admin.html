@@ -6048,7 +6048,9 @@
                 + '<span class="tf-min">' + (Number(d.minutos) || 15) + ' min</span>'
                 + '<span class="tf-tag">' + agendaEsc(d.nome) + '</span>'
                 + '<span>dia ' + t.n + ' de ' + d.dias + '</span>'
-                + '</div></div></div>';
+                + '</div></div>'
+                + '<button class="mt-mini" type="button" title="Editar este desafio" onclick="dsOpenModal(\'' + d.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>'
+                + '</div>';
         }).join('');
         const feitos = lista.filter(x => dsMarca(x, hoje)).length;
         if (feitos >= lista.length) html += '<div class="dia-tudo-feito">Tudo feito hoje. Amanhã a sequência continua ✦</div>';
@@ -6138,7 +6140,8 @@
             return '<div class="ds-card' + (concluido ? ' concluido' : '') + '">'
                 + '<div class="ds-top">'
                 + '<span class="ds-ico">' + agendaEsc(d.icone || '⭐') + '</span>'
-                + '<span class="ds-nome" onclick="dsOpenModal(\'' + d.id + '\')">' + agendaEsc(d.nome) + '</span>'
+                + '<span class="ds-nome" onclick="dsOpenModal(\'' + d.id + '\')" title="Editar este desafio">' + agendaEsc(d.nome) + '</span>'
+                + '<button class="mt-mini" type="button" title="Editar ou excluir este desafio" onclick="dsOpenModal(\'' + d.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>'
                 + (concluido ? '<span class="ds-chip ok">Concluído</span>'
                     : (streak > 1 ? '<span class="ds-chip fogo">🔥 ' + streak + ' dias</span>'
                         : '<span class="ds-chip">' + feitos + ' de ' + total + '</span>'))
