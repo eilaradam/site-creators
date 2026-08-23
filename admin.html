@@ -695,7 +695,7 @@
         .pl-btn.ok { background: var(--accent); border-color: var(--accent); color: #fff; }
         .pl-btn.ok:hover { background: var(--accent-dark); border-color: var(--accent-dark); color: #fff; }
 
-        .pl-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); align-items: start; gap: 8px; }
+        .pl-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
         .pl-day { background: var(--cream); border: 1px solid var(--border); border-radius: 13px; padding: 11px 10px 8px; display: flex; flex-direction: column; min-height: 118px; }
         .pl-day.hoje { border-color: var(--accent); background: #FFF3EA; }
         .pl-day-lbl { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.9px; color: var(--accent); margin-bottom: 8px; display: flex; justify-content: space-between; gap: 4px; }
@@ -707,7 +707,7 @@
         .pl-chk svg { width: 9px; height: 9px; color: #fff; opacity: 0; }
         .pl-it.ok .pl-chk { background: var(--accent); border-color: var(--accent); }
         .pl-it.ok .pl-chk svg { opacity: 1; }
-        .pl-it-t { flex: 1; min-width: 0; font-size: 12px; line-height: 1.35; color: var(--text); outline: none; border-radius: 5px; word-break: break-word; }
+        .pl-it-t { display: block; font-size: 12px; line-height: 1.35; color: var(--text); outline: none; border-radius: 5px; word-break: break-word; }
         .pl-it-t:focus { background: #fff; box-shadow: 0 0 0 2px var(--accent-glow); }
         .pl-it.ok .pl-it-t { color: var(--text-muted); text-decoration: line-through; }
         .pl-x { background: none; border: none; color: var(--text-muted); font-size: 15px; line-height: 1; cursor: pointer; padding: 0 2px; opacity: 0; transition: all 0.15s; }
@@ -717,6 +717,24 @@
         .pl-x-f:hover { color: var(--error); }
         .pl-add { background: none; border: none; color: var(--text-muted); font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700; cursor: pointer; padding: 6px 0 2px; text-align: left; transition: color 0.15s; }
         .pl-add:hover { color: var(--accent); }
+        .pl-wtit { font-size: 12.5px; font-weight: 700; line-height: 1.35; color: var(--text-soft); margin-top: 7px; outline: none; border-radius: 5px; word-break: break-word; }
+        .pl-wtit:focus { background: var(--cream); box-shadow: 0 0 0 2px var(--accent-glow); }
+        .pl-wtit:empty::before, .pl-lbl:empty::before, #plRegra:empty::before { content: attr(data-ph); color: var(--text-muted); font-weight: 400; }
+        .pl-foco-it .pl-chk { margin-top: 1px; }
+        .pl-foco-it.ok .pl-foco-t { color: var(--text-muted); text-decoration: line-through; }
+        .pl-lbl[contenteditable] { outline: none; border-radius: 5px; }
+        .pl-lbl[contenteditable]:focus { background: #fff; box-shadow: 0 0 0 2px var(--accent-glow); }
+        .pl-regra { display: flex; align-items: baseline; gap: 12px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 11px 15px; margin-bottom: 16px; font-size: 12.5px; line-height: 1.5; color: var(--text-soft); }
+        .pl-regra > span { flex: 0 0 auto; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.9px; color: var(--accent); }
+        .pl-regra > div { flex: 1; min-width: 0; outline: none; border-radius: 5px; }
+        .pl-regra > div:focus { background: var(--cream); box-shadow: 0 0 0 2px var(--accent-glow); }
+        .pl-it-body { flex: 1; min-width: 0; }
+        .pl-tag { display: inline-block; margin-bottom: 3px; font-size: 8.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; color: #fff; background: var(--accent); border-radius: 4px; padding: 2px 5px; line-height: 1.3; }
+        .pl-it.canal { background: #FFF1EA; border-radius: 8px; padding: 7px 7px 6px; margin: 1px -3px; }
+        .pl-it.canal.ok { background: transparent; }
+        .pl-it.canal.ok .pl-tag { background: var(--text-muted); }
+        .pl-week.estrela .pl-it.canal { background: #FDF0D9; }
+        .pl-addrow { display: flex; gap: 10px; flex-wrap: wrap; }
         .pl-vazio { text-align: center; padding: 34px 18px; color: var(--text-muted); font-size: 13.5px; }
 
         @media (max-width: 1180px) {
@@ -1230,7 +1248,7 @@
     <div id="agViewMetas" style="display:none">
         <div class="pl-top">
             <div>
-                <div class="pl-lbl">As frentes: o que precisa existir no fim do plano</div>
+                <div class="pl-lbl" id="plTopoTitulo" contenteditable="true" spellcheck="false" data-topo="titulo"></div>
                 <div class="pl-frentes" id="plFrentes"></div>
             </div>
             <button class="pl-fin" id="plFinBtn" type="button">
@@ -1238,6 +1256,8 @@
                 <span class="pl-fin-n" id="plFinN">0</span>
             </button>
         </div>
+
+        <div class="pl-regra"><span>Não muda em nenhum mês</span><div id="plRegra" contenteditable="true" spellcheck="false" data-topo="regra" data-ph="a regra que vale toda semana"></div></div>
 
         <div class="pl-finlist" id="plFinList" style="display:none"></div>
 
@@ -5569,6 +5589,8 @@
         const t = Math.round(Number(p.total));
         p.total = (isFinite(t) && t > 0) ? Math.min(PL_MAX_SEMANAS, t) : 12;
         if (!Array.isArray(p.frentes)) p.frentes = [];
+        if (typeof p.topoTitulo !== 'string') p.topoTitulo = 'As frentes: o que precisa existir no fim do plano';
+        if (typeof p.regra !== 'string') p.regra = '';
         if (!p.semanas || typeof p.semanas !== 'object' || Array.isArray(p.semanas)) p.semanas = {};
         agendaState.plano = p;
         return p;
@@ -5585,18 +5607,22 @@
         const p = planoEnsure();
         let s = p.semanas[key];
         if (!s) {
-            if (!criar) return { foco: [], dias: {}, feita: false };
-            s = { foco: [], dias: {}, feita: false };
+            if (!criar) return { foco: [], dias: {}, feita: false, titulo: '', estrela: false };
+            s = { foco: [], dias: {}, feita: false, titulo: '' };
             p.semanas[key] = s;
         }
         if (!Array.isArray(s.foco)) s.foco = [];
+        /* foco era so texto; virou item com check. converte na hora de ler. */
+        s.foco = s.foco.map(f => (f && typeof f === 'object') ? { t: String(f.t || ''), ok: !!f.ok } : { t: String(f == null ? '' : f), ok: false });
         if (!s.dias || typeof s.dias !== 'object' || Array.isArray(s.dias)) s.dias = {};
+        if (typeof s.titulo !== 'string') s.titulo = '';
         s.estrela = !!s.estrela;
         return s;
     }
     function plItens(s, dow) { const a = s.dias[String(dow)]; return Array.isArray(a) ? a : []; }
     function plProgresso(s) {
         let t = 0, ok = 0;
+        s.foco.forEach(f => { if (f.t) { t++; if (f.ok) ok++; } });
         PL_DIAS.forEach(d => plItens(s, d.n).forEach(i => { t++; if (i.ok) ok++; }));
         return { t: t, ok: ok, pct: t ? Math.round(ok * 100 / t) : 0 };
     }
@@ -5641,6 +5667,10 @@
         const p = planoEnsure();
         const el = document.getElementById('plFrentes');
         if (!el) return;
+        const tit = document.getElementById('plTopoTitulo');
+        if (tit && document.activeElement !== tit) tit.textContent = p.topoTitulo;
+        const reg = document.getElementById('plRegra');
+        if (reg && document.activeElement !== reg) reg.textContent = p.regra;
         el.innerHTML = p.frentes.map((f, i) =>
             '<div class="pl-frente">'
             + '<button class="pl-x pl-x-f" type="button" onclick="plFrenteDel(' + i + ')" aria-label="Remover frente">&times;</button>'
@@ -5659,7 +5689,8 @@
         if (!prox) { el.style.display = 'none'; el.innerHTML = ''; el.onclick = null; return; }
         const faltam = Math.round((new Date(prox + 'T12:00:00') - new Date(hojeKey + 'T12:00:00')) / (7 * 86400000));
         const quando = faltam <= 0 ? 'é esta semana' : (faltam === 1 ? 'começa semana que vem' : 'faltam ' + faltam + ' semanas');
-        const foco = plSemana(prox).foco.filter(Boolean)[0] || '';
+        const sp = plSemana(prox);
+        const foco = sp.titulo || (sp.foco.map(f => f.t).filter(Boolean)[0] || '');
         el.style.display = '';
         el.innerHTML = PL_STAR_SVG(true)
             + '<span>Próxima semana marcada: <b>semana ' + num[prox] + '</b>, ' + plRange(prox)
@@ -5672,9 +5703,10 @@
         const s = plSemana(key);
         const pr = plProgresso(s);
         const atual = key === hojeKey;
-        const foco = s.foco.map((t, i) =>
-            '<div class="pl-foco-it"><i class="pl-foco-dot"></i>'
-            + '<span class="pl-foco-t" contenteditable="true" spellcheck="false" data-fk="' + key + '" data-fi="' + i + '">' + agendaEsc(t) + '</span>'
+        const foco = s.foco.map((f, i) =>
+            '<div class="pl-foco-it' + (f.ok ? ' ok' : '') + '">'
+            + '<button class="pl-chk" type="button" onclick="plFocoToggle(\'' + key + '\',' + i + ')" aria-label="Marcar">' + PL_CHECK_SVG + '</button>'
+            + '<span class="pl-foco-t" contenteditable="true" spellcheck="false" data-fk="' + key + '" data-fi="' + i + '">' + agendaEsc(f.t) + '</span>'
             + '<button class="pl-x" type="button" onclick="plFocoDel(\'' + key + '\',' + i + ')" aria-label="Remover">&times;</button></div>'
         ).join('');
         return '<div class="pl-week' + (s.feita ? ' feita' : '') + (s.estrela ? ' estrela' : '') + (atual ? ' atual' : '') + '" id="pl-w-' + key + '">'
@@ -5683,6 +5715,7 @@
             + '<button class="pl-star" type="button" onclick="plEstrela(\'' + key + '\')" title="' + (s.estrela ? 'Tirar o destaque desta semana' : 'Marcar como semana importante') + '" aria-label="Destacar semana">' + PL_STAR_SVG(s.estrela) + '</button>'
             + 'semana ' + n + (atual ? '<span class="pl-agora">agora</span>' : '') + '</div>'
             + '<div class="pl-wdate">' + plRange(key) + '</div>'
+            + '<div class="pl-wtit" contenteditable="true" spellcheck="false" data-tk="' + key + '" data-ph="o que essa semana entrega">' + agendaEsc(s.titulo) + '</div>'
             + '<div class="pl-bar"><i style="width:' + pr.pct + '%"></i></div>'
             + '<div class="pl-wmeta">' + pr.ok + ' de ' + pr.t + ' feito' + (pr.t && pr.ok === pr.t ? ' · semana completa' : '') + '</div>'
             + '<div class="pl-wbtns">'
@@ -5694,7 +5727,7 @@
             + '</div>'
             + '<div class="pl-wmain">'
             + '<div class="pl-foco">' + foco
-            + '<button class="pl-btn" type="button" style="background:none;border:none;padding:1px 0;color:var(--text-muted);flex:0 0 auto" onclick="plFocoAdd(\'' + key + '\')">+ foco da semana</button>'
+            + '<button class="pl-btn" type="button" style="background:none;border:none;padding:1px 0;color:var(--text-muted);flex:0 0 auto" onclick="plFocoAdd(\'' + key + '\')">+ o que tem que acontecer</button>'
             + '</div>'
             + '<div class="pl-days">' + PL_DIAS.map(d => plDayHtml(key, d)).join('') + '</div>'
             + '</div>'
@@ -5708,13 +5741,19 @@
         return '<div class="pl-day' + (data === agendaTodayStr() ? ' hoje' : '') + '">'
             + '<div class="pl-day-lbl">' + d.nome + '<span>' + Number(data.slice(8)) + '/' + Number(data.slice(5, 7)) + '</span></div>'
             + '<div class="pl-items">' + itens.map((it, i) =>
-                '<div class="pl-it' + (it.ok ? ' ok' : '') + '">'
+                '<div class="pl-it' + (it.ok ? ' ok' : '') + (it.tipo === 'canal' ? ' canal' : '') + '">'
                 + '<button class="pl-chk" type="button" onclick="plItemToggle(\'' + key + '\',' + d.n + ',' + i + ')" aria-label="Marcar">' + PL_CHECK_SVG + '</button>'
+                + '<div class="pl-it-body">'
+                + (it.tipo === 'canal' ? '<b class="pl-tag">Canal</b>' : '')
                 + '<span class="pl-it-t" contenteditable="true" spellcheck="false" data-k="' + key + '" data-d="' + d.n + '" data-i="' + i + '">' + agendaEsc(it.t || '') + '</span>'
+                + '</div>'
                 + '<button class="pl-x" type="button" onclick="plItemDel(\'' + key + '\',' + d.n + ',' + i + ')" aria-label="Remover">&times;</button>'
                 + '</div>'
               ).join('') + '</div>'
-            + '<button class="pl-add" type="button" onclick="plItemAdd(\'' + key + '\',' + d.n + ')">+ adicionar</button>'
+            + '<div class="pl-addrow">'
+            + '<button class="pl-add" type="button" onclick="plItemAdd(\'' + key + '\',' + d.n + ')">+ tarefa</button>'
+            + '<button class="pl-add" type="button" onclick="plItemAdd(\'' + key + '\',' + d.n + ',\'canal\')">+ canal</button>'
+            + '</div>'
             + '</div>';
     }
 
@@ -5725,10 +5764,12 @@
         it.ok = !it.ok;
         planoRender(); agendaSave();
     }
-    function plItemAdd(key, dow) {
+    function plItemAdd(key, dow, tipo) {
         const s = plSemana(key, true);
         if (!Array.isArray(s.dias[String(dow)])) s.dias[String(dow)] = [];
-        s.dias[String(dow)].push({ id: plUid(), t: '', ok: false });
+        const novo = { id: plUid(), t: '', ok: false };
+        if (tipo === 'canal') novo.tipo = 'canal';
+        s.dias[String(dow)].push(novo);
         const idx = s.dias[String(dow)].length - 1;
         planoRender(); agendaSave();
         plFoco('.pl-it-t[data-k="' + key + '"][data-d="' + dow + '"][data-i="' + idx + '"]');
@@ -5740,9 +5781,16 @@
         arr.splice(idx, 1);
         planoRender(); agendaSave();
     }
+    function plFocoToggle(key, idx) {
+        const s = plSemana(key, true);
+        const f = s.foco[idx];
+        if (!f) return;
+        f.ok = !f.ok;
+        planoRender(); agendaSave();
+    }
     function plFocoAdd(key) {
         const s = plSemana(key, true);
-        s.foco.push('');
+        s.foco.push({ t: '', ok: false });
         const idx = s.foco.length - 1;
         planoRender(); agendaSave();
         plFoco('.pl-foco-t[data-fk="' + key + '"][data-fi="' + idx + '"]');
@@ -5835,9 +5883,22 @@
         if (d.fk) {
             const s = plSemana(d.fk, true), i = Number(d.fi);
             if (!(i >= 0) || i >= s.foco.length) return;
-            if ((s.foco[i] || '') === txt) return;
+            if ((s.foco[i].t || '') === txt) return;
             if (!txt) { s.foco.splice(i, 1); planoRender(); agendaSave(); return; }
-            s.foco[i] = txt; agendaSave();
+            s.foco[i].t = txt; agendaSave();
+            return;
+        }
+        if (d.tk) {
+            const s = plSemana(d.tk, true);
+            if ((s.titulo || '') === txt) return;
+            s.titulo = txt; agendaSave();
+            return;
+        }
+        if (d.topo) {
+            const pl = planoEnsure();
+            const campo = (d.topo === 'regra') ? 'regra' : 'topoTitulo';
+            if ((pl[campo] || '') === txt) return;
+            pl[campo] = txt; agendaSave();
             return;
         }
         if (d.k) {
