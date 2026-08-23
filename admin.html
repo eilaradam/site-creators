@@ -657,12 +657,27 @@
         .pl-week.feita { background: var(--cream); border-style: dashed; box-shadow: none; }
         .pl-week.feita .pl-day { background: #fff; }
         .pl-week.feita .pl-wname, .pl-week.feita .pl-it-t { color: var(--text-soft); }
+        .pl-week.estrela { background: #FFFBF0; border-color: #E9CE95; box-shadow: 0 0 0 2px rgba(217,164,65,0.15); }
+        .pl-week.estrela .pl-day { background: #FFF6E4; border-color: #F1DFBB; }
+        .pl-week.estrela .pl-day-lbl { color: #B07C1F; }
+        .pl-week.estrela .pl-foco-dot { background: #D9A441; }
+        .pl-week.estrela .pl-bar i { background: #D9A441; }
+        .pl-week.estrela.feita { background: #FBF7EE; }
         .pl-week.atual { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
         .pl-week.flash { animation: plflash 1.2s ease; }
         @keyframes plflash { 0%, 100% { box-shadow: 0 0 0 2px var(--accent-glow); } 50% { box-shadow: 0 0 0 8px rgba(200,68,26,0.22); } }
         .pl-wside { color: var(--text); padding: 6px 2px 4px 6px; display: flex; flex-direction: column; }
         .pl-wmain { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-        .pl-wname { font-size: 21px; font-weight: 700; letter-spacing: -0.6px; line-height: 1.1; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .pl-wname { font-size: 21px; font-weight: 700; letter-spacing: -0.6px; line-height: 1.1; display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+        .pl-star { background: none; border: none; padding: 0; margin-right: 1px; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; flex-shrink: 0; transition: all 0.15s; }
+        .pl-star svg { width: 19px; height: 19px; }
+        .pl-star:hover { color: #D9A441; transform: scale(1.15); }
+        .pl-week.estrela .pl-star { color: #D9A441; }
+        .pl-prox { display: flex; align-items: center; gap: 9px; background: #FFFBF0; border: 1px solid #E9CE95; border-left: 3px solid #D9A441; border-radius: 12px; padding: 11px 15px; margin-bottom: 14px; font-size: 13px; color: var(--text-soft); cursor: pointer; transition: border-color 0.15s; }
+        .pl-prox:hover { border-color: #D9A441; }
+        .pl-prox svg { width: 16px; height: 16px; color: #D9A441; flex-shrink: 0; }
+        .pl-prox b { color: var(--text); }
+        .pl-prox .pl-prox-quando { margin-left: auto; font-weight: 700; color: #B07C1F; white-space: nowrap; }
         .pl-agora { background: var(--accent); color: #fff; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; padding: 3px 7px; border-radius: 20px; }
         .pl-wdate { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
         .pl-foco { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 4px 18px; padding: 0 2px; }
@@ -1235,6 +1250,7 @@
             <button class="ag-btn-ghost-sm" id="plAddSemana" type="button">+ Semana</button>
         </div>
 
+        <div class="pl-prox" id="plProx" style="display:none"></div>
         <div id="plSemanas"></div>
     </div>
 </div>
@@ -5525,6 +5541,7 @@
     ];
     const PL_MES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
     const PL_MAX_SEMANAS = 60;
+    const PL_STAR_SVG = function (cheia) { return '<svg viewBox="0 0 24 24" fill="' + (cheia ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2.6 15 9 22 9.9 17 14.7 18.2 21.6 12 18.3 5.8 21.6 7 14.7 2 9.9 9 9"/></svg>'; };
     const PL_CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
     let plVerFin = false;
 
@@ -5574,6 +5591,7 @@
         }
         if (!Array.isArray(s.foco)) s.foco = [];
         if (!s.dias || typeof s.dias !== 'object' || Array.isArray(s.dias)) s.dias = {};
+        s.estrela = !!s.estrela;
         return s;
     }
     function plItens(s, dow) { const a = s.dias[String(dow)]; return Array.isArray(a) ? a : []; }
@@ -5608,6 +5626,8 @@
             ? abertas.map(k => plWeekHtml(k, num[k], hojeKey)).join('')
             : '<div class="pl-vazio">Todas as semanas do plano estão finalizadas. Toque em <b>+ Semana</b> pra continuar.</div>';
 
+        plRenderProxima(chaves, num, hojeKey);
+
         const fl = document.getElementById('plFinList');
         if (fl) {
             fl.style.display = plVerFin ? '' : 'none';
@@ -5631,6 +5651,23 @@
         ).join('') + '<button class="pl-frente-add" type="button" onclick="plFrenteAdd()">+ frente</button>';
     }
 
+    /* avisa qual e a proxima semana marcada com estrela, pra ela ver que esta chegando */
+    function plRenderProxima(chaves, num, hojeKey) {
+        const el = document.getElementById('plProx');
+        if (!el) return;
+        const prox = chaves.find(k => k >= hojeKey && plSemana(k).estrela && !plSemana(k).feita);
+        if (!prox) { el.style.display = 'none'; el.innerHTML = ''; el.onclick = null; return; }
+        const faltam = Math.round((new Date(prox + 'T12:00:00') - new Date(hojeKey + 'T12:00:00')) / (7 * 86400000));
+        const quando = faltam <= 0 ? 'é esta semana' : (faltam === 1 ? 'começa semana que vem' : 'faltam ' + faltam + ' semanas');
+        const foco = plSemana(prox).foco.filter(Boolean)[0] || '';
+        el.style.display = '';
+        el.innerHTML = PL_STAR_SVG(true)
+            + '<span>Próxima semana marcada: <b>semana ' + num[prox] + '</b>, ' + plRange(prox)
+            + (foco ? ' · ' + agendaEsc(foco.length > 90 ? foco.slice(0, 90) + '...' : foco) : '') + '</span>'
+            + '<span class="pl-prox-quando">' + quando + '</span>';
+        el.onclick = function () { plIrSemana(prox); };
+    }
+
     function plWeekHtml(key, n, hojeKey) {
         const s = plSemana(key);
         const pr = plProgresso(s);
@@ -5640,9 +5677,11 @@
             + '<span class="pl-foco-t" contenteditable="true" spellcheck="false" data-fk="' + key + '" data-fi="' + i + '">' + agendaEsc(t) + '</span>'
             + '<button class="pl-x" type="button" onclick="plFocoDel(\'' + key + '\',' + i + ')" aria-label="Remover">&times;</button></div>'
         ).join('');
-        return '<div class="pl-week' + (s.feita ? ' feita' : '') + (atual ? ' atual' : '') + '" id="pl-w-' + key + '">'
+        return '<div class="pl-week' + (s.feita ? ' feita' : '') + (s.estrela ? ' estrela' : '') + (atual ? ' atual' : '') + '" id="pl-w-' + key + '">'
             + '<div class="pl-wside">'
-            + '<div class="pl-wname">semana ' + n + (atual ? '<span class="pl-agora">agora</span>' : '') + '</div>'
+            + '<div class="pl-wname">'
+            + '<button class="pl-star" type="button" onclick="plEstrela(\'' + key + '\')" title="' + (s.estrela ? 'Tirar o destaque desta semana' : 'Marcar como semana importante') + '" aria-label="Destacar semana">' + PL_STAR_SVG(s.estrela) + '</button>'
+            + 'semana ' + n + (atual ? '<span class="pl-agora">agora</span>' : '') + '</div>'
             + '<div class="pl-wdate">' + plRange(key) + '</div>'
             + '<div class="pl-bar"><i style="width:' + pr.pct + '%"></i></div>'
             + '<div class="pl-wmeta">' + pr.ok + ' de ' + pr.t + ' feito' + (pr.t && pr.ok === pr.t ? ' · semana completa' : '') + '</div>'
@@ -5731,6 +5770,11 @@
         p.frentes.splice(i, 1);
         plRenderFrentes(); agendaSave();
     }
+    function plEstrela(key) {
+        const s = plSemana(key, true);
+        s.estrela = !s.estrela;
+        planoRender(); agendaSave();
+    }
     function plFinalizar(key) {
         plSemana(key, true).feita = true;
         planoRender(); agendaSave();
@@ -5761,14 +5805,17 @@
         p.inicio = novo;
         planoRender(); agendaSave();
     }
-    function plIrHoje() {
-        const key = plSegundaDe(agendaTodayStr());
+    function plIrSemana(key) {
         let el = document.getElementById('pl-w-' + key);
         if (!el && plSemana(key).feita && !plVerFin) { plVerFin = true; planoRender(); el = document.getElementById('pl-w-' + key); }
-        if (!el) { alert('A semana de hoje está fora do período do plano. Ajuste a data de início ou adicione semanas.'); return; }
+        if (!el) return false;
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         el.classList.add('flash');
         setTimeout(function () { el.classList.remove('flash'); }, 1300);
+        return true;
+    }
+    function plIrHoje() {
+        if (!plIrSemana(plSegundaDe(agendaTodayStr()))) alert('A semana de hoje está fora do período do plano. Ajuste a data de início ou adicione semanas.');
     }
 
     /* edição inline: tudo que é contenteditable salva no blur */
