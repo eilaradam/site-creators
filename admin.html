@@ -634,6 +634,83 @@
         .agenda-subbtn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
         .agenda-subnav { flex-wrap: wrap; }
 
+        /* ── Agenda: Metas (o plano, semana a semana) ── */
+        .pl-top { display: grid; grid-template-columns: 1fr 250px; gap: 14px; align-items: stretch; margin-bottom: 18px; }
+        .pl-lbl { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.9px; color: var(--text-muted); margin-bottom: 9px; }
+        .pl-frentes { background: #FFF3EA; border: 1px solid #F3E1D3; border-radius: var(--radius-lg); padding: 13px; display: grid; grid-template-columns: repeat(auto-fit, minmax(146px, 1fr)); gap: 10px; }
+        .pl-frente { position: relative; background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 12px 13px 13px; }
+        .pl-frente-num { font-size: 17px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; line-height: 1; margin-bottom: 7px; }
+        .pl-frente-nome { font-size: 13.5px; font-weight: 700; color: var(--text); line-height: 1.25; outline: none; border-radius: 5px; }
+        .pl-frente-desc { font-size: 11.8px; color: var(--text-soft); line-height: 1.45; margin-top: 5px; outline: none; border-radius: 5px; }
+        .pl-frente [contenteditable]:focus { background: var(--cream); box-shadow: 0 0 0 2px var(--accent-glow); }
+        .pl-frente-add { border: 1px dashed var(--border-strong); background: transparent; border-radius: 12px; color: var(--text-muted); font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 12.5px; cursor: pointer; min-height: 74px; transition: all 0.15s; }
+        .pl-frente-add:hover { border-color: var(--accent); color: var(--accent); }
+        .pl-fin { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 6px; text-align: left; background: #6B322E; border: none; border-radius: var(--radius-lg); color: #fff; padding: 18px 20px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.15s; }
+        .pl-fin:hover { background: #7C3B36; }
+        .pl-fin-t { font-size: 14px; font-weight: 700; letter-spacing: 0.2px; line-height: 1.3; }
+        .pl-fin-n { font-size: 11.5px; color: rgba(255,255,255,0.72); }
+        .pl-finlist { margin-bottom: 18px; }
+        .pl-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; font-size: 12.5px; color: var(--text-soft); }
+        .pl-toolbar input[type=date] { border: 1px solid var(--border); background: #fff; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 12.5px; color: var(--text); padding: 5px 8px; }
+
+        .pl-week { display: grid; grid-template-columns: 198px 1fr; gap: 14px; background: #6B322E; border-radius: 20px; padding: 14px; margin-bottom: 14px; }
+        .pl-week.feita { background: #7E605C; }
+        .pl-week.atual { box-shadow: 0 0 0 3px rgba(200,68,26,0.45); }
+        .pl-week.flash { animation: plflash 1.2s ease; }
+        @keyframes plflash { 0%, 100% { box-shadow: 0 0 0 3px rgba(200,68,26,0.45); } 50% { box-shadow: 0 0 0 9px rgba(200,68,26,0.3); } }
+        .pl-wside { color: #fff; padding: 6px 2px 4px 8px; display: flex; flex-direction: column; }
+        .pl-wmain { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+        .pl-wname { font-size: 21px; font-weight: 700; letter-spacing: -0.6px; line-height: 1.1; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .pl-agora { background: var(--accent); color: #fff; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; padding: 3px 7px; border-radius: 20px; }
+        .pl-wdate { font-size: 12px; color: rgba(255,255,255,0.66); margin-top: 3px; }
+        .pl-foco { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 4px 18px; padding: 0 2px; }
+        .pl-foco-it { flex: 0 1 auto; max-width: 430px; }
+        .pl-foco-it { display: flex; gap: 6px; align-items: flex-start; font-size: 11.8px; line-height: 1.4; color: rgba(255,255,255,0.88); }
+        .pl-foco-dot { width: 4px; height: 4px; border-radius: 50%; background: #E0714A; flex-shrink: 0; margin-top: 6px; }
+        .pl-foco-t { outline: none; border-radius: 5px; flex: 1; min-width: 0; word-break: break-word; }
+        .pl-foco-t:focus { background: rgba(0,0,0,0.28); box-shadow: 0 0 0 2px rgba(224,113,74,0.5); }
+        .pl-bar { height: 5px; border-radius: 5px; background: rgba(255,255,255,0.16); overflow: hidden; margin-top: 13px; }
+        .pl-bar i { display: block; height: 100%; background: #E0714A; border-radius: 5px; transition: width 0.25s; }
+        .pl-wmeta { font-size: 11.5px; color: rgba(255,255,255,0.66); margin-top: 6px; }
+        .pl-wbtns { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 9px; }
+        .pl-btn { background: rgba(255,255,255,0.13); border: none; color: #fff; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 11.5px; font-weight: 700; padding: 6px 10px; cursor: pointer; transition: background 0.15s; }
+        .pl-btn:hover { background: rgba(255,255,255,0.24); }
+        .pl-btn.ok { background: var(--accent); }
+        .pl-btn.ok:hover { background: var(--accent-dark); }
+
+        .pl-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); align-items: start; gap: 8px; }
+        .pl-day { background: #161616; border-radius: 13px; padding: 11px 10px 8px; display: flex; flex-direction: column; min-height: 118px; }
+        .pl-day.hoje { box-shadow: inset 0 0 0 1.5px #E0714A; }
+        .pl-day-lbl { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.9px; color: #E0714A; margin-bottom: 8px; display: flex; justify-content: space-between; gap: 4px; }
+        .pl-day-lbl span { color: rgba(255,255,255,0.35); letter-spacing: 0; }
+        .pl-items { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+        .pl-it { display: flex; align-items: flex-start; gap: 6px; }
+        .pl-chk { flex-shrink: 0; width: 14px; height: 14px; margin-top: 2px; border-radius: 4px; border: 1.5px solid rgba(255,255,255,0.3); background: transparent; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+        .pl-chk:hover { border-color: #E0714A; }
+        .pl-chk svg { width: 9px; height: 9px; color: #fff; opacity: 0; }
+        .pl-it.ok .pl-chk { background: #E0714A; border-color: #E0714A; }
+        .pl-it.ok .pl-chk svg { opacity: 1; }
+        .pl-it-t { flex: 1; min-width: 0; font-size: 12px; line-height: 1.35; color: #EDE7E1; outline: none; border-radius: 5px; word-break: break-word; }
+        .pl-it-t:focus { background: rgba(255,255,255,0.09); box-shadow: 0 0 0 2px rgba(224,113,74,0.45); }
+        .pl-it.ok .pl-it-t { color: rgba(255,255,255,0.4); text-decoration: line-through; }
+        .pl-x { background: none; border: none; color: rgba(255,255,255,0.3); font-size: 15px; line-height: 1; cursor: pointer; padding: 0 2px; opacity: 0; transition: all 0.15s; }
+        .pl-it:hover .pl-x, .pl-foco-it:hover .pl-x, .pl-frente:hover .pl-x-f { opacity: 1; }
+        .pl-x:hover { color: #FF8A6A; }
+        .pl-x-f { position: absolute; top: 5px; right: 6px; color: var(--text-muted); }
+        .pl-x-f:hover { color: var(--error); }
+        .pl-add { background: none; border: none; color: rgba(255,255,255,0.32); font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700; cursor: pointer; padding: 6px 0 2px; text-align: left; transition: color 0.15s; }
+        .pl-add:hover { color: #E0714A; }
+        .pl-vazio { text-align: center; padding: 34px 18px; color: var(--text-muted); font-size: 13.5px; }
+
+        @media (max-width: 1180px) {
+            .pl-week { grid-template-columns: 1fr; }
+            .pl-days { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        }
+        @media (max-width: 860px) {
+            .pl-top { grid-template-columns: 1fr; }
+            .pl-days { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
         /* ── Agenda: Metas (sonhos) e Lançamentos ── */
         .ag-sec-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
         .ag-sec-head h3 { font-family: 'DM Sans', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: -0.3px; color: var(--text); }
@@ -1091,22 +1168,19 @@
 <div class="dashboard show" id="tabAgenda">
     <div class="agenda-head">
         <div>
-            <h2 id="agendaHello">Minha rotina</h2>
-            <div class="agenda-sub" id="agendaSub">O que precisa de atenção</div>
+            <h2 id="agendaHello">Minha agenda</h2>
+            <div class="agenda-sub" id="agendaSub">O calendário e o plano, semana a semana</div>
         </div>
         <span class="agenda-save" id="agendaSave"></span>
     </div>
 
     <div class="agenda-subnav">
-        <button class="agenda-subbtn active" data-agsub="dia" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg> Meu dia</button>
-        <button class="agenda-subbtn" data-agsub="cal" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Calendário</button>
-        <button class="agenda-subbtn" data-agsub="lista" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg> Pendências</button>
+        <button class="agenda-subbtn active" data-agsub="cal" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Calendário</button>
         <button class="agenda-subbtn" data-agsub="metas" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4"/></svg> Metas</button>
     </div>
 
     <!-- VIEW: CALENDÁRIO -->
     <div id="agViewCal">
-        <div class="cal-meta-strip" id="calMetaStrip" style="display:none" onclick="agShowSub('metas', true)"></div>
         <div id="igInsightCard" class="ig-insight-card" style="display:none"></div>
         <div class="cal-toolbar">
             <div class="cal-nav">
@@ -1135,147 +1209,32 @@
         </div>
     </div>
 
-    <!-- VIEW: MEU DIA (desafios diários + rotina) -->
-    <div id="agViewDia" style="display:none">
-        <div class="dia-hero">
-            <div style="flex:1;min-width:240px">
-                <div class="dia-hero-eyebrow" id="diaData">Hoje</div>
-                <div class="dia-hero-title" id="diaTitulo">Carregando...</div>
-                <div class="dia-hero-sub" id="diaSub"></div>
-                <div class="dia-prog"><i id="diaProgFill" style="width:0%"></i></div>
-            </div>
-            <div class="dia-streak">
-                <div class="ds-num" id="diaStreakNum">0</div>
-                <div class="ds-lbl" id="diaStreakLbl">dias seguidos</div>
-            </div>
-        </div>
-
-        <div class="dia-cols">
-            <div>
-                <div class="ag-sec-head">
-                    <div>
-                        <h3>Hoje</h3>
-                        <div class="ag-sec-sub">A ação mínima de cada desafio. Um toque e está feito.</div>
-                    </div>
-                    <button class="ag-btn-add" id="dsNovoBtn" type="button">+ Novo desafio</button>
-                </div>
-                <div id="diaTarefas"></div>
-            </div>
-            <div>
-                <div class="ag-sec-head">
-                    <div>
-                        <h3>Rotina do dia</h3>
-                        <div class="ag-sec-sub">Os horários que se repetem todo dia.</div>
-                    </div>
-                </div>
-                <div class="rot-wrap">
-                    <div id="diaRotina"></div>
-                    <div class="rot-add">
-                        <input type="time" id="rotHora" value="07:00">
-                        <input type="text" class="txt" id="rotTitulo" maxlength="70" placeholder="Ex.: Acordar e beber água" autocomplete="off">
-                        <button class="ag-btn-ghost-sm" id="rotAddBtn" type="button">Adicionar</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="ag-sec-head" style="margin-top:28px">
-            <div>
-                <h3>Meus desafios</h3>
-                <div class="ag-sec-sub">Ciclos curtos que empurram cada objetivo seu.</div>
-            </div>
-        </div>
-        <div id="dsCards"></div>
-
-        <div class="ag-sec-head" style="margin-top:28px">
-            <div>
-                <h3>Consistência</h3>
-                <div class="ag-sec-sub">Cada quadradinho é um dia. Quanto mais forte, mais coisa você cumpriu.</div>
-            </div>
-        </div>
-        <div class="mapa-wrap">
-            <div class="mapa-meses" id="mapaMeses"></div>
-            <div class="mapa-grid" id="mapaGrid"></div>
-            <div class="mapa-legenda">menos <i class="mapa-cel"></i><i class="mapa-cel n1"></i><i class="mapa-cel n2"></i><i class="mapa-cel n3"></i> mais <span id="mapaResumo" style="margin-left:auto"></span></div>
-        </div>
-
-        <div class="lem-box">
-            <label class="lem-sw"><input type="checkbox" id="lemAtivo"> Lembrete diário por e-mail</label>
-            <span>às</span>
-            <input type="time" id="lemHora" value="06:30">
-            <span>para</span>
-            <input type="email" id="lemEmail" placeholder="seu@email.com" style="flex:1;min-width:180px">
-            <button class="ag-btn-ghost-sm" id="lemTeste" type="button">Enviar teste agora</button>
-            <span id="lemStatus" style="font-size:12px;color:var(--text-muted)"></span>
-        </div>
-    </div>
-
-    <!-- VIEW: METAS (sonhos de longo prazo) -->
+    <!-- VIEW: METAS (o plano, semana a semana) -->
     <div id="agViewMetas" style="display:none">
-        <div class="ag-sec-head">
+        <div class="pl-top">
             <div>
-                <h3>Meus sonhos</h3>
-                <div class="ag-sec-sub">Cada sonho vira um valor por mês. É assim que ele sai do papel.</div>
+                <div class="pl-lbl">As frentes: o que precisa existir no fim do plano</div>
+                <div class="pl-frentes" id="plFrentes"></div>
             </div>
-            <button class="ag-btn-add" id="mtNovaBtn" type="button">+ Nova meta</button>
+            <button class="pl-fin" id="plFinBtn" type="button">
+                <span class="pl-fin-t">Semanas já finalizadas</span>
+                <span class="pl-fin-n" id="plFinN">0</span>
+            </button>
         </div>
-        <div id="mtMesBox"></div>
-        <div id="mtCards"></div>
-        <div class="mt-algumdia" id="mtAlgumDia"></div>
-    </div>
 
-    <!-- VIEW: PENDÊNCIAS (lista) -->
-    <div id="agViewLista" style="display:none">
-    <div class="radar-row" id="agendaRadar">
-        <button class="radar-tile" type="button" onclick="agendaGoTab('candidaturas')">
-            <div class="radar-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></div>
-            <div class="radar-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
-            <div class="radar-num" id="radarCand">--</div>
-            <div class="radar-label">Candidaturas</div>
-            <div class="radar-total" id="radarCandTot">últimos 7 dias</div>
-        </button>
-        <button class="radar-tile" type="button" onclick="agendaGoTab('casting')">
-            <div class="radar-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></div>
-            <div class="radar-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
-            <div class="radar-num" id="radarCast">--</div>
-            <div class="radar-label">Casting</div>
-            <div class="radar-total" id="radarCastTot">últimos 7 dias</div>
-        </button>
-        <button class="radar-tile" type="button" onclick="agendaGoTab('creators')">
-            <div class="radar-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></div>
-            <div class="radar-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></div>
-            <div class="radar-num" id="radarCad">--</div>
-            <div class="radar-label">Novos cadastros</div>
-            <div class="radar-total" id="radarCadTot">últimos 7 dias</div>
-        </button>
-        <button class="radar-tile" type="button" onclick="agendaGoTab('imersao')">
-            <div class="radar-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></div>
-            <div class="radar-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-            <div class="radar-num" id="radarLista">--</div>
-            <div class="radar-label">Lista de espera</div>
-            <div class="radar-total" id="radarListaTot">últimos 7 dias</div>
-        </button>
-    </div>
+        <div class="pl-finlist" id="plFinList" style="display:none"></div>
 
-    <div class="agenda-add">
-        <input type="text" class="agenda-text" id="agendaInput" placeholder="Escrever uma pendência e apertar Enter..." maxlength="220" autocomplete="off">
-        <select id="agendaArea" title="Área">
-            <option value="geral">Geral</option>
-            <option value="agencia">Agência</option>
-            <option value="creator">Creator</option>
-            <option value="org">Organização</option>
-        </select>
-        <select id="agendaQuando" title="Quando">
-            <option value="hoje">Hoje</option>
-            <option value="semana">Esta semana</option>
-            <option value="depois">Depois</option>
-        </select>
-        <input type="date" class="agenda-date" id="agendaPrazo" title="Prazo (opcional)">
-        <button class="agenda-addbtn" type="button" id="agendaAddBtn">Adicionar</button>
-    </div>
+        <div class="pl-toolbar">
+            <span>Semana 1 começa em</span>
+            <input type="date" id="plInicio">
+            <span id="plPeriodo"></span>
+            <span style="flex:1"></span>
+            <button class="ag-btn-ghost-sm" id="plHojeBtn" type="button">Ir pra semana de hoje</button>
+            <button class="ag-btn-ghost-sm" id="plAddSemana" type="button">+ Semana</button>
+        </div>
 
-    <div id="agendaGroups"><div style="padding:30px;text-align:center;color:var(--text-muted)">Carregando...</div></div>
-    </div><!-- /agViewLista -->
+        <div id="plSemanas"></div>
+    </div>
 </div>
 
 <!-- Modal: evento do calendário -->
@@ -1313,156 +1272,6 @@
     </div>
 </div>
 
-<!-- Modal: desafio -->
-<div class="cal-modal-overlay" id="dsModal">
-    <div class="cal-modal">
-        <h3><span id="dsModalTitle">Novo desafio</span><button class="cal-modal-close" id="dsCancel" type="button" aria-label="Fechar">&times;</button></h3>
-        <div class="cal-form">
-            <div class="ag-row-ico">
-                <label class="cal-fl">Ícone
-                    <select id="df_icone">
-                        <option value="📈">📈 Números</option>
-                        <option value="⚖️">⚖️ Peso</option>
-                        <option value="⏰">⏰ Rotina</option>
-                        <option value="💰">💰 Dinheiro</option>
-                        <option value="📚">📚 Leitura</option>
-                        <option value="🚶‍♀️">🚶‍♀️ Movimento</option>
-                        <option value="🎬">🎬 Gravação</option>
-                        <option value="🎓">🎓 Alunas</option>
-                        <option value="🧘‍♀️">🧘‍♀️ Cuidar de mim</option>
-                        <option value="⭐">⭐ Outro</option>
-                    </select>
-                </label>
-                <label class="cal-fl">Nome do desafio<input type="text" id="df_nome" maxlength="60" placeholder="Ex.: 20 dias de conteúdo" autocomplete="off"></label>
-            </div>
-            <label class="cal-fl">Qual objetivo isso empurra<input type="text" id="df_objetivo" maxlength="90" placeholder="Ex.: Chegar a 20 mil seguidores" autocomplete="off"></label>
-            <label class="cal-fl">A tarefa de todo dia<input type="text" id="df_tarefa" maxlength="90" placeholder="Ex.: Gravar 1 reels" autocomplete="off"></label>
-            <div class="ag-row3">
-                <label class="cal-fl">Minutos por dia<input type="number" id="df_minutos" min="1" step="1" value="15"></label>
-                <label class="cal-fl">Quantos dias
-                    <select id="df_dias">
-                        <option value="7">7 dias</option>
-                        <option value="14">14 dias</option>
-                        <option value="20" selected>20 dias</option>
-                        <option value="21">21 dias</option>
-                        <option value="30">30 dias</option>
-                        <option value="60">60 dias</option>
-                        <option value="90">90 dias</option>
-                    </select>
-                </label>
-                <label class="cal-fl">Começa em<input type="date" id="df_inicio"></label>
-            </div>
-            <label class="cal-fl">Tarefa extra em dias específicos (opcional)<textarea id="df_extras" rows="2" placeholder="Uma por linha, assim: 5: revisar as métricas"></textarea></label>
-            <label class="cal-fl">Meu prêmio quando eu terminar<input type="text" id="df_premio" maxlength="90" placeholder="Ex.: comprar o tripé novo" autocomplete="off"></label>
-            <label class="cal-fl">Tem número pra acompanhar?
-                <select id="df_temNumero">
-                    <option value="">Não, é só o hábito diário</option>
-                    <option value="sim">Sim, quero acompanhar um número</option>
-                </select>
-            </label>
-            <div class="ag-row3" id="df_numeroBox" style="display:none">
-                <label class="cal-fl">Estou em<input type="number" id="df_partida" step="0.01" placeholder="14010"></label>
-                <label class="cal-fl">Quero chegar em<input type="number" id="df_alvo" step="0.01" placeholder="20000"></label>
-                <label class="cal-fl">Unidade<input type="text" id="df_unidade" maxlength="20" placeholder="seguidores, kg, R$" autocomplete="off"></label>
-            </div>
-        </div>
-        <div class="cal-modal-actions">
-            <button class="cal-btn-del hidden" id="dsDelete" type="button">Excluir</button>
-            <div style="flex:1"></div>
-            <button class="cal-btn-ghost" id="dsCancel2" type="button">Cancelar</button>
-            <button class="cal-btn-save" id="dsSave" type="button">Salvar</button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal: atualizar o número do desafio -->
-<div class="cal-modal-overlay" id="dsNumModal">
-    <div class="cal-modal" style="max-width:400px">
-        <h3><span id="dsNumTitle">Onde você está agora?</span><button class="cal-modal-close" id="dsNumCancel" type="button" aria-label="Fechar">&times;</button></h3>
-        <div class="cal-form">
-            <label class="cal-fl"><span id="dsNumLabel">Número de hoje</span><input type="number" id="dsNumValor" step="0.01"></label>
-            <div class="ag-sec-sub" id="dsNumHint"></div>
-        </div>
-        <div class="cal-modal-actions">
-            <div style="flex:1"></div>
-            <button class="cal-btn-ghost" id="dsNumCancel2" type="button">Cancelar</button>
-            <button class="cal-btn-save" id="dsNumSave" type="button">Salvar</button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal: comemoração -->
-<div class="cal-modal-overlay" id="festaModal">
-    <div class="cal-modal" style="max-width:420px">
-        <div class="festa" id="festaBody"></div>
-        <div class="cal-modal-actions">
-            <div style="flex:1"></div>
-            <button class="cal-btn-save" id="festaOk" type="button">Merecido</button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal: meta de longo prazo -->
-<div class="cal-modal-overlay" id="mtModal">
-    <div class="cal-modal">
-        <h3><span id="mtModalTitle">Nova meta</span><button class="cal-modal-close" id="mtCancel" type="button" aria-label="Fechar">&times;</button></h3>
-        <div class="cal-form">
-            <div class="ag-row-ico">
-                <label class="cal-fl">Ícone
-                    <select id="mf_icone">
-                        <option value="✈️">✈️ Viagem</option>
-                        <option value="🚗">🚗 Carro</option>
-                        <option value="🏠">🏠 Casa</option>
-                        <option value="🛠️">🛠️ Reforma</option>
-                        <option value="💻">💻 Equipamento</option>
-                        <option value="🎓">🎓 Estudo</option>
-                        <option value="💍">💍 Especial</option>
-                        <option value="🐾">🐾 Pet</option>
-                        <option value="💰">💰 Reserva</option>
-                        <option value="⭐">⭐ Outro</option>
-                    </select>
-                </label>
-                <label class="cal-fl">O sonho<input type="text" id="mf_nome" maxlength="60" placeholder="Ex.: Viagem pro Japão" autocomplete="off"></label>
-            </div>
-            <div class="ag-row2">
-                <label class="cal-fl"><span id="mf_alvoLabel">Quanto custa (R$)</span><input type="number" id="mf_alvo" min="0" step="1" placeholder="30000"></label>
-                <label class="cal-fl">Quero até<input type="month" id="mf_prazo"></label>
-            </div>
-            <div class="ag-row2">
-                <label class="cal-fl">Já tenho guardado<input type="number" id="mf_inicial" min="0" step="1" placeholder="0"></label>
-                <label class="cal-fl">Tipo de meta
-                    <select id="mf_tipo">
-                        <option value="dinheiro">Dinheiro em R$</option>
-                        <option value="contagem">Quantidade (marcas, alunas, vendas)</option>
-                    </select>
-                </label>
-            </div>
-            <label class="cal-check-line"><input type="checkbox" id="mf_algumdia"> Guardar em "Algum dia" (sem cobrança mensal por enquanto)</label>
-        </div>
-        <div class="cal-modal-actions">
-            <button class="cal-btn-del hidden" id="mtDelete" type="button">Excluir</button>
-            <div style="flex:1"></div>
-            <button class="cal-btn-ghost" id="mtCancel2" type="button">Cancelar</button>
-            <button class="cal-btn-save" id="mtSave" type="button">Salvar</button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal: registrar quanto guardei no mês -->
-<div class="cal-modal-overlay" id="mtAporteModal">
-    <div class="cal-modal" style="max-width:420px">
-        <h3><span id="mtAporteTitle">Quanto você guardou?</span><button class="cal-modal-close" id="mtApCancel" type="button" aria-label="Fechar">&times;</button></h3>
-        <div class="cal-form">
-            <label class="cal-fl"><span id="mtApLabel">Valor guardado no mês</span><input type="number" id="mtApValor" min="0" step="1" placeholder="0"></label>
-            <div class="ag-sec-sub" id="mtApHint"></div>
-        </div>
-        <div class="cal-modal-actions">
-            <div style="flex:1"></div>
-            <button class="cal-btn-ghost" id="mtApCancel2" type="button">Cancelar</button>
-            <button class="cal-btn-save" id="mtApSave" type="button">Salvar</button>
-        </div>
-    </div>
-</div>
 
 <!-- ── TAB: VISÃO GERAL (números de cadastro) ── -->
 <div class="dashboard" id="tabDashboard">
@@ -5369,18 +5178,10 @@
     /* ═══════════════ AGENDA (Organização) — agenda de pendências da Lara ═══════════════ */
     const AGENDA_ROW = 'lara';
     const AGENDA_TABLE = 'agenda_notas';
-    let agendaState = { tarefas: [], eventos: [], metas: [], desafios: [], rotina: [], rotinaFeitos: {}, lembrete: { ativo: false, hora: '06:30', email: '' }, updatedAt: null };
+    let agendaState = { tarefas: [], eventos: [], metas: [], desafios: [], rotina: [], rotinaFeitos: {}, lembrete: { ativo: false, hora: '06:30', email: '' }, plano: null, updatedAt: null };
     let agendaLoaded = false;
     let agendaSaveTimer = null;
-    let agendaShowDone = false;
 
-    const AGENDA_AREAS = { geral: 'Geral', agencia: 'Agência', creator: 'Creator', org: 'Organização' };
-    const AGENDA_GRUPOS = [
-        { key: 'hoje', label: 'Hoje', cls: 'hoje' },
-        { key: 'semana', label: 'Esta semana', cls: '' },
-        { key: 'depois', label: 'Depois', cls: '' }
-    ];
-    const AGENDA_PRIO_RANK = { alta: 0, media: 1, baixa: 2 };
 
     function agendaEsc(s) {
         return String(s == null ? '' : s)
@@ -5394,17 +5195,12 @@
         const d = new Date();
         return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     }
-    function agendaFmtPrazo(iso) {
-        const p = String(iso).split('-');
-        return p.length === 3 ? (p[2] + '/' + p[1]) : iso;
-    }
 
     async function loadAgenda() {
         await agendaFetch();
-        agendaRefreshRadar();
         calEnsureInit();
         let pref = null; try { pref = localStorage.getItem('agendaSubview'); } catch (e) {}
-        agShowSub(pref || 'dia');
+        agShowSub(pref || 'cal');
     }
 
     async function agendaFetch() {
@@ -5429,184 +5225,7 @@
         } catch (err) {
             console.error('Erro ao carregar agenda:', err);
         }
-        agendaRender();
-    }
-
-    async function agendaCount(table, filterFn) {
-        let q = sb.from(table).select('*', { count: 'exact', head: true });
-        if (filterFn) q = filterFn(q);
-        const { count, error } = await q;
-        if (error) throw error;
-        return count || 0;
-    }
-
-    async function agendaRefreshRadar() {
-        const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-        const setNum = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = (v == null ? '--' : v); };
-        const setTot = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = (v == null ? '' : v + ' no total'); };
-        const tiles = [
-            { table: 'campanha_candidaturas', flt: null, num: 'radarCand', tot: 'radarCandTot' },
-            { table: 'casting_candidaturas', flt: q => q.eq('casting', 'internacional'), num: 'radarCast', tot: 'radarCastTot' },
-            { table: 'creators', flt: null, num: 'radarCad', tot: 'radarCadTot' },
-            { table: 'lista_espera', flt: null, num: 'radarLista', tot: 'radarListaTot' }
-        ];
-        await Promise.all(tiles.map(async (ti) => {
-            try {
-                const [c7, total] = await Promise.all([
-                    agendaCount(ti.table, q => (ti.flt ? ti.flt(q) : q).gte('created_at', since)),
-                    agendaCount(ti.table, ti.flt)
-                ]);
-                setNum(ti.num, c7);
-                setTot(ti.tot, total);
-            } catch (err) {
-                console.warn('Radar ' + ti.table + ':', err && err.message);
-                setNum(ti.num, '–');
-                const el = document.getElementById(ti.tot); if (el) el.textContent = 'indisponível';
-            }
-        }));
-    }
-
-    function agendaRender() {
-        const root = document.getElementById('agendaGroups');
-        if (!root) return;
-        const tarefas = agendaState.tarefas || [];
-        const pend = tarefas.filter(t => !t.feita);
-        const done = tarefas.filter(t => t.feita);
-
-        const hojeCount = pend.filter(t => (t.quando || 'hoje') === 'hoje').length;
-        const subEl = document.getElementById('agendaSub');
-        if (subEl) {
-            subEl.textContent = pend.length === 0
-                ? 'Tudo em dia por aqui ✦'
-                : (hojeCount > 0
-                    ? (hojeCount + (hojeCount === 1 ? ' pendência' : ' pendências') + ' pra hoje')
-                    : (pend.length + (pend.length === 1 ? ' pendência' : ' pendências') + ' na fila'));
-        }
-
-        let html = '';
-        if (pend.length === 0 && done.length === 0) {
-            html = '<div class="agenda-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg><div>Sua agenda está vazia.<br>Escreva a primeira pendência ali em cima.</div></div>';
-        } else {
-            AGENDA_GRUPOS.forEach(g => {
-                const items = pend.filter(t => (t.quando || 'hoje') === g.key)
-                    .sort((a, b) => (AGENDA_PRIO_RANK[a.prioridade] ?? 1) - (AGENDA_PRIO_RANK[b.prioridade] ?? 1));
-                if (!items.length) return;
-                html += '<div class="agenda-group ' + g.cls + '">'
-                    + '<div class="agenda-group-title">' + g.label + ' <span class="agenda-count">' + items.length + '</span></div>'
-                    + '<div class="agenda-list">' + items.map(agendaItemHtml).join('') + '</div></div>';
-            });
-            if (done.length) {
-                const sortedDone = done.slice().sort((a, b) => String(b.concluidoEm || '').localeCompare(String(a.concluidoEm || '')));
-                html += '<div class="agenda-group"><button class="agenda-done-toggle" onclick="agendaToggleDone()">'
-                    + (agendaShowDone ? '▾' : '▸') + ' Concluídas (' + done.length + ')</button>'
-                    + (agendaShowDone ? '<div class="agenda-list" style="margin-top:10px">' + sortedDone.map(agendaItemHtml).join('') + '</div>' : '')
-                    + '</div>';
-            }
-        }
-        root.innerHTML = html;
-    }
-
-    function agendaItemHtml(t) {
-        const area = t.area || 'geral';
-        const prio = t.prioridade || 'media';
-        const id = t.id;
-        let prazoBadge = '';
-        if (t.prazo) {
-            const atrasada = !t.feita && t.prazo < agendaTodayStr();
-            prazoBadge = '<span class="prazo-badge' + (atrasada ? ' atrasada' : '') + '">'
-                + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'
-                + agendaFmtPrazo(t.prazo) + (atrasada ? ' · atrasada' : '') + '</span>';
-        }
-        const whenSel = AGENDA_GRUPOS.map(g => '<option value="' + g.key + '"' + ((t.quando || 'hoje') === g.key ? ' selected' : '') + '>' + g.label + '</option>').join('');
-        return '<div class="agenda-item' + (t.feita ? ' done' : '') + '" data-id="' + id + '">'
-            + '<button class="agenda-check" onclick="agendaToggle(\'' + id + '\')" title="Concluir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button>'
-            + '<div class="agenda-main">'
-            + '<div class="agenda-txt" id="txt_' + id + '" ondblclick="agendaEditStart(\'' + id + '\')" title="Clique 2x pra editar">' + agendaEsc(t.texto) + '</div>'
-            + '<div class="agenda-meta">'
-            + '<span class="area-badge area-' + area + '">' + agendaEsc(AGENDA_AREAS[area] || 'Geral') + '</span>'
-            + prazoBadge
-            + '<button class="prio-dot prio-' + prio + '" onclick="agendaCyclePrio(\'' + id + '\')" title="Prioridade (clique pra mudar)"><i></i></button>'
-            + '</div>'
-            + '</div>'
-            + '<div class="agenda-tools">'
-            + '<select class="agenda-when" onchange="agendaSetWhen(\'' + id + '\', this.value)" title="Mover">' + whenSel + '</select>'
-            + '<button class="agenda-del" onclick="agendaDelete(\'' + id + '\')" title="Excluir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>'
-            + '</div>'
-            + '</div>';
-    }
-
-    function agendaAdd() {
-        const input = document.getElementById('agendaInput');
-        const txt = (input.value || '').trim();
-        if (!txt) { input.focus(); return; }
-        agendaState.tarefas.unshift({
-            id: agendaUid(),
-            texto: txt,
-            area: document.getElementById('agendaArea').value || 'geral',
-            quando: document.getElementById('agendaQuando').value || 'hoje',
-            prioridade: 'media',
-            prazo: document.getElementById('agendaPrazo').value || null,
-            feita: false,
-            criadoEm: new Date().toISOString(),
-            concluidoEm: null
-        });
-        input.value = '';
-        document.getElementById('agendaPrazo').value = '';
-        agendaRender();
-        agendaSave();
-        input.focus();
-    }
-    function agendaToggle(id) {
-        const t = agendaFind(id); if (!t) return;
-        t.feita = !t.feita;
-        t.concluidoEm = t.feita ? new Date().toISOString() : null;
-        agendaRender(); agendaSave();
-    }
-    function agendaDelete(id) {
-        const t = agendaFind(id); if (!t) return;
-        if (!confirm('Excluir esta pendência?')) return;
-        agendaState.tarefas = agendaState.tarefas.filter(x => x.id !== id);
-        agendaRender(); agendaSave();
-    }
-    function agendaSetWhen(id, val) {
-        const t = agendaFind(id); if (!t) return;
-        t.quando = val;
-        agendaRender(); agendaSave();
-    }
-    function agendaCyclePrio(id) {
-        const t = agendaFind(id); if (!t) return;
-        const order = ['alta', 'media', 'baixa'];
-        t.prioridade = order[(order.indexOf(t.prioridade || 'media') + 1) % order.length];
-        agendaRender(); agendaSave();
-    }
-    function agendaToggleDone() { agendaShowDone = !agendaShowDone; agendaRender(); }
-    function agendaEditStart(id) {
-        const el = document.getElementById('txt_' + id);
-        if (!el) return;
-        el.setAttribute('contenteditable', 'true');
-        el.focus();
-        try {
-            const range = document.createRange(); range.selectNodeContents(el); range.collapse(false);
-            const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
-        } catch (e) {}
-        const finish = (save) => {
-            el.removeEventListener('blur', onBlur);
-            el.removeEventListener('keydown', onKey);
-            el.removeAttribute('contenteditable');
-            const t = agendaFind(id);
-            if (t && save) {
-                const nv = (el.textContent || '').trim();
-                if (nv && nv !== t.texto) { t.texto = nv; agendaSave(); }
-            }
-            agendaRender();
-        };
-        const onBlur = () => finish(true);
-        const onKey = (e) => {
-            if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
-            else if (e.key === 'Escape') { e.preventDefault(); el.removeEventListener('blur', onBlur); finish(false); }
-        };
-        el.addEventListener('blur', onBlur);
-        el.addEventListener('keydown', onKey);
+        planoRender();
     }
 
     function agendaSave() {
@@ -5628,12 +5247,6 @@
         }, 600);
     }
 
-    (function agendaInitUI() {
-        const input = document.getElementById('agendaInput');
-        const btn = document.getElementById('agendaAddBtn');
-        if (btn) btn.addEventListener('click', agendaAdd);
-        if (input) input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); agendaAdd(); } });
-    })();
 
     /* ═══════════════ CALENDÁRIO (dentro da Agenda) ═══════════════ */
     const CAL_MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
@@ -5643,7 +5256,6 @@
         { key: 'postagem', label: 'Postagem' },
         { key: 'aula', label: 'Aula' },
         { key: 'outro', label: 'Outro' },
-        { key: 'tarefa', label: 'Pendências' },
         { key: 'post', label: 'Postagens feitas' }
     ];
     const CAL_TIPO_LABEL = { gravacao: 'Gravação', entrega: 'Entrega', postagem: 'Postagem', aula: 'Aula', outro: 'Outro', tarefa: 'Pendência', post: 'Postagem feita' };
@@ -5733,7 +5345,6 @@
         document.getElementById('calGrid').innerHTML = html;
         calRenderDay();
         calRenderUpcoming();
-        metaRenderStrip();
     }
     function calEvChip(e) {
         if (e.source === 'post') {
@@ -5888,12 +5499,12 @@
     function calToggleTarefa(id) {
         const t = agendaFind(id); if (!t) return;
         t.feita = !t.feita; t.concluidoEm = t.feita ? new Date().toISOString() : null;
-        calRender(); agendaRender(); agendaSave();
+        calRender(); agendaSave();
     }
 
-    const AG_VIEWS = { dia: 'agViewDia', cal: 'agViewCal', lista: 'agViewLista', metas: 'agViewMetas' };
+    const AG_VIEWS = { cal: 'agViewCal', metas: 'agViewMetas' };
     function agShowSub(sub, semPersistir) {
-        if (!AG_VIEWS[sub]) sub = 'dia';
+        if (!AG_VIEWS[sub]) sub = 'cal';
         Object.keys(AG_VIEWS).forEach(k => {
             const el = document.getElementById(AG_VIEWS[k]);
             if (el) el.style.display = (k === sub ? '' : 'none');
@@ -5901,924 +5512,317 @@
         document.querySelectorAll('#tabAgenda .agenda-subbtn').forEach(b => b.classList.toggle('active', b.dataset.agsub === sub));
         if (!semPersistir) { try { localStorage.setItem('agendaSubview', sub); } catch (e) {} }
         if (sub === 'cal') { calRender(); igCalFetch(); }
-        else if (sub === 'metas') metaRender();
-        else if (sub === 'dia') diaRender();
+        else if (sub === 'metas') planoRender();
     }
 
-    /* ═══════════════ MEU DIA: desafios curtos + rotina ═══════════════ */
-    const DIA_SEMANA = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
-    const DS_PASSES = 2;
-    let dsEditingId = null, dsNumCtx = null;
+    /* ═══════════════ METAS: o plano, semana a semana ═══════════════ */
+    /* Conteúdo do plano fica SÓ no Supabase (admin.html é público). Aqui é só a estrutura. */
+    const PL_DIAS = [
+        { n: 1, nome: 'Segunda' }, { n: 2, nome: 'Terça' }, { n: 3, nome: 'Quarta' },
+        { n: 4, nome: 'Quinta' }, { n: 5, nome: 'Sexta' }, { n: 6, nome: 'Sábado' }, { n: 7, nome: 'Domingo' }
+    ];
+    const PL_MES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+    const PL_MAX_SEMANAS = 60;
+    const PL_CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    let plVerFin = false;
 
-    function dsAdd(ds, n) {
+    function plUid() { return 'p_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+    function plAdd(ds, n) {
         const d = new Date(ds + 'T12:00:00');
         d.setDate(d.getDate() + n);
         return calDateStr(d.getFullYear(), d.getMonth(), d.getDate());
     }
-    function dsDiff(a, b) {
-        return Math.round((new Date(b + 'T12:00:00') - new Date(a + 'T12:00:00')) / 86400000);
+    function plSegundaDe(ds) {
+        const d = new Date(ds + 'T12:00:00');
+        d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+        return calDateStr(d.getFullYear(), d.getMonth(), d.getDate());
     }
-    function dsFind(id) { return (agendaState.desafios || []).find(d => d.id === id); }
-    function dsFim(d) { return dsAdd(d.inicio, (Number(d.dias) || 1) - 1); }
-    function dsDiaN(d, data) { return dsDiff(d.inicio, data) + 1; }
-    function dsAtivoEm(d, data) {
-        if (d.status === 'arquivado') return false;
-        return data >= d.inicio && data <= dsFim(d);
-    }
-    function dsDoDia(data) { return (agendaState.desafios || []).filter(d => dsAtivoEm(d, data)); }
-    function dsMarca(d, data) { return (d.feitos || {})[data]; }
-    function dsDiasFeitos(d) { return Object.keys(d.feitos || {}).filter(k => (d.feitos || {})[k]).length; }
-    function dsTarefaDoDia(d, data) {
-        const n = dsDiaN(d, data);
-        const ex = (d.extras || {})[String(n)];
-        return { tarefa: d.tarefa || 'Fazer o combinado', extra: ex || null, n: n };
-    }
-    function dsStreak(d) {
-        const hoje = agendaTodayStr();
-        let cursor = dsMarca(d, hoje) ? hoje : dsAdd(hoje, -1);
-        let n = 0;
-        while (cursor >= d.inicio && dsMarca(d, cursor)) { n++; cursor = dsAdd(cursor, -1); }
-        return n;
-    }
-    /* sequência geral: dias em que TODOS os desafios ativos daquele dia foram cumpridos */
-    function diaStreakGeral() {
-        const hoje = agendaTodayStr();
-        const ativos = agendaState.desafios || [];
-        if (!ativos.length) return 0;
-        let inicioMin = ativos.reduce((a, d) => (!a || d.inicio < a ? d.inicio : a), null);
-        let cursor = hoje;
-        const doDia = (data) => {
-            const lista = dsDoDia(data);
-            return lista.length > 0 && lista.every(d => dsMarca(d, data));
-        };
-        if (!doDia(hoje)) cursor = dsAdd(hoje, -1);
-        let n = 0;
-        while (cursor >= inicioMin && doDia(cursor)) { n++; cursor = dsAdd(cursor, -1); }
-        return n;
-    }
-    function dsNumProgresso(d) {
-        if (!d.temNumero) return null;
-        const partida = Number(d.partida) || 0, alvo = Number(d.alvo) || 0;
-        const atual = d.atual == null ? partida : Number(d.atual);
-        const span = alvo - partida;
-        let pct = span === 0 ? 100 : ((atual - partida) / span) * 100;
-        pct = Math.max(0, Math.min(100, pct));
-        return { partida, alvo, atual, pct, alcancado: span === 0 ? true : (span > 0 ? atual >= alvo : atual <= alvo) };
-    }
-    function dsFmtNum(d, v, comUnidade) {
-        const n = Number(v) || 0;
-        const s = n % 1 ? n.toFixed(1).replace('.', ',') : n.toLocaleString('pt-BR');
-        const u = String(d.unidade || '').trim();
-        if (/^r\$$/i.test(u)) return 'R$ ' + s;
-        if (comUnidade === false || !u) return s;
-        return s + ' ' + u;
+    function plDiaMes(ds) { const p = ds.split('-'); return String(Number(p[2])) + ' ' + PL_MES[Number(p[1]) - 1]; }
+    function plRange(key) {
+        const fim = plAdd(key, 6), a = key.split('-'), b = fim.split('-');
+        return (a[1] === b[1] ? String(Number(a[2])) : plDiaMes(key)) + ' a ' + plDiaMes(fim);
     }
 
-    /* ── render da tela ── */
-    function diaRender() {
-        diaRenderizadoEm = agendaTodayStr();
-        diaRenderHero();
-        diaRenderTarefas();
-        rotRender();
-        dsRenderCards();
-        mapaRender();
-        lemRender();
+    function planoEnsure() {
+        const p = (agendaState.plano && typeof agendaState.plano === 'object' && !Array.isArray(agendaState.plano)) ? agendaState.plano : {};
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(p.inicio || '')) p.inicio = plSegundaDe(agendaTodayStr());
+        p.inicio = plSegundaDe(p.inicio);
+        const t = Math.round(Number(p.total));
+        p.total = (isFinite(t) && t > 0) ? Math.min(PL_MAX_SEMANAS, t) : 12;
+        if (!Array.isArray(p.frentes)) p.frentes = [];
+        if (!p.semanas || typeof p.semanas !== 'object' || Array.isArray(p.semanas)) p.semanas = {};
+        agendaState.plano = p;
+        return p;
     }
-
-    function diaRenderHero() {
-        const hoje = agendaTodayStr();
-        const d = new Date(hoje + 'T12:00:00');
-        const dataEl = document.getElementById('diaData');
-        if (dataEl) {
-            const s = DIA_SEMANA[d.getDay()] + ', ' + d.getDate() + ' de ' + CAL_MESES[d.getMonth()].toLowerCase();
-            dataEl.textContent = s.charAt(0).toUpperCase() + s.slice(1);
+    function plChaves() {
+        const p = planoEnsure(), out = [];
+        for (let i = 0; i < p.total; i++) out.push(plAdd(p.inicio, i * 7));
+        Object.keys(p.semanas).forEach(k => { if (/^\d{4}-\d{2}-\d{2}$/.test(k) && out.indexOf(k) === -1) out.push(k); });
+        out.sort();
+        return out;
+    }
+    /* criar=true devolve o objeto de verdade (gravável); sem criar, devolve um vazio só pra ler */
+    function plSemana(key, criar) {
+        const p = planoEnsure();
+        let s = p.semanas[key];
+        if (!s) {
+            if (!criar) return { foco: [], dias: {}, feita: false };
+            s = { foco: [], dias: {}, feita: false };
+            p.semanas[key] = s;
         }
-        const lista = dsDoDia(hoje);
-        const feitos = lista.filter(x => dsMarca(x, hoje)).length;
-        const faltamMin = lista.filter(x => !dsMarca(x, hoje)).reduce((a, x) => a + (Number(x.minutos) || 0), 0);
-        const rot = agendaState.rotina || [];
-        const rotFeitos = ((agendaState.rotinaFeitos || {})[hoje] || []).length;
-
-        const tEl = document.getElementById('diaTitulo');
-        if (tEl) {
-            if (!lista.length) tEl.textContent = 'Nenhum desafio rodando agora';
-            else if (feitos >= lista.length) tEl.textContent = 'Dia completo. Você fez tudo ✦';
-            else tEl.textContent = feitos + ' de ' + lista.length + ' feitos hoje';
-        }
-        const sEl = document.getElementById('diaSub');
-        if (sEl) {
-            const partes = [];
-            if (lista.length && faltamMin > 0) partes.push('faltam <b>' + faltamMin + ' min</b> pra fechar o dia');
-            else if (lista.length) partes.push('nada pendente por aqui');
-            else partes.push('crie um desafio e comece hoje mesmo');
-            if (rot.length) partes.push('rotina: ' + rotFeitos + ' de ' + rot.length);
-            sEl.innerHTML = partes.join(' · ');
-        }
-        const fill = document.getElementById('diaProgFill');
-        if (fill) fill.style.width = (lista.length ? (feitos / lista.length) * 100 : 0) + '%';
-
-        const melhor = (agendaState.desafios || []).reduce((a, d) => Math.max(a, dsStreak(d)), 0);
-        const nEl = document.getElementById('diaStreakNum'), lEl = document.getElementById('diaStreakLbl');
-        if (nEl) nEl.textContent = melhor > 0 ? '🔥 ' + melhor : '0';
-        if (lEl) lEl.textContent = melhor === 1 ? 'dia na sua melhor sequência' : 'dias na sua melhor sequência';
-    }
-
-    function diaRenderTarefas() {
-        const el = document.getElementById('diaTarefas'); if (!el) return;
-        const hoje = agendaTodayStr();
-        const lista = dsDoDia(hoje);
-        if (!lista.length) {
-            const temAlgum = (agendaState.desafios || []).length > 0;
-            el.innerHTML = '<div class="dia-vazio"><p>' + (temAlgum
-                ? 'Nenhum desafio ativo hoje. Comece um novo ciclo.'
-                : 'Escolhe o primeiro desafio. 20 dias, 15 minutos por dia.') + '</p>'
-                + '<button class="ag-btn-add" type="button" onclick="dsOpenModal()">Criar desafio</button></div>';
-            return;
-        }
-        const ordenada = lista.slice().sort((a, b) => (dsMarca(a, hoje) ? 1 : 0) - (dsMarca(b, hoje) ? 1 : 0));
-        let html = ordenada.map(d => {
-            const t = dsTarefaDoDia(d, hoje);
-            const feito = !!dsMarca(d, hoje);
-            return '<div class="tf' + (feito ? ' feita' : '') + '">'
-                + '<button class="tf-check" type="button" onclick="dsToggleHoje(\'' + d.id + '\')" title="Marcar como feito"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button>'
-                + '<div class="tf-body">'
-                + '<div class="tf-title">' + agendaEsc(d.icone || '⭐') + ' ' + agendaEsc(t.tarefa) + '</div>'
-                + (t.extra ? '<div class="tf-meta"><span class="tf-extra">hoje tem extra: ' + agendaEsc(t.extra) + '</span></div>' : '')
-                + '<div class="tf-meta">'
-                + '<span class="tf-min">' + (Number(d.minutos) || 15) + ' min</span>'
-                + '<span class="tf-tag">' + agendaEsc(d.nome) + '</span>'
-                + '<span>dia ' + t.n + ' de ' + d.dias + '</span>'
-                + '</div></div>'
-                + '<button class="mt-mini" type="button" title="Editar este desafio" onclick="dsOpenModal(\'' + d.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>'
-                + '</div>';
-        }).join('');
-        const feitos = lista.filter(x => dsMarca(x, hoje)).length;
-        if (feitos >= lista.length) html += '<div class="dia-tudo-feito">Tudo feito hoje. Amanhã a sequência continua ✦</div>';
-        el.innerHTML = html;
-    }
-
-    function dsToggleHoje(id) { dsToggleDia(id, agendaTodayStr()); }
-    function dsToggleDia(id, data) {
-        const d = dsFind(id); if (!d) return;
-        if (data > agendaTodayStr()) return;
-        if (!d.feitos) d.feitos = {};
-        if (d.feitos[data]) delete d.feitos[data]; else d.feitos[data] = true;
-        diaRender(); agendaSave();
-        if (d.feitos[data]) dsChecarConclusao(d);
-    }
-    function dsUsarPasse(id) {
-        const d = dsFind(id); if (!d) return;
-        const usados = Number(d.passesUsados) || 0;
-        if (usados >= DS_PASSES) return;
-        const hoje = agendaTodayStr();
-        let cursor = dsAdd(hoje, -1), achou = null;
-        while (cursor >= d.inicio) {
-            if (!dsMarca(d, cursor)) { achou = cursor; break; }
-            cursor = dsAdd(cursor, -1);
-        }
-        if (!achou) { alert('Você não tem nenhum dia em branco pra cobrir. Está tudo em dia.'); return; }
-        if (!d.feitos) d.feitos = {};
-        d.feitos[achou] = 'passe';
-        d.passesUsados = usados + 1;
-        diaRender(); agendaSave();
-    }
-    function dsRecomecar(id) {
-        const d = dsFind(id); if (!d) return;
-        if (!confirm('Começar um ciclo novo de ' + d.dias + ' dias a partir de hoje?\n\nOs dias que você já marcou continuam pintados no mapa de consistência.')) return;
-        if (!Array.isArray(agendaState.ciclos)) agendaState.ciclos = [];
-        agendaState.ciclos.push({ id: mtUid('c'), desafio: d.id, nome: d.nome, inicio: d.inicio, fim: dsFim(d), feitos: Object.assign({}, d.feitos || {}), fechadoEm: new Date().toISOString() });
-        d.inicio = agendaTodayStr();
-        d.feitos = {};
-        d.passesUsados = 0;
-        d.status = 'ativo';
-        delete d.concluidoEm;
-        diaRender(); agendaSave();
-    }
-    function dsChecarConclusao(d) {
-        if (d.status === 'concluido') return;
-        if (dsDiasFeitos(d) < (Number(d.dias) || 1)) return;
-        d.status = 'concluido';
-        d.concluidoEm = new Date().toISOString();
-        agendaSave();
-        festaAbrir(d);
-    }
-    function festaAbrir(d) {
-        const body = document.getElementById('festaBody'); if (!body) return;
-        body.innerHTML = '<div class="festa-emoji">🎉</div>'
-            + '<h4>' + agendaEsc(d.dias) + ' dias. Você foi até o fim.</h4>'
-            + '<p>' + agendaEsc(d.nome) + (d.objetivo ? '<br>' + agendaEsc(d.objetivo) : '') + '</p>'
-            + (d.premio ? '<div class="premio">Seu prêmio: ' + agendaEsc(d.premio) + '</div>' : '');
-        document.getElementById('festaModal').classList.add('show');
-    }
-
-    /* ── cards dos desafios ── */
-    function dsRenderCards() {
-        const el = document.getElementById('dsCards'); if (!el) return;
-        const lista = (agendaState.desafios || []);
-        if (!lista.length) { el.innerHTML = ''; return; }
-        const hoje = agendaTodayStr();
-        el.innerHTML = '<div class="ds-grid">' + lista.map(d => {
-            const total = Number(d.dias) || 1;
-            const feitos = dsDiasFeitos(d);
-            const streak = dsStreak(d);
-            const concluido = d.status === 'concluido' || feitos >= total;
-            const num = dsNumProgresso(d);
-            const passesRestantes = DS_PASSES - (Number(d.passesUsados) || 0);
-            const emBranco = (function () {
-                let c = dsAdd(hoje, -1), n = 0;
-                while (c >= d.inicio) { if (!dsMarca(d, c)) n++; c = dsAdd(c, -1); }
-                return n;
-            })();
-            let dias = '';
-            for (let i = 0; i < total; i++) {
-                const data = dsAdd(d.inicio, i);
-                const marca = dsMarca(d, data);
-                const cls = marca === 'passe' ? 'passe' : (marca ? 'ok' : (data > hoje ? 'futuro' : ''));
-                dias += '<div class="ds-dia ' + cls + (data === hoje ? ' hoje' : '') + '" title="' + agendaEsc('Dia ' + (i + 1) + ' · ' + agendaFmtPrazo(data) + (marca === 'passe' ? ' (passe)' : (marca ? ' (feito)' : ''))) + '"'
-                    + (data > hoje ? '' : ' onclick="dsToggleDia(\'' + d.id + '\',\'' + data + '\')"') + '></div>';
-            }
-            return '<div class="ds-card' + (concluido ? ' concluido' : '') + '">'
-                + '<div class="ds-top">'
-                + '<span class="ds-ico">' + agendaEsc(d.icone || '⭐') + '</span>'
-                + '<span class="ds-nome" onclick="dsOpenModal(\'' + d.id + '\')" title="Editar este desafio">' + agendaEsc(d.nome) + '</span>'
-                + '<button class="mt-mini" type="button" title="Editar ou excluir este desafio" onclick="dsOpenModal(\'' + d.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>'
-                + (concluido ? '<span class="ds-chip ok">Concluído</span>'
-                    : (streak > 1 ? '<span class="ds-chip fogo">🔥 ' + streak + ' dias</span>'
-                        : '<span class="ds-chip">' + feitos + ' de ' + total + '</span>'))
-                + '</div>'
-                + (d.objetivo ? '<div class="ds-obj">' + agendaEsc(d.objetivo) + '</div>' : '')
-                + (num
-                    ? '<div class="ds-num-row"><span class="ds-num-atual">' + dsFmtNum(d, num.atual, false) + '</span>'
-                      + '<span class="ds-num-alvo">de ' + dsFmtNum(d, num.alvo, true) + '</span>'
-                      + '<button class="ds-passe-btn" style="margin-left:auto" type="button" onclick="dsNumOpen(\'' + d.id + '\')">Atualizar</button></div>'
-                      + '<div class="ds-bar"><i style="width:' + num.pct + '%"></i></div>'
-                    : '<div class="ds-bar" style="margin-top:14px"><i style="width:' + ((feitos / total) * 100) + '%"></i></div>')
-                + '<div class="ds-dias">' + dias + '</div>'
-                + '<div class="ds-foot">'
-                + '<span class="ds-premio">' + (d.premio ? 'Prêmio: <b>' + agendaEsc(d.premio) + '</b>' : 'Sem prêmio definido') + '</span>'
-                + (!concluido && emBranco > 0 && passesRestantes > 0
-                    ? '<button class="ds-passe-btn" type="button" onclick="dsUsarPasse(\'' + d.id + '\')" title="Cobre um dia em branco sem perder a sequência">Usar passe (' + passesRestantes + ')</button>'
-                    : '')
-                + (concluido || dsFim(d) < hoje || emBranco > passesRestantes
-                    ? '<button class="ds-passe-btn" type="button" onclick="dsRecomecar(\'' + d.id + '\')" title="Começa um ciclo novo a partir de hoje, sem perder o que você já fez">Recomeçar</button>'
-                    : '')
-                + '</div></div>';
-        }).join('') + '</div>';
-    }
-
-    /* ── modal do desafio ── */
-    function dsOpenModal(id) {
-        dsEditingId = id || null;
-        const d = id ? dsFind(id) : null;
-        document.getElementById('dsModalTitle').textContent = d ? 'Editar desafio' : 'Novo desafio';
-        document.getElementById('df_icone').value = d && d.icone ? d.icone : '📈';
-        document.getElementById('df_nome').value = d ? (d.nome || '') : '';
-        document.getElementById('df_objetivo').value = d ? (d.objetivo || '') : '';
-        document.getElementById('df_tarefa').value = d ? (d.tarefa || '') : '';
-        document.getElementById('df_minutos').value = d ? (d.minutos || 15) : 15;
-        document.getElementById('df_dias').value = d ? String(d.dias || 20) : '20';
-        document.getElementById('df_inicio').value = d ? (d.inicio || agendaTodayStr()) : agendaTodayStr();
-        document.getElementById('df_premio').value = d ? (d.premio || '') : '';
-        document.getElementById('df_extras').value = d && d.extras
-            ? Object.keys(d.extras).sort((a, b) => Number(a) - Number(b)).map(k => k + ': ' + d.extras[k]).join('\n')
-            : '';
-        document.getElementById('df_temNumero').value = d && d.temNumero ? 'sim' : '';
-        document.getElementById('df_partida').value = d && d.partida != null ? d.partida : '';
-        document.getElementById('df_alvo').value = d && d.alvo != null ? d.alvo : '';
-        document.getElementById('df_unidade').value = d ? (d.unidade || '') : '';
-        document.getElementById('dsDelete').classList.toggle('hidden', !d);
-        dsSyncNumero();
-        document.getElementById('dsModal').classList.add('show');
-        setTimeout(() => { const i = document.getElementById('df_nome'); if (i) i.focus(); }, 30);
-    }
-    function dsSyncNumero() {
-        const on = document.getElementById('df_temNumero').value === 'sim';
-        document.getElementById('df_numeroBox').style.display = on ? '' : 'none';
-    }
-    function dsCloseModal() { document.getElementById('dsModal').classList.remove('show'); dsEditingId = null; }
-    function dsSaveModal() {
-        const nome = document.getElementById('df_nome').value.trim();
-        const tarefa = document.getElementById('df_tarefa').value.trim();
-        const inicio = document.getElementById('df_inicio').value;
-        if (!nome) { document.getElementById('df_nome').focus(); return; }
-        if (!tarefa) { document.getElementById('df_tarefa').focus(); return; }
-        if (!inicio) { document.getElementById('df_inicio').focus(); return; }
-        const temNumero = document.getElementById('df_temNumero').value === 'sim';
-        const extras = {};
-        (document.getElementById('df_extras').value || '').split('\n').forEach(linha => {
-            const m = linha.match(/^\s*(\d+)\s*[:\-]\s*(.+)$/);
-            if (m) extras[String(Number(m[1]))] = m[2].trim();
-        });
-        const dados = {
-            extras: extras,
-            icone: document.getElementById('df_icone').value || '⭐',
-            nome: nome,
-            objetivo: document.getElementById('df_objetivo').value.trim() || null,
-            tarefa: tarefa,
-            minutos: Math.max(1, Number(document.getElementById('df_minutos').value) || 15),
-            dias: Math.max(1, Number(document.getElementById('df_dias').value) || 20),
-            inicio: inicio,
-            premio: document.getElementById('df_premio').value.trim() || null,
-            temNumero: temNumero,
-            partida: temNumero ? (Number(document.getElementById('df_partida').value) || 0) : null,
-            alvo: temNumero ? (Number(document.getElementById('df_alvo').value) || 0) : null,
-            unidade: temNumero ? (document.getElementById('df_unidade').value.trim() || null) : null
-        };
-        if (!Array.isArray(agendaState.desafios)) agendaState.desafios = [];
-        if (dsEditingId) {
-            const d = dsFind(dsEditingId);
-            if (d) { Object.assign(d, dados); if (d.atual == null && temNumero) d.atual = dados.partida; }
-        } else {
-            dados.id = mtUid('d');
-            dados.feitos = {};
-            dados.passesUsados = 0;
-            dados.status = 'ativo';
-            dados.atual = temNumero ? dados.partida : null;
-            dados.criadoEm = new Date().toISOString();
-            agendaState.desafios.push(dados);
-        }
-        dsCloseModal();
-        diaRender(); agendaSave();
-    }
-    function dsDelete() {
-        if (!dsEditingId) return;
-        const d = dsFind(dsEditingId);
-        if (!confirm('Excluir o desafio "' + (d ? d.nome : '') + '"? O histórico de dias marcados vai junto.')) return;
-        agendaState.desafios = (agendaState.desafios || []).filter(x => x.id !== dsEditingId);
-        dsCloseModal();
-        diaRender(); agendaSave();
-    }
-
-    /* ── atualizar o número do desafio ── */
-    function dsNumOpen(id) {
-        const d = dsFind(id); if (!d) return;
-        const num = dsNumProgresso(d); if (!num) return;
-        dsNumCtx = id;
-        document.getElementById('dsNumTitle').textContent = 'Onde você está agora?';
-        document.getElementById('dsNumLabel').textContent = d.unidade ? ('Número de hoje em ' + d.unidade) : 'Número de hoje';
-        document.getElementById('dsNumValor').value = num.atual;
-        document.getElementById('dsNumHint').innerHTML = 'Começou em <b>' + dsFmtNum(d, num.partida) + '</b> e quer chegar em <b>' + dsFmtNum(d, num.alvo) + '</b>.';
-        document.getElementById('dsNumModal').classList.add('show');
-        setTimeout(() => { const i = document.getElementById('dsNumValor'); if (i) { i.focus(); i.select(); } }, 30);
-    }
-    function dsNumClose() { document.getElementById('dsNumModal').classList.remove('show'); dsNumCtx = null; }
-    function dsNumSave() {
-        if (!dsNumCtx) return;
-        const d = dsFind(dsNumCtx);
-        if (d) d.atual = Number(document.getElementById('dsNumValor').value) || 0;
-        dsNumClose();
-        diaRender(); agendaSave();
-    }
-
-    /* ── rotina do dia ── */
-    function rotRender() {
-        const el = document.getElementById('diaRotina'); if (!el) return;
-        const hoje = agendaTodayStr();
-        const feitos = (agendaState.rotinaFeitos || {})[hoje] || [];
-        const lista = (agendaState.rotina || []).slice().sort((a, b) => String(a.hora).localeCompare(String(b.hora)));
-        if (!lista.length) {
-            el.innerHTML = '<div style="padding:22px 4px;color:var(--text-muted);font-size:13.5px;text-align:center">Monte a sua rotina aqui embaixo.<br>Ex.: 06:00 acordar, 06:20 água e alongar.</div>';
-            return;
-        }
-        const agora = new Date();
-        const hm = calPad(agora.getHours()) + ':' + calPad(agora.getMinutes());
-        let atual = null;
-        lista.forEach(r => { if (r.hora <= hm) atual = r.id; });
-        el.innerHTML = lista.map(r => {
-            const ok = feitos.indexOf(r.id) >= 0;
-            return '<div class="rot-item' + (ok ? ' feito' : '') + (r.id === atual && !ok ? ' agora' : '') + '">'
-                + '<span class="rot-hora">' + agendaEsc(r.hora) + '</span>'
-                + '<span class="rot-dot" onclick="rotToggle(\'' + r.id + '\')" title="Marcar"></span>'
-                + '<span class="rot-txt" ondblclick="rotEditar(\'' + r.id + '\', this)" title="Dois cliques pra editar">' + agendaEsc(r.titulo) + '</span>'
-                + '<button class="rot-del" type="button" onclick="rotExcluir(\'' + r.id + '\')" title="Excluir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>'
-                + '</div>';
-        }).join('');
-    }
-    function rotAdicionar() {
-        const hora = document.getElementById('rotHora').value;
-        const titulo = document.getElementById('rotTitulo').value.trim();
-        if (!hora || !titulo) { document.getElementById('rotTitulo').focus(); return; }
-        if (!Array.isArray(agendaState.rotina)) agendaState.rotina = [];
-        agendaState.rotina.push({ id: mtUid('r'), hora: hora, titulo: titulo });
-        document.getElementById('rotTitulo').value = '';
-        rotRender(); diaRenderHero(); agendaSave();
-    }
-    function rotToggle(id) {
-        const hoje = agendaTodayStr();
-        if (!agendaState.rotinaFeitos) agendaState.rotinaFeitos = {};
-        const arr = agendaState.rotinaFeitos[hoje] || [];
-        const i = arr.indexOf(id);
-        if (i >= 0) arr.splice(i, 1); else arr.push(id);
-        if (arr.length) agendaState.rotinaFeitos[hoje] = arr; else delete agendaState.rotinaFeitos[hoje];
-        rotRender(); diaRenderHero(); agendaSave();
-    }
-    function rotExcluir(id) {
-        agendaState.rotina = (agendaState.rotina || []).filter(r => r.id !== id);
-        rotRender(); diaRenderHero(); agendaSave();
-    }
-    function rotEditar(id, el) {
-        const r = (agendaState.rotina || []).find(x => x.id === id); if (!r) return;
-        el.setAttribute('contenteditable', 'true');
-        el.focus();
-        try {
-            const range = document.createRange(); range.selectNodeContents(el);
-            const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
-        } catch (e) {}
-        const fim = (salvar) => {
-            el.removeEventListener('blur', onBlur);
-            el.removeEventListener('keydown', onKey);
-            el.removeAttribute('contenteditable');
-            const nv = (el.textContent || '').trim();
-            if (salvar && nv && nv !== r.titulo) { r.titulo = nv; agendaSave(); }
-            rotRender();
-        };
-        const onBlur = () => fim(true);
-        const onKey = (e) => {
-            if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
-            else if (e.key === 'Escape') { e.preventDefault(); el.removeEventListener('blur', onBlur); fim(false); }
-        };
-        el.addEventListener('blur', onBlur);
-        el.addEventListener('keydown', onKey);
-    }
-
-    /* quantos compromissos existiam num dia e quantos foram cumpridos (inclui ciclos encerrados) */
-    function diaResumo(data) {
-        let total = 0, ok = 0;
-        dsDoDia(data).forEach(d => { total++; if (dsMarca(d, data)) ok++; });
-        (agendaState.ciclos || []).forEach(c => {
-            if (data >= c.inicio && data <= c.fim) { total++; if ((c.feitos || {})[data]) ok++; }
-        });
-        return { total, ok };
-    }
-
-    /* ── mapa de consistência do ano ── */
-    function mapaRender() {
-        const grid = document.getElementById('mapaGrid'), meses = document.getElementById('mapaMeses');
-        if (!grid) return;
-        const hoje = agendaTodayStr();
-        const ano = Number(hoje.slice(0, 4));
-        const primeiro = ano + '-01-01';
-        const inicioGrade = dsAdd(primeiro, -new Date(primeiro + 'T12:00:00').getDay());
-        const ultimo = ano + '-12-31';
-        const totalDias = dsDiff(inicioGrade, ultimo) + 1;
-        const semanas = Math.ceil(totalDias / 7);
-        let cels = '', labels = '', diasFortes = 0, diasComAlgo = 0;
-        for (let s = 0; s < semanas; s++) {
-            let labelMes = '';
-            for (let w = 0; w < 7; w++) {
-                const data = dsAdd(inicioGrade, s * 7 + w);
-                if (data.slice(0, 4) !== String(ano)) { cels += '<i class="mapa-cel fora"></i>'; continue; }
-                if (data.slice(8, 10) === '01') labelMes = CAL_MESES[Number(data.slice(5, 7)) - 1].slice(0, 3);
-                const resumo = diaResumo(data);
-                let nivel = 0;
-                if (resumo.total) {
-                    const r = resumo.ok / resumo.total;
-                    nivel = r >= 1 ? 3 : (r >= 0.5 ? 2 : (r > 0 ? 1 : 0));
-                    if (r >= 1) diasFortes++;
-                    if (r > 0) diasComAlgo++;
-                }
-                cels += '<i class="mapa-cel' + (nivel ? ' n' + nivel : '') + '" title="' + agendaFmtPrazo(data) + (resumo.total ? ' · ' + resumo.ok + ' de ' + resumo.total : '') + '"></i>';
-            }
-            labels += '<span>' + labelMes + '</span>';
-        }
-        grid.innerHTML = cels;
-        if (meses) meses.innerHTML = labels;
-        const res = document.getElementById('mapaResumo');
-        if (res) res.textContent = diasComAlgo ? (diasFortes + (diasFortes === 1 ? ' dia completo' : ' dias completos') + ' em ' + ano) : '';
-    }
-
-    /* ── lembrete diário ── */
-    function lemRender() {
-        const l = agendaState.lembrete || {};
-        const a = document.getElementById('lemAtivo'), h = document.getElementById('lemHora'), e = document.getElementById('lemEmail');
-        if (a) a.checked = !!l.ativo;
-        if (h) h.value = l.hora || '06:30';
-        if (e) e.value = l.email || '';
-        const st = document.getElementById('lemStatus');
-        if (st) st.textContent = l.ativo ? ('chega todo dia às ' + (l.hora || '06:30')) : 'desligado';
-    }
-    async function lemEnviarTeste() {
-        const btn = document.getElementById('lemTeste'), st = document.getElementById('lemStatus');
-        const email = (document.getElementById('lemEmail').value || '').trim();
-        if (!email.includes('@')) { if (st) st.textContent = 'escreva um e-mail primeiro'; return; }
-        lemSalvar();
-        if (btn) { btn.disabled = true; btn.textContent = 'enviando...'; }
-        try {
-            const { data, error } = await sb.functions.invoke('lembrete-diario', { body: { teste: true, email: email } });
-            if (error) throw error;
-            if (data && data.ok === false) throw new Error(data.erro || 'falhou');
-            if (st) st.textContent = 'enviado pra ' + email + ', olha a caixa de entrada';
-        } catch (err) {
-            console.error('lembrete de teste:', err);
-            if (st) st.textContent = 'não consegui enviar agora';
-        }
-        if (btn) { btn.disabled = false; btn.textContent = 'Enviar teste agora'; }
-    }
-    function lemSalvar() {
-        const a = document.getElementById('lemAtivo'), h = document.getElementById('lemHora'), e = document.getElementById('lemEmail');
-        agendaState.lembrete = Object.assign({}, agendaState.lembrete, {
-            ativo: !!(a && a.checked),
-            hora: (h && h.value) || '06:30',
-            email: (e && e.value.trim()) || ''
-        });
-        lemRender(); agendaSave();
-    }
-
-    let diaRenderizadoEm = null;
-    /* a aba fica aberta o dia todo: sem isso, o "agora" da rotina congela e depois
-       da meia-noite o "Hoje" continua sendo ontem */
-    setInterval(function () {
-        const view = document.getElementById('agViewDia');
-        if (!view || view.style.display === 'none' || !agendaLoaded) return;
-        const ativo = document.activeElement;
-        if (ativo && ativo.getAttribute && ativo.getAttribute('contenteditable') === 'true') return;
-        const hoje = agendaTodayStr();
-        if (hoje !== diaRenderizadoEm) diaRender();
-        else { diaRenderHero(); rotRender(); }
-    }, 60000);
-
-    (function diaInitUI() {
-        const on = (id, ev, fn) => { const el = document.getElementById(id); if (el) el.addEventListener(ev, fn); };
-        on('dsNovoBtn', 'click', () => dsOpenModal());
-        on('dsSave', 'click', dsSaveModal);
-        on('dsDelete', 'click', dsDelete);
-        on('dsCancel', 'click', dsCloseModal);
-        on('dsCancel2', 'click', dsCloseModal);
-        on('df_temNumero', 'change', dsSyncNumero);
-        on('df_nome', 'keydown', e => { if (e.key === 'Enter') { e.preventDefault(); dsSaveModal(); } });
-        on('dsNumSave', 'click', dsNumSave);
-        on('dsNumCancel', 'click', dsNumClose);
-        on('dsNumCancel2', 'click', dsNumClose);
-        on('dsNumValor', 'keydown', e => { if (e.key === 'Enter') { e.preventDefault(); dsNumSave(); } });
-        on('festaOk', 'click', () => document.getElementById('festaModal').classList.remove('show'));
-        on('rotAddBtn', 'click', rotAdicionar);
-        on('rotTitulo', 'keydown', e => { if (e.key === 'Enter') { e.preventDefault(); rotAdicionar(); } });
-        ['lemAtivo', 'lemHora', 'lemEmail'].forEach(id => on(id, 'change', lemSalvar));
-        on('lemTeste', 'click', lemEnviarTeste);
-        [['dsModal', dsCloseModal], ['dsNumModal', dsNumClose]].forEach(([id, close]) => {
-            const ov = document.getElementById(id);
-            if (ov) ov.addEventListener('click', e => { if (e.target === ov) close(); });
-        });
-        const fov = document.getElementById('festaModal');
-        if (fov) fov.addEventListener('click', e => { if (e.target === fov) fov.classList.remove('show'); });
-    })();
-
-    /* ═══════════════ METAS DE LONGO PRAZO (os sonhos) ═══════════════ */
-    let mtEditingId = null, mtAporteCtx = null, mtVerAlgumDia = false;
-
-    function mtUid(p) { return p + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
-    function mtMesAtual() { const d = new Date(); return d.getFullYear() + '-' + calPad(d.getMonth() + 1); }
-    function mtMesLabel(mk) {
-        const p = String(mk || '').split('-');
-        if (p.length < 2) return mk || '';
-        return (CAL_MESES[Number(p[1]) - 1] || '').toLowerCase() + ' de ' + p[0];
-    }
-    function mtMesCurto(mk) {
-        const p = String(mk || '').split('-');
-        return p.length < 2 ? mk : (CAL_MESES[Number(p[1]) - 1] || '').slice(0, 3).toLowerCase();
-    }
-    /* meses de a até b, inclusive: ('2026-08','2026-08') = 1 */
-    function mtMesesEntre(a, b) {
-        const pa = String(a || '').split('-'), pb = String(b || '').split('-');
-        if (pa.length < 2 || pb.length < 2) return 0;
-        return (Number(pb[0]) - Number(pa[0])) * 12 + (Number(pb[1]) - Number(pa[1])) + 1;
-    }
-    function mtMesSoma(mk, n) {
-        const p = String(mk || '').split('-');
-        let y = Number(p[0]) || 0, m = (Number(p[1]) || 1) - 1 + n;
-        y += Math.floor(m / 12); m = ((m % 12) + 12) % 12;
-        return y + '-' + calPad(m + 1);
-    }
-    function mtUnidade(un, v) {
-        if (!un) return '';
-        un = String(un).trim();
-        if (Math.round(Number(v) || 0) === 1 && /s$/i.test(un)) un = un.slice(0, -1);
-        return ' ' + un;
-    }
-    function mtFmt(meta, v) {
-        v = Math.round(Number(v) || 0);
-        if (meta && meta.tipo === 'contagem') return v.toLocaleString('pt-BR') + mtUnidade(meta.unidade, v);
-        return calBRL(v);
-    }
-    function mtGuardado(meta) {
-        const ap = meta.aportes || {};
-        let s = Number(meta.inicial) || 0;
-        Object.keys(ap).forEach(k => { s += Number(ap[k]) || 0; });
+        if (!Array.isArray(s.foco)) s.foco = [];
+        if (!s.dias || typeof s.dias !== 'object' || Array.isArray(s.dias)) s.dias = {};
         return s;
     }
-    function mtFind(id) { return (agendaState.metas || []).find(m => m.id === id); }
-    function mtAtivas() { return (agendaState.metas || []).filter(m => !m.algumDia); }
-
-    function mtCalc(meta) {
-        const hoje = mtMesAtual();
-        const alvo = Number(meta.alvo) || 0;
-        const guardado = mtGuardado(meta);
-        const falta = Math.max(0, alvo - guardado);
-        const inicio = meta.inicio || hoje;
-        const prazo = meta.prazo || hoje;
-        const totalMeses = Math.max(1, mtMesesEntre(inicio, prazo));
-        const cumpridos = Math.max(0, Math.min(totalMeses, mtMesesEntre(inicio, hoje) - 1));
-        const restantes = Math.max(0, mtMesesEntre(hoje, prazo));
-        const porMes = restantes > 0 ? Math.ceil(falta / restantes) : falta;
-        const esperado = alvo * (cumpridos / totalMeses);
-        const dif = guardado - esperado;
-        const pct = alvo > 0 ? Math.min(100, (guardado / alvo) * 100) : 0;
-        const pctEsperado = alvo > 0 ? Math.min(100, (esperado / alvo) * 100) : 0;
-        const concluida = alvo > 0 && guardado >= alvo;
-        const doMes = Number((meta.aportes || {})[hoje]) || 0;
-        const faltaNoMes = Math.max(0, porMes - doMes);
-        let estado = 'ritmo';
-        if (concluida) estado = 'feita';
-        else if (dif >= alvo * 0.03) estado = 'adiantada';
-        else if (dif <= -alvo * 0.03) estado = 'gas';
-        return { alvo, guardado, falta, porMes, restantes, esperado, dif, pct, pctEsperado, concluida, estado, doMes, faltaNoMes, totalMeses, cumpridos, hoje };
+    function plItens(s, dow) { const a = s.dias[String(dow)]; return Array.isArray(a) ? a : []; }
+    function plProgresso(s) {
+        let t = 0, ok = 0;
+        PL_DIAS.forEach(d => plItens(s, d.n).forEach(i => { t++; if (i.ok) ok++; }));
+        return { t: t, ok: ok, pct: t ? Math.round(ok * 100 / t) : 0 };
     }
-    const MT_ESTADO_LABEL = { adiantada: 'Adiantada', ritmo: 'No ritmo', gas: 'Precisa de um gás', feita: 'Conseguiu!' };
 
-    /* ── faixa do mês: o número único ── */
-    function mtRenderMesBox() {
-        const box = document.getElementById('mtMesBox'); if (!box) return;
-        /* meta vencida sai da conta do mês: cobrar o valor cheio de uma vez só gera culpa */
-        const metas = mtAtivas().filter(m => { const c = mtCalc(m); return !c.concluida && c.restantes > 0; });
-        if (!metas.length) { box.innerHTML = ''; return; }
-        const hoje = mtMesAtual();
-        let precisa = 0, jaFoi = 0, temDinheiro = false;
-        const linhas = metas.map(m => {
-            const c = mtCalc(m);
-            if (m.tipo !== 'contagem') { precisa += c.porMes; jaFoi += Math.min(c.doMes, c.porMes); temDinheiro = true; }
-            const pago = c.faltaNoMes <= 0;
-            const lapis = '<button class="mt-mini" type="button" title="Colocar outro valor" onclick="mtAporteOpen(\'' + m.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>';
-            let acao;
-            if (m.tipo === 'contagem') {
-                acao = '<span class="mt-line-val">' + mtFmt(m, c.doMes) + ' de ' + mtFmt(m, c.porMes + c.doMes) + '</span>'
-                    + '<button class="mt-guardei" type="button" onclick="mtSomar(\'' + m.id + '\', 1)">+1</button>';
-            } else if (pago) {
-                acao = '<span class="mt-line-ok">✓ ' + mtFmt(m, c.doMes) + ' neste mês</span>';
-            } else {
-                acao = '<span class="mt-line-val">' + mtFmt(m, c.faltaNoMes) + '</span>'
-                    + '<button class="mt-guardei" type="button" onclick="mtGuardei(\'' + m.id + '\')">Guardei</button>';
-            }
-            return '<div class="mt-line' + (pago && m.tipo !== 'contagem' ? ' pago' : '') + '">'
-                + '<span class="mt-line-ico">' + agendaEsc(m.icone || '⭐') + '</span>'
-                + '<span class="mt-line-nome">' + agendaEsc(m.nome) + '</span>'
-                + acao + lapis
-                + '</div>';
-        }).join('');
+    function planoRender() {
+        const p = planoEnsure();
+        const root = document.getElementById('plSemanas');
+        if (!root) return;
+        plRenderFrentes();
 
-        const restante = Math.max(0, precisa - jaFoi);
-        /* receita do MÊS CORRENTE (não do mês que o calendário está mostrando) */
-        let receitaPrev = 0;
-        (agendaState.eventos || []).forEach(e => {
-            if (String(e.data || '').slice(0, 7) === hoje) receitaPrev += Number(e.valor) || 0;
+        const hojeKey = plSegundaDe(agendaTodayStr());
+        const chaves = plChaves();
+        const num = {};
+        chaves.forEach((k, i) => { num[k] = i + 1; });
+        const abertas = chaves.filter(k => !plSemana(k).feita);
+        const fechadas = chaves.filter(k => plSemana(k).feita);
+
+        const ini = document.getElementById('plInicio');
+        if (ini && ini.value !== p.inicio) ini.value = p.inicio;
+        const per = document.getElementById('plPeriodo');
+        if (per) per.textContent = '· ' + chaves.length + (chaves.length === 1 ? ' semana, até ' : ' semanas, até ') + plDiaMes(plAdd(chaves[chaves.length - 1] || p.inicio, 6));
+
+        const nFin = document.getElementById('plFinN');
+        if (nFin) nFin.textContent = fechadas.length + (fechadas.length === 1 ? ' semana' : ' semanas') + (plVerFin ? ' · tocar pra fechar' : '');
+
+        root.innerHTML = abertas.length
+            ? abertas.map(k => plWeekHtml(k, num[k], hojeKey)).join('')
+            : '<div class="pl-vazio">Todas as semanas do plano estão finalizadas. Toque em <b>+ Semana</b> pra continuar.</div>';
+
+        const fl = document.getElementById('plFinList');
+        if (fl) {
+            fl.style.display = plVerFin ? '' : 'none';
+            fl.innerHTML = plVerFin
+                ? (fechadas.length ? fechadas.map(k => plWeekHtml(k, num[k], hojeKey)).join('') : '<div class="pl-vazio">Nenhuma semana finalizada ainda.</div>')
+                : '';
+        }
+    }
+
+    function plRenderFrentes() {
+        const p = planoEnsure();
+        const el = document.getElementById('plFrentes');
+        if (!el) return;
+        el.innerHTML = p.frentes.map((f, i) =>
+            '<div class="pl-frente">'
+            + '<button class="pl-x pl-x-f" type="button" onclick="plFrenteDel(' + i + ')" aria-label="Remover frente">&times;</button>'
+            + '<div class="pl-frente-num">' + String(i + 1).padStart(2, '0') + '</div>'
+            + '<div class="pl-frente-nome" contenteditable="true" spellcheck="false" data-fr="' + i + '" data-frc="nome">' + agendaEsc(f.nome || '') + '</div>'
+            + '<div class="pl-frente-desc" contenteditable="true" spellcheck="false" data-fr="' + i + '" data-frc="desc">' + agendaEsc(f.desc || '') + '</div>'
+            + '</div>'
+        ).join('') + '<button class="pl-frente-add" type="button" onclick="plFrenteAdd()">+ frente</button>';
+    }
+
+    function plWeekHtml(key, n, hojeKey) {
+        const s = plSemana(key);
+        const pr = plProgresso(s);
+        const atual = key === hojeKey;
+        const foco = s.foco.map((t, i) =>
+            '<div class="pl-foco-it"><i class="pl-foco-dot"></i>'
+            + '<span class="pl-foco-t" contenteditable="true" spellcheck="false" data-fk="' + key + '" data-fi="' + i + '">' + agendaEsc(t) + '</span>'
+            + '<button class="pl-x" type="button" onclick="plFocoDel(\'' + key + '\',' + i + ')" aria-label="Remover">&times;</button></div>'
+        ).join('');
+        return '<div class="pl-week' + (s.feita ? ' feita' : '') + (atual ? ' atual' : '') + '" id="pl-w-' + key + '">'
+            + '<div class="pl-wside">'
+            + '<div class="pl-wname">semana ' + n + (atual ? '<span class="pl-agora">agora</span>' : '') + '</div>'
+            + '<div class="pl-wdate">' + plRange(key) + '</div>'
+            + '<div class="pl-bar"><i style="width:' + pr.pct + '%"></i></div>'
+            + '<div class="pl-wmeta">' + pr.ok + ' de ' + pr.t + ' feito' + (pr.t && pr.ok === pr.t ? ' · semana completa' : '') + '</div>'
+            + '<div class="pl-wbtns">'
+            + (s.feita
+                ? '<button class="pl-btn" type="button" onclick="plReabrir(\'' + key + '\')">Reabrir</button>'
+                : '<button class="pl-btn ok" type="button" onclick="plFinalizar(\'' + key + '\')">Finalizar semana</button>'
+                  + '<button class="pl-btn" type="button" onclick="plCopiarAnterior(\'' + key + '\')">Repetir a anterior</button>')
+            + '</div>'
+            + '</div>'
+            + '<div class="pl-wmain">'
+            + '<div class="pl-foco">' + foco
+            + '<button class="pl-btn" type="button" style="background:none;padding:1px 0;color:rgba(255,255,255,0.5);flex:0 0 auto" onclick="plFocoAdd(\'' + key + '\')">+ foco da semana</button>'
+            + '</div>'
+            + '<div class="pl-days">' + PL_DIAS.map(d => plDayHtml(key, d)).join('') + '</div>'
+            + '</div>'
+            + '</div>';
+    }
+
+    function plDayHtml(key, d) {
+        const s = plSemana(key);
+        const data = plAdd(key, d.n - 1);
+        const itens = plItens(s, d.n);
+        return '<div class="pl-day' + (data === agendaTodayStr() ? ' hoje' : '') + '">'
+            + '<div class="pl-day-lbl">' + d.nome + '<span>' + Number(data.slice(8)) + '/' + Number(data.slice(5, 7)) + '</span></div>'
+            + '<div class="pl-items">' + itens.map((it, i) =>
+                '<div class="pl-it' + (it.ok ? ' ok' : '') + '">'
+                + '<button class="pl-chk" type="button" onclick="plItemToggle(\'' + key + '\',' + d.n + ',' + i + ')" aria-label="Marcar">' + PL_CHECK_SVG + '</button>'
+                + '<span class="pl-it-t" contenteditable="true" spellcheck="false" data-k="' + key + '" data-d="' + d.n + '" data-i="' + i + '">' + agendaEsc(it.t || '') + '</span>'
+                + '<button class="pl-x" type="button" onclick="plItemDel(\'' + key + '\',' + d.n + ',' + i + ')" aria-label="Remover">&times;</button>'
+                + '</div>'
+              ).join('') + '</div>'
+            + '<button class="pl-add" type="button" onclick="plItemAdd(\'' + key + '\',' + d.n + ')">+ adicionar</button>'
+            + '</div>';
+    }
+
+    function plItemToggle(key, dow, idx) {
+        const s = plSemana(key, true);
+        const it = plItens(s, dow)[idx];
+        if (!it) return;
+        it.ok = !it.ok;
+        planoRender(); agendaSave();
+    }
+    function plItemAdd(key, dow) {
+        const s = plSemana(key, true);
+        if (!Array.isArray(s.dias[String(dow)])) s.dias[String(dow)] = [];
+        s.dias[String(dow)].push({ id: plUid(), t: '', ok: false });
+        const idx = s.dias[String(dow)].length - 1;
+        planoRender(); agendaSave();
+        plFoco('.pl-it-t[data-k="' + key + '"][data-d="' + dow + '"][data-i="' + idx + '"]');
+    }
+    function plItemDel(key, dow, idx) {
+        const s = plSemana(key, true);
+        const arr = plItens(s, dow);
+        if (!arr[idx]) return;
+        arr.splice(idx, 1);
+        planoRender(); agendaSave();
+    }
+    function plFocoAdd(key) {
+        const s = plSemana(key, true);
+        s.foco.push('');
+        const idx = s.foco.length - 1;
+        planoRender(); agendaSave();
+        plFoco('.pl-foco-t[data-fk="' + key + '"][data-fi="' + idx + '"]');
+    }
+    function plFocoDel(key, idx) {
+        const s = plSemana(key, true);
+        if (idx < 0 || idx >= s.foco.length) return;
+        s.foco.splice(idx, 1);
+        planoRender(); agendaSave();
+    }
+    function plFoco(sel) {
+        setTimeout(function () { const el = document.querySelector(sel); if (el) el.focus(); }, 30);
+    }
+    function plFrenteAdd() {
+        const p = planoEnsure();
+        p.frentes.push({ id: plUid(), nome: '', desc: '' });
+        plRenderFrentes(); agendaSave();
+        plFoco('.pl-frente-nome[data-fr="' + (p.frentes.length - 1) + '"]');
+    }
+    function plFrenteDel(i) {
+        const p = planoEnsure();
+        const f = p.frentes[i];
+        if (!f) return;
+        if ((f.nome || f.desc) && !confirm('Tirar a frente "' + (f.nome || 'sem nome') + '" do plano?')) return;
+        p.frentes.splice(i, 1);
+        plRenderFrentes(); agendaSave();
+    }
+    function plFinalizar(key) {
+        plSemana(key, true).feita = true;
+        planoRender(); agendaSave();
+    }
+    function plReabrir(key) {
+        plSemana(key, true).feita = false;
+        planoRender(); agendaSave();
+    }
+    function plCopiarAnterior(key) {
+        const chaves = plChaves(), i = chaves.indexOf(key);
+        if (i <= 0) { alert('Essa é a primeira semana, não tem anterior pra copiar.'); return; }
+        const src = plSemana(chaves[i - 1]);
+        const dst = plSemana(key, true);
+        const temCoisa = PL_DIAS.some(d => plItens(dst, d.n).length);
+        if (temCoisa && !confirm('Isso substitui o que já está escrito nessa semana. Continuar?')) return;
+        dst.dias = {};
+        PL_DIAS.forEach(d => {
+            const arr = plItens(src, d.n);
+            if (arr.length) dst.dias[String(d.n)] = arr.map(it => ({ id: plUid(), t: it.t, ok: false }));
         });
-        let side = '';
-        if (temDinheiro) {
-            side = '<div><b>' + calBRL(jaFoi) + '</b> já guardados</div>';
-            if (receitaPrev > 0) {
-                const pctReceita = Math.round((precisa / receitaPrev) * 100);
-                side += '<div>Você previu receber <b>' + calBRL(receitaPrev) + '</b> neste mês' + (pctReceita > 0 ? ' (as metas pedem ' + pctReceita + '%)' : '') + '</div>';
-            }
-        }
-        let numero;
-        if (!temDinheiro) numero = metas.length + (metas.length === 1 ? ' meta' : ' metas') + ' <small>pra empurrar neste mês</small>';
-        else if (restante <= 0) numero = 'Tudo pago <small>neste mês</small>';
-        else numero = calBRL(restante);
-        box.innerHTML = '<div class="mt-mes">'
-            + '<div class="mt-mes-top">'
-            + '<div><div class="ag-eyebrow">Pra guardar em ' + agendaEsc(mtMesLabel(hoje)) + '</div>'
-            + '<div class="mt-mes-val">' + numero + '</div></div>'
-            + '<div class="mt-mes-side">' + side + '</div>'
-            + '</div>'
-            + '<div class="mt-mes-list">' + linhas + '</div>'
-            + '</div>';
+        planoRender(); agendaSave();
+    }
+    function plSetInicio(v) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(v || '')) return;
+        const p = planoEnsure();
+        const novo = plSegundaDe(v);
+        if (novo === p.inicio) return;
+        p.inicio = novo;
+        planoRender(); agendaSave();
+    }
+    function plIrHoje() {
+        const key = plSegundaDe(agendaTodayStr());
+        let el = document.getElementById('pl-w-' + key);
+        if (!el && plSemana(key).feita && !plVerFin) { plVerFin = true; planoRender(); el = document.getElementById('pl-w-' + key); }
+        if (!el) { alert('A semana de hoje está fora do período do plano. Ajuste a data de início ou adicione semanas.'); return; }
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.classList.add('flash');
+        setTimeout(function () { el.classList.remove('flash'); }, 1300);
     }
 
-    /* ── faixa dentro do calendário (pra meta não virar aba fantasma) ── */
-    function mtRenderStrip() {
-        const el = document.getElementById('calMetaStrip'); if (!el) return;
-        const metas = mtAtivas().filter(m => { const c = mtCalc(m); return !c.concluida && c.restantes > 0; });
-        const hoje = mtMesAtual();
-        if (!metas.length) { el.style.display = 'none'; return; }
-        let falta = 0;
-        metas.forEach(m => { if (m.tipo !== 'contagem') falta += mtCalc(m).faltaNoMes; });
-        const partes = [];
-        if (metas.length) {
-            partes.push(falta > 0
-                ? 'Falta guardar <b>' + calBRL(falta) + '</b> das suas metas neste mês.'
-                : 'Suas metas do mês estão <b>em dia</b>.');
-        }
-        el.innerHTML = '<span>🎯</span><span>' + partes.join(' ') + '</span><span class="cms-go">ver metas →</span>';
-        el.style.display = '';
-    }
-    function metaRenderStrip() { try { mtRenderStrip(); } catch (e) { console.warn('strip de metas:', e); } }
-
-    /* ── cards das metas ── */
-    function mtBarra(m, c) {
-        const mark = Math.max(0, Math.min(100, c.pctEsperado));
-        /* a etiqueta "hoje" não pode vazar nas pontas */
-        const lbl = mark < 6 ? ' style="left:0;transform:none"' : (mark > 94 ? ' style="left:auto;right:0;transform:none"' : '');
-        return '<div class="mt-bar">'
-            + '<div class="mt-bar-fill" style="width:' + Math.max(0, Math.min(100, c.pct)) + '%"></div>'
-            + (c.concluida ? '' : '<div class="mt-bar-mark" style="left:' + mark + '%"><span' + lbl + '>hoje</span></div>')
-            + '</div>';
-    }
-    function mtMesesGrid(m, c) {
-        const total = Math.min(12, c.totalMeses);
-        let start = m.inicio || c.hoje;
-        if (c.totalMeses > 12) {
-            let s = mtMesSoma(c.hoje, -3);
-            if (mtMesesEntre(m.inicio || c.hoje, s) < 1) s = m.inicio || c.hoje;
-            if (mtMesesEntre(s, m.prazo) < total) s = mtMesSoma(m.prazo, -(total - 1));
-            start = s;
-        }
-        const ideal = c.totalMeses > 0 ? (c.alvo / c.totalMeses) : 0;
-        let html = '';
-        for (let i = 0; i < total; i++) {
-            const mk = mtMesSoma(start, i);
-            const v = Number((m.aportes || {})[mk]) || 0;
-            const cls = v >= ideal * 0.9 && v > 0 ? 'ok' : (v > 0 ? 'parcial' : '');
-            html += '<div class="mt-mq ' + cls + (mk === c.hoje ? ' atual' : '') + '" title="' + agendaEsc(mtMesLabel(mk) + ': ' + mtFmt(m, v)) + '">'
-                + '<i></i><span>' + mtMesCurto(mk) + '</span></div>';
-        }
-        return '<div class="mt-meses">' + html + '</div>';
-    }
-    function mtCardHtml(m) {
-        const c = mtCalc(m);
-        let ritmo;
-        if (c.concluida) ritmo = 'Meta batida. Agora vai lá viver isso.';
-        else if (c.restantes <= 0) ritmo = 'O prazo chegou e faltam <b>' + mtFmt(m, c.falta) + '</b>. Que tal esticar a data?';
-        else if (c.estado === 'gas') ritmo = 'Ficou pra trás? Sem drama, o ritmo se ajusta: <b>' + mtFmt(m, c.porMes) + ' por mês</b> até ' + agendaEsc(mtMesLabel(m.prazo)) + '.';
-        else ritmo = 'Faltam <b>' + mtFmt(m, c.falta) + '</b>: dá <b>' + mtFmt(m, c.porMes) + ' por mês</b> até ' + agendaEsc(mtMesLabel(m.prazo)) + '.';
-        const botao = m.tipo === 'contagem'
-            ? '<button class="mt-guardei" type="button" onclick="mtSomar(\'' + m.id + '\', 1)">+1 neste mês (' + mtFmt(m, c.doMes) + ' até agora)</button>'
-            : (c.faltaNoMes > 0
-                ? '<button class="mt-guardei" type="button" onclick="mtGuardei(\'' + m.id + '\')">Guardei ' + mtFmt(m, c.faltaNoMes) + ' este mês</button>'
-                : '<span class="mt-line-ok" style="flex:1">✓ ' + agendaEsc(mtMesLabel(c.hoje)) + ' pago</span>');
-        const foot = c.concluida ? ''
-            : '<div class="mt-card-foot">'
-              + botao
-              + '<button class="mt-mini" type="button" title="Outro valor" onclick="mtAporteOpen(\'' + m.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>'
-              + '</div>';
-        return '<div class="mt-card' + (c.concluida ? ' feita' : '') + '">'
-            + '<div class="mt-card-top">'
-            + '<span class="mt-card-ico">' + agendaEsc(m.icone || '⭐') + '</span>'
-            + '<span class="mt-card-nome" style="cursor:pointer" onclick="mtOpenModal(\'' + m.id + '\')">' + agendaEsc(m.nome) + '</span>'
-            + '<span class="mt-chip ' + c.estado + '">' + MT_ESTADO_LABEL[c.estado] + '</span>'
-            + '</div>'
-            + '<div class="mt-valores"><span class="mt-v-atual">' + mtFmt(m, c.guardado) + '</span><span class="mt-v-alvo">de ' + mtFmt(m, c.alvo) + '</span></div>'
-            + mtBarra(m, c)
-            + '<div class="mt-ritmo">' + ritmo + '</div>'
-            + mtMesesGrid(m, c)
-            + foot
-            + '</div>';
-    }
-
-    function metaRender() {
-        const wrap = document.getElementById('mtCards'); if (!wrap) return;
-        calEnsureInit();
-        const todas = agendaState.metas || [];
-        if (!todas.length) {
-            document.getElementById('mtMesBox').innerHTML = '';
-            wrap.innerHTML = '<div class="mt-vazio"><p>Qual sonho a gente vai tirar do papel primeiro?</p>'
-                + '<button class="ag-btn-add" type="button" onclick="mtOpenModal()">Criar minha primeira meta</button></div>';
-            document.getElementById('mtAlgumDia').innerHTML = '';
+    /* edição inline: tudo que é contenteditable salva no blur */
+    function plEditBlur(e) {
+        const el = e.target;
+        if (!el || !el.getAttribute || el.getAttribute('contenteditable') !== 'true') return;
+        const txt = (el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 240);
+        const d = el.dataset;
+        if (d.fr !== undefined && d.fr !== '') {
+            const f = planoEnsure().frentes[Number(d.fr)];
+            if (!f) return;
+            const campo = (d.frc === 'desc') ? 'desc' : 'nome';
+            if ((f[campo] || '') === txt) return;
+            f[campo] = txt; agendaSave();
             return;
         }
-        mtRenderMesBox();
-        const ativas = todas.filter(m => !m.algumDia);
-        wrap.innerHTML = ativas.length
-            ? '<div class="mt-grid">' + ativas.map(mtCardHtml).join('') + '</div>'
-            : '<div class="mt-vazio"><p>Nenhuma meta ativa agora. Suas ideias estão guardadas ali embaixo.</p></div>';
-
-        const guardadas = todas.filter(m => m.algumDia);
-        const ad = document.getElementById('mtAlgumDia');
-        ad.innerHTML = guardadas.length
-            ? '<button class="mt-algumdia-btn" type="button" onclick="mtToggleAlgumDia()">' + (mtVerAlgumDia ? '▾' : '▸') + ' Algum dia (' + guardadas.length + ')</button>'
-              + (mtVerAlgumDia ? '<div class="mt-grid" style="margin-top:12px">' + guardadas.map(mtCardHtml).join('') + '</div>' : '')
-            : '';
-    }
-    function mtToggleAlgumDia() { mtVerAlgumDia = !mtVerAlgumDia; metaRender(); }
-
-    /* ── registrar quanto guardei ── */
-    function mtGuardei(id) {
-        const m = mtFind(id); if (!m) return;
-        const c = mtCalc(m);
-        if (!m.aportes) m.aportes = {};
-        m.aportes[c.hoje] = c.doMes + c.faltaNoMes;
-        metaRender(); agendaSave();
-    }
-    /* metas de contagem andam de 1 em 1 (fechar marcas, vender vagas) */
-    function mtSomar(id, n) {
-        const m = mtFind(id); if (!m) return;
-        const c = mtCalc(m);
-        if (!m.aportes) m.aportes = {};
-        const novo = Math.max(0, c.doMes + n);
-        if (novo > 0) m.aportes[c.hoje] = novo; else delete m.aportes[c.hoje];
-        metaRender(); agendaSave();
-    }
-    function mtAporteOpen(id) {
-        const m = mtFind(id); if (!m) return;
-        const c = mtCalc(m);
-        mtAporteCtx = { id: id, mes: c.hoje };
-        document.getElementById('mtAporteTitle').textContent = 'Quanto você guardou em ' + mtMesLabel(c.hoje) + '?';
-        document.getElementById('mtApLabel').textContent = m.tipo === 'contagem' ? 'Quantidade no mês' : 'Valor guardado no mês (R$)';
-        document.getElementById('mtApValor').value = c.doMes || '';
-        document.getElementById('mtApHint').innerHTML = 'Pra ficar em dia com o plano: <b>' + mtFmt(m, c.porMes) + '</b> neste mês.'
-            + (c.doMes > 0 ? '<br>Hoje está registrado ' + mtFmt(m, c.doMes) + '.' : '');
-        document.getElementById('mtAporteModal').classList.add('show');
-        setTimeout(() => { const i = document.getElementById('mtApValor'); if (i) { i.focus(); i.select(); } }, 30);
-    }
-    function mtAporteClose() { document.getElementById('mtAporteModal').classList.remove('show'); mtAporteCtx = null; }
-    function mtAporteSave() {
-        if (!mtAporteCtx) return;
-        const m = mtFind(mtAporteCtx.id); if (!m) { mtAporteClose(); return; }
-        const raw = document.getElementById('mtApValor').value;
-        const v = raw === '' ? 0 : Math.max(0, Number(raw) || 0);
-        if (!m.aportes) m.aportes = {};
-        if (v > 0) m.aportes[mtAporteCtx.mes] = v; else delete m.aportes[mtAporteCtx.mes];
-        mtAporteClose();
-        metaRender(); agendaSave();
-    }
-
-    /* ── modal de meta ── */
-    function mtOpenModal(id) {
-        mtEditingId = id || null;
-        const m = id ? mtFind(id) : null;
-        document.getElementById('mtModalTitle').textContent = m ? 'Editar meta' : 'Nova meta';
-        document.getElementById('mf_nome').value = m ? (m.nome || '') : '';
-        document.getElementById('mf_icone').value = m && m.icone ? m.icone : '✈️';
-        document.getElementById('mf_tipo').value = m ? (m.tipo || 'dinheiro') : 'dinheiro';
-        document.getElementById('mf_alvo').value = m && m.alvo ? m.alvo : '';
-        document.getElementById('mf_prazo').value = m ? (m.prazo || '') : mtMesSoma(mtMesAtual(), 12);
-        document.getElementById('mf_inicial').value = m && m.inicial ? m.inicial : '';
-        document.getElementById('mf_algumdia').checked = m ? !!m.algumDia : false;
-        document.getElementById('mtDelete').classList.toggle('hidden', !m);
-        mtSyncTipoLabel();
-        document.getElementById('mtModal').classList.add('show');
-        setTimeout(() => { const i = document.getElementById('mf_nome'); if (i) i.focus(); }, 30);
-    }
-    function mtSyncTipoLabel() {
-        const tipo = document.getElementById('mf_tipo').value;
-        document.getElementById('mf_alvoLabel').textContent = tipo === 'contagem' ? 'Quero chegar em quanto' : 'Quanto custa (R$)';
-    }
-    function mtCloseModal() { document.getElementById('mtModal').classList.remove('show'); mtEditingId = null; }
-    function mtSaveModal() {
-        const nome = document.getElementById('mf_nome').value.trim();
-        const alvo = Number(document.getElementById('mf_alvo').value) || 0;
-        const prazo = document.getElementById('mf_prazo').value;
-        if (!nome) { document.getElementById('mf_nome').focus(); return; }
-        if (!alvo) { document.getElementById('mf_alvo').focus(); return; }
-        if (!prazo) { document.getElementById('mf_prazo').focus(); return; }
-        const dados = {
-            nome: nome,
-            icone: document.getElementById('mf_icone').value || '⭐',
-            tipo: document.getElementById('mf_tipo').value || 'dinheiro',
-            alvo: alvo,
-            prazo: prazo,
-            inicial: Number(document.getElementById('mf_inicial').value) || 0,
-            algumDia: document.getElementById('mf_algumdia').checked
-        };
-        if (!Array.isArray(agendaState.metas)) agendaState.metas = [];
-        if (mtEditingId) {
-            const m = mtFind(mtEditingId);
-            if (m) Object.assign(m, dados);
-        } else {
-            dados.id = mtUid('m');
-            dados.inicio = mtMesAtual();
-            dados.aportes = {};
-            dados.criadoEm = new Date().toISOString();
-            agendaState.metas.push(dados);
+        if (d.fk) {
+            const s = plSemana(d.fk, true), i = Number(d.fi);
+            if (!(i >= 0) || i >= s.foco.length) return;
+            if ((s.foco[i] || '') === txt) return;
+            if (!txt) { s.foco.splice(i, 1); planoRender(); agendaSave(); return; }
+            s.foco[i] = txt; agendaSave();
+            return;
         }
-        mtCloseModal();
-        metaRender(); agendaSave();
-    }
-    function mtDelete() {
-        if (!mtEditingId) return;
-        const m = mtFind(mtEditingId);
-        if (!confirm('Excluir a meta "' + (m ? m.nome : '') + '"? O histórico do que você guardou vai junto.')) return;
-        agendaState.metas = (agendaState.metas || []).filter(x => x.id !== mtEditingId);
-        mtCloseModal();
-        metaRender(); agendaSave();
+        if (d.k) {
+            const arr = plItens(plSemana(d.k, true), Number(d.d)), it = arr[Number(d.i)];
+            if (!it) return;
+            if ((it.t || '') === txt) return;
+            if (!txt) { arr.splice(Number(d.i), 1); planoRender(); agendaSave(); return; }
+            it.t = txt; agendaSave();
+        }
     }
 
-    (function metasInitUI() {
+    (function planoInitUI() {
         const on = (id, ev, fn) => { const el = document.getElementById(id); if (el) el.addEventListener(ev, fn); };
-        on('mtNovaBtn', 'click', () => mtOpenModal());
-        on('mtSave', 'click', mtSaveModal);
-        on('mtDelete', 'click', mtDelete);
-        on('mtCancel', 'click', mtCloseModal);
-        on('mtCancel2', 'click', mtCloseModal);
-        on('mf_tipo', 'change', mtSyncTipoLabel);
-        on('mf_nome', 'keydown', e => { if (e.key === 'Enter') { e.preventDefault(); mtSaveModal(); } });
-        on('mtApSave', 'click', mtAporteSave);
-        on('mtApCancel', 'click', mtAporteClose);
-        on('mtApCancel2', 'click', mtAporteClose);
-        on('mtApValor', 'keydown', e => { if (e.key === 'Enter') { e.preventDefault(); mtAporteSave(); } });
-        [['mtModal', mtCloseModal], ['mtAporteModal', mtAporteClose]].forEach(([id, close]) => {
-            const ov = document.getElementById(id);
-            if (ov) ov.addEventListener('click', e => { if (e.target === ov) close(); });
+        on('plFinBtn', 'click', function () { plVerFin = !plVerFin; planoRender(); });
+        on('plHojeBtn', 'click', plIrHoje);
+        on('plAddSemana', 'click', function () {
+            const p = planoEnsure();
+            if (p.total >= PL_MAX_SEMANAS) { alert('O plano já está no máximo de ' + PL_MAX_SEMANAS + ' semanas.'); return; }
+            p.total++;
+            planoRender(); agendaSave();
         });
+        on('plInicio', 'change', function (e) { plSetInicio(e.target.value); });
+        const root = document.getElementById('agViewMetas');
+        if (root) {
+            root.addEventListener('focusout', plEditBlur);
+            root.addEventListener('keydown', function (e) {
+                const t = e.target;
+                if (!t || !t.getAttribute || t.getAttribute('contenteditable') !== 'true') return;
+                if (e.key === 'Enter') { e.preventDefault(); t.blur(); }
+                else if (e.key === 'Escape') { e.preventDefault(); planoRender(); }
+            });
+        }
     })();
+
 
     /* ── Instagram no calendário: postagens feitas + consistência/crescimento ── */
     let igCalData = null, igCalLoading = false, igCalError = false, igPostsByDate = {}, igCalChart = null, igFollowersHist = [];
