@@ -9,7 +9,7 @@
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Be+Vietnam+Pro:wght@600;700&family=Montserrat:wght@600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.98.0" integrity="sha384-Sm2s7OXxsAMTyJ4iIyRBgVpeGUvMPk2lRQnnZhE78Wej7oggIoolKt+SCt0XJbUB" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
     <script src="js/auth.js"></script>
@@ -634,116 +634,157 @@
         .agenda-subbtn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
         .agenda-subnav { flex-wrap: wrap; }
 
-        /* ── Agenda: Metas (o plano, semana a semana) ── */
-        .pl-top { display: grid; grid-template-columns: 1fr 250px; gap: 14px; align-items: stretch; margin-bottom: 18px; }
-        .pl-lbl { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.9px; color: var(--text-muted); margin-bottom: 9px; }
-        .pl-frentes { background: #FFF3EA; border: 1px solid #F3E1D3; border-radius: var(--radius-lg); padding: 13px; display: grid; grid-template-columns: repeat(auto-fit, minmax(146px, 1fr)); gap: 10px; }
-        .pl-frente { position: relative; background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 12px 13px 13px; }
-        .pl-frente-num { font-size: 17px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; line-height: 1; margin-bottom: 7px; }
-        .pl-frente-nome { font-size: 13.5px; font-weight: 700; color: var(--text); line-height: 1.25; outline: none; border-radius: 5px; }
-        .pl-frente-desc { font-size: 11.8px; color: var(--text-soft); line-height: 1.45; margin-top: 5px; outline: none; border-radius: 5px; }
-        .pl-frente [contenteditable]:focus { background: var(--cream); box-shadow: 0 0 0 2px var(--accent-glow); }
-        .pl-frente-add { border: 1px dashed var(--border-strong); background: transparent; border-radius: 12px; color: var(--text-muted); font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 12.5px; cursor: pointer; min-height: 74px; transition: all 0.15s; }
-        .pl-frente-add:hover { border-color: var(--accent); color: var(--accent); }
-        .pl-fin { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 6px; text-align: left; background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: var(--radius-lg); color: var(--text); padding: 18px 20px; cursor: pointer; font-family: 'DM Sans', sans-serif; box-shadow: var(--shadow-xs); transition: all 0.15s; }
-        .pl-fin:hover { border-color: var(--border-strong); border-left-color: var(--accent); }
-        .pl-fin-t { font-size: 14px; font-weight: 700; letter-spacing: 0.2px; line-height: 1.3; }
-        .pl-fin-n { font-size: 11.5px; color: var(--text-soft); }
-        .pl-finlist { margin-bottom: 18px; }
-        .pl-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; font-size: 12.5px; color: var(--text-soft); }
-        .pl-toolbar input[type=date] { border: 1px solid var(--border); background: #fff; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 12.5px; color: var(--text); padding: 5px 8px; }
+        /* ── Agenda: Plano (hoje primeiro, resto escondido) ── */
+        /* as cores ficam no :root porque o drawer e o modal vivem fora do .pl-wrap */
+        :root { --red: #C8441A; --ink: #1B1B1B; --bege: #FFF8F2; }
+        .pl-wrap { display: flex; flex-direction: column; gap: 24px; }
+        .pl-lbl { font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text-muted); }
+        .pl-mono { font-family: 'DM Mono', ui-monospace, monospace; }
+        .pl-h { font-family: 'Be Vietnam Pro', 'DM Sans', sans-serif; font-weight: 700; letter-spacing: -0.4px; color: var(--ink); }
 
-        .pl-week { display: grid; grid-template-columns: 198px 1fr; gap: 14px; background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 14px; margin-bottom: 14px; box-shadow: var(--shadow-xs); }
-        .pl-week.feita { background: var(--cream); border-style: dashed; box-shadow: none; }
-        .pl-week.feita .pl-day { background: #fff; }
-        .pl-week.feita .pl-wname, .pl-week.feita .pl-it-t { color: var(--text-soft); }
-        .pl-week.estrela { background: #FFFBF0; border-color: #E9CE95; box-shadow: 0 0 0 2px rgba(217,164,65,0.15); }
-        .pl-week.estrela .pl-day { background: #FFF6E4; border-color: #F1DFBB; }
-        .pl-week.estrela .pl-day-lbl { color: #B07C1F; }
-        .pl-week.estrela .pl-foco-dot { background: #D9A441; }
-        .pl-week.estrela .pl-bar i { background: #D9A441; }
-        .pl-week.estrela.feita { background: #FBF7EE; }
-        .pl-week.atual { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
-        .pl-week.flash { animation: plflash 1.2s ease; }
-        @keyframes plflash { 0%, 100% { box-shadow: 0 0 0 2px var(--accent-glow); } 50% { box-shadow: 0 0 0 8px rgba(200,68,26,0.22); } }
-        .pl-wside { color: var(--text); padding: 6px 2px 4px 6px; display: flex; flex-direction: column; }
-        .pl-wmain { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-        .pl-wname { font-size: 21px; font-weight: 700; letter-spacing: -0.6px; line-height: 1.1; display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
-        .pl-star { background: none; border: none; padding: 0; margin-right: 1px; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; flex-shrink: 0; transition: all 0.15s; }
-        .pl-star svg { width: 19px; height: 19px; }
-        .pl-star:hover { color: #D9A441; transform: scale(1.15); }
-        .pl-week.estrela .pl-star { color: #D9A441; }
-        .pl-prox { display: flex; align-items: center; gap: 9px; background: #FFFBF0; border: 1px solid #E9CE95; border-left: 3px solid #D9A441; border-radius: 12px; padding: 11px 15px; margin-bottom: 14px; font-size: 13px; color: var(--text-soft); cursor: pointer; transition: border-color 0.15s; }
-        .pl-prox:hover { border-color: #D9A441; }
-        .pl-prox svg { width: 16px; height: 16px; color: #D9A441; flex-shrink: 0; }
-        .pl-prox b { color: var(--text); }
-        .pl-prox .pl-prox-quando { margin-left: auto; font-weight: 700; color: #B07C1F; white-space: nowrap; }
-        .pl-agora { background: var(--accent); color: #fff; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; padding: 3px 7px; border-radius: 20px; }
-        .pl-wdate { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
-        .pl-foco { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 4px 18px; padding: 0 2px; }
-        .pl-foco-it { flex: 0 1 auto; max-width: 430px; }
-        .pl-foco-it { display: flex; gap: 6px; align-items: flex-start; font-size: 11.8px; line-height: 1.4; color: var(--text-soft); }
-        .pl-foco-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 6px; }
-        .pl-foco-t { outline: none; border-radius: 5px; flex: 1; min-width: 0; word-break: break-word; }
-        .pl-foco-t:focus { background: var(--cream); box-shadow: 0 0 0 2px var(--accent-glow); }
-        .pl-bar { height: 5px; border-radius: 5px; background: var(--warm, #F0E7DD); overflow: hidden; margin-top: 13px; }
-        .pl-bar i { display: block; height: 100%; background: var(--accent); border-radius: 5px; transition: width 0.25s; }
-        .pl-wmeta { font-size: 11.5px; color: var(--text-muted); margin-top: 6px; }
-        .pl-wbtns { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 9px; }
-        .pl-btn { background: var(--cream); border: 1px solid var(--border); color: var(--text-soft); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 11.5px; font-weight: 700; padding: 6px 10px; cursor: pointer; transition: all 0.15s; }
-        .pl-btn:hover { border-color: var(--border-strong); color: var(--text); }
-        .pl-btn.ok { background: var(--accent); border-color: var(--accent); color: #fff; }
-        .pl-btn.ok:hover { background: var(--accent-dark); border-color: var(--accent-dark); color: #fff; }
+        /* 1. HOJE */
+        .pl-hoje { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--red); border-radius: 16px; padding: 24px 24px 16px; }
+        .pl-hoje-top { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+        .pl-hoje-data { font-family: 'DM Mono', ui-monospace, monospace; font-size: 13px; color: var(--red); text-transform: lowercase; }
+        .pl-hoje-cont { font-family: 'DM Mono', ui-monospace, monospace; font-size: 13px; color: var(--text-muted); }
+        .pl-hoje-tit { font-family: 'Be Vietnam Pro', 'DM Sans', sans-serif; font-size: 24px; font-weight: 700; letter-spacing: -0.6px; color: var(--ink); line-height: 1.25; margin-top: 8px; }
+        .pl-hoje-foco { font-size: 14px; color: var(--text-soft); line-height: 1.5; margin-top: 8px; }
+        .pl-hoje-lista { display: flex; flex-direction: column; gap: 8px; margin-top: 24px; }
+        .pl-hoje-vazio { text-align: center; padding: 40px 16px; font-size: 16px; color: var(--text-soft); }
 
-        .pl-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
-        .pl-day { background: var(--cream); border: 1px solid var(--border); border-radius: 13px; padding: 11px 10px 8px; display: flex; flex-direction: column; min-height: 118px; }
-        .pl-day.hoje { border-color: var(--accent); background: #FFF3EA; }
-        .pl-day-lbl { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.9px; color: var(--accent); margin-bottom: 8px; display: flex; justify-content: space-between; gap: 4px; }
-        .pl-day-lbl span { color: var(--text-muted); letter-spacing: 0; }
-        .pl-items { display: flex; flex-direction: column; gap: 6px; flex: 1; }
-        .pl-it { display: flex; align-items: flex-start; gap: 6px; }
-        .pl-chk { flex-shrink: 0; width: 14px; height: 14px; margin-top: 2px; border-radius: 4px; border: 1.5px solid var(--border-strong); background: #fff; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
-        .pl-chk:hover { border-color: var(--accent); }
-        .pl-chk svg { width: 9px; height: 9px; color: #fff; opacity: 0; }
-        .pl-it.ok .pl-chk { background: var(--accent); border-color: var(--accent); }
-        .pl-it.ok .pl-chk svg { opacity: 1; }
-        .pl-it-t { display: block; font-size: 12px; line-height: 1.35; color: var(--text); outline: none; border-radius: 5px; word-break: break-word; }
-        .pl-it-t:focus { background: #fff; box-shadow: 0 0 0 2px var(--accent-glow); }
-        .pl-it.ok .pl-it-t { color: var(--text-muted); text-decoration: line-through; }
-        .pl-x { background: none; border: none; color: var(--text-muted); font-size: 15px; line-height: 1; cursor: pointer; padding: 0 2px; opacity: 0; transition: all 0.15s; }
-        .pl-it:hover .pl-x, .pl-foco-it:hover .pl-x, .pl-frente:hover .pl-x-f { opacity: 1; }
-        .pl-x:hover { color: var(--error); }
-        .pl-x-f { position: absolute; top: 5px; right: 6px; color: var(--text-muted); }
-        .pl-x-f:hover { color: var(--error); }
-        .pl-add { background: none; border: none; color: var(--text-muted); font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700; cursor: pointer; padding: 6px 0 2px; text-align: left; transition: color 0.15s; }
-        .pl-add:hover { color: var(--accent); }
-        .pl-wtit { font-size: 12.5px; font-weight: 700; line-height: 1.35; color: var(--text-soft); margin-top: 7px; outline: none; border-radius: 5px; word-break: break-word; }
-        .pl-wtit:focus { background: var(--cream); box-shadow: 0 0 0 2px var(--accent-glow); }
-        .pl-wtit:empty::before, .pl-lbl:empty::before, #plRegra:empty::before { content: attr(data-ph); color: var(--text-muted); font-weight: 400; }
-        .pl-foco-it .pl-chk { margin-top: 1px; }
-        .pl-foco-it.ok .pl-foco-t { color: var(--text-muted); text-decoration: line-through; }
-        .pl-lbl[contenteditable] { outline: none; border-radius: 5px; }
-        .pl-lbl[contenteditable]:focus { background: #fff; box-shadow: 0 0 0 2px var(--accent-glow); }
-        .pl-regra { display: flex; align-items: baseline; gap: 12px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 11px 15px; margin-bottom: 16px; font-size: 12.5px; line-height: 1.5; color: var(--text-soft); }
-        .pl-regra > span { flex: 0 0 auto; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.9px; color: var(--accent); }
-        .pl-regra > div { flex: 1; min-width: 0; outline: none; border-radius: 5px; }
-        .pl-regra > div:focus { background: var(--cream); box-shadow: 0 0 0 2px var(--accent-glow); }
-        .pl-it-body { flex: 1; min-width: 0; }
-        .pl-tag { display: inline-block; margin-bottom: 3px; font-size: 8.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; color: #fff; background: var(--accent); border-radius: 4px; padding: 2px 5px; line-height: 1.3; }
-        .pl-it.canal { background: #FFF1EA; border-radius: 8px; padding: 7px 7px 6px; margin: 1px -3px; }
-        .pl-it.canal.ok { background: transparent; }
-        .pl-it.canal.ok .pl-tag { background: var(--text-muted); }
-        .pl-week.estrela .pl-it.canal { background: #FDF0D9; }
-        .pl-addrow { display: flex; gap: 10px; flex-wrap: wrap; }
-        .pl-vazio { text-align: center; padding: 34px 18px; color: var(--text-muted); font-size: 13.5px; }
+        /* tarefa: GRANDE, ROTINA e CANAL */
+        .pl-t { display: flex; align-items: flex-start; gap: 12px; padding: 8px 0; }
+        .pl-t-chk { flex-shrink: 0; width: 22px; height: 22px; margin-top: 1px; border-radius: 7px; border: 2px solid var(--red); background: #fff; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; transition: background 0.12s; }
+        .pl-t-chk svg { width: 12px; height: 12px; color: #fff; opacity: 0; }
+        .pl-t-chk:hover { background: rgba(200,68,26,0.08); }
+        .pl-t-txt { flex: 1; min-width: 0; font-size: 16px; font-weight: 600; line-height: 1.45; color: var(--ink); outline: none; border-radius: 6px; word-break: break-word; }
+        .pl-t-txt:focus { background: var(--bege); box-shadow: 0 0 0 2px var(--accent-glow); }
+        .pl-t.ok .pl-t-chk { background: var(--red); border-color: var(--red); }
+        .pl-t.ok .pl-t-chk svg { opacity: 1; }
+        .pl-t.rotina .pl-t-chk { width: 18px; height: 18px; border-width: 1.5px; border-color: var(--border-strong); border-radius: 6px; margin-top: 2px; }
+        .pl-t.rotina .pl-t-chk:hover { background: var(--bege); }
+        .pl-t.rotina.ok .pl-t-chk { background: var(--text-muted); border-color: var(--text-muted); }
+        .pl-t.rotina .pl-t-txt { font-size: 14px; font-weight: 400; color: var(--text-soft); }
+        .pl-t-del { flex-shrink: 0; background: none; border: none; color: var(--text-muted); font-size: 18px; line-height: 1; cursor: pointer; padding: 0 4px; opacity: 0; transition: all 0.12s; }
+        .pl-t:hover .pl-t-del { opacity: 1; }
+        .pl-t-del:hover { color: var(--error); }
 
-        @media (max-width: 1180px) {
-            .pl-week { grid-template-columns: 1fr; }
-            .pl-days { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-        }
-        @media (max-width: 860px) {
-            .pl-top { grid-template-columns: 1fr; }
-            .pl-days { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .pl-canal { display: flex; align-items: flex-start; gap: 12px; background: var(--ink); border-radius: 12px; padding: 16px; margin: 8px 0; }
+        .pl-canal .pl-t-chk { border-color: rgba(255,255,255,0.45); background: transparent; }
+        .pl-canal .pl-t-chk:hover { background: rgba(255,255,255,0.12); }
+        .pl-canal.ok .pl-t-chk { background: #fff; border-color: #fff; }
+        .pl-canal.ok .pl-t-chk svg { color: var(--ink); }
+        .pl-canal-body { flex: 1; min-width: 0; }
+        .pl-canal-lbl { font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--red); display: block; margin-bottom: 8px; }
+        .pl-canal-txt { display: block; font-size: 15px; line-height: 1.5; color: #fff; outline: none; border-radius: 6px; word-break: break-word; }
+        .pl-canal-txt:focus { background: rgba(255,255,255,0.1); }
+        .pl-canal.ok .pl-canal-txt { color: rgba(255,255,255,0.5); text-decoration: line-through; }
+        .pl-canal .pl-t-del { color: rgba(255,255,255,0.45); }
+
+        .pl-mais { background: none; border: none; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; padding: 8px 0; text-align: left; }
+        .pl-mais:hover { color: var(--red); }
+        .pl-feitas { border-top: 1px solid var(--border); margin-top: 16px; padding-top: 8px; }
+        .pl-feitas-lbl { font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text-muted); margin-bottom: 8px; }
+        .pl-feita { display: block; font-size: 13px; color: var(--text-muted); text-decoration: line-through; padding: 4px 0; cursor: pointer; line-height: 1.45; }
+        .pl-feita:hover { color: var(--text-soft); }
+
+        /* 2. SEMANA ATUAL */
+        .pl-sem { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
+        .pl-sem-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+        .pl-sem-nome { font-family: 'Be Vietnam Pro', 'DM Sans', sans-serif; font-size: 16px; font-weight: 700; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+        .pl-sem-datas { font-family: 'DM Mono', ui-monospace, monospace; font-size: 13px; color: var(--text-muted); }
+        .pl-star { background: none; border: none; padding: 0; cursor: pointer; color: var(--text-muted); display: flex; transition: color 0.12s; }
+        .pl-star svg { width: 18px; height: 18px; }
+        .pl-star.on, .pl-star:hover { color: var(--red); }
+        .pl-sem-acoes { display: flex; gap: 8px; flex-wrap: wrap; }
+        .pl-btn { background: var(--bege); border: 1px solid var(--border); color: var(--text-soft); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; padding: 8px 16px; cursor: pointer; transition: all 0.12s; }
+        .pl-btn:hover { border-color: var(--border-strong); color: var(--ink); }
+        .pl-btn.forte { background: var(--red); border-color: var(--red); color: #fff; }
+        .pl-btn.forte:hover { background: var(--accent-dark); border-color: var(--accent-dark); color: #fff; }
+
+        .pl-pills { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+        .pl-pill { display: flex; flex-direction: column; align-items: center; gap: 4px; background: var(--bege); border: 1px solid var(--border); border-radius: 12px; padding: 12px 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.12s; }
+        .pl-pill:hover { border-color: var(--red); }
+        .pl-pill-dia { font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); }
+        .pl-pill-num { font-family: 'DM Mono', ui-monospace, monospace; font-size: 16px; font-weight: 500; color: var(--ink); }
+        .pl-pill-n { font-family: 'DM Mono', ui-monospace, monospace; font-size: 13px; color: var(--text-muted); }
+        .pl-pill.hoje { background: var(--red); border-color: var(--red); }
+        .pl-pill.hoje .pl-pill-dia, .pl-pill.hoje .pl-pill-num, .pl-pill.hoje .pl-pill-n { color: #fff; }
+        .pl-pill.completo .pl-pill-n { color: var(--red); }
+        .pl-pill.futuro { opacity: 0.6; }
+        .pl-pill.futuro .pl-pill-num { color: var(--text-muted); }
+
+        .pl-metas-sem { display: flex; flex-direction: column; gap: 8px; margin-top: 24px; border-top: 1px solid var(--border); padding-top: 16px; }
+        .pl-marcada { font-size: 13px; color: var(--red); margin-top: 16px; }
+
+        /* 3. METAS */
+        .pl-blk { background: #fff; border: 1px solid var(--border); border-radius: 16px; }
+        .pl-blk-btn { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px; background: none; border: none; padding: 16px 24px; cursor: pointer; font-family: 'DM Sans', sans-serif; text-align: left; }
+        .pl-blk-btn .pl-h { font-size: 16px; }
+        .pl-blk-btn .seta { font-size: 13px; color: var(--text-muted); font-family: 'DM Mono', ui-monospace, monospace; }
+        .pl-blk-body { padding: 0 24px 24px; }
+        .pl-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+        .pl-card { background: var(--bege); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+        .pl-card-nome { font-family: 'Be Vietnam Pro', 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; color: var(--ink); }
+        .pl-card-num { font-family: 'DM Mono', ui-monospace, monospace; font-size: 20px; color: var(--ink); margin-top: 8px; }
+        .pl-card-num b { color: var(--red); font-weight: 500; }
+        .pl-card-un { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+        .pl-card-bar { height: 4px; border-radius: 4px; background: #F0E7DD; overflow: hidden; margin-top: 8px; }
+        .pl-card-bar i { display: block; height: 100%; background: var(--red); }
+        .pl-card [contenteditable] { outline: none; border-radius: 4px; }
+        .pl-card [contenteditable]:focus { background: #fff; box-shadow: 0 0 0 2px var(--accent-glow); }
+        .pl-din { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px; background: var(--bege); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+        .pl-din-item .pl-lbl { font-size: 13px; letter-spacing: 1px; }
+        .pl-din-val { font-family: 'DM Mono', ui-monospace, monospace; font-size: 18px; color: var(--ink); margin-top: 8px; outline: none; border-radius: 4px; }
+        .pl-din-val:focus { background: #fff; box-shadow: 0 0 0 2px var(--accent-glow); }
+        .pl-meses { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-top: 16px; }
+        .pl-mes-nome { font-family: 'Be Vietnam Pro', 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; color: var(--red); }
+        .pl-mes-txt { font-size: 13px; color: var(--text-soft); line-height: 1.5; margin-top: 4px; }
+        .pl-regra { font-size: 13px; color: var(--text-soft); line-height: 1.6; margin-top: 24px; border-top: 1px solid var(--border); padding-top: 16px; }
+
+        /* 4. SEMANAS FINALIZADAS */
+        .pl-fim-bar { display: flex; gap: 4px; padding: 16px 24px 0; }
+        .pl-fim-bar i { flex: 1; height: 4px; border-radius: 4px; background: #F0E7DD; }
+        .pl-fim-bar i.ok { background: var(--red); }
+        .pl-fim-linha { display: flex; align-items: center; gap: 16px; width: 100%; background: none; border: none; border-top: 1px solid var(--border); padding: 16px 24px; cursor: pointer; font-family: 'DM Sans', sans-serif; text-align: left; transition: background 0.12s; }
+        .pl-fim-linha:hover { background: var(--bege); }
+        .pl-fim-n { font-family: 'DM Mono', ui-monospace, monospace; font-size: 13px; color: var(--text-muted); flex-shrink: 0; }
+        .pl-fim-txt { flex: 1; min-width: 0; font-size: 14px; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .pl-fim-cont { font-family: 'DM Mono', ui-monospace, monospace; font-size: 13px; color: var(--red); flex-shrink: 0; }
+
+        /* drawer do dia */
+        .pl-dr-ov { position: fixed; inset: 0; background: rgba(27,27,27,0.4); opacity: 0; pointer-events: none; transition: opacity 0.16s; z-index: 800; }
+        .pl-dr-ov.on { opacity: 1; pointer-events: auto; }
+        .pl-dr { position: fixed; top: 0; right: 0; bottom: 0; width: 420px; max-width: 92vw; background: #fff; border-left: 1px solid var(--border); transform: translateX(100%); transition: transform 0.2s ease; z-index: 801; display: flex; flex-direction: column; }
+        .pl-dr.on { transform: none; }
+        .pl-dr-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 24px; border-bottom: 1px solid var(--border); }
+        .pl-dr-tit { font-family: 'Be Vietnam Pro', 'DM Sans', sans-serif; font-size: 18px; font-weight: 700; color: var(--ink); }
+        .pl-dr-data { font-family: 'DM Mono', ui-monospace, monospace; font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+        .pl-dr-x { background: none; border: none; font-size: 24px; line-height: 1; color: var(--text-muted); cursor: pointer; padding: 0 4px; }
+        .pl-dr-x:hover { color: var(--ink); }
+        .pl-dr-body { flex: 1; overflow-y: auto; padding: 16px 24px 24px; }
+        .pl-dr-add { display: flex; gap: 8px; flex-wrap: wrap; padding: 16px 24px; border-top: 1px solid var(--border); }
+
+        /* modal de finalizar semana */
+        .pl-mod-ov { position: fixed; inset: 0; background: rgba(27,27,27,0.4); display: none; align-items: center; justify-content: center; padding: 24px; z-index: 900; }
+        .pl-mod-ov.on { display: flex; }
+        .pl-mod { background: #fff; border-radius: 16px; padding: 24px; max-width: 440px; width: 100%; }
+        .pl-mod p { font-size: 14px; color: var(--text-soft); line-height: 1.6; margin-top: 8px; }
+        .pl-mod-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 24px; }
+
+        /* navegacao de baixo, so no celular */
+        .pl-mobnav { display: none; }
+        @media (max-width: 760px) {
+            .pl-wrap { gap: 16px; padding-bottom: 72px; }
+            .pl-sec { display: none; }
+            .pl-sec.on { display: block; }
+            .pl-hoje { border-radius: 12px; padding: 16px 16px 8px; }
+            .pl-hoje-tit { font-size: 20px; }
+            .pl-pills { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+            .pl-din { grid-template-columns: 1fr; }
+            .pl-mobnav { display: grid; grid-template-columns: repeat(4, 1fr); position: fixed; left: 0; right: 0; bottom: 0; background: #fff; border-top: 1px solid var(--border); z-index: 700; }
+            .pl-mobnav button { background: none; border: none; padding: 12px 4px; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); cursor: pointer; border-top: 2px solid transparent; }
+            .pl-mobnav button.on { color: var(--red); border-top-color: var(--red); }
         }
 
         /* ── Agenda: Metas (sonhos) e Lançamentos ── */
@@ -1244,34 +1285,74 @@
         </div>
     </div>
 
-    <!-- VIEW: METAS (o plano, semana a semana) -->
+    <!-- VIEW: PLANO (hoje primeiro, resto escondido) -->
     <div id="agViewMetas" style="display:none">
-        <div class="pl-top">
-            <div>
-                <div class="pl-lbl" id="plTopoTitulo" contenteditable="true" spellcheck="false" data-topo="titulo"></div>
-                <div class="pl-frentes" id="plFrentes"></div>
-            </div>
-            <button class="pl-fin" id="plFinBtn" type="button">
-                <span class="pl-fin-t">Semanas já finalizadas</span>
-                <span class="pl-fin-n" id="plFinN">0</span>
-            </button>
+        <div class="pl-wrap">
+
+            <!-- 1. HOJE -->
+            <section class="pl-sec on" id="plSecHoje">
+                <div class="pl-hoje" id="plHoje"></div>
+            </section>
+
+            <!-- 2. SEMANA ATUAL -->
+            <section class="pl-sec" id="plSecSem">
+                <div class="pl-sem" id="plSem"></div>
+            </section>
+
+            <!-- 3. METAS -->
+            <section class="pl-sec" id="plSecMetas">
+                <div class="pl-blk">
+                    <button class="pl-blk-btn" id="plMetasBtn" type="button">
+                        <span class="pl-h">Ver metas até janeiro</span>
+                        <span class="seta" id="plMetasSeta">+</span>
+                    </button>
+                    <div class="pl-blk-body" id="plMetasBody" style="display:none"></div>
+                </div>
+            </section>
+
+            <!-- 4. SEMANAS FINALIZADAS -->
+            <section class="pl-sec" id="plSecFim">
+                <div class="pl-blk" id="plFim" style="display:none"></div>
+            </section>
         </div>
 
-        <div class="pl-regra"><span>Não muda em nenhum mês</span><div id="plRegra" contenteditable="true" spellcheck="false" data-topo="regra" data-ph="a regra que vale toda semana"></div></div>
+        <nav class="pl-mobnav" id="plMobnav">
+            <button type="button" data-sec="Hoje" class="on">Hoje</button>
+            <button type="button" data-sec="Sem">Semana</button>
+            <button type="button" data-sec="Metas">Metas</button>
+            <button type="button" data-sec="Fim">Feitas</button>
+        </nav>
+    </div>
+</div>
 
-        <div class="pl-finlist" id="plFinList" style="display:none"></div>
-
-        <div class="pl-toolbar">
-            <span>Semana 1 começa em</span>
-            <input type="date" id="plInicio">
-            <span id="plPeriodo"></span>
-            <span style="flex:1"></span>
-            <button class="ag-btn-ghost-sm" id="plHojeBtn" type="button">Ir pra semana de hoje</button>
-            <button class="ag-btn-ghost-sm" id="plAddSemana" type="button">+ Semana</button>
+<!-- Drawer: o dia aberto -->
+<div class="pl-dr-ov" id="plDrOv"></div>
+<aside class="pl-dr" id="plDr" aria-hidden="true">
+    <div class="pl-dr-top">
+        <div>
+            <div class="pl-dr-tit" id="plDrTit">Dia</div>
+            <div class="pl-dr-data" id="plDrData"></div>
         </div>
+        <button class="pl-dr-x" id="plDrX" type="button" aria-label="Fechar">&times;</button>
+    </div>
+    <div class="pl-dr-body" id="plDrBody"></div>
+    <div class="pl-dr-add" id="plDrAdd">
+        <button class="pl-btn" type="button" onclick="plDrNovo('grande')">+ Tarefa</button>
+        <button class="pl-btn" type="button" onclick="plDrNovo('rotina')">+ Rotina</button>
+        <button class="pl-btn" type="button" onclick="plDrNovo('canal')">+ Canal</button>
+    </div>
+</aside>
 
-        <div class="pl-prox" id="plProx" style="display:none"></div>
-        <div id="plSemanas"></div>
+<!-- Modal: finalizar semana com pendencia -->
+<div class="pl-mod-ov" id="plFimMod">
+    <div class="pl-mod">
+        <div class="pl-h" style="font-size:18px">Finalizar a semana</div>
+        <p id="plFimModTxt"></p>
+        <div class="pl-mod-btns">
+            <button class="pl-btn forte" type="button" onclick="plFinalizarConfirma('mover')">Mover pra próxima semana</button>
+            <button class="pl-btn" type="button" onclick="plFinalizarConfirma('deixar')">Deixar pra trás</button>
+            <button class="pl-btn" type="button" onclick="plFimModFechar()">Cancelar</button>
+        </div>
     </div>
 </div>
 
@@ -5553,34 +5634,47 @@
         else if (sub === 'metas') planoRender();
     }
 
-    /* ═══════════════ METAS: o plano, semana a semana ═══════════════ */
-    /* Conteúdo do plano fica SÓ no Supabase (admin.html é público). Aqui é só a estrutura. */
+    /* ═══════════════ PLANO: hoje primeiro, o resto escondido ═══════════════ */
+    /* Conteudo do plano fica SO no Supabase (admin.html e publico). Aqui e' so a estrutura. */
     const PL_DIAS = [
-        { n: 1, nome: 'Segunda' }, { n: 2, nome: 'Terça' }, { n: 3, nome: 'Quarta' },
-        { n: 4, nome: 'Quinta' }, { n: 5, nome: 'Sexta' }, { n: 6, nome: 'Sábado' }, { n: 7, nome: 'Domingo' }
+        { n: 1, nome: 'Seg', longo: 'Segunda' }, { n: 2, nome: 'Ter', longo: 'Terça' },
+        { n: 3, nome: 'Qua', longo: 'Quarta' }, { n: 4, nome: 'Qui', longo: 'Quinta' },
+        { n: 5, nome: 'Sex', longo: 'Sexta' }, { n: 6, nome: 'Sáb', longo: 'Sábado' },
+        { n: 7, nome: 'Dom', longo: 'Domingo' }
     ];
     const PL_MES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
     const PL_MAX_SEMANAS = 60;
-    const PL_STAR_SVG = function (cheia) { return '<svg viewBox="0 0 24 24" fill="' + (cheia ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2.6 15 9 22 9.9 17 14.7 18.2 21.6 12 18.3 5.8 21.6 7 14.7 2 9.9 9 9"/></svg>'; };
-    const PL_CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
-    let plVerFin = false;
+    const PL_HOJE_MAX = 5;           /* no maximo 5 tarefas visiveis no bloco Hoje */
+    const PL_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    const PL_STAR = function (on) { return '<svg viewBox="0 0 24 24" fill="' + (on ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2.6 15 9 22 9.9 17 14.7 18.2 21.6 12 18.3 5.8 21.6 7 14.7 2 9.9 9 9"/></svg>'; };
+    /* rotina fixa que o botao "Gerar rotina fixa" escreve */
+    const PL_ROTINA_FIXA = [
+        { dow: 1, tipo: 'canal', t: 'Oportunidade ou prazo: marca, data comercial, edital' },
+        { dow: 2, tipo: 'rotina', t: 'Carrossel no @eilaradam' },
+        { dow: 3, tipo: 'canal', t: 'Bastidor ou ferramenta: o que está gravando, um prompt, um print do admin' },
+        { dow: 4, tipo: 'rotina', t: 'Carrossel no @eilaradam' },
+        { dow: 5, tipo: 'canal', t: 'Resultado ou convite: aluna, número, próxima aula' },
+        { dow: 6, tipo: 'rotina', t: 'Reel no @eilaradam' }
+    ];
+
+    let plMetasAberto = false, plVerRotina = {}, plDrCtx = null, plFimPend = null, plMobSec = 'Hoje';
 
     function plUid() { return 'p_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
-    function plAdd(ds, n) {
-        const d = new Date(ds + 'T12:00:00');
-        d.setDate(d.getDate() + n);
-        return calDateStr(d.getFullYear(), d.getMonth(), d.getDate());
-    }
-    function plSegundaDe(ds) {
-        const d = new Date(ds + 'T12:00:00');
-        d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-        return calDateStr(d.getFullYear(), d.getMonth(), d.getDate());
-    }
-    function plDiaMes(ds) { const p = ds.split('-'); return String(Number(p[2])) + ' ' + PL_MES[Number(p[1]) - 1]; }
+    function plAdd(ds, n) { const d = new Date(ds + 'T12:00:00'); d.setDate(d.getDate() + n); return calDateStr(d.getFullYear(), d.getMonth(), d.getDate()); }
+    function plSegundaDe(ds) { const d = new Date(ds + 'T12:00:00'); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return calDateStr(d.getFullYear(), d.getMonth(), d.getDate()); }
+    function plDow(ds) { const d = new Date(ds + 'T12:00:00'); return ((d.getDay() + 6) % 7) + 1; }
+    function plDiaMes(ds) { const q = ds.split('-'); return String(Number(q[2])) + ' ' + PL_MES[Number(q[1]) - 1]; }
     function plRange(key) {
         const fim = plAdd(key, 6), a = key.split('-'), b = fim.split('-');
         return (a[1] === b[1] ? String(Number(a[2])) : plDiaMes(key)) + ' a ' + plDiaMes(fim);
     }
+    function plPorExtenso(ds) {
+        const d = new Date(ds + 'T12:00:00');
+        const s = d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
+        return s.replace('-feira', '');
+    }
+    function plBRL(v) { return (Number(v) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }); }
+    function plSoNum(s) { return Number(String(s == null ? '' : s).replace(/[^\d]/g, '')) || 0; }
 
     function planoEnsure() {
         const p = (agendaState.plano && typeof agendaState.plano === 'object' && !Array.isArray(agendaState.plano)) ? agendaState.plano : {};
@@ -5589,8 +5683,9 @@
         const t = Math.round(Number(p.total));
         p.total = (isFinite(t) && t > 0) ? Math.min(PL_MAX_SEMANAS, t) : 12;
         if (!Array.isArray(p.frentes)) p.frentes = [];
-        if (typeof p.topoTitulo !== 'string') p.topoTitulo = 'As frentes: o que precisa existir no fim do plano';
+        if (!Array.isArray(p.meses)) p.meses = [];
         if (typeof p.regra !== 'string') p.regra = '';
+        if (!p.dinheiro || typeof p.dinheiro !== 'object' || Array.isArray(p.dinheiro)) p.dinheiro = {};
         if (!p.semanas || typeof p.semanas !== 'object' || Array.isArray(p.semanas)) p.semanas = {};
         agendaState.plano = p;
         return p;
@@ -5602,7 +5697,7 @@
         out.sort();
         return out;
     }
-    /* criar=true devolve o objeto de verdade (gravável); sem criar, devolve um vazio só pra ler */
+    /* criar=true devolve o objeto gravavel; sem criar, um vazio so pra ler */
     function plSemana(key, criar) {
         const p = planoEnsure();
         let s = p.semanas[key];
@@ -5612,178 +5707,322 @@
             p.semanas[key] = s;
         }
         if (!Array.isArray(s.foco)) s.foco = [];
-        /* foco era so texto; virou item com check. converte na hora de ler. */
         s.foco = s.foco.map(f => (f && typeof f === 'object') ? { t: String(f.t || ''), ok: !!f.ok } : { t: String(f == null ? '' : f), ok: false });
         if (!s.dias || typeof s.dias !== 'object' || Array.isArray(s.dias)) s.dias = {};
         if (typeof s.titulo !== 'string') s.titulo = '';
         s.estrela = !!s.estrela;
+        s.feita = !!s.feita;
         return s;
     }
     function plItens(s, dow) { const a = s.dias[String(dow)]; return Array.isArray(a) ? a : []; }
+    function plTipo(it) { return (it && (it.tipo === 'canal' || it.tipo === 'rotina')) ? it.tipo : 'grande'; }
+    function plProgDia(s, dow) {
+        const arr = plItens(s, dow);
+        return { t: arr.length, ok: arr.filter(i => i.ok).length };
+    }
     function plProgresso(s) {
         let t = 0, ok = 0;
         s.foco.forEach(f => { if (f.t) { t++; if (f.ok) ok++; } });
         PL_DIAS.forEach(d => plItens(s, d.n).forEach(i => { t++; if (i.ok) ok++; }));
-        return { t: t, ok: ok, pct: t ? Math.round(ok * 100 / t) : 0 };
+        return { t: t, ok: ok };
+    }
+    /* a semana que a tela mostra: a de hoje se ainda aberta, senao a proxima aberta */
+    function plSemanaAtiva() {
+        const hoje = plSegundaDe(agendaTodayStr());
+        const abertas = plChaves().filter(k => !plSemana(k).feita);
+        if (abertas.indexOf(hoje) > -1) return hoje;
+        return abertas.find(k => k > hoje) || abertas[abertas.length - 1] || hoje;
     }
 
     function planoRender() {
-        const p = planoEnsure();
-        const root = document.getElementById('plSemanas');
-        if (!root) return;
-        plRenderFrentes();
+        if (!document.getElementById('plHoje')) return;
+        planoEnsure();
+        plHojeRender();
+        plSemRender();
+        plMetasRender();
+        plFimRender();
+        plMobAplica();
+    }
 
-        const hojeKey = plSegundaDe(agendaTodayStr());
-        const chaves = plChaves();
-        const num = {};
-        chaves.forEach((k, i) => { num[k] = i + 1; });
-        const abertas = chaves.filter(k => !plSemana(k).feita);
-        const fechadas = chaves.filter(k => plSemana(k).feita);
+    /* ───────── 1. HOJE ───────── */
+    function plHojeRender() {
+        const el = document.getElementById('plHoje');
+        const hoje = agendaTodayStr(), key = plSegundaDe(hoje), dow = plDow(hoje);
+        const s = plSemana(key);
+        const itens = plItens(s, dow);
+        const pend = itens.filter(i => !i.ok), feitas = itens.filter(i => i.ok);
+        const prog = plProgDia(s, dow);
 
-        const ini = document.getElementById('plInicio');
-        if (ini && ini.value !== p.inicio) ini.value = p.inicio;
-        const per = document.getElementById('plPeriodo');
-        if (per) per.textContent = '· ' + chaves.length + (chaves.length === 1 ? ' semana, até ' : ' semanas, até ') + plDiaMes(plAdd(chaves[chaves.length - 1] || p.inicio, 6));
+        let topo = '<div class="pl-hoje-top"><span class="pl-hoje-data">' + agendaEsc(plPorExtenso(hoje)) + '</span>';
+        if (prog.t) topo += '<span class="pl-hoje-cont">' + (prog.ok ? prog.ok + ' de ' + prog.t + ' feito hoje' : prog.t + ' pra hoje') + '</span>';
+        topo += '</div>';
 
-        const nFin = document.getElementById('plFinN');
-        if (nFin) nFin.textContent = fechadas.length + (fechadas.length === 1 ? ' semana' : ' semanas') + (plVerFin ? ' · tocar pra fechar' : '');
-
-        root.innerHTML = abertas.length
-            ? abertas.map(k => plWeekHtml(k, num[k], hojeKey)).join('')
-            : '<div class="pl-vazio">Todas as semanas do plano estão finalizadas. Toque em <b>+ Semana</b> pra continuar.</div>';
-
-        plRenderProxima(chaves, num, hojeKey);
-
-        const fl = document.getElementById('plFinList');
-        if (fl) {
-            fl.style.display = plVerFin ? '' : 'none';
-            fl.innerHTML = plVerFin
-                ? (fechadas.length ? fechadas.map(k => plWeekHtml(k, num[k], hojeKey)).join('') : '<div class="pl-vazio">Nenhuma semana finalizada ainda.</div>')
-                : '';
+        const foco1 = s.foco.map(f => f.t).filter(Boolean)[0] || '';
+        let cab = '';
+        if (s.titulo || foco1) {
+            cab = (s.titulo ? '<div class="pl-hoje-tit">' + agendaEsc(s.titulo) + '</div>' : '')
+                + (foco1 ? '<div class="pl-hoje-foco">' + agendaEsc(foco1) + '</div>' : '');
         }
+
+        let corpo;
+        if (s.feita) {
+            const prox = plSemanaAtiva();
+            el.innerHTML = topo + cab
+                + '<div class="pl-hoje-vazio">Semana finalizada.' + (prox > key ? ' A próxima começa em ' + plDiaMes(prox) + '.' : '') + '</div>';
+            return;
+        }
+        if (!itens.length) {
+            corpo = '<div class="pl-hoje-vazio">' + (dow === 7 ? 'Folga. Nada agendado de propósito.' : 'Nada marcado pra hoje.') + '</div>';
+        } else if (!pend.length) {
+            corpo = '<div class="pl-hoje-vazio">Tudo feito hoje.</div>';
+        } else {
+            const grandes = pend.filter(i => plTipo(i) !== 'rotina');
+            const rotinas = pend.filter(i => plTipo(i) === 'rotina');
+            const verR = !!plVerRotina[hoje];
+            let mostrar = grandes.slice(0, PL_HOJE_MAX);
+            const sobra = grandes.length - mostrar.length;
+            let html = mostrar.map(it => plTarefaHtml(key, dow, itens.indexOf(it))).join('');
+            if (sobra > 0) html += '<button class="pl-mais" type="button" onclick="plDrAbrir(\'' + key + '\',' + dow + ')">+' + sobra + ' no dia, ver tudo</button>';
+            if (rotinas.length) {
+                html += verR
+                    ? rotinas.map(it => plTarefaHtml(key, dow, itens.indexOf(it))).join('')
+                      + '<button class="pl-mais" type="button" onclick="plToggleRotina(\'' + hoje + '\')">esconder rotina</button>'
+                    : '<button class="pl-mais" type="button" onclick="plToggleRotina(\'' + hoje + '\')">+' + rotinas.length + ' rotina</button>';
+            }
+            corpo = '<div class="pl-hoje-lista">' + html + '</div>';
+        }
+
+        let rodape = '';
+        if (feitas.length) {
+            rodape = '<div class="pl-feitas"><div class="pl-feitas-lbl">Feitas</div>'
+                + feitas.map(it => '<div class="pl-feita" onclick="plItemToggle(\'' + key + '\',' + dow + ',' + itens.indexOf(it) + ')" title="desmarcar">' + agendaEsc(it.t || '') + '</div>').join('')
+                + '</div>';
+        }
+        el.innerHTML = topo + cab + corpo + rodape;
     }
 
-    function plRenderFrentes() {
+    function plTarefaHtml(key, dow, i) {
+        const it = plItens(plSemana(key), dow)[i];
+        if (!it) return '';
+        const tipo = plTipo(it);
+        const chk = '<button class="pl-t-chk" type="button" onclick="plItemToggle(\'' + key + '\',' + dow + ',' + i + ')" aria-label="Marcar">' + PL_CHECK + '</button>';
+        const del = '<button class="pl-t-del" type="button" onclick="plItemDel(\'' + key + '\',' + dow + ',' + i + ')" aria-label="Remover">&times;</button>';
+        const attrs = ' contenteditable="true" spellcheck="false" data-k="' + key + '" data-d="' + dow + '" data-i="' + i + '"';
+        if (tipo === 'canal') {
+            return '<div class="pl-canal' + (it.ok ? ' ok' : '') + '">' + chk
+                + '<div class="pl-canal-body"><span class="pl-canal-lbl">Canal</span>'
+                + '<span class="pl-canal-txt"' + attrs + '>' + agendaEsc(it.t || '') + '</span></div>' + del + '</div>';
+        }
+        return '<div class="pl-t ' + tipo + (it.ok ? ' ok' : '') + '">' + chk
+            + '<span class="pl-t-txt"' + attrs + '>' + agendaEsc(it.t || '') + '</span>' + del + '</div>';
+    }
+    function plToggleRotina(ds) { plVerRotina[ds] = !plVerRotina[ds]; planoRender(); }
+
+    /* ───────── 2. SEMANA ATUAL ───────── */
+    function plSemRender() {
+        const el = document.getElementById('plSem');
+        const key = plSemanaAtiva(), s = plSemana(key), chaves = plChaves();
+        const n = chaves.indexOf(key) + 1, hoje = agendaTodayStr(), prog = plProgresso(s);
+
+        let html = '<div class="pl-sem-top"><div class="pl-sem-nome">'
+            + '<button class="pl-star' + (s.estrela ? ' on' : '') + '" type="button" onclick="plEstrela(\'' + key + '\')" title="Marcar como semana importante">' + PL_STAR(s.estrela) + '</button>'
+            + 'Semana ' + (n > 0 ? n : 1) + '<span class="pl-sem-datas">' + plRange(key) + '</span></div>'
+            + '<div class="pl-sem-acoes">'
+            + '<button class="pl-btn" type="button" onclick="plGerarRotina(\'' + key + '\')">Gerar rotina fixa</button>'
+            + '<button class="pl-btn forte" type="button" onclick="plFinalizar(\'' + key + '\')">Finalizar semana</button>'
+            + '</div></div>';
+
+        html += '<div class="pl-pills">' + PL_DIAS.map(d => {
+            const ds = plAdd(key, d.n - 1), p = plProgDia(s, d.n);
+            const cls = ds === hoje ? ' hoje' : (p.t && p.ok === p.t ? ' completo' : (ds > hoje ? ' futuro' : ''));
+            /* nada de placar comecando em zero: sem nenhum feito, mostra so quantas sao */
+            const marca = !p.t ? '' : (p.ok === p.t ? '✓' : (p.ok ? p.ok + '/' + p.t : String(p.t)));
+            return '<button class="pl-pill' + cls + '" type="button" onclick="plDrAbrir(\'' + key + '\',' + d.n + ')">'
+                + '<span class="pl-pill-dia">' + d.nome + '</span>'
+                + '<span class="pl-pill-num">' + Number(ds.slice(8)) + '</span>'
+                + '<span class="pl-pill-n">' + marca + '</span></button>';
+        }).join('') + '</div>';
+
+        html += '<div class="pl-metas-sem"><div class="pl-lbl" style="margin-bottom:8px">O que tem que acontecer nesta semana</div>'
+            + s.foco.map((f, i) =>
+                '<div class="pl-t' + (f.ok ? ' ok' : '') + '">'
+                + '<button class="pl-t-chk" type="button" onclick="plFocoToggle(\'' + key + '\',' + i + ')" aria-label="Marcar">' + PL_CHECK + '</button>'
+                + '<span class="pl-t-txt" contenteditable="true" spellcheck="false" data-fk="' + key + '" data-fi="' + i + '">' + agendaEsc(f.t) + '</span>'
+                + '<button class="pl-t-del" type="button" onclick="plFocoDel(\'' + key + '\',' + i + ')" aria-label="Remover">&times;</button></div>'
+            ).join('')
+            + '<button class="pl-mais" type="button" onclick="plFocoAdd(\'' + key + '\')">+ meta da semana</button>';
+        if (prog.ok) html += '<div class="pl-hoje-cont" style="margin-top:8px">' + prog.ok + ' de ' + prog.t + ' feito na semana</div>';
+        html += '</div>';
+
+        const marcada = chaves.find(k => k > key && plSemana(k).estrela && !plSemana(k).feita);
+        if (marcada) {
+            const i = chaves.indexOf(marcada) + 1, tm = plSemana(marcada);
+            html += '<div class="pl-marcada">Semana marcada chegando: semana ' + i + ', ' + plRange(marcada)
+                + (tm.titulo ? ' · ' + agendaEsc(tm.titulo) : '') + '</div>';
+        }
+        el.innerHTML = html;
+    }
+
+    /* ───────── 3. METAS ───────── */
+    /* o alvo de cada frente sai do proprio plano: quantos itens combinam com as palavras */
+    function plContar(fr) {
+        const escopo = fr.escopo === 'semana' ? [plSemanaAtiva()] : plChaves();
+        const pal = (Array.isArray(fr.palavras) ? fr.palavras : []).map(x => String(x).toLowerCase()).filter(Boolean);
+        if (!pal.length) return { t: 0, ok: 0 };
+        let t = 0, ok = 0;
+        escopo.forEach(k => {
+            const s = plSemana(k);
+            PL_DIAS.forEach(d => plItens(s, d.n).forEach(it => {
+                const txt = String(it.t || '').toLowerCase();
+                if (pal.some(w => txt.indexOf(w) > -1)) { t++; if (it.ok) ok++; }
+            }));
+        });
+        return { t: t, ok: ok };
+    }
+    function plMesAtual() { const d = agendaTodayStr(); return d.slice(0, 7); }
+    function plMetasRender() {
+        const body = document.getElementById('plMetasBody'), seta = document.getElementById('plMetasSeta');
+        if (!body) return;
+        body.style.display = plMetasAberto ? '' : 'none';
+        if (seta) seta.textContent = plMetasAberto ? '−' : '+';
+        if (!plMetasAberto) { body.innerHTML = ''; return; }
         const p = planoEnsure();
-        const el = document.getElementById('plFrentes');
-        if (!el) return;
-        const tit = document.getElementById('plTopoTitulo');
-        if (tit && document.activeElement !== tit) tit.textContent = p.topoTitulo;
-        const reg = document.getElementById('plRegra');
-        if (reg && document.activeElement !== reg) reg.textContent = p.regra;
-        el.innerHTML = p.frentes.map((f, i) =>
-            '<div class="pl-frente">'
-            + '<button class="pl-x pl-x-f" type="button" onclick="plFrenteDel(' + i + ')" aria-label="Remover frente">&times;</button>'
-            + '<div class="pl-frente-num">' + String(i + 1).padStart(2, '0') + '</div>'
-            + '<div class="pl-frente-nome" contenteditable="true" spellcheck="false" data-fr="' + i + '" data-frc="nome">' + agendaEsc(f.nome || '') + '</div>'
-            + '<div class="pl-frente-desc" contenteditable="true" spellcheck="false" data-fr="' + i + '" data-frc="desc">' + agendaEsc(f.desc || '') + '</div>'
-            + '</div>'
-        ).join('') + '<button class="pl-frente-add" type="button" onclick="plFrenteAdd()">+ frente</button>';
-    }
 
-    /* avisa qual e a proxima semana marcada com estrela, pra ela ver que esta chegando */
-    function plRenderProxima(chaves, num, hojeKey) {
-        const el = document.getElementById('plProx');
-        if (!el) return;
-        const prox = chaves.find(k => k >= hojeKey && plSemana(k).estrela && !plSemana(k).feita);
-        if (!prox) { el.style.display = 'none'; el.innerHTML = ''; el.onclick = null; return; }
-        const faltam = Math.round((new Date(prox + 'T12:00:00') - new Date(hojeKey + 'T12:00:00')) / (7 * 86400000));
-        const quando = faltam <= 0 ? 'é esta semana' : (faltam === 1 ? 'começa semana que vem' : 'faltam ' + faltam + ' semanas');
-        const sp = plSemana(prox);
-        const foco = sp.titulo || (sp.foco.map(f => f.t).filter(Boolean)[0] || '');
-        el.style.display = '';
-        el.innerHTML = PL_STAR_SVG(true)
-            + '<span>Próxima semana marcada: <b>semana ' + num[prox] + '</b>, ' + plRange(prox)
-            + (foco ? ' · ' + agendaEsc(foco.length > 90 ? foco.slice(0, 90) + '...' : foco) : '') + '</span>'
-            + '<span class="pl-prox-quando">' + quando + '</span>';
-        el.onclick = function () { plIrSemana(prox); };
-    }
+        const cards = p.frentes.map((fr, i) => {
+            if (fr.tipo === 'dinheiro') {
+                const alvo = Number(fr.alvo) || 0;
+                if (!alvo) return '';
+                const val = Number(fr.valor) || 0;
+                return '<div class="pl-card"><div class="pl-card-nome">' + agendaEsc(fr.nome || '') + '</div>'
+                    + '<div class="pl-card-num" contenteditable="true" spellcheck="false" data-fr="' + i + '">' + (val ? plBRL(val) : '—') + '</div>'
+                    + '<div class="pl-card-un">de ' + plBRL(alvo) + ', toque pra atualizar</div>'
+                    + '<div class="pl-card-bar"><i style="width:' + Math.min(100, alvo ? val * 100 / alvo : 0) + '%"></i></div>'
+                    + '</div>';
+            }
+            const c = plContar(fr);
+            if (!c.t) return '';   /* sem contador, o card nao existe */
+            return '<div class="pl-card"><div class="pl-card-nome">' + agendaEsc(fr.nome || '') + '</div>'
+                + '<div class="pl-card-num">' + (c.ok ? '<b>' + c.ok + '</b> de ' + c.t : c.t) + '</div>'
+                + '<div class="pl-card-un">' + agendaEsc(fr.unidade || '') + (fr.escopo === 'semana' ? ' nesta semana' : '') + '</div>'
+                + '<div class="pl-card-bar"><i style="width:' + (c.t ? c.ok * 100 / c.t : 0) + '%"></i></div></div>';
+        }).filter(Boolean).join('');
 
-    function plWeekHtml(key, n, hojeKey) {
-        const s = plSemana(key);
-        const pr = plProgresso(s);
-        const atual = key === hojeKey;
-        const foco = s.foco.map((f, i) =>
-            '<div class="pl-foco-it' + (f.ok ? ' ok' : '') + '">'
-            + '<button class="pl-chk" type="button" onclick="plFocoToggle(\'' + key + '\',' + i + ')" aria-label="Marcar">' + PL_CHECK_SVG + '</button>'
-            + '<span class="pl-foco-t" contenteditable="true" spellcheck="false" data-fk="' + key + '" data-fi="' + i + '">' + agendaEsc(f.t) + '</span>'
-            + '<button class="pl-x" type="button" onclick="plFocoDel(\'' + key + '\',' + i + ')" aria-label="Remover">&times;</button></div>'
-        ).join('');
-        return '<div class="pl-week' + (s.feita ? ' feita' : '') + (s.estrela ? ' estrela' : '') + (atual ? ' atual' : '') + '" id="pl-w-' + key + '">'
-            + '<div class="pl-wside">'
-            + '<div class="pl-wname">'
-            + '<button class="pl-star" type="button" onclick="plEstrela(\'' + key + '\')" title="' + (s.estrela ? 'Tirar o destaque desta semana' : 'Marcar como semana importante') + '" aria-label="Destacar semana">' + PL_STAR_SVG(s.estrela) + '</button>'
-            + 'semana ' + n + (atual ? '<span class="pl-agora">agora</span>' : '') + '</div>'
-            + '<div class="pl-wdate">' + plRange(key) + '</div>'
-            + '<div class="pl-wtit" contenteditable="true" spellcheck="false" data-tk="' + key + '" data-ph="o que essa semana entrega">' + agendaEsc(s.titulo) + '</div>'
-            + '<div class="pl-bar"><i style="width:' + pr.pct + '%"></i></div>'
-            + '<div class="pl-wmeta">' + pr.ok + ' de ' + pr.t + ' feito' + (pr.t && pr.ok === pr.t ? ' · semana completa' : '') + '</div>'
-            + '<div class="pl-wbtns">'
-            + (s.feita
-                ? '<button class="pl-btn" type="button" onclick="plReabrir(\'' + key + '\')">Reabrir</button>'
-                : '<button class="pl-btn ok" type="button" onclick="plFinalizar(\'' + key + '\')">Finalizar semana</button>'
-                  + '<button class="pl-btn" type="button" onclick="plCopiarAnterior(\'' + key + '\')">Repetir a anterior</button>')
-            + '</div>'
-            + '</div>'
-            + '<div class="pl-wmain">'
-            + '<div class="pl-foco">' + foco
-            + '<button class="pl-btn" type="button" style="background:none;border:none;padding:1px 0;color:var(--text-muted);flex:0 0 auto" onclick="plFocoAdd(\'' + key + '\')">+ o que tem que acontecer</button>'
-            + '</div>'
-            + '<div class="pl-days">' + PL_DIAS.map(d => plDayHtml(key, d)).join('') + '</div>'
-            + '</div>'
+        const mk = plMesAtual(), din = p.dinheiro[mk] || {};
+        const dinHtml = '<div class="pl-lbl" style="margin-top:24px">Dinheiro de ' + PL_MES[Number(mk.slice(5, 7)) - 1] + '</div>'
+            + '<div class="pl-din">'
+            + ['entrou', 'meta', 'guardado'].map(c =>
+                '<div class="pl-din-item"><div class="pl-lbl">' + c + '</div>'
+                + '<div class="pl-din-val" contenteditable="true" spellcheck="false" data-din="' + c + '">' + (din[c] ? plBRL(din[c]) : '—') + '</div></div>'
+              ).join('')
             + '</div>';
-    }
 
-    function plDayHtml(key, d) {
-        const s = plSemana(key);
-        const data = plAdd(key, d.n - 1);
-        const itens = plItens(s, d.n);
-        return '<div class="pl-day' + (data === agendaTodayStr() ? ' hoje' : '') + '">'
-            + '<div class="pl-day-lbl">' + d.nome + '<span>' + Number(data.slice(8)) + '/' + Number(data.slice(5, 7)) + '</span></div>'
-            + '<div class="pl-items">' + itens.map((it, i) =>
-                '<div class="pl-it' + (it.ok ? ' ok' : '') + (it.tipo === 'canal' ? ' canal' : '') + '">'
-                + '<button class="pl-chk" type="button" onclick="plItemToggle(\'' + key + '\',' + d.n + ',' + i + ')" aria-label="Marcar">' + PL_CHECK_SVG + '</button>'
-                + '<div class="pl-it-body">'
-                + (it.tipo === 'canal' ? '<b class="pl-tag">Canal</b>' : '')
-                + '<span class="pl-it-t" contenteditable="true" spellcheck="false" data-k="' + key + '" data-d="' + d.n + '" data-i="' + i + '">' + agendaEsc(it.t || '') + '</span>'
-                + '</div>'
-                + '<button class="pl-x" type="button" onclick="plItemDel(\'' + key + '\',' + d.n + ',' + i + ')" aria-label="Remover">&times;</button>'
-                + '</div>'
+        const meses = p.meses.length
+            ? '<div class="pl-meses">' + p.meses.map(m =>
+                '<div><div class="pl-mes-nome">' + agendaEsc(m.nome || '') + '</div><div class="pl-mes-txt">' + agendaEsc(m.txt || '') + '</div></div>'
               ).join('') + '</div>'
-            + '<div class="pl-addrow">'
-            + '<button class="pl-add" type="button" onclick="plItemAdd(\'' + key + '\',' + d.n + ')">+ tarefa</button>'
-            + '<button class="pl-add" type="button" onclick="plItemAdd(\'' + key + '\',' + d.n + ',\'canal\')">+ canal</button>'
-            + '</div>'
-            + '</div>';
+            : '';
+        const regra = p.regra ? '<div class="pl-regra">' + agendaEsc(p.regra) + '</div>' : '';
+
+        body.innerHTML = (cards ? '<div class="pl-cards">' + cards + '</div>' : '') + dinHtml + meses + regra;
     }
 
+    /* ───────── 4. SEMANAS FINALIZADAS ───────── */
+    function plFimRender() {
+        const el = document.getElementById('plFim');
+        if (!el) return;
+        const chaves = plChaves(), feitas = chaves.filter(k => plSemana(k).feita);
+        if (!feitas.length) { el.style.display = 'none'; el.innerHTML = ''; return; }   /* zero nao aparece */
+        el.style.display = '';
+        el.innerHTML = '<div class="pl-fim-bar">' + chaves.map(k => '<i class="' + (plSemana(k).feita ? 'ok' : '') + '"></i>').join('') + '</div>'
+            + '<div style="padding:16px 24px 8px"><span class="pl-h" style="font-size:16px">' + feitas.length + (feitas.length === 1 ? ' semana finalizada' : ' semanas finalizadas') + '</span></div>'
+            + feitas.map(k => {
+                const s = plSemana(k), pr = plProgresso(s), i = chaves.indexOf(k) + 1;
+                const txt = s.titulo || (s.foco.map(f => f.t).filter(Boolean)[0] || 'sem título');
+                return '<button class="pl-fim-linha" type="button" onclick="plDrSemana(\'' + k + '\')">'
+                    + '<span class="pl-fim-n">' + i + ' · ' + plRange(k) + '</span>'
+                    + '<span class="pl-fim-txt">' + agendaEsc(txt) + '</span>'
+                    + '<span class="pl-fim-cont">' + (pr.ok ? pr.ok + ' de ' + pr.t + ' feito' : '—') + '</span></button>';
+            }).join('');
+    }
+
+    /* ───────── drawer: um dia por vez ───────── */
+    function plDrAbrir(key, dow) {
+        plDrCtx = { key: key, dow: dow };
+        plDrRender();
+        document.getElementById('plDrOv').classList.add('on');
+        document.getElementById('plDr').classList.add('on');
+        document.getElementById('plDr').setAttribute('aria-hidden', 'false');
+        const add = document.getElementById('plDrAdd'); if (add) add.style.display = '';
+    }
+    function plDrRender() {
+        if (!plDrCtx || plDrCtx.leitura) return;
+        const { key, dow } = plDrCtx;
+        const ds = plAdd(key, dow - 1), s = plSemana(key), itens = plItens(s, dow);
+        document.getElementById('plDrTit').textContent = (PL_DIAS.find(d => d.n === dow) || {}).longo || '';
+        document.getElementById('plDrData').textContent = plPorExtenso(ds);
+        document.getElementById('plDrBody').innerHTML = itens.length
+            ? itens.map((it, i) => plTarefaHtml(key, dow, i)).join('')
+            : '<div class="pl-hoje-vazio">' + (dow === 7 ? 'Folga. Nada agendado de propósito.' : 'Nada marcado nesse dia.') + '</div>';
+    }
+    /* semana finalizada em modo leitura */
+    function plDrSemana(key) {
+        const s = plSemana(key), chaves = plChaves(), n = chaves.indexOf(key) + 1;
+        plDrCtx = { key: key, leitura: true };
+        document.getElementById('plDrTit').textContent = 'Semana ' + n;
+        document.getElementById('plDrData').textContent = plRange(key) + (s.titulo ? ' · ' + s.titulo : '');
+        const linha = (t, ok) => '<div class="pl-t' + (ok ? ' ok' : '') + '"><span class="pl-t-chk" style="cursor:default">' + (ok ? PL_CHECK : '') + '</span>'
+            + '<span class="pl-t-txt" style="font-weight:' + (ok ? '400' : '600') + ';color:' + (ok ? 'var(--text-muted)' : 'var(--ink)') + '">' + agendaEsc(t) + '</span></div>';
+        const feitos = [], faltou = [];
+        s.foco.forEach(f => { if (f.t) (f.ok ? feitos : faltou).push(f.t); });
+        PL_DIAS.forEach(d => plItens(s, d.n).forEach(it => { if (it.t) (it.ok ? feitos : faltou).push(it.t); }));
+        document.getElementById('plDrBody').innerHTML =
+            (feitos.length ? '<div class="pl-lbl" style="margin-bottom:8px">Feito</div>' + feitos.map(t => linha(t, true)).join('') : '')
+            + (faltou.length ? '<div class="pl-lbl" style="margin:24px 0 8px">Ficou pra trás</div>' + faltou.map(t => linha(t, false)).join('') : '')
+            + '<button class="pl-btn" type="button" style="margin-top:24px" onclick="plReabrir(\'' + key + '\')">Reabrir esta semana</button>';
+        const add = document.getElementById('plDrAdd'); if (add) add.style.display = 'none';
+        document.getElementById('plDrOv').classList.add('on');
+        document.getElementById('plDr').classList.add('on');
+    }
+    function plDrFechar() {
+        plDrCtx = null;
+        document.getElementById('plDrOv').classList.remove('on');
+        document.getElementById('plDr').classList.remove('on');
+        document.getElementById('plDr').setAttribute('aria-hidden', 'true');
+    }
+    function plDrNovo(tipo) {
+        if (!plDrCtx || plDrCtx.leitura) return;
+        plItemAdd(plDrCtx.key, plDrCtx.dow, tipo);
+    }
+
+    /* ───────── acoes ───────── */
     function plItemToggle(key, dow, idx) {
-        const s = plSemana(key, true);
-        const it = plItens(s, dow)[idx];
+        const it = plItens(plSemana(key, true), dow)[idx];
         if (!it) return;
         it.ok = !it.ok;
-        planoRender(); agendaSave();
+        planoRender(); plDrRender(); agendaSave();
     }
     function plItemAdd(key, dow, tipo) {
         const s = plSemana(key, true);
         if (!Array.isArray(s.dias[String(dow)])) s.dias[String(dow)] = [];
         const novo = { id: plUid(), t: '', ok: false };
-        if (tipo === 'canal') novo.tipo = 'canal';
+        if (tipo === 'canal' || tipo === 'rotina') novo.tipo = tipo;
         s.dias[String(dow)].push(novo);
         const idx = s.dias[String(dow)].length - 1;
+        if (!plDrCtx || plDrCtx.key !== key || plDrCtx.dow !== dow) plDrAbrir(key, dow); else plDrRender();
         planoRender(); agendaSave();
-        plFoco('.pl-it-t[data-k="' + key + '"][data-d="' + dow + '"][data-i="' + idx + '"]');
+        setTimeout(function () {
+            const el = document.querySelector('#plDrBody [data-k="' + key + '"][data-d="' + dow + '"][data-i="' + idx + '"]');
+            if (el) el.focus();
+        }, 60);
     }
     function plItemDel(key, dow, idx) {
-        const s = plSemana(key, true);
-        const arr = plItens(s, dow);
+        const arr = plItens(plSemana(key, true), dow);
         if (!arr[idx]) return;
         arr.splice(idx, 1);
-        planoRender(); agendaSave();
+        planoRender(); plDrRender(); agendaSave();
     }
     function plFocoToggle(key, idx) {
-        const s = plSemana(key, true);
-        const f = s.foco[idx];
+        const f = plSemana(key, true).foco[idx];
         if (!f) return;
         f.ok = !f.ok;
         planoRender(); agendaSave();
@@ -5793,7 +6032,7 @@
         s.foco.push({ t: '', ok: false });
         const idx = s.foco.length - 1;
         planoRender(); agendaSave();
-        plFoco('.pl-foco-t[data-fk="' + key + '"][data-fi="' + idx + '"]');
+        setTimeout(function () { const el = document.querySelector('[data-fk="' + key + '"][data-fi="' + idx + '"]'); if (el) el.focus(); }, 40);
     }
     function plFocoDel(key, idx) {
         const s = plSemana(key, true);
@@ -5801,83 +6040,104 @@
         s.foco.splice(idx, 1);
         planoRender(); agendaSave();
     }
-    function plFoco(sel) {
-        setTimeout(function () { const el = document.querySelector(sel); if (el) el.focus(); }, 30);
-    }
-    function plFrenteAdd() {
-        const p = planoEnsure();
-        p.frentes.push({ id: plUid(), nome: '', desc: '' });
-        plRenderFrentes(); agendaSave();
-        plFoco('.pl-frente-nome[data-fr="' + (p.frentes.length - 1) + '"]');
-    }
-    function plFrenteDel(i) {
-        const p = planoEnsure();
-        const f = p.frentes[i];
-        if (!f) return;
-        if ((f.nome || f.desc) && !confirm('Tirar a frente "' + (f.nome || 'sem nome') + '" do plano?')) return;
-        p.frentes.splice(i, 1);
-        plRenderFrentes(); agendaSave();
-    }
     function plEstrela(key) {
         const s = plSemana(key, true);
         s.estrela = !s.estrela;
         planoRender(); agendaSave();
     }
-    function plFinalizar(key) {
-        plSemana(key, true).feita = true;
-        planoRender(); agendaSave();
-    }
     function plReabrir(key) {
         plSemana(key, true).feita = false;
-        planoRender(); agendaSave();
+        plDrFechar(); planoRender(); agendaSave();
     }
-    function plCopiarAnterior(key) {
-        const chaves = plChaves(), i = chaves.indexOf(key);
-        if (i <= 0) { alert('Essa é a primeira semana, não tem anterior pra copiar.'); return; }
-        const src = plSemana(chaves[i - 1]);
-        const dst = plSemana(key, true);
-        const temCoisa = PL_DIAS.some(d => plItens(dst, d.n).length);
-        if (temCoisa && !confirm('Isso substitui o que já está escrito nessa semana. Continuar?')) return;
-        dst.dias = {};
-        PL_DIAS.forEach(d => {
-            const arr = plItens(src, d.n);
-            if (arr.length) dst.dias[String(d.n)] = arr.map(it => ({ id: plUid(), t: it.t, ok: false }));
+    /* escreve so os itens fixos, e nao repete o que ja esta la */
+    function plGerarRotina(key) {
+        const s = plSemana(key, true);
+        let n = 0;
+        PL_ROTINA_FIXA.forEach(r => {
+            const arr = plItens(s, r.dow);
+            if (arr.some(it => String(it.t || '').toLowerCase() === r.t.toLowerCase())) return;
+            if (!Array.isArray(s.dias[String(r.dow)])) s.dias[String(r.dow)] = [];
+            s.dias[String(r.dow)].push({ id: plUid(), t: r.t, ok: false, tipo: r.tipo });
+            n++;
         });
+        /* propostas no dia 1, se o dia 1 cair nesta semana */
+        for (let i = 0; i < 7; i++) {
+            const ds = plAdd(key, i);
+            if (ds.slice(8) !== '01') continue;
+            const dow = i + 1, arr = plItens(s, dow);
+            const txt = 'Carrossel de propostas de ' + PL_MES[Number(ds.slice(5, 7)) - 1];
+            if (arr.some(it => String(it.t || '').toLowerCase() === txt.toLowerCase())) break;
+            if (!Array.isArray(s.dias[String(dow)])) s.dias[String(dow)] = [];
+            s.dias[String(dow)].push({ id: plUid(), t: txt, ok: false, tipo: 'rotina' });
+            n++;
+            break;
+        }
+        if (!n) { alert('A rotina fixa desta semana já está toda lá.'); return; }
         planoRender(); agendaSave();
-    }
-    function plSetInicio(v) {
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(v || '')) return;
-        const p = planoEnsure();
-        const novo = plSegundaDe(v);
-        if (novo === p.inicio) return;
-        p.inicio = novo;
-        planoRender(); agendaSave();
-    }
-    function plIrSemana(key) {
-        let el = document.getElementById('pl-w-' + key);
-        if (!el && plSemana(key).feita && !plVerFin) { plVerFin = true; planoRender(); el = document.getElementById('pl-w-' + key); }
-        if (!el) return false;
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        el.classList.add('flash');
-        setTimeout(function () { el.classList.remove('flash'); }, 1300);
-        return true;
-    }
-    function plIrHoje() {
-        if (!plIrSemana(plSegundaDe(agendaTodayStr()))) alert('A semana de hoje está fora do período do plano. Ajuste a data de início ou adicione semanas.');
     }
 
-    /* edição inline: tudo que é contenteditable salva no blur */
+    /* ───────── finalizar semana ───────── */
+    function plFinalizar(key) {
+        const s = plSemana(key, true);
+        const pend = [];
+        s.foco.forEach((f, i) => { if (f.t && !f.ok) pend.push({ tipo: 'foco', i: i }); });
+        PL_DIAS.forEach(d => plItens(s, d.n).forEach((it, i) => { if (!it.ok) pend.push({ tipo: 'dia', dow: d.n, i: i }); }));
+        if (!pend.length) { s.feita = true; planoRender(); agendaSave(); return; }
+        plFimPend = { key: key, pend: pend };
+        document.getElementById('plFimModTxt').textContent =
+            'Ficaram ' + pend.length + (pend.length === 1 ? ' coisa' : ' coisas') + ' sem marcar nesta semana. O que faz com elas?';
+        document.getElementById('plFimMod').classList.add('on');
+    }
+    function plFimModFechar() { plFimPend = null; document.getElementById('plFimMod').classList.remove('on'); }
+    function plFinalizarConfirma(acao) {
+        if (!plFimPend) return;
+        const key = plFimPend.key, s = plSemana(key, true);
+        if (acao === 'mover') {
+            const prox = plAdd(key, 7), d = plSemana(prox, true);
+            /* de tras pra frente, pra o splice nao baguncar os indices */
+            plFimPend.pend.slice().reverse().forEach(p => {
+                if (p.tipo === 'foco') {
+                    const f = s.foco[p.i];
+                    if (f) { d.foco.push({ t: f.t, ok: false }); s.foco.splice(p.i, 1); }
+                } else {
+                    const arr = plItens(s, p.dow), it = arr[p.i];
+                    if (it) {
+                        if (!Array.isArray(d.dias[String(p.dow)])) d.dias[String(p.dow)] = [];
+                        d.dias[String(p.dow)].push({ id: plUid(), t: it.t, ok: false, tipo: it.tipo });
+                        arr.splice(p.i, 1);
+                    }
+                }
+            });
+            const p2 = planoEnsure();
+            if (plChaves().indexOf(prox) === -1) p2.total++;
+        }
+        s.feita = true;
+        plFimModFechar();
+        planoRender(); agendaSave();
+    }
+
+    /* ───────── edicao inline ───────── */
     function plEditBlur(e) {
         const el = e.target;
         if (!el || !el.getAttribute || el.getAttribute('contenteditable') !== 'true') return;
         const txt = (el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 240);
         const d = el.dataset;
+        if (d.din) {
+            const p = planoEnsure(), mk = plMesAtual();
+            if (!p.dinheiro[mk]) p.dinheiro[mk] = {};
+            const v = plSoNum(txt);
+            if (p.dinheiro[mk][d.din] === v) { plMetasRender(); return; }
+            p.dinheiro[mk][d.din] = v;
+            plMetasRender(); agendaSave();
+            return;
+        }
         if (d.fr !== undefined && d.fr !== '') {
-            const f = planoEnsure().frentes[Number(d.fr)];
-            if (!f) return;
-            const campo = (d.frc === 'desc') ? 'desc' : 'nome';
-            if ((f[campo] || '') === txt) return;
-            f[campo] = txt; agendaSave();
+            const fr = planoEnsure().frentes[Number(d.fr)];
+            if (!fr) return;
+            const v = plSoNum(txt);
+            if ((Number(fr.valor) || 0) === v) { plMetasRender(); return; }
+            fr.valor = v;
+            plMetasRender(); agendaSave();
             return;
         }
         if (d.fk) {
@@ -5888,49 +6148,52 @@
             s.foco[i].t = txt; agendaSave();
             return;
         }
-        if (d.tk) {
-            const s = plSemana(d.tk, true);
-            if ((s.titulo || '') === txt) return;
-            s.titulo = txt; agendaSave();
-            return;
-        }
-        if (d.topo) {
-            const pl = planoEnsure();
-            const campo = (d.topo === 'regra') ? 'regra' : 'topoTitulo';
-            if ((pl[campo] || '') === txt) return;
-            pl[campo] = txt; agendaSave();
-            return;
-        }
         if (d.k) {
             const arr = plItens(plSemana(d.k, true), Number(d.d)), it = arr[Number(d.i)];
             if (!it) return;
             if ((it.t || '') === txt) return;
-            if (!txt) { arr.splice(Number(d.i), 1); planoRender(); agendaSave(); return; }
+            if (!txt) { arr.splice(Number(d.i), 1); planoRender(); plDrRender(); agendaSave(); return; }
             it.t = txt; agendaSave();
         }
     }
 
+    /* ───────── celular: um bloco por vez ───────── */
+    function plMobAplica() {
+        const temFim = plChaves().some(k => plSemana(k).feita);
+        const bf = document.querySelector('#plMobnav button[data-sec="Fim"]');
+        if (bf) bf.style.display = temFim ? '' : 'none';
+        if (!temFim && plMobSec === 'Fim') plMobSec = 'Hoje';
+        document.querySelectorAll('#agViewMetas .pl-sec').forEach(sec => {
+            sec.classList.toggle('on', sec.id === 'plSec' + plMobSec);
+        });
+        document.querySelectorAll('#plMobnav button').forEach(b => b.classList.toggle('on', b.dataset.sec === plMobSec));
+    }
+
     (function planoInitUI() {
         const on = (id, ev, fn) => { const el = document.getElementById(id); if (el) el.addEventListener(ev, fn); };
-        on('plFinBtn', 'click', function () { plVerFin = !plVerFin; planoRender(); });
-        on('plHojeBtn', 'click', plIrHoje);
-        on('plAddSemana', 'click', function () {
-            const p = planoEnsure();
-            if (p.total >= PL_MAX_SEMANAS) { alert('O plano já está no máximo de ' + PL_MAX_SEMANAS + ' semanas.'); return; }
-            p.total++;
-            planoRender(); agendaSave();
+        on('plMetasBtn', 'click', function () { plMetasAberto = !plMetasAberto; plMetasRender(); });
+        on('plDrX', 'click', plDrFechar);
+        on('plDrOv', 'click', plDrFechar);
+        const nav = document.getElementById('plMobnav');
+        if (nav) nav.addEventListener('click', function (e) {
+            const b = e.target.closest('button');
+            if (b && b.dataset.sec) { plMobSec = b.dataset.sec; plMobAplica(); }
         });
-        on('plInicio', 'change', function (e) { plSetInicio(e.target.value); });
-        const root = document.getElementById('agViewMetas');
-        if (root) {
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Escape') return;
+            if (document.getElementById('plFimMod') && document.getElementById('plFimMod').classList.contains('on')) plFimModFechar();
+            else if (plDrCtx) plDrFechar();
+        });
+        ['agViewMetas', 'plDr'].forEach(function (id) {
+            const root = document.getElementById(id);
+            if (!root) return;
             root.addEventListener('focusout', plEditBlur);
             root.addEventListener('keydown', function (e) {
                 const t = e.target;
                 if (!t || !t.getAttribute || t.getAttribute('contenteditable') !== 'true') return;
                 if (e.key === 'Enter') { e.preventDefault(); t.blur(); }
-                else if (e.key === 'Escape') { e.preventDefault(); planoRender(); }
             });
-        }
+        });
     })();
 
 
