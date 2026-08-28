@@ -4173,6 +4173,7 @@
     const CAND_COMPART_MAP = { topo: 'Topa compartilhar', combinar: 'Topa, combinando o que mostrar', conversar: 'Prefere conversar antes' };
     const CAND_ZONA_MAP = { zona_norte: 'Zona Norte de SP', zona_leste: 'Zona Leste de SP', outra_zona: 'Outra zona de SP capital', grande_sp: 'Grande São Paulo', fora_sp: 'Fora de São Paulo' };
     const CAND_DISP_MAP = { sim: 'Tem disponibilidade', combinar: 'Precisa combinar as datas' };
+    const CAND_VISITA_MAP = { sim: 'Consegue ir na loja', combinar: 'Consegue, dependendo do dia/horário' };
     function candCache(v) { const s = String(v == null ? '' : v); return /^[0-9]+$/.test(s) ? 'R$ ' + Number(s).toLocaleString('pt-BR') : s; }
     let _candData = [];
     let candFilter = 'todos';
@@ -4251,6 +4252,7 @@
         if (r.historia) rows += castingRow('História', castingEsc(r.historia));
         if (r.zona) rows += castingRow('Região', castingEsc(CAND_ZONA_MAP[r.zona] || r.zona) + (r.bairro ? ' · ' + castingEsc(r.bairro) : ''));
         if (r.cache) rows += castingRow('Cachê pedido', '<b style="color:var(--accent);">' + castingEsc(candCache(r.cache)) + '</b>');
+        if (r.visita_loja) rows += castingRow('Visita na loja', castingEsc(CAND_VISITA_MAP[r.visita_loja] || r.visita_loja));
         if (r.disponibilidade) rows += castingRow('Disponibilidade', castingEsc(CAND_DISP_MAP[r.disponibilidade] || r.disponibilidade));
         if (r.tiktok) rows += castingRow('TikTok', '<a href="https://tiktok.com/@' + encodeURIComponent(String(r.tiktok).replace(/^@+/, '')) + '" target="_blank" style="color:var(--accent);font-weight:600;">@' + castingEsc(String(r.tiktok).replace(/^@+/, '')) + '</a>');
         if (r.sobre_casa) rows += castingRow('Sobre a casa', castingEsc(r.sobre_casa));
@@ -4269,10 +4271,10 @@
     function exportCandidaturasCsv() {
         const rows = _candData.slice();
         if (!rows.length) { alert('Nenhuma candidatura pra exportar ainda.'); return; }
-        const head = ['campanha', 'nome', 'email', 'whatsapp', 'instagram', 'cidade', 'regiao', 'orcamento', 'para_quem', 'presente_relacao', 'desejo', 'idade', 'compartilhar', 'historia', 'zona', 'bairro', 'cache', 'disponibilidade', 'tiktok', 'sobre_casa', 'seguidores', 'portfolio', 'ja_afiliado', 'ja_cadastrada', 'data'];
+        const head = ['campanha', 'nome', 'email', 'whatsapp', 'instagram', 'cidade', 'regiao', 'orcamento', 'para_quem', 'presente_relacao', 'desejo', 'idade', 'compartilhar', 'historia', 'zona', 'bairro', 'cache', 'visita_loja', 'disponibilidade', 'tiktok', 'sobre_casa', 'seguidores', 'portfolio', 'ja_afiliado', 'ja_cadastrada', 'data'];
         const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
         const lines = [head.join(',')];
-        rows.forEach(d => { const r = d.respostas || {}; lines.push([d.campanha, d.nome, d.email, d.whatsapp, d.instagram, d.cidade, r.regiao, r.orcamento, r.para_quem, r.presente_relacao, r.desejo, r.idade, r.compartilhar, r.historia, r.zona, r.bairro, r.cache, r.disponibilidade, r.tiktok, r.sobre_casa, r.seguidores, r.portfolio, r.ja_afiliado, r.ja_cadastrada, d.created_at].map(esc).join(',')); });
+        rows.forEach(d => { const r = d.respostas || {}; lines.push([d.campanha, d.nome, d.email, d.whatsapp, d.instagram, d.cidade, r.regiao, r.orcamento, r.para_quem, r.presente_relacao, r.desejo, r.idade, r.compartilhar, r.historia, r.zona, r.bairro, r.cache, r.visita_loja, r.disponibilidade, r.tiktok, r.sobre_casa, r.seguidores, r.portfolio, r.ja_afiliado, r.ja_cadastrada, d.created_at].map(esc).join(',')); });
         const blob = new Blob(['﻿' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a'); a.href = url; a.download = 'candidaturas-campanhas.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);

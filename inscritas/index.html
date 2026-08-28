@@ -57,7 +57,7 @@
         <div class="sub" id="sub">Carregando...</div>
         <div id="countWrap"></div>
         <div id="list"></div>
-        <div class="foot">Atualiza sozinho. Deixe esta página aberta ou recarregue pra ver as novas inscrições. 🌸</div>
+        <div class="foot" id="foot">Atualiza sozinho. Deixe esta página aberta ou recarregue pra ver as novas inscrições.</div>
     </div>
 
 <script>
@@ -69,13 +69,19 @@
     const params = new URLSearchParams(window.location.search);
     const campanha = (params.get('c') || 'flores').toLowerCase();
     const token = params.get('k') || '';
-    const NOMES = { flores: 'Campanha de Flores 🌸', pais: 'Campanha Pais Creators 👶', decoracao: 'Campanha Casa & Decoração 🛋️', fiv: 'Campanha FIV & Congelamento 🌱' };
+    const NOMES = { flores: 'Campanha de Flores 🌸', pais: 'Campanha Pais Creators 👶', decoracao: 'Campanha Casa & Decoração 🛋️', fiv: 'Campanha FIV & Congelamento 🌱', casa: 'Campanha Casa & Roupa de Cama 🏡' };
+    const EMOJIS = { flores: '🌸', pais: '👶', decoracao: '🛋️', fiv: '🌱', casa: '🏡' };
+    const EMOJI = EMOJIS[campanha] || '💛';
     const REGIAO = { goiania: 'Goiânia', porto_alegre: 'Porto Alegre', salvador: 'Salvador', belo_horizonte: 'Belo Horizonte', outra: 'Outra região', sao_paulo: 'São Paulo', brasilia: 'Distrito Federal (Brasília)', bahia: 'Bahia' };
     const FIV_PARAQUEM = { mim: 'Pra ela mesma', presente: 'Pra presentear alguém' };
     const FIV_RELACAO = { irma: 'Irmã', mae: 'Mãe', amiga: 'Amiga', outro: 'Outra pessoa próxima' };
     const FIV_DESEJO = { fiv: 'FIV', congelamento: 'Congelamento de óvulos', ambos: 'FIV + congelamento', decidindo: 'Ainda decidindo' };
     const FIV_IDADE = { ate_29: 'Até 29 anos', '30_34': '30 a 34', '35_37': '35 a 37', '38_40': '38 a 40', '41_mais': '41+' };
     const FIV_COMPART = { topo: 'Topa compartilhar', combinar: 'Topa, combinando o que mostrar', conversar: 'Prefere conversar antes' };
+    const CASA_ZONA = { zona_norte: 'Zona Norte de SP', zona_leste: 'Zona Leste de SP', outra_zona: 'Outra zona de SP capital', grande_sp: 'Grande São Paulo', fora_sp: 'Fora de São Paulo' };
+    const CASA_DISP = { sim: 'Tem disponibilidade', combinar: 'Precisa combinar as datas' };
+    const CASA_VISITA = { sim: 'Consegue ir na loja', combinar: 'Consegue, dependendo do dia/horário' };
+    function fmtCache(v) { const s = String(v == null ? '' : v); return /^[0-9]+$/.test(s) ? 'R$ ' + Number(s).toLocaleString('pt-BR') : s; }
 
     function esc(s) { return (s == null ? '' : String(s)).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
     function fmtSeg(s) { const n = parseInt(String(s).replace(/\D/g, ''), 10); return isNaN(n) ? esc(s || '') : n.toLocaleString('pt-BR'); }
@@ -83,12 +89,15 @@
     function urlify(u) { if (!u) return ''; const s = String(u).trim(); return /^https?:\/\//i.test(s) ? s : 'https://' + s; }
 
     document.getElementById('titulo').textContent = 'Inscritas · ' + (NOMES[campanha] || 'Campanha');
+    (function () { const f = document.getElementById('foot'); if (f) f.textContent = f.textContent.trim() + ' ' + EMOJI; })();
 
     function card(r) {
         const ig = (r.instagram || '').replace(/^@+/, '');
         const wpp = (r.whatsapp || '').replace(/\D/g, '');
-        const reg = r.regiao ? (REGIAO[r.regiao] || r.regiao) : '';
-        const regBadge = r.regiao ? '<span class="badge ' + (r.regiao === 'outra' ? 'out' : 'reg') + '">' + esc(reg) + '</span>' : '';
+        const zonaCasa = (campanha === 'casa' && r.respostas) ? (r.respostas.zona || '') : '';
+        const reg = zonaCasa ? (CASA_ZONA[zonaCasa] || zonaCasa) : (r.regiao ? (REGIAO[r.regiao] || r.regiao) : '');
+        const fora = zonaCasa ? (zonaCasa !== 'zona_norte' && zonaCasa !== 'zona_leste') : (r.regiao === 'outra');
+        const regBadge = reg ? '<span class="badge ' + (fora ? 'out' : 'reg') + '">' + esc(reg) + '</span>' : '';
         let g = '';
         if (ig) g += '<div class="row"><span class="k">Instagram</span><span class="v"><a href="https://instagram.com/' + encodeURIComponent(ig) + '" target="_blank">@' + esc(ig) + '</a></span></div>';
         if (r.seguidores) g += '<div class="row"><span class="k">Seguidores</span><span class="v">' + fmtSeg(r.seguidores) + '</span></div>';
@@ -104,6 +113,15 @@
             if (q.idade) g += '<div class="row"><span class="k">Faixa de idade</span><span class="v">' + esc(FIV_IDADE[q.idade] || q.idade) + '</span></div>';
             if (q.compartilhar) g += '<div class="row"><span class="k">Conteúdo</span><span class="v">' + esc(FIV_COMPART[q.compartilhar] || q.compartilhar) + '</span></div>';
             if (q.historia) g += '<div class="row orc"><span class="k">História</span><span class="v">' + esc(q.historia) + '</span></div>';
+        }
+        if (campanha === 'casa' && r.respostas) {
+            const q = r.respostas;
+            if (q.zona) g += '<div class="row"><span class="k">Região</span><span class="v">' + esc((CASA_ZONA[q.zona] || q.zona) + (q.bairro ? ' · ' + q.bairro : '')) + '</span></div>';
+            if (q.cache) g += '<div class="row orc"><span class="k">Cachê pedido</span><span class="v">' + esc(fmtCache(q.cache)) + '</span></div>';
+            if (q.visita_loja) g += '<div class="row"><span class="k">Visita na loja</span><span class="v">' + esc(CASA_VISITA[q.visita_loja] || q.visita_loja) + '</span></div>';
+            if (q.disponibilidade) g += '<div class="row"><span class="k">Disponibilidade</span><span class="v">' + esc(CASA_DISP[q.disponibilidade] || q.disponibilidade) + '</span></div>';
+            if (q.tiktok) g += '<div class="row"><span class="k">TikTok</span><span class="v"><a href="https://tiktok.com/@' + encodeURIComponent(String(q.tiktok).replace(/^@+/, '')) + '" target="_blank">@' + esc(String(q.tiktok).replace(/^@+/, '')) + '</a></span></div>';
+            if (q.sobre_casa) g += '<div class="row orc"><span class="k">Sobre a casa</span><span class="v">' + esc(q.sobre_casa) + '</span></div>';
         }
         const initials = ((r.nome || '?').trim().split(/\s+/).slice(0, 2).map(w => (w[0] || '')).join('').toUpperCase()) || '?';
         const avatar = '<div class="avatar-wrap"><div class="avatar-ph">' + esc(initials) + '</div>' + (r.foto ? '<img class="avatar" src="' + esc(r.foto) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">' : '') + '</div>';
@@ -121,7 +139,7 @@
         if (!rows.length) {
             sub.textContent = 'As inscrições aparecem aqui em tempo real.';
             countWrap.innerHTML = '';
-            list.innerHTML = '<div class="empty">Nenhuma inscrita ainda. Assim que alguém se inscrever, aparece aqui. 🌸</div>';
+            list.innerHTML = '<div class="empty">Nenhuma inscrita ainda. Assim que alguém se inscrever, aparece aqui. ' + EMOJI + '</div>';
         } else {
             sub.textContent = 'Cada creator que se inscreve na campanha aparece aqui.';
             countWrap.innerHTML = '<span class="count">' + rows.length + ' inscrita' + (rows.length > 1 ? 's' : '') + '</span>';
