@@ -2738,7 +2738,7 @@
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
             <div>
                 <h2 style="font-size:22px;font-weight:800;margin:0;color:var(--text);">📥 Candidaturas das campanhas</h2>
-                <p style="color:var(--text-muted);font-size:13px;margin-top:2px;">Quem se candidatou pelos formulários · abrir: <a href="/campanhas/?c=flores" target="_blank" style="color:var(--accent);font-weight:600;">🌸 flores</a> · <a href="/campanhas/?c=pais" target="_blank" style="color:var(--accent);font-weight:600;">👶 pais</a> · <a href="/campanhas/?c=decoracao" target="_blank" style="color:var(--accent);font-weight:600;">🛋️ decoração</a> · <a href="/campanhas/fiv" target="_blank" style="color:var(--accent);font-weight:600;">🌱 FIV</a></p>
+                <p style="color:var(--text-muted);font-size:13px;margin-top:2px;">Quem se candidatou pelos formulários · abrir: <a href="/campanhas/?c=flores" target="_blank" style="color:var(--accent);font-weight:600;">🌸 flores</a> · <a href="/campanhas/?c=pais" target="_blank" style="color:var(--accent);font-weight:600;">👶 pais</a> · <a href="/campanhas/?c=decoracao" target="_blank" style="color:var(--accent);font-weight:600;">🛋️ decoração</a> · <a href="/campanhas/fiv" target="_blank" style="color:var(--accent);font-weight:600;">🌱 FIV</a> · <a href="/campanhas/casa/" target="_blank" style="color:var(--accent);font-weight:600;">🏡 casa</a></p>
             </div>
             <div style="display:flex;gap:8px;">
                 <button type="button" onclick="loadCandidaturas()" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 16px;font-family:inherit;font-size:13px;font-weight:600;color:var(--text-soft);cursor:pointer;">↻ Atualizar</button>
@@ -2778,7 +2778,7 @@
 
             <div style="margin-bottom:16px;">
                 <label style="display:block;font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;">Estado <span style="font-weight:400;color:var(--text-muted);">(filtra por UF · opcional)</span></label>
-                <select id="dispUF" onchange="loadDisparo()" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;background:var(--cream);color:var(--text);outline:none;">
+                <select id="dispUF" onchange="onDispUF()" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;background:var(--cream);color:var(--text);outline:none;">
                     <option value="">Todos os estados</option>
                     <option value="AC">Acre (AC)</option>
                     <option value="AL">Alagoas (AL)</option>
@@ -2807,6 +2807,13 @@
                     <option value="SP">São Paulo (SP)</option>
                     <option value="SE">Sergipe (SE)</option>
                     <option value="TO">Tocantins (TO)</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom:16px;" id="dispCidadeWrap">
+                <label style="display:block;font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;">Cidade <span style="font-weight:400;color:var(--text-muted);">(escolha o estado primeiro · opcional)</span></label>
+                <select id="dispCidade" onchange="loadDisparo()" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;background:var(--cream);color:var(--text);outline:none;">
+                    <option value="">Todas as cidades</option>
                 </select>
             </div>
 
@@ -3697,12 +3704,15 @@
         }
         const ufEl = document.getElementById('dispUF');
         const uf = ufEl ? ufEl.value : '';
+        const cidEl = document.getElementById('dispCidade');
+        const cidade = (uf && cidEl) ? cidEl.value : '';
         const all = [];
         const PAGE = 1000;
         for (let from = 0; from < 100000; from += PAGE) {
             let q = sb.from('creators').select('nome,email').range(from, from + PAGE - 1);
             if (target && target !== 'todos') q = q.eq('status', target);
             if (uf) q = q.eq('estado', uf);
+            if (cidade) q = q.eq('cidade', cidade);
             const { data, error } = await q;
             if (error) return null;
             if (!data || !data.length) break;
@@ -3717,13 +3727,49 @@
         ['dispSubject', 'dispBody', 'dispBtnText', 'dispBtnLink', 'dispHtml'].forEach(id => { const f = document.getElementById(id); if (f) f.oninput = renderDispPreview; });
         setDispMode(dispMode);
         loadAgendados();
+        const cidSel = document.getElementById('dispCidade');
+        if (cidSel && cidSel.options.length <= 1) { const uf0 = (document.getElementById('dispUF') || {}).value || ''; cidSel.disabled = !uf0; const w0 = document.getElementById('dispCidadeWrap'); if (w0) w0.style.opacity = uf0 ? '1' : '0.55'; }
         el.textContent = 'Contando...';
         const target = document.getElementById('dispTarget').value;
         const recs = await disparoRecipients(target);
         if (recs === null) { el.innerHTML = '<span style="color:var(--error);">Erro ao contar destinatários.</span>'; return; }
         if (target === 'teste') el.innerHTML = '🧪 Modo teste — vai só pra <b>laradam.ugc@gmail.com</b>.';
         else if (target === 'imersao') el.innerHTML = '<b style="color:var(--accent);">' + recs.length + '</b> alunas da <b>Imersão</b> vão receber este e-mail. (o filtro de estado não vale aqui)';
-        else { const uf = (document.getElementById('dispUF') || {}).value || ''; el.innerHTML = '<b style="color:var(--accent);">' + recs.length + '</b> creators' + (uf ? ' de <b>' + uf + '</b>' : '') + ' vão receber este e-mail.'; }
+        else {
+            const uf = (document.getElementById('dispUF') || {}).value || '';
+            const cid = uf ? ((document.getElementById('dispCidade') || {}).value || '') : '';
+            const onde = cid ? ' de <b>' + dispEsc(cid) + ' (' + uf + ')</b>' : (uf ? ' de <b>' + uf + '</b>' : '');
+            el.innerHTML = '<b style="color:var(--accent);">' + recs.length + '</b> creators' + onde + ' vão receber este e-mail.';
+        }
+    }
+
+    /* Troca de UF: recarrega a lista de cidades daquele estado (com quantas creators em cada). */
+    async function onDispUF() {
+        await loadDispCidades();
+        loadDisparo();
+    }
+    async function loadDispCidades() {
+        const sel = document.getElementById('dispCidade');
+        const wrap = document.getElementById('dispCidadeWrap');
+        if (!sel) return;
+        const uf = (document.getElementById('dispUF') || {}).value || '';
+        sel.innerHTML = '<option value="">Todas as cidades</option>';
+        if (wrap) wrap.style.opacity = uf ? '1' : '0.55';
+        sel.disabled = !uf;
+        if (!uf) return;
+        const rows = [];
+        const PAGE = 1000;
+        for (let from = 0; from < 100000; from += PAGE) {
+            const { data, error } = await sb.from('creators').select('cidade').eq('estado', uf).range(from, from + PAGE - 1);
+            if (error) return;
+            if (!data || !data.length) break;
+            rows.push(...data);
+            if (data.length < PAGE) break;
+        }
+        const cont = {};
+        rows.forEach(r => { const c = (r.cidade || '').trim(); if (c) cont[c] = (cont[c] || 0) + 1; });
+        Object.keys(cont).sort((a, b) => cont[b] - cont[a] || a.localeCompare(b, 'pt-BR'))
+            .forEach(c => { sel.innerHTML += '<option value="' + dispEsc(c) + '">' + dispEsc(c) + ' (' + cont[c] + ')</option>'; });
     }
     function renderDispPreview() {
         const el = document.getElementById('dispPreview');
@@ -3826,13 +3872,17 @@
         const when = new Date(whenRaw);
         if (isNaN(when.getTime()) || when.getTime() < Date.now() + 60000) { msg.style.color = 'var(--error)'; msg.textContent = 'A data precisa ser no futuro (pelo menos 1 minuto à frente).'; return; }
         const target = document.getElementById('dispTarget').value;
+        // os filtros de estado/cidade viajam com o agendamento (a função respeita os dois)
+        const ufAg = (target === 'teste' || target === 'imersao') ? '' : ((document.getElementById('dispUF') || {}).value || '');
+        const cidAg = ufAg ? ((document.getElementById('dispCidade') || {}).value || '') : '';
         const html = buildFinalHtml();
         const orig = btn.textContent; btn.textContent = 'Agendando...'; btn.disabled = true;
         try {
-            const { error } = await sb.from('emails_agendados').insert([{ assunto: subject, html: html, destinatario: target, agendado_para: when.toISOString(), status: 'pendente' }]);
+            const { error } = await sb.from('emails_agendados').insert([{ assunto: subject, html: html, destinatario: target, uf: ufAg || null, cidade: cidAg || null, agendado_para: when.toISOString(), status: 'pendente' }]);
             if (error) throw error;
             const quando = when.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-            const dest = target === 'teste' ? ' (só pra você, teste)' : target === 'todos' ? ' (todos)' : ' (' + target + ')';
+            const ondeAg = cidAg ? ' · ' + cidAg + '/' + ufAg : (ufAg ? ' · ' + ufAg : '');
+            const dest = (target === 'teste' ? ' (só pra você, teste)' : target === 'todos' ? ' (todos' + ondeAg + ')' : ' (' + target + ondeAg + ')');
             msg.style.color = 'var(--success)';
             msg.textContent = '✅ Agendado para ' + quando + dest + '. Vai sair sozinho, não precisa deixar nada aberto.';
             document.getElementById('dispWhen').value = '';
@@ -3851,7 +3901,8 @@
         el.innerHTML = data.map(a => {
             const st = stMap[a.status] || [a.status, 'var(--text)', 'rgba(0,0,0,0.06)'];
             const when = a.agendado_para ? new Date(a.agendado_para).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
-            const dest = a.destinatario === 'todos' ? 'Todos' : a.destinatario === 'teste' ? 'Teste (você)' : a.destinatario;
+            const dest = (a.destinatario === 'todos' ? 'Todos' : a.destinatario === 'teste' ? 'Teste (você)' : a.destinatario)
+                + (a.cidade ? ' · ' + a.cidade + '/' + (a.uf || '') : (a.uf ? ' · ' + a.uf : ''));
             const res = a.status === 'enviado' ? '<span style="color:var(--text-muted);font-size:12px;"> · ' + (a.enviados || 0) + ' enviados' + (a.falhas ? ' · ' + a.falhas + ' falhas' : '') + '</span>' : (a.status === 'erro' && a.erro ? '<span style="color:var(--error);font-size:12px;"> · ' + castingEsc(a.erro) + '</span>' : '');
             const cancelBtn = a.status === 'pendente' ? '<button type="button" onclick="cancelarAgendado(\'' + a.id + '\')" style="background:none;border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-family:inherit;font-size:12px;color:var(--text-soft);cursor:pointer;white-space:nowrap;">Cancelar</button>' : '';
             return '<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">'
@@ -4111,7 +4162,7 @@
     }
 
     /* ── CANDIDATURAS DAS CAMPANHAS (form público campanhas/?c=slug) ── */
-    const CAMP_META = { flores: { emoji: '🌸', nome: 'Flores' }, pais: { emoji: '👶', nome: 'Pais creators' }, decoracao: { emoji: '🛋️', nome: 'Casa & Decoração' }, fiv: { emoji: '🌱', nome: 'FIV & congelamento' } };
+    const CAMP_META = { flores: { emoji: '🌸', nome: 'Flores' }, pais: { emoji: '👶', nome: 'Pais creators' }, decoracao: { emoji: '🛋️', nome: 'Casa & Decoração' }, fiv: { emoji: '🌱', nome: 'FIV & congelamento' }, casa: { emoji: '🏡', nome: 'Casa & roupa de cama' } };
     const CAND_SEG_MAP = { ate_1k: 'Até 1.000', '1k_5k': '1.000–5.000', '5k_10k': '5.000–10.000', '10k_30k': '10.000–30.000', '30k_mais': 'Acima de 30.000' };
     const CAND_AFIL_MAP = { sim: 'Sim, já faz', as_vezes: 'Já fez algumas vezes', nao: 'Ainda não, mas quer' };
     const CAND_REGIAO_MAP = { goiania: 'Goiânia', porto_alegre: 'Porto Alegre', salvador: 'Salvador', belo_horizonte: 'Belo Horizonte', outra: 'Outra região', sao_paulo: 'São Paulo', brasilia: 'Distrito Federal (Brasília)', bahia: 'Bahia' };
@@ -4120,6 +4171,9 @@
     const CAND_DESEJO_MAP = { fiv: 'FIV', congelamento: 'Congelamento de óvulos', ambos: 'FIV + congelamento', decidindo: 'Ainda decidindo' };
     const CAND_IDADE_MAP = { ate_29: 'Até 29 anos', '30_34': '30 a 34', '35_37': '35 a 37', '38_40': '38 a 40', '41_mais': '41+' };
     const CAND_COMPART_MAP = { topo: 'Topa compartilhar', combinar: 'Topa, combinando o que mostrar', conversar: 'Prefere conversar antes' };
+    const CAND_ZONA_MAP = { zona_norte: 'Zona Norte de SP', zona_leste: 'Zona Leste de SP', outra_zona: 'Outra zona de SP capital', grande_sp: 'Grande São Paulo', fora_sp: 'Fora de São Paulo' };
+    const CAND_DISP_MAP = { sim: 'Tem disponibilidade', combinar: 'Precisa combinar as datas' };
+    function candCache(v) { const s = String(v == null ? '' : v); return /^[0-9]+$/.test(s) ? 'R$ ' + Number(s).toLocaleString('pt-BR') : s; }
     let _candData = [];
     let candFilter = 'todos';
     async function loadCandidaturas() {
@@ -4160,10 +4214,10 @@
         const filt = document.getElementById('candFilters');
         if (!list) return;
         const all = _candData;
-        const cnt = { todos: all.length, flores: 0, pais: 0, decoracao: 0, fiv: 0 };
+        const cnt = { todos: all.length, flores: 0, pais: 0, decoracao: 0, fiv: 0, casa: 0 };
         all.forEach(d => { if (cnt[d.campanha] != null) cnt[d.campanha]++; });
-        if (stats) stats.innerHTML = castingStatChip('Total', all.length) + castingStatChip('🌸 Flores', cnt.flores) + castingStatChip('👶 Pais', cnt.pais) + castingStatChip('🛋️ Decoração', cnt.decoracao) + castingStatChip('🌱 FIV', cnt.fiv);
-        const chips = [['todos', 'Todas'], ['flores', '🌸 Flores'], ['pais', '👶 Pais'], ['decoracao', '🛋️ Decoração'], ['fiv', '🌱 FIV']];
+        if (stats) stats.innerHTML = castingStatChip('Total', all.length) + castingStatChip('🌸 Flores', cnt.flores) + castingStatChip('👶 Pais', cnt.pais) + castingStatChip('🛋️ Decoração', cnt.decoracao) + castingStatChip('🌱 FIV', cnt.fiv) + castingStatChip('🏡 Casa', cnt.casa);
+        const chips = [['todos', 'Todas'], ['flores', '🌸 Flores'], ['pais', '👶 Pais'], ['decoracao', '🛋️ Decoração'], ['fiv', '🌱 FIV'], ['casa', '🏡 Casa']];
         if (filt) filt.innerHTML = chips.map(c => '<button type="button" onclick="candSetFilter(\'' + c[0] + '\')" style="background:' + (candFilter === c[0] ? 'var(--accent)' : 'var(--card)') + ';color:' + (candFilter === c[0] ? '#fff' : 'var(--text-soft)') + ';border:1px solid ' + (candFilter === c[0] ? 'var(--accent)' : 'var(--border)') + ';border-radius:100px;padding:8px 14px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">' + c[1] + ' (' + (cnt[c[0]] || 0) + ')</button>').join('');
         const buscaEl = document.getElementById('candBusca');
         const busca = (buscaEl ? buscaEl.value : '').toLowerCase().trim();
@@ -4195,6 +4249,11 @@
         if (r.idade) rows += castingRow('Faixa de idade', castingEsc(CAND_IDADE_MAP[r.idade] || r.idade));
         if (r.compartilhar) rows += castingRow('Conteúdo', castingEsc(CAND_COMPART_MAP[r.compartilhar] || r.compartilhar));
         if (r.historia) rows += castingRow('História', castingEsc(r.historia));
+        if (r.zona) rows += castingRow('Região', castingEsc(CAND_ZONA_MAP[r.zona] || r.zona) + (r.bairro ? ' · ' + castingEsc(r.bairro) : ''));
+        if (r.cache) rows += castingRow('Cachê pedido', '<b style="color:var(--accent);">' + castingEsc(candCache(r.cache)) + '</b>');
+        if (r.disponibilidade) rows += castingRow('Disponibilidade', castingEsc(CAND_DISP_MAP[r.disponibilidade] || r.disponibilidade));
+        if (r.tiktok) rows += castingRow('TikTok', '<a href="https://tiktok.com/@' + encodeURIComponent(String(r.tiktok).replace(/^@+/, '')) + '" target="_blank" style="color:var(--accent);font-weight:600;">@' + castingEsc(String(r.tiktok).replace(/^@+/, '')) + '</a>');
+        if (r.sobre_casa) rows += castingRow('Sobre a casa', castingEsc(r.sobre_casa));
         if (r.seguidores) rows += castingRow('Seguidores', castingEsc(CAND_SEG_MAP[r.seguidores] || r.seguidores));
         if (r.ja_afiliado) rows += castingRow('Já faz afiliado?', castingEsc(CAND_AFIL_MAP[r.ja_afiliado] || r.ja_afiliado));
         if (r.portfolio) rows += castingRow('Portfólio', '<a href="' + castingEsc(r.portfolio) + '" target="_blank" style="color:var(--accent);font-weight:600;">abrir ↗</a>');
@@ -4210,10 +4269,10 @@
     function exportCandidaturasCsv() {
         const rows = _candData.slice();
         if (!rows.length) { alert('Nenhuma candidatura pra exportar ainda.'); return; }
-        const head = ['campanha', 'nome', 'email', 'whatsapp', 'instagram', 'cidade', 'regiao', 'orcamento', 'para_quem', 'presente_relacao', 'desejo', 'idade', 'compartilhar', 'historia', 'seguidores', 'portfolio', 'ja_afiliado', 'ja_cadastrada', 'data'];
+        const head = ['campanha', 'nome', 'email', 'whatsapp', 'instagram', 'cidade', 'regiao', 'orcamento', 'para_quem', 'presente_relacao', 'desejo', 'idade', 'compartilhar', 'historia', 'zona', 'bairro', 'cache', 'disponibilidade', 'tiktok', 'sobre_casa', 'seguidores', 'portfolio', 'ja_afiliado', 'ja_cadastrada', 'data'];
         const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
         const lines = [head.join(',')];
-        rows.forEach(d => { const r = d.respostas || {}; lines.push([d.campanha, d.nome, d.email, d.whatsapp, d.instagram, d.cidade, r.regiao, r.orcamento, r.para_quem, r.presente_relacao, r.desejo, r.idade, r.compartilhar, r.historia, r.seguidores, r.portfolio, r.ja_afiliado, r.ja_cadastrada, d.created_at].map(esc).join(',')); });
+        rows.forEach(d => { const r = d.respostas || {}; lines.push([d.campanha, d.nome, d.email, d.whatsapp, d.instagram, d.cidade, r.regiao, r.orcamento, r.para_quem, r.presente_relacao, r.desejo, r.idade, r.compartilhar, r.historia, r.zona, r.bairro, r.cache, r.disponibilidade, r.tiktok, r.sobre_casa, r.seguidores, r.portfolio, r.ja_afiliado, r.ja_cadastrada, d.created_at].map(esc).join(',')); });
         const blob = new Blob(['﻿' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a'); a.href = url; a.download = 'candidaturas-campanhas.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);

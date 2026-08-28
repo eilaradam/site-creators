@@ -1,5 +1,6 @@
 // Processa a fila de emails agendados (tabela emails_agendados).
 // Chamado por pg_cron (a cada minuto) com header x-sched-key == AGENDADOS_KEY.
+// Respeita os filtros de estado (uf) e cidade gravados na linha do agendamento.
 // Pega 1 email vencido (agendado_para <= agora, status='pendente'), envia pra
 // base de creators via Resend (endpoint em lote /emails/batch, 100 por chamada),
 // personaliza {{nome}}, respeita email_optout, e grava o resultado.
@@ -60,6 +61,9 @@ Deno.serve(async (req) => {
         for (let from = 0; from < 200000; from += PAGE) {
           let q = admin.from("creators").select("nome,email").range(from, from + PAGE - 1);
           if (job.destinatario && job.destinatario !== "todos") q = q.eq("status", job.destinatario);
+          // filtros de segmentacao geografica (gravados junto com o agendamento)
+          if (job.uf) q = q.eq("estado", job.uf);
+          if (job.uf && job.cidade) q = q.eq("cidade", job.cidade);
           const { data, error } = await q;
           if (error) throw error;
           if (!data || !data.length) break;

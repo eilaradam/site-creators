@@ -20,6 +20,11 @@ create policy emails_ag_admin_all on public.emails_agendados
   for all to authenticated using (true) with check (true);
 create index if not exists idx_emails_ag_due on public.emails_agendados(status, agendado_para);
 
+-- 2026-08-28: segmentacao geografica viaja junto com o agendamento.
+-- Sem isso, agendar com o filtro de estado/cidade ligado no admin enviava pra base inteira.
+alter table public.emails_agendados add column if not exists uf text;      -- UF (ex.: 'SP'), null = todos
+alter table public.emails_agendados add column if not exists cidade text;  -- cidade exata (ex.: 'Sao Paulo'), so vale com uf
+
 -- Edge function: supabase/functions/processar-emails-agendados/index.ts
 --   deploy: supabase functions deploy processar-emails-agendados --project-ref <REF> --no-verify-jwt
 --   secret: AGENDADOS_KEY setado nas secrets da função (NÃO commitar o valor).
