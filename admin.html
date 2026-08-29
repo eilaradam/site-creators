@@ -2120,6 +2120,7 @@
             <button class="ig-subtab-btn" data-ig-sub="concorrencia" type="button">🏆 Concorrência</button>
             <button class="ig-subtab-btn" data-ig-sub="marcas" type="button">Marcas</button>
             <button class="ig-subtab-btn" data-ig-sub="propostas" type="button">📤 Propostas</button>
+            <button class="ig-subtab-btn" data-ig-sub="pendentes" type="button">📥 Responder</button>
             <button class="ig-subtab-btn" data-ig-sub="sorteio" type="button">🎲 Sorteio</button>
         </div>
         <div id="igPaneVisao"><div id="igReviewBox"></div><div id="igVisaoBox"><div style="padding:44px;text-align:center;color:var(--text-muted);">Carregando resumo...</div></div></div>
@@ -2233,6 +2234,35 @@
                 <input id="igPropsSearch" class="ig-input props-search" type="search" placeholder="🔎 Buscar marca, nicho ou e-mail…" oninput="igPropsSetSearch(this.value)">
             </div>
             <div id="igPropsBox"></div>
+        </div>
+        <div id="igPanePendentes" style="display:none;">
+            <style>
+            .pend-msg { background:var(--cream); border-left:3px solid var(--accent); border-radius:10px; padding:13px 15px; font-size:14px; line-height:1.55; color:#3D3833; white-space:pre-wrap; word-break:break-word; }
+            .pend-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:18px; margin-bottom:12px; transition:opacity .25s, transform .25s; }
+            .pend-card.saindo { opacity:0; transform:translateX(40px); }
+            .pend-top { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:11px; flex-wrap:wrap; }
+            .pend-user { font-weight:800; font-size:16px; color:var(--accent); text-decoration:none; }
+            .pend-user:hover { text-decoration:underline; }
+            .pend-meta { display:block; font-size:12px; color:var(--text-muted); margin-top:3px; }
+            .pend-tag { font-size:11px; font-weight:700; padding:4px 10px; border-radius:100px; white-space:nowrap; }
+            .pend-tag.robo { background:rgba(196,69,60,.12); color:#B03A32; }
+            .pend-tag.ninguem { background:rgba(212,140,20,.15); color:#A86A00; }
+            .pend-acoes { display:flex; gap:8px; margin-top:13px; flex-wrap:wrap; }
+            .pend-ok { background:var(--success, #2D7A4F); color:#fff; border:none; border-radius:10px; padding:10px 18px; font-family:inherit; font-size:13.5px; font-weight:700; cursor:pointer; }
+            .pend-ok:hover { filter:brightness(1.08); }
+            .pend-abrir { background:var(--accent); color:#fff; border:none; border-radius:10px; padding:10px 18px; font-family:inherit; font-size:13.5px; font-weight:700; cursor:pointer; text-decoration:none; display:inline-block; }
+            </style>
+            <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">Conversas em que a <b>última mensagem é da outra pessoa</b> e ficou sem resposta. Li o histórico inteiro do seu Instagram, não só o que o robô registrou. Clique em <b>✓ OK, resolvido</b> pra tirar da lista de vez (fica salvo, vale no celular também).</div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
+                <button id="igPendScan" class="ig-btn ghost" type="button">🔍 Procurar novas</button>
+                <div id="igPendProgress" style="font-size:12px;color:var(--text-muted);"></div>
+            </div>
+            <div id="igPendStats" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;"></div>
+            <div class="props-controls">
+                <div id="igPendFilters" class="props-fchips"></div>
+                <input id="igPendSearch" class="ig-input props-search" type="search" placeholder="🔎 Buscar @ ou palavra da mensagem…" oninput="igPendSetSearch(this.value)">
+            </div>
+            <div id="igPendBox"></div>
         </div>
         <div id="igPaneSorteio" style="display:none;">
             <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">Sorteie um ganhador entre quem te <b>marcou nos stories</b>. A captura automática pega todo mundo que te marcar de agora em diante; e eu também tento recuperar as menções recentes dos seus directs.</div>
@@ -8128,6 +8158,7 @@
         document.getElementById('igPaneConcorrencia').style.display = sub === 'concorrencia' ? '' : 'none';
         document.getElementById('igPaneMarcas').style.display = sub === 'marcas' ? '' : 'none';
         document.getElementById('igPaneProps').style.display = sub === 'propostas' ? '' : 'none';
+        document.getElementById('igPanePendentes').style.display = sub === 'pendentes' ? '' : 'none';
         document.getElementById('igPaneSorteio').style.display = sub === 'sorteio' ? '' : 'none';
         if (sub === 'visao' && igLeadsReady) igLoadVisao();
         if (sub === 'leads') igRenderLeads();
@@ -8135,6 +8166,7 @@
         if (sub === 'concorrencia' && !igConcLoaded) { igConcLoaded = true; igLoadConcorrencia(); }
         if (sub === 'marcas' && !igMarcasLoaded) { igMarcasLoaded = true; igLoadMarcas(); }
         if (sub === 'propostas' && !igPropsLoaded) { igPropsLoaded = true; igLoadProps(); }
+        if (sub === 'pendentes' && !igPendLoaded) { igPendLoaded = true; igLoadPendentes(); }
         if (sub === 'sorteio' && !igSorteioLoaded) { igSorteioLoaded = true; igLoadSorteio(); }
     }
 
@@ -8470,6 +8502,108 @@
         // 6. Nicho / produto
         const cNicho = p.nicho ? '<span class="props-nicho-chip">' + escapeHtml(p.nicho) + '</span>' : dash;
         return '<tr><td class="props-marca">' + cMarca + '</td><td>' + cDia + '</td><td>' + cMsg + '</td><td>' + cResp + '</td><td class="props-contact">' + cCont + '</td><td>' + cNicho + '</td></tr>';
+    }
+
+    /* ══════ 📥 RESPONDER: DMs em que a ultima palavra e da outra pessoa ══════
+       Veio do bug da automacao (o robo respondia DM e a conversa ficava lida, entao
+       ela nunca via). A lista sai do historico REAL do Instagram, varrido pela funcao
+       ig-propostas no modo {pendentes:true}. O "OK" grava respondida=true no banco,
+       entao vale no celular tambem, nao e so no navegador. */
+    let igPendLoaded = false, igPendData = [], igPendFilter = 'todas', igPendSearchQ = '';
+    async function igLoadPendentes() {
+        const box = document.getElementById('igPendBox'); if (!box) return;
+        box.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando…</div>';
+        try {
+            const { data, error } = await sb.from('ig_dms_pendentes')
+                .select('conversation_id,username,last_msg_at,last_text,msgs_minhas,msgs_deles,caiu_na_automacao')
+                .eq('respondida', false).eq('ignorada', false)
+                .order('last_msg_at', { ascending: false }).limit(2000);
+            if (error) throw error;
+            igPendData = data || [];
+        } catch (e) {
+            box.innerHTML = '<div style="padding:20px;color:var(--error);">Não consegui carregar agora: ' + escapeHtml(e.message || String(e)) + '</div>';
+            return;
+        }
+        igPendRender();
+    }
+    function igPendSetFilter(k) { igPendFilter = k; igPendRender(); }
+    function igPendSetSearch(v) { igPendSearchQ = String(v || ''); igPendRender(); }
+    function igPendFiltered() {
+        let rows = igPendData.slice();
+        const noventa = Date.now() - 90 * 864e5;
+        if (igPendFilter === 'automacao') rows = rows.filter(r => r.caiu_na_automacao);
+        else if (igPendFilter === 'ninguem') rows = rows.filter(r => !r.msgs_minhas);
+        else if (igPendFilter === 'recentes') rows = rows.filter(r => (Date.parse(r.last_msg_at || 0) || 0) > noventa);
+        const q = igPendSearchQ.trim().toLowerCase();
+        if (q) rows = rows.filter(r => ((r.username || '') + ' ' + (r.last_text || '')).toLowerCase().includes(q));
+        return rows;
+    }
+    function igPendRender() {
+        const box = document.getElementById('igPendBox'), stats = document.getElementById('igPendStats'), filt = document.getElementById('igPendFilters');
+        if (!box) return;
+        const all = igPendData;
+        const noventa = Date.now() - 90 * 864e5;
+        const nRec = all.filter(r => (Date.parse(r.last_msg_at || 0) || 0) > noventa).length;
+        const nRobo = all.filter(r => r.caiu_na_automacao).length;
+        const nNinguem = all.filter(r => !r.msgs_minhas).length;
+        if (stats) stats.innerHTML = castingStatChip('Pra responder', all.length) + castingStatChip('🗓️ Últimos 90 dias', nRec)
+            + castingStatChip('🤖 Caiu na automação', nRobo) + castingStatChip('🔇 Ninguém respondeu', nNinguem);
+        const chips = [['todas', 'Todas'], ['recentes', '🗓️ Últimos 90 dias'], ['automacao', '🤖 Caiu na automação'], ['ninguem', '🔇 Ninguém respondeu']];
+        if (filt) filt.innerHTML = chips.map(c => '<button type="button" class="props-fchip' + (igPendFilter === c[0] ? ' on' : '') + '" onclick="igPendSetFilter(\'' + c[0] + '\')">' + c[1] + '</button>').join('');
+        if (!all.length) { box.innerHTML = '<div class="props-empty" style="padding:34px;">🎉 Zerado! Nenhuma DM esperando resposta sua.</div>'; return; }
+        const rows = igPendFiltered();
+        if (!rows.length) { box.innerHTML = '<div class="props-empty">Nada nesse filtro' + (igPendSearchQ.trim() ? ' / busca' : '') + '.</div>'; return; }
+        const MOSTRA = 150;
+        box.innerHTML = rows.slice(0, MOSTRA).map(igPendCard).join('')
+            + '<div class="props-count">Mostrando <b>' + Math.min(MOSTRA, rows.length) + '</b> de ' + rows.length
+            + (rows.length > MOSTRA ? ' (as mais recentes primeiro; conforme você for dando OK, as próximas aparecem)' : '') + '.</div>';
+    }
+    function igPendCard(r) {
+        const u = (r.username || '').replace(/^@+/, '');
+        let dt = '';
+        try { if (r.last_msg_at) dt = new Date(r.last_msg_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }); } catch (e) {}
+        const tags = (r.caiu_na_automacao ? '<span class="pend-tag robo">caiu na automação</span>' : '')
+            + (!r.msgs_minhas ? '<span class="pend-tag ninguem">ninguém respondeu</span>' : '');
+        const cid = String(r.conversation_id).replace(/'/g, '');
+        return '<div class="pend-card" id="pend-' + escapeHtml(cid) + '">'
+            + '<div class="pend-top"><div>'
+            + '<a class="pend-user" href="https://instagram.com/' + encodeURIComponent(u) + '" target="_blank" rel="noopener">@' + escapeHtml(u || 'sem @') + '</a>'
+            + '<span class="pend-meta">última mensagem em ' + (dt || '—') + '</span></div>'
+            + '<div style="display:flex;gap:6px;flex-wrap:wrap;">' + tags + '</div></div>'
+            + '<div class="pend-msg">' + escapeHtml(r.last_text || '') + '</div>'
+            + '<div class="pend-acoes">'
+            + '<a class="pend-abrir" href="https://ig.me/m/' + encodeURIComponent(u) + '" target="_blank" rel="noopener">↗ Abrir a DM</a>'
+            + '<button class="pend-ok" type="button" onclick="igPendOk(\'' + escapeHtml(cid) + '\')">✓ OK, resolvido</button>'
+            + '</div></div>';
+    }
+    async function igPendOk(convId) {
+        const card = document.getElementById('pend-' + convId);
+        if (card) card.classList.add('saindo');
+        try {
+            const { error } = await sb.from('ig_dms_pendentes').update({ respondida: true }).eq('conversation_id', convId);
+            if (error) throw error;
+            igPendData = igPendData.filter(r => String(r.conversation_id) !== String(convId));
+            setTimeout(igPendRender, 220);
+        } catch (e) {
+            if (card) card.classList.remove('saindo');
+            alert('Não consegui marcar agora: ' + (e.message || e));
+        }
+    }
+    /* Procura novas: a funcao anda um pedaco do historico por chamada (limite de 150s). */
+    async function igPendScanNow() {
+        const btn = document.getElementById('igPendScan'), prog = document.getElementById('igPendProgress');
+        if (btn) { btn.disabled = true; btn.textContent = 'Lendo suas DMs…'; }
+        for (let i = 1; i <= 4; i++) {
+            if (prog) prog.innerHTML = '📥 Rodada ' + i + ' de 4… lendo suas conversas.';
+            let d = null;
+            try { const r = await sb.functions.invoke('ig-propostas', { body: { pendentes: true } }); d = r && r.data; } catch (e) { break; }
+            if (!d || d.error) break;
+            if (prog) prog.innerHTML = '📥 ' + igNum(d.conversas_no_total || 0) + ' conversas lidas · <b>' + igNum(d.total_salvas || 0) + '</b> esperando resposta'
+                + (d.historico_completo ? ' · histórico inteiro varrido ✅' : '');
+            if (!d.continuar) break;
+        }
+        if (btn) { btn.disabled = false; btn.textContent = '🔍 Procurar novas'; }
+        await igLoadPendentes();
     }
 
     /* ══ NEGOCIACOES NA DM (empresas com quem ela conversa, mesmo sem a proposta padrao) ══ */
@@ -10201,6 +10335,7 @@
         const mab = document.getElementById('igMarcasBtn'); if (mab) mab.addEventListener('click', igAnalyzeDMs);
         const psb = document.getElementById('igPropsScan'); if (psb) psb.addEventListener('click', igPropsScanNow);
         const nsb = document.getElementById('igNegScan'); if (nsb) nsb.addEventListener('click', igNegScanNow);
+        const psb2 = document.getElementById('igPendScan'); if (psb2) psb2.addEventListener('click', igPendScanNow);
         const pcb = document.getElementById('igPropsCsv'); if (pcb) pcb.addEventListener('click', igPropsExportCsv);
         const sl = document.getElementById('igSortLoad'); if (sl) sl.addEventListener('click', igLoadSorteio);
         const mbox = document.getElementById('igMarcasBox');
