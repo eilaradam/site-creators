@@ -2217,6 +2217,8 @@
             .neg-resumo { font-size:13px; color:var(--text-soft); line-height:1.45; max-width:340px; }
             .neg-prox { font-size:12px; color:var(--text); line-height:1.4; margin-top:4px; }
             .neg-prox b { color:var(--accent); }
+            .neg-tirar { display:inline-block; margin-top:7px; background:none; border:1px solid var(--border); color:var(--text-muted); border-radius:8px; padding:3px 9px; font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; }
+            .neg-tirar:hover { border-color:var(--error); color:var(--error); }
             </style>
             <div id="igPropsIntro" style="font-size:13px;color:var(--text-muted);margin-bottom:14px;"></div>
             <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
@@ -8454,7 +8456,8 @@
             const fase = p.neg.fase || 'negociando';
             cResp = '<span class="neg-fase ' + escapeHtml(fase) + '">' + (NEG_FASE_LBL[fase] || fase) + '</span>'
                 + (p.neg.resumo ? '<div class="neg-resumo">' + escapeHtml(p.neg.resumo) + '</div>' : '')
-                + (p.neg.proximo_passo ? '<div class="neg-prox">👉 ' + escapeHtml(p.neg.proximo_passo) + '</div>' : '');
+                + (p.neg.proximo_passo ? '<div class="neg-prox">👉 ' + escapeHtml(p.neg.proximo_passo) + '</div>' : '')
+                + '<button type="button" class="neg-tirar" title="Não é marca? Tira da lista." onclick="igNegArquivar(\'' + escapeHtml(p.neg.conversation_id) + '\', \'' + escapeHtml(String(p.username || '').replace(/'/g, '')) + '\')">✕ não é marca</button>';
         } else {
             cResp = p.replied ? '<span class="props-badge yes">✅ Respondeu</span>' : '<span class="props-badge no">⏳ Sem resposta</span>';
         }
@@ -8471,6 +8474,20 @@
 
     /* ══ NEGOCIACOES NA DM (empresas com quem ela conversa, mesmo sem a proposta padrao) ══ */
     const NEG_FASE_LBL = { primeiro_contato: '👋 Primeiro contato', negociando: '💬 Negociando', fechado: '🤝 Fechado', encerrado: '💤 Parou' };
+    /* Tira da lista quando a IA achou que era marca mas era creator/aluna.
+       Fica arquivada pra sempre: mesmo que a conversa receba mensagem nova e volte
+       pra fila de analise, ela nao reaparece. */
+    async function igNegArquivar(convId, quem) {
+        if (!confirm('Tirar @' + quem + ' da lista de negociações?\n\nUse quando não for empresa (creator, aluna, conversa pessoal). Ela não volta mais.')) return;
+        try {
+            const { error } = await sb.from('ig_negociacoes').update({ arquivada: true, is_negocio: false }).eq('conversation_id', convId);
+            if (error) throw error;
+            const alvo = igNegData.find(n => n.conversation_id === convId);
+            if (alvo) { alvo.arquivada = true; alvo.is_negocio = false; }
+            igPropsRender();
+        } catch (e) { alert('Não consegui tirar agora: ' + (e.message || e)); }
+    }
+
     /* Varre em rodadas: a função anda um pedaço do histórico por chamada (limite de 150s). */
     async function igNegScanNow() {
         const btn = document.getElementById('igNegScan');
