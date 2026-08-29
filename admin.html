@@ -2206,10 +2206,26 @@
             .props-dash { color:var(--text-muted); }
             .props-count { font-size:12px; color:var(--text-muted); margin-top:9px; }
             .props-empty { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:30px; text-align:center; color:var(--text-muted); }
+            .props-views { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+            .props-view { background:var(--card); border:1px solid var(--border); color:var(--text-soft); border-radius:999px; padding:9px 18px; font-family:inherit; font-size:13.5px; font-weight:700; cursor:pointer; }
+            .props-view.on { background:var(--accent); border-color:var(--accent); color:#fff; }
+            .neg-fase { display:inline-block; font-size:11.5px; font-weight:700; padding:4px 11px; border-radius:100px; white-space:nowrap; }
+            .neg-fase.negociando { background:rgba(16,185,129,0.13); color:#0B7A55; }
+            .neg-fase.primeiro_contato { background:rgba(59,130,246,0.13); color:#1D4ED8; }
+            .neg-fase.fechado { background:rgba(212,87,42,0.14); color:#B8461F; }
+            .neg-fase.encerrado { background:rgba(0,0,0,0.06); color:var(--text-muted); }
+            .neg-quem { display:inline-block; font-size:11.5px; font-weight:700; padding:4px 11px; border-radius:100px; white-space:nowrap; }
+            .neg-quem.voce { background:rgba(212,140,20,0.15); color:#A86A00; }
+            .neg-quem.marca { background:rgba(0,0,0,0.05); color:var(--text-soft); }
+            .neg-resumo { font-size:13px; color:var(--text-soft); line-height:1.45; max-width:340px; }
+            .neg-prox { font-size:12px; color:var(--text); line-height:1.4; margin-top:4px; }
+            .neg-prox b { color:var(--accent); }
             </style>
-            <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">As marcas pra quem <b>você enviou proposta</b> (aquele seu texto padrão) e se já responderam. Eu vou varrendo seu histórico de DMs automaticamente e a lista fica salva, então não precisa reanalisar toda vez. 💛</div>
+            <div id="igPropsViews" class="props-views"></div>
+            <div id="igPropsIntro" style="font-size:13px;color:var(--text-muted);margin-bottom:14px;"></div>
             <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
                 <button id="igPropsScan" class="ig-btn" type="button">🔍 Buscar novas propostas</button>
+                <button id="igNegScan" class="ig-btn" type="button">🤝 Buscar negociações na DM</button>
                 <button id="igPropsCsv" class="ig-btn ghost" type="button">⬇ Exportar CSV</button>
                 <div id="igPropsProgress" style="font-size:12px;color:var(--text-muted);"></div>
             </div>
@@ -8255,6 +8271,9 @@
     // ---- Propostas enviadas (marcas que você prospectou) ----
     let igPropsLoaded = false, igPropsData = [], igPropsFilter = 'todas';
     let igPropsSearchQ = '', igPropsSortKey = 'envio', igPropsSortDir = -1;
+    /* negociacoes na DM (marcas com quem ela conversa, mesmo sem a proposta padrao) */
+    let igNegData = [], igNegScanState = null, igNegPend = 0, igNegFilter = 'ativas';
+    let igPropsView = 'propostas';
     async function igLoadProps() {
         const box = document.getElementById('igPropsBox'); if (!box) return;
         box.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando…</div>';
@@ -8262,10 +8281,14 @@
             const { data, error } = await sb.functions.invoke('ig-propostas', { body: { list: true } });
             if (error || !data || data.error) throw new Error((data && data.error) || 'erro');
             igPropsData = data.propostas || [];
+            igNegData = data.negociacoes || [];
+            igNegPend = data.negociacoes_pendentes || 0;
+            igNegScanState = data.neg_scan || null;
             igPropsProgress(data.scan);
         } catch (e) { box.innerHTML = '<div style="padding:20px;color:var(--error);">Não consegui carregar as propostas agora.</div>'; return; }
         igPropsRender();
     }
+    function igPropsSetView(v) { igPropsView = v; igPropsRender(); }
     function igPropsProgress(scan) {
         const el = document.getElementById('igPropsProgress'); if (!el) return;
         if (!scan) { el.textContent = ''; return; }
@@ -8318,6 +8341,7 @@
         return 'https://wa.me/' + d;
     }
     function igPropsExportCsv() {
+        if (igPropsView === 'negocios') return igNegExportCsv();
         const rows = igPropsData.slice().sort(igPropsCompare); // exporta tudo, na ordenação atual
         if (!rows.length) { alert('Nada pra exportar ainda.'); return; }
         const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
@@ -8332,6 +8356,22 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a'); a.href = url; a.download = 'propostas-marcas.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
     }
+    function igNegExportCsv() {
+        const rows = igNegFiltered();
+        if (!rows.length) { alert('Nada pra exportar ainda.'); return; }
+        const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+        const head = ['empresa', 'instagram', 'ultima_mensagem', 'quem_falou_por_ultimo', 'fase', 'resumo', 'o_que_falta', 'email', 'telefone'];
+        const lines = [head.join(',')];
+        rows.forEach(n => {
+            let dt = ''; try { if (n.last_msg_at) dt = new Date(n.last_msg_at).toLocaleDateString('pt-BR'); } catch (e) {}
+            lines.push([n.marca || n.nome || ('@' + (n.username || '')), '@' + (n.username || ''), dt,
+                n.last_from === 'marca' ? 'A empresa' : 'Você', NEG_FASE_LBL[n.fase] || n.fase || '',
+                n.resumo || '', n.proximo_passo || '', n.email || '', n.phone || ''].map(esc).join(','));
+        });
+        const blob = new Blob(['\ufeff' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = 'negociacoes-dm.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    }
     function igPropsTh(key, label) {
         if (!key) return '<th>' + label + '</th>';
         const on = igPropsSortKey === key;
@@ -8341,6 +8381,17 @@
     function igPropsRender() {
         const box = document.getElementById('igPropsBox'), stats = document.getElementById('igPropsStats'), filt = document.getElementById('igPropsFilters');
         if (!box) return;
+        /* chips de visao (propostas enviadas x negociacoes na DM) */
+        const views = document.getElementById('igPropsViews');
+        const nNeg = igNegData.filter(n => n.is_negocio).length;
+        if (views) views.innerHTML =
+            '<button type="button" class="props-view' + (igPropsView === 'propostas' ? ' on' : '') + '" onclick="igPropsSetView(\'propostas\')">📤 Propostas enviadas (' + igPropsData.length + ')</button>'
+            + '<button type="button" class="props-view' + (igPropsView === 'negocios' ? ' on' : '') + '" onclick="igPropsSetView(\'negocios\')">🤝 Negociando na DM (' + nNeg + ')</button>';
+        const intro = document.getElementById('igPropsIntro');
+        if (intro) intro.innerHTML = igPropsView === 'negocios'
+            ? 'As <b>empresas com quem você está conversando</b> na DM, mesmo sem ter mandado a proposta padrão. Eu leio suas conversas, separo as que têm assunto de negócio e a IA diz em que pé está cada uma. Creators, alunas e conversa pessoal ficam de fora. 🤝'
+            : 'As marcas pra quem <b>você enviou proposta</b> (aquele seu texto padrão) e se já responderam. Eu vou varrendo seu histórico de DMs automaticamente e a lista fica salva, então não precisa reanalisar toda vez. 💛';
+        if (igPropsView === 'negocios') { igNegRender(); return; }
         const all = igPropsData;
         const nAg = all.filter(p => p.status === 'aguardando').length;
         const nResp = all.filter(p => p.replied).length;
@@ -8381,6 +8432,95 @@
         // 6. Nicho / produto
         const cNicho = p.nicho ? '<span class="props-nicho-chip">' + escapeHtml(p.nicho) + '</span>' : dash;
         return '<tr><td class="props-marca">' + cMarca + '</td><td>' + cDia + '</td><td>' + cMsg + '</td><td>' + cResp + '</td><td class="props-contact">' + cCont + '</td><td>' + cNicho + '</td></tr>';
+    }
+
+    /* ══ NEGOCIACOES NA DM (empresas com quem ela conversa, mesmo sem a proposta padrao) ══ */
+    const NEG_FASE_LBL = { primeiro_contato: '👋 Primeiro contato', negociando: '💬 Negociando', fechado: '🤝 Fechado', encerrado: '💤 Parou' };
+    function igNegSetFilter(k) { igNegFilter = k; igPropsRender(); }
+    function igNegFiltered() {
+        let rows = igNegData.filter(n => n.is_negocio && !n.arquivada);
+        if (igNegFilter === 'ativas') rows = rows.filter(n => n.fase === 'negociando' || n.fase === 'primeiro_contato');
+        else if (igNegFilter === 'voce') rows = rows.filter(n => n.last_from === 'marca' && n.fase !== 'encerrado');
+        else if (igNegFilter === 'marca') rows = rows.filter(n => n.last_from === 'eu' && n.fase !== 'encerrado');
+        else if (igNegFilter === 'fechado') rows = rows.filter(n => n.fase === 'fechado');
+        const q = igPropsSearchQ.trim().toLowerCase();
+        if (q) rows = rows.filter(n => ((n.username || '') + ' ' + (n.marca || '') + ' ' + (n.resumo || '') + ' ' + (n.email || '')).toLowerCase().includes(q));
+        return rows.sort((a, b) => (Date.parse(b.last_msg_at || 0) || 0) - (Date.parse(a.last_msg_at || 0) || 0));
+    }
+    function igNegRender() {
+        const box = document.getElementById('igPropsBox'), stats = document.getElementById('igPropsStats'), filt = document.getElementById('igPropsFilters');
+        if (!box) return;
+        const negs = igNegData.filter(n => n.is_negocio && !n.arquivada);
+        const esperandoVoce = negs.filter(n => n.last_from === 'marca' && n.fase !== 'encerrado').length;
+        const esperandoMarca = negs.filter(n => n.last_from === 'eu' && n.fase !== 'encerrado').length;
+        const comEmail = negs.filter(n => n.email).length;
+        if (stats) stats.innerHTML = castingStatChip('Total', negs.length)
+            + castingStatChip('⏳ Esperando você', esperandoVoce)
+            + castingStatChip('📤 Esperando a marca', esperandoMarca)
+            + castingStatChip('📧 Com e-mail', comEmail);
+        const chips = [['ativas', '💬 Em andamento'], ['voce', '⏳ Esperando você'], ['marca', '📤 Esperando a marca'], ['fechado', '🤝 Fechadas'], ['todas', 'Todas']];
+        if (filt) filt.innerHTML = chips.map(c => '<button type="button" class="props-fchip' + (igNegFilter === c[0] ? ' on' : '') + '" onclick="igNegSetFilter(\'' + c[0] + '\')">' + c[1] + '</button>').join('');
+        if (!negs.length) {
+            box.innerHTML = '<div class="props-empty" style="padding:34px;">Ainda não encontrei negociações nas suas DMs.<br><span style="font-size:12.5px;">Clique em <b>🤝 Buscar negociações na DM</b> pra eu varrer suas conversas' + (igNegPend ? ' (tem ' + igNegPend + ' conversa(s) na fila de análise)' : '') + '.</span></div>';
+            return;
+        }
+        const rows = igNegFiltered();
+        if (!rows.length) { box.innerHTML = '<div class="props-empty">Nenhuma negociação nesse filtro' + (igPropsSearchQ.trim() ? ' / busca' : '') + '.</div>'; return; }
+        const head = '<th>Empresa</th><th>Última mensagem</th><th>Em que pé está</th><th>O que falta</th><th>Contato</th>';
+        const pend = igNegPend ? '<div class="props-count">⏳ ' + igNegPend + ' conversa(s) ainda na fila de análise. Clique em buscar de novo pra terminar.</div>' : '';
+        box.innerHTML = '<div class="props-wrap"><table class="props-table"><thead><tr>' + head + '</tr></thead><tbody>'
+            + rows.map(igNegRowHtml).join('') + '</tbody></table></div>'
+            + '<div class="props-count">Mostrando <b>' + rows.length + '</b> de ' + negs.length + ' negociação(ões). Clique na mensagem pra ver o texto inteiro.</div>' + pend;
+    }
+    function igNegRowHtml(n) {
+        const dash = '<span class="props-dash">—</span>';
+        const u = (n.username || '').replace(/^@+/, '');
+        const nomeMarca = (n.marca && n.marca.replace(/^@+/, '').toLowerCase() !== u.toLowerCase()) ? n.marca : (n.nome || '');
+        let cMarca = '<a href="https://instagram.com/' + encodeURIComponent(u) + '" target="_blank" rel="noopener">@' + escapeHtml(u || 'sem @') + '</a>'
+            + (nomeMarca ? '<div class="props-nome" title="' + escapeHtml(nomeMarca) + '">' + escapeHtml(nomeMarca) + '</div>' : '');
+        let dt = '';
+        try { if (n.last_msg_at) dt = new Date(n.last_msg_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }); } catch (e) {}
+        const quem = n.last_from === 'marca'
+            ? '<span class="neg-quem voce">a empresa falou por último</span>'
+            : '<span class="neg-quem marca">você falou por último</span>';
+        const msg = n.last_text ? String(n.last_text) : '';
+        const cUlt = '<span class="props-dia">' + (dt || '—') + '</span><div style="margin-top:5px;">' + quem + '</div>'
+            + (msg ? '<div class="props-msg" title="' + escapeHtml(msg) + '" onclick="this.classList.toggle(\'open\')">' + escapeHtml(msg) + '</div>' : '');
+        const fase = n.fase || 'negociando';
+        const cFase = '<span class="neg-fase ' + escapeHtml(fase) + '">' + (NEG_FASE_LBL[fase] || fase) + '</span>'
+            + (n.resumo ? '<div class="neg-resumo">' + escapeHtml(n.resumo) + '</div>' : '')
+            + (n.veio_de_proposta ? '<div style="font-size:11px;color:var(--text-muted);margin-top:4px;">veio da sua proposta padrão</div>' : '');
+        const cProx = n.proximo_passo ? '<div class="neg-prox">' + escapeHtml(n.proximo_passo) + '</div>' : dash;
+        let cCont = '';
+        if (n.email) cCont += '<a href="mailto:' + escapeHtml(n.email) + '" title="' + escapeHtml(n.email) + '">📧 ' + escapeHtml(n.email) + '</a>';
+        if (n.phone) { const wa = igPropsWa(n.phone); if (wa) cCont += '<a href="' + escapeHtml(wa) + '" target="_blank" rel="noopener">💬 ' + escapeHtml(n.phone) + '</a>'; }
+        if (u) cCont += '<a href="https://ig.me/m/' + encodeURIComponent(u) + '" target="_blank" rel="noopener">↗ abrir a DM</a>';
+        if (!cCont) cCont = dash;
+        return '<tr><td class="props-marca">' + cMarca + '</td><td>' + cUlt + '</td><td>' + cFase + '</td><td>' + cProx + '</td><td class="props-contact">' + cCont + '</td></tr>';
+    }
+    /* Varre em rodadas: a função anda um pedaço do histórico por chamada (limite de 150s). */
+    async function igNegScanNow() {
+        const btn = document.getElementById('igNegScan');
+        const prog = document.getElementById('igPropsProgress');
+        if (btn) { btn.disabled = true; btn.textContent = 'Lendo suas DMs…'; }
+        igPropsView = 'negocios';
+        const MAX_RODADAS = 6;
+        let achadas = 0;
+        for (let i = 1; i <= MAX_RODADAS; i++) {
+            if (prog) prog.innerHTML = '🤝 Rodada ' + i + ' de ' + MAX_RODADAS + '… lendo suas conversas' + (achadas ? ' · ' + achadas + ' negociações até agora' : '') + '.';
+            let d = null;
+            try { const r = await sb.functions.invoke('ig-propostas', { body: { negocios: true } }); d = r && r.data; } catch (e) { break; }
+            if (!d || d.error) break;
+            achadas = d.negociacoes_confirmadas || achadas;
+            if (prog) prog.innerHTML = '🤝 ' + igNum(d.conversas_no_total || 0) + ' conversas lidas · <b>' + achadas + '</b> negociações'
+                + (d.faltam_classificar ? ' · ' + d.faltam_classificar + ' na fila' : '')
+                + (d.historico_completo ? ' · histórico inteiro varrido ✅' : '');
+            if (!d.continuar) break;
+        }
+        if (btn) { btn.disabled = false; btn.textContent = '🤝 Buscar negociações na DM'; }
+        await igLoadProps();
+        igPropsView = 'negocios';
+        igPropsRender();
     }
 
     // ---- Visão geral (resumo de tudo) ----
@@ -10073,6 +10213,7 @@
         const mdv = document.getElementById('igModal'); if (mdv) mdv.addEventListener('click', (e) => { const x = e.target.closest('[data-varx]'); if (x) igRemoveVar(x.dataset.varx, +x.dataset.vi); });
         const mab = document.getElementById('igMarcasBtn'); if (mab) mab.addEventListener('click', igAnalyzeDMs);
         const psb = document.getElementById('igPropsScan'); if (psb) psb.addEventListener('click', igPropsScanNow);
+        const nsb = document.getElementById('igNegScan'); if (nsb) nsb.addEventListener('click', igNegScanNow);
         const pcb = document.getElementById('igPropsCsv'); if (pcb) pcb.addEventListener('click', igPropsExportCsv);
         const sl = document.getElementById('igSortLoad'); if (sl) sl.addEventListener('click', igLoadSorteio);
         const mbox = document.getElementById('igMarcasBox');
