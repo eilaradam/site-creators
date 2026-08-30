@@ -9509,8 +9509,8 @@
         const hasAssets = igSelAssets.size > 0;
         const withFlow = (typeof igFlow !== 'undefined') && igFlow.steps && igFlow.steps.length > 0;
         if (hasAssets && withFlow) {
-            note.style.display = 'block'; note.style.background = 'rgba(200,68,26,0.08)';
-            note.innerHTML = '⚠️ Automações com <b>fluxo de botões</b> ainda não enviam os arquivos anexados. Pra enviar mídia, remova o fluxo abaixo (ou os arquivos).';
+            note.style.display = 'block'; note.style.background = 'var(--warm)';
+            note.innerHTML = '💡 O arquivo chega junto da <b>última mensagem do fluxo</b>, ou seja, depois que a pessoa toca o botão. É assim porque o Instagram não deixa mandar arquivo na resposta ao comentário, só depois que ela responde alguma coisa.';
         } else if (hasAssets) {
             note.style.display = 'block'; note.style.background = 'var(--warm)';
             note.innerHTML = '💡 Como o Instagram só deixa enviar arquivo depois que a pessoa responde, ela recebe sua mensagem com um botão <b>"🎁 Receber material"</b>. Ao tocar, os arquivos chegam na DM.';
