@@ -1606,8 +1606,12 @@
 <!-- ══ TAB: ADMINISTRAÇÃO (Alunas · Campanhas · Conteúdo · Termos · Links · Banners) ══ -->
 <div class="dashboard" id="tabAdmin">
     <div class="admin-subtabs" id="adminSubtabs">
-        <button class="admin-subtab-btn active" data-admin-subtab="campanhas">Campanhas &amp; E-mails</button>
-        <button class="admin-subtab-btn" data-admin-subtab="gestao">Conteúdo</button>
+        <!-- ESCONDIDA (30/08/2026): mockup antigo preso a UMA campanha (Espaço Laser, 300 vagas
+             escritas no código, e-mail de copiar e colar na mão). Quem faz isso de verdade hoje
+             é a aba Campanhas e o Disparo de e-mail. O código e o painel continuam no arquivo:
+             pra trazer de volta, é só apagar este comentário e o hidden do botão. -->
+        <button class="admin-subtab-btn" data-admin-subtab="campanhas" hidden>Campanhas &amp; E-mails</button>
+        <button class="admin-subtab-btn active" data-admin-subtab="gestao">Conteúdo</button>
         <button class="admin-subtab-btn" data-admin-subtab="termos">Termos</button>
         <button class="admin-subtab-btn" data-admin-subtab="links">Links</button>
         <button class="admin-subtab-btn" data-admin-subtab="banners">Banners</button>
