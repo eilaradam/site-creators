@@ -1287,11 +1287,73 @@
 <!-- ── TAB: DASHBOARD ── -->
 <!-- ── TAB: AGENDA (novo dashboard / Organização) ── -->
 <div class="dashboard show" id="tabPainel">
-    <div id="painelBox" style="max-width:1100px;">
-        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:34px;text-align:center;color:var(--text-muted);">
-            <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px;">Painel principal em construção</div>
-            <div style="font-size:14px;line-height:1.6;">É aqui que vai entrar o resumo de tudo: o que precisa de você hoje, seus e-mails e as entregas.</div>
-        </div>
+    <style>
+    .pnl { max-width: 1120px; }
+    .pnl-hero { font-family: 'Be Vietnam Pro', 'DM Sans', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: -.4px; margin-bottom: 3px; }
+    .pnl-sub { font-size: 13.5px; color: var(--text-muted); margin-bottom: 22px; }
+    .pnl-sec { margin-bottom: 30px; }
+    .pnl-sec > h3 { font-size: 11.5px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 9px; }
+    .pnl-sec > h3 .aside { margin-left: auto; font-size: 11px; letter-spacing: 0; text-transform: none; color: var(--text-muted); font-weight: 500; }
+    .pnl-acoes { display: grid; grid-template-columns: repeat(auto-fill, minmax(238px, 1fr)); gap: 11px; }
+    .pnl-acao { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 17px; text-align: left; cursor: pointer; transition: border-color .16s, transform .16s; font-family: inherit; }
+    .pnl-acao:hover { border-color: var(--accent); transform: translateY(-1px); }
+    .pnl-acao .n { font-size: 27px; font-weight: 700; letter-spacing: -.8px; line-height: 1.1; }
+    .pnl-acao .l { font-size: 13.5px; color: var(--text); margin-top: 3px; font-weight: 600; }
+    .pnl-acao .d { font-size: 12px; color: var(--text-muted); margin-top: 3px; line-height: 1.45; }
+    .pnl-acao.quente .n { color: var(--accent); }
+    .pnl-acao.calmo { opacity: .62; }
+    .pnl-linha { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .pnl-item { display: flex; align-items: center; gap: 13px; padding: 13px 17px; border-bottom: 1px solid var(--border); }
+    .pnl-item:last-child { border-bottom: none; }
+    .pnl-item .txt { flex: 1; min-width: 0; }
+    .pnl-item .t { font-size: 14.5px; font-weight: 600; }
+    .pnl-item .s { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
+    .pnl-item.feito .t { text-decoration: line-through; color: var(--text-muted); font-weight: 500; }
+    .pnl-prazo { font-size: 12px; font-weight: 700; padding: 4px 11px; border-radius: 100px; white-space: nowrap; background: var(--warm); color: var(--text-soft); }
+    .pnl-prazo.hoje { background: var(--accent-glow); color: var(--accent); }
+    .pnl-prazo.atrasado { background: rgba(220,38,38,.10); color: var(--error); }
+    .pnl-check { width: 22px; height: 22px; border-radius: 6px; border: 1.5px solid var(--border-strong); background: var(--card); cursor: pointer; flex: none; }
+    .pnl-check:hover { border-color: var(--accent); }
+    .pnl-check.on { background: var(--success); border-color: var(--success); }
+    .pnl-vazio { padding: 26px; text-align: center; color: var(--text-muted); font-size: 14px; }
+    .pnl-add { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 11px; }
+    .pnl-add input { flex: 1; min-width: 190px; padding: 10px 14px; }
+    .pnl-mail { display: flex; gap: 13px; padding: 13px 17px; border-bottom: 1px solid var(--border); align-items: flex-start; }
+    .pnl-mail:last-child { border-bottom: none; }
+    .pnl-mail .de { font-size: 13.5px; font-weight: 600; width: 178px; flex: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pnl-mail .as { font-size: 13.5px; color: var(--text-soft); flex: 1; min-width: 0; }
+    .pnl-mail .qd { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+    @media (max-width: 720px) {
+      .pnl-acoes { grid-template-columns: 1fr 1fr; }
+      .pnl-mail { flex-direction: column; gap: 3px; }
+      .pnl-mail .de { width: auto; }
+    }
+    </style>
+    <div class="pnl">
+        <div class="pnl-hero" id="pnlOi">Oi, Lara</div>
+        <div class="pnl-sub" id="pnlData"></div>
+
+        <section class="pnl-sec">
+            <h3>O que precisa de você <span class="aside" id="pnlAgora"></span></h3>
+            <div class="pnl-acoes" id="pnlAcoes">
+                <div class="pnl-vazio">Carregando…</div>
+            </div>
+        </section>
+
+        <section class="pnl-sec">
+            <h3>Suas entregas <span class="aside" id="pnlEntregasResumo"></span></h3>
+            <div class="pnl-linha" id="pnlEntregas"><div class="pnl-vazio">Carregando…</div></div>
+            <div class="pnl-add">
+                <input id="pnlNovaEntrega" class="ig-input" type="text" placeholder="O que você precisa entregar? Ex: 3 reels pra Hoomy">
+                <input id="pnlNovoPrazo" class="ig-input" type="date" style="flex:0 0 165px;min-width:150px;">
+                <button class="ig-btn" type="button" onclick="pnlAddEntrega()">+ Anotar</button>
+            </div>
+        </section>
+
+        <section class="pnl-sec">
+            <h3>Caixa de entrada <span class="aside" id="pnlMailQuando"></span></h3>
+            <div class="pnl-linha" id="pnlMail"><div class="pnl-vazio">Carregando…</div></div>
+        </section>
     </div>
 </div>
 
@@ -3714,6 +3776,7 @@
             if (target === 'disparo') loadDisparo();
             if (target === 'imersao') { loadImersao(); loadAlunas(); }
             if (target === 'direct') loadDirect();
+            if (target === 'painel') loadPainel();
             if (target === 'negociando') {
                 if (!igPropsLoaded) { igPropsLoaded = true; igLoadProps(); }
                 if (!igMarcasLoaded) { igMarcasLoaded = true; igLoadMarcas(); }
@@ -8572,6 +8635,152 @@
         // 6. Nicho / produto
         const cNicho = p.nicho ? '<span class="props-nicho-chip">' + escapeHtml(p.nicho) + '</span>' : dash;
         return '<tr><td class="props-marca">' + cMarca + '</td><td>' + cDia + '</td><td>' + cMsg + '</td><td>' + cResp + '</td><td class="props-contact">' + cCont + '</td><td>' + cNicho + '</td></tr>';
+    }
+
+    /* ══════════════════ PAINEL PRINCIPAL ══════════════════
+       Substituiu a antiga "Visão geral". Três blocos, na ordem que ela pediu:
+       o que precisa dela hoje, as entregas dela, e a caixa de entrada. */
+    function pnlHoje() { const d = new Date(); d.setHours(0,0,0,0); return d; }
+    function pnlDias(iso) {
+        if (!iso) return null;
+        const d = new Date(iso + (iso.length === 10 ? 'T00:00:00' : ''));
+        return Math.round((d - pnlHoje()) / 864e5);
+    }
+    async function loadPainel() {
+        const dt = new Date();
+        const dias = ['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
+        const h = dt.getHours();
+        document.getElementById('pnlOi').textContent =
+            (h < 5 ? 'Boa madrugada' : h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite') + ', Lara';
+        document.getElementById('pnlData').textContent =
+            dias[dt.getDay()] + ', ' + dt.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' });
+        pnlAcoes(); pnlEntregas(); pnlMail();
+    }
+
+    /* ── bloco 1: o que precisa de você ── */
+    async function pnlAcoes() {
+        const box = document.getElementById('pnlAcoes'); if (!box) return;
+        const cnt = async (tabela, filtro) => {
+            try {
+                let q = sb.from(tabela).select('*', { count: 'exact', head: true });
+                if (filtro) q = filtro(q);
+                const { count } = await q; return count || 0;
+            } catch (e) { return 0; }
+        };
+        const seteDias = new Date(Date.now() - 7 * 864e5).toISOString();
+        const [dms, marcas, campanhas, novasCreators, leadsHoje] = await Promise.all([
+            cnt('ig_dms_pendentes', q => q.eq('respondida', false).eq('ignorada', false)),
+            cnt('ig_negociacoes', q => q.eq('is_negocio', true).eq('arquivada', false).eq('last_from', 'marca').neq('fase', 'encerrado')),
+            cnt('campanha_candidaturas', q => q.gte('created_at', seteDias)),
+            cnt('creators', q => q.gte('created_at', seteDias)),
+            cnt('ig_leads', q => q.gte('created_at', new Date(pnlHoje()).toISOString())),
+        ]);
+        const cards = [
+            { n: dms, l: 'DMs esperando você', d: 'a última palavra foi da outra pessoa', ir: () => pnlIrIG('pendentes'), quente: dms > 0 },
+            { n: marcas, l: 'marcas esperando', d: 'a empresa falou por último e parou aí', ir: () => pnlIr('negociando'), quente: marcas > 0 },
+            { n: campanhas, l: 'candidaturas na semana', d: 'inscrições novas nas suas campanhas', ir: () => pnlIr('candidaturas'), quente: false },
+            { n: novasCreators, l: 'creators novas na semana', d: 'entraram na sua base', ir: () => pnlIr('creators'), quente: false },
+            { n: leadsHoje, l: 'leads do Instagram hoje', d: 'vieram pela automação', ir: () => pnlIrIG('leads'), quente: false },
+        ];
+        window._pnlIr = cards.map(c => c.ir);
+        box.innerHTML = cards.map((c, i) =>
+            '<button type="button" class="pnl-acao' + (c.quente ? ' quente' : (c.n ? '' : ' calmo')) + '" onclick="_pnlIr[' + i + ']()">'
+            + '<div class="n">' + c.n + '</div><div class="l">' + c.l + '</div><div class="d">' + c.d + '</div></button>').join('');
+        const total = dms + marcas;
+        document.getElementById('pnlAgora').textContent = total ? (total + ' esperando resposta') : 'nada te esperando 🤍';
+    }
+    function pnlIr(tab) { const b = document.querySelector('.tab[data-tab="' + tab + '"]'); if (b) b.click(); }
+    function pnlIrIG(sub) { const b = document.querySelector('.tab[data-ig-jump="' + sub + '"]'); if (b) b.click(); else pnlIr('instagram'); }
+
+    /* ── bloco 2: entregas (o que a Lara deve) ── */
+    async function pnlEntregas() {
+        const box = document.getElementById('pnlEntregas'); if (!box) return;
+        let linhas = [];
+        try {
+            const { data, error } = await sb.from('entregas').select('*')
+                .order('status', { ascending: true }).order('prazo', { ascending: true, nullsFirst: false }).limit(50);
+            if (error) throw error;
+            linhas = data || [];
+        } catch (e) { box.innerHTML = '<div class="pnl-vazio">Não consegui carregar as entregas.</div>'; return; }
+        const abertas = linhas.filter(l => l.status !== 'entregue');
+        const atrasadas = abertas.filter(l => l.prazo && pnlDias(l.prazo) < 0).length;
+        document.getElementById('pnlEntregasResumo').textContent =
+            abertas.length ? (abertas.length + ' em aberto' + (atrasadas ? ' · ' + atrasadas + ' atrasada' + (atrasadas > 1 ? 's' : '') : '')) : '';
+        if (!linhas.length) {
+            box.innerHTML = '<div class="pnl-vazio">Nada anotado ainda. Escreve aí embaixo o que você precisa entregar.</div>';
+            return;
+        }
+        box.innerHTML = linhas.map(l => {
+            const d = l.prazo ? pnlDias(l.prazo) : null;
+            let cls = '', txt = '';
+            if (d !== null) {
+                if (d < 0) { cls = 'atrasado'; txt = Math.abs(d) + (Math.abs(d) === 1 ? ' dia atrás' : ' dias atrás'); }
+                else if (d === 0) { cls = 'hoje'; txt = 'hoje'; }
+                else if (d === 1) { txt = 'amanhã'; }
+                else { txt = 'em ' + d + ' dias'; }
+            }
+            const feito = l.status === 'entregue';
+            return '<div class="pnl-item' + (feito ? ' feito' : '') + '">'
+                + '<button class="pnl-check' + (feito ? ' on' : '') + '" type="button" title="' + (feito ? 'Reabrir' : 'Marcar como entregue') + '" onclick="pnlToggleEntrega(\'' + l.id + '\',' + (feito ? 'false' : 'true') + ')"></button>'
+                + '<div class="txt"><div class="t">' + escapeHtml(l.titulo) + '</div>'
+                + (l.para_quem ? '<div class="s">pra ' + escapeHtml(l.para_quem) + '</div>' : '')
+                + '</div>'
+                + (txt && !feito ? '<span class="pnl-prazo ' + cls + '">' + txt + '</span>' : '')
+                + '</div>';
+        }).join('');
+    }
+    async function pnlAddEntrega() {
+        const el = document.getElementById('pnlNovaEntrega'), pz = document.getElementById('pnlNovoPrazo');
+        const titulo = (el.value || '').trim();
+        if (!titulo) { el.focus(); return; }
+        /* "3 reels pra Hoomy" -> separa o "pra quem" sozinho */
+        let para = null, t = titulo;
+        const m = titulo.match(/\s+p(?:ra|ara)\s+(.+)$/i);
+        if (m) { para = m[1].trim(); t = titulo.slice(0, m.index).trim(); }
+        try {
+            const { error } = await sb.from('entregas').insert({ titulo: t, para_quem: para, prazo: pz.value || null });
+            if (error) throw error;
+            el.value = ''; pz.value = '';
+            pnlEntregas();
+        } catch (e) { alert('Não consegui anotar agora: ' + (e.message || e)); }
+    }
+    async function pnlToggleEntrega(id, entregue) {
+        try {
+            await sb.from('entregas').update({
+                status: entregue ? 'entregue' : 'pendente',
+                entregue_em: entregue ? new Date().toISOString() : null,
+            }).eq('id', id);
+            pnlEntregas();
+        } catch (e) { alert('Não consegui salvar: ' + (e.message || e)); }
+    }
+
+    /* ── bloco 3: caixa de entrada ──
+       A página é estática e não consegue falar com o Gmail sozinha (isso pede OAuth do
+       Google rodando num servidor). Então ela mostra o último retrato salvo, sempre com
+       a data em que foi tirado, pra nunca passar por informação de agora sem ser. */
+    async function pnlMail() {
+        const box = document.getElementById('pnlMail'), quando = document.getElementById('pnlMailQuando');
+        if (!box) return;
+        let snap = null;
+        try {
+            const { data } = await sb.from('painel_email_snapshot').select('*').eq('id', 'main').maybeSingle();
+            snap = data;
+        } catch (e) {}
+        const itens = (snap && snap.dados && snap.dados.itens) || [];
+        if (!itens.length) {
+            quando.textContent = '';
+            box.innerHTML = '<div class="pnl-vazio">Sem retrato da caixa de entrada ainda.<br>'
+                + '<span style="font-size:12.5px;">Peça no chat: “atualiza a caixa de entrada do painel”.</span></div>';
+            return;
+        }
+        const q = snap.atualizado_em ? new Date(snap.atualizado_em) : null;
+        quando.textContent = q ? ('retrato de ' + q.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+            + ' às ' + q.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })) : '';
+        box.innerHTML = itens.map(m =>
+            '<div class="pnl-mail"><div class="de">' + escapeHtml(m.de || '') + '</div>'
+            + '<div class="as">' + escapeHtml(m.assunto || '')
+            + (m.esperando ? ' <span class="pnl-prazo hoje" style="margin-left:6px;">esperando você</span>' : '') + '</div>'
+            + '<div class="qd">' + escapeHtml(m.quando || '') + '</div></div>').join('');
     }
 
     /* ══════ 📥 RESPONDER: DMs em que a ultima palavra e da outra pessoa ══════
