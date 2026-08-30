@@ -14,21 +14,43 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
     <script src="js/auth.js"></script>
     <style>
+        /* ══ PALETA ÚNICA DO PAINEL ══
+           Havia três :root concorrentes no arquivo (linhas 17, 639 e ~10450) e o de baixo
+           vencia sem ninguém saber. Agora é um só, com os valores que já venciam de fato,
+           então nada muda de aparência: o que muda é ter UM lugar pra mexer. */
         :root {
-            --black: #1B1B1B;
-            --white: #FFFFFF;
-            --cream: #FFF8F2;
+            /* superfícies */
+            --bege: #FFF8F2;
+            --cream: #FBF8F4;
+            --card: #FFFFFF;
             --warm: #F0E7DD;
+            --white: #FFFFFF;
+            /* texto */
+            --ink: #1B1B1B;
+            --black: #1B1B1B;
+            --text: #211D1A;
+            --text-soft: #6B635B;
+            --text-muted: #A69D93;
+            /* marca */
             --accent: #C8441A;
             --accent-dark: #A8380F;
-            --accent-glow: rgba(200,68,26,0.10);
-            --text: #1B1B1B;
-            --text-soft: #6B6B6B;
-            --text-muted: #9A9A9A;
-            --border: #E5E5E5;
-            --card: #FFFFFF;
+            --accent-glow: rgba(200,68,26,0.08);
+            --red: #C8441A;
+            /* traços */
+            --border: #ECE6DF;
+            --border-strong: #DED6CC;
+            /* estados */
             --success: #10B981;
             --error: #DC2626;
+            --alerta: #A86A00;
+            --alerta-bg: rgba(212,140,20,0.14);
+            /* forma */
+            --radius-sm: 10px;
+            --radius: 14px;
+            --radius-lg: 18px;
+            --shadow-xs: 0 1px 2px rgba(33,29,26,0.05);
+            --shadow-sm: 0 1px 2px rgba(33,29,26,0.04), 0 2px 6px rgba(33,29,26,0.05);
+            --shadow-md: 0 4px 14px rgba(33,29,26,0.07), 0 2px 5px rgba(33,29,26,0.04);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--text); -webkit-font-smoothing: antialiased; min-height: 100vh; }
@@ -636,7 +658,7 @@
 
         /* ── Agenda: Plano (hoje primeiro, resto escondido) ── */
         /* as cores ficam no :root porque o drawer e o modal vivem fora do .pl-wrap */
-        :root { --red: #C8441A; --ink: #1B1B1B; --bege: #FFF8F2; }
+        /* (--red, --ink e --bege agora vêm do :root único lá do topo) */
         .pl-wrap { display: flex; flex-direction: column; gap: 24px; }
         .pl-lbl { font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text-muted); }
         .pl-mono { font-family: 'DM Mono', ui-monospace, monospace; }
@@ -10444,17 +10466,8 @@
    FACELIFT v1 — polimento visual profissional (editorial + profundidade)
    Camada final: sobrescreve a cascata sem mexer no layout.
    ============================================================ */
+/* as cores agora moram todas no :root do topo do arquivo */
 :root {
-    --cream: #FBF8F4;
-    --card: #FFFFFF;
-    --border: #ECE6DF;
-    --border-strong: #DED6CC;
-    --text: #211D1A;
-    --text-soft: #6B635B;
-    --text-muted: #A69D93;
-    --accent: #C8441A;
-    --accent-dark: #A8380F;
-    --accent-glow: rgba(200,68,26,0.08);
     --radius: 14px;
     --radius-lg: 18px;
     --shadow-xs: 0 1px 2px rgba(33,29,26,0.05);
@@ -10575,6 +10588,93 @@ body { background: var(--cream); letter-spacing: -0.01em; }
   #tabBio .bio-save{margin-left:auto;background:var(--accent);color:#fff;border:none;padding:12px 26px;border-radius:12px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;}
   #tabBio .bio-save:disabled{opacity:.6;}
   #tabBio .bio-msg{font-size:13px;font-weight:600;}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SISTEMA VISUAL DO PAINEL
+   Cada tela foi feita numa sessão diferente e ganhou o próprio botão, a própria
+   tabela e o próprio cartão: 14 famílias de botão com 6 tamanhos de fonte e 3
+   raios de canto diferentes. Esta camada vem por último de propósito, pra
+   igualar tipografia, cantos, foco e estados SEM precisar reescrever o HTML de
+   20 telas. Tamanho e cor de cada família continuam sendo dela.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* --- botões: mesma tipografia, mesmo canto, mesma resposta ao toque --- */
+.ig-btn, .pl-btn, .btn-copy, .btn-copy-link, .pf-action-btn, .pf-copy-btn,
+.props-fchip, .pend-ok, .pend-abrir, .neg-tirar, .plan-btn-primary,
+.ig-period-btn, .pf-range-btn, .ig-subtab-btn, .pf-subtab-btn, .admin-subtab-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: background .16s ease, color .16s ease, border-color .16s ease, opacity .16s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+.ig-btn, .pl-btn, .btn-copy, .btn-copy-link, .pend-ok, .pend-abrir, .plan-btn-primary {
+    border-radius: var(--radius-sm);
+    padding: 10px 18px;
+    font-weight: 600;
+}
+.props-fchip, .pf-action-btn, .pf-copy-btn, .neg-tirar, .ig-period-btn, .pf-range-btn {
+    border-radius: 100px;
+    padding: 7px 14px;
+    font-weight: 600;
+}
+/* botão principal: um coral só no painel inteiro */
+.ig-btn, .plan-btn-primary, .pend-abrir { background: var(--accent); color: #fff; border: none; }
+.ig-btn:hover, .plan-btn-primary:hover, .pend-abrir:hover { background: var(--accent-dark); }
+/* botão secundário: mesmo desenho, sem peso visual */
+.ig-btn.ghost, .pl-btn, .btn-copy, .btn-copy-link, .props-fchip, .neg-tirar {
+    background: var(--card); color: var(--text-soft); border: 1px solid var(--border);
+}
+.ig-btn.ghost:hover, .pl-btn:hover, .btn-copy:hover, .btn-copy-link:hover,
+.props-fchip:hover, .neg-tirar:hover { border-color: var(--border-strong); color: var(--text); background: var(--cream); }
+.props-fchip.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+/* estados que faltavam em quase todas as telas */
+button:disabled, .ig-btn:disabled, .pl-btn:disabled { opacity: .55; cursor: not-allowed; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+}
+
+/* --- campos: mesma altura, mesmo canto, mesmo foco --- */
+.ig-input, .props-search, .pend-search, input[type="text"], input[type="search"],
+input[type="email"], input[type="date"], input[type="datetime-local"], select, textarea {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+}
+.ig-input:focus, input:focus, select:focus, textarea:focus {
+    border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); outline: none;
+}
+
+/* --- tabelas: um cabeçalho só, uma linha só --- */
+.props-table th, .casting-table th, .creators-table th, table th {
+    font-size: 11px; letter-spacing: .8px; text-transform: uppercase;
+    color: var(--text-muted); font-weight: 700;
+}
+.props-table td, .casting-table td, .creators-table td, table td {
+    font-size: 14px; color: var(--text-soft);
+}
+.props-table tr, table tbody tr { border-bottom: 1px solid var(--border); }
+
+/* --- cartões: um raio e uma sombra --- */
+.props-empty, .stat-card, .camp-card, .ig-card, .conc-card, .pend-card, .orc-card {
+    border-radius: var(--radius); border: 1px solid var(--border); background: var(--card);
+}
+
+/* --- celular: a Lara usa o painel muito no telefone --- */
+@media (max-width: 720px) {
+    .page, .dashboard { padding-left: 16px; padding-right: 16px; }
+    /* alvo de toque de verdade */
+    .ig-btn, .pl-btn, .btn-copy, .btn-copy-link, .pend-ok, .pend-abrir, .plan-btn-primary { padding: 12px 18px; }
+    .props-fchip, .ig-period-btn, .pf-range-btn { padding: 9px 15px; }
+    /* tabela larga rola sozinha em vez de estourar a tela */
+    .props-wrap, .table-wrap, .casting-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    /* nada de campo minúsculo (o iOS dá zoom sozinho abaixo de 16px) */
+    .ig-input, input, select, textarea { font-size: 16px; }
+}
 </style>
 <script>
 (function(){
