@@ -1209,21 +1209,9 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>
                 <span>Automações</span>
             </button>
-            <button class="tab nav-item" data-tab="instagram" data-ig-jump="pendentes" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H5.17L4 17.17z"/><path d="M8 9h8M8 12h5"/></svg>
-                <span>Responder</span>
-            </button>
-            <button class="tab nav-item" data-tab="instagram" data-ig-jump="leads" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v7a6 6 0 0 0 12 0V3"/><path d="M4 3h4M16 3h4"/><path d="M12 16v5"/></svg>
-                <span>Leads</span>
-            </button>
             <button class="tab nav-item" data-tab="instagram" data-ig-jump="insights" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg>
                 <span>Análises</span>
-            </button>
-            <button class="tab nav-item" data-tab="instagram" data-ig-jump="concorrencia" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M6 4h12v5a6 6 0 0 1-12 0z"/><path d="M9 20h6M12 14v6"/></svg>
-                <span>Concorrência</span>
             </button>
 
             <div class="nav-section-label">Aulas e produtos</div>
@@ -8701,7 +8689,14 @@
         document.getElementById('pnlAgora').textContent = total ? (total + ' esperando resposta') : 'nada te esperando 🤍';
     }
     function pnlIr(tab) { const b = document.querySelector('.tab[data-tab="' + tab + '"]'); if (b) b.click(); }
-    function pnlIrIG(sub) { const b = document.querySelector('.tab[data-ig-jump="' + sub + '"]'); if (b) b.click(); else pnlIr('instagram'); }
+    /* Responder, Leads e Concorrência saíram da barra a pedido dela e vivem só dentro
+       da página do Instagram. Então o caminho é sempre: abre a aba e pula pra sub-aba. */
+    function pnlIrIG(sub) {
+        const b = document.querySelector('.tab[data-ig-jump="' + sub + '"]');
+        if (b) { b.click(); return; }
+        pnlIr('instagram');
+        setTimeout(() => igSetSub(sub), 0);
+    }
 
     /* ── bloco 2: entregas (o que a Lara deve) ── */
     async function pnlEntregas() {
