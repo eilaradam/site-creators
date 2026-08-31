@@ -1195,10 +1195,6 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 <span>Base de creators</span>
             </button>
-            <button class="tab nav-item" data-tab="casting" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                <span>Casting</span>
-            </button>
             <button class="tab nav-item" data-tab="disparo" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9z"/></svg>
                 <span>Disparo de e-mail</span>
@@ -2908,14 +2904,15 @@
     <div style="max-width:1000px;margin:0 auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
             <div>
-                <h2 style="font-size:22px;font-weight:800;margin:0;color:var(--text);">📥 Candidaturas das campanhas</h2>
-                <p style="color:var(--text-muted);font-size:13px;margin-top:2px;">Quem se candidatou pelos formulários · abrir: <a href="/campanhas/?c=flores" target="_blank" style="color:var(--accent);font-weight:600;">🌸 flores</a> · <a href="/campanhas/?c=pais" target="_blank" style="color:var(--accent);font-weight:600;">👶 pais</a> · <a href="/campanhas/?c=decoracao" target="_blank" style="color:var(--accent);font-weight:600;">🛋️ decoração</a> · <a href="/campanhas/fiv" target="_blank" style="color:var(--accent);font-weight:600;">🌱 FIV</a> · <a href="/campanhas/casa/" target="_blank" style="color:var(--accent);font-weight:600;">🏡 casa</a></p>
+                <h2 style="font-size:22px;font-weight:800;margin:0;color:var(--text);">📥 Campanhas</h2>
+                <p style="color:var(--text-muted);font-size:13px;margin-top:2px;">Quem se candidatou pelos formulários · abrir: <a href="/campanhas/?c=flores" target="_blank" style="color:var(--accent);font-weight:600;">🌸 flores</a> · <a href="/campanhas/?c=pais" target="_blank" style="color:var(--accent);font-weight:600;">👶 pais</a> · <a href="/campanhas/?c=decoracao" target="_blank" style="color:var(--accent);font-weight:600;">🛋️ decoração</a> · <a href="/campanhas/fiv" target="_blank" style="color:var(--accent);font-weight:600;">🌱 FIV</a> · <a href="/campanhas/casa/" target="_blank" style="color:var(--accent);font-weight:600;">🏡 casa</a> · <a href="/casting/internacional" target="_blank" style="color:var(--accent);font-weight:600;">🌎 casting</a></p>
             </div>
             <div style="display:flex;gap:8px;">
                 <button type="button" onclick="loadCandidaturas()" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 16px;font-family:inherit;font-size:13px;font-weight:600;color:var(--text-soft);cursor:pointer;">↻ Atualizar</button>
                 <button type="button" onclick="exportCandidaturasCsv()" style="background:var(--accent);border:none;border-radius:10px;padding:9px 16px;font-family:inherit;font-size:13px;font-weight:700;color:#fff;cursor:pointer;">⬇ Exportar CSV</button>
             </div>
         </div>
+        <div id="campanhaBloco">
         <div id="candVisitas" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;"></div>
         <div id="candStats" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;"></div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
@@ -2924,6 +2921,41 @@
         </div>
         <div id="candEmpty" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:40px;text-align:center;color:var(--text-muted);">Nenhuma candidatura ainda. Compartilhe os links das campanhas com as creators (ou mande o e-mail em massa pela aba Disparo).</div>
         <div id="candList"></div>
+        </div>
+        <div id="castingBloco" style="display:none;">
+
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
+            <div>
+                <h2 style="font-size:22px;font-weight:800;margin:0;color:var(--text);">🌎 Casting Internacional</h2>
+                <p style="color:var(--text-muted);font-size:13px;margin-top:2px;">Inscritos do recrutamento · atualiza ao vivo · <a href="/casting/internacional" target="_blank" style="color:var(--accent);font-weight:600;">abrir formulário ↗</a></p>
+            </div>
+            <div style="display:flex;gap:8px;">
+                <button type="button" onclick="loadCasting()" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 16px;font-family:inherit;font-size:13px;font-weight:600;color:var(--text-soft);cursor:pointer;">↻ Atualizar</button>
+                <button type="button" onclick="exportCastingCsv()" style="background:var(--accent);border:none;border-radius:10px;padding:9px 16px;font-family:inherit;font-size:13px;font-weight:700;color:#fff;cursor:pointer;">⬇ Exportar CSV</button>
+            </div>
+        </div>
+        <div id="castingStats" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;"></div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:14px;">
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;">🔗 Gerar link de indicação (pra mentoras)</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">O link sai com um <b>código anônimo</b> (a mentora não vê o nome dela). Só você enxerga quem é quem aqui no painel.</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                <input id="refGenNome" placeholder="Nome da mentora (ex.: Mariana)" style="flex:1;min-width:200px;padding:9px 13px;border:1px solid var(--border);border-radius:9px;font-family:inherit;font-size:13px;background:var(--cream);color:var(--text);outline:none;">
+                <button type="button" onclick="gerarLinkIndicacao()" style="padding:9px 16px;background:var(--accent);color:#fff;border:none;border-radius:9px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">Gerar + copiar</button>
+            </div>
+            <input id="refGenLink" readonly placeholder="o link anônimo aparece aqui pra você copiar e mandar" style="width:100%;margin-top:8px;padding:9px 13px;border:1px solid var(--border);border-radius:9px;font-family:inherit;font-size:13px;background:var(--cream);color:var(--accent);outline:none;">
+            <div id="refLinksList"></div>
+        </div>
+        <div id="castingIndicacoes" style="margin-bottom:14px;"></div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
+            <button type="button" id="castingTabTodas" onclick="castingSetTab('todas')">👥 Todas <span id="castingTabTodasN" style="background:rgba(0,0,0,0.10);border-radius:100px;padding:1px 8px;font-size:11px;"></span></button>
+            <button type="button" id="castingTabIngles" onclick="castingSetTab('ingles')">🌎 Fala inglês <span id="castingTabInglesN" style="background:rgba(0,0,0,0.10);border-radius:100px;padding:1px 8px;font-size:11px;"></span></button>
+            <button type="button" id="castingTabLiveshop" onclick="castingSetTab('liveshop')">🛍️ Faz LiveShop <span id="castingTabLiveshopN" style="background:rgba(0,0,0,0.10);border-radius:100px;padding:1px 8px;font-size:11px;"></span></button>
+            <input id="castingBusca" oninput="renderCastingTable()" placeholder="Buscar por nome ou e-mail..." style="flex:1;min-width:200px;padding:9px 13px;border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;background:var(--card);color:var(--text);outline:none;">
+        </div>
+        <div id="castingEmpty" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:40px;text-align:center;color:var(--text-muted);">Nenhuma candidatura ainda. Compartilhe o link <b>creators.laradam.com/casting/internacional</b> com as creators.</div>
+        <div id="castingList"></div>
+    
+        </div>
     </div>
 </div>
 
@@ -3062,40 +3094,7 @@
 </div>
 
 <!-- ── TAB: CASTING ── -->
-<div class="dashboard" id="tabCasting">
-    <div style="max-width:1000px;margin:0 auto;">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
-            <div>
-                <h2 style="font-size:22px;font-weight:800;margin:0;color:var(--text);">🌎 Casting Internacional</h2>
-                <p style="color:var(--text-muted);font-size:13px;margin-top:2px;">Inscritos do recrutamento · atualiza ao vivo · <a href="/casting/internacional" target="_blank" style="color:var(--accent);font-weight:600;">abrir formulário ↗</a></p>
-            </div>
-            <div style="display:flex;gap:8px;">
-                <button type="button" onclick="loadCasting()" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 16px;font-family:inherit;font-size:13px;font-weight:600;color:var(--text-soft);cursor:pointer;">↻ Atualizar</button>
-                <button type="button" onclick="exportCastingCsv()" style="background:var(--accent);border:none;border-radius:10px;padding:9px 16px;font-family:inherit;font-size:13px;font-weight:700;color:#fff;cursor:pointer;">⬇ Exportar CSV</button>
-            </div>
-        </div>
-        <div id="castingStats" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;"></div>
-        <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:14px;">
-            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;">🔗 Gerar link de indicação (pra mentoras)</div>
-            <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">O link sai com um <b>código anônimo</b> (a mentora não vê o nome dela). Só você enxerga quem é quem aqui no painel.</div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-                <input id="refGenNome" placeholder="Nome da mentora (ex.: Mariana)" style="flex:1;min-width:200px;padding:9px 13px;border:1px solid var(--border);border-radius:9px;font-family:inherit;font-size:13px;background:var(--cream);color:var(--text);outline:none;">
-                <button type="button" onclick="gerarLinkIndicacao()" style="padding:9px 16px;background:var(--accent);color:#fff;border:none;border-radius:9px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">Gerar + copiar</button>
-            </div>
-            <input id="refGenLink" readonly placeholder="o link anônimo aparece aqui pra você copiar e mandar" style="width:100%;margin-top:8px;padding:9px 13px;border:1px solid var(--border);border-radius:9px;font-family:inherit;font-size:13px;background:var(--cream);color:var(--accent);outline:none;">
-            <div id="refLinksList"></div>
-        </div>
-        <div id="castingIndicacoes" style="margin-bottom:14px;"></div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
-            <button type="button" id="castingTabTodas" onclick="castingSetTab('todas')">👥 Todas <span id="castingTabTodasN" style="background:rgba(0,0,0,0.10);border-radius:100px;padding:1px 8px;font-size:11px;"></span></button>
-            <button type="button" id="castingTabIngles" onclick="castingSetTab('ingles')">🌎 Fala inglês <span id="castingTabInglesN" style="background:rgba(0,0,0,0.10);border-radius:100px;padding:1px 8px;font-size:11px;"></span></button>
-            <button type="button" id="castingTabLiveshop" onclick="castingSetTab('liveshop')">🛍️ Faz LiveShop <span id="castingTabLiveshopN" style="background:rgba(0,0,0,0.10);border-radius:100px;padding:1px 8px;font-size:11px;"></span></button>
-            <input id="castingBusca" oninput="renderCastingTable()" placeholder="Buscar por nome ou e-mail..." style="flex:1;min-width:200px;padding:9px 13px;border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;background:var(--card);color:var(--text);outline:none;">
-        </div>
-        <div id="castingEmpty" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:40px;text-align:center;color:var(--text-muted);">Nenhuma candidatura ainda. Compartilhe o link <b>creators.laradam.com/casting/internacional</b> com as creators.</div>
-        <div id="castingList"></div>
-    </div>
-</div>
+
 
 <div class="dashboard" id="tabOrcamentos">
     <div class="orc-wrap">
@@ -3735,7 +3734,7 @@
     document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
 
     /* ── Tabs ── */
-    const PAGE_TITLES = { painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', casting: 'Casting', candidaturas: 'Campanhas', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', instagram: 'Instagram', bio: 'Link na Bio', negociando: 'Negociando na DM' };
+    const PAGE_TITLES = { painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', instagram: 'Instagram', bio: 'Link na Bio', negociando: 'Negociando na DM' };
     function setPageTitle(target) {
         const el = document.getElementById('pageTitle');
         if (el && PAGE_TITLES[target]) el.textContent = PAGE_TITLES[target];
@@ -3753,7 +3752,6 @@
             document.getElementById('tabAdmin').classList.toggle('show', target === 'admin');
             document.getElementById('tabPortfolio').classList.toggle('show', target === 'portfolio');
             document.getElementById('tabOrcamentos').classList.toggle('show', target === 'orcamentos');
-            document.getElementById('tabCasting').classList.toggle('show', target === 'casting');
             document.getElementById('tabCandidaturas').classList.toggle('show', target === 'candidaturas');
             document.getElementById('tabDisparo').classList.toggle('show', target === 'disparo');
             document.getElementById('tabImersao').classList.toggle('show', target === 'imersao');
@@ -3771,7 +3769,6 @@
             if (target === 'portfolio') loadPortfolio();
             if (target === 'admin') showAdminSubtab('gestao');
             if (target === 'orcamentos') { orcMountTopbar(); loadOrcamentos(); }
-            if (target === 'casting') loadCasting();
             if (target === 'candidaturas') loadCandidaturas();
             if (target === 'disparo') loadDisparo();
             if (target === 'imersao') { loadImersao(); loadAlunas(); }
@@ -4389,6 +4386,17 @@
                 + castingStatChip('📝 Viraram candidatura', pessoas + conv);
         } catch (e) { el.innerHTML = ''; }
     }
+    /* troca entre "as campanhas" e "o casting" sem sair da tela */
+    let castingCarregado = false;
+    function candSetFilter(k) {
+        candFilter = k;
+        const ehCasting = k === 'internacional';
+        const bc = document.getElementById('campanhaBloco'), bk = document.getElementById('castingBloco');
+        if (bc) bc.style.display = ehCasting ? 'none' : '';
+        if (bk) bk.style.display = ehCasting ? '' : 'none';
+        if (ehCasting && !castingCarregado) { castingCarregado = true; loadCasting(); }
+        renderCandidaturas();
+    }
     function renderCandidaturas() {
         const list = document.getElementById('candList');
         const empty = document.getElementById('candEmpty');
@@ -4399,7 +4407,11 @@
         const cnt = { todos: all.length, flores: 0, pais: 0, decoracao: 0, fiv: 0, casa: 0 };
         all.forEach(d => { if (cnt[d.campanha] != null) cnt[d.campanha]++; });
         if (stats) stats.innerHTML = castingStatChip('Total', all.length) + castingStatChip('🌸 Flores', cnt.flores) + castingStatChip('👶 Pais', cnt.pais) + castingStatChip('🛋️ Decoração', cnt.decoracao) + castingStatChip('🌱 FIV', cnt.fiv) + castingStatChip('🏡 Casa', cnt.casa);
-        const chips = [['todos', 'Todas'], ['flores', '🌸 Flores'], ['pais', '👶 Pais'], ['decoracao', '🛋️ Decoração'], ['fiv', '🌱 FIV'], ['casa', '🏡 Casa']];
+        /* O casting é a mesma coisa que uma campanha (creator se inscrevendo numa
+           oportunidade), só que com perguntas próprias e uma tela própria. Ele entra
+           como mais um chip: ao escolher, a tela troca pro bloco dele, que mantém as
+           abas de inglês e live shop e o gerador de link de indicação. */
+        const chips = [['todos', 'Todas'], ['flores', '🌸 Flores'], ['pais', '👶 Pais'], ['decoracao', '🛋️ Decoração'], ['fiv', '🌱 FIV'], ['casa', '🏡 Casa'], ['internacional', '🌎 Casting internacional']];
         if (filt) filt.innerHTML = chips.map(c => '<button type="button" onclick="candSetFilter(\'' + c[0] + '\')" style="background:' + (candFilter === c[0] ? 'var(--accent)' : 'var(--card)') + ';color:' + (candFilter === c[0] ? '#fff' : 'var(--text-soft)') + ';border:1px solid ' + (candFilter === c[0] ? 'var(--accent)' : 'var(--border)') + ';border-radius:100px;padding:8px 14px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">' + c[1] + ' (' + (cnt[c[0]] || 0) + ')</button>').join('');
         const buscaEl = document.getElementById('candBusca');
         const busca = (buscaEl ? buscaEl.value : '').toLowerCase().trim();
@@ -4411,7 +4423,6 @@
         if (!rows.length) { list.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:30px;text-align:center;color:var(--text-muted);">Nenhuma candidatura nesse filtro.</div>'; return; }
         list.innerHTML = rows.map(renderCandidaturaCard).join('');
     }
-    function candSetFilter(k) { candFilter = k; renderCandidaturas(); }
     function renderCandidaturaCard(d) {
         const r = d.respostas || {};
         const meta = CAMP_META[d.campanha] || { emoji: '📋', nome: d.campanha || '' };
