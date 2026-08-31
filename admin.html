@@ -10533,11 +10533,11 @@
                     message: s.message || '',
                     link: (s.link || '').trim(),
                     buttons: (s.buttons || []).filter(b => (b.title || '').trim()).map(b => {
-                        const hasUrl = b.url && b.url.trim();
+                        const url = igNormUrl(b.url);
                         return {
                             title: b.title.trim(),
-                            next: hasUrl ? null : ((b.next === '' || b.next === null || b.next === undefined) ? null : (isNaN(+b.next) ? b.next : +b.next)),
-                            url: hasUrl ? b.url.trim() : undefined
+                            next: url ? null : ((b.next === '' || b.next === null || b.next === undefined) ? null : (isNaN(+b.next) ? b.next : +b.next)),
+                            url: url || undefined
                         };
                     }),
                     assets: Array.isArray(s.assets) ? s.assets.filter(Boolean) : [],
@@ -10548,6 +10548,13 @@
         };
         if (!rec.keyword && !rec.match_any) { alert('Coloque pelo menos uma palavra-chave, ou marque "qualquer palavra".'); return; }
         if (rec.flow && rec.flow.steps.some(s => !s.message.trim())) { alert('Tem um passo do fluxo sem mensagem. Preencha ou remova o passo.'); return; }
+        // Link torto derruba o botao em silencio no Instagram, entao avisa antes de salvar.
+        const linkTorto = [];
+        if (igMsgMode) (igFlow.steps || []).forEach((s, i) => (s.buttons || []).forEach(b => {
+            const cru = (b.url || '').trim();
+            if (cru && !igNormUrl(cru)) linkTorto.push('Mensagem ' + (i + 1) + ' · botão "' + (b.title || '').trim() + '": ' + cru);
+        }));
+        if (linkTorto.length && !confirm('Estes links não parecem endereços válidos e o botão NÃO vai aparecer no Instagram:\n\n' + linkTorto.join('\n') + '\n\nSalvar mesmo assim?')) return;
         let error;
         if (id) { ({ error } = await sb.from('ig_automations').update(rec).eq('id', id)); }
         else { ({ error } = await sb.from('ig_automations').insert(rec)); }
@@ -11018,6 +11025,16 @@
             if (data.length < PAGE) break;
         }
         igLeads = all;
+    }
+
+    // O Instagram exige protocolo no botao de link. Link colado como "sintra.ai/x"
+    // era jogado fora sem avisar e a pessoa recebia um botao a menos.
+    function igNormUrl(u) {
+        const v = String(u == null ? '' : u).trim().replace(/[\r\n\t]/g, '');
+        if (!v) return '';
+        if (/^https?:\/\//i.test(v)) return v;
+        if (/^[\w-]+(\.[\w-]+)+([/?#]|$)/.test(v)) return 'https://' + v;
+        return '';
     }
 
     function igFmtDate(s) {
@@ -11715,7 +11732,18 @@
                 const si = +el.dataset.si, f = el.dataset.flow;
                 if (f === 'msg') igFlow.steps[si].message = el.value;
                 else if (f === 'btntitle') igFlow.steps[si].buttons[+el.dataset.bi].title = el.value;
-                else if (f === 'btnurl') igFlow.steps[si].buttons[+el.dataset.bi].url = el.value.replace(/[\r\n\t]/g, '');
+                else if (f === 'btnurl') {
+                    const b = igFlow.steps[si].buttons[+el.dataset.bi];
+                    b.url = el.value.replace(/[\r\n\t]/g, '');
+                    // ao sair do campo, completa o https:// sozinho
+                    if (!el.dataset.wiredBlur) {
+                        el.dataset.wiredBlur = '1';
+                        el.addEventListener('blur', () => {
+                            const arrumado = igNormUrl(el.value);
+                            if (arrumado && arrumado !== el.value.trim()) { el.value = arrumado; b.url = arrumado; window.igaDirty = true; igRenderPreview(); }
+                        });
+                    }
+                }
                 window.igaDirty = true; igRenderPreview();
             });
             fs.addEventListener('change', (e) => {
