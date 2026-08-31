@@ -10529,7 +10529,7 @@
                 const dif = md ? Math.round(((p[igSort] || 0) / md - 1) * 100) : 0;
                 const vs = md ? '<div class="ana-vs ' + (dif >= 0 ? 'up' : 'down') + '">' + (dif >= 0 ? '+' : '') + dif + '% vs sua média</div>' : '';
                 return '<a href="' + escapeHtml(p.permalink || '#') + '" target="_blank" rel="noopener" style="flex:0 0 150px;width:150px;text-decoration:none;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;display:block;">'
-                    + (thumb ? '<img src="' + escapeHtml(thumb) + '" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;background:var(--border);">' : '<div style="aspect-ratio:1;background:var(--border);"></div>')
+                    + (thumb ? '<img src="' + escapeHtml(thumb) + '" loading="lazy" onerror="this.onerror=null;this.removeAttribute(\'src\')" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;background:var(--border);">' : '<div style="aspect-ratio:1;background:var(--border);"></div>')
                     + '<div style="padding:8px 10px;font-size:11px;color:var(--text-muted);line-height:1.5;">'
                     + hi
                     + vs
@@ -10594,7 +10594,7 @@
             const taxa = p.reach ? (p.leads / p.reach * 1000) : 0;
             const dt = p.timestamp ? new Date(p.timestamp).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : '';
             return '<a class="ana-row" href="' + escapeHtml(p.permalink || '#') + '" target="_blank" rel="noopener">'
-                + (thumb ? '<img src="' + escapeHtml(thumb) + '" loading="lazy" class="ana-th">' : '<span class="ana-th vazio"></span>')
+                + (thumb ? '<img src="' + escapeHtml(thumb) + '" loading="lazy" onerror="this.onerror=null;this.removeAttribute(\'src\')" class="ana-th">' : '<span class="ana-th vazio"></span>')
                 + '<span class="ana-cap"><b>' + escapeHtml(p.caption || 'sem legenda') + '</b><small>' + dt + ' · ❤️ ' + igNum(p.like_count) + ' · 👀 ' + igNum(p.reach) + '</small></span>'
                 + '<span class="ana-lead"><b>' + igNum(p.leads) + '</b><small>leads</small></span>'
                 + '<span class="ana-taxa"><b>' + anaUmDec(taxa) + '</b><small>a cada mil</small></span>'
@@ -10751,6 +10751,11 @@
         } finally { igAnaFilling = false; }
     }
 
+    // ESCONDIDO (30/08/2026) a pedido da Lara: o ranking de quem mais comenta nao
+    // ajudava em nada. O calculo continua rodando (as Oportunidades usam o mesmo
+    // estudo); pra devolver o ranking na tela e so trocar pra true.
+    const MOSTRAR_QUEM_COMENTA = false;
+
     function igRenderInsights() {
         const d = igInsightsData; if (!d) return;
         const box = document.getElementById('igInsightsBox');
@@ -10796,9 +10801,11 @@
             + '</div>'
             + '<button id="igRecalc" class="ig-sortbtn" type="button" style="font-weight:700;">🔄 Atualizar agora</button>'
             + '</div>'
-            + '<div style="font-size:15px;font-weight:800;color:var(--text);margin:0 0 3px;">🏆 Quem mais comenta <span style="font-weight:600;color:var(--text-muted);font-size:12px;">(todos os posts)</span></div>'
-            + '<div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Quem mais interage nos seus comentários, somando comentários e respostas.</div>';
-        if (tc.length) {
+            + (MOSTRAR_QUEM_COMENTA
+                ? '<div style="font-size:15px;font-weight:800;color:var(--text);margin:0 0 3px;">🏆 Quem mais comenta <span style="font-weight:600;color:var(--text-muted);font-size:12px;">(todos os posts)</span></div>'
+                + '<div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Quem mais interage nos seus comentários, somando comentários e respostas.</div>'
+                : '');
+        if (MOSTRAR_QUEM_COMENTA && tc.length) {
             html += '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:26px;">'
                 + tc.map((c, i) => {
                     const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) + '.';
