@@ -59,7 +59,7 @@ Deno.serve(async (req) => {
         // Base de marcas (CRM). O filtro de estado nao vale aqui, e quem esta
         // marcado como "nao mandar e-mail" fica de fora.
         const st = String(job.destinatario).split("_")[1];
-        let qm = admin.from("marcas").select("nome,email").eq("descadastrada", false).not("email", "is", null);
+        let qm = admin.from("marcas").select("nome,email").eq("descadastrada", false).eq("descartada", false).not("email", "is", null);
         if (st) qm = qm.eq("status", st);
         const { data, error } = await qm.limit(5000);
         if (error) throw error;

@@ -1339,6 +1339,11 @@
     #tabMarcas th, #tabMarcas td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text); white-space: nowrap; }
     #tabMarcas th { color: var(--text-muted); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; }
     #tabMarcas .marca-row { cursor: pointer; }
+    #tabMarcas .marca-x { background: none; border: none; color: var(--text-muted); font-size: 14px; line-height: 1; cursor: pointer; padding: 5px 8px; border-radius: 7px; font-family: inherit; opacity: 0; transition: opacity .15s; }
+    #tabMarcas .marca-row:hover .marca-x { opacity: 1; }
+    #tabMarcas .marca-x:hover { background: var(--border); color: var(--error); }
+    #tabMarcas .marca-x.voltar { opacity: 1; color: var(--accent); }
+    @media (max-width: 720px) { #tabMarcas .marca-x { opacity: 1; } }
     #tabMarcas .marca-row:hover { background: var(--cream, #FBF7F3); }
     #tabMarcas .ig-empty { background: var(--card); border: 1px dashed var(--border); border-radius: 14px; padding: 36px 24px; text-align: center; }
     #tabMarcas .ig-empty .em { font-size: 30px; }
@@ -3227,8 +3232,11 @@
                 <div><label class="idea-lbl">Situação</label><select id="marcaStatus" class="ig-input"></select></div>
                 <div><label class="idea-lbl">Último contato</label><input id="marcaUltimo" class="ig-input" type="date"></div>
                 <div><label class="idea-lbl">Disparo</label>
-                    <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);padding:10px 0;cursor:pointer;">
+                    <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);padding:10px 0 4px;cursor:pointer;">
                         <input id="marcaDescad" type="checkbox" style="width:16px;height:16px;"> não mandar e-mail
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer;">
+                        <input id="marcaDescart" type="checkbox" style="width:16px;height:16px;"> não é marca
                     </label>
                 </div>
             </div>
@@ -4198,7 +4206,10 @@
         const el = document.getElementById('marcaBusca');
         const q = ((el && el.value) || '').toLowerCase().trim();
         return marcas.filter(m => {
-            if (marcaFiltro === 'comemail' && !(m.email || '').includes('@')) return false;
+            // O que ela marcou como "não é marca" some da lista, menos no filtro próprio.
+            if (marcaFiltro === 'descartadas') { if (!m.descartada) return false; }
+            else if (m.descartada) return false;
+            else if (marcaFiltro === 'comemail' && !(m.email || '').includes('@')) return false;
             else if (MARCA_STATUS[marcaFiltro] && (m.status || 'lead') !== marcaFiltro) return false;
             if (!q) return true;
             return [m.nome, m.instagram, m.email, m.telefone, m.contato, m.nicho, m.obs].join(' ').toLowerCase().includes(q);
@@ -4207,16 +4218,19 @@
 
     function marcasRender() {
         const box = document.getElementById('marcasBox'); if (!box) return;
-        const comEmail = marcas.filter(m => (m.email || '').includes('@') && !m.descadastrada).length;
+        const valendo = marcas.filter(m => !m.descartada);
+        const descartadas = marcas.length - valendo.length;
+        const comEmail = valendo.filter(m => (m.email || '').includes('@') && !m.descadastrada).length;
         const cabec = document.getElementById('marcasResumo');
-        if (cabec) cabec.innerHTML = '<div class="ig-chip"><b>' + marcas.length + '</b>marcas na base</div>'
+        if (cabec) cabec.innerHTML = '<div class="ig-chip"><b>' + valendo.length + '</b>marcas na base</div>'
             + '<div class="ig-chip"><b>' + comEmail + '</b>com e-mail pra disparo</div>'
-            + '<div class="ig-chip"><b>' + marcas.filter(m => (m.status || 'lead') === 'cliente').length + '</b>já foram clientes</div>';
-        const nPor = k => marcas.filter(m => (m.status || 'lead') === k).length;
+            + '<div class="ig-chip"><b>' + valendo.filter(m => (m.status || 'lead') === 'cliente').length + '</b>já foram clientes</div>';
+        const nPor = k => valendo.filter(m => (m.status || 'lead') === k).length;
         const fEl = document.getElementById('marcaFiltros');
         if (fEl) {
-            const fs = [['todas', 'Todas', marcas.length], ['comemail', '📧 Com e-mail', marcas.filter(m => (m.email || '').includes('@')).length]]
-                .concat(Object.keys(MARCA_STATUS).map(k => [k, MARCA_STATUS[k].ic + ' ' + MARCA_STATUS[k].nome, nPor(k)]));
+            const fs = [['todas', 'Todas', valendo.length], ['comemail', '📧 Com e-mail', valendo.filter(m => (m.email || '').includes('@')).length]]
+                .concat(Object.keys(MARCA_STATUS).map(k => [k, MARCA_STATUS[k].ic + ' ' + MARCA_STATUS[k].nome, nPor(k)]))
+                .concat(descartadas ? [['descartadas', '🚫 Não são marca', descartadas]] : []);
             fEl.innerHTML = fs.map(f => '<button class="idea-chip' + (f[0] === marcaFiltro ? ' active' : '') + '" type="button" onclick="marcaSetFiltro(\'' + f[0] + '\')">' + f[1] + ' <b>' + f[2] + '</b></button>').join('');
         }
         const lista = marcasFiltradas();
@@ -4228,7 +4242,7 @@
         }
         const mostrar = lista.slice(0, MARCA_TETO);
         box.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:auto;"><table><thead><tr>'
-            + '<th>Marca</th><th>Instagram</th><th>📧 E-mail</th><th>📱 Telefone</th><th>Situação</th><th>Observação</th><th>Último contato</th></tr></thead><tbody>'
+            + '<th>Marca</th><th>Instagram</th><th>📧 E-mail</th><th>📱 Telefone</th><th>Situação</th><th>Observação</th><th>Último contato</th><th></th></tr></thead><tbody>'
             + mostrar.map(m => {
                 const st = MARCA_STATUS[m.status || 'lead'] || MARCA_STATUS.lead;
                 const uc = m.ultimo_contato ? new Date(m.ultimo_contato + 'T12:00:00').toLocaleDateString('pt-BR') : '—';
@@ -4240,12 +4254,26 @@
                     + '<td><span class="idea-tag st ' + (m.status || 'lead') + '">' + st.ic + ' ' + st.nome + '</span></td>'
                     + '<td style="white-space:normal;max-width:300px;font-size:12.5px;color:var(--text-soft);">' + (m.obs ? mkEsc(String(m.obs).slice(0, 150)) : '<span style="color:var(--text-muted);">—</span>') + '</td>'
                     + '<td style="white-space:nowrap;">' + uc + '</td>'
+                    + '<td style="text-align:right;">' + (m.descartada
+                        ? '<button class="marca-x voltar" type="button" title="Devolver pra base" onclick="event.stopPropagation();marcaDescartar(\'' + m.id + '\', false)">↩</button>'
+                        : '<button class="marca-x" type="button" title="Não é marca, tirar da lista" onclick="event.stopPropagation();marcaDescartar(\'' + m.id + '\', true)">✕</button>') + '</td>'
                     + '</tr>';
             }).join('')
             + '</tbody></table></div>'
             + (lista.length > MARCA_TETO
                 ? '<div style="font-size:12px;color:var(--text-muted);margin-top:10px;">mostrando as ' + MARCA_TETO + ' de contato mais recente, de ' + lista.length + '. Use a busca ou baixe o CSV pra ver o resto.</div>'
                 : '');
+    }
+
+    // "Não é marca": creator que se ofereceu, spam, engano do robô. Não apaga a linha,
+    // porque o botão "Trazer da DM e das propostas" traria tudo de volta. Marca e esconde.
+    async function marcaDescartar(id, tirar) {
+        const m = marcas.find(x => x.id === id); if (!m) return;
+        const antes = !!m.descartada;
+        m.descartada = !!tirar;
+        marcasRender();
+        const { error } = await sb.from('marcas').update({ descartada: !!tirar, updated_at: new Date().toISOString() }).eq('id', id);
+        if (error) { m.descartada = antes; marcasRender(); alert('Não consegui salvar: ' + error.message); }
     }
 
     let marcaSelectsProntos = false;
@@ -4264,6 +4292,7 @@
         document.getElementById('marcaStatus').value = d.status || 'lead';
         document.getElementById('marcaUltimo').value = d.ultimo_contato || '';
         document.getElementById('marcaDescad').checked = !!d.descadastrada;
+        document.getElementById('marcaDescart').checked = !!d.descartada;
         document.getElementById('marcaApagarBtn').style.display = marcaEditando ? '' : 'none';
         document.getElementById('marcaModal').style.display = 'flex';
         setTimeout(() => document.getElementById('marcaNome').focus(), 40);
@@ -4288,6 +4317,7 @@
             status: document.getElementById('marcaStatus').value || 'lead',
             ultimo_contato: val('marcaUltimo'),
             descadastrada: document.getElementById('marcaDescad').checked,
+            descartada: document.getElementById('marcaDescart').checked,
             updated_at: new Date().toISOString()
         };
         const r = marcaEditando
@@ -4379,7 +4409,7 @@
         // de agência, pra ninguém receber duas vezes.
         if (target && target.indexOf('marcas') === 0) {
             const st = target.split('_')[1];
-            let qm = sb.from('marcas').select('nome,email').eq('descadastrada', false).not('email', 'is', null);
+            let qm = sb.from('marcas').select('nome,email').eq('descadastrada', false).eq('descartada', false).not('email', 'is', null);
             if (st) qm = qm.eq('status', st);
             const { data, error } = await qm.limit(5000);
             if (error) return null;
