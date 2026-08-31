@@ -1278,12 +1278,14 @@
     .pnl-sec { margin-bottom: 30px; }
     .pnl-sec > h3 { font-size: 11.5px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 9px; }
     .pnl-sec > h3 .aside { margin-left: auto; font-size: 11px; letter-spacing: 0; text-transform: none; color: var(--text-muted); font-weight: 500; }
-    .pnl-acoes { display: grid; grid-template-columns: repeat(auto-fill, minmax(238px, 1fr)); gap: 11px; }
-    .pnl-acao { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 17px; text-align: left; cursor: pointer; transition: border-color .16s, transform .16s; font-family: inherit; }
+    /* Os 5 cartoes ficam numa linha so: sobrar um sozinho na segunda linha fica feio. */
+    .pnl-acoes { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+    .pnl-acao { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 14px; text-align: left; cursor: pointer; transition: border-color .16s, transform .16s; font-family: inherit; min-width: 0; }
     .pnl-acao:hover { border-color: var(--accent); transform: translateY(-1px); }
-    .pnl-acao .n { font-size: 27px; font-weight: 700; letter-spacing: -.8px; line-height: 1.1; }
-    .pnl-acao .l { font-size: 13.5px; color: var(--text); margin-top: 3px; font-weight: 600; }
-    .pnl-acao .d { font-size: 12px; color: var(--text-muted); margin-top: 3px; line-height: 1.45; }
+    .pnl-acao .n { font-size: 25px; font-weight: 700; letter-spacing: -.8px; line-height: 1.1; }
+    .pnl-acao .l { font-size: 13px; color: var(--text); margin-top: 3px; font-weight: 600; line-height: 1.3; }
+    .pnl-acao .d { font-size: 11.5px; color: var(--text-muted); margin-top: 3px; line-height: 1.4; }
+    @media (max-width: 1080px) { .pnl-acoes { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
     .pnl-acao.quente .n { color: var(--accent); }
     .pnl-acao.calmo { opacity: .62; }
     .pnl-linha { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
