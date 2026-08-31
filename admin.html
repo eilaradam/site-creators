@@ -1191,6 +1191,10 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
                 <span>Negociando na DM</span>
             </button>
+            <button class="tab nav-item" data-tab="marcas" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/><path d="M9 11h.01"/><path d="M15 11h.01"/></svg>
+                <span>Base de marcas</span>
+            </button>
             <button class="tab nav-item" data-tab="creators" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 <span>Base de creators</span>
@@ -1323,6 +1327,46 @@
     .pnl-mail-rodape { padding: 9px 17px; border-top: 1px solid var(--border); }
     .pnl-mail-rodape button { background: none; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; font-family: inherit; text-decoration: underline; padding: 0; }
     .pnl-mail-rodape button:hover { color: var(--accent); }
+    /* Base de marcas: reaproveita o visual da aba do Instagram, que vive escopado em
+       #tabInstagram. Como esta aba e o modal ficam fora dali, repito as regras aqui. */
+    #tabMarcas .ig-input, #marcaModal .ig-input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: #fff; color: var(--text); font-size: 14px; font-family: inherit; box-sizing: border-box; }
+    #marcaModal textarea.ig-input { min-height: 78px; resize: vertical; }
+    #tabMarcas .ig-btn, #marcaModal .ig-btn { background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 9px 16px; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; }
+    #tabMarcas .ig-btn.ghost, #marcaModal .ig-btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    #tabMarcas .ig-chip { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 10px 16px; font-size: 12px; color: var(--text-muted); font-weight: 600; }
+    #tabMarcas .ig-chip b { display: block; font-size: 22px; color: var(--accent); font-weight: 800; }
+    #tabMarcas table { width: 100%; border-collapse: collapse; }
+    #tabMarcas th, #tabMarcas td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text); white-space: nowrap; }
+    #tabMarcas th { color: var(--text-muted); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; }
+    #tabMarcas .marca-row { cursor: pointer; }
+    #tabMarcas .marca-row:hover { background: var(--cream, #FBF7F3); }
+    #tabMarcas .ig-empty { background: var(--card); border: 1px dashed var(--border); border-radius: 14px; padding: 36px 24px; text-align: center; }
+    #tabMarcas .ig-empty .em { font-size: 30px; }
+    #tabMarcas .ig-empty h4 { margin: 10px 0 4px; font-size: 15px; font-weight: 800; color: var(--text); }
+    #tabMarcas .ig-empty p { margin: 0 0 14px; font-size: 13px; color: var(--text-muted); }
+    #tabMarcas .idea-chips { display: flex; gap: 7px; flex-wrap: wrap; }
+    #tabMarcas .idea-chip { background: var(--card); border: 1px solid var(--border); color: var(--text-soft); border-radius: 100px; padding: 7px 13px; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    #tabMarcas .idea-chip b { color: var(--text-muted); font-weight: 800; margin-left: 3px; }
+    #tabMarcas .idea-chip:hover { border-color: var(--accent); color: var(--accent); }
+    #tabMarcas .idea-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    #tabMarcas .idea-chip.active b { color: rgba(255,255,255,.75); }
+    #tabMarcas .idea-tag { font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 100px; background: #F1ECE6; color: var(--text-soft); white-space: nowrap; }
+    #tabMarcas .idea-tag.st.lead { background: #FFF2D9; color: #8A5A00; }
+    #tabMarcas .idea-tag.st.conversando { background: #E5DBFF; color: #5B3AA8; }
+    #tabMarcas .idea-tag.st.cliente { background: #DDF2E5; color: #22694A; }
+    #tabMarcas .idea-tag.st.parada { background: #ECE8E3; color: #7A736B; }
+    #marcaModal.idea-modal { position: fixed; inset: 0; background: rgba(30,26,22,.45); z-index: 900; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    #marcaModal .idea-modal-box { background: var(--card); border-radius: 20px; width: 100%; max-width: 680px; max-height: 92vh; overflow: auto; box-shadow: 0 18px 50px rgba(0,0,0,.25); }
+    #marcaModal .idea-modal-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 20px 24px 16px; border-bottom: 1px solid var(--border); }
+    #marcaModal .idea-modal-kicker { font-size: 10.5px; font-weight: 800; letter-spacing: 1.2px; color: var(--text-muted); }
+    #marcaModal .idea-modal-titulo { font-size: 20px; font-weight: 800; color: var(--text); margin-top: 3px; }
+    #marcaModal .idea-x { background: #F1ECE6; border: none; color: var(--text-soft); width: 32px; height: 32px; border-radius: 50%; font-size: 14px; cursor: pointer; flex-shrink: 0; font-family: inherit; }
+    #marcaModal .idea-modal-body { padding: 18px 24px 4px; }
+    #marcaModal .idea-lbl { display: block; font-size: 12.5px; font-weight: 800; color: var(--text); margin: 14px 0 6px; }
+    #marcaModal .idea-modal-body .idea-lbl:first-child { margin-top: 0; }
+    #marcaModal .idea-row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+    #marcaModal .idea-modal-pe { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 24px 22px; flex-wrap: wrap; }
+    #marcaModal .idea-del { background: none; border: none; color: var(--error); font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; padding: 8px 4px; }
     @media (max-width: 720px) {
       .pnl-acoes { grid-template-columns: 1fr 1fr; }
       .pnl-mail-ir { flex-direction: column; gap: 3px; padding-right: 56px; }
@@ -3136,10 +3180,74 @@
     </div>
 </div>
 
+<div class="dashboard" id="tabMarcas">
+    <div style="max-width:1240px;margin:0 auto;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:16px;">
+            <div>
+                <h2 style="font-size:22px;font-weight:800;margin:0;color:var(--text);">🏢 Base de marcas</h2>
+                <p style="color:var(--text-muted);font-size:13px;margin:3px 0 0;">Todas as empresas com quem você já falou, num lugar só. É daqui que sai a lista do disparo de e-mail.</p>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button id="marcaImportBtn" class="ig-btn ghost" type="button" onclick="marcasImportar()">↻ Trazer da DM e das propostas</button>
+                <button class="ig-btn ghost" type="button" onclick="marcasCSV()">⬇ CSV</button>
+                <button class="ig-btn" type="button" onclick="marcaAbrir(null)">+ Nova marca</button>
+            </div>
+        </div>
+        <div id="marcasResumo" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;"></div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;">
+            <input id="marcaBusca" class="ig-input" type="search" placeholder="🔎 Buscar marca, @, e-mail ou observação..." oninput="marcasRender()" style="max-width:320px;">
+            <div class="idea-chips" id="marcaFiltros"></div>
+        </div>
+        <div id="marcasBox"></div>
+    </div>
+</div>
+<div id="marcaModal" class="idea-modal" style="display:none;">
+    <div class="idea-modal-box">
+        <div class="idea-modal-head">
+            <div>
+                <div class="idea-modal-kicker" id="marcaModalT">NOVA MARCA</div>
+                <div class="idea-modal-titulo">🏢 Base de marcas</div>
+            </div>
+            <button class="idea-x" type="button" onclick="marcaFechar()">✕</button>
+        </div>
+        <div class="idea-modal-body">
+            <label class="idea-lbl">Nome da marca</label>
+            <input id="marcaNome" class="ig-input" type="text" placeholder="Ex.: Lorenzetti">
+            <div class="idea-row3">
+                <div><label class="idea-lbl">Instagram</label><input id="marcaInsta" class="ig-input" type="text" placeholder="sem o @"></div>
+                <div><label class="idea-lbl">E-mail</label><input id="marcaEmail" class="ig-input" type="email" placeholder="contato@marca.com.br"></div>
+                <div><label class="idea-lbl">Telefone</label><input id="marcaFone" class="ig-input" type="text" placeholder="(11) 90000-0000"></div>
+            </div>
+            <div class="idea-row3">
+                <div><label class="idea-lbl">Pessoa de contato</label><input id="marcaContato" class="ig-input" type="text" placeholder="Ex.: Júlia, do social"></div>
+                <div><label class="idea-lbl">Site</label><input id="marcaSite" class="ig-input" type="text" placeholder="marca.com.br"></div>
+                <div><label class="idea-lbl">Nicho</label><input id="marcaNicho" class="ig-input" type="text" placeholder="Ex.: casa e decoração"></div>
+            </div>
+            <div class="idea-row3">
+                <div><label class="idea-lbl">Situação</label><select id="marcaStatus" class="ig-input"></select></div>
+                <div><label class="idea-lbl">Último contato</label><input id="marcaUltimo" class="ig-input" type="date"></div>
+                <div><label class="idea-lbl">Disparo</label>
+                    <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);padding:10px 0;cursor:pointer;">
+                        <input id="marcaDescad" type="checkbox" style="width:16px;height:16px;"> não mandar e-mail
+                    </label>
+                </div>
+            </div>
+            <label class="idea-lbl">Observação</label>
+            <textarea id="marcaObs" class="ig-input" style="min-height:110px;" placeholder="O que rolou, o que ficou combinado, quanto pagaram, com quem falar..."></textarea>
+        </div>
+        <div class="idea-modal-pe">
+            <button id="marcaApagarBtn" class="idea-del" type="button" onclick="marcaApagar()">🗑 Apagar</button>
+            <div style="display:flex;gap:8px;">
+                <button class="ig-btn ghost" type="button" onclick="marcaFechar()">Cancelar</button>
+                <button id="marcaSalvarBtn" class="ig-btn" type="button" onclick="marcaSalvar()">✓ Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="dashboard" id="tabDisparo">
     <div style="max-width:1140px;margin:0 auto;">
         <h2 style="font-size:22px;font-weight:800;margin:0;color:var(--text);">📨 Disparo de E-mail em Massa</h2>
-        <p style="color:var(--text-muted);font-size:13px;margin:2px 0 20px;">Envia um e-mail pra sua base de creators, direto pelo Resend. Use <b>{{nome}}</b> no texto pra personalizar com o primeiro nome de cada uma.</p>
+        <p style="color:var(--text-muted);font-size:13px;margin:2px 0 20px;">Envia um e-mail pra sua base de creators <b>ou pra sua base de marcas</b>, direto pelo Resend. Use <b>{{nome}}</b> no texto pra personalizar com o primeiro nome de cada uma.</p>
 
         <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;">
         <div style="flex:1.1;min-width:360px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;">
@@ -3149,6 +3257,10 @@
                     <option value="todos">Todos os creators da base</option>
                     <option value="teste">🧪 Teste — só laradam.ugc@gmail.com</option>
                     <option value="imersao">🎓 Imersão — só as alunas</option>
+                    <option value="marcas">🏢 Marcas — todas com e-mail</option>
+                    <option value="marcas_cliente">🏢 Marcas — só quem já foi cliente</option>
+                    <option value="marcas_conversando">🏢 Marcas — só quem está conversando</option>
+                    <option value="marcas_lead">🏢 Marcas — só os leads frios</option>
                     <option value="novo">Só status: Novo</option>
                     <option value="aprovado">Só status: Aprovado</option>
                     <option value="ativo">Só status: Ativo</option>
@@ -3911,7 +4023,7 @@
     document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
 
     /* ── Tabs ── */
-    const PAGE_TITLES = { painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', instagram: 'Instagram', bio: 'Link na Bio', negociando: 'Negociando na DM' };
+    const PAGE_TITLES = { painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', marcas: 'Base de marcas', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', instagram: 'Instagram', bio: 'Link na Bio', negociando: 'Negociando na DM' };
     function setPageTitle(target) {
         const el = document.getElementById('pageTitle');
         if (el && PAGE_TITLES[target]) el.textContent = PAGE_TITLES[target];
@@ -3930,6 +4042,7 @@
             document.getElementById('tabPortfolio').classList.toggle('show', target === 'portfolio');
             document.getElementById('tabOrcamentos').classList.toggle('show', target === 'orcamentos');
             document.getElementById('tabCandidaturas').classList.toggle('show', target === 'candidaturas');
+            document.getElementById('tabMarcas').classList.toggle('show', target === 'marcas');
             document.getElementById('tabDisparo').classList.toggle('show', target === 'disparo');
             document.getElementById('tabImersao').classList.toggle('show', target === 'imersao');
             document.getElementById('tabDirect').classList.toggle('show', target === 'direct');
@@ -3947,6 +4060,7 @@
             if (target === 'admin') showAdminSubtab('gestao');
             if (target === 'orcamentos') { orcMountTopbar(); loadOrcamentos(); }
             if (target === 'candidaturas') loadCandidaturas();
+            if (target === 'marcas' && !marcasCarregado) loadMarcas();
             if (target === 'disparo') loadDisparo();
             if (target === 'imersao') { loadImersao(); loadAlunas(); }
             if (target === 'direct') loadDirect();
@@ -4048,6 +4162,209 @@
     }
 
     /* ══ DISPARO DE E-MAIL EM MASSA (via função send-bulk-email + Resend) ══ */
+    /* ══════ BASE DE MARCAS (CRM das empresas) ══════
+       Junta num lugar só o que estava espalhado: as marcas que responderam na DM
+       (ig_negociacoes), as que receberam proposta por e-mail (ig_propostas) e as que
+       ela cadastra na mão. Daqui sai a lista de disparo do "Disparo de e-mail". */
+    let marcas = [], marcasCarregado = false, marcaFiltro = 'todas', marcaEditando = null;
+    const MARCA_TETO = 300;
+    const MARCA_STATUS = {
+        lead: { ic: '🌱', nome: 'Lead' },
+        conversando: { ic: '💬', nome: 'Conversando' },
+        cliente: { ic: '⭐', nome: 'Cliente' },
+        parada: { ic: '💤', nome: 'Parada' }
+    };
+    const mkEsc = v => escapeHtml(v == null ? '' : String(v));
+
+    async function loadMarcas() {
+        const box = document.getElementById('marcasBox'); if (!box) return;
+        if (!marcasCarregado) box.innerHTML = '<div style="padding:36px;text-align:center;color:var(--text-muted);">Carregando as marcas…</div>';
+        const todas = [];
+        for (let from = 0; from < 20000; from += 1000) {
+            const { data, error } = await sb.from('marcas').select('*').order('ultimo_contato', { ascending: false, nullsFirst: false }).range(from, from + 999);
+            if (error) { box.innerHTML = '<div style="color:var(--error);padding:16px;">Não consegui carregar: ' + mkEsc(error.message) + '</div>'; return; }
+            if (!data || !data.length) break;
+            todas.push(...data);
+            if (data.length < 1000) break;
+        }
+        marcas = todas;
+        marcasCarregado = true;
+        marcasRender();
+    }
+
+    function marcaSetFiltro(k) { marcaFiltro = k; marcasRender(); }
+
+    function marcasFiltradas() {
+        const el = document.getElementById('marcaBusca');
+        const q = ((el && el.value) || '').toLowerCase().trim();
+        return marcas.filter(m => {
+            if (marcaFiltro === 'comemail' && !(m.email || '').includes('@')) return false;
+            else if (MARCA_STATUS[marcaFiltro] && (m.status || 'lead') !== marcaFiltro) return false;
+            if (!q) return true;
+            return [m.nome, m.instagram, m.email, m.telefone, m.contato, m.nicho, m.obs].join(' ').toLowerCase().includes(q);
+        });
+    }
+
+    function marcasRender() {
+        const box = document.getElementById('marcasBox'); if (!box) return;
+        const comEmail = marcas.filter(m => (m.email || '').includes('@') && !m.descadastrada).length;
+        const cabec = document.getElementById('marcasResumo');
+        if (cabec) cabec.innerHTML = '<div class="ig-chip"><b>' + marcas.length + '</b>marcas na base</div>'
+            + '<div class="ig-chip"><b>' + comEmail + '</b>com e-mail pra disparo</div>'
+            + '<div class="ig-chip"><b>' + marcas.filter(m => (m.status || 'lead') === 'cliente').length + '</b>já foram clientes</div>';
+        const nPor = k => marcas.filter(m => (m.status || 'lead') === k).length;
+        const fEl = document.getElementById('marcaFiltros');
+        if (fEl) {
+            const fs = [['todas', 'Todas', marcas.length], ['comemail', '📧 Com e-mail', marcas.filter(m => (m.email || '').includes('@')).length]]
+                .concat(Object.keys(MARCA_STATUS).map(k => [k, MARCA_STATUS[k].ic + ' ' + MARCA_STATUS[k].nome, nPor(k)]));
+            fEl.innerHTML = fs.map(f => '<button class="idea-chip' + (f[0] === marcaFiltro ? ' active' : '') + '" type="button" onclick="marcaSetFiltro(\'' + f[0] + '\')">' + f[1] + ' <b>' + f[2] + '</b></button>').join('');
+        }
+        const lista = marcasFiltradas();
+        if (!lista.length) {
+            box.innerHTML = marcas.length
+                ? '<div class="ig-empty"><div class="em">🔍</div><h4>Nenhuma marca com esse filtro</h4><p>Tente outra busca ou volte pra "Todas".</p></div>'
+                : '<div class="ig-empty"><div class="em">🏢</div><h4>A base de marcas está vazia</h4><p>Clique em "Trazer da DM e das propostas" pra puxar tudo que você já conversou.</p></div>';
+            return;
+        }
+        const mostrar = lista.slice(0, MARCA_TETO);
+        box.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:auto;"><table><thead><tr>'
+            + '<th>Marca</th><th>Instagram</th><th>📧 E-mail</th><th>📱 Telefone</th><th>Situação</th><th>Observação</th><th>Último contato</th></tr></thead><tbody>'
+            + mostrar.map(m => {
+                const st = MARCA_STATUS[m.status || 'lead'] || MARCA_STATUS.lead;
+                const uc = m.ultimo_contato ? new Date(m.ultimo_contato + 'T12:00:00').toLocaleDateString('pt-BR') : '—';
+                return '<tr class="marca-row" onclick="marcaAbrir(\'' + m.id + '\')">'
+                    + '<td><b>' + mkEsc(m.nome) + '</b>' + (m.descadastrada ? ' <span class="idea-tag" style="background:#F3E3E1;color:#B03A32;">não enviar</span>' : '') + '</td>'
+                    + '<td>' + (m.instagram ? '<a href="https://instagram.com/' + encodeURIComponent(m.instagram) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="color:var(--accent);text-decoration:none;">@' + mkEsc(m.instagram) + '</a>' : '<span style="color:var(--text-muted);">—</span>') + '</td>'
+                    + '<td style="white-space:normal;max-width:210px;">' + (m.email ? mkEsc(m.email) : '<span style="color:var(--text-muted);">—</span>') + '</td>'
+                    + '<td>' + (m.telefone ? mkEsc(m.telefone) : '<span style="color:var(--text-muted);">—</span>') + '</td>'
+                    + '<td><span class="idea-tag st ' + (m.status || 'lead') + '">' + st.ic + ' ' + st.nome + '</span></td>'
+                    + '<td style="white-space:normal;max-width:300px;font-size:12.5px;color:var(--text-soft);">' + (m.obs ? mkEsc(String(m.obs).slice(0, 150)) : '<span style="color:var(--text-muted);">—</span>') + '</td>'
+                    + '<td style="white-space:nowrap;">' + uc + '</td>'
+                    + '</tr>';
+            }).join('')
+            + '</tbody></table></div>'
+            + (lista.length > MARCA_TETO
+                ? '<div style="font-size:12px;color:var(--text-muted);margin-top:10px;">mostrando as ' + MARCA_TETO + ' de contato mais recente, de ' + lista.length + '. Use a busca ou baixe o CSV pra ver o resto.</div>'
+                : '');
+    }
+
+    let marcaSelectsProntos = false;
+    function marcaAbrir(id) {
+        if (!marcaSelectsProntos) {
+            marcaSelectsProntos = true;
+            document.getElementById('marcaStatus').innerHTML = Object.keys(MARCA_STATUS)
+                .map(k => '<option value="' + k + '">' + MARCA_STATUS[k].ic + ' ' + MARCA_STATUS[k].nome + '</option>').join('');
+        }
+        marcaEditando = id ? (marcas.find(x => x.id === id) || null) : null;
+        const d = marcaEditando || { status: 'lead' };
+        document.getElementById('marcaModalT').textContent = marcaEditando ? 'EDITAR MARCA' : 'NOVA MARCA';
+        [['marcaNome', 'nome'], ['marcaInsta', 'instagram'], ['marcaEmail', 'email'], ['marcaFone', 'telefone'],
+         ['marcaSite', 'site'], ['marcaContato', 'contato'], ['marcaNicho', 'nicho'], ['marcaObs', 'obs']]
+            .forEach(par => { document.getElementById(par[0]).value = d[par[1]] || ''; });
+        document.getElementById('marcaStatus').value = d.status || 'lead';
+        document.getElementById('marcaUltimo').value = d.ultimo_contato || '';
+        document.getElementById('marcaDescad').checked = !!d.descadastrada;
+        document.getElementById('marcaApagarBtn').style.display = marcaEditando ? '' : 'none';
+        document.getElementById('marcaModal').style.display = 'flex';
+        setTimeout(() => document.getElementById('marcaNome').focus(), 40);
+    }
+    function marcaFechar() { document.getElementById('marcaModal').style.display = 'none'; marcaEditando = null; }
+
+    async function marcaSalvar() {
+        const nome = document.getElementById('marcaNome').value.trim();
+        if (!nome) { alert('A marca precisa de um nome.'); return; }
+        const btn = document.getElementById('marcaSalvarBtn');
+        btn.disabled = true; btn.textContent = 'Salvando…';
+        const val = id => document.getElementById(id).value.trim() || null;
+        const patch = {
+            nome: nome,
+            instagram: (val('marcaInsta') || '').replace(/^@/, '').toLowerCase() || null,
+            email: (val('marcaEmail') || '').toLowerCase() || null,
+            telefone: val('marcaFone'),
+            site: val('marcaSite'),
+            contato: val('marcaContato'),
+            nicho: val('marcaNicho'),
+            obs: val('marcaObs'),
+            status: document.getElementById('marcaStatus').value || 'lead',
+            ultimo_contato: val('marcaUltimo'),
+            descadastrada: document.getElementById('marcaDescad').checked,
+            updated_at: new Date().toISOString()
+        };
+        const r = marcaEditando
+            ? await sb.from('marcas').update(patch).eq('id', marcaEditando.id)
+            : await sb.from('marcas').insert(Object.assign({ origem: 'manual' }, patch));
+        btn.disabled = false; btn.textContent = '✓ Salvar';
+        if (r.error) { alert('Não consegui salvar: ' + r.error.message); return; }
+        marcaFechar();
+        await loadMarcas();
+    }
+
+    async function marcaApagar() {
+        if (!marcaEditando) return;
+        if (!confirm('Apagar a marca "' + marcaEditando.nome + '" da base? Isso não tem volta.')) return;
+        const { error } = await sb.from('marcas').delete().eq('id', marcaEditando.id);
+        if (error) { alert('Não consegui apagar: ' + error.message); return; }
+        marcaFechar();
+        await loadMarcas();
+    }
+
+    // Puxa de novo as marcas da DM e das propostas, sem repetir quem já está na base.
+    async function marcasImportar() {
+        const btn = document.getElementById('marcaImportBtn');
+        btn.disabled = true; btn.textContent = 'Buscando…';
+        try {
+            const [neg, props] = await Promise.all([
+                sb.from('ig_negociacoes').select('username,nome,marca,email,phone,resumo,proximo_passo,fase,last_msg_at').eq('is_negocio', true),
+                sb.from('ig_propostas').select('username,nome,email,phone,nicho,replied,reply_text,reply_at,sent_at')
+            ]);
+            const jaTem = new Set(marcas.map(m => (m.instagram || '').toLowerCase()).filter(Boolean));
+            const meu = 'laradam.ugc@gmail.com';
+            const limpaEmail = e => (e && String(e).includes('@') && String(e).trim().toLowerCase() !== meu) ? String(e).trim().toLowerCase() : null;
+            const novas = [];
+            (neg.data || []).forEach(n => {
+                const u = (n.username || '').toLowerCase();
+                if (!u || jaTem.has(u)) return;
+                jaTem.add(u);
+                novas.push({
+                    nome: String(n.marca || n.nome || n.username).replace(/^@/, '').trim(),
+                    instagram: u, email: limpaEmail(n.email), telefone: n.phone || null,
+                    obs: [n.resumo, n.proximo_passo].filter(Boolean).join(' | ') || null,
+                    status: n.fase === 'fechado' ? 'cliente' : (n.fase === 'encerrado' ? 'parada' : 'conversando'),
+                    origem: 'dm', ultimo_contato: n.last_msg_at ? String(n.last_msg_at).slice(0, 10) : null
+                });
+            });
+            (props.data || []).forEach(p => {
+                const u = (p.username || '').toLowerCase();
+                if (!u || jaTem.has(u)) return;
+                jaTem.add(u);
+                novas.push({
+                    nome: String(p.nome || p.username).replace(/^@/, '').trim(),
+                    instagram: u, email: limpaEmail(p.email), telefone: p.phone || null,
+                    nicho: p.nicho || null, obs: p.replied ? String(p.reply_text || '').slice(0, 300) || null : null,
+                    status: p.replied ? 'conversando' : 'lead',
+                    origem: 'proposta', ultimo_contato: String(p.reply_at || p.sent_at || '').slice(0, 10) || null
+                });
+            });
+            if (!novas.length) { alert('Nenhuma marca nova: tudo que está na DM e nas propostas já está aqui.'); return; }
+            for (let i = 0; i < novas.length; i += 400) {
+                const { error } = await sb.from('marcas').insert(novas.slice(i, i + 400));
+                if (error) { alert('Deu erro no meio do caminho: ' + error.message); break; }
+            }
+            await loadMarcas();
+            alert(novas.length === 1 ? '1 marca nova entrou na base.' : novas.length + ' marcas novas entraram na base.');
+        } finally { btn.disabled = false; btn.textContent = '↻ Trazer da DM e das propostas'; }
+    }
+
+    function marcasCSV() {
+        const linhas = [['nome', 'instagram', 'email', 'telefone', 'contato', 'site', 'nicho', 'situacao', 'observacao', 'ultimo_contato', 'origem']];
+        marcasFiltradas().forEach(m => linhas.push([m.nome, m.instagram, m.email, m.telefone, m.contato, m.site, m.nicho, m.status, m.obs, m.ultimo_contato, m.origem]));
+        const csv = linhas.map(r => r.map(c => '"' + String(c == null ? '' : c).replace(/"/g, '""') + '"').join(',')).join('\n');
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' }));
+        a.download = 'marcas.csv'; a.click();
+        URL.revokeObjectURL(a.href);
+    }
+
     async function disparoRecipients(target) {
         if (target === 'teste') return [{ nome: 'Lara', email: 'laradam.ugc@gmail.com' }];
         // Lista da Imersao: tabela propria (imersao_alunas), nao mistura com a base de creators.
@@ -4056,6 +4373,24 @@
             if (error) return null;
             return (data || []).filter(a => a.email && String(a.email).includes('@'))
                                .map(a => ({ nome: a.nome || '', email: String(a.email).trim() }));
+        }
+        // Base de marcas (CRM). Ignora o filtro de estado, que é coisa de creator,
+        // respeita o "não mandar e-mail" e junta marcas que dividem o mesmo e-mail
+        // de agência, pra ninguém receber duas vezes.
+        if (target && target.indexOf('marcas') === 0) {
+            const st = target.split('_')[1];
+            let qm = sb.from('marcas').select('nome,email').eq('descadastrada', false).not('email', 'is', null);
+            if (st) qm = qm.eq('status', st);
+            const { data, error } = await qm.limit(5000);
+            if (error) return null;
+            const vistos = new Set(), saida = [];
+            (data || []).forEach(m => {
+                const e = String(m.email || '').trim().toLowerCase();
+                if (!e.includes('@') || vistos.has(e)) return;
+                vistos.add(e);
+                saida.push({ nome: m.nome || '', email: e });
+            });
+            return saida;
         }
         const ufEl = document.getElementById('dispUF');
         const uf = ufEl ? ufEl.value : '';
@@ -4090,6 +4425,11 @@
         if (recs === null) { el.innerHTML = '<span style="color:var(--error);">Erro ao contar destinatários.</span>'; return; }
         if (target === 'teste') el.innerHTML = '🧪 Modo teste — vai só pra <b>laradam.ugc@gmail.com</b>.';
         else if (target === 'imersao') el.innerHTML = '<b style="color:var(--accent);">' + recs.length + '</b> alunas da <b>Imersão</b> vão receber este e-mail. (o filtro de estado não vale aqui)';
+        else if (target.indexOf('marcas') === 0) {
+            const alvo = document.getElementById('dispTarget');
+            el.innerHTML = '<b style="color:var(--accent);">' + recs.length + '</b> <b>marcas</b> vão receber este e-mail ('
+                + dispEsc(alvo.options[alvo.selectedIndex].text.replace('🏢 Marcas — ', '')) + '). O filtro de estado não vale aqui, e quem está marcado como "não mandar e-mail" fica de fora.';
+        }
         else {
             const uf = (document.getElementById('dispUF') || {}).value || '';
             const cid = uf ? ((document.getElementById('dispCidade') || {}).value || '') : '';

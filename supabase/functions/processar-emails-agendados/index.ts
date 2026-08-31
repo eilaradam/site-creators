@@ -55,6 +55,19 @@ Deno.serve(async (req) => {
           const email = String(a.email || "").trim().toLowerCase();
           if (email && email.includes("@") && !seen.has(email)) { seen.add(email); recs.push({ nome: a.nome || "", email }); }
         }
+      } else if (String(job.destinatario || "").startsWith("marcas")) {
+        // Base de marcas (CRM). O filtro de estado nao vale aqui, e quem esta
+        // marcado como "nao mandar e-mail" fica de fora.
+        const st = String(job.destinatario).split("_")[1];
+        let qm = admin.from("marcas").select("nome,email").eq("descadastrada", false).not("email", "is", null);
+        if (st) qm = qm.eq("status", st);
+        const { data, error } = await qm.limit(5000);
+        if (error) throw error;
+        const seen = new Set<string>();
+        for (const m of (data || [])) {
+          const email = String(m.email || "").trim().toLowerCase();
+          if (email && email.includes("@") && !seen.has(email)) { seen.add(email); recs.push({ nome: m.nome || "", email }); }
+        }
       } else {
         const seen = new Set<string>();
         const PAGE = 1000;
