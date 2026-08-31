@@ -2374,7 +2374,6 @@
         <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
             <button class="ig-subtab-btn active" data-ig-sub="visao" type="button">📊 Visão geral</button>
             <button class="ig-subtab-btn" data-ig-sub="automacoes" type="button">Automações</button>
-            <button class="ig-subtab-btn" data-ig-sub="leads" type="button">Leads</button>
             <button class="ig-subtab-btn" data-ig-sub="insights" type="button">Análises</button>
             <button class="ig-subtab-btn" data-ig-sub="concorrencia" type="button">🏆 Concorrência</button>
             <button class="ig-subtab-btn" data-ig-sub="pendentes" type="button">📥 Responder</button>
@@ -2394,14 +2393,22 @@
                 </div>
             </div>
             <div id="igAutoList"></div>
-        </div>
-        <div id="igPaneLeads" style="display:none;">
-            <div id="igLeadStats" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;"></div>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px;">
-                <input id="igLeadSearch" class="ig-input" type="text" placeholder="Buscar por @ ou palavra..." style="max-width:280px;">
-                <button id="igExportBtn" class="ig-btn ghost" type="button">⬇ Exportar CSV</button>
+            <!-- Leads: tinham aba propria e ninguem usava. Agora ficam aqui embaixo das
+                 automacoes, com so os 3 ultimos na tela pra a pagina abrir leve. -->
+            <div id="igLeadsSecao" style="margin-top:34px;padding-top:24px;border-top:1px solid var(--border);">
+                <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
+                    <div>
+                        <div style="font-size:16px;font-weight:800;color:var(--text);">🎯 Leads captados</div>
+                        <div style="font-size:12.5px;color:var(--text-muted);margin-top:2px;">quem comentou ou mandou DM e entrou na sua lista</div>
+                    </div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                        <input id="igLeadSearch" class="ig-input" type="text" placeholder="Buscar por @ ou palavra..." style="max-width:250px;">
+                        <button id="igExportBtn" class="ig-btn ghost" type="button">⬇ Exportar CSV</button>
+                    </div>
+                </div>
+                <div id="igLeadStats" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;"></div>
+                <div id="igLeadList"></div>
             </div>
-            <div id="igLeadList"></div>
         </div>
         <div id="igPaneInsights" style="display:none;">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
@@ -8357,16 +8364,23 @@
     let igDeliveriesLoading = false;
 
     function igSetSub(sub) {
+        // "leads" virou uma seção dentro de Automações: quem pedir leads cai lá e desce até ela.
+        let irParaLeads = false;
+        if (sub === 'leads') { sub = 'automacoes'; irParaLeads = true; }
         document.querySelectorAll('#tabInstagram .ig-subtab-btn').forEach(b => b.classList.toggle('active', b.dataset.igSub === sub));
         document.getElementById('igPaneVisao').style.display = sub === 'visao' ? '' : 'none';
         document.getElementById('igPaneAutomacoes').style.display = sub === 'automacoes' ? '' : 'none';
-        document.getElementById('igPaneLeads').style.display = sub === 'leads' ? '' : 'none';
         document.getElementById('igPaneInsights').style.display = sub === 'insights' ? '' : 'none';
         document.getElementById('igPaneConcorrencia').style.display = sub === 'concorrencia' ? '' : 'none';
         document.getElementById('igPanePendentes').style.display = sub === 'pendentes' ? '' : 'none';
         document.getElementById('igPaneSorteio').style.display = sub === 'sorteio' ? '' : 'none';
         if (sub === 'visao' && igLeadsReady) igLoadVisao();
-        if (sub === 'leads') igRenderLeads();
+        if (sub === 'automacoes' && igLeadsReady) igRenderLeads();
+        if (irParaLeads) setTimeout(() => {
+            igLeadsExpandido = true; igRenderLeads();
+            const el = document.getElementById('igLeadsSecao');
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 60);
         if (sub === 'insights' && !igInsightsLoaded) { igInsightsLoaded = true; igLoadInsights(); }
         if (sub === 'concorrencia' && !igConcLoaded) { igConcLoaded = true; igLoadConcorrencia(); }
         if (sub === 'pendentes' && !igPendLoaded) { igPendLoaded = true; igLoadPendentes(); }
@@ -8511,7 +8525,7 @@
         igSetSub('visao');
         igLoadHealth();
         try { await Promise.all([igLoadAutomations(), igLoadLeads()]); }
-        finally { igLeadsReady = true; igLoadVisao(); }
+        finally { igLeadsReady = true; igLoadVisao(); igRenderLeads(); }
     }
 
     // ---- Propostas enviadas (marcas que você prospectou) ----
@@ -10456,11 +10470,17 @@
         if (!t.length) return '<span style="color:var(--text-muted);">—</span>';
         return t.map(x => '<span style="display:inline-block;background:var(--warm);color:var(--text-muted);border-radius:999px;font-size:10.5px;font-weight:700;padding:2px 8px;margin:0 3px 3px 0;white-space:nowrap;">' + escapeHtml(x) + '</span>').join('');
     }
+    // A lista abre com so os 3 ultimos. Sao quase 2 mil leads: desenhar tudo de cara
+    // deixava a pagina pesada e ela nunca usava a tabela inteira.
+    let igLeadsExpandido = false;
+    const IG_LEADS_TETO = 300;   // teto de linhas desenhadas de uma vez
+    function igLeadsToggle() { igLeadsExpandido = !igLeadsExpandido; igRenderLeads(); }
     function igRenderLeads() {
         const stats = document.getElementById('igLeadStats');
         const list = document.getElementById('igLeadList');
         if (!stats || !list) return;
-        const q = (document.getElementById('igLeadSearch').value || '').toLowerCase();
+        const busca = document.getElementById('igLeadSearch');
+        const q = ((busca && busca.value) || '').toLowerCase();
         const filtered = igLeads.filter(l => !q || (l.username || '').toLowerCase().includes(q) || (l.last_keyword || '').toLowerCase().includes(q) || (l.tags || []).join(' ').toLowerCase().includes(q) || (l.intent || '').toLowerCase().includes(q));
         const total = igLeads.length;
         const receberam = igLeads.filter(l => l.link_sent).length;
@@ -10469,12 +10489,15 @@
         if (!filtered.length) {
             list.innerHTML = total
                 ? '<div class="ig-empty"><div class="em">🔍</div><h4>Nenhum lead com esse filtro</h4><p>Tente outra busca.</p></div>'
-                : '<div class="ig-empty"><div class="em">🌱</div><h4>Nenhum lead ainda</h4><p>Quando alguém comentar sua palavra-chave, aparece aqui.</p><button class="ig-btn" type="button" onclick="document.querySelector(\'[data-ig-sub=automacoes]\').click()">Ver automações</button></div>';
+                : '<div class="ig-empty"><div class="em">🌱</div><h4>Nenhum lead ainda</h4><p>Quando alguém comentar a palavra-chave de uma automação aí de cima, aparece aqui.</p></div>';
             return;
         }
-        list.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:auto;"><table><thead><tr>'
+        // fechado e sem busca: só os 3 mais recentes
+        const fechado = !igLeadsExpandido && !q;
+        const mostrar = fechado ? filtered.slice(0, 3) : filtered.slice(0, IG_LEADS_TETO);
+        const tabela = '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:auto;"><table><thead><tr>'
             + '<th>Conta</th><th>Origem</th><th>Palavra</th><th>📧 Contato</th><th>🏷️ Etiqueta</th><th>Recebeu?</th><th>Interações</th><th>Última vez</th></tr></thead><tbody>'
-            + filtered.map(l => '<tr>'
+            + mostrar.map(l => '<tr>'
                 + '<td>' + (l.username ? '<a href="https://instagram.com/' + encodeURIComponent(l.username) + '" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;font-weight:700;">@' + escapeHtml(l.username) + '</a>' : escapeHtml(l.ig_user_id || '')) + '</td>'
                 + '<td>' + (l.last_source === 'comment' ? '💬 Comentário' : '📩 Direct') + '</td>'
                 + '<td>' + escapeHtml(l.last_keyword || '') + '</td>'
@@ -10485,6 +10508,18 @@
                 + '<td>' + escapeHtml(igFmtDate(l.updated_at)) + '</td>'
                 + '</tr>').join('')
             + '</tbody></table></div>';
+        let rodape = '';
+        if (fechado && filtered.length > 3) {
+            rodape = '<button class="ig-btn ghost" type="button" onclick="igLeadsToggle()" style="margin-top:11px;">Ver todos os ' + igNum(filtered.length) + ' leads</button>';
+        } else if (!fechado) {
+            rodape = '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:11px;">'
+                + (q
+                    ? '<span style="font-size:12.5px;color:var(--text-muted);">' + igNum(filtered.length) + (filtered.length === 1 ? ' resultado' : ' resultados') + '</span>'
+                    : '<button class="ig-btn ghost" type="button" onclick="igLeadsToggle()">Mostrar só os 3 últimos</button>')
+                + (filtered.length > IG_LEADS_TETO ? '<span style="font-size:12px;color:var(--text-muted);">mostrando os ' + IG_LEADS_TETO + ' mais recentes de ' + igNum(filtered.length) + ' · use a busca ou baixe o CSV pra ver o resto</span>' : '')
+                + '</div>';
+        }
+        list.innerHTML = tabela + rodape;
     }
 
     function igExportCSV() {
