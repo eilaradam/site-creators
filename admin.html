@@ -8980,9 +8980,11 @@
     let pnlMailItens = [], pnlMailNotas = {}, pnlMailEditando = null, pnlMailVerSumidos = false;
 
     const pnlMailChave = m => m.thread_id || ('txt:' + (m.assunto || ''));
-    const pnlMailLink = m => m.thread_id
-        ? 'https://mail.google.com/mail/u/laradam.ugc@gmail.com/#all/' + encodeURIComponent(m.thread_id)
-        : 'https://mail.google.com/mail/u/laradam.ugc@gmail.com/#search/' + encodeURIComponent('subject:"' + (m.assunto || '') + '"');
+    // Tem que ser /mail/u/0/ mesmo: o formato com o e-mail no caminho
+    // (/mail/u/laradam.ugc@gmail.com/) devolve 404 no Gmail e não abria nada.
+    const pnlMailLink = m => 'https://mail.google.com/mail/u/0/#' + (m.thread_id
+        ? 'all/' + encodeURIComponent(m.thread_id)
+        : 'search/' + encodeURIComponent((m.de || '') + ' ' + (m.assunto || '')));
 
     async function pnlMail() {
         const box = document.getElementById('pnlMail'), quando = document.getElementById('pnlMailQuando');
