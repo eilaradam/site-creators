@@ -1302,15 +1302,31 @@
     .pnl-vazio { padding: 26px; text-align: center; color: var(--text-muted); font-size: 14px; }
     .pnl-add { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 11px; }
     .pnl-add input { flex: 1; min-width: 190px; padding: 10px 14px; }
-    .pnl-mail { display: flex; gap: 13px; padding: 13px 17px; border-bottom: 1px solid var(--border); align-items: flex-start; }
+    .pnl-mail { position: relative; padding: 11px 17px; border-bottom: 1px solid var(--border); }
     .pnl-mail:last-child { border-bottom: none; }
-    .pnl-mail .de { font-size: 13.5px; font-weight: 600; width: 178px; flex: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pnl-mail:hover { background: var(--cream, #FBF7F3); }
+    .pnl-mail.fora { opacity: .55; }
+    .pnl-mail-ir { display: flex; gap: 13px; align-items: flex-start; text-decoration: none; color: inherit; padding-right: 62px; }
+    .pnl-mail .de { font-size: 13.5px; font-weight: 600; width: 178px; flex: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+    .pnl-mail-ir:hover .de { color: var(--accent); }
     .pnl-mail .as { font-size: 13.5px; color: var(--text-soft); flex: 1; min-width: 0; }
     .pnl-mail .qd { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+    .pnl-mail-acoes { position: absolute; top: 9px; right: 12px; display: flex; gap: 2px; opacity: 0; transition: opacity .15s; }
+    .pnl-mail:hover .pnl-mail-acoes, .pnl-mail.fora .pnl-mail-acoes { opacity: 1; }
+    .pnl-mail-b { background: none; border: none; color: var(--text-muted); font-size: 14px; line-height: 1; cursor: pointer; padding: 5px 7px; border-radius: 7px; font-family: inherit; }
+    .pnl-mail-b:hover { background: var(--border); color: var(--accent); }
+    .pnl-mail-obs { font-size: 12.5px; color: var(--accent); background: var(--accent-glow); border-radius: 8px; padding: 5px 9px; margin: 7px 0 0 191px; cursor: pointer; display: inline-block; }
+    .pnl-mail-obsedit { display: flex; gap: 6px; align-items: center; margin: 8px 0 2px 191px; }
+    .pnl-mail-obsedit .ig-input { flex: 1; padding: 7px 10px; font-size: 13px; }
+    .pnl-mail-rodape { padding: 9px 17px; border-top: 1px solid var(--border); }
+    .pnl-mail-rodape button { background: none; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; font-family: inherit; text-decoration: underline; padding: 0; }
+    .pnl-mail-rodape button:hover { color: var(--accent); }
     @media (max-width: 720px) {
       .pnl-acoes { grid-template-columns: 1fr 1fr; }
-      .pnl-mail { flex-direction: column; gap: 3px; }
+      .pnl-mail-ir { flex-direction: column; gap: 3px; padding-right: 56px; }
       .pnl-mail .de { width: auto; }
+      .pnl-mail-acoes { opacity: 1; }
+      .pnl-mail-obs, .pnl-mail-obsedit { margin-left: 0; }
     }
     </style>
     <div class="pnl">
@@ -8957,29 +8973,104 @@
        A página é estática e não consegue falar com o Gmail sozinha (isso pede OAuth do
        Google rodando num servidor). Então ela mostra o último retrato salvo, sempre com
        a data em que foi tirado, pra nunca passar por informação de agora sem ser. */
+    /* Caixa de entrada do Gmail: cada linha abre o e-mail de verdade, aceita uma
+       observação e pode sumir da lista. A obs e o "sumiu" ficam na tabela
+       painel_email_notas, separados do retrato, pra não se perderem quando eu
+       atualizo a caixa de entrada. */
+    let pnlMailItens = [], pnlMailNotas = {}, pnlMailEditando = null, pnlMailVerSumidos = false;
+
+    const pnlMailChave = m => m.thread_id || ('txt:' + (m.assunto || ''));
+    const pnlMailLink = m => m.thread_id
+        ? 'https://mail.google.com/mail/u/laradam.ugc@gmail.com/#all/' + encodeURIComponent(m.thread_id)
+        : 'https://mail.google.com/mail/u/laradam.ugc@gmail.com/#search/' + encodeURIComponent('subject:"' + (m.assunto || '') + '"');
+
     async function pnlMail() {
         const box = document.getElementById('pnlMail'), quando = document.getElementById('pnlMailQuando');
         if (!box) return;
         let snap = null;
         try {
-            const { data } = await sb.from('painel_email_snapshot').select('*').eq('id', 'main').maybeSingle();
-            snap = data;
-        } catch (e) {}
-        const itens = (snap && snap.dados && snap.dados.itens) || [];
-        if (!itens.length) {
-            quando.textContent = '';
+            const [s, n] = await Promise.all([
+                sb.from('painel_email_snapshot').select('*').eq('id', 'main').maybeSingle(),
+                sb.from('painel_email_notas').select('*')
+            ]);
+            snap = s.data;
+            pnlMailNotas = {};
+            (n.data || []).forEach(r => { pnlMailNotas[r.chave] = r; });
+        } catch (e) { /* segue com o que tem */ }
+        pnlMailItens = (snap && snap.dados && snap.dados.itens) || [];
+        const q = (snap && snap.atualizado_em) ? new Date(snap.atualizado_em) : null;
+        if (quando) quando.textContent = q ? ('retrato de ' + q.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+            + ' às ' + q.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })) : '';
+        pnlMailRender();
+    }
+
+    function pnlMailRender() {
+        const box = document.getElementById('pnlMail'); if (!box) return;
+        if (!pnlMailItens.length) {
             box.innerHTML = '<div class="pnl-vazio">Sem retrato da caixa de entrada ainda.<br>'
                 + '<span style="font-size:12.5px;">Peça no chat: “atualiza a caixa de entrada do painel”.</span></div>';
             return;
         }
-        const q = snap.atualizado_em ? new Date(snap.atualizado_em) : null;
-        quando.textContent = q ? ('retrato de ' + q.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
-            + ' às ' + q.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })) : '';
-        box.innerHTML = itens.map(m =>
-            '<div class="pnl-mail"><div class="de">' + escapeHtml(m.de || '') + '</div>'
-            + '<div class="as">' + escapeHtml(m.assunto || '')
-            + (m.esperando ? ' <span class="pnl-prazo hoje" style="margin-left:6px;">esperando você</span>' : '') + '</div>'
-            + '<div class="qd">' + escapeHtml(m.quando || '') + '</div></div>').join('');
+        const sumido = m => !!(pnlMailNotas[pnlMailChave(m)] || {}).removido;
+        const visiveis = pnlMailItens.filter(m => !sumido(m));
+        const sumidos = pnlMailItens.filter(sumido);
+        const linha = (m, fora) => {
+            const ch = pnlMailChave(m), nota = pnlMailNotas[ch] || {};
+            const editando = pnlMailEditando === ch;
+            return '<div class="pnl-mail' + (fora ? ' fora' : '') + '">'
+                + '<a class="pnl-mail-ir" href="' + escapeHtml(pnlMailLink(m)) + '" target="_blank" rel="noopener" title="Abrir no Gmail">'
+                + '<span class="de">' + escapeHtml(m.de || '') + '</span>'
+                + '<span class="as">' + escapeHtml(m.assunto || '')
+                + (m.esperando ? ' <span class="pnl-prazo hoje" style="margin-left:6px;">esperando você</span>' : '') + '</span>'
+                + '<span class="qd">' + escapeHtml(m.quando || '') + '</span></a>'
+                + '<div class="pnl-mail-acoes">'
+                + (fora
+                    ? '<button class="pnl-mail-b" type="button" title="Trazer de volta" onclick="pnlMailRemover(\'' + ch + '\', false)">↩</button>'
+                    : '<button class="pnl-mail-b" type="button" title="Observação" onclick="pnlMailEditar(\'' + ch + '\')">✎</button>'
+                    + '<button class="pnl-mail-b" type="button" title="Tirar da lista" onclick="pnlMailRemover(\'' + ch + '\', true)">✕</button>')
+                + '</div>'
+                + (editando
+                    ? '<div class="pnl-mail-obsedit"><input class="ig-input" id="pnlObsInput" type="text" placeholder="Ex.: respondi pedindo o briefing, retorno até sexta" value="' + escapeHtml(nota.obs || '') + '" onkeydown="if(event.key===\'Enter\')pnlMailSalvarObs(\'' + ch + '\');if(event.key===\'Escape\')pnlMailEditar(null);">'
+                    + '<button class="ig-btn" type="button" onclick="pnlMailSalvarObs(\'' + ch + '\')">Salvar</button>'
+                    + '<button class="pnl-mail-b" type="button" onclick="pnlMailEditar(null)">✕</button></div>'
+                    : (nota.obs ? '<div class="pnl-mail-obs" onclick="pnlMailEditar(\'' + ch + '\')">📝 ' + escapeHtml(nota.obs) + '</div>' : ''))
+                + '</div>';
+        };
+        let h = visiveis.length
+            ? visiveis.map(m => linha(m, false)).join('')
+            : '<div class="pnl-vazio">Você limpou a caixa de entrada do painel. 🎉</div>';
+        if (sumidos.length) {
+            h += '<div class="pnl-mail-rodape"><button type="button" onclick="pnlMailToggleSumidos()">'
+                + (pnlMailVerSumidos ? 'esconder' : 'ver') + ' ' + sumidos.length + (sumidos.length === 1 ? ' que você tirou' : ' que você tirou') + '</button></div>';
+            if (pnlMailVerSumidos) h += sumidos.map(m => linha(m, true)).join('');
+        }
+        box.innerHTML = h;
+        const inp = document.getElementById('pnlObsInput');
+        if (inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+    }
+
+    function pnlMailToggleSumidos() { pnlMailVerSumidos = !pnlMailVerSumidos; pnlMailRender(); }
+    function pnlMailEditar(chave) { pnlMailEditando = chave; pnlMailRender(); }
+
+    async function pnlMailSalvarObs(chave) {
+        const inp = document.getElementById('pnlObsInput'); if (!inp) return;
+        const obs = inp.value.trim();
+        const antes = pnlMailNotas[chave] || {};
+        pnlMailNotas[chave] = Object.assign({}, antes, { chave: chave, obs: obs || null });
+        pnlMailEditando = null;
+        pnlMailRender();
+        const { error } = await sb.from('painel_email_notas')
+            .upsert({ chave: chave, obs: obs || null, removido: !!antes.removido, updated_at: new Date().toISOString() });
+        if (error) { pnlMailNotas[chave] = antes; pnlMailRender(); alert('Não consegui salvar a observação: ' + error.message); }
+    }
+
+    async function pnlMailRemover(chave, tirar) {
+        const antes = pnlMailNotas[chave] || {};
+        pnlMailNotas[chave] = Object.assign({}, antes, { chave: chave, removido: !!tirar });
+        pnlMailRender();
+        const { error } = await sb.from('painel_email_notas')
+            .upsert({ chave: chave, obs: antes.obs || null, removido: !!tirar, updated_at: new Date().toISOString() });
+        if (error) { pnlMailNotas[chave] = antes; pnlMailRender(); alert('Não consegui salvar: ' + error.message); }
     }
 
     /* ══════ 📥 RESPONDER: DMs em que a ultima palavra e da outra pessoa ══════
