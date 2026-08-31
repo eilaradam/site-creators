@@ -2331,6 +2331,49 @@
     #tabInstagram .ana-vs.up{color:#2D7A4F;}
     #tabInstagram .ana-vs.down{color:var(--text-muted);}
     @media(max-width:640px){ #tabInstagram .ana-taxa{display:none;} #tabInstagram .ana-brow .k{width:84px;} }
+    /* Banco de Ideias */
+    #tabInstagram .idea-top{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:16px;}
+    #tabInstagram .idea-count{background:var(--accent-glow);color:var(--accent);font-size:12.5px;font-weight:800;padding:7px 13px;border-radius:100px;white-space:nowrap;}
+    #tabInstagram .idea-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:18px;}
+    #tabInstagram .idea-chips{display:flex;gap:7px;flex-wrap:wrap;}
+    #tabInstagram .idea-chip{background:var(--card);border:1px solid var(--border);color:var(--text-soft);border-radius:100px;padding:7px 13px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;}
+    #tabInstagram .idea-chip b{color:var(--text-muted);font-weight:800;margin-left:3px;}
+    #tabInstagram .idea-chip:hover{border-color:var(--accent);color:var(--accent);}
+    #tabInstagram .idea-chip.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+    #tabInstagram .idea-chip.active b{color:rgba(255,255,255,.75);}
+    #tabInstagram .idea-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+    #tabInstagram .idea-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px 18px 14px;cursor:pointer;transition:border-color .15s,box-shadow .15s,transform .15s;display:flex;flex-direction:column;min-width:0;}
+    #tabInstagram .idea-card:hover{border-color:var(--accent);box-shadow:var(--shadow-sm);transform:translateY(-1px);}
+    #tabInstagram .idea-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:11px;}
+    #tabInstagram .idea-ic{width:34px;height:34px;border-radius:10px;background:var(--accent-glow);display:flex;align-items:center;justify-content:center;font-size:17px;}
+    #tabInstagram .idea-fav{background:none;border:none;color:var(--text-muted);font-size:19px;line-height:1;cursor:pointer;padding:2px 4px;font-family:inherit;}
+    #tabInstagram .idea-fav:hover{color:var(--accent);}
+    #tabInstagram .idea-fav.on{color:var(--accent);}
+    #tabInstagram .idea-t{font-size:15px;font-weight:800;color:var(--text);line-height:1.3;margin-bottom:6px;}
+    #tabInstagram .idea-d{font-size:12.5px;color:var(--text-soft);line-height:1.5;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+    #tabInstagram .idea-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto;}
+    #tabInstagram .idea-tag{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:100px;background:var(--cream,#F7F2EC);color:var(--text-soft);white-space:nowrap;}
+    #tabInstagram .idea-tag.fmt{background:#EFEAE3;color:#6B6156;}
+    #tabInstagram .idea-tag.st.ideia{background:#FFF2D9;color:#8A5A00;}
+    #tabInstagram .idea-tag.st.gravar{background:#E5DBFF;color:#5B3AA8;}
+    #tabInstagram .idea-tag.st.postado{background:#DDF2E5;color:#22694A;}
+    #tabInstagram .idea-tag.ia{background:var(--accent-glow);color:var(--accent);}
+    /* modal da ideia */
+    #tabInstagram .idea-modal{position:fixed;inset:0;background:rgba(30,26,22,.45);z-index:900;display:flex;align-items:center;justify-content:center;padding:20px;}
+    #tabInstagram .idea-modal-box{background:var(--card);border-radius:20px;width:100%;max-width:620px;max-height:92vh;overflow:auto;box-shadow:0 18px 50px rgba(0,0,0,.25);}
+    #tabInstagram .idea-modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:20px 24px 16px;border-bottom:1px solid var(--border);}
+    #tabInstagram .idea-modal-kicker{font-size:10.5px;font-weight:800;letter-spacing:1.2px;color:var(--text-muted);}
+    #tabInstagram .idea-modal-titulo{font-size:20px;font-weight:800;color:var(--text);margin-top:3px;}
+    #tabInstagram .idea-x{background:var(--cream,#F1ECE6);border:none;color:var(--text-soft);width:32px;height:32px;border-radius:50%;font-size:14px;cursor:pointer;flex-shrink:0;font-family:inherit;}
+    #tabInstagram .idea-x:hover{background:var(--border);}
+    #tabInstagram .idea-modal-body{padding:18px 24px 4px;}
+    #tabInstagram .idea-lbl{display:block;font-size:12.5px;font-weight:800;color:var(--text);margin:14px 0 6px;}
+    #tabInstagram .idea-modal-body .idea-lbl:first-child{margin-top:0;}
+    #tabInstagram .idea-row3{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;}
+    #tabInstagram .idea-modal-pe{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 24px 22px;flex-wrap:wrap;}
+    #tabInstagram .idea-del{background:none;border:none;color:var(--error);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;padding:8px 4px;}
+    #tabInstagram .idea-del:hover{text-decoration:underline;}
+    @media(max-width:640px){ #tabInstagram .idea-grid{grid-template-columns:1fr;} #tabInstagram .idea-modal{padding:0;align-items:flex-end;} #tabInstagram .idea-modal-box{max-width:none;border-radius:20px 20px 0 0;max-height:94vh;} }
     /* Aba Concorrência */
     #tabInstagram .conc-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px;}
     #tabInstagram .conc-head h3{font-size:17px;font-weight:800;margin:0;color:var(--text);}
@@ -2373,6 +2416,7 @@
         </div>
         <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
             <button class="ig-subtab-btn active" data-ig-sub="visao" type="button">📊 Visão geral</button>
+            <button class="ig-subtab-btn" data-ig-sub="ideias" type="button">💡 Ideias</button>
             <button class="ig-subtab-btn" data-ig-sub="automacoes" type="button">Automações</button>
             <button class="ig-subtab-btn" data-ig-sub="insights" type="button">Análises</button>
             <button class="ig-subtab-btn" data-ig-sub="concorrencia" type="button">🏆 Concorrência</button>
@@ -2382,6 +2426,55 @@
             <button class="ig-subtab-btn" data-ig-sub="sorteio" type="button" hidden>🎲 Sorteio</button>
         </div>
         <div id="igPaneVisao"><div id="igKpisBox"></div><div id="igReviewBox"></div><div id="igVisaoBox"><div style="padding:44px;text-align:center;color:var(--text-muted);">Carregando resumo...</div></div></div>
+        <div id="igPaneIdeias" style="display:none;">
+            <div class="idea-top">
+                <div>
+                    <div style="font-size:18px;font-weight:800;color:var(--text);">Banco de Ideias</div>
+                    <div style="font-size:12.5px;color:var(--text-muted);margin-top:2px;">Toda ideia de conteúdo num lugar só, pra não perder nenhuma.</div>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                    <span class="idea-count" id="igIdeiasCount">💡</span>
+                    <button id="igIdeiaImportBtn" class="ig-btn ghost" type="button" onclick="igIdeiasImportar()">✨ Trazer das Análises</button>
+                    <button class="ig-btn" type="button" onclick="igIdeiaAbrir(null)">+ Nova ideia</button>
+                </div>
+            </div>
+            <div class="idea-controls">
+                <input id="igIdeiaBusca" class="ig-input" type="search" placeholder="🔎 Buscar ideia..." oninput="igIdeiasRender()" style="max-width:300px;">
+                <div class="idea-chips" id="igIdeiaFiltros"></div>
+            </div>
+            <div id="igIdeiasBox"></div>
+        </div>
+        <div id="igIdeiaModal" class="idea-modal" style="display:none;">
+            <div class="idea-modal-box">
+                <div class="idea-modal-head">
+                    <div>
+                        <div class="idea-modal-kicker" id="igIdeiaModalT">NOVA IDEIA</div>
+                        <div class="idea-modal-titulo">💡 Banco de Ideias</div>
+                    </div>
+                    <button class="idea-x" type="button" onclick="igIdeiaFechar()">✕</button>
+                </div>
+                <div class="idea-modal-body">
+                    <label class="idea-lbl">Título</label>
+                    <input id="igIdeiaTitulo" class="ig-input" type="text" placeholder="Ex.: 3 coisas que o Claude faz por criadoras UGC">
+                    <label class="idea-lbl">Descrição / matéria-prima</label>
+                    <textarea id="igIdeiaDesc" class="ig-input" style="min-height:120px;" placeholder="Como o conteúdo vai ser: o que você fala, a ordem, o gancho do fim..."></textarea>
+                    <div class="idea-row3">
+                        <div><label class="idea-lbl">Formato</label><select id="igIdeiaFormato" class="ig-input"></select></div>
+                        <div><label class="idea-lbl">Estilo</label><select id="igIdeiaEstilo" class="ig-input"></select></div>
+                        <div><label class="idea-lbl">Situação</label><select id="igIdeiaStatus" class="ig-input"></select></div>
+                    </div>
+                    <label class="idea-lbl">Etiquetas <span style="font-weight:400;color:var(--text-muted);">(separe por vírgula)</span></label>
+                    <input id="igIdeiaTags" class="ig-input" type="text" placeholder="imersão, claude, bastidor">
+                </div>
+                <div class="idea-modal-pe">
+                    <button id="igIdeiaApagarBtn" class="idea-del" type="button" onclick="igIdeiaApagar()">🗑 Apagar</button>
+                    <div style="display:flex;gap:8px;">
+                        <button class="ig-btn ghost" type="button" onclick="igIdeiaFechar()">Cancelar</button>
+                        <button id="igIdeiaSalvarBtn" class="ig-btn" type="button" onclick="igIdeiaSalvar()">✓ Salvar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div id="igPaneConcorrencia" style="display:none;"><div id="igConcBox"></div></div>
         <div id="igPaneAutomacoes" style="display:none;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;flex-wrap:wrap;">
@@ -8370,6 +8463,7 @@
         document.querySelectorAll('#tabInstagram .ig-subtab-btn').forEach(b => b.classList.toggle('active', b.dataset.igSub === sub));
         document.getElementById('igPaneVisao').style.display = sub === 'visao' ? '' : 'none';
         document.getElementById('igPaneAutomacoes').style.display = sub === 'automacoes' ? '' : 'none';
+        document.getElementById('igPaneIdeias').style.display = sub === 'ideias' ? '' : 'none';
         document.getElementById('igPaneInsights').style.display = sub === 'insights' ? '' : 'none';
         document.getElementById('igPaneConcorrencia').style.display = sub === 'concorrencia' ? '' : 'none';
         document.getElementById('igPanePendentes').style.display = sub === 'pendentes' ? '' : 'none';
@@ -8381,6 +8475,7 @@
             const el = document.getElementById('igLeadsSecao');
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 60);
+        if (sub === 'ideias' && !igIdeiasCarregado) { igIdeiasCarregado = true; igLoadIdeias(); }
         if (sub === 'insights' && !igInsightsLoaded) { igInsightsLoaded = true; igLoadInsights(); }
         if (sub === 'concorrencia' && !igConcLoaded) { igConcLoaded = true; igLoadConcorrencia(); }
         if (sub === 'pendentes' && !igPendLoaded) { igPendLoaded = true; igLoadPendentes(); }
@@ -10573,6 +10668,160 @@
                     + '</div></a>';
             }).join('')
             + '</div>';
+    }
+
+    /* ── Banco de Ideias: onde as ideias de conteúdo dela ficam guardadas ── */
+    let igIdeias = [], igIdeiasCarregado = false, igIdeiaFiltro = 'todas', igIdeiaEditando = null;
+    const IG_IDEIA_STATUS = { ideia: { ic: '💡', nome: 'Ideia' }, gravar: { ic: '🎬', nome: 'Pra gravar' }, postado: { ic: '✅', nome: 'Postado' } };
+    const IG_IDEIA_FORMATOS = ['Reel', 'Carrossel', 'Story', 'Foto'];
+    const IG_IDEIA_ESTILOS = ['Storytelling', 'Câmera frontal', 'Dica ou passo a passo', 'Lista', 'Transformação', 'Opinião', 'Bastidor', 'Antes e depois'];
+
+    async function igLoadIdeias() {
+        const box = document.getElementById('igIdeiasBox'); if (!box) return;
+        box.innerHTML = '<div style="padding:36px;text-align:center;color:var(--text-muted);">Carregando suas ideias…</div>';
+        const { data, error } = await sb.from('ig_ideias').select('*').order('created_at', { ascending: false });
+        if (error) { box.innerHTML = '<div style="color:var(--error);padding:16px;">Não consegui carregar as ideias: ' + escapeHtml(error.message) + '</div>'; return; }
+        igIdeias = data || [];
+        igIdeiasRender();
+    }
+
+    function igIdeiasFiltradas() {
+        const el = document.getElementById('igIdeiaBusca');
+        const q = ((el && el.value) || '').toLowerCase().trim();
+        return igIdeias.filter(i => {
+            if (igIdeiaFiltro === 'favoritas' && !i.favorita) return false;
+            if (IG_IDEIA_STATUS[igIdeiaFiltro] && (i.status || 'ideia') !== igIdeiaFiltro) return false;
+            if (!q) return true;
+            const alvo = [i.titulo, i.descricao, (i.tags || []).join(' '), i.formato, i.estilo].join(' ').toLowerCase();
+            return alvo.includes(q);
+        });
+    }
+
+    function igIdeiaSetFiltro(k) { igIdeiaFiltro = k; igIdeiasRender(); }
+
+    function igIdeiasRender() {
+        const box = document.getElementById('igIdeiasBox'); if (!box) return;
+        const cont = document.getElementById('igIdeiasCount');
+        if (cont) cont.textContent = '💡 ' + (igIdeias.length === 1 ? '1 ideia' : igNum(igIdeias.length) + ' ideias');
+        const nPor = k => igIdeias.filter(i => (i.status || 'ideia') === k).length;
+        const fEl = document.getElementById('igIdeiaFiltros');
+        if (fEl) {
+            const fs = [['todas', 'Todas', igIdeias.length], ['ideia', '💡 Ideia', nPor('ideia')], ['gravar', '🎬 Pra gravar', nPor('gravar')], ['postado', '✅ Postado', nPor('postado')], ['favoritas', '⭐ Favoritas', igIdeias.filter(i => i.favorita).length]];
+            fEl.innerHTML = fs.map(f => '<button class="idea-chip' + (f[0] === igIdeiaFiltro ? ' active' : '') + '" type="button" onclick="igIdeiaSetFiltro(\'' + f[0] + '\')">' + f[1] + ' <b>' + f[2] + '</b></button>').join('');
+        }
+        const lista = igIdeiasFiltradas();
+        if (!lista.length) {
+            box.innerHTML = igIdeias.length
+                ? '<div class="ig-empty"><div class="em">🔍</div><h4>Nenhuma ideia com esse filtro</h4><p>Tente outra busca ou volte pra "Todas".</p></div>'
+                : '<div class="ig-empty"><div class="em">💡</div><h4>Seu banco de ideias está vazio</h4><p>Guarde aqui toda ideia de conteúdo que passar pela sua cabeça, pra não perder nenhuma.</p><button class="ig-btn" type="button" onclick="igIdeiaAbrir(null)">+ Primeira ideia</button></div>';
+            return;
+        }
+        box.innerHTML = '<div class="idea-grid">' + lista.map(i => {
+            const st = IG_IDEIA_STATUS[i.status || 'ideia'] || IG_IDEIA_STATUS.ideia;
+            const fmt = [i.formato, i.estilo].filter(Boolean).join(' · ');
+            const tags = (i.tags || []).slice(0, 3).map(t => '<span class="idea-tag">' + escapeHtml(t) + '</span>').join('');
+            return '<div class="idea-card" onclick="igIdeiaAbrir(\'' + i.id + '\')">'
+                + '<div class="idea-head"><span class="idea-ic">💡</span>'
+                + '<button class="idea-fav' + (i.favorita ? ' on' : '') + '" type="button" title="Favoritar" onclick="event.stopPropagation();igIdeiaFav(\'' + i.id + '\')">' + (i.favorita ? '♥' : '♡') + '</button></div>'
+                + '<div class="idea-t">' + escapeHtml(i.titulo || 'sem título') + '</div>'
+                + (i.descricao ? '<div class="idea-d">' + escapeHtml(i.descricao) + '</div>' : '')
+                + '<div class="idea-tags">'
+                + (fmt ? '<span class="idea-tag fmt">' + escapeHtml(fmt) + '</span>' : '')
+                + '<span class="idea-tag st ' + (i.status || 'ideia') + '">' + st.ic + ' ' + st.nome + '</span>'
+                + tags
+                + (i.origem === 'analises' ? '<span class="idea-tag ia">✨ das Análises</span>' : '')
+                + '</div></div>';
+        }).join('') + '</div>';
+    }
+
+    async function igIdeiaFav(id) {
+        const i = igIdeias.find(x => x.id === id); if (!i) return;
+        i.favorita = !i.favorita;                       // troca na tela na hora
+        igIdeiasRender();
+        const { error } = await sb.from('ig_ideias').update({ favorita: i.favorita, updated_at: new Date().toISOString() }).eq('id', id);
+        if (error) { i.favorita = !i.favorita; igIdeiasRender(); alert('Não consegui salvar: ' + error.message); }
+    }
+
+    let igIdeiaSelectsProntos = false;
+    function igIdeiaMontaSelects() {
+        if (igIdeiaSelectsProntos) return;
+        igIdeiaSelectsProntos = true;
+        const opc = (arr, vazio) => (vazio ? '<option value="">' + vazio + '</option>' : '') + arr.map(o => '<option value="' + escapeHtml(o) + '">' + escapeHtml(o) + '</option>').join('');
+        document.getElementById('igIdeiaFormato').innerHTML = opc(IG_IDEIA_FORMATOS, 'a decidir');
+        document.getElementById('igIdeiaEstilo').innerHTML = opc(IG_IDEIA_ESTILOS, 'a decidir');
+        document.getElementById('igIdeiaStatus').innerHTML = Object.keys(IG_IDEIA_STATUS).map(k => '<option value="' + k + '">' + IG_IDEIA_STATUS[k].ic + ' ' + IG_IDEIA_STATUS[k].nome + '</option>').join('');
+    }
+
+    function igIdeiaAbrir(id) {
+        igIdeiaMontaSelects();
+        igIdeiaEditando = id ? (igIdeias.find(x => x.id === id) || null) : null;
+        const d = igIdeiaEditando || { titulo: '', descricao: '', formato: '', estilo: '', status: 'ideia', tags: [] };
+        document.getElementById('igIdeiaModalT').textContent = igIdeiaEditando ? 'EDITAR IDEIA' : 'NOVA IDEIA';
+        document.getElementById('igIdeiaTitulo').value = d.titulo || '';
+        document.getElementById('igIdeiaDesc').value = d.descricao || '';
+        document.getElementById('igIdeiaFormato').value = d.formato || '';
+        document.getElementById('igIdeiaEstilo').value = d.estilo || '';
+        document.getElementById('igIdeiaStatus').value = d.status || 'ideia';
+        document.getElementById('igIdeiaTags').value = (d.tags || []).join(', ');
+        document.getElementById('igIdeiaApagarBtn').style.display = igIdeiaEditando ? '' : 'none';
+        document.getElementById('igIdeiaModal').style.display = 'flex';
+        setTimeout(() => document.getElementById('igIdeiaTitulo').focus(), 40);
+    }
+    function igIdeiaFechar() { document.getElementById('igIdeiaModal').style.display = 'none'; igIdeiaEditando = null; }
+
+    async function igIdeiaSalvar() {
+        const titulo = document.getElementById('igIdeiaTitulo').value.trim();
+        if (!titulo) { alert('A ideia precisa de um título.'); return; }
+        const btn = document.getElementById('igIdeiaSalvarBtn');
+        btn.disabled = true; btn.textContent = 'Salvando…';
+        const patch = {
+            titulo: titulo,
+            descricao: document.getElementById('igIdeiaDesc').value.trim() || null,
+            formato: document.getElementById('igIdeiaFormato').value || null,
+            estilo: document.getElementById('igIdeiaEstilo').value || null,
+            status: document.getElementById('igIdeiaStatus').value || 'ideia',
+            tags: document.getElementById('igIdeiaTags').value.split(',').map(t => t.trim()).filter(Boolean),
+            updated_at: new Date().toISOString()
+        };
+        const r = igIdeiaEditando
+            ? await sb.from('ig_ideias').update(patch).eq('id', igIdeiaEditando.id)
+            : await sb.from('ig_ideias').insert(patch);
+        btn.disabled = false; btn.textContent = '✓ Salvar';
+        if (r.error) { alert('Não consegui salvar: ' + r.error.message); return; }
+        igIdeiaFechar();
+        await igLoadIdeias();
+    }
+
+    async function igIdeiaApagar() {
+        if (!igIdeiaEditando) return;
+        if (!confirm('Apagar a ideia "' + igIdeiaEditando.titulo + '"? Isso não tem volta.')) return;
+        const { error } = await sb.from('ig_ideias').delete().eq('id', igIdeiaEditando.id);
+        if (error) { alert('Não consegui apagar: ' + error.message); return; }
+        igIdeiaFechar();
+        await igLoadIdeias();
+    }
+
+    // Traz as ideias de vídeo que a IA já tirou dos comentários dela (aba Análises),
+    // sem repetir as que já estão no banco.
+    async function igIdeiasImportar() {
+        const btn = document.getElementById('igIdeiaImportBtn');
+        if (btn) { btn.disabled = true; btn.textContent = 'Buscando…'; }
+        let d = igInsightsData;
+        if (!d || !(d.themes || []).length) {
+            try { const r = await sb.functions.invoke('ig-insights', { body: { days: 'all' } }); if (r && r.data && !r.data.error) d = r.data; } catch (e) { /* segue */ }
+        }
+        const temas = (d && d.themes) || [];
+        if (btn) { btn.disabled = false; btn.textContent = '✨ Trazer das Análises'; }
+        if (!temas.length) { alert('As Análises ainda não têm ideias de vídeo. Abra a aba Análises e clique em "Atualizar agora" pra a IA ler os comentários.'); return; }
+        const jaTem = new Set(igIdeias.map(i => (i.titulo || '').toLowerCase().trim()));
+        const novas = temas
+            .filter(t => t.tema && !jaTem.has(String(t.tema).toLowerCase().trim()))
+            .map(t => ({ titulo: t.tema, descricao: t.ideia_video || null, formato: 'Reel', status: 'ideia', origem: 'analises', tags: [] }));
+        if (!novas.length) { alert('Tudo que as Análises sugeriram já está no seu banco de ideias.'); return; }
+        const { error } = await sb.from('ig_ideias').insert(novas);
+        if (error) { alert('Não consegui trazer: ' + error.message); return; }
+        await igLoadIdeias();
+        alert(novas.length === 1 ? '1 ideia nova veio das Análises.' : novas.length + ' ideias novas vieram das Análises.');
     }
 
     // ---- Análises: blocos que ligam os números com trabalho ----
