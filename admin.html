@@ -2270,6 +2270,12 @@
     #tabInstagram .conc-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px;}
     #tabInstagram .conc-head h3{font-size:17px;font-weight:800;margin:0;color:var(--text);}
     #tabInstagram .conc-head p{font-size:12.5px;color:var(--text-muted);margin:3px 0 0;}
+    #tabInstagram .conc-fold{border:1px solid var(--border);border-radius:var(--radius);background:var(--card);padding:14px 18px;}
+    #tabInstagram .conc-fold>summary{cursor:pointer;font-size:13.5px;font-weight:600;color:var(--accent);list-style:none;display:flex;align-items:center;gap:8px;}
+    #tabInstagram .conc-fold>summary::-webkit-details-marker{display:none;}
+    #tabInstagram .conc-fold>summary::before{content:'▸';font-size:12px;transition:transform .18s ease;}
+    #tabInstagram .conc-fold[open]>summary::before{transform:rotate(90deg);}
+    #tabInstagram .conc-fold>summary:hover{color:var(--accent-dark);}
     #tabInstagram .conc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
     #tabInstagram .conc-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow-xs);min-width:0;}
     #tabInstagram .conc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:12px;}
@@ -8415,9 +8421,22 @@
                     + (isMe && c.resumo ? '<div class="conc-rank">' + escapeHtml(c.resumo) + '</div>' : '')
                     + '</div>';
             };
-            box.innerHTML = '<div class="conc-head"><div><h3>🏆 Você vs. sua concorrência</h3><p>Dados públicos via API oficial da Meta. O engajamento é a média dos 12 posts mais recentes de cada perfil, inclusive o seu.</p></div>'
+            /* Fica MINIMIZADA (pedido dela): a linha de cima já dá o recado (sua posição
+               entre as mentoras) e os perfis só abrem quando ela quiser olhar. O <details>
+               guarda sozinho se estava aberto, então não precisa reabrir toda vez. */
+            const resumoMe = (me && me.resumo) ? me.resumo : '';
+            const abertoAntes = localStorage.getItem('igConcAberto') === '1';
+            box.innerHTML = '<div class="conc-head"><div><h3>🏆 Você vs. sua concorrência</h3>'
+                + '<p>' + (resumoMe ? escapeHtml(resumoMe) : 'Dados públicos via API oficial da Meta, média dos 12 posts mais recentes.') + '</p></div>'
                 + '<button class="ig-btn ghost" type="button" onclick="igConcRefresh()">↻ Atualizar agora</button></div>'
-                + '<div class="conc-grid">' + todos.map(cardHtml).join('') + '</div>';
+                + '<details class="conc-fold" id="igConcFold"' + (abertoAntes ? ' open' : '') + '>'
+                + '<summary>Ver os ' + todos.length + ' perfis, com seguidores, engajamento e os posts que mais bombaram</summary>'
+                + '<div class="conc-grid" style="margin-top:14px;">' + todos.map(cardHtml).join('') + '</div>'
+                + '</details>';
+            const fold = document.getElementById('igConcFold');
+            if (fold) fold.addEventListener('toggle', () => {
+                try { localStorage.setItem('igConcAberto', fold.open ? '1' : '0'); } catch (e) {}
+            });
         } catch (e) {
             box.innerHTML = '<div style="padding:30px;text-align:center;color:#c00">Erro ao carregar: ' + escapeHtml(e.message || String(e)) + '</div>';
         }
