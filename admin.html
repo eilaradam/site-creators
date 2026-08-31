@@ -10674,7 +10674,8 @@
     let igIdeias = [], igIdeiasCarregado = false, igIdeiaFiltro = 'todas', igIdeiaEditando = null;
     const IG_IDEIA_STATUS = { ideia: { ic: '💡', nome: 'Ideia' }, gravar: { ic: '🎬', nome: 'Pra gravar' }, postado: { ic: '✅', nome: 'Postado' } };
     const IG_IDEIA_FORMATOS = ['Reel', 'Carrossel', 'Story', 'Foto'];
-    const IG_IDEIA_ESTILOS = ['Storytelling', 'Câmera frontal', 'Dica ou passo a passo', 'Lista', 'Transformação', 'Opinião', 'Bastidor', 'Antes e depois'];
+    // Mesmo vocabulário que ela já usa no mag.ai, pra não ter que reaprender nome de nada.
+    const IG_IDEIA_ESTILOS = ['Storytelling Looping', 'Câmera Frontal', 'Dica/DIY', 'Lista (atração)', 'A Transformação (conversão)', 'Comparação', 'Palestra', 'Diálogo', 'Conselho', 'Analogia', 'Vlog', 'Bastidor'];
 
     async function igLoadIdeias() {
         const box = document.getElementById('igIdeiasBox'); if (!box) return;
