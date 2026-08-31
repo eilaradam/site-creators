@@ -2266,6 +2266,18 @@
     #tabInstagram .igr-cat{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:1px 6px;border-radius:20px;flex-shrink:0;}
     #tabInstagram .igr-cat.ref{background:#EEE9F5;color:#6C4FB0;}
     #tabInstagram .igr-cat.men{background:var(--accent-glow);color:var(--accent);}
+    /* O card do estrategista abre e fecha: por padrao fica fechado, pra a analise
+       do perfil nao ficar exposta na tela toda hora. */
+    #tabInstagram .ig-review-card .igr-head{cursor:pointer;margin-bottom:0;}
+    #tabInstagram .ig-review-card.aberto .igr-head{margin-bottom:13px;}
+    #tabInstagram .igr-body{display:none;}
+    #tabInstagram .ig-review-card.aberto .igr-body{display:block;}
+    #tabInstagram .ig-review-card:not(.aberto) .igr-nota,
+    #tabInstagram .ig-review-card:not(.aberto) .igr-refresh{display:none;}
+    #tabInstagram .ig-review-card.aberto .igr-abrir{display:none;}
+    #tabInstagram .igr-abrir{font-size:12.5px;font-weight:700;color:var(--accent);}
+    #tabInstagram .igr-chev{font-size:12px;color:var(--accent);transition:transform .18s ease;display:inline-block;}
+    #tabInstagram .ig-review-card.aberto .igr-chev{transform:rotate(90deg);color:var(--text-muted);}
     /* Aba Concorrência */
     #tabInstagram .conc-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px;}
     #tabInstagram .conc-head h3{font-size:17px;font-weight:800;margin:0;color:var(--text);}
@@ -2317,7 +2329,7 @@
                  Pra devolver, é só tirar o hidden. -->
             <button class="ig-subtab-btn" data-ig-sub="sorteio" type="button" hidden>🎲 Sorteio</button>
         </div>
-        <div id="igPaneVisao"><div id="igReviewBox"></div><div id="igVisaoBox"><div style="padding:44px;text-align:center;color:var(--text-muted);">Carregando resumo...</div></div></div>
+        <div id="igPaneVisao"><div id="igKpisBox"></div><div id="igReviewBox"></div><div id="igVisaoBox"><div style="padding:44px;text-align:center;color:var(--text-muted);">Carregando resumo...</div></div></div>
         <div id="igPaneConcorrencia" style="display:none;"><div id="igConcBox"></div></div>
         <div id="igPaneAutomacoes" style="display:none;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;flex-wrap:wrap;">
@@ -8983,14 +8995,27 @@
                 const cat = r.categoria === 'referencia' ? '<span class="igr-cat ref">ref</span>' : (r.categoria === 'mentora' && !r.eu ? '<span class="igr-cat men">mentora</span>' : '');
                 return '<div class="igr-rrow' + (r.eu ? ' eu' : '') + '"><span class="igr-rnome">' + escapeHtml(r.nome || '') + cat + '</span><span class="igr-rseg">' + seg + '</span><span class="igr-rtax">' + tax + '</span></div>';
             }).join('') + '</div>' : '';
-        box.innerHTML = igReviewShell(
-            '<div class="igr-head"><div class="igr-persona"><span class="igr-ava">📣</span><div><b>Seu estrategista</b><small>' + igReviewWhen(d.generated_at) + ' · @eilaradam' + (d.ai === false ? ' · modo básico' : '') + '</small></div></div>'
-            + '<div class="igr-right">' + nota + '<button class="igr-refresh" onclick="igLoadReview(true)" title="Gerar de novo">↻</button></div></div>'
+        // Fechado por padrao: e analise do perfil, nao precisa ficar a mostra sempre.
+        // Guardo do jeito que ela deixou.
+        let aberto = false;
+        try { aberto = localStorage.getItem('igEstrategistaAberto') === '1'; } catch (e) { }
+        box.innerHTML = '<div class="ig-review-card' + (aberto ? ' aberto' : '') + '" id="igReviewCard">'
+            + '<div class="igr-head" onclick="igReviewToggle()" title="Abrir/fechar a análise">'
+            + '<div class="igr-persona"><span class="igr-ava">📣</span><div><b>Seu estrategista</b><small>' + igReviewWhen(d.generated_at) + ' · @eilaradam' + (d.ai === false ? ' · modo básico' : '') + '</small></div></div>'
+            + '<div class="igr-right">' + nota + '<button class="igr-refresh" onclick="event.stopPropagation();igLoadReview(true)" title="Gerar de novo">↻</button>'
+            + '<span class="igr-abrir">ver análise</span><span class="igr-chev">▸</span></div></div>'
+            + '<div class="igr-body">'
             + (d.abertura ? '<div class="igr-abertura">' + escapeHtml(d.abertura) + '</div>' : '')
             + '<div class="igr-pontos">' + pontos + '</div>'
             + foco
             + conc
-        );
+            + '</div></div>';
+    }
+    function igReviewToggle() {
+        const c = document.getElementById('igReviewCard'); if (!c) return;
+        const abre = !c.classList.contains('aberto');
+        c.classList.toggle('aberto', abre);
+        try { localStorage.setItem('igEstrategistaAberto', abre ? '1' : '0'); } catch (e) { }
     }
 
     async function igLoadVisao() {
@@ -9039,12 +9064,15 @@
         const cre15 = perDay.reduce((s, x) => s + x, 0);
 
         const okP = (dOk / dTot * 100).toFixed(1), erP = (dErr / dTot * 100).toFixed(1), caP = (dCan / dTot * 100).toFixed(1);
-        let h = '<div class="ov-kpis">'
+        // Os 4 quadrados moram no topo da pagina (acima do estrategista), nao aqui dentro.
+        const kbox = document.getElementById('igKpisBox');
+        if (kbox) kbox.innerHTML = '<div class="ov-kpis">'
             + '<div class="ov-metric"><div class="l">👥 Seguidores</div><div class="n tnum" id="ovFollowers">…</div><div class="f" id="ovFollowersF">carregando…</div></div>'
             + '<div class="ov-metric hero"><div class="l">🎯 Leads captados</div><div class="n tnum">' + igNum(leadsTotal) + '</div><div class="f"><span class="ov-up">↑ +' + leads15 + '</span> em 15 dias</div></div>'
             + '<div class="ov-metric"><div class="l">🌟 Creators cadastradas</div><div class="n tnum">' + igNum(creTotal) + '</div><div class="f"><span class="ov-up">↑ +' + cre15 + '</span> em 15 dias</div></div>'
             + '<div class="ov-metric"><div class="l">📣 Alcance</div><div class="n tnum" id="ovReach">…</div><div class="f">contas alcançadas · 15 dias</div></div>'
-            + '</div>'
+            + '</div>';
+        let h = ''
             + '<div class="ov-panel" id="igDailyPanel" style="margin-bottom:15px;"></div>'
             + '<div class="ov-grid2">'
             + '<div class="ov-panel" id="ovGrowth"><div class="ov-t">📈 Crescimento do perfil <span class="s">novos seguidores por dia · 15 dias</span></div><div class="ov-note" style="margin-top:14px;">carregando dados do Instagram…</div></div>'
