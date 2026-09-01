@@ -9,7 +9,10 @@ const cors = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-sched-key",
 };
-const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") || "";
+// A chave normal do projeto e SO DE ENVIO e nao deixa listar. Pra recuperar quem
+// recebeu, a Lara cria no painel do Resend uma chave com permissao de LEITURA e ela
+// entra aqui como RESEND_READ_KEY.
+const RESEND_API_KEY = Deno.env.get("RESEND_READ_KEY") || Deno.env.get("RESEND_API_KEY") || "";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: cors });
@@ -28,16 +31,25 @@ serve(async (req) => {
 
     // Puxa a lista de e-mails do Resend e grava em email_envios.
     if (body?.action === "sync") {
-      const limite = Math.min(Number(body.limite) || 500, 1000);
-      const r = await fetch(`https://api.resend.com/emails?limit=${limite}`, {
-        headers: { Authorization: `Bearer ${RESEND_API_KEY}` },
-      });
-      const txt = await r.text();
-      if (!r.ok) return json({ erro: "Resend nao aceitou a listagem", status: r.status, resposta: txt.slice(0, 400) }, 200);
+      const paginas = Math.min(Number(body.paginas) || 6, 20);
       // deno-lint-ignore no-explicit-any
-      let d: any = {};
-      try { d = JSON.parse(txt); } catch { return json({ erro: "resposta nao e json", resposta: txt.slice(0, 300) }); }
-      const itens = d.data || d.emails || [];
+      const itens: any[] = [];
+      let after: string | null = null;
+      for (let p = 0; p < paginas; p++) {
+        const url = `https://api.resend.com/emails?limit=100` + (after ? `&after=${encodeURIComponent(after)}` : "");
+        const r = await fetch(url, { headers: { Authorization: `Bearer ${RESEND_API_KEY}` } });
+        const txt = await r.text();
+        if (!r.ok) return json({ erro: "Resend nao aceitou a listagem", status: r.status, resposta: txt.slice(0, 400) }, 200);
+        // deno-lint-ignore no-explicit-any
+        let d: any = {};
+        try { d = JSON.parse(txt); } catch { return json({ erro: "resposta nao e json", resposta: txt.slice(0, 300) }); }
+        // deno-lint-ignore no-explicit-any
+        const lote: any[] = d.data || d.emails || [];
+        itens.push(...lote);
+        if (lote.length < 100) break;
+        after = lote[lote.length - 1]?.id || null;
+        if (!after) break;
+      }
       // deno-lint-ignore no-explicit-any
       const linhas = (itens as any[]).map((e) => ({
         email: String((Array.isArray(e.to) ? e.to[0] : e.to) || "").toLowerCase().trim(),
