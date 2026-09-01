@@ -95,7 +95,21 @@ Deno.serve(async (req) => {
         if (outs) optout = new Set(outs.map((o: { email: string }) => String(o.email).toLowerCase()));
       } catch (_) { /* tabela pode não existir */ }
 
-      const targets = recs.filter((r) => !optout.has(r.email));
+      // Quem JA recebeu este mesmo assunto fica de fora. Serve pra continuar um disparo
+      // que morreu no meio (a cota diaria do Resend derrubou 103 e-mails em 01/09/2026)
+      // sem mandar duas vezes pra mesma pessoa.
+      const jaRecebeu = new Set<string>();
+      try {
+        for (let from = 0; from < 20000; from += 1000) {
+          const { data: envs } = await admin.from("email_envios")
+            .select("email").eq("assunto", job.assunto).eq("status", "ok").range(from, from + 999);
+          if (!envs || !envs.length) break;
+          for (const e of envs) jaRecebeu.add(String(e.email || "").toLowerCase());
+          if (envs.length < 1000) break;
+        }
+      } catch (_) { /* sem registro ainda: manda pra lista inteira */ }
+
+      const targets = recs.filter((r) => !optout.has(r.email) && !jaRecebeu.has(r.email));
       const pulados = recs.length - targets.length;
 
       let sent = 0, falhas = 0;
@@ -116,8 +130,23 @@ Deno.serve(async (req) => {
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${RESEND_API_KEY}` },
             body: JSON.stringify(payload),
           });
-          if (res.ok) sent += chunk.length;
-          else { falhas += chunk.length; console.error("resend batch err", res.status, await res.text()); }
+          if (res.ok) {
+            sent += chunk.length;
+            try {
+              await admin.from("email_envios").insert(chunk.map((r) => ({
+                email: r.email, assunto: job.assunto, status: "ok", origem: "agendado",
+              })));
+            } catch (e) { console.error("[log] email_envios falhou:", e); }
+          } else {
+            falhas += chunk.length;
+            const corpo = await res.text();
+            console.error("resend batch err", res.status, corpo);
+            try {
+              await admin.from("email_envios").insert(chunk.map((r) => ({
+                email: r.email, assunto: job.assunto, status: "erro", erro: corpo.slice(0, 300), origem: "agendado",
+              })));
+            } catch (e) { console.error("[log] email_envios falhou:", e); }
+          }
         } catch (e) { falhas += chunk.length; console.error("batch exc", e); }
         await new Promise((rs) => setTimeout(rs, 120));
       }
