@@ -57,6 +57,10 @@ serve(async (req) => {
     } catch (_) { /* tabela pode não existir ainda — segue */ }
 
     let sent = 0, failed = 0, skipped = 0;
+    let cotaAcabou = false;                       // cota diaria do Resend estourou
+    // Um registro por destinatario. Sem isso, quando um disparo morre no meio (foi o
+    // que a cota diaria fez em 01/09/2026) nao da pra saber quem recebeu e quem nao.
+    const registro: { email: string; assunto: string; status: string; erro: string | null; resend_id: string | null }[] = [];
     for (let i = 0; i < recipients.length; i++) {
       const r = recipients[i] || {};
       const email = String(r.email || "").trim().toLowerCase();
@@ -77,13 +81,38 @@ serve(async (req) => {
             headers: { "List-Unsubscribe": `<mailto:${REPLY_TO}?subject=SAIR>` },
           }),
         });
-        if (res.ok) sent++; else { failed++; console.error("Resend err", res.status, await res.text()); }
-      } catch (e) { failed++; console.error("send err", e); }
+        if (res.ok) {
+          sent++;
+          let rid: string | null = null;
+          try { rid = (await res.json())?.id ?? null; } catch { /* sem id */ }
+          registro.push({ email, assunto: String(subject), status: "ok", erro: null, resend_id: rid });
+        } else {
+          failed++;
+          const corpo = await res.text();
+          console.error("Resend err", res.status, corpo);
+          registro.push({ email, assunto: String(subject), status: "erro", erro: corpo.slice(0, 300), resend_id: null });
+          // Cota diaria batida: PARA na hora. Antes ele seguia martelando a API e
+          // devolvia 100+ "falhas" sem dizer o motivo de verdade.
+          if (corpo.includes("daily_quota_exceeded")) { cotaAcabou = true; break; }
+        }
+      } catch (e) {
+        failed++;
+        console.error("send err", e);
+        registro.push({ email, assunto: String(subject), status: "erro", erro: String(e).slice(0, 300), resend_id: null });
+      }
       // ~5/seg (seguro pro Resend)
       if (i < recipients.length - 1) await new Promise((rs) => setTimeout(rs, 200));
     }
 
-    return json({ sent, failed, skipped, total: recipients.length });
+    // grava o registro (best-effort: se falhar, o disparo em si nao se perde)
+    try {
+      for (let i = 0; i < registro.length; i += 400) {
+        await admin.from("email_envios").insert(registro.slice(i, i + 400));
+      }
+    } catch (e) { console.error("[log] email_envios falhou:", e); }
+
+    const naoTentados = cotaAcabou ? recipients.length - sent - failed - skipped : 0;
+    return json({ sent, failed, skipped, total: recipients.length, cotaAcabou, naoTentados });
   } catch (e) {
     return json({ error: String((e as Error)?.message || e) }, 500);
   }

@@ -3274,6 +3274,11 @@
                     <option value="ativo">Só status: Ativo</option>
                 </select>
                 <div id="dispCount" style="font-size:13px;color:var(--text-soft);margin-top:8px;"></div>
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);margin-top:10px;cursor:pointer;">
+                    <input id="dispPularJa" type="checkbox" checked style="width:16px;height:16px;">
+                    Pular quem já recebeu <b>este mesmo assunto</b>
+                </label>
+                <div style="font-size:11.5px;color:var(--text-muted);margin-top:4px;">Serve pra continuar um disparo que parou no meio, sem mandar duas vezes pra mesma pessoa.</div>
             </div>
 
             <div style="margin-bottom:16px;">
@@ -4558,7 +4563,7 @@
     async function dispararEmMassa() {
         const subject = document.getElementById('dispSubject').value.trim();
         if (!subject || dispContentEmpty()) { alert('Preencha o assunto e a mensagem (ou o HTML).'); return; }
-        const recipients = await disparoRecipients(document.getElementById('dispTarget').value);
+        let recipients = await disparoRecipients(document.getElementById('dispTarget').value);
         if (recipients === null) { alert('Erro ao carregar destinatários.'); return; }
         if (!recipients.length) { alert('Nenhum destinatário nessa seleção.'); return; }
         // Ultimo portao antes de um envio irreversivel: deixa CLARO qual lista foi escolhida.
@@ -4569,7 +4574,31 @@
         const sendBtn = document.getElementById('dispSendBtn'), wrap = document.getElementById('dispProgressWrap'), bar = document.getElementById('dispProgressBar'), txt = document.getElementById('dispProgressText'), result = document.getElementById('dispResult');
         sendBtn.disabled = true; sendBtn.style.opacity = '.6';
         wrap.style.display = 'block'; result.innerHTML = '';
-        let sent = 0, failed = 0, skipped = 0, done = 0;
+        // Continuar um disparo que morreu no meio: tira quem já recebeu este assunto.
+        let jaReceberam = 0;
+        const pular = document.getElementById('dispPularJa');
+        if (pular && pular.checked) {
+            try {
+                const vistos = new Set();
+                for (let from = 0; ; from += 1000) {
+                    const { data } = await sb.from('email_envios').select('email').eq('assunto', subject).eq('status', 'ok').range(from, from + 999);
+                    if (!data || !data.length) break;
+                    data.forEach(r => vistos.add(String(r.email || '').toLowerCase()));
+                    if (data.length < 1000) break;
+                }
+                if (vistos.size) {
+                    const antes = recipients.length;
+                    recipients = recipients.filter(r => !vistos.has(String(r.email || '').toLowerCase()));
+                    jaReceberam = antes - recipients.length;
+                }
+            } catch (e) { /* sem registro ainda, segue com a lista inteira */ }
+            if (!recipients.length) {
+                result.innerHTML = '<div style="background:var(--accent-glow);border-radius:12px;padding:16px;font-size:14px;color:var(--text);">Todo mundo dessa lista já recebeu este assunto. Nada foi enviado.</div>';
+                sendBtn.disabled = false; sendBtn.style.opacity = '1'; wrap.style.display = 'none';
+                return;
+            }
+        }
+        let sent = 0, failed = 0, skipped = 0, done = 0, cotaAcabou = false;
         const BATCH = 100, total = recipients.length;
         for (let i = 0; i < total; i += BATCH) {
             const batch = recipients.slice(i, i + BATCH);
@@ -4577,12 +4606,18 @@
                 const { data, error } = await sb.functions.invoke('send-bulk-email', { body: { recipients: batch, subject, html } });
                 if (error) throw error;
                 sent += (data.sent || 0); failed += (data.failed || 0); skipped += (data.skipped || 0);
+                if (data.cotaAcabou) { cotaAcabou = true; done += batch.length; break; }
             } catch (e) { failed += batch.length; }
             done += batch.length;
             bar.style.width = Math.round(done / total * 100) + '%';
             txt.textContent = done + ' / ' + total + ' processados · ' + sent + ' enviados';
         }
-        result.innerHTML = '<div style="background:rgba(16,185,129,0.10);border:1px solid rgba(16,185,129,0.3);border-radius:12px;padding:16px;color:#0a7a55;font-size:14px;font-weight:700;">✅ Disparo concluído!<br><span style="font-weight:400;color:var(--text-soft);">' + sent + ' enviados · ' + failed + ' falhas · ' + skipped + ' descadastrados.</span></div>';
+        const faltam = total - sent - skipped;
+        result.innerHTML = cotaAcabou
+            ? '<div style="background:rgba(212,140,20,0.12);border:1px solid rgba(212,140,20,0.35);border-radius:12px;padding:16px;font-size:14px;color:#8A5A00;font-weight:700;">⏸️ O disparo parou: a <b>cota diária do Resend</b> acabou.<br>'
+                + '<span style="font-weight:400;color:var(--text-soft);display:block;margin-top:6px;"><b>' + sent + '</b> enviados agora' + (jaReceberam ? ' · ' + jaReceberam + ' pulados (já tinham recebido)' : '') + ' · <b>' + faltam + '</b> ainda faltam.<br>'
+                + 'Amanhã a cota renova. Volta aqui, cola o mesmo assunto e o mesmo conteúdo, deixa marcado "pular quem já recebeu" e clica em disparar: ele manda só pros que faltam.</span></div>'
+            : '<div style="background:rgba(16,185,129,0.10);border:1px solid rgba(16,185,129,0.3);border-radius:12px;padding:16px;color:#0a7a55;font-size:14px;font-weight:700;">✅ Disparo concluído!<br><span style="font-weight:400;color:var(--text-soft);">' + sent + ' enviados · ' + failed + ' falhas · ' + skipped + ' descadastrados' + (jaReceberam ? ' · ' + jaReceberam + ' pulados (já tinham recebido)' : '') + '.</span></div>';
         sendBtn.disabled = false; sendBtn.style.opacity = '1';
     }
 
