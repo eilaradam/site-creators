@@ -1937,28 +1937,15 @@
 
     <!-- Sub-tabs -->
     <div style="display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid var(--border);flex-wrap:wrap;" id="pfSubtabs">
-        <button class="pf-subtab-btn active" data-pf-subtab="banner">🖼️ Banner da capa</button>
-        <button class="pf-subtab-btn" data-pf-subtab="leads">📥 Leads</button>
+        <button class="pf-subtab-btn active" data-pf-subtab="leads">📥 Leads</button>
         <button class="pf-subtab-btn" data-pf-subtab="gestao">💼 Gestão</button>
         <button class="pf-subtab-btn" data-pf-subtab="bio">📱 Bio (/bio)</button>
         <button class="pf-subtab-btn" data-pf-subtab="buttons">🔘 Botões</button>
         <button class="pf-subtab-btn" data-pf-subtab="videos">🎬 Vídeos</button>
     </div>
 
-    <!-- Subtab: Banner da capa (tabela hero_banners, lida pelo ugc.laradam.com) -->
-    <div id="pfPanelBanner" class="pf-panel">
-        <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
-            <div>
-                <div style="font-size:16px;font-weight:800;color:var(--text);">🖼️ Banner da capa do portfólio</div>
-                <div style="font-size:12.5px;color:var(--text-muted);margin-top:2px;">Um banner por época. Você liga o que quer no ar e a capa do ugc.laradam.com muda sozinha.</div>
-            </div>
-            <button class="bn-btn" type="button" onclick="bnEditar(null)">+ Novo banner</button>
-        </div>
-        <div id="bnBox"><div style="padding:36px;text-align:center;color:var(--text-muted);">Carregando…</div></div>
-    </div>
-
     <!-- Subtab: Leads -->
-    <div id="pfPanelLeads" class="pf-panel" style="display:none;">
+    <div id="pfPanelLeads" class="pf-panel">
         <div id="pfLeadsList"><div style="padding:40px;text-align:center;color:var(--text-muted);">Carregando...</div></div>
     </div>
 
@@ -3468,28 +3455,6 @@
 </div><!-- /app-shell -->
 
 <style>
-    /* Banner da capa (aba Portfólio) */
-    #pfPanelBanner .bn-btn { background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 9px 16px; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; }
-    #pfPanelBanner .bn-btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
-    #pfPanelBanner .bn-btn:disabled { opacity: .6; }
-    #pfPanelBanner .bn-del { background: none; border: none; color: var(--error); font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; padding: 8px 6px; }
-    #pfPanelBanner .bn-link { background: none; border: none; color: var(--text-muted); font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
-    #pfPanelBanner .bn-card { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; }
-    #pfPanelBanner .bn-card.no-ar { border-color: var(--accent); background: var(--accent-glow); }
-    #pfPanelBanner .bn-tag { background: var(--accent); color: #fff; border-radius: 100px; padding: 2px 9px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
-    #pfPanelBanner .bn-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 26px; align-items: start; }
-    #pfPanelBanner .bn-lbl { display: block; font-size: 12px; font-weight: 800; color: var(--text); margin: 14px 0 5px; }
-    #pfPanelBanner .bn-lbl span { font-weight: 400; color: var(--text-muted); margin-left: 5px; }
-    #pfPanelBanner .bn-in { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 10px; background: #fff; color: var(--text); font-size: 13.5px; font-family: inherit; box-sizing: border-box; }
-    #pfPanelBanner .bn-in.mini { padding: 6px 10px; font-size: 12px; }
-    #pfPanelBanner .bn-2col { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
-    #pfPanelBanner .bn-fotos { border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-top: 16px; }
-    #pfPanelBanner .bn-foto { display: flex; align-items: center; gap: 10px; background: var(--cream, #FBF7F3); border-radius: 10px; padding: 8px; margin-bottom: 8px; }
-    #pfPanelBanner .bn-foto img { width: 92px; height: 46px; object-fit: cover; border-radius: 8px; flex-shrink: 0; background: var(--border); }
-    #pfPanelBanner .bn-mini { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 13px; padding: 4px 6px; border-radius: 6px; font-family: inherit; }
-    #pfPanelBanner .bn-mini:hover { background: var(--border); color: var(--accent); }
-    #pfPanelBanner .bn-mini.x:hover { color: var(--error); }
-    #pfPanelBanner .bn-prev { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: var(--cream, #F4F4EF); margin-top: 8px; }
 .pf-range-btn, .pf-subtab-btn { padding: 6px 14px; font-size: 12px; font-weight: 600; color: var(--text-muted); background: transparent; border: 1px solid var(--border); border-radius: 999px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
 .pf-range-btn:hover, .pf-subtab-btn:hover { color: var(--text); }
 .pf-range-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
@@ -5565,185 +5530,6 @@
         }
     }
 
-    /* ══════ BANNER DA CAPA (tabela hero_banners) ══════
-       A capa do ugc.laradam.com le o banner que estiver ativo aqui. Um por epoca
-       (Black Friday, Natal, Dia das Maes...), so um no ar por vez. As fotos vao
-       pro bucket publico "banners", pasta capa/. */
-    let bnLista = [], bnEdit = null, bnCarregado = false;
-
-    async function bnLoad(forcar) {
-        const box = document.getElementById('bnBox'); if (!box) return;
-        if (bnCarregado && !forcar && !bnEdit) { bnRender(); return; }
-        const { data, error } = await sb.from('hero_banners').select('*').order('created_at', { ascending: true });
-        if (error) { box.innerHTML = '<div style="color:var(--error);padding:16px;">Não consegui carregar: ' + escapeHtml(error.message) + '</div>'; return; }
-        bnLista = data || []; bnCarregado = true;
-        bnRender();
-    }
-
-    function bnCampo(rot, chave, dica, area) {
-        const v = escapeHtml(bnEdit[chave] || '');
-        return '<label class="bn-lbl">' + rot + (dica ? '<span>' + dica + '</span>' : '') + '</label>'
-            + (area
-                ? '<textarea class="bn-in" rows="2" oninput="bnSet(\'' + chave + '\', this.value)">' + v + '</textarea>'
-                : '<input class="bn-in" value="' + v + '" oninput="bnSet(\'' + chave + '\', this.value)">');
-    }
-    function bnSet(chave, valor) { bnEdit[chave] = valor; bnPreview(); }
-
-    function bnRender() {
-        const box = document.getElementById('bnBox'); if (!box) return;
-
-        if (!bnEdit) {
-            box.innerHTML = bnLista.length ? bnLista.map(l => {
-                const nf = (l.fotos || []).length;
-                return '<div class="bn-card' + (l.ativo ? ' no-ar' : '') + '">'
-                    + '<div style="flex:1;min-width:220px;">'
-                    + '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><b style="font-size:15px;color:var(--text);">' + escapeHtml(l.nome) + '</b>'
-                    + (l.ativo ? '<span class="bn-tag">no ar</span>' : '') + '</div>'
-                    + '<div style="font-size:13px;color:var(--text-muted);margin-top:3px;">' + escapeHtml(l.titulo || '') + ' <i style="color:var(--accent);font-style:normal;font-weight:700;">' + escapeHtml(l.destaque || '') + '</i> · ' + nf + (nf === 1 ? ' foto' : ' fotos') + '</div></div>'
-                    + '<div style="display:flex;gap:8px;flex-wrap:wrap;">'
-                    + (l.ativo ? '' : '<button class="bn-btn ghost" type="button" onclick="bnAtivar(\'' + l.id + '\')">Colocar no ar</button>')
-                    + '<button class="bn-btn ghost" type="button" onclick="bnEditar(\'' + l.id + '\')">Editar</button>'
-                    + (l.ativo ? '' : '<button class="bn-del" type="button" onclick="bnApagar(\'' + l.id + '\')">Apagar</button>')
-                    + '</div></div>';
-            }).join('') : '<div style="padding:30px;text-align:center;color:var(--text-muted);">Nenhum banner ainda. Clique em "+ Novo banner".</div>';
-            return;
-        }
-
-        const fotos = bnEdit.fotos || [];
-        box.innerHTML = '<div class="bn-grid">'
-            + '<div>'
-            + bnCampo('Nome do banner', 'nome', '(só você vê. Ex: Black Friday 2026)')
-            + bnCampo('Linha de cima', 'eyebrow', '(Ex: Vagas abertas pra Black Friday)')
-            + '<div class="bn-2col">'
-            + '<div>' + bnCampo('Título', 'titulo', '') + '</div>'
-            + '<div>' + bnCampo('Parte em destaque', 'destaque', '(sai em itálico colorido)') + '</div>'
-            + '</div>'
-            + bnCampo('Linha de baixo', 'sublinha', '(os números viram negrito sozinhos)', true)
-            + '<div class="bn-2col">'
-            + '<div>' + bnCampo('Botão', 'cta_texto', '') + '</div>'
-            + '<div>' + bnCampo('Link do botão', 'cta_link', '(#contato ou link inteiro)') + '</div>'
-            + '</div>'
-            + '<div class="bn-2col">'
-            + '<div>' + bnCampo('Link discreto', 'link_texto', '') + '</div>'
-            + '<div>' + bnCampo('Para onde ele vai', 'link_href', '') + '</div>'
-            + '</div>'
-            + '<div class="bn-fotos">'
-            + '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;">'
-            + '<b style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);">Fotos do carrossel</b>'
-            + '<button class="bn-btn ghost" type="button" onclick="document.getElementById(\'bnFile\').click()">+ Subir fotos</button>'
-            + '<input id="bnFile" type="file" accept="image/*" multiple style="display:none;" onchange="bnUpload(this.files)">'
-            + '</div>'
-            + '<div style="font-size:11.5px;color:var(--text-muted);margin-bottom:10px;">Deitadas, 3200 x 1000 (16:5), com o assunto no meio. Até 6 MB cada.</div>'
-            + (fotos.length ? fotos.map((f, i) =>
-                '<div class="bn-foto">'
-                + '<img src="' + escapeHtml(f.src) + '" alt="">'
-                + '<div style="flex:1;min-width:0;display:grid;gap:6px;">'
-                + '<input class="bn-in mini" placeholder="Legenda (opcional)" value="' + escapeHtml(f.legenda || '') + '" oninput="bnFoto(' + i + ',\'legenda\',this.value)">'
-                + '<input class="bn-in mini" placeholder="Enquadramento: center 28%" value="' + escapeHtml(f.posicao || '') + '" oninput="bnFoto(' + i + ',\'posicao\',this.value)">'
-                + '</div>'
-                + '<div style="display:flex;gap:2px;flex-shrink:0;">'
-                + '<button class="bn-mini" type="button" onclick="bnMove(' + i + ',-1)" title="Subir">↑</button>'
-                + '<button class="bn-mini" type="button" onclick="bnMove(' + i + ',1)" title="Descer">↓</button>'
-                + '<button class="bn-mini x" type="button" onclick="bnTira(' + i + ')" title="Tirar">✕</button>'
-                + '</div></div>').join('')
-              : '<div style="font-size:12.5px;color:var(--text-muted);padding:8px 0;">Sem foto ainda. Assim a capa usa as fotos padrão do site.</div>')
-            + '</div>'
-            + '<div style="display:flex;align-items:center;gap:12px;margin-top:16px;">'
-            + '<button class="bn-btn" type="button" id="bnSalvarBtn" onclick="bnSalvar()">Salvar banner</button>'
-            + '<button class="bn-link" type="button" onclick="bnEdit=null;bnRender();">Cancelar</button>'
-            + '</div>'
-            + '</div>'
-            + '<div><b style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);">Prévia</b>'
-            + '<div class="bn-prev" id="bnPrev"></div>'
-            + '<div style="font-size:11.5px;color:var(--text-muted);margin-top:10px;">Depois de salvar e colocar no ar, a capa atualiza em até 30 segundos.</div>'
-            + '</div></div>';
-        bnPreview();
-    }
-
-    function bnPreview() {
-        const el = document.getElementById('bnPrev'); if (!el || !bnEdit) return;
-        const f = (bnEdit.fotos || [])[0];
-        el.innerHTML = '<div style="padding:22px 18px;text-align:center;">'
-            + '<div style="font-size:9.5px;text-transform:uppercase;letter-spacing:2px;color:var(--accent);font-weight:600;">' + escapeHtml(bnEdit.eyebrow || '') + '</div>'
-            + '<div style="font-size:26px;line-height:1.15;color:var(--text);margin-top:8px;font-family:Georgia,serif;">' + escapeHtml(bnEdit.titulo || '') + ' <i style="color:var(--accent);">' + escapeHtml(bnEdit.destaque || '') + '</i></div>'
-            + '<div style="font-size:12px;color:var(--text-muted);margin-top:8px;">' + escapeHtml(bnEdit.sublinha || '') + '</div></div>'
-            + (f ? '<img src="' + escapeHtml(f.src) + '" style="width:100%;aspect-ratio:16/5;object-fit:cover;object-position:' + escapeHtml(f.posicao || 'center 28%') + ';display:block;">' : '<div style="aspect-ratio:16/5;background:var(--border);"></div>')
-            + '<div style="padding:18px;text-align:center;">'
-            + '<span style="display:inline-block;background:var(--accent);color:#fff;border-radius:100px;padding:9px 18px;font-size:12px;font-weight:700;">' + escapeHtml(bnEdit.cta_texto || '') + '</span>'
-            + '<span style="margin-left:14px;font-size:12px;color:var(--text-muted);text-decoration:underline;">' + escapeHtml(bnEdit.link_texto || '') + '</span></div>';
-    }
-
-    function bnEditar(id) {
-        bnEdit = id
-            ? Object.assign({}, bnLista.find(x => x.id === id))
-            : { nome: 'Novo banner', eyebrow: '', titulo: '', destaque: '', sublinha: '', cta_texto: 'Agendar uma conversa', cta_link: '#contato', link_texto: 'Ver portfólio', link_href: '#categorias', fotos: [] };
-        if (!Array.isArray(bnEdit.fotos)) bnEdit.fotos = [];
-        bnRender();
-    }
-
-    function bnFoto(i, campo, v) { bnEdit.fotos[i][campo] = v; bnPreview(); }
-    function bnMove(i, passo) {
-        const j = i + passo, f = bnEdit.fotos;
-        if (j < 0 || j >= f.length) return;
-        const t = f[i]; f[i] = f[j]; f[j] = t;
-        bnRender();
-    }
-    function bnTira(i) { bnEdit.fotos.splice(i, 1); bnRender(); }
-
-    async function bnUpload(files) {
-        if (!files || !files.length) return;
-        const btn = document.getElementById('bnSalvarBtn');
-        if (btn) { btn.disabled = true; btn.textContent = 'Subindo fotos…'; }
-        for (const f of Array.from(files)) {
-            if (f.size > 6 * 1024 * 1024) { alert('"' + f.name + '" tem mais de 6 MB. Salva mais leve (JPG qualidade 80).'); continue; }
-            const ext = (f.name.split('.').pop() || 'jpg').toLowerCase();
-            const caminho = 'capa/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
-            const { error } = await sb.storage.from('banners').upload(caminho, f, { upsert: true, contentType: f.type });
-            if (error) { alert('Upload falhou: ' + error.message); continue; }
-            const { data } = sb.storage.from('banners').getPublicUrl(caminho);
-            bnEdit.fotos.push({ src: data.publicUrl, alt: 'Lara Dam' });
-        }
-        if (btn) { btn.disabled = false; btn.textContent = 'Salvar banner'; }
-        bnRender();
-    }
-
-    async function bnSalvar() {
-        const nome = (bnEdit.nome || '').trim();
-        if (!nome) { alert('Dá um nome pro banner, tipo Black Friday 2026.'); return; }
-        const btn = document.getElementById('bnSalvarBtn');
-        btn.disabled = true; btn.textContent = 'Salvando…';
-        const dados = {
-            nome: nome,
-            eyebrow: bnEdit.eyebrow || '', titulo: bnEdit.titulo || '', destaque: bnEdit.destaque || '',
-            sublinha: bnEdit.sublinha || '', cta_texto: bnEdit.cta_texto || '', cta_link: bnEdit.cta_link || '',
-            link_texto: bnEdit.link_texto || '', link_href: bnEdit.link_href || '',
-            fotos: bnEdit.fotos || [], updated_at: new Date().toISOString()
-        };
-        const r = bnEdit.id
-            ? await sb.from('hero_banners').update(dados).eq('id', bnEdit.id)
-            : await sb.from('hero_banners').insert(dados);
-        btn.disabled = false; btn.textContent = 'Salvar banner';
-        if (r.error) { alert('Não consegui salvar: ' + r.error.message); return; }
-        bnEdit = null;
-        await bnLoad(true);
-    }
-
-    async function bnAtivar(id) {
-        // so um no ar por vez
-        await sb.from('hero_banners').update({ ativo: false }).neq('id', id);
-        const { error } = await sb.from('hero_banners').update({ ativo: true, updated_at: new Date().toISOString() }).eq('id', id);
-        if (error) { alert('Não consegui ligar: ' + error.message); return; }
-        await bnLoad(true);
-    }
-
-    async function bnApagar(id) {
-        const l = bnLista.find(x => x.id === id); if (!l) return;
-        if (!confirm('Apagar o banner "' + l.nome + '"? Isso não tem volta.')) return;
-        const { error } = await sb.from('hero_banners').delete().eq('id', id);
-        if (error) { alert('Não consegui apagar: ' + error.message); return; }
-        await bnLoad(true);
-    }
-
     async function loadPortfolio() {
         if (pfLeadsCache && pfEventsCache && pfGestaoCache) {
             renderPortfolio();
@@ -6264,8 +6050,6 @@
             document.querySelectorAll('.pf-subtab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             const target = btn.dataset.pfSubtab;
-            document.getElementById('pfPanelBanner').style.display = target === 'banner' ? 'block' : 'none';
-            if (target === 'banner') bnLoad();
             document.getElementById('pfPanelLeads').style.display = target === 'leads' ? 'block' : 'none';
             document.getElementById('pfPanelGestao').style.display = target === 'gestao' ? 'block' : 'none';
             document.getElementById('pfPanelBio').style.display = target === 'bio' ? 'block' : 'none';
