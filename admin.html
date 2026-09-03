@@ -1523,6 +1523,37 @@
     </div>
 </div>
 
+<!-- Modal: post agendado no Instagram (cadastro manual — a API nao lista os agendados) -->
+<div class="cal-modal-overlay" id="igAgModal">
+    <div class="cal-modal">
+        <h3><span id="igAgModalTitle">Post agendado</span><button class="cal-modal-close" id="igAgBtnClose" type="button" aria-label="Fechar">&times;</button></h3>
+        <p style="margin:-8px 0 16px;color:var(--text-muted);font-size:12.5px;line-height:1.5;">Você programou um post no app do Instagram? Avisa aqui. O Instagram não deixa nenhum sistema ler os posts agendados, então esse cadastro é o que faz ele <b>aparecer no seletor da automação</b>. Quando o post sair, o sistema reconhece sozinho e a automação já começa a valer.</p>
+        <input type="hidden" id="igag_id">
+        <div class="cal-form">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <label class="cal-fl">Dia que vai sair<input type="date" id="igag_data"></label>
+                <label class="cal-fl">Hora<input type="time" id="igag_hora"></label>
+            </div>
+            <label class="cal-fl">Legenda <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--text-muted);">(opcional, só pra você reconhecer o post)</span>
+                <textarea id="igag_legenda" rows="2" maxlength="600" placeholder="cola aqui a legenda que você escreveu"></textarea>
+            </label>
+            <label class="cal-fl">Palavra da legenda <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--text-muted);">(opcional — só se você tem mais de um post agendado)</span>
+                <input type="text" id="igag_palavra" maxlength="60" placeholder="ex.: PROMPT">
+            </label>
+            <label class="cal-fl">Capa <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--text-muted);">(opcional, só pra ficar bonitinho no seletor)</span>
+                <input type="file" id="igag_capa" accept="image/*">
+            </label>
+            <div id="igAgCapaPrev"></div>
+        </div>
+        <div class="cal-modal-actions">
+            <button class="cal-btn-del" id="igAgBtnDelete" type="button">Excluir</button>
+            <div style="flex:1"></div>
+            <button class="cal-btn-ghost" id="igAgCancel" type="button">Cancelar</button>
+            <button class="cal-btn-save" id="igAgBtnSave" type="button">Salvar</button>
+        </div>
+    </div>
+</div>
+
 <!-- Modal: evento do calendário -->
 <div class="cal-modal-overlay" id="calModal">
     <div class="cal-modal">
@@ -2549,9 +2580,13 @@
                 <div style="display:flex;gap:8px;flex-wrap:wrap;">
                     <button id="igMenuBtn" class="ig-btn ghost" type="button">👋 Menu da DM</button>
                     <button id="igAssetsBtn" class="ig-btn ghost" type="button">📁 Mídia</button>
+                    <button id="igAgNewBtn" class="ig-btn ghost" type="button">📅 Post agendado</button>
                     <button id="igNewBtn" class="ig-btn" type="button">+ Nova automação</button>
                 </div>
             </div>
+            <!-- Faixa dos posts que ela agendou no app do Instagram. A API da Meta nao entrega
+                 os agendados, entao ela cadastra aqui e o card vira o post de verdade sozinho. -->
+            <div id="igAgBox" style="display:none;margin-bottom:22px;"></div>
             <div id="igAutoList"></div>
             <!-- Leads: tinham aba propria e ninguem usava. Agora ficam aqui embaixo das
                  automacoes, com so os 3 ultimos na tela pra a pagina abrir leve. -->
@@ -2937,6 +2972,7 @@
                   <span>pra um post agendado: assim que ele entrar no feed, a automação gruda nele sozinha</span>
                 </span>
               </label>
+              <div id="igPendCard" style="display:none;margin-top:11px;font-size:13px;line-height:1.5;color:var(--text);background:var(--warm);border-radius:10px;padding:10px 12px;"></div>
               <div class="iga-pend-body" id="igPendBody" style="display:none;">
                 <input class="iga-tin" id="igf_pendcap" maxlength="60" placeholder="palavra da legenda (opcional) — ex.: PROMPT">
                 <p class="iga-fhint">Vazio = ela pega o <b>próximo post</b> que você publicar. Com uma palavra, ela espera o post que tiver essa palavra na legenda (não liga pra acento nem maiúscula) — bom quando você tem mais de um post agendado.</p>
@@ -8890,6 +8926,9 @@
     // "post que ainda vai sair": momento em que a automacao foi armada (so conta post
     // publicado a partir dai). Guardado pra reeditar a automacao nao reiniciar a espera.
     let igPendSince = null;
+    // Posts que ela agendou no app do Instagram e cadastrou aqui (a Meta nao expoe os agendados).
+    let igAgendados = [];
+    let igSelPostAg = null;   // id do card de post agendado escolhido na automacao aberta
     let igMediaPromise = null;
     let igFlow = { steps: [] };
     let igFlowSeq = 0;
@@ -9078,7 +9117,7 @@
     async function loadInstagram() {
         igSetSub('visao');
         igLoadHealth();
-        try { await Promise.all([igLoadAutomations(), igLoadLeads()]); }
+        try { await Promise.all([igLoadAutomations(), igLoadLeads(), igLoadAgendados().then(igAgRender)]); }
         finally { igLeadsReady = true; igLoadVisao(); igRenderLeads(); }
     }
 
@@ -10391,8 +10430,11 @@
                 ? '<span class="ig-kw any">qualquer palavra</span>'
                 : (a.keyword || '').split(',').map(k => k.trim()).filter(Boolean).map(k => '<span class="ig-kw">' + escapeHtml(k) + '</span>').join('');
             const nposts = (a.media_ids && a.media_ids.length) || 0;
+            const cardAg = (a.pending_next && a.pending_post_id) ? igAgById(a.pending_post_id) : null;
             const posts = a.pending_next
-                ? ('⏳ esperando o post' + (a.pending_caption ? ' com "' + escapeHtml(a.pending_caption) + '" na legenda' : ' que ainda vai sair') + (nposts ? ' + ' + nposts + ' post' + (nposts > 1 ? 's' : '') : ''))
+                ? ((cardAg ? '📅 esperando o post agendado de ' + escapeHtml(igAgQuandoTxt(cardAg.quando))
+                           : '⏳ esperando o próximo post' + (a.pending_caption ? ' com "' + escapeHtml(a.pending_caption) + '" na legenda' : ''))
+                   + (nposts ? ' + ' + nposts + ' post' + (nposts > 1 ? 's' : '') : ''))
                 : (nposts ? (nposts + ' post' + (nposts > 1 ? 's' : '')) : 'todos os posts');
             return '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:12px;">'
                 + '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">'
@@ -10415,6 +10457,7 @@
                 + '</div></div>';
         }).join('');
         /* se ainda não temos os posts em cache, busca uma vez e re-renderiza c/ miniaturas */
+        igAgRender();
         if (igMediaCache === null) igEnsureMediaCache().then(() => igRenderAutomations()).catch(() => {});
     }
 
@@ -10469,6 +10512,7 @@
         document.getElementById('igf_pendcap').value = (a && a.pending_caption) ? a.pending_caption : '';
         document.getElementById('igf_penddays').value = '30';
         igPendSince = (a && a.pending_next && a.pending_since) ? a.pending_since : null;
+        igSelPostAg = (a && a.pending_next && a.pending_post_id) ? a.pending_post_id : null;
         igRenderPendStatus(a);
         igUpdatePendUI();
         igSelAssets = new Set((a && a.asset_ids) ? a.asset_ids : []);
@@ -10608,9 +10652,10 @@
             // Post agendado: o Instagram nao lista os posts na fila pra sair, entao a
             // automacao fica armada e o ig-scheduler gruda o media_id quando o post nasce.
             pending_next: igPendOn(),
-            pending_caption: igPendOn() ? (document.getElementById('igf_pendcap').value.trim() || null) : null,
+            pending_post_id: igPendOn() ? igSelPostAg : null,
+            pending_caption: (igPendOn() && !igSelPostAg) ? (document.getElementById('igf_pendcap').value.trim() || null) : null,
             pending_since: igPendOn() ? (igPendSince || new Date().toISOString()) : null,
-            pending_until: igPendOn() ? new Date(Date.now() + (+document.getElementById('igf_penddays').value || 30) * 86400000).toISOString() : null,
+            pending_until: (igPendOn() && !igSelPostAg) ? new Date(Date.now() + (+document.getElementById('igf_penddays').value || 30) * 86400000).toISOString() : null,
             flow: (igMsgMode && igFlow.steps.length) ? {
                 steps: igFlow.steps.map(s => ({
                     id: s.id,
@@ -11026,18 +11071,140 @@
         igUpdateAssetsHint();
     }
 
+    /* ══════ POSTS AGENDADOS (cadastro manual) ══════
+       O Instagram nao tem endpoint pra listar post agendado no app/Business Suite. Entao
+       o post agendado vira um CARD aqui: ela cadastra dia/hora (+ legenda e capa, se quiser),
+       escolhe esse card na automacao, e quando o post sai de verdade o ig-scheduler casa os
+       dois e passa o media_id pra automacao. */
+    async function igLoadAgendados() {
+        const { data, error } = await sb.from('ig_posts_agendados').select('*').order('quando', { ascending: true });
+        if (error) { console.error('[ig] agendados', error); igAgendados = []; return; }
+        igAgendados = data || [];
+    }
+    function igAgAguardando() { return igAgendados.filter(a => a.status === 'aguardando'); }
+    function igAgQuandoTxt(iso) {
+        try {
+            const d = new Date(iso);
+            const dia = d.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' }).replace('.', '');
+            return dia + ' · ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        } catch (e) { return ''; }
+    }
+    function igAgRender() {
+        const box = document.getElementById('igAgBox'); if (!box) return;
+        const esperando = igAgAguardando();
+        if (!esperando.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+        box.style.display = '';
+        box.innerHTML = '<div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:10px;">📅 Posts agendados no Instagram</div>'
+            + '<div style="display:flex;gap:10px;flex-wrap:wrap;">'
+            + esperando.map(a => {
+                const nAutos = igAutomations.filter(x => x.pending_post_id === a.id && x.pending_next).length;
+                const atrasado = new Date(a.quando).getTime() < Date.now() - 3600000;
+                return '<div data-ig-ag-edit="' + a.id + '" title="Clique pra editar" style="display:flex;gap:10px;align-items:center;background:var(--card);border:1.5px dashed ' + (atrasado ? 'var(--text-muted)' : 'var(--accent)') + ';border-radius:14px;padding:10px 14px 10px 10px;cursor:pointer;max-width:340px;">'
+                    + (a.capa_url
+                        ? '<img src="' + escapeHtml(a.capa_url) + '" style="width:46px;height:46px;border-radius:9px;object-fit:cover;flex-shrink:0;display:block;">'
+                        : '<div style="width:46px;height:46px;border-radius:9px;background:var(--warm);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">⏳</div>')
+                    + '<div style="min-width:0;">'
+                    + '<div style="font-size:13px;font-weight:800;color:var(--text);">' + escapeHtml(igAgQuandoTxt(a.quando)) + '</div>'
+                    + '<div style="font-size:11.5px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:250px;">'
+                    + (a.legenda ? escapeHtml(a.legenda.slice(0, 60)) : (a.palavra ? 'legenda com "' + escapeHtml(a.palavra) + '"' : 'sem legenda cadastrada'))
+                    + '</div>'
+                    + '<div style="font-size:11px;color:' + (nAutos ? 'var(--accent)' : 'var(--text-muted)') + ';font-weight:700;margin-top:2px;">'
+                    + (nAutos ? '🤖 ' + nAutos + ' automação' + (nAutos > 1 ? 'ões' : '') + ' esperando' : 'nenhuma automação ainda')
+                    + (atrasado ? ' · já passou da hora' : '') + '</div>'
+                    + '</div></div>';
+            }).join('')
+            + '</div>';
+    }
+    function igAgOpen(a) {
+        document.getElementById('igAgModalTitle').textContent = a ? 'Editar post agendado' : 'Novo post agendado';
+        document.getElementById('igag_id').value = a ? a.id : '';
+        const d = a ? new Date(a.quando) : new Date(Date.now() + 86400000);
+        const pad = n => String(n).padStart(2, '0');
+        document.getElementById('igag_data').value = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+        document.getElementById('igag_hora').value = a ? (pad(d.getHours()) + ':' + pad(d.getMinutes())) : '09:00';
+        document.getElementById('igag_legenda').value = (a && a.legenda) || '';
+        document.getElementById('igag_palavra').value = (a && a.palavra) || '';
+        document.getElementById('igag_capa').value = '';
+        document.getElementById('igAgCapaPrev').innerHTML = (a && a.capa_url)
+            ? '<img src="' + escapeHtml(a.capa_url) + '" style="width:70px;height:70px;border-radius:10px;object-fit:cover;display:block;">' : '';
+        document.getElementById('igAgBtnDelete').style.display = a ? '' : 'none';
+        document.getElementById('igAgModal').classList.add('show');
+    }
+    function igAgClose() { document.getElementById('igAgModal').classList.remove('show'); }
+    async function igAgSave() {
+        const btn = document.getElementById('igAgBtnSave');
+        const id = document.getElementById('igag_id').value;
+        const dia = document.getElementById('igag_data').value;
+        const hora = document.getElementById('igag_hora').value || '09:00';
+        if (!dia) { alert('Escolhe o dia que o post vai sair.'); return; }
+        btn.disabled = true; btn.textContent = 'Salvando...';
+        try {
+            const rec = {
+                quando: new Date(dia + 'T' + hora + ':00').toISOString(),
+                legenda: document.getElementById('igag_legenda').value.trim() || null,
+                palavra: document.getElementById('igag_palavra').value.trim() || null
+            };
+            const f = document.getElementById('igag_capa').files[0];
+            if (f) {
+                const ext = (f.name.split('.').pop() || 'jpg').toLowerCase();
+                const path = 'agendados/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
+                const up = await sb.storage.from('ig-assets').upload(path, f, { contentType: f.type || undefined, upsert: false });
+                if (up.error) throw up.error;
+                rec.capa_url = sb.storage.from('ig-assets').getPublicUrl(path).data.publicUrl;
+            }
+            const r = id
+                ? await sb.from('ig_posts_agendados').update(rec).eq('id', id)
+                : await sb.from('ig_posts_agendados').insert(rec);
+            if (r.error) throw r.error;
+            igAgClose();
+            await igLoadAgendados();
+            igAgRender();
+        } catch (e) {
+            alert('Erro ao salvar: ' + (e.message || e));
+        } finally { btn.disabled = false; btn.textContent = 'Salvar'; }
+    }
+    async function igAgDelete() {
+        const id = document.getElementById('igag_id').value; if (!id) return;
+        const usadas = igAutomations.filter(x => x.pending_post_id === id && x.pending_next);
+        const aviso = usadas.length
+            ? '\n\n' + usadas.length + ' automação' + (usadas.length > 1 ? 'ões vão' : ' vai') + ' parar de esperar esse post.'
+            : '';
+        if (!confirm('Apagar esse post agendado?' + aviso)) return;
+        await sb.from('ig_automations').update({ pending_next: false, pending_post_id: null }).eq('pending_post_id', id);
+        const { error } = await sb.from('ig_posts_agendados').delete().eq('id', id);
+        if (error) { alert('Erro: ' + error.message); return; }
+        igAgClose();
+        await igLoadAgendados();
+        igAgRender();
+        igLoadAutomations();
+    }
+    function igAgById(id) { return igAgendados.find(a => a.id === id) || null; }
+
     function igUpdateMediaBtn() {
         const btn = document.getElementById('igMediaBtn'); if (!btn) return;
         const n = igSelMedia.size;
         const pend = document.getElementById('igf_pending');
         // armada e sem nenhum post escolhido: nao e "todos os posts", e "so o que vai sair"
-        if (!n && pend && pend.checked) { btn.textContent = '⏳ só o post que ainda vai sair'; return; }
+        const card = igSelPostAg ? igAgById(igSelPostAg) : null;
+        if (card) { btn.textContent = '📅 post agendado de ' + igAgQuandoTxt(card.quando) + (n ? ' + ' + n + ' post' + (n > 1 ? 's' : '') : ''); return; }
+        if (!n && pend && pend.checked) { btn.textContent = '⏳ o próximo post que eu publicar'; return; }
         btn.textContent = n ? (n + (n === 1 ? ' post selecionado' : ' posts selecionados')) : 'Todos os posts';
     }
     function igPendOn() { const el = document.getElementById('igf_pending'); return !!(el && el.checked); }
     function igUpdatePendUI() {
-        const on = document.getElementById('igf_pending').checked;
-        document.getElementById('igPendBody').style.display = on ? '' : 'none';
+        const chk = document.getElementById('igf_pending');
+        const card = igSelPostAg ? igAgById(igSelPostAg) : null;
+        if (card) chk.checked = true;   // escolheu um post agendado no seletor = automacao armada
+        const on = chk.checked;
+        // com um post agendado escolhido, a data e a palavra vem do card: nao pergunta de novo
+        document.getElementById('igPendBody').style.display = (on && !card) ? '' : 'none';
+        const av = document.getElementById('igPendCard');
+        av.style.display = card ? '' : 'none';
+        av.innerHTML = card
+            ? ('📅 Vale pro post agendado de <b>' + escapeHtml(igAgQuandoTxt(card.quando)) + '</b>'
+               + (card.palavra ? ' (o que tiver "' + escapeHtml(card.palavra) + '" na legenda)' : '')
+               + '. Assim que o Instagram soltar ele, a automação começa a valer sozinha.')
+            : '';
         const box = document.querySelector('#igPostsSection .iga-pend'); if (box) box.classList.toggle('on', on);
         igUpdateMediaBtn();
     }
@@ -11080,7 +11247,14 @@
     function igAutoMediaHtml(a) {
         const BOX = 'width:52px;height:52px;border-radius:10px;flex-shrink:0;';
         if (a.pending_next && (!a.media_ids || !a.media_ids.length)) {
-            return '<div title="Esperando o post agendado sair pra grudar nele" style="' + BOX + 'background:var(--warm);border:1.5px dashed var(--accent);display:flex;align-items:center;justify-content:center;font-size:20px;">⏳</div>';
+            const card = a.pending_post_id ? igAgById(a.pending_post_id) : null;
+            const tit = card ? ('Esperando o post agendado pra ' + igAgQuandoTxt(card.quando)) : 'Esperando o próximo post que você publicar';
+            if (card && card.capa_url) {
+                return '<div title="' + escapeHtml(tit) + '" style="' + BOX + 'border:1.5px dashed var(--accent);overflow:hidden;position:relative;">'
+                    + '<img src="' + escapeHtml(card.capa_url) + '" style="width:100%;height:100%;object-fit:cover;display:block;opacity:.7;">'
+                    + '<span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:18px;">⏳</span></div>';
+            }
+            return '<div title="' + escapeHtml(tit) + '" style="' + BOX + 'background:var(--warm);border:1.5px dashed var(--accent);display:flex;align-items:center;justify-content:center;font-size:20px;">⏳</div>';
         }
         if (!a.media_ids || !a.media_ids.length) {
             return '<div title="Vale para qualquer post" style="' + BOX + 'background:var(--warm);display:flex;align-items:center;justify-content:center;font-size:20px;">🌐</div>';
@@ -11116,8 +11290,27 @@
     }
     function igRenderMediaGrid() {
         const grid = document.getElementById('igMediaGrid');
-        if (!igMediaCache || !igMediaCache.length) { grid.innerHTML = '<div style="grid-column:1/-1;color:var(--text-muted);font-size:12px;padding:10px;">Nenhum post encontrado.</div>'; return; }
-        grid.innerHTML = igMediaCache.map(m => {
+        // Primeiro os posts AGENDADOS (moldura tracejada, ⏳ + dia). Sao os que ainda nao
+        // existem no Instagram, entao vem antes dos publicados na hora de escolher.
+        const esperando = igAgAguardando();
+        const agHtml = esperando.map(a => {
+            const sel = igSelPostAg === a.id;
+            return '<div data-ig-ag-pick="' + a.id + '" title="Post agendado pra ' + escapeHtml(igAgQuandoTxt(a.quando)) + (a.legenda ? ' — ' + escapeHtml(a.legenda.slice(0, 80)) : '') + '" style="position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;cursor:pointer;border:2px dashed ' + (sel ? 'var(--accent)' : 'var(--text-muted)') + ';background:var(--warm);">'
+                + (a.capa_url ? '<img src="' + escapeHtml(a.capa_url) + '" style="width:100%;height:100%;object-fit:cover;display:block;opacity:.75;">' : '')
+                + '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;text-align:center;padding:2px;">'
+                + '<span style="font-size:15px;line-height:1;">⏳</span>'
+                + '<span style="font-size:8.5px;font-weight:800;color:var(--text);line-height:1.15;text-shadow:0 1px 3px rgba(255,255,255,.9);">' + escapeHtml(igAgQuandoTxt(a.quando)) + '</span>'
+                + '</div>'
+                + (sel ? '<div style="position:absolute;top:3px;right:3px;background:var(--accent);color:#fff;border-radius:50%;width:17px;height:17px;font-size:11px;line-height:17px;text-align:center;font-weight:700;">✓</div>' : '')
+                + '</div>';
+        }).join('');
+        const novoAg = '<div data-ig-ag-new="1" title="Cadastrar um post que você agendou no app do Instagram" style="aspect-ratio:1;border-radius:8px;border:2px dashed var(--border);background:var(--card);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--text-muted);">'
+            + '<span style="font-size:16px;line-height:1;">＋</span><span style="font-size:8px;font-weight:700;line-height:1.1;text-align:center;padding:0 2px;">post<br>agendado</span></div>';
+        if (!igMediaCache || !igMediaCache.length) {
+            grid.innerHTML = agHtml + novoAg + '<div style="grid-column:1/-1;color:var(--text-muted);font-size:12px;padding:10px;">Nenhum post publicado encontrado.</div>';
+            return;
+        }
+        grid.innerHTML = agHtml + novoAg + igMediaCache.map(m => {
             const sel = igSelMedia.has(m.id);
             return '<div data-ig-media="' + m.id + '" title="' + escapeHtml(m.caption || '') + '" style="position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid ' + (sel ? 'var(--accent)' : 'transparent') + ';">'
                 + (m.thumb ? '<img src="' + escapeHtml(m.thumb) + '" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;">' : '<div style="width:100%;height:100%;background:var(--border);"></div>')
@@ -11814,9 +12007,38 @@
         const apg = document.getElementById('igfAssetsGrid'); if (apg) apg.addEventListener('click', (e) => { const c = e.target.closest('[data-ig-pick]'); if (!c) return; const id = c.dataset.igPick; if (igSelAssets.has(id)) igSelAssets.delete(id); else igSelAssets.add(id); igRenderAssetPicker(); igRenderAssetSel(); });
         const asel = document.getElementById('igfAssetsSel'); if (asel) asel.addEventListener('click', (e) => { const x = e.target.closest('[data-ig-unpick]'); if (!x) return; igSelAssets.delete(x.dataset.igUnpick); igRenderAssetSel(); igRenderAssetPicker(); });
         ['igf_linkmsg', 'igf_linkurl', 'igf_public'].forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('input', igRenderPreview); });
-        const pn = document.getElementById('igf_pending'); if (pn) pn.addEventListener('change', igUpdatePendUI);
+        const pn = document.getElementById('igf_pending');
+        if (pn) pn.addEventListener('change', () => {
+            // desligou a espera: solta tambem o post agendado que estava escolhido
+            if (!pn.checked && igSelPostAg) { igSelPostAg = null; igRenderMediaGrid(); }
+            igUpdatePendUI();
+        });
+        const agn = document.getElementById('igAgNewBtn'); if (agn) agn.addEventListener('click', () => igAgOpen(null));
+        const agb = document.getElementById('igAgBox'); if (agb) agb.addEventListener('click', (e) => {
+            const c = e.target.closest('[data-ig-ag-edit]'); if (c) igAgOpen(igAgById(c.dataset.igAgEdit));
+        });
+        const agx = document.getElementById('igAgBtnClose'); if (agx) agx.addEventListener('click', igAgClose);
+        const agc = document.getElementById('igAgCancel'); if (agc) agc.addEventListener('click', igAgClose);
+        const ags = document.getElementById('igAgBtnSave'); if (ags) ags.addEventListener('click', igAgSave);
+        const agd = document.getElementById('igAgBtnDelete'); if (agd) agd.addEventListener('click', igAgDelete);
+        const agm = document.getElementById('igAgModal'); if (agm) agm.addEventListener('click', (e) => { if (e.target === agm) igAgClose(); });
+        const agf = document.getElementById('igag_capa'); if (agf) agf.addEventListener('change', () => {
+            const f = agf.files[0]; const prev = document.getElementById('igAgCapaPrev');
+            if (!f) return;
+            prev.innerHTML = '<img src="' + URL.createObjectURL(f) + '" style="width:70px;height:70px;border-radius:10px;object-fit:cover;display:block;">';
+        });
         const mb = document.getElementById('igMediaBtn'); if (mb) mb.addEventListener('click', igToggleMediaGrid);
         const mg = document.getElementById('igMediaGrid'); if (mg) mg.addEventListener('click', (e) => {
+            const novo = e.target.closest('[data-ig-ag-new]');
+            if (novo) { igAgOpen(null); return; }
+            const ag = e.target.closest('[data-ig-ag-pick]');
+            if (ag) {
+                // so um post agendado por automacao (ela espera UM post nascer)
+                igSelPostAg = (igSelPostAg === ag.dataset.igAgPick) ? null : ag.dataset.igAgPick;
+                igaDirty = true;
+                igRenderMediaGrid(); igUpdatePendUI();
+                return;
+            }
             const cell = e.target.closest('[data-ig-media]'); if (!cell) return;
             const id = cell.dataset.igMedia;
             if (igSelMedia.has(id)) igSelMedia.delete(id); else igSelMedia.add(id);
