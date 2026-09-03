@@ -11304,13 +11304,20 @@
                 + (sel ? '<div style="position:absolute;top:3px;right:3px;background:var(--accent);color:#fff;border-radius:50%;width:17px;height:17px;font-size:11px;line-height:17px;text-align:center;font-weight:700;">✓</div>' : '')
                 + '</div>';
         }).join('');
-        const novoAg = '<div data-ig-ag-new="1" title="Cadastrar um post que você agendou no app do Instagram" style="aspect-ratio:1;border-radius:8px;border:2px dashed var(--border);background:var(--card);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--text-muted);">'
-            + '<span style="font-size:16px;line-height:1;">＋</span><span style="font-size:8px;font-weight:700;line-height:1.1;text-align:center;padding:0 2px;">post<br>agendado</span></div>';
+        // A Meta nao entrega os posts agendados do app (conferido no token dela: o campo
+        // scheduled_posts nem existe). Como ela abriu o seletor esperando ver o agendado ali,
+        // o aviso explica na cara por que ele nao esta e dá o botao pra cadastrar.
+        const aviso = '<div style="grid-column:1/-1;display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--warm);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:4px;">'
+            + '<span style="font-size:12.5px;color:var(--text-soft);line-height:1.45;flex:1;min-width:200px;">'
+            + '<b>Agendou um post no Instagram?</b> Ele não aparece aqui sozinho — o Instagram não deixa nenhum sistema ver os posts que estão na fila. Cadastra ele aqui que a automação já fica esperando por ele.</span>'
+            + '<button type="button" data-ig-ag-new="1" class="ig-btn" style="flex-shrink:0;">📅 Cadastrar post agendado</button></div>';
+        const novoAg = '<div data-ig-ag-new="1" title="Cadastrar um post que você agendou no app do Instagram" style="aspect-ratio:1;border-radius:8px;border:2px dashed var(--accent);background:var(--card);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--accent);">'
+            + '<span style="font-size:18px;line-height:1;">＋</span><span style="font-size:8px;font-weight:800;line-height:1.1;text-align:center;padding:0 2px;">post<br>agendado</span></div>';
         if (!igMediaCache || !igMediaCache.length) {
-            grid.innerHTML = agHtml + novoAg + '<div style="grid-column:1/-1;color:var(--text-muted);font-size:12px;padding:10px;">Nenhum post publicado encontrado.</div>';
+            grid.innerHTML = aviso + agHtml + novoAg + '<div style="grid-column:1/-1;color:var(--text-muted);font-size:12px;padding:10px;">Nenhum post publicado encontrado.</div>';
             return;
         }
-        grid.innerHTML = agHtml + novoAg + igMediaCache.map(m => {
+        grid.innerHTML = aviso + agHtml + novoAg + igMediaCache.map(m => {
             const sel = igSelMedia.has(m.id);
             return '<div data-ig-media="' + m.id + '" title="' + escapeHtml(m.caption || '') + '" style="position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid ' + (sel ? 'var(--accent)' : 'transparent') + ';">'
                 + (m.thumb ? '<img src="' + escapeHtml(m.thumb) + '" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;">' : '<div style="width:100%;height:100%;background:var(--border);"></div>')
