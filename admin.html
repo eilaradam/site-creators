@@ -1537,7 +1537,7 @@
             <label class="cal-fl">Legenda <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--text-muted);">(opcional, só pra você reconhecer o post)</span>
                 <textarea id="igag_legenda" rows="2" maxlength="600" placeholder="cola aqui a legenda que você escreveu"></textarea>
             </label>
-            <label class="cal-fl">Palavra da legenda <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--text-muted);">(opcional — só se você tem mais de um post agendado)</span>
+            <label class="cal-fl">Palavra da legenda <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--text-muted);">(opcional, só se você tem mais de um post agendado)</span>
                 <input type="text" id="igag_palavra" maxlength="60" placeholder="ex.: PROMPT">
             </label>
             <label class="cal-fl">Capa <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--text-muted);">(opcional, só pra ficar bonitinho no seletor)</span>
@@ -2974,8 +2974,8 @@
               </label>
               <div id="igPendCard" style="display:none;margin-top:11px;font-size:13px;line-height:1.5;color:var(--text);background:var(--warm);border-radius:10px;padding:10px 12px;"></div>
               <div class="iga-pend-body" id="igPendBody" style="display:none;">
-                <input class="iga-tin" id="igf_pendcap" maxlength="60" placeholder="palavra da legenda (opcional) — ex.: PROMPT">
-                <p class="iga-fhint">Vazio = ela pega o <b>próximo post</b> que você publicar. Com uma palavra, ela espera o post que tiver essa palavra na legenda (não liga pra acento nem maiúscula) — bom quando você tem mais de um post agendado.</p>
+                <input class="iga-tin" id="igf_pendcap" maxlength="60" placeholder="palavra da legenda (opcional), tipo PROMPT">
+                <p class="iga-fhint">Vazio = ela pega o <b>próximo post</b> que você publicar. Com uma palavra, ela espera o post que tiver essa palavra na legenda (não liga pra acento nem maiúscula). Bom quando você tem mais de um post agendado.</p>
                 <div class="iga-pend-val">
                   <span>Espera até</span>
                   <select class="ig-input" id="igf_penddays" style="width:auto;">
@@ -11295,7 +11295,7 @@
         const esperando = igAgAguardando();
         const agHtml = esperando.map(a => {
             const sel = igSelPostAg === a.id;
-            return '<div data-ig-ag-pick="' + a.id + '" title="Post agendado pra ' + escapeHtml(igAgQuandoTxt(a.quando)) + (a.legenda ? ' — ' + escapeHtml(a.legenda.slice(0, 80)) : '') + '" style="position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;cursor:pointer;border:2px dashed ' + (sel ? 'var(--accent)' : 'var(--text-muted)') + ';background:var(--warm);">'
+            return '<div data-ig-ag-pick="' + a.id + '" title="Post agendado pra ' + escapeHtml(igAgQuandoTxt(a.quando)) + (a.legenda ? ': ' + escapeHtml(a.legenda.slice(0, 80)) : '') + '" style="position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;cursor:pointer;border:2px dashed ' + (sel ? 'var(--accent)' : 'var(--text-muted)') + ';background:var(--warm);">'
                 + (a.capa_url ? '<img src="' + escapeHtml(a.capa_url) + '" style="width:100%;height:100%;object-fit:cover;display:block;opacity:.75;">' : '')
                 + '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;text-align:center;padding:2px;">'
                 + '<span style="font-size:15px;line-height:1;">⏳</span>'
@@ -11309,7 +11309,7 @@
         // o aviso explica na cara por que ele nao esta e dá o botao pra cadastrar.
         const aviso = '<div style="grid-column:1/-1;display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--warm);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:4px;">'
             + '<span style="font-size:12.5px;color:var(--text-soft);line-height:1.45;flex:1;min-width:200px;">'
-            + '<b>Agendou um post no Instagram?</b> Ele não aparece aqui sozinho — o Instagram não deixa nenhum sistema ver os posts que estão na fila. Cadastra ele aqui que a automação já fica esperando por ele.</span>'
+            + '<b>Agendou um post no Instagram?</b> Ele não aparece aqui sozinho, porque o Instagram não deixa nenhum sistema ver os posts que estão na fila. Cadastra ele aqui que a automação já fica esperando por ele.</span>'
             + '<button type="button" data-ig-ag-new="1" class="ig-btn" style="flex-shrink:0;">📅 Cadastrar post agendado</button></div>';
         const novoAg = '<div data-ig-ag-new="1" title="Cadastrar um post que você agendou no app do Instagram" style="aspect-ratio:1;border-radius:8px;border:2px dashed var(--accent);background:var(--card);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--accent);">'
             + '<span style="font-size:18px;line-height:1;">＋</span><span style="font-size:8px;font-weight:800;line-height:1.1;text-align:center;padding:0 2px;">post<br>agendado</span></div>';
