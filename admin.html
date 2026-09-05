@@ -1187,13 +1187,9 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
                 <span>Campanhas</span>
             </button>
-            <button class="tab nav-item" data-tab="negociando" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
-                <span>Negociando na DM</span>
-            </button>
             <button class="tab nav-item" data-tab="marcas" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/><path d="M9 11h.01"/><path d="M15 11h.01"/></svg>
-                <span>Base de marcas</span>
+                <span>Marcas</span>
             </button>
             <button class="tab nav-item" data-tab="creators" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -1750,8 +1746,11 @@
              é a aba Campanhas e o Disparo de e-mail. O código e o painel continuam no arquivo:
              pra trazer de volta, é só apagar este comentário e o hidden do botão. -->
         <button class="admin-subtab-btn" data-admin-subtab="campanhas" hidden>Campanhas &amp; E-mails</button>
-        <button class="admin-subtab-btn active" data-admin-subtab="gestao">Conteúdo</button>
-        <button class="admin-subtab-btn" data-admin-subtab="termos">Termos</button>
+        <!-- ESCONDIDA (05/09/2026): a Lara ja acompanha campanha x creator (status de roteiro
+             e de conteudo) no CRM do agencia.laradam, entao aqui era duplicado. O codigo e o
+             painel continuam no arquivo: pra trazer de volta, apague este comentario e o hidden. -->
+        <button class="admin-subtab-btn" data-admin-subtab="gestao" hidden>Conteúdo</button>
+        <button class="admin-subtab-btn active" data-admin-subtab="termos">Termos</button>
         <button class="admin-subtab-btn" data-admin-subtab="links">Links</button>
         <button class="admin-subtab-btn" data-admin-subtab="banners">Banners</button>
     </div>
@@ -2164,88 +2163,6 @@
 </div>
 
 <!-- ── TAB: INSTAGRAM (ManyChat próprio) ── -->
-<div class="dashboard" id="tabNegociando">
-<div id="igPaneProps">
-            <style>
-            /* ---- Propostas: planilha ---- */
-            .props-controls { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:14px; }
-            .props-fchips { display:flex; gap:8px; flex-wrap:wrap; }
-            .props-fchip { background:var(--card); color:var(--text-soft); border:1px solid var(--border); border-radius:100px; padding:7px 13px; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; transition:border-color .15s ease, color .15s ease, background .15s ease; }
-            .props-fchip:hover { border-color:var(--accent); color:var(--accent); }
-            .props-fchip.on { background:var(--accent); color:#fff; border-color:var(--accent); }
-            #igPaneProps .props-search { width:auto; min-width:210px; flex:1 1 210px; max-width:330px; margin-left:auto; padding:8px 13px; font-size:13px; }
-            .props-wrap { overflow-x:auto; max-height:72vh; overflow-y:auto; background:var(--card); border:1px solid var(--border); border-radius:14px; box-shadow:0 1px 2px rgba(33,29,26,0.04), 0 2px 6px rgba(33,29,26,0.05); }
-            .props-table { width:100%; min-width:900px; border-collapse:separate; border-spacing:0; font-size:13.5px; }
-            .props-table th { position:sticky; top:0; z-index:2; background:#FBF6F0; text-align:left; font-size:10.5px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--text-soft); padding:12px 14px; border-bottom:1px solid var(--border); white-space:nowrap; user-select:none; -webkit-user-select:none; }
-            .props-table th.props-sortable { cursor:pointer; transition:color .15s ease; }
-            .props-table th.props-sortable:hover { color:var(--accent); }
-            .props-table th.props-sorted { color:var(--accent); }
-            .props-arrow { font-size:9px; opacity:.45; margin-left:2px; }
-            th.props-sorted .props-arrow { opacity:1; }
-            .props-table td { padding:12px 14px; border-bottom:1px solid var(--border); vertical-align:top; background:var(--card); }
-            .props-table tbody tr:nth-child(even) td { background:#FCF9F5; }
-            .props-table tbody tr:hover td { background:var(--accent-glow); }
-            .props-table tbody tr:last-child td { border-bottom:none; }
-            .props-marca a { color:var(--accent); font-weight:700; text-decoration:none; white-space:nowrap; }
-            .props-marca a:hover { text-decoration:underline; }
-            .props-nome { font-size:12px; color:var(--text-muted); margin-top:2px; max-width:190px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-            .props-dia { white-space:nowrap; color:var(--text-soft); font-variant-numeric:tabular-nums; }
-            .props-msg { max-width:340px; min-width:220px; color:var(--text-soft); line-height:1.45; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; cursor:pointer; }
-            .props-msg.open { display:block; -webkit-line-clamp:unset; }
-            .props-badge { display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:700; padding:4px 11px; border-radius:100px; white-space:nowrap; }
-            .props-badge.yes { background:rgba(16,185,129,0.13); color:#0B7A55; }
-            .props-badge.no { background:rgba(212,140,20,0.15); color:#A86A00; }
-            .props-contact a { display:block; color:var(--accent); font-weight:600; text-decoration:none; font-size:12.5px; white-space:nowrap; max-width:210px; overflow:hidden; text-overflow:ellipsis; }
-            .props-contact a:hover { text-decoration:underline; }
-            .props-contact a + a, .props-contact a + span { margin-top:4px; }
-            .props-nicho-chip { display:inline-block; background:var(--warm); color:var(--text-soft); font-size:11.5px; font-weight:600; padding:3px 10px; border-radius:100px; white-space:nowrap; }
-            .props-dash { color:var(--text-muted); }
-            .props-count { font-size:12px; color:var(--text-muted); margin-top:9px; }
-            .props-empty { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:30px; text-align:center; color:var(--text-muted); }
-            .neg-fase { display:inline-block; font-size:11.5px; font-weight:700; padding:4px 11px; border-radius:100px; white-space:nowrap; }
-            .neg-fase.negociando { background:rgba(16,185,129,0.13); color:#0B7A55; }
-            .neg-fase.primeiro_contato { background:rgba(59,130,246,0.13); color:#1D4ED8; }
-            .neg-fase.fechado { background:rgba(212,87,42,0.14); color:#B8461F; }
-            .neg-fase.encerrado { background:rgba(0,0,0,0.06); color:var(--text-muted); }
-            .neg-quem { display:inline-block; font-size:11.5px; font-weight:700; padding:4px 11px; border-radius:100px; white-space:nowrap; }
-            .neg-quem.voce { background:rgba(212,140,20,0.15); color:#A86A00; }
-            .neg-quem.marca { background:rgba(0,0,0,0.05); color:var(--text-soft); }
-            .neg-resumo { font-size:13px; color:var(--text-soft); line-height:1.45; max-width:340px; }
-            .neg-prox { font-size:12px; color:var(--text); line-height:1.4; margin-top:4px; }
-            .neg-prox b { color:var(--accent); }
-            .neg-tirar { display:inline-block; margin-top:7px; background:none; border:1px solid var(--border); color:var(--text-muted); border-radius:8px; padding:3px 9px; font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; }
-            .neg-tirar:hover { border-color:var(--error); color:var(--error); }
-            </style>
-            <div id="igPropsIntro" style="font-size:13px;color:var(--text-muted);margin-bottom:14px;"></div>
-            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
-                <button id="igPropsScan" class="ig-btn" type="button">🔍 Buscar novas propostas</button>
-                <button id="igNegScan" class="ig-btn" type="button">🤝 Buscar negociações na DM</button>
-                <button id="igPropsCsv" class="ig-btn ghost" type="button">⬇ Exportar CSV</button>
-                <div id="igPropsProgress" style="font-size:12px;color:var(--text-muted);"></div>
-            </div>
-            <div id="igPropsStats" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;"></div>
-            <div class="props-controls">
-                <div id="igPropsFilters" class="props-fchips"></div>
-                <input id="igPropsSearch" class="ig-input props-search" type="search" placeholder="🔎 Buscar marca, nicho ou e-mail…" oninput="igPropsSetSearch(this.value)">
-            </div>
-            <div id="igPropsBox"></div>
-        </div>
-<div id="igPaneMarcas" style="margin-top:34px;padding-top:26px;border-top:1px solid var(--border);">
-            <h3 style="font-family:inherit;font-size:15px;font-weight:700;margin-bottom:4px;">Separar marcas de seguidoras na DM</h3>
-            <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">Leio suas conversas da DM e separo <b>seguidoras</b> de <b>marcas</b> (querendo fechar ou que você prospectou), salvando as marcas com e-mail/contato. As regras fazem o grosso de graça; o GPT revisa só os casos duvidosos.</div>
-            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px;">
-                <span style="font-size:13px;color:var(--text);">Analisar as</span>
-                <select id="igMarcasLimit" class="ig-input" style="width:auto;">
-                    <option value="50">50 conversas mais recentes</option>
-                    <option value="100">100 mais recentes</option>
-                    <option value="200">200 mais recentes</option>
-                </select>
-                <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer;"><input type="checkbox" id="igMarcasAI" checked> revisar duvidosos com IA</label>
-                <button id="igMarcasBtn" class="ig-btn" type="button">🔍 Analisar minhas DMs</button>
-            </div>
-            <div id="igMarcasBox"></div>
-        </div>
-</div>
 <div class="dashboard" id="tabInstagram">
     <style>
     #tabInstagram .ig-input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;color:var(--text);font-size:14px;font-family:inherit;box-sizing:border-box;}
@@ -3254,25 +3171,97 @@
     </div>
 </div>
 
+<!-- ══ MARCAS ══ Aba unica (05/09/2026): a antiga "Negociando na DM" foi fundida aqui.
+     A base de marcas virou A lista; o que estava na DM aparece como coluna "Na DM" de cada
+     marca (cruzando marcas.instagram com ig_negociacoes.username). Os botoes de varrer a DM
+     e o analisador de conversas vieram junto. -->
 <div class="dashboard" id="tabMarcas">
+            <style>
+            /* ---- Propostas: planilha ---- */
+            .props-controls { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:14px; }
+            .props-fchips { display:flex; gap:8px; flex-wrap:wrap; }
+            .props-fchip { background:var(--card); color:var(--text-soft); border:1px solid var(--border); border-radius:100px; padding:7px 13px; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; transition:border-color .15s ease, color .15s ease, background .15s ease; }
+            .props-fchip:hover { border-color:var(--accent); color:var(--accent); }
+            .props-fchip.on { background:var(--accent); color:#fff; border-color:var(--accent); }
+            #igPaneProps .props-search { width:auto; min-width:210px; flex:1 1 210px; max-width:330px; margin-left:auto; padding:8px 13px; font-size:13px; }
+            .props-wrap { overflow-x:auto; max-height:72vh; overflow-y:auto; background:var(--card); border:1px solid var(--border); border-radius:14px; box-shadow:0 1px 2px rgba(33,29,26,0.04), 0 2px 6px rgba(33,29,26,0.05); }
+            .props-table { width:100%; min-width:900px; border-collapse:separate; border-spacing:0; font-size:13.5px; }
+            .props-table th { position:sticky; top:0; z-index:2; background:#FBF6F0; text-align:left; font-size:10.5px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--text-soft); padding:12px 14px; border-bottom:1px solid var(--border); white-space:nowrap; user-select:none; -webkit-user-select:none; }
+            .props-table th.props-sortable { cursor:pointer; transition:color .15s ease; }
+            .props-table th.props-sortable:hover { color:var(--accent); }
+            .props-table th.props-sorted { color:var(--accent); }
+            .props-arrow { font-size:9px; opacity:.45; margin-left:2px; }
+            th.props-sorted .props-arrow { opacity:1; }
+            .props-table td { padding:12px 14px; border-bottom:1px solid var(--border); vertical-align:top; background:var(--card); }
+            .props-table tbody tr:nth-child(even) td { background:#FCF9F5; }
+            .props-table tbody tr:hover td { background:var(--accent-glow); }
+            .props-table tbody tr:last-child td { border-bottom:none; }
+            .props-marca a { color:var(--accent); font-weight:700; text-decoration:none; white-space:nowrap; }
+            .props-marca a:hover { text-decoration:underline; }
+            .props-nome { font-size:12px; color:var(--text-muted); margin-top:2px; max-width:190px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+            .props-dia { white-space:nowrap; color:var(--text-soft); font-variant-numeric:tabular-nums; }
+            .props-msg { max-width:340px; min-width:220px; color:var(--text-soft); line-height:1.45; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; cursor:pointer; }
+            .props-msg.open { display:block; -webkit-line-clamp:unset; }
+            .props-badge { display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:700; padding:4px 11px; border-radius:100px; white-space:nowrap; }
+            .props-badge.yes { background:rgba(16,185,129,0.13); color:#0B7A55; }
+            .props-badge.no { background:rgba(212,140,20,0.15); color:#A86A00; }
+            .props-contact a { display:block; color:var(--accent); font-weight:600; text-decoration:none; font-size:12.5px; white-space:nowrap; max-width:210px; overflow:hidden; text-overflow:ellipsis; }
+            .props-contact a:hover { text-decoration:underline; }
+            .props-contact a + a, .props-contact a + span { margin-top:4px; }
+            .props-nicho-chip { display:inline-block; background:var(--warm); color:var(--text-soft); font-size:11.5px; font-weight:600; padding:3px 10px; border-radius:100px; white-space:nowrap; }
+            .props-dash { color:var(--text-muted); }
+            .props-count { font-size:12px; color:var(--text-muted); margin-top:9px; }
+            .props-empty { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:30px; text-align:center; color:var(--text-muted); }
+            .neg-fase { display:inline-block; font-size:11.5px; font-weight:700; padding:4px 11px; border-radius:100px; white-space:nowrap; }
+            .neg-fase.negociando { background:rgba(16,185,129,0.13); color:#0B7A55; }
+            .neg-fase.primeiro_contato { background:rgba(59,130,246,0.13); color:#1D4ED8; }
+            .neg-fase.fechado { background:rgba(212,87,42,0.14); color:#B8461F; }
+            .neg-fase.encerrado { background:rgba(0,0,0,0.06); color:var(--text-muted); }
+            .neg-quem { display:inline-block; font-size:11.5px; font-weight:700; padding:4px 11px; border-radius:100px; white-space:nowrap; }
+            .neg-quem.voce { background:rgba(212,140,20,0.15); color:#A86A00; }
+            .neg-quem.marca { background:rgba(0,0,0,0.05); color:var(--text-soft); }
+            .neg-resumo { font-size:13px; color:var(--text-soft); line-height:1.45; max-width:340px; }
+            .neg-prox { font-size:12px; color:var(--text); line-height:1.4; margin-top:4px; }
+            .neg-prox b { color:var(--accent); }
+            .neg-tirar { display:inline-block; margin-top:7px; background:none; border:1px solid var(--border); color:var(--text-muted); border-radius:8px; padding:3px 9px; font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; }
+            .neg-tirar:hover { border-color:var(--error); color:var(--error); }
+            </style>
     <div style="max-width:1240px;margin:0 auto;">
         <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:16px;">
             <div>
-                <h2 style="font-size:22px;font-weight:800;margin:0;color:var(--text);">🏢 Base de marcas</h2>
-                <p style="color:var(--text-muted);font-size:13px;margin:3px 0 0;">Todas as empresas com quem você já falou, num lugar só. É daqui que sai a lista do disparo de e-mail.</p>
+                <h2 style="font-size:22px;font-weight:800;margin:0;color:var(--text);">🏢 Marcas</h2>
+                <p style="color:var(--text-muted);font-size:13px;margin:3px 0 0;">Todas as empresas com quem você já falou, num lugar só: as da DM, as que receberam proposta e as que você cadastrou na mão. É daqui que sai a lista do disparo de e-mail.</p>
             </div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                <button id="marcaImportBtn" class="ig-btn ghost" type="button" onclick="marcasImportar()">↻ Trazer da DM e das propostas</button>
+                <button id="igNegScan" class="ig-btn ghost" type="button">🤝 Ler minhas DMs</button>
+                <button id="igPropsScan" class="ig-btn ghost" type="button">🔍 Buscar propostas</button>
+                <button id="marcaImportBtn" class="ig-btn ghost" type="button" onclick="marcasImportar()">↻ Trazer pra base</button>
                 <button class="ig-btn ghost" type="button" onclick="marcasCSV()">⬇ CSV</button>
                 <button class="ig-btn" type="button" onclick="marcaAbrir(null)">+ Nova marca</button>
             </div>
         </div>
+        <div id="igPropsProgress" style="font-size:12px;color:var(--text-muted);margin-bottom:12px;"></div>
         <div id="marcasResumo" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;"></div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;">
             <input id="marcaBusca" class="ig-input" type="search" placeholder="🔎 Buscar marca, @, e-mail ou observação..." oninput="marcasRender()" style="max-width:320px;">
             <div class="idea-chips" id="marcaFiltros"></div>
         </div>
         <div id="marcasBox"></div>
+<div id="igPaneMarcas" style="margin-top:34px;padding-top:26px;border-top:1px solid var(--border);">
+            <h3 style="font-family:inherit;font-size:15px;font-weight:700;margin-bottom:4px;">Separar marcas de seguidoras na DM</h3>
+            <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">Leio suas conversas da DM e separo <b>seguidoras</b> de <b>marcas</b> (querendo fechar ou que você prospectou), salvando as marcas com e-mail/contato. As regras fazem o grosso de graça; o GPT revisa só os casos duvidosos.</div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px;">
+                <span style="font-size:13px;color:var(--text);">Analisar as</span>
+                <select id="igMarcasLimit" class="ig-input" style="width:auto;">
+                    <option value="50">50 conversas mais recentes</option>
+                    <option value="100">100 mais recentes</option>
+                    <option value="200">200 mais recentes</option>
+                </select>
+                <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer;"><input type="checkbox" id="igMarcasAI" checked> revisar duvidosos com IA</label>
+                <button id="igMarcasBtn" class="ig-btn" type="button">🔍 Analisar minhas DMs</button>
+            </div>
+            <div id="igMarcasBox"></div>
+        </div>
     </div>
 </div>
 <div id="marcaModal" class="idea-modal" style="display:none;">
@@ -4093,7 +4082,8 @@
         // já estão registrados e os dados-base carregados, então um clique sintético
         // reaproveita toda a lógica de troca (toggle + loader + título).
         try {
-            const savedTab = localStorage.getItem('adminActiveTab');
+            let savedTab = localStorage.getItem('adminActiveTab');
+            if (savedTab === 'negociando') savedTab = 'marcas'; // a aba foi fundida na de Marcas
             const tabEl = savedTab ? document.querySelector('.tab[data-tab="' + savedTab + '"]') : null;
             /* se a aba salva saiu da barra (agenda, visão geral, propostas), cai no Painel */
             if (tabEl) tabEl.click();
@@ -4105,7 +4095,7 @@
     document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
 
     /* ── Tabs ── */
-    const PAGE_TITLES = { painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', marcas: 'Base de marcas', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', instagram: 'Instagram', bio: 'Link na Bio', negociando: 'Negociando na DM' };
+    const PAGE_TITLES = { painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', marcas: 'Marcas', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', instagram: 'Instagram', bio: 'Link na Bio' };
     function setPageTitle(target) {
         const el = document.getElementById('pageTitle');
         if (el && PAGE_TITLES[target]) el.textContent = PAGE_TITLES[target];
@@ -4129,7 +4119,6 @@
             document.getElementById('tabImersao').classList.toggle('show', target === 'imersao');
             document.getElementById('tabDirect').classList.toggle('show', target === 'direct');
             document.getElementById('tabInstagram').classList.toggle('show', target === 'instagram');
-            document.getElementById('tabNegociando').classList.toggle('show', target === 'negociando');
             document.getElementById('tabBio').classList.toggle('show', target === 'bio');
             setPageTitle(target);
             document.getElementById('sidebar').classList.remove('open');
@@ -4139,18 +4128,14 @@
             if (target === 'agenda') loadAgenda();
             if (target === 'dashboard') loadDashboard();
             if (target === 'portfolio') loadPortfolio();
-            if (target === 'admin') showAdminSubtab('gestao');
+            if (target === 'admin') showAdminSubtab('termos');
             if (target === 'orcamentos') { orcMountTopbar(); loadOrcamentos(); }
             if (target === 'candidaturas') loadCandidaturas();
-            if (target === 'marcas' && !marcasCarregado) loadMarcas();
+            if (target === 'marcas') { if (!marcasCarregado) loadMarcas(); if (!igPropsLoaded) { igPropsLoaded = true; igLoadProps(); } if (!igMarcasLoaded) { igMarcasLoaded = true; igLoadMarcas(); } }
             if (target === 'disparo') loadDisparo();
             if (target === 'imersao') { loadImersao(); loadAlunas(); }
             if (target === 'direct') loadDirect();
             if (target === 'painel') loadPainel();
-            if (target === 'negociando') {
-                if (!igPropsLoaded) { igPropsLoaded = true; igLoadProps(); }
-                if (!igMarcasLoaded) { igMarcasLoaded = true; igLoadMarcas(); }
-            }
             /* itens do grupo Instagram na barra: abrem a aba e ja caem na sub-aba certa */
             if (target === 'instagram') {
                 const pulo = this.dataset.igJump;
@@ -4258,6 +4243,15 @@
     };
     const mkEsc = v => escapeHtml(v == null ? '' : String(v));
 
+    /* Conversa viva da DM por marca. A chave e o @: marcas.instagram = ig_negociacoes.username.
+       Quem preenche isso e o igNegIndexar(), depois que o igLoadProps() traz as negociacoes. */
+    let negPorUser = {};
+    const MARCA_DM_FASE = { primeiro_contato: '👋 Primeiro contato', negociando: '💬 Negociando', fechado: '🤝 Fechado', encerrado: '💤 Parou' };
+    const marcaChave = u => String(u || '').replace(/^@+/, '').toLowerCase();
+    function marcaNeg(m) { return negPorUser[marcaChave(m && m.instagram)] || null; }
+    function marcaEmNegociacao(m) { const n = marcaNeg(m); return !!n && (n.fase === 'negociando' || n.fase === 'primeiro_contato'); }
+    function marcaEsperandoVoce(m) { const n = marcaNeg(m); return !!n && n.last_from === 'marca' && n.fase !== 'encerrado'; }
+
     async function loadMarcas() {
         const box = document.getElementById('marcasBox'); if (!box) return;
         if (!marcasCarregado) box.innerHTML = '<div style="padding:36px;text-align:center;color:var(--text-muted);">Carregando as marcas…</div>';
@@ -4284,6 +4278,8 @@
             if (marcaFiltro === 'descartadas') { if (!m.descartada) return false; }
             else if (m.descartada) return false;
             else if (marcaFiltro === 'comemail' && !(m.email || '').includes('@')) return false;
+            else if (marcaFiltro === 'dm_negociando' && !marcaEmNegociacao(m)) return false;
+            else if (marcaFiltro === 'dm_voce' && !marcaEsperandoVoce(m)) return false;
             else if (MARCA_STATUS[marcaFiltro] && (m.status || 'lead') !== marcaFiltro) return false;
             if (!q) return true;
             return [m.nome, m.instagram, m.email, m.telefone, m.contato, m.nicho, m.obs].join(' ').toLowerCase().includes(q);
@@ -4296,13 +4292,18 @@
         const descartadas = marcas.length - valendo.length;
         const comEmail = valendo.filter(m => (m.email || '').includes('@') && !m.descadastrada).length;
         const cabec = document.getElementById('marcasResumo');
+        const nDmNeg = valendo.filter(marcaEmNegociacao).length;
+        const nDmVoce = valendo.filter(marcaEsperandoVoce).length;
         if (cabec) cabec.innerHTML = '<div class="ig-chip"><b>' + valendo.length + '</b>marcas na base</div>'
             + '<div class="ig-chip"><b>' + comEmail + '</b>com e-mail pra disparo</div>'
-            + '<div class="ig-chip"><b>' + valendo.filter(m => (m.status || 'lead') === 'cliente').length + '</b>já foram clientes</div>';
+            + '<div class="ig-chip"><b>' + valendo.filter(m => (m.status || 'lead') === 'cliente').length + '</b>já foram clientes</div>'
+            + '<div class="ig-chip"><b>' + nDmNeg + '</b>💬 negociando na DM</div>'
+            + '<div class="ig-chip"><b>' + nDmVoce + '</b>⏳ esperando você</div>';
         const nPor = k => valendo.filter(m => (m.status || 'lead') === k).length;
         const fEl = document.getElementById('marcaFiltros');
         if (fEl) {
-            const fs = [['todas', 'Todas', valendo.length], ['comemail', '📧 Com e-mail', valendo.filter(m => (m.email || '').includes('@')).length]]
+            const fs = [['todas', 'Todas', valendo.length], ['comemail', '📧 Com e-mail', valendo.filter(m => (m.email || '').includes('@')).length],
+                ['dm_negociando', '💬 Negociando na DM', nDmNeg], ['dm_voce', '⏳ Esperando você', nDmVoce]]
                 .concat(Object.keys(MARCA_STATUS).map(k => [k, MARCA_STATUS[k].ic + ' ' + MARCA_STATUS[k].nome, nPor(k)]))
                 .concat(descartadas ? [['descartadas', '🚫 Não são marca', descartadas]] : []);
             fEl.innerHTML = fs.map(f => '<button class="idea-chip' + (f[0] === marcaFiltro ? ' active' : '') + '" type="button" onclick="marcaSetFiltro(\'' + f[0] + '\')">' + f[1] + ' <b>' + f[2] + '</b></button>').join('');
@@ -4315,8 +4316,14 @@
             return;
         }
         const mostrar = lista.slice(0, MARCA_TETO);
-        box.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:auto;"><table><thead><tr>'
-            + '<th>Marca</th><th>Instagram</th><th>📧 E-mail</th><th>📱 Telefone</th><th>Situação</th><th>Observação</th><th>Último contato</th><th></th></tr></thead><tbody>'
+        const novas = marcasNovasNaDM();
+        const aviso = novas
+            ? '<div style="background:var(--accent-glow);border:1px solid var(--accent);border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:13px;color:var(--text);">'
+                + '🆕 <b>' + novas + '</b> marca(s) apareceram na sua DM e ainda não estão nesta lista. '
+                + '<button class="ig-btn" type="button" style="padding:5px 12px;font-size:12px;margin-left:6px;" onclick="marcasImportar()">↻ Trazer pra base</button></div>'
+            : '';
+        box.innerHTML = aviso + '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:auto;"><table><thead><tr>'
+            + '<th>Marca</th><th>Instagram</th><th>📧 E-mail</th><th>📱 Telefone</th><th>Situação</th><th>💬 Na DM</th><th>Observação</th><th>Último contato</th><th></th></tr></thead><tbody>'
             + mostrar.map(m => {
                 const st = MARCA_STATUS[m.status || 'lead'] || MARCA_STATUS.lead;
                 const uc = m.ultimo_contato ? new Date(m.ultimo_contato + 'T12:00:00').toLocaleDateString('pt-BR') : '—';
@@ -4326,6 +4333,7 @@
                     + '<td style="white-space:normal;max-width:210px;">' + (m.email ? mkEsc(m.email) : '<span style="color:var(--text-muted);">—</span>') + '</td>'
                     + '<td>' + (m.telefone ? mkEsc(m.telefone) : '<span style="color:var(--text-muted);">—</span>') + '</td>'
                     + '<td><span class="idea-tag st ' + (m.status || 'lead') + '">' + st.ic + ' ' + st.nome + '</span></td>'
+                    + '<td style="white-space:normal;max-width:230px;">' + marcaDmCelula(m) + '</td>'
                     + '<td style="white-space:normal;max-width:300px;font-size:12.5px;color:var(--text-soft);">' + (m.obs ? mkEsc(String(m.obs).slice(0, 150)) : '<span style="color:var(--text-muted);">—</span>') + '</td>'
                     + '<td style="white-space:nowrap;">' + uc + '</td>'
                     + '<td style="text-align:right;">' + (m.descartada
@@ -4337,6 +4345,33 @@
             + (lista.length > MARCA_TETO
                 ? '<div style="font-size:12px;color:var(--text-muted);margin-top:10px;">mostrando as ' + MARCA_TETO + ' de contato mais recente, de ' + lista.length + '. Use a busca ou baixe o CSV pra ver o resto.</div>'
                 : '');
+    }
+
+    // Coluna "Na DM": em que pe esta a conversa no Instagram (fase, quem falou por ultimo
+    // e o que falta fazer). So aparece pra marca que tem conversa; o resto fica com "—".
+    // Quantas marcas apareceram na DM / nas propostas e ainda NAO estao na base.
+    // (marcas descartadas contam como "ja tem", igual o marcasImportar faz.)
+    function marcasNovasNaDM() {
+        if (!marcasCarregado) return 0;
+        const jaTem = new Set(marcas.map(m => marcaChave(m.instagram)).filter(Boolean));
+        const vistos = new Set();
+        (igNegData || []).forEach(n => { if (n.is_negocio && !n.arquivada) { const k = marcaChave(n.username); if (k && !jaTem.has(k)) vistos.add(k); } });
+        (igPropsData || []).forEach(pp => { const k = marcaChave(pp.username); if (k && !jaTem.has(k)) vistos.add(k); });
+        return vistos.size;
+    }
+
+    function marcaDmCelula(m) {
+        const n = marcaNeg(m);
+        if (!n) return '<span style="color:var(--text-muted);">—</span>';
+        const fase = n.fase || 'negociando';
+        let h = '<span class="neg-fase ' + mkEsc(fase) + '">' + (MARCA_DM_FASE[fase] || MARCA_DM_FASE.negociando) + '</span>';
+        if (n.last_from && fase !== 'encerrado') {
+            const euFalei = n.last_from === 'eu';
+            h += '<div style="margin-top:5px;"><span class="neg-quem ' + (euFalei ? 'voce' : 'marca') + '">'
+                + (euFalei ? 'você falou por último' : 'ela falou, te espera') + '</span></div>';
+        }
+        if (n.proximo_passo) h += '<div class="neg-prox">→ ' + mkEsc(String(n.proximo_passo).slice(0, 90)) + '</div>';
+        return h;
     }
 
     // "Não é marca": creator que se ofereceu, spam, engano do robô. Não apaga a linha,
@@ -9126,9 +9161,20 @@
     let igPropsSearchQ = '', igPropsSortKey = 'envio', igPropsSortDir = -1;
     /* negociacoes na DM (marcas com quem ela conversa, mesmo sem a proposta padrao) */
     let igNegData = [], igNegScanState = null, igNegPend = 0;
+    /* Indexa as conversas da DM pelo @, pra tabela de marcas achar cada uma em O(1).
+       Se a mesma marca tem mais de uma conversa, vale a de mensagem mais recente. */
+    function igNegIndexar() {
+        negPorUser = {};
+        (igNegData || []).forEach(n => {
+            if (!n.is_negocio || n.arquivada) return;
+            const k = marcaChave(n.username);
+            if (!k) return;
+            const atual = negPorUser[k];
+            if (!atual || String(n.last_msg_at || '') > String(atual.last_msg_at || '')) negPorUser[k] = n;
+        });
+    }
+
     async function igLoadProps() {
-        const box = document.getElementById('igPropsBox'); if (!box) return;
-        box.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando…</div>';
         try {
             const { data, error } = await sb.functions.invoke('ig-propostas', { body: { list: true } });
             if (error || !data || data.error) throw new Error((data && data.error) || 'erro');
@@ -9137,13 +9183,19 @@
             igNegPend = data.negociacoes_pendentes || 0;
             igNegScanState = data.neg_scan || null;
             igPropsProgress(data.scan);
-        } catch (e) { box.innerHTML = '<div style="padding:20px;color:var(--error);">Não consegui carregar as propostas agora.</div>'; return; }
-        igPropsRender();
+        } catch (e) {
+            const pr = document.getElementById('igPropsProgress');
+            if (pr) pr.innerHTML = '<span style="color:var(--error);">Não consegui ler as conversas da DM agora. A lista de marcas continua funcionando.</span>';
+            return;
+        }
+        igNegIndexar();
+        marcasRender();
     }
     function igPropsProgress(scan) {
         const el = document.getElementById('igPropsProgress'); if (!el) return;
         if (!scan) { el.textContent = ''; return; }
-        if (scan.done) el.innerHTML = '✅ Histórico inteiro varrido (' + igNum(scan.scanned || 0) + ' conversas).';
+        const fila = igNegPend ? ' · ⏳ ' + igNegPend + ' conversa(s) ainda na fila de análise.' : '';
+        if (scan.done) el.innerHTML = '✅ Histórico inteiro varrido (' + igNum(scan.scanned || 0) + ' conversas).' + fila;
         else el.innerHTML = '⏳ Ainda varrendo seu histórico de DMs… ' + igNum(scan.scanned || 0) + ' conversas até agora. A lista cresce sozinha (recarregue pra ver mais).';
     }
     async function igPropsScanNow() {
@@ -9256,6 +9308,12 @@
         const arrow = on ? (igPropsSortDir === 1 ? '▲' : '▼') : '⇅';
         return '<th class="props-sortable' + (on ? ' props-sorted' : '') + '" onclick="igPropsSortBy(\'' + key + '\')" title="Ordenar por ' + label + '">' + label + ' <span class="props-arrow">' + arrow + '</span></th>';
     }
+    /* SEM USO desde a fusao das abas (05/09/2026): esta era a planilha da antiga aba
+       "Negociando na DM". A tela dela saiu; o que a DM sabe agora aparece na coluna
+       "Na DM" da tabela de Marcas. As funcoes igProps* abaixo continuam aqui porque
+       igLoadProps/igPropsExportCsv reaproveitam a mesma leitura, e porque trazer a
+       planilha de volta e so recolocar o HTML com os ids igPropsBox/Stats/Filters.
+       Todas saem sem fazer nada enquanto esses elementos nao existirem. */
     function igPropsRender() {
         const box = document.getElementById('igPropsBox'), stats = document.getElementById('igPropsStats'), filt = document.getElementById('igPropsFilters');
         if (!box) return;
@@ -9367,7 +9425,7 @@
         ]);
         const cards = [
             { n: dms, l: 'DMs esperando você', d: 'a última palavra foi da outra pessoa', ir: () => pnlIrIG('pendentes'), quente: dms > 0 },
-            { n: marcas, l: 'marcas esperando', d: 'a empresa falou por último e parou aí', ir: () => pnlIr('negociando'), quente: marcas > 0 },
+            { n: marcas, l: 'marcas esperando', d: 'a empresa falou por último e parou aí', ir: () => pnlIr('marcas'), quente: marcas > 0 },
             { n: campanhas, l: 'candidaturas na semana', d: 'inscrições novas nas suas campanhas', ir: () => pnlIr('candidaturas'), quente: false },
             { n: novasCreators, l: 'creators novas na semana', d: 'entraram na sua base', ir: () => pnlIr('creators'), quente: false },
             { n: leadsHoje, l: 'leads do Instagram hoje', d: 'vieram pela automação', ir: () => pnlIrIG('leads'), quente: false },
