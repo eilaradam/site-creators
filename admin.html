@@ -2498,6 +2498,8 @@
     #tabInstagram .rot-card-top a { color: var(--accent); font-weight: 700; text-decoration: none; margin-left: auto; }
     #tabInstagram .rot-tag { background: var(--warm); color: var(--text-soft); border-radius: 100px; padding: 3px 10px; font-size: 11px; font-weight: 700; }
     #tabInstagram .rot-tag.meu { background: var(--accent-glow); color: var(--accent); }
+    #tabInstagram .rot-tag.proc { background: #FFF0D9; color: #8A6410; }
+    #tabInstagram .rot-tag.falhou { background: #FDEDE9; color: #A8402C; }
     #tabInstagram .rot-perfil { font-weight: 700; color: var(--text); }
     #tabInstagram .rot-titulo { font-size: 14.5px; font-weight: 800; color: var(--text); margin-top: 7px; }
     #tabInstagram .rot-texto { font-size: 13px; line-height: 1.55; color: var(--text-soft); margin: 6px 0 0; }
@@ -9707,16 +9709,19 @@
         box.innerHTML = lista.map(r => {
             const txt = String(r.transcricao || '').replace(/\s+/g, ' ').trim();
             const quem = r.de_quem === 'minha' ? '<span class="rot-tag meu">meu</span>' : '<span class="rot-tag">de outra</span>';
+            const estado = r.status === 'processando' ? '<span class="rot-tag proc">transcrevendo…</span>'
+                : (r.status === 'falhou' ? '<span class="rot-tag falhou">não deu certo</span>' : '');
             const perfil = r.perfil ? '<span class="rot-perfil">@' + rotEsc(r.perfil) + '</span>' : '';
             const link = (r.url && /^https?:/.test(r.url)) ? '<a href="' + rotEsc(r.url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">ver o vídeo ↗</a>' : '';
             const quando = r.postado_em || String(r.created_at || '').slice(0, 10);
             return '<div class="rot-card" onclick="rotAbrir(\'' + r.id + '\')">'
-                + '<div class="rot-card-top">' + quem + perfil
+                + '<div class="rot-card-top">' + quem + estado + perfil
                 + '<span class="rot-fonte">' + (ROT_FONTES[r.fonte] || ROT_FONTES.outro) + '</span>'
                 + '<span class="rot-data">' + (quando ? new Date(quando + 'T12:00:00').toLocaleDateString('pt-BR') : '') + '</span>'
                 + link + '</div>'
                 + (r.titulo ? '<div class="rot-titulo">' + rotEsc(r.titulo) + '</div>' : '')
-                + '<p class="rot-texto">' + (txt ? rotEsc(txt.slice(0, 320)) + (txt.length > 320 ? '…' : '') : '<i>sem transcrição</i>') + '</p>'
+                + '<p class="rot-texto">' + (txt ? rotEsc(txt.slice(0, 320)) + (txt.length > 320 ? '…' : '')
+                    : (r.status === 'falhou' ? '<i>' + rotEsc(r.erro || 'não consegui transcrever') + '</i>' : '<i>sem transcrição</i>')) + '</p>'
                 + (r.obs ? '<div class="rot-obs">💡 ' + rotEsc(String(r.obs).slice(0, 160)) + '</div>' : '')
                 + '</div>';
         }).join('');
@@ -9729,7 +9734,11 @@
     }
 
     async function rotTranscrever() {
-        const url = (document.getElementById('rotUrl').value || '').trim();
+        /* O Instagram compartilha ora /reel/ ora /reels/, e cola sujeira de rastreio no fim. */
+        const url = (document.getElementById('rotUrl').value || '').trim()
+            .replace(/instagram\.com\/reels\//i, 'instagram.com/reel/')
+            .replace(/[?&]igsh=[^&]*/i, '')
+            .replace(/[?&]utm_[^&]*/gi, '');
         const deQuem = document.getElementById('rotDeQuem').value || 'outra';
         if (!/^https?:\/\//i.test(url)) { rotMsg('Cole um link começando com <b>https://</b>.', 'erro'); return; }
         const jaTem = rotLista.find(r => r.url === url);
@@ -9737,40 +9746,62 @@
 
         const btn = document.getElementById('rotBtn');
         btn.disabled = true; btn.textContent = 'Transcrevendo…';
-        rotMsg('Baixando e ouvindo o vídeo… costuma levar alguns segundos.');
+        rotMsg('Baixando e ouvindo o vídeo. Costuma levar de 3 a 4 minutos; pode ir fazer outra coisa que eu aviso aqui.');
         try {
-            const { data, error } = await sb.functions.invoke('transcrever', { body: { url } });
+            const { data, error } = await sb.functions.invoke('transcrever', { body: { url, de_quem: deQuem } });
             if (error) throw new Error(error.message || 'falhou');
             if (data && data.error) {
                 if (data.error === 'sem_chave') {
-                    rotMsg('Falta ligar a chave da transcrição. Me chama no chat que eu configuro — leva 1 minuto. '
+                    rotMsg('Falta ligar a chave da transcrição. Me chama no chat que eu configuro. '
                         + 'Enquanto isso dá pra usar o <b>+ Escrever na mão</b>.', 'erro');
-                } else if (data.error === 'sem_fala') {
-                    /* Reel so com musica: em vez de beco sem saida, abre o editor com o
-                       link preenchido pra ela anotar o que quiser do video. */
-                    rotMsg(rotEsc(data.message) + ' <button type="button" class="rot-link" onclick="rotGuardarSemFala()">guardar assim mesmo</button>', 'erro');
-                    window.__rotUltimoLink = url;
-                    window.__rotUltimoQuem = deQuem;
                 } else {
                     rotMsg('Não deu certo: ' + rotEsc(data.message || data.error), 'erro');
                 }
+                btn.disabled = false; btn.textContent = 'Transcrever';
                 return;
             }
-            rotMsg('✅ Transcrito' + (data.idioma ? ' (' + rotEsc(data.idioma) + ')' : '') + '. Revisa, dá um nome e salva.');
-            /* Abre o editor já preenchido: ela revisa, dá um título e salva. */
-            rotAbrir(null, {
-                url: data.url || url,
-                fonte: data.fonte || 'outro',
-                perfil: data.perfil || '',
-                de_quem: deQuem,
-                transcricao: data.transcricao || ''
-            });
             document.getElementById('rotUrl').value = '';
+            await rotLoad();
+            rotAcompanhar(data.id, url, deQuem);
         } catch (e) {
             rotMsg('Não consegui falar com o serviço de transcrição: ' + rotEsc(e.message || e), 'erro');
-        } finally {
             btn.disabled = false; btn.textContent = 'Transcrever';
         }
+    }
+
+    /* A transcricao roda em segundo plano (leva ate ~2min e estourava o limite do
+       servidor se esperasse na chamada). Aqui a tela fica olhando a linha ate ela
+       sair de "processando". */
+    function rotAcompanhar(id, url, deQuem) {
+        const btn = document.getElementById('rotBtn');
+        let tentativas = 0;
+        const olhar = async () => {
+            tentativas++;
+            const { data } = await sb.from('roteiros').select('id,status,erro,transcricao,perfil,fonte,url,de_quem').eq('id', id).maybeSingle();
+            if (!data) { rotMsg('Perdi o roteiro de vista. Recarrega a página.', 'erro'); btn.disabled = false; btn.textContent = 'Transcrever'; return; }
+            if (data.status === 'processando') {
+                if (tentativas > 84) { // 7 min
+                    rotMsg('Passou de 7 minutos, o que é fora do normal. Ele pode terminar sozinho ainda: '
+                        + 'atualize a página daqui a pouco e veja se apareceu.', 'erro');
+                    btn.disabled = false; btn.textContent = 'Transcrever';
+                    return;
+                }
+                const seg = tentativas * 5;
+                rotMsg('Ouvindo o vídeo… ' + (seg < 60 ? seg + 's' : Math.floor(seg / 60) + 'min ' + (seg % 60) + 's')
+                    + '. Vídeo novo costuma levar de 3 a 4 minutos. Pode deixar essa aba aberta e ir fazer outra coisa.');
+                setTimeout(olhar, 5000);
+                return;
+            }
+            btn.disabled = false; btn.textContent = 'Transcrever';
+            await rotLoad();
+            if (data.status === 'falhou') {
+                rotMsg(rotEsc(data.erro || 'Não deu certo.') + ' <button type="button" class="rot-link" onclick="rotAbrir(\'' + data.id + '\')">abrir mesmo assim</button>', 'erro');
+                return;
+            }
+            rotMsg('✅ Pronto. Revisa, dá um nome e salva.');
+            rotAbrir(data.id);
+        };
+        setTimeout(olhar, 4000);
     }
 
     function rotGuardarSemFala() {
