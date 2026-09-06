@@ -2596,6 +2596,11 @@
     #tabInstagram .rot-tag.meu { background: var(--accent-glow); color: var(--accent); }
     #tabInstagram .rot-tag.proc { background: #FFF0D9; color: #8A6410; }
     #tabInstagram .rot-tag.falhou { background: #FDEDE9; color: #A8402C; }
+    #tabInstagram .rot-marca { background: none; border: 1px dashed var(--border); color: var(--text-muted); border-radius: 100px; padding: 3px 10px; font-family: inherit; font-size: 11px; font-weight: 700; cursor: pointer; transition: all .15s ease; }
+    #tabInstagram .rot-marca:hover { border-color: var(--accent); color: var(--accent); }
+    #tabInstagram .rot-marca.on { background: var(--accent); border-color: var(--accent); border-style: solid; color: #fff; }
+    #tabInstagram .rot-num { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; font-size: 12px; color: var(--text-muted); }
+    #tabInstagram .rot-num b { color: var(--accent); font-weight: 800; font-variant-numeric: tabular-nums; }
     #tabInstagram .rot-perfil { font-weight: 700; color: var(--text); }
     #tabInstagram .rot-titulo { font-size: 14.5px; font-weight: 800; color: var(--text); margin-top: 7px; }
     #tabInstagram .rot-texto { font-size: 13px; line-height: 1.55; color: var(--text-soft); margin: 6px 0 0; }
@@ -9898,6 +9903,16 @@
             const quem = r.de_quem === 'minha' ? '<span class="rot-tag meu">meu</span>' : '<span class="rot-tag">de outra</span>';
             const estado = r.status === 'processando' ? '<span class="rot-tag proc">transcrevendo…</span>'
                 : (r.status === 'falhou' ? '<span class="rot-tag falhou">não deu certo</span>' : '');
+            /* Publi, collab e impulsionado: a API do Meta nao informa nada disso
+               (testado, todos os campos recusados) e a legenda nao serve, porque ela
+               marca de jeitos diferentes. Entao ela marca aqui, num clique. */
+            const marcas = r.de_quem === 'minha'
+                ? ['publi', 'collab', 'impulsionado'].map(k =>
+                    '<button class="rot-marca' + (r[k] ? ' on' : '') + '" type="button"'
+                    + ' title="' + (r[k] ? 'marcado como ' + k : 'marcar como ' + k) + '"'
+                    + ' onclick="event.stopPropagation();rotMarcar(this,\'' + r.id + '\',\'' + k + '\')">'
+                    + (k === 'impulsionado' ? '💰 impulsionado' : k) + '</button>').join('')
+                : '';
             const perfil = r.perfil ? '<span class="rot-perfil">@' + rotEsc(r.perfil) + '</span>' : '';
             const link = (r.url && /^https?:/.test(r.url)) ? '<a href="' + rotEsc(r.url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">ver o vídeo ↗</a>' : '';
             /* A capa so carrega quando ela pede: sao ~600KB por embed, nao da pra
@@ -9908,13 +9923,18 @@
             return '<div class="rot-card" onclick="rotAbrir(\'' + r.id + '\')">'
                 + '<div class="rot-capa-slot"></div>'
                 + '<div class="rot-card-conteudo">'
-                + '<div class="rot-card-top">' + quem + estado + perfil + capa
+                + '<div class="rot-card-top">' + quem + estado + perfil + marcas + capa
                 + '<span class="rot-fonte">' + (ROT_FONTES[r.fonte] || ROT_FONTES.outro) + '</span>'
                 + '<span class="rot-data">' + (quando ? new Date(quando + 'T12:00:00').toLocaleDateString('pt-BR') : '') + '</span>'
                 + link + '</div>'
                 + (r.titulo ? '<div class="rot-titulo">' + rotEsc(r.titulo) + '</div>' : '')
                 + '<p class="rot-texto">' + (txt ? rotEsc(txt.slice(0, 320)) + (txt.length > 320 ? '…' : '')
                     : (r.status === 'falhou' ? '<i>' + rotEsc(r.erro || 'não consegui transcrever') + '</i>' : '<i>sem transcrição</i>')) + '</p>'
+                + (r.metricas ? '<div class="rot-num">'
+                    + [['alcance','alcance'],['tempo_medio_seg','seg assistidos'],['salvos','salvos'],['compartilhados','compart.']]
+                        .filter(m => r.metricas[m[0]] != null)
+                        .map(m => '<span><b>' + igConcNum(r.metricas[m[0]]) + '</b> ' + m[1] + '</span>').join('')
+                    + '</div>' : '')
                 + (r.analise && !rotNada(r.analise.gancho) ? '<div class="rot-gancho"><span>' + rotEsc(r.analise.tipo_gancho || 'gancho') + '</span> ' + rotEsc(String(r.analise.gancho).slice(0, 150)) + '</div>' : '')
                 + (r.obs ? '<div class="rot-obs">💡 ' + rotEsc(String(r.obs).slice(0, 160)) + '</div>' : '')
                 + '</div></div>';
@@ -9936,6 +9956,16 @@
         slot.innerHTML = '<div class="rot-capa"><iframe src="' + rotEsc(e) + '" frameborder="0" scrolling="no" '
             + 'allowtransparency="true" allowfullscreen loading="lazy"></iframe></div>';
         btn.textContent = '▾ esconder';
+    }
+
+    /* Liga e desliga a etiqueta na hora, e desfaz se o banco recusar. */
+    async function rotMarcar(btn, id, campo) {
+        const r = rotLista.find(x => x.id === id); if (!r) return;
+        const novo = !r[campo];
+        r[campo] = novo;
+        btn.classList.toggle('on', novo);
+        const { error } = await sb.from('roteiros').update({ [campo]: novo, updated_at: new Date().toISOString() }).eq('id', id);
+        if (error) { r[campo] = !novo; btn.classList.toggle('on', !novo); alert('Não consegui marcar: ' + error.message); }
     }
 
     function rotMsg(html, tipo) {
