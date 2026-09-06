@@ -582,9 +582,34 @@
         /* ── Sidebar: seções agrupadas ── */
         .nav-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); padding: 16px 14px 6px; }
         .nav-section-label:first-child { padding-top: 4px; }
+        /* ── Grupos recolhiveis da barra (Agencia e Meus sites) ──
+           Ficam so com o titulo e abrem quando o mouse passa por cima. A altura anima com
+           o truque de grid 0fr -> 1fr, que da transicao suave sem precisar saber a altura. */
+        .nav-group { display: flex; flex-direction: column; }
+        .nav-group > .nav-section-label { padding-top: 16px; display: flex; align-items: center; gap: 6px; cursor: default; }
+        .nav-group-seta { width: 11px; height: 11px; flex-shrink: 0; opacity: 0.6; transition: transform 0.2s ease; }
+        .nav-group-itens { display: grid; grid-template-rows: 1fr; transition: grid-template-rows 0.2s ease; }
+        .nav-group-lista { overflow: hidden; display: flex; flex-direction: column; gap: 4px; min-height: 0; }
+        @media (hover: hover) {
+            /* recolhido por padrao; abre no hover OU quando a aba atual mora aqui dentro */
+            .nav-group.recolhivel .nav-group-itens { grid-template-rows: 0fr; }
+            .nav-group.recolhivel .nav-group-seta { transform: rotate(-90deg); }
+            .nav-group.recolhivel:hover .nav-group-itens,
+            .nav-group.recolhivel.aberto .nav-group-itens { grid-template-rows: 1fr; }
+            .nav-group.recolhivel:hover .nav-group-seta,
+            .nav-group.recolhivel.aberto .nav-group-seta { transform: none; }
+            .nav-group.recolhivel:hover > .nav-section-label { color: var(--accent); }
+            /* barra recolhida (64px): o titulo vira um risquinho, nao da pra mirar o mouse
+               nele, entao os grupos ficam sempre abertos */
+            .app-shell.collapsed .nav-group.recolhivel .nav-group-itens { grid-template-rows: 1fr; }
+            .app-shell.collapsed .nav-group-seta { display: none; }
+        }
         .app-shell.collapsed .nav-section-label { font-size: 0; padding: 0; height: 0; border-top: 1px solid var(--border); margin: 10px 14px; }
         @media (max-width: 900px) {
             .app-shell.collapsed .nav-section-label { font-size: 10px; padding: 16px 14px 6px; height: auto; border-top: none; margin: 0; }
+            /* drawer do celular: sem hover, entao os grupos ficam sempre abertos */
+            .nav-group.recolhivel .nav-group-itens { grid-template-rows: 1fr; }
+            .nav-group-seta { display: none; }
         }
 
         /* ── Agenda (novo dashboard / organização) ── */
@@ -1201,21 +1226,28 @@
                 <span>Painel</span>
             </button>
 
-            <div class="nav-section-label">Agência</div>
-            <!-- Um botao so pra Base de creators + Campanhas. Abre na Base; a troca
-                 entre as duas e pelo menuzinho no topo do painel (.subnav). -->
-            <button class="tab nav-item" data-tab="creators" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                <span>Creators</span>
-            </button>
-            <button class="tab nav-item" data-tab="marcas" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/><path d="M9 11h.01"/><path d="M15 11h.01"/></svg>
-                <span>Marcas</span>
-            </button>
-            <button class="tab nav-item" data-tab="disparo" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9z"/></svg>
-                <span>Disparo de e-mail</span>
-            </button>
+            <!-- Grupos recolhiveis: ficam so com o titulo e abrem quando o mouse passa por
+                 cima. O grupo que contem a aba aberta ganha .aberto pelo JS e fica expandido,
+                 senao ela perderia de vista onde esta. -->
+            <div class="nav-group recolhivel">
+                <div class="nav-section-label">Agência<svg class="nav-group-seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+                <div class="nav-group-itens"><div class="nav-group-lista">
+                    <!-- Um botao so pra Base de creators + Campanhas. Abre na Base; a troca
+                         entre as duas e pelo menuzinho no topo do painel (.subnav). -->
+                    <button class="tab nav-item" data-tab="creators" type="button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <span>Creators</span>
+                    </button>
+                    <button class="tab nav-item" data-tab="marcas" type="button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/><path d="M9 11h.01"/><path d="M15 11h.01"/></svg>
+                        <span>Marcas</span>
+                    </button>
+                    <button class="tab nav-item" data-tab="disparo" type="button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9z"/></svg>
+                        <span>Disparo de e-mail</span>
+                    </button>
+                </div></div>
+            </div>
 
             <div class="nav-section-label">Instagram</div>
             <button class="tab nav-item" data-tab="instagram" type="button">
@@ -1227,23 +1259,25 @@
                 <span>Automações</span>
             </button>
 
-            <div class="nav-section-label">Aulas e produtos</div>
-            <!-- Um botao so pra Imersao + Direct no Automatico. Abre na Imersao; a troca
-                 entre as duas e pelo menuzinho no topo do painel (.subnav). -->
-            <button class="tab nav-item" data-tab="imersao" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                <span>Aulas</span>
-            </button>
-
-            <div class="nav-section-label">Meus sites</div>
-            <button class="tab nav-item" data-tab="portfolio" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-                <span>Portfólio</span>
-            </button>
-            <button class="tab nav-item" data-tab="bio" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2.5"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
-                <span>Link na Bio</span>
-            </button>
+            <div class="nav-group recolhivel">
+                <div class="nav-section-label">Meus sites<svg class="nav-group-seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+                <div class="nav-group-itens"><div class="nav-group-lista">
+                    <button class="tab nav-item" data-tab="portfolio" type="button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                        <span>Portfólio</span>
+                    </button>
+                    <button class="tab nav-item" data-tab="bio" type="button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2.5"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+                        <span>Link na Bio</span>
+                    </button>
+                    <!-- Um botao so pra Imersao + Direct no Automatico. Abre na Imersao; a troca
+                         entre as duas e pelo menuzinho no topo do painel (.subnav). -->
+                    <button class="tab nav-item" data-tab="imersao" type="button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                        <span>Aulas</span>
+                    </button>
+                </div></div>
+            </div>
 
         </nav>
         <div class="sidebar-foot">
@@ -4141,6 +4175,11 @@
                 const navBtn = document.querySelector('.sidebar-nav .nav-item[data-tab="' + DONO_NA_BARRA[target] + '"]');
                 if (navBtn) navBtn.classList.add('active');
             }
+            /* O grupo recolhivel que contem a aba aberta fica expandido, senao ela nao
+               enxergaria onde esta. Roda depois do active, que e o que a busca usa. */
+            document.querySelectorAll('.nav-group').forEach(g => {
+                g.classList.toggle('aberto', !!g.querySelector('.nav-item.active'));
+            });
             try { localStorage.setItem('adminActiveTab', target); } catch {}
             document.getElementById('tabPainel').classList.toggle('show', target === 'painel');
             document.getElementById('tabAgenda').classList.toggle('show', target === 'agenda');
