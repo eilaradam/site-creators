@@ -1228,6 +1228,10 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
                 <span>Painel</span>
             </button>
+            <button class="tab nav-item" data-tab="objetivos" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4"/></svg>
+                <span>Objetivos</span>
+            </button>
 
             <div class="nav-section-label">Instagram</div>
             <button class="tab nav-item" data-tab="instagram" type="button">
@@ -3815,6 +3819,225 @@
         </div>
     </div>
 </div>
+
+<!-- ── TAB: OBJETIVOS ──
+     Duas coisas que andam juntas: onde ela quer chegar (metas com numero e
+     projetos com passos) e o que vai ao ar pra chegar la (calendario do mes,
+     com o passado vindo sozinho do Instagram e o futuro planejado por ela). -->
+<div class="dashboard" id="tabObjetivos">
+<style>
+    #tabObjetivos .obj-wrap{max-width:1140px;margin:0 auto;}
+    #tabObjetivos .obj-sec{margin-bottom:30px;}
+    #tabObjetivos .obj-sec-t{display:flex;align-items:center;gap:10px;font-size:11.5px;letter-spacing:1.2px;
+        text-transform:uppercase;color:var(--text-muted);font-weight:800;margin-bottom:12px;}
+    #tabObjetivos .obj-sec-t button{margin-left:auto;letter-spacing:0;text-transform:none;}
+
+    /* ── metas ── */
+    #tabObjetivos .meta-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px;}
+    #tabObjetivos .meta{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+        padding:17px 18px;position:relative;cursor:pointer;transition:border-color .15s,transform .15s;}
+    #tabObjetivos .meta:hover{border-color:var(--accent);transform:translateY(-1px);}
+    #tabObjetivos .meta .cab{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;}
+    #tabObjetivos .meta .nome{font-size:15px;font-weight:700;color:var(--text);line-height:1.3;flex:1;min-width:0;}
+    #tabObjetivos .meta .prazo{font-size:11px;color:var(--text-muted);white-space:nowrap;font-weight:700;
+        background:var(--warm);border-radius:100px;padding:3px 9px;}
+    #tabObjetivos .meta .prazo.perto{background:var(--alerta-bg);color:var(--alerta);}
+    #tabObjetivos .meta .num{display:flex;align-items:baseline;gap:7px;margin-bottom:8px;}
+    #tabObjetivos .meta .num b{font-size:27px;font-weight:800;letter-spacing:-.9px;color:var(--text);line-height:1;}
+    #tabObjetivos .meta .num i{font-style:normal;font-size:13px;color:var(--text-muted);}
+    #tabObjetivos .barra{height:9px;border-radius:100px;background:var(--warm);overflow:hidden;}
+    #tabObjetivos .barra span{display:block;height:100%;border-radius:100px;background:var(--accent);transition:width .5s ease;}
+    #tabObjetivos .barra span.ok{background:var(--success);}
+    #tabObjetivos .meta .pe{display:flex;justify-content:space-between;gap:10px;margin-top:9px;font-size:12px;color:var(--text-muted);}
+    #tabObjetivos .meta .pe b{color:var(--text-soft);}
+    #tabObjetivos .meta .ritmo{font-size:12px;margin-top:9px;padding-top:9px;border-top:1px solid var(--border);color:var(--text-soft);}
+    #tabObjetivos .meta .ritmo.bom{color:var(--success);font-weight:600;}
+    #tabObjetivos .meta .ritmo.ruim{color:var(--alerta);font-weight:600;}
+
+    /* ── projetos ── */
+    #tabObjetivos .proj{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+        padding:16px 18px;margin-bottom:11px;}
+    #tabObjetivos .proj-cab{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+    #tabObjetivos .proj-cab .nome{font-size:15.5px;font-weight:700;color:var(--text);flex:1;min-width:0;}
+    #tabObjetivos .proj-cab .cont{font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap;}
+    #tabObjetivos .proj .barra{margin-bottom:12px;height:6px;}
+    #tabObjetivos .passo{display:flex;align-items:flex-start;gap:10px;padding:6px 0;cursor:pointer;}
+    #tabObjetivos .passo .cx{flex-shrink:0;width:18px;height:18px;border-radius:6px;border:2px solid var(--border-strong);
+        background:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;margin-top:1px;transition:all .15s;}
+    #tabObjetivos .passo:hover .cx{border-color:var(--accent);}
+    #tabObjetivos .passo.feito .cx{background:var(--success);border-color:var(--success);}
+    #tabObjetivos .passo .txt{font-size:14px;color:var(--text);line-height:1.45;}
+    #tabObjetivos .passo.feito .txt{color:var(--text-muted);text-decoration:line-through;}
+    #tabObjetivos .passo .del{margin-left:auto;opacity:0;border:none;background:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:0 4px;}
+    #tabObjetivos .passo:hover .del{opacity:1;}
+    #tabObjetivos .proj-add{display:flex;gap:7px;margin-top:8px;}
+    #tabObjetivos .proj-add input{flex:1;border:1px dashed var(--border-strong);background:transparent;border-radius:9px;
+        padding:8px 11px;font-family:inherit;font-size:13.5px;color:var(--text);outline:none;}
+    #tabObjetivos .proj-add input:focus{border-style:solid;border-color:var(--accent);}
+
+    /* ── calendario ── */
+    #tabObjetivos .cal-topo{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+    #tabObjetivos .cal-mes{font-size:17px;font-weight:800;color:var(--text);min-width:170px;}
+    #tabObjetivos .cal-mes::first-letter{text-transform:uppercase;}
+    #tabObjetivos .cal-nav{flex:0 0 32px;background:var(--card);border:1px solid var(--border);border-radius:9px;width:32px;height:32px;
+        cursor:pointer;font-size:15px;color:var(--text-soft);font-family:inherit;}
+    #tabObjetivos .cal-nav:hover{border-color:var(--accent);color:var(--accent);}
+    #tabObjetivos .cal-legenda{margin-left:auto;display:flex;gap:14px;font-size:11.5px;color:var(--text-muted);flex-wrap:wrap;align-items:center;}
+    #tabObjetivos .cal-legenda i{font-style:normal;display:inline-flex;align-items:center;gap:5px;}
+    #tabObjetivos .cal-legenda .pt{width:9px;height:9px;border-radius:3px;display:inline-block;}
+    #tabObjetivos .cal-grade{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);
+        border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+    #tabObjetivos .cal-dsem{background:var(--warm);padding:8px 6px;text-align:center;font-size:10.5px;font-weight:800;
+        letter-spacing:.8px;text-transform:uppercase;color:var(--text-muted);}
+    #tabObjetivos .cal-dia{background:var(--card);min-height:104px;padding:7px 8px;cursor:pointer;transition:background .13s;position:relative;}
+    #tabObjetivos .cal-dia:hover{background:var(--bege);}
+    #tabObjetivos .cal-dia.fora{background:#FBF9F7;cursor:default;}
+    #tabObjetivos .cal-dia.fora:hover{background:#FBF9F7;}
+    #tabObjetivos .cal-dia .n{font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:5px;}
+    #tabObjetivos .cal-dia.hoje .n{background:var(--accent);color:#fff;border-radius:100px;width:21px;height:21px;
+        display:flex;align-items:center;justify-content:center;font-size:11px;}
+    #tabObjetivos .cal-it{border-radius:7px;padding:4px 6px;font-size:11px;line-height:1.3;margin-bottom:3px;
+        overflow:hidden;text-overflow:ellipsis;display:block;}
+    #tabObjetivos .cal-it.pub{background:var(--accent-glow);color:var(--accent);font-weight:700;}
+    #tabObjetivos .cal-it.pub b{display:block;font-size:10px;font-weight:800;opacity:.75;}
+    #tabObjetivos .cal-it.plan{background:var(--warm);color:var(--text-soft);font-weight:600;border:1px dashed var(--border-strong);}
+    #tabObjetivos .cal-it.plan.gravado{border-style:solid;border-color:var(--success);color:var(--success);}
+    #tabObjetivos .cal-mais{font-size:10px;color:var(--text-muted);font-weight:700;}
+
+    /* ── resumo do mês ── */
+    #tabObjetivos .mix{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px;}
+    #tabObjetivos .mix-c{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:13px 15px;}
+    #tabObjetivos .mix-c .l{font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;}
+    #tabObjetivos .mix-c .v{font-size:21px;font-weight:800;letter-spacing:-.6px;color:var(--text);}
+    #tabObjetivos .mix-c .d{font-size:11.5px;color:var(--text-muted);margin-top:2px;}
+    #tabObjetivos .mix-c .v.alerta{color:var(--alerta);}
+    #tabObjetivos .obj-vazio{background:var(--card);border:1px dashed var(--border-strong);border-radius:var(--radius);
+        padding:30px;text-align:center;color:var(--text-muted);font-size:13.5px;}
+
+    @media(max-width:820px){
+        #tabObjetivos .cal-dia{min-height:76px;padding:5px;}
+        #tabObjetivos .cal-it{font-size:10px;}
+    }
+</style>
+    <div class="obj-wrap">
+        <div class="capa">
+            <div class="capa-topo">
+                <div class="capa-id">
+                    <span class="capa-mark">🎯</span>
+                    <div>
+                        <h2>Objetivos</h2>
+                        <p class="sub">Onde você quer chegar, e o que vai ao ar pra chegar lá.</p>
+                    </div>
+                </div>
+                <div id="objResumo" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+            </div>
+            <div class="capa-abas">
+                <button class="ig-subtab-btn active" data-obj-sub="metas" type="button">🎯 Metas</button>
+                <button class="ig-subtab-btn" data-obj-sub="calendario" type="button">🗓 Calendário</button>
+            </div>
+        </div>
+
+        <div id="objPaneMetas">
+            <div class="obj-sec">
+                <div class="obj-sec-t">Metas com número
+                    <button class="ig-btn ghost" type="button" onclick="objAbrir(null,'meta')">+ Nova meta</button>
+                </div>
+                <div id="objMetasBox"></div>
+            </div>
+            <div class="obj-sec">
+                <div class="obj-sec-t">Projetos
+                    <button class="ig-btn ghost" type="button" onclick="objAbrir(null,'projeto')">+ Novo projeto</button>
+                </div>
+                <div id="objProjBox"></div>
+            </div>
+        </div>
+
+        <div id="objPaneCal" style="display:none;">
+            <div id="objMixBox"></div>
+            <div class="cal-topo">
+                <button class="cal-nav" type="button" onclick="objMesAndar(-1)">‹</button>
+                <div class="cal-mes" id="objMesNome"></div>
+                <button class="cal-nav" type="button" onclick="objMesAndar(1)">›</button>
+                <button class="ig-btn ghost" type="button" onclick="objMesAndar(0)">hoje</button>
+                <div class="cal-legenda">
+                    <i><span class="pt" style="background:var(--accent);"></span> publicado</i>
+                    <i><span class="pt" style="background:var(--border-strong);"></span> planejado</i>
+                    <i><span class="pt" style="background:var(--success);"></span> gravado</i>
+                </div>
+            </div>
+            <div class="cal-grade" id="objCalBox"></div>
+        </div>
+    </div>
+</div>
+
+
+<!-- modal de meta / projeto -->
+<div id="objModal" class="idea-modal" style="display:none;">
+    <div class="idea-modal-box">
+        <div class="idea-modal-head">
+            <div><div class="idea-modal-kicker" id="objModalK">NOVA META</div><h3 id="objModalT">Meta</h3></div>
+            <button class="idea-x" type="button" onclick="objFechar()">✕</button>
+        </div>
+        <div class="idea-modal-body">
+            <label class="idea-lbl">O que você quer alcançar</label>
+            <input id="objTitulo" class="ig-input" type="text" placeholder="Ex: 20 mil seguidores, ou: virar referência em IA pra creators">
+            <div id="objCamposMeta">
+                <div class="idea-row3">
+                    <div><label class="idea-lbl">O que conta</label><select id="objMetrica" class="ig-input" onchange="objTrocaMetrica()"></select></div>
+                    <div><label class="idea-lbl">Alvo</label><input id="objAlvo" class="ig-input" type="number" placeholder="20000"></div>
+                    <div><label class="idea-lbl">Até quando</label><input id="objPrazo" class="ig-input" type="date"></div>
+                </div>
+                <div id="objManualBox" style="display:none;">
+                    <label class="idea-lbl">Onde você está hoje <i>você atualiza na mão</i></label>
+                    <input id="objValorManual" class="ig-input" type="number" placeholder="0">
+                </div>
+            </div>
+        </div>
+        <div class="idea-modal-pe">
+            <button id="objApagarBtn" class="idea-del" type="button" onclick="objApagar()">🗑 Apagar</button>
+            <div style="display:flex;gap:8px;">
+                <button class="ig-btn ghost" type="button" onclick="objFechar()">Cancelar</button>
+                <button id="objSalvarBtn" class="ig-btn" type="button" onclick="objSalvar()">✓ Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- modal de publicação -->
+<div id="pubModal" class="idea-modal" style="display:none;">
+    <div class="idea-modal-box">
+        <div class="idea-modal-head">
+            <div><div class="idea-modal-kicker" id="pubModalK">NOVA PUBLICAÇÃO</div><h3 id="pubModalT">Publicação</h3></div>
+            <button class="idea-x" type="button" onclick="pubFechar()">✕</button>
+        </div>
+        <div class="idea-modal-body">
+            <label class="idea-lbl">Puxar de onde já está escrito <i>opcional</i></label>
+            <select id="pubOrigem" class="ig-input" onchange="pubPuxar()"></select>
+            <label class="idea-lbl">O que vai ao ar</label>
+            <input id="pubTitulo" class="ig-input" type="text" placeholder="Ex: as automações que eu criei no Claude">
+            <div class="idea-row3">
+                <div><label class="idea-lbl">Dia</label><input id="pubData" class="ig-input" type="date"></div>
+                <div><label class="idea-lbl">Formato</label><select id="pubFormato" class="ig-input"></select></div>
+                <div><label class="idea-lbl">Gravação</label><select id="pubGravacao" class="ig-input"></select></div>
+            </div>
+            <div class="idea-row3">
+                <div><label class="idea-lbl">Serve pra</label><select id="pubObjetivo" class="ig-input"></select></div>
+                <div><label class="idea-lbl">Situação</label><select id="pubStatus" class="ig-input"></select></div>
+                <div></div>
+            </div>
+            <label class="idea-lbl">Anotação</label>
+            <textarea id="pubObs" class="ig-input" rows="2" placeholder="O que lembrar na hora de gravar"></textarea>
+        </div>
+        <div class="idea-modal-pe">
+            <button id="pubApagarBtn" class="idea-del" type="button" onclick="pubApagar()">🗑 Apagar</button>
+            <div style="display:flex;gap:8px;">
+                <button class="ig-btn ghost" type="button" onclick="pubFechar()">Cancelar</button>
+                <button id="pubSalvarBtn" class="ig-btn" type="button" onclick="pubSalvar()">✓ Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="rotModal" class="rot-modal" style="display:none;">
     <div class="rot-modal-box">
         <div class="rot-modal-head">
@@ -4718,7 +4941,7 @@
     document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
 
     /* ── Tabs ── */
-    const PAGE_TITLES = { painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', marcas: 'Marcas', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', instagram: 'Instagram', bio: 'Link na Bio' };
+    const PAGE_TITLES = { objetivos: 'Objetivos', painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', marcas: 'Marcas', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', instagram: 'Instagram', bio: 'Link na Bio' };
     function setPageTitle(target) {
         const el = document.getElementById('pageTitle');
         if (el && PAGE_TITLES[target]) el.textContent = PAGE_TITLES[target];
@@ -4756,6 +4979,7 @@
             document.getElementById('tabDirect').classList.toggle('show', target === 'direct');
             document.getElementById('tabInstagram').classList.toggle('show', target === 'instagram');
             document.getElementById('tabBio').classList.toggle('show', target === 'bio');
+            document.getElementById('tabObjetivos').classList.toggle('show', target === 'objetivos');
             setPageTitle(target);
             document.getElementById('sidebar').classList.remove('open');
             document.getElementById('sidebarBackdrop').classList.remove('show');
@@ -4779,6 +5003,7 @@
                 if (pulo) setTimeout(() => igSetSub(pulo), 0);
             }
             if (target === 'bio' && window.loadBioEditor) window.loadBioEditor();
+            if (target === 'objetivos') objLoad();
         });
     });
 
@@ -11814,6 +12039,390 @@
         if (error) { alert('Erro ao apagar: ' + error.message); return; }
         await sb.storage.from('ig-assets').remove([a.storage_path]);
         await igLoadAssets();
+    }
+
+    /* ══════════════ OBJETIVOS ══════════════
+       Metas com numero andam sozinhas: o valor de hoje sai dos dados reais do
+       Instagram, nao de um campo que ela teria que atualizar na mao. Projetos sao
+       manuais, porque nao ha numero que meça "virar referencia em IA".
+       O calendario junta as duas metades: o passado vem do cache de insights (com
+       alcance de cada post) e o futuro e o que ela planeja aqui. */
+    let objLista = [], objPubs = [], objPosts = [], objSegs = [], objCarregado = false;
+    let objMesRef = new Date(), objEditando = null, objTipoNovo = 'meta', pubEditando = null;
+
+    const OBJ_METRICAS = [
+        ['seguidores',  'Seguidores'],
+        ['alcance_mes', 'Alcance no mês'],
+        ['salvos_mes',  'Salvamentos no mês'],
+        ['compart_mes', 'Compartilhamentos no mês'],
+        ['posts_mes',   'Posts publicados no mês'],
+        ['manual',      'Eu atualizo na mão']
+    ];
+    const PUB_FORMATOS  = ['reel narrado', 'carrossel', 'montagem muda', 'story'];
+    const PUB_GRAVACOES = [['camera','falando com a câmera'], ['criativo','criativo / storytelling'], ['bastidor','rotina e bastidor']];
+    const PUB_OBJETIVOS = ['crescer', 'engajar', 'vender'];
+    const PUB_STATUS    = [['planejado','💭 planejado'], ['gravado','🎬 gravado'], ['publicado','✅ publicado']];
+
+    function objNum(n) { return (n == null || isNaN(n)) ? '—' : Number(n).toLocaleString('pt-BR'); }
+    function objDia(d) { return String(d || '').slice(0, 10); }
+    function objHojeISO() { const d = new Date(Date.now() - 3 * 3600 * 1000); return d.toISOString().slice(0, 10); }
+
+    async function objLoad() {
+        if (objCarregado) { objRender(); return; }
+        objCarregado = true;
+        const [mt, pb, ins, seg] = await Promise.all([
+            sb.from('objetivos').select('*').eq('arquivado', false).order('ordem').order('created_at'),
+            sb.from('publicacoes').select('*').order('data'),
+            sb.from('ig_insights_cache').select('payload').eq('days', 'all').maybeSingle(),
+            sb.from('ig_followers_daily').select('dia,followers').order('dia', { ascending: false }).limit(60)
+        ]);
+        objLista = mt.data || [];
+        objPubs = pb.data || [];
+        objPosts = ((ins.data && ins.data.payload && ins.data.payload.posts) || []);
+        objSegs = seg.data || [];
+        objRender();
+    }
+    function objRender() { objRenderMetas(); objRenderProjetos(); objRenderCal(); objRenderResumo(); }
+
+    /* ── de onde sai o "hoje" de cada metrica ── */
+    function objPostsDoMes(ref) {
+        const a = ref.getFullYear(), m = ref.getMonth();
+        return objPosts.filter(p => { const d = new Date(p.timestamp); return d.getFullYear() === a && d.getMonth() === m; });
+    }
+    function objValorAtual(o) {
+        if (o.metrica === 'manual') return Number(o.valor_manual || 0);
+        if (o.metrica === 'seguidores') return objSegs.length ? Number(objSegs[0].followers || 0) : 0;
+        const doMes = objPostsDoMes(new Date());
+        const soma = (k) => doMes.reduce((t, p) => t + (Number(p[k]) || 0), 0);
+        if (o.metrica === 'alcance_mes') return soma('reach');
+        if (o.metrica === 'salvos_mes') return soma('saved');
+        if (o.metrica === 'compart_mes') return soma('shares');
+        if (o.metrica === 'posts_mes') return doMes.length;
+        return 0;
+    }
+    /* Projecao. Seguidores: ritmo real dos ultimos 14 dias. Metrica do mes: regra de
+       tres com os dias ja corridos. Sem inventar: se nao ha historico, nao diz nada. */
+    function objRitmo(o, atual) {
+        if (o.metrica === 'seguidores' && objSegs.length >= 5 && o.alvo) {
+            const hoje = objSegs[0], antes = objSegs[Math.min(13, objSegs.length - 1)];
+            const dias = Math.max(1, (new Date(hoje.dia) - new Date(antes.dia)) / 86400000);
+            const porDia = (Number(hoje.followers) - Number(antes.followers)) / dias;
+            const faltam = Number(o.alvo) - atual;
+            if (faltam <= 0) return { txt: 'Meta batida 🎉', cls: 'bom' };
+            if (porDia <= 0) return { txt: 'Sem crescimento nos últimos ' + Math.round(dias) + ' dias', cls: 'ruim' };
+            const chega = new Date(Date.now() + (faltam / porDia) * 86400000);
+            const cls = (o.prazo && chega > new Date(o.prazo + 'T23:59:59')) ? 'ruim' : 'bom';
+            return { txt: '+' + Math.round(porDia * 7) + ' por semana · no ritmo de hoje chega em ' + chega.toLocaleDateString('pt-BR'), cls: cls };
+        }
+        if (o.metrica && o.metrica.endsWith('_mes') && o.alvo) {
+            const agora = new Date(), diaDeHoje = agora.getDate();
+            const noMes = new Date(agora.getFullYear(), agora.getMonth() + 1, 0).getDate();
+            const proj = Math.round(atual / diaDeHoje * noMes);
+            const cls = proj >= Number(o.alvo) ? 'bom' : 'ruim';
+            return { txt: 'No ritmo do mês, fecha em ' + objNum(proj), cls: cls };
+        }
+        return null;
+    }
+
+    function objRenderMetas() {
+        const box = document.getElementById('objMetasBox'); if (!box) return;
+        const metas = objLista.filter(o => o.tipo === 'meta');
+        if (!metas.length) {
+            box.innerHTML = '<div class="obj-vazio">Nenhuma meta ainda. Uma boa primeira: quantos seguidores você quer ter no fim do ano.</div>';
+            return;
+        }
+        box.innerHTML = '<div class="meta-grid">' + metas.map(o => {
+            const atual = objValorAtual(o), alvo = Number(o.alvo || 0);
+            const pct = alvo > 0 ? Math.min(100, Math.round(atual / alvo * 100)) : 0;
+            const r = objRitmo(o, atual);
+            let prazo = '', perto = false;
+            if (o.prazo) {
+                const dias = Math.ceil((new Date(o.prazo + 'T12:00:00') - new Date()) / 86400000);
+                perto = dias <= 30;
+                prazo = dias < 0 ? 'venceu' : (dias === 0 ? 'é hoje' : 'faltam ' + dias + 'd');
+            }
+            const nomeMet = (OBJ_METRICAS.find(m => m[0] === o.metrica) || ['', ''])[1];
+            return '<div class="meta" onclick="objAbrir(\'' + o.id + '\')">'
+                + '<div class="cab"><div class="nome">' + escapeHtml(o.titulo) + '</div>'
+                + (prazo ? '<span class="prazo' + (perto ? ' perto' : '') + '">' + prazo + '</span>' : '') + '</div>'
+                + '<div class="num"><b>' + objNum(atual) + '</b><i>de ' + objNum(alvo) + '</i></div>'
+                + '<div class="barra"><span class="' + (pct >= 100 ? 'ok' : '') + '" style="width:' + pct + '%"></span></div>'
+                + '<div class="pe"><span>' + escapeHtml(nomeMet) + '</span><b>' + pct + '%</b></div>'
+                + (r ? '<div class="ritmo ' + r.cls + '">' + escapeHtml(r.txt) + '</div>' : '')
+                + '</div>';
+        }).join('') + '</div>';
+    }
+
+    function objRenderProjetos() {
+        const box = document.getElementById('objProjBox'); if (!box) return;
+        const projs = objLista.filter(o => o.tipo === 'projeto');
+        if (!projs.length) {
+            box.innerHTML = '<div class="obj-vazio">Nenhum projeto ainda. Serve pro que não tem número: "virar referência em IA pra creators", por exemplo.</div>';
+            return;
+        }
+        box.innerHTML = projs.map(o => {
+            const ps = Array.isArray(o.passos) ? o.passos : [];
+            const feitos = ps.filter(x => x.feito).length;
+            const pct = ps.length ? Math.round(feitos / ps.length * 100) : 0;
+            return '<div class="proj">'
+                + '<div class="proj-cab"><div class="nome">' + escapeHtml(o.titulo) + '</div>'
+                + (ps.length ? '<div class="cont">' + feitos + ' de ' + ps.length + '</div>' : '')
+                + '<button class="idea-x" type="button" style="width:26px;height:26px;font-size:13px;" onclick="objAbrir(\'' + o.id + '\')">✎</button></div>'
+                + (ps.length ? '<div class="barra"><span class="' + (pct >= 100 ? 'ok' : '') + '" style="width:' + pct + '%"></span></div>' : '')
+                + ps.map((x, i) => '<div class="passo' + (x.feito ? ' feito' : '') + '" onclick="objPasso(\'' + o.id + '\',' + i + ')">'
+                    + '<span class="cx">' + (x.feito ? '✓' : '') + '</span><span class="txt">' + escapeHtml(x.texto || '') + '</span>'
+                    + '<button class="del" type="button" title="Tirar" onclick="event.stopPropagation();objPassoTirar(\'' + o.id + '\',' + i + ')">✕</button></div>').join('')
+                + '<div class="proj-add"><input type="text" placeholder="+ próximo passo" '
+                + 'onkeydown="if(event.key===\'Enter\'){objPassoAdd(\'' + o.id + '\',this)}"></div>'
+                + '</div>';
+        }).join('');
+    }
+
+    /* ── calendario: passado real + futuro planejado ── */
+    function objMesAndar(n) {
+        objMesRef = n === 0 ? new Date() : new Date(objMesRef.getFullYear(), objMesRef.getMonth() + n, 1);
+        objRenderCal();
+    }
+    function objRenderCal() {
+        const box = document.getElementById('objCalBox'); if (!box) return;
+        const ref = objMesRef, ano = ref.getFullYear(), mes = ref.getMonth();
+        const nome = document.getElementById('objMesNome');
+        if (nome) nome.textContent = ref.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+
+        /* posts reais do mes, agrupados por dia (fuso de Brasilia) */
+        const porDia = {};
+        objPosts.forEach(p => {
+            const d = new Date(new Date(p.timestamp).getTime() - 3 * 3600 * 1000);
+            if (d.getUTCFullYear() !== ano || d.getUTCMonth() !== mes) return;
+            const k = d.toISOString().slice(0, 10);
+            (porDia[k] = porDia[k] || []).push(p);
+        });
+        const planPorDia = {};
+        objPubs.forEach(v => { const k = objDia(v.data); (planPorDia[k] = planPorDia[k] || []).push(v); });
+
+        const primeiro = new Date(ano, mes, 1), inicio = new Date(primeiro);
+        inicio.setDate(1 - ((primeiro.getDay() + 6) % 7));          /* semana comeca na segunda */
+        const hoje = objHojeISO();
+        let html = ['seg','ter','qua','qui','sex','sáb','dom'].map(d => '<div class="cal-dsem">' + d + '</div>').join('');
+        for (let i = 0; i < 42; i++) {
+            const d = new Date(inicio); d.setDate(inicio.getDate() + i);
+            const k = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+            const fora = d.getMonth() !== mes;
+            if (fora && i >= 35) continue;
+            const pubs = porDia[k] || [], plans = planPorDia[k] || [];
+            html += '<div class="cal-dia' + (fora ? ' fora' : '') + (k === hoje ? ' hoje' : '') + '"'
+                + (fora ? '' : ' onclick="pubAbrir(null,\'' + k + '\')"') + '>'
+                + '<div class="n">' + d.getDate() + '</div>'
+                + pubs.slice(0, 2).map(p => '<span class="cal-it pub" title="' + escapeHtml(String(p.caption || '').slice(0, 120)) + '">'
+                    + '<b>' + objNum(p.reach) + ' de alcance</b>' + escapeHtml(String(p.caption || 'sem legenda').replace(/\s+/g, ' ').slice(0, 34)) + '</span>').join('')
+                + plans.slice(0, 2).map(v => '<span class="cal-it plan ' + (v.status || '') + '" onclick="event.stopPropagation();pubAbrir(\'' + v.id + '\')">'
+                    + escapeHtml(String(v.titulo || '').slice(0, 38)) + '</span>').join('')
+                + ((pubs.length + plans.length) > 4 ? '<div class="cal-mais">+' + (pubs.length + plans.length - 4) + '</div>' : '')
+                + '</div>';
+        }
+        box.innerHTML = html;
+        objRenderMix();
+    }
+
+    /* Resumo do mes contra o que ela combinou: 5 por semana e a mistura 60/30/10. */
+    function objRenderMix() {
+        const box = document.getElementById('objMixBox'); if (!box) return;
+        const ref = objMesRef, doMes = objPostsDoMes(ref);
+        const chaveMes = ref.getFullYear() + '-' + String(ref.getMonth() + 1).padStart(2, '0');
+        const plans = objPubs.filter(v => objDia(v.data).slice(0, 7) === chaveMes);
+        const semanas = new Date(ref.getFullYear(), ref.getMonth() + 1, 0).getDate() / 7;
+        const total = doMes.length + plans.length;
+        const porSem = total / semanas;
+        const alcance = doMes.reduce((t, p) => t + (Number(p.reach) || 0), 0);
+        const conta = (k, v) => plans.filter(x => x[k] === v).length;
+        const g = plans.length;
+        const pc = (n) => g ? Math.round(n / g * 100) + '%' : '—';
+        box.innerHTML = '<div class="mix">'
+            + '<div class="mix-c"><div class="l">no mês</div><div class="v">' + total + '</div><div class="d">'
+                + doMes.length + ' publicados · ' + plans.length + ' planejados</div></div>'
+            + '<div class="mix-c"><div class="l">por semana</div><div class="v' + (porSem < 4.5 ? ' alerta' : '') + '">'
+                + porSem.toFixed(1) + '</div><div class="d">a sua meta é 5</div></div>'
+            + '<div class="mix-c"><div class="l">alcance do mês</div><div class="v">' + objNum(alcance) + '</div>'
+                + '<div class="d">só o que já foi ao ar</div></div>'
+            + '<div class="mix-c"><div class="l">mistura planejada</div><div class="v" style="font-size:15px;">'
+                + pc(conta('gravacao','camera')) + ' · ' + pc(conta('gravacao','criativo')) + ' · ' + pc(conta('gravacao','bastidor'))
+                + '</div><div class="d">câmera · criativo · bastidor (meta 60/30/10)</div></div>'
+            + '</div>';
+    }
+
+    function objRenderResumo() {
+        const host = document.getElementById('objResumo'); if (!host) return;
+        const metas = objLista.filter(o => o.tipo === 'meta');
+        const batidas = metas.filter(o => o.alvo && objValorAtual(o) >= Number(o.alvo)).length;
+        const futuras = objPubs.filter(v => objDia(v.data) >= objHojeISO() && v.status !== 'publicado').length;
+        host.innerHTML = '<span class="ig-hchip">🎯 ' + metas.length + ' meta' + (metas.length === 1 ? '' : 's')
+            + (batidas ? ' · ' + batidas + ' batida' + (batidas === 1 ? '' : 's') : '') + '</span>'
+            + '<span class="ig-hchip">🗓 ' + futuras + ' na fila</span>';
+    }
+
+    /* ── sub-abas da capa ── */
+    function objSetSub(sub) {
+        document.querySelectorAll('#tabObjetivos .ig-subtab-btn').forEach(b => b.classList.toggle('active', b.dataset.objSub === sub));
+        document.getElementById('objPaneMetas').style.display = sub === 'metas' ? '' : 'none';
+        document.getElementById('objPaneCal').style.display = sub === 'calendario' ? '' : 'none';
+        try { localStorage.setItem('objSub', sub); } catch (e) {}
+    }
+    document.addEventListener('click', (e) => {
+        const b = e.target.closest('#tabObjetivos .ig-subtab-btn');
+        if (b) objSetSub(b.dataset.objSub);
+    });
+
+    /* ── meta / projeto ── */
+    function objAbrir(id, tipo) {
+        objEditando = id ? objLista.find(o => o.id === id) : null;
+        objTipoNovo = objEditando ? objEditando.tipo : (tipo || 'meta');
+        const ehMeta = objTipoNovo === 'meta';
+        const d = objEditando || { titulo: '', metrica: 'seguidores', alvo: '', prazo: '', valor_manual: '' };
+        document.getElementById('objModalK').textContent = (objEditando ? 'EDITAR ' : 'NOVA ') + (ehMeta ? 'META' : 'PROJETO');
+        document.getElementById('objModalT').textContent = ehMeta ? 'Meta com número' : 'Projeto com passos';
+        document.getElementById('objCamposMeta').style.display = ehMeta ? '' : 'none';
+        document.getElementById('objMetrica').innerHTML = OBJ_METRICAS.map(m =>
+            '<option value="' + m[0] + '"' + (m[0] === (d.metrica || 'seguidores') ? ' selected' : '') + '>' + m[1] + '</option>').join('');
+        document.getElementById('objTitulo').value = d.titulo || '';
+        document.getElementById('objAlvo').value = d.alvo != null ? d.alvo : '';
+        document.getElementById('objPrazo').value = d.prazo || '';
+        document.getElementById('objValorManual').value = d.valor_manual != null ? d.valor_manual : '';
+        objTrocaMetrica();
+        document.getElementById('objApagarBtn').style.display = objEditando ? '' : 'none';
+        document.getElementById('objModal').style.display = 'flex';
+        setTimeout(() => document.getElementById('objTitulo').focus(), 40);
+    }
+    function objTrocaMetrica() {
+        const m = document.getElementById('objMetrica').value;
+        document.getElementById('objManualBox').style.display = m === 'manual' ? '' : 'none';
+    }
+    function objFechar() { document.getElementById('objModal').style.display = 'none'; objEditando = null; }
+
+    async function objSalvar() {
+        const titulo = document.getElementById('objTitulo').value.trim();
+        if (!titulo) { alert('Escreve o que você quer alcançar.'); return; }
+        const btn = document.getElementById('objSalvarBtn'); btn.disabled = true; btn.textContent = 'Salvando…';
+        const ehMeta = objTipoNovo === 'meta';
+        const patch = { tipo: objTipoNovo, titulo: titulo, updated_at: new Date().toISOString() };
+        if (ehMeta) {
+            patch.metrica = document.getElementById('objMetrica').value;
+            patch.alvo = Number(document.getElementById('objAlvo').value) || null;
+            patch.prazo = document.getElementById('objPrazo').value || null;
+            patch.valor_manual = patch.metrica === 'manual' ? (Number(document.getElementById('objValorManual').value) || 0) : null;
+        }
+        const r = objEditando
+            ? await sb.from('objetivos').update(patch).eq('id', objEditando.id)
+            : await sb.from('objetivos').insert(patch);
+        btn.disabled = false; btn.textContent = '✓ Salvar';
+        if (r.error) { alert('Não consegui salvar: ' + r.error.message); return; }
+        objFechar(); objCarregado = false; await objLoad();
+    }
+    async function objApagar() {
+        if (!objEditando || !confirm('Apagar "' + objEditando.titulo + '"?')) return;
+        const { error } = await sb.from('objetivos').delete().eq('id', objEditando.id);
+        if (error) { alert('Não consegui apagar: ' + error.message); return; }
+        objFechar(); objCarregado = false; await objLoad();
+    }
+
+    /* ── passos do projeto: mexem na tela na hora e desfazem se o banco recusar ── */
+    async function objGravaPassos(o, passos) {
+        const antes = o.passos;
+        o.passos = passos; objRenderProjetos();
+        const { error } = await sb.from('objetivos').update({ passos: passos, updated_at: new Date().toISOString() }).eq('id', o.id);
+        if (error) { o.passos = antes; objRenderProjetos(); alert('Não consegui salvar: ' + error.message); }
+    }
+    function objPasso(id, i) {
+        const o = objLista.find(x => x.id === id); if (!o) return;
+        const ps = (o.passos || []).map((x, j) => j === i ? { ...x, feito: !x.feito } : x);
+        objGravaPassos(o, ps);
+    }
+    function objPassoTirar(id, i) {
+        const o = objLista.find(x => x.id === id); if (!o) return;
+        objGravaPassos(o, (o.passos || []).filter((x, j) => j !== i));
+    }
+    function objPassoAdd(id, input) {
+        const o = objLista.find(x => x.id === id); if (!o) return;
+        const txt = input.value.trim(); if (!txt) return;
+        input.value = '';
+        objGravaPassos(o, (o.passos || []).concat([{ texto: txt, feito: false }]));
+    }
+
+    /* ── publicação no calendário ── */
+    function pubAbrir(id, dia) {
+        pubEditando = id ? objPubs.find(v => v.id === id) : null;
+        const d = pubEditando || { data: dia || objHojeISO(), titulo: '', formato: '', gravacao: '', objetivo: 'crescer', status: 'planejado', obs: '' };
+        document.getElementById('pubModalK').textContent = pubEditando ? 'EDITAR PUBLICAÇÃO' : 'NOVA PUBLICAÇÃO';
+        document.getElementById('pubModalT').textContent = new Date(objDia(d.data) + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
+        const opc = (arr, atual) => arr.map(x => {
+            const v = Array.isArray(x) ? x[0] : x, n = Array.isArray(x) ? x[1] : x;
+            return '<option value="' + v + '"' + (v === atual ? ' selected' : '') + '>' + n + '</option>';
+        }).join('');
+        /* Puxar de onde ja esta escrito: roteiros dela e ideias do banco. */
+        const roteiros = (typeof rotLista !== 'undefined' ? rotLista : []).filter(r => r.de_quem === 'minha' || r.fonte === 'gerado');
+        const ideias = (typeof igIdeias !== 'undefined' ? igIdeias : []).filter(i => (i.status || 'ideia') !== 'postado');
+        document.getElementById('pubOrigem').innerHTML = '<option value="">escrever aqui mesmo</option>'
+            + (roteiros.length ? '<optgroup label="📜 Roteiros">' + roteiros.slice(0, 40).map(r =>
+                '<option value="r:' + r.id + '">' + escapeHtml(String(r.titulo || 'sem título').slice(0, 60)) + '</option>').join('') + '</optgroup>' : '')
+            + (ideias.length ? '<optgroup label="💡 Ideias">' + ideias.slice(0, 40).map(i =>
+                '<option value="i:' + i.id + '">' + escapeHtml(String(i.titulo || 'sem título').slice(0, 60)) + '</option>').join('') + '</optgroup>' : '');
+        document.getElementById('pubTitulo').value = d.titulo || '';
+        document.getElementById('pubData').value = objDia(d.data);
+        document.getElementById('pubFormato').innerHTML = '<option value="">a decidir</option>' + opc(PUB_FORMATOS, d.formato);
+        document.getElementById('pubGravacao').innerHTML = '<option value="">a decidir</option>' + opc(PUB_GRAVACOES, d.gravacao);
+        document.getElementById('pubObjetivo').innerHTML = opc(PUB_OBJETIVOS, d.objetivo || 'crescer');
+        document.getElementById('pubStatus').innerHTML = opc(PUB_STATUS, d.status || 'planejado');
+        document.getElementById('pubObs').value = d.obs || '';
+        document.getElementById('pubApagarBtn').style.display = pubEditando ? '' : 'none';
+        document.getElementById('pubModal').style.display = 'flex';
+        setTimeout(() => document.getElementById('pubTitulo').focus(), 40);
+    }
+    /* Escolheu um roteiro ou ideia: preenche o que der, sem apagar o que ela ja digitou. */
+    function pubPuxar() {
+        const v = document.getElementById('pubOrigem').value; if (!v) return;
+        const [tipo, id] = [v.slice(0, 1), v.slice(2)];
+        const campo = document.getElementById('pubTitulo');
+        if (tipo === 'r') {
+            const r = (typeof rotLista !== 'undefined' ? rotLista : []).find(x => x.id === id); if (!r) return;
+            campo.value = (r.analise && r.analise.gancho) ? String(r.analise.gancho).slice(0, 90) : (r.titulo || '');
+        } else {
+            const i = (typeof igIdeias !== 'undefined' ? igIdeias : []).find(x => x.id === id); if (!i) return;
+            campo.value = (i.roteiro && i.roteiro.gancho) ? String(i.roteiro.gancho).slice(0, 90) : (i.titulo || '');
+            if (i.roteiro && i.roteiro.objetivo) document.getElementById('pubObjetivo').value = i.roteiro.objetivo;
+            if (i.roteiro && i.roteiro.gravacao) document.getElementById('pubGravacao').value = i.roteiro.gravacao;
+            if (i.formato === 'Carrossel') document.getElementById('pubFormato').value = 'carrossel';
+        }
+    }
+    function pubFechar() { document.getElementById('pubModal').style.display = 'none'; pubEditando = null; }
+
+    async function pubSalvar() {
+        const titulo = document.getElementById('pubTitulo').value.trim();
+        if (!titulo) { alert('Escreve o que vai ao ar.'); return; }
+        const btn = document.getElementById('pubSalvarBtn'); btn.disabled = true; btn.textContent = 'Salvando…';
+        const orig = document.getElementById('pubOrigem').value;
+        const patch = {
+            data: document.getElementById('pubData').value,
+            titulo: titulo,
+            formato: document.getElementById('pubFormato').value || null,
+            gravacao: document.getElementById('pubGravacao').value || null,
+            objetivo: document.getElementById('pubObjetivo').value || null,
+            status: document.getElementById('pubStatus').value || 'planejado',
+            obs: document.getElementById('pubObs').value.trim() || null,
+            roteiro_id: orig.startsWith('r:') ? orig.slice(2) : (pubEditando ? pubEditando.roteiro_id : null),
+            ideia_id: orig.startsWith('i:') ? orig.slice(2) : (pubEditando ? pubEditando.ideia_id : null),
+            updated_at: new Date().toISOString()
+        };
+        const r = pubEditando
+            ? await sb.from('publicacoes').update(patch).eq('id', pubEditando.id)
+            : await sb.from('publicacoes').insert(patch);
+        btn.disabled = false; btn.textContent = '✓ Salvar';
+        if (r.error) { alert('Não consegui salvar: ' + r.error.message); return; }
+        pubFechar(); objCarregado = false; await objLoad();
+    }
+    async function pubApagar() {
+        if (!pubEditando || !confirm('Tirar "' + pubEditando.titulo + '" do calendário?')) return;
+        const { error } = await sb.from('publicacoes').delete().eq('id', pubEditando.id);
+        if (error) { alert('Não consegui apagar: ' + error.message); return; }
+        pubFechar(); objCarregado = false; await objLoad();
     }
 
     // ---- Faixa de saúde (entregas) + tela de Entregas ----
