@@ -9,7 +9,7 @@
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Be+Vietnam+Pro:wght@600;700&family=Montserrat:wght@600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Be+Vietnam+Pro:wght@600;700&family=Montserrat:wght@600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.98.0" integrity="sha384-Sm2s7OXxsAMTyJ4iIyRBgVpeGUvMPk2lRQnnZhE78Wej7oggIoolKt+SCt0XJbUB" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
     <script src="js/auth.js"></script>
@@ -1237,6 +1237,10 @@
             <button class="tab nav-item" data-tab="instagram" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
                 <span>Visão geral do IG</span>
+            </button>
+            <button class="tab nav-item" data-tab="carrossel" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="4" width="10" height="16" rx="2"/><path d="M4 8v8"/><path d="M20 8v8"/></svg>
+                <span>Carrossel</span>
             </button>
             <button class="tab nav-item" data-tab="instagram" data-ig-jump="automacoes" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>
@@ -3973,6 +3977,145 @@
 
 <!-- modal de meta / projeto -->
 
+
+<!-- ── TAB: CARROSSEL ──
+     Monta carrossel do Instagram e baixa em PNG. Desenho e feito em <canvas>
+     1080x1350, nao em HTML virado em imagem: assim o texto sai nitido e do
+     tamanho certo, sem depender de biblioteca. -->
+<div class="dashboard" id="tabCarrossel">
+<style>
+    #tabCarrossel .car-wrap{max-width:1240px;margin:0 auto;}
+    #tabCarrossel .car-cols{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:22px;align-items:start;}
+    @media(max-width:1080px){ #tabCarrossel .car-cols{grid-template-columns:1fr;} }
+
+    /* ── palco ── */
+    #tabCarrossel .car-palco{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+        padding:18px;display:flex;flex-direction:column;align-items:center;gap:14px;}
+    #tabCarrossel .car-tela{width:100%;max-width:380px;aspect-ratio:1080/1350;border-radius:14px;overflow:hidden;
+        box-shadow:0 10px 30px rgba(33,29,26,.16);background:var(--warm);}
+    #tabCarrossel .car-tela canvas{width:100%;height:100%;display:block;}
+    #tabCarrossel .car-passos{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;align-items:center;}
+    #tabCarrossel .car-passo{width:30px;height:38px;border-radius:6px;border:1px solid var(--border);background:var(--warm);
+        font-size:11px;font-weight:800;color:var(--text-muted);cursor:pointer;font-family:inherit;
+        display:flex;align-items:center;justify-content:center;transition:all .15s;}
+    #tabCarrossel .car-passo:hover{border-color:var(--accent);color:var(--accent);}
+    #tabCarrossel .car-passo.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+    #tabCarrossel .car-passo.add{border-style:dashed;font-size:15px;}
+
+    /* ── painel lateral ── */
+    #tabCarrossel .car-bloco{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+        padding:16px 17px;margin-bottom:13px;}
+    #tabCarrossel .car-bloco h4{font-size:11px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;
+        color:var(--text-muted);margin:0 0 11px;}
+    #tabCarrossel .car-lbl{display:block;font-size:12px;font-weight:700;color:var(--text);margin:12px 0 5px;}
+    #tabCarrossel .car-bloco .car-lbl:first-of-type{margin-top:0;}
+    #tabCarrossel .car-in{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:10px;background:#fff;
+        color:var(--text);font-size:13.5px;font-family:inherit;box-sizing:border-box;}
+    #tabCarrossel textarea.car-in{resize:vertical;min-height:60px;line-height:1.5;}
+    #tabCarrossel .car-in:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow);}
+
+    /* modelos */
+    #tabCarrossel .car-modelos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+    #tabCarrossel .car-mod{border:1px solid var(--border);border-radius:11px;padding:8px 6px;background:var(--warm);
+        cursor:pointer;font-family:inherit;text-align:center;transition:all .15s;}
+    #tabCarrossel .car-mod:hover{border-color:var(--accent);}
+    #tabCarrossel .car-mod.on{border-color:var(--accent);background:var(--accent-glow);}
+    #tabCarrossel .car-mod canvas{width:100%;aspect-ratio:1080/1350;border-radius:6px;display:block;}
+    #tabCarrossel .car-mod span{display:block;font-size:10.5px;font-weight:700;color:var(--text-soft);margin-top:5px;}
+    #tabCarrossel .car-mod.on span{color:var(--accent);}
+
+    /* cores */
+    #tabCarrossel .car-cores{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
+    #tabCarrossel .car-cor{display:flex;flex-direction:column;gap:5px;}
+    #tabCarrossel .car-cor span{font-size:10.5px;font-weight:700;color:var(--text-muted);}
+    #tabCarrossel .car-cor input{width:100%;height:34px;border:1px solid var(--border);border-radius:9px;
+        background:#fff;padding:2px;cursor:pointer;}
+    #tabCarrossel .car-paletas{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px;}
+    #tabCarrossel .car-pal{display:flex;border-radius:100px;overflow:hidden;border:1px solid var(--border);cursor:pointer;
+        width:52px;height:20px;padding:0;}
+    #tabCarrossel .car-pal:hover{border-color:var(--accent);}
+    #tabCarrossel .car-pal i{flex:1;display:block;}
+
+    #tabCarrossel .car-acoes{display:flex;gap:8px;flex-wrap:wrap;}
+    #tabCarrossel .car-acoes .ig-btn{flex:1;min-width:130px;}
+    #tabCarrossel .car-dica{font-size:11.5px;color:var(--text-muted);line-height:1.5;margin-top:9px;}
+    #tabCarrossel .car-fonte{display:flex;gap:7px;flex-wrap:wrap;}
+    #tabCarrossel .car-fonte button{flex:1;min-width:88px;border:1px solid var(--border);background:var(--warm);
+        border-radius:10px;padding:9px 6px;font-family:inherit;font-size:12px;font-weight:700;color:var(--text-soft);cursor:pointer;}
+    #tabCarrossel .car-fonte button:hover{border-color:var(--accent);color:var(--accent);}
+    #tabCarrossel .car-slide-del{background:none;border:none;color:var(--error);font-size:12px;font-weight:700;
+        cursor:pointer;font-family:inherit;padding:6px 0;}
+</style>
+    <div class="car-wrap">
+        <div class="capa">
+            <div class="capa-topo">
+                <div class="capa-id">
+                    <span class="capa-mark">🎠</span>
+                    <div>
+                        <h2>Carrossel</h2>
+                        <p class="sub">Monta os slides, muda as cores e baixa pronto pro feed.</p>
+                    </div>
+                </div>
+                <div id="carResumo" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+            </div>
+        </div>
+
+        <div class="car-cols">
+            <div class="car-palco">
+                <div class="car-tela"><canvas id="carTela" width="1080" height="1350"></canvas></div>
+                <div class="car-passos" id="carPassos"></div>
+            </div>
+
+            <div>
+                <div class="car-bloco">
+                    <h4>De onde vem o texto</h4>
+                    <div class="car-fonte">
+                        <button type="button" onclick="carDoRoteiro()">📜 De um roteiro</button>
+                        <button type="button" onclick="carDaIdeia()">💡 De uma ideia</button>
+                        <button type="button" onclick="carDaIA()">✨ De um tema</button>
+                    </div>
+                    <div class="car-dica">Ou escreve direto nos campos aqui embaixo.</div>
+                </div>
+
+                <div class="car-bloco">
+                    <h4>Modelo</h4>
+                    <div class="car-modelos" id="carModelos"></div>
+                </div>
+
+                <div class="car-bloco">
+                    <h4>Cores</h4>
+                    <div class="car-cores">
+                        <label class="car-cor"><span>Fundo</span><input type="color" id="carCorFundo" value="#7B3E1B"></label>
+                        <label class="car-cor"><span>Texto</span><input type="color" id="carCorTexto" value="#FFF8F2"></label>
+                        <label class="car-cor"><span>Destaque</span><input type="color" id="carCorDest" value="#E9B44C"></label>
+                    </div>
+                    <div class="car-paletas" id="carPaletas"></div>
+                </div>
+
+                <div class="car-bloco">
+                    <h4>Slide <span id="carSlideN" style="color:var(--accent);"></span></h4>
+                    <label class="car-lbl">Título</label>
+                    <textarea id="carTitulo" class="car-in" rows="3" oninput="carCampo('titulo',this.value)"></textarea>
+                    <label class="car-lbl">Texto de apoio <i style="font-weight:400;color:var(--text-muted);">opcional</i></label>
+                    <textarea id="carTexto" class="car-in" rows="2" oninput="carCampo('texto',this.value)"></textarea>
+                    <button class="car-slide-del" type="button" onclick="carTirarSlide()">🗑 Tirar este slide</button>
+                </div>
+
+                <div class="car-bloco">
+                    <h4>Assinatura</h4>
+                    <input id="carArroba" class="car-in" type="text" value="@eilaradam" oninput="carDesenha()">
+                </div>
+
+                <div class="car-acoes">
+                    <button class="ig-btn ghost" type="button" onclick="carBaixarUm()">⬇ Só este slide</button>
+                    <button class="ig-btn" type="button" onclick="carBaixarTudo()">⬇ Baixar todos</button>
+                </div>
+                <div class="car-dica">Sai em 1080 × 1350, numerado na ordem. É só subir no Instagram.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
 /* ══ CONTROLES DA ABA OBJETIVOS ══
    Os campos, botões e modais do painel vivem em blocos <style> presos ao
@@ -4005,6 +4148,28 @@
 #tabObjetivos .idea-modal-pe, #objModal .idea-modal-pe, #pubModal .idea-modal-pe { display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 24px 22px;flex-wrap:wrap; }
 #tabObjetivos .idea-del, #objModal .idea-del, #pubModal .idea-del { background:none;border:none;color:var(--error);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;padding:8px 4px; }
 #tabObjetivos .idea-del:hover, #objModal .idea-del:hover, #pubModal .idea-del:hover { text-decoration:underline; }
+/* a aba Carrossel usa os mesmos controles e também está fora do escopo */
+#tabCarrossel .ig-input { width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:11px;background:#fff;color:var(--text);font-size:14px;font-family:inherit;box-sizing:border-box; }
+#tabCarrossel .ig-input:focus { outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-glow); }
+#tabCarrossel .ig-btn { background:var(--accent);color:#fff;border:none;border-radius:11px;padding:9px 16px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;box-shadow:0 2px 8px rgba(123,62,27,.20); }
+#tabCarrossel .ig-btn.ghost { background:transparent;color:var(--text);border:1px solid var(--border);box-shadow:none; }
+#tabCarrossel .ig-btn.ghost:hover { background:#F5F0EA; }
+#tabCarrossel .ig-subtab-btn { background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:999px;padding:8px 18px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;transition:all .18s ease; }
+#tabCarrossel .ig-hchip { background:var(--card);border:1px solid var(--border);border-radius:999px;padding:7px 14px;font-size:12.5px;font-weight:600;color:var(--text-muted);cursor:pointer;font-family:inherit;white-space:nowrap; }
+#tabCarrossel .idea-modal-box { background:var(--card);border-radius:20px;width:100%;max-width:620px;max-height:92vh;overflow:auto;box-shadow:0 18px 50px rgba(0,0,0,.25); }
+#tabCarrossel .idea-modal-head { display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:20px 24px 16px;border-bottom:1px solid var(--border); }
+#tabCarrossel .idea-modal-head h3 { font-size:20px;font-weight:800;color:var(--text);margin:3px 0 0; }
+#tabCarrossel .idea-modal-kicker { font-size:10.5px;font-weight:800;letter-spacing:1.2px;color:var(--text-muted);text-transform:uppercase; }
+#tabCarrossel .idea-x { background:var(--cream,#F1ECE6);border:none;color:var(--text-soft);width:32px;height:32px;border-radius:50%;font-size:14px;cursor:pointer;flex-shrink:0;font-family:inherit; }
+#tabCarrossel .idea-x:hover { background:var(--border); }
+#tabCarrossel .idea-modal-body { padding:18px 24px 4px; }
+#tabCarrossel .idea-lbl { display:block;font-size:12.5px;font-weight:800;color:var(--text);margin:14px 0 6px; }
+#tabCarrossel .idea-lbl i { font-style:normal;font-weight:400;color:var(--text-muted); }
+#tabCarrossel .idea-modal-body .idea-lbl:first-child { margin-top:0; }
+#tabCarrossel .idea-row3 { display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px; }
+#tabCarrossel .idea-modal-pe { display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 24px 22px;flex-wrap:wrap; }
+#tabCarrossel .idea-del { background:none;border:none;color:var(--error);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;padding:8px 4px; }
+#tabCarrossel .idea-del:hover { text-decoration:underline; }
 /* o modal só vira flex quando está aberto; o display:none inline é quem manda */
 #objModal[style*="flex"], #pubModal[style*="flex"] { display: flex; }
 @media(max-width:640px){
@@ -4981,7 +5146,7 @@
     document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
 
     /* ── Tabs ── */
-    const PAGE_TITLES = { objetivos: 'Objetivos', painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', marcas: 'Marcas', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', instagram: 'Instagram', bio: 'Link na Bio' };
+    const PAGE_TITLES = { objetivos: 'Objetivos', carrossel: 'Carrossel', painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', marcas: 'Marcas', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', instagram: 'Instagram', bio: 'Link na Bio' };
     function setPageTitle(target) {
         const el = document.getElementById('pageTitle');
         if (el && PAGE_TITLES[target]) el.textContent = PAGE_TITLES[target];
@@ -5020,6 +5185,7 @@
             document.getElementById('tabInstagram').classList.toggle('show', target === 'instagram');
             document.getElementById('tabBio').classList.toggle('show', target === 'bio');
             document.getElementById('tabObjetivos').classList.toggle('show', target === 'objetivos');
+            document.getElementById('tabCarrossel').classList.toggle('show', target === 'carrossel');
             setPageTitle(target);
             document.getElementById('sidebar').classList.remove('open');
             document.getElementById('sidebarBackdrop').classList.remove('show');
@@ -5044,6 +5210,7 @@
             }
             if (target === 'bio' && window.loadBioEditor) window.loadBioEditor();
             if (target === 'objetivos') objLoad();
+            if (target === 'carrossel') carLoad();
         });
     });
 
@@ -12463,6 +12630,381 @@
         const { error } = await sb.from('publicacoes').delete().eq('id', pubEditando.id);
         if (error) { alert('Não consegui apagar: ' + error.message); return; }
         pubFechar(); objCarregado = false; await objLoad();
+    }
+
+    /* ══════════════ CARROSSEL ══════════════
+       Desenha em <canvas> 1080x1350 e baixa PNG. Canvas em vez de virar HTML em
+       imagem: sai nitido, no tamanho exato do feed, e sem biblioteca de fora.
+       Os tres modelos recebem o mesmo slide e so mudam o arranjo. */
+    const CAR_W = 1080, CAR_H = 1350;
+    let carSlides = [], carAtual = 0, carModelo = 'editorial', carPronto = false;
+    const carCores = { fundo: '#7B3E1B', texto: '#FFF8F2', dest: '#E9B44C' };
+
+    const CAR_PALETAS = [
+        { nome: 'marrom',  fundo: '#7B3E1B', texto: '#FFF8F2', dest: '#E9B44C' },
+        { nome: 'creme',   fundo: '#F4E8E1', texto: '#3A2013', dest: '#B8461F' },
+        { nome: 'carvão',  fundo: '#161113', texto: '#F5EDEF', dest: '#FF708F' },
+        { nome: 'verde',   fundo: '#123B32', texto: '#EAF6F0', dest: '#5CCFA0' },
+        { nome: 'papel',   fundo: '#FBF8F4', texto: '#211D1A', dest: '#7B3E1B' },
+    ];
+    const CAR_MODELOS = [
+        ['editorial', 'Editorial'],
+        ['bloco',     'Bloco'],
+        ['anotacao',  'Anotação'],
+    ];
+
+    function carNovo() {
+        return [
+            { titulo: 'O maior erro que eu vejo em quem tá começando', texto: 'e como sair dele essa semana' },
+            { titulo: 'Você tenta agradar todo mundo', texto: 'e aí não fala com ninguém de verdade' },
+            { titulo: 'Eu passei um ano assim', texto: 'até entender que o problema não era o feed' },
+            { titulo: 'Escolhe uma pessoa só', texto: 'e escreve como se fosse pra ela' },
+            { titulo: 'Comenta AJUDA', texto: 'que eu te mando o passo a passo' },
+        ];
+    }
+
+    /* ── texto: quebra em linhas e encolhe até caber na caixa ── */
+    function carQuebra(ctx, txt, larg) {
+        const linhas = [];
+        String(txt || '').split('\n').forEach(function (par) {
+            let linha = '';
+            par.split(/\s+/).filter(Boolean).forEach(function (p) {
+                const teste = linha ? linha + ' ' + p : p;
+                if (ctx.measureText(teste).width > larg && linha) { linhas.push(linha); linha = p; }
+                else linha = teste;
+            });
+            linhas.push(linha);
+        });
+        return linhas;
+    }
+    /* Desenha o texto no maior corpo que couber na caixa. Sem isso, gancho longo
+       vazava do slide e gancho curto ficava perdido no meio do vazio. */
+    function carTextoCaixa(ctx, txt, o) {
+        let tam = o.max;
+        let linhas = [];
+        while (tam >= o.min) {
+            ctx.font = o.peso + ' ' + tam + 'px ' + o.fonte;
+            linhas = carQuebra(ctx, txt, o.larg);
+            if (linhas.length * tam * o.entre <= o.alt) break;
+            tam -= 4;
+        }
+        const alturaLinha = tam * o.entre;
+        const total = linhas.length * alturaLinha;
+        let y = o.y + (o.meio ? (o.alt - total) / 2 : 0) + tam * 0.82;
+        ctx.textAlign = o.centro ? 'center' : 'left';
+        const x = o.centro ? o.x + o.larg / 2 : o.x;
+        linhas.forEach(function (l) { ctx.fillText(l, x, y); y += alturaLinha; });
+        ctx.textAlign = 'left';
+        return { fim: y, tam: tam, linhas: linhas.length };
+    }
+    function carRet(ctx, x, y, w, h, r) {
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(x, y, w, h, r); else ctx.rect(x, y, w, h);
+        ctx.fill();
+    }
+
+    /* ── os três modelos ── */
+    const CAR_DESENHOS = {
+        /* muito ar, número em cima, título grande com serifa */
+        editorial: function (ctx, s, i, n, c, arroba) {
+            ctx.fillStyle = c.fundo; ctx.fillRect(0, 0, CAR_W, CAR_H);
+            ctx.fillStyle = c.dest;
+            ctx.font = '700 34px "DM Mono", monospace';
+            ctx.fillText(String(i + 1).padStart(2, '0') + ' / ' + String(n).padStart(2, '0'), 96, 150);
+            ctx.fillStyle = c.dest; carRet(ctx, 96, 186, 92, 5, 3);
+            ctx.fillStyle = c.texto;
+            const t = carTextoCaixa(ctx, s.titulo, { x: 96, y: 300, larg: CAR_W - 192, alt: 620,
+                max: 104, min: 44, entre: 1.16, peso: '700', fonte: '"Fraunces", Georgia, serif' });
+            if (s.texto) {
+                ctx.globalAlpha = .72;
+                ctx.fillStyle = c.texto;
+                carTextoCaixa(ctx, s.texto, { x: 96, y: t.fim + 34, larg: CAR_W - 192, alt: 240,
+                    max: 44, min: 26, entre: 1.42, peso: '400', fonte: '"DM Sans", sans-serif' });
+                ctx.globalAlpha = 1;
+            }
+            ctx.fillStyle = c.texto; ctx.globalAlpha = .6;
+            ctx.font = '500 30px "DM Sans", sans-serif';
+            ctx.fillText(arroba, 96, CAR_H - 96);
+            ctx.globalAlpha = 1;
+            if (i < n - 1) {
+                ctx.fillStyle = c.dest; ctx.textAlign = 'right';
+                ctx.font = '700 34px "DM Sans", sans-serif';
+                ctx.fillText('arrasta →', CAR_W - 96, CAR_H - 96); ctx.textAlign = 'left';
+            }
+        },
+        /* faixa de cor cheia, texto em caixa alta, contraste alto */
+        bloco: function (ctx, s, i, n, c, arroba) {
+            ctx.fillStyle = c.texto; ctx.fillRect(0, 0, CAR_W, CAR_H);
+            ctx.fillStyle = c.fundo; carRet(ctx, 72, 72, CAR_W - 144, CAR_H - 144, 44);
+            ctx.fillStyle = c.dest;
+            ctx.font = '700 30px "DM Mono", monospace';
+            ctx.fillText(String(i + 1).padStart(2, '0'), 136, 168);
+            ctx.fillStyle = c.texto;
+            const t = carTextoCaixa(ctx, String(s.titulo || '').toUpperCase(), { x: 136, y: 250, larg: CAR_W - 272,
+                alt: 700, max: 96, min: 40, entre: 1.1, peso: '700', fonte: '"Be Vietnam Pro", sans-serif', meio: true });
+            if (s.texto) {
+                ctx.fillStyle = c.dest;
+                carTextoCaixa(ctx, s.texto, { x: 136, y: t.fim + 26, larg: CAR_W - 272, alt: 200,
+                    max: 42, min: 24, entre: 1.4, peso: '600', fonte: '"DM Sans", sans-serif' });
+            }
+            ctx.fillStyle = c.texto; ctx.globalAlpha = .55;
+            ctx.font = '600 28px "DM Sans", sans-serif';
+            ctx.fillText(arroba, 136, CAR_H - 140);
+            ctx.globalAlpha = 1;
+            if (i < n - 1) {
+                ctx.fillStyle = c.dest; ctx.textAlign = 'right';
+                ctx.font = '700 46px "DM Sans", sans-serif';
+                ctx.fillText('→', CAR_W - 136, CAR_H - 134); ctx.textAlign = 'left';
+            }
+        },
+        /* cara de papel: bolinhas em cima, marca-texto atrás da frase */
+        anotacao: function (ctx, s, i, n, c, arroba) {
+            ctx.fillStyle = c.fundo; ctx.fillRect(0, 0, CAR_W, CAR_H);
+            ctx.globalAlpha = .5; ctx.strokeStyle = c.dest; ctx.lineWidth = 2;
+            for (let y = 250; y < CAR_H - 180; y += 92) {
+                ctx.beginPath(); ctx.moveTo(96, y); ctx.lineTo(CAR_W - 96, y); ctx.stroke();
+            }
+            ctx.globalAlpha = 1;
+            [0, 1, 2].forEach(function (k) {
+                ctx.fillStyle = k === 0 ? c.dest : c.texto;
+                ctx.globalAlpha = k === 0 ? 1 : .28;
+                ctx.beginPath(); ctx.arc(112 + k * 40, 128, 13, 0, Math.PI * 2); ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+            /* marca-texto: um retângulo por linha, atrás do texto */
+            ctx.font = '700 76px "DM Sans", sans-serif';
+            const linhas = carQuebra(ctx, s.titulo, CAR_W - 220);
+            let tam = 76;
+            while (linhas.length * tam * 1.3 > 640 && tam > 40) { tam -= 4;
+                ctx.font = '700 ' + tam + 'px "DM Sans", sans-serif'; }
+            const lin = carQuebra(ctx, s.titulo, CAR_W - 220);
+            let y = 300;
+            lin.forEach(function (l) {
+                const w = ctx.measureText(l).width;
+                ctx.globalAlpha = .32; ctx.fillStyle = c.dest;
+                carRet(ctx, 104, y - tam * 0.74, w + 24, tam * 1.02, 6);
+                ctx.globalAlpha = 1; ctx.fillStyle = c.texto;
+                ctx.fillText(l, 116, y);
+                y += tam * 1.3;
+            });
+            if (s.texto) {
+                ctx.globalAlpha = .75; ctx.fillStyle = c.texto;
+                carTextoCaixa(ctx, s.texto, { x: 110, y: y + 20, larg: CAR_W - 220, alt: 260,
+                    max: 42, min: 26, entre: 1.45, peso: '400', fonte: '"DM Sans", sans-serif' });
+                ctx.globalAlpha = 1;
+            }
+            ctx.fillStyle = c.texto; ctx.globalAlpha = .55;
+            ctx.font = '500 28px "DM Mono", monospace';
+            ctx.fillText(arroba, 104, CAR_H - 100);
+            ctx.globalAlpha = 1;
+            if (i < n - 1) {
+                ctx.fillStyle = c.dest; ctx.textAlign = 'right';
+                ctx.font = '700 32px "DM Sans", sans-serif';
+                ctx.fillText('↳ arrasta', CAR_W - 104, CAR_H - 100); ctx.textAlign = 'left';
+            }
+        },
+    };
+
+    function carPinta(cv, slide, i, n) {
+        const ctx = cv.getContext('2d');
+        ctx.clearRect(0, 0, CAR_W, CAR_H);
+        ctx.textBaseline = 'alphabetic';
+        const arroba = (document.getElementById('carArroba') || {}).value || '@eilaradam';
+        (CAR_DESENHOS[carModelo] || CAR_DESENHOS.editorial)(ctx, slide || { titulo: '' }, i, n, carCores, arroba);
+    }
+    function carDesenha() {
+        const cv = document.getElementById('carTela'); if (!cv) return;
+        carPinta(cv, carSlides[carAtual], carAtual, carSlides.length);
+        carPassos(); carMiniaturas(); carResumo();
+    }
+
+    /* ── controles ── */
+    function carPassos() {
+        const box = document.getElementById('carPassos'); if (!box) return;
+        box.innerHTML = carSlides.map(function (s, i) {
+            return '<button class="car-passo' + (i === carAtual ? ' on' : '') + '" type="button" onclick="carIr(' + i + ')">'
+                + String(i + 1).padStart(2, '0') + '</button>';
+        }).join('') + '<button class="car-passo add" type="button" title="Novo slide" onclick="carAddSlide()">+</button>';
+    }
+    function carMiniaturas() {
+        const box = document.getElementById('carModelos'); if (!box) return;
+        if (!box.children.length) {
+            box.innerHTML = CAR_MODELOS.map(function (m) {
+                return '<button class="car-mod" type="button" data-mod="' + m[0] + '" onclick="carSetModelo(\'' + m[0] + '\')">'
+                    + '<canvas width="1080" height="1350"></canvas><span>' + m[1] + '</span></button>';
+            }).join('');
+        }
+        const antes = carModelo;
+        [...box.querySelectorAll('.car-mod')].forEach(function (b) {
+            b.classList.toggle('on', b.dataset.mod === carModelo);
+            carModelo = b.dataset.mod;
+            carPinta(b.querySelector('canvas'), carSlides[carAtual], carAtual, carSlides.length);
+        });
+        carModelo = antes;
+    }
+    function carResumo() {
+        const h = document.getElementById('carResumo'); if (!h) return;
+        h.innerHTML = '<span class="ig-hchip">🎠 ' + carSlides.length + ' slide' + (carSlides.length === 1 ? '' : 's') + '</span>'
+            + '<span class="ig-hchip">1080 × 1350</span>';
+    }
+    function carIr(i) { carAtual = Math.max(0, Math.min(i, carSlides.length - 1)); carCampos(); carDesenha(); }
+    function carCampos() {
+        const s = carSlides[carAtual] || { titulo: '', texto: '' };
+        document.getElementById('carSlideN').textContent = (carAtual + 1) + ' de ' + carSlides.length;
+        document.getElementById('carTitulo').value = s.titulo || '';
+        document.getElementById('carTexto').value = s.texto || '';
+    }
+    function carCampo(k, v) { if (!carSlides[carAtual]) return; carSlides[carAtual][k] = v; carGuarda(); carDesenha(); }
+    function carAddSlide() { carSlides.splice(carAtual + 1, 0, { titulo: '', texto: '' }); carAtual++; carCampos(); carGuarda(); carDesenha(); }
+    function carTirarSlide() {
+        if (carSlides.length <= 1) { alert('Precisa sobrar pelo menos um slide.'); return; }
+        carSlides.splice(carAtual, 1);
+        carAtual = Math.min(carAtual, carSlides.length - 1);
+        carCampos(); carGuarda(); carDesenha();
+    }
+    function carSetModelo(m) { carModelo = m; carGuarda(); carDesenha(); }
+
+    /* Rascunho fica no navegador: recarregar a página não pode apagar o trabalho.
+       Não vai pro banco porque ela pediu pra só baixar, não pra guardar. */
+    function carGuarda() {
+        try { localStorage.setItem('carrossel', JSON.stringify({ slides: carSlides, modelo: carModelo, cores: carCores })); } catch (e) {}
+    }
+    function carRestaura() {
+        try {
+            const d = JSON.parse(localStorage.getItem('carrossel') || 'null');
+            if (d && Array.isArray(d.slides) && d.slides.length) {
+                carSlides = d.slides;
+                if (d.modelo) carModelo = d.modelo;
+                if (d.cores) Object.assign(carCores, d.cores);
+                return true;
+            }
+        } catch (e) {}
+        return false;
+    }
+
+    /* ── de onde vem o texto ── */
+    function carDeBeats(titulo, gancho, falas, cta) {
+        const s = [];
+        if (gancho) s.push({ titulo: gancho, texto: '' });
+        (falas || []).forEach(function (f) {
+            const t = String(f || '').trim(); if (!t) return;
+            /* frase longa: a primeira vira título e o resto vira apoio */
+            const corte = t.indexOf('. ');
+            if (t.length > 110 && corte > 20) s.push({ titulo: t.slice(0, corte + 1), texto: t.slice(corte + 2) });
+            else s.push({ titulo: t, texto: '' });
+        });
+        if (cta) s.push({ titulo: cta, texto: '' });
+        return s.length ? s : [{ titulo: titulo || '', texto: '' }];
+    }
+    function carEscolher(lista, rotulo, aoEscolher) {
+        if (!lista.length) { alert('Não achei nada em ' + rotulo + ' ainda.'); return; }
+        const n = prompt(rotulo + ':\n\n' + lista.map(function (x, i) { return (i + 1) + '. ' + x.rotulo; }).join('\n')
+            + '\n\nDigite o número:');
+        const i = parseInt(n, 10) - 1;
+        if (isNaN(i) || !lista[i]) return;
+        aoEscolher(lista[i].dado);
+    }
+    function carDoRoteiro() {
+        const rs = (typeof rotLista !== 'undefined' ? rotLista : []).filter(function (r) { return r.analise && r.analise.gancho; });
+        carEscolher(rs.slice(0, 25).map(function (r) { return { rotulo: String(r.titulo || r.analise.gancho).slice(0, 60), dado: r }; }),
+            'Roteiros com estrutura lida', function (r) {
+                const a = r.analise || {};
+                carSlides = carDeBeats(r.titulo, a.gancho, a.desenvolvimento, rotNada(a.cta) ? '' : a.cta);
+                carAtual = 0; carCampos(); carGuarda(); carDesenha();
+            });
+    }
+    function carDaIdeia() {
+        const is = (typeof igIdeias !== 'undefined' ? igIdeias : []).filter(function (x) { return x.roteiro; });
+        carEscolher(is.slice(0, 25).map(function (x) { return { rotulo: String(x.titulo || '').slice(0, 60), dado: x }; }),
+            'Ideias com roteiro', function (x) {
+                const r = x.roteiro || {};
+                const falas = (r.batidas || []).length
+                    ? r.batidas.filter(function (b) { return !/GANCHO|CTA/i.test(b.batida || ''); }).map(function (b) { return b.fala; })
+                    : (r.desenvolvimento || []);
+                carSlides = carDeBeats(x.titulo, r.gancho, falas, r.cta);
+                carAtual = 0; carCampos(); carGuarda(); carDesenha();
+            });
+    }
+    async function carDaIA() {
+        const tema = prompt('Sobre o que é o carrossel?\n\nEx: como abordar marca usando IA');
+        if (!tema || !tema.trim()) return;
+        const cv = document.getElementById('carTela');
+        const antes = carSlides.slice();
+        carSlides = [{ titulo: 'Escrevendo…', texto: 'a IA está montando os slides na sua linguagem' }];
+        carAtual = 0; carCampos(); carDesenha();
+        try {
+            const r = await sb.functions.invoke('carrossel-ia', { body: { tema: tema.trim() } });
+            const d = r && r.data;
+            if (!d || d.error || !Array.isArray(d.slides) || !d.slides.length) {
+                throw new Error((d && d.message) || 'não veio nada');
+            }
+            carSlides = d.slides.map(function (s) { return { titulo: s.titulo || '', texto: s.texto || '' }; });
+        } catch (e) {
+            carSlides = antes;
+            alert('Não consegui gerar agora: ' + (e.message || e));
+        }
+        carAtual = 0; carCampos(); carGuarda(); carDesenha();
+    }
+
+    /* ── baixar ── */
+    function carNomeArquivo(i) {
+        const base = String((carSlides[0] || {}).titulo || 'carrossel')
+            .toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+            .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 38) || 'carrossel';
+        return base + '-' + String(i + 1).padStart(2, '0') + '.png';
+    }
+    function carSalvaCanvas(cv, nome) {
+        return new Promise(function (ok) {
+            cv.toBlob(function (b) {
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(b); a.download = nome;
+                document.body.appendChild(a); a.click(); a.remove();
+                setTimeout(function () { URL.revokeObjectURL(a.href); ok(); }, 400);
+            }, 'image/png');
+        });
+    }
+    async function carBaixarUm() {
+        await carSalvaCanvas(document.getElementById('carTela'), carNomeArquivo(carAtual));
+    }
+    /* Um canvas fora da tela pra não piscar o preview enquanto gera os arquivos. */
+    async function carBaixarTudo() {
+        const cv = document.createElement('canvas'); cv.width = CAR_W; cv.height = CAR_H;
+        for (let i = 0; i < carSlides.length; i++) {
+            carPinta(cv, carSlides[i], i, carSlides.length);
+            await carSalvaCanvas(cv, carNomeArquivo(i));
+        }
+    }
+
+    async function carLoad() {
+        if (!carPronto) {
+            carPronto = true;
+            if (!carRestaura()) carSlides = carNovo();
+            /* Sem esperar a fonte, o primeiro desenho sai na fonte errada e fica assim. */
+            try { await document.fonts.ready; } catch (e) {}
+            document.getElementById('carCorFundo').value = carCores.fundo;
+            document.getElementById('carCorTexto').value = carCores.texto;
+            document.getElementById('carCorDest').value = carCores.dest;
+            ['Fundo:fundo', 'Texto:texto', 'Dest:dest'].forEach(function (par) {
+                const p = par.split(':');
+                document.getElementById('carCor' + p[0]).addEventListener('input', function (e) {
+                    carCores[p[1]] = e.target.value; carGuarda(); carDesenha();
+                });
+            });
+            document.getElementById('carPaletas').innerHTML = CAR_PALETAS.map(function (p, i) {
+                return '<button class="car-pal" type="button" title="' + p.nome + '" onclick="carPaleta(' + i + ')">'
+                    + '<i style="background:' + p.fundo + '"></i><i style="background:' + p.texto + '"></i><i style="background:' + p.dest + '"></i></button>';
+            }).join('');
+            carCampos();
+        }
+        carDesenha();
+    }
+    function carPaleta(i) {
+        const p = CAR_PALETAS[i]; if (!p) return;
+        carCores.fundo = p.fundo; carCores.texto = p.texto; carCores.dest = p.dest;
+        document.getElementById('carCorFundo').value = p.fundo;
+        document.getElementById('carCorTexto').value = p.texto;
+        document.getElementById('carCorDest').value = p.dest;
+        carGuarda(); carDesenha();
     }
 
     // ---- Faixa de saúde (entregas) + tela de Entregas ----
