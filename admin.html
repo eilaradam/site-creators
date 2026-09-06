@@ -2702,6 +2702,13 @@
        Numeros medidos no navegador: o embed tem 326px de largura, cabecalho de
        54px e a area do video 326x408. A escala de 0,58 leva isso pra 190x238. */
     #tabInstagram .rot-capa-slot:empty { display: none; }
+    /* A capa como foto: mesma caixa do embed, sem o recorte, porque a imagem ja
+       vem no enquadramento certo (320x569). */
+    #tabInstagram .rot-capa.foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    /* A anotação dela sobre a referência: é o que diz POR QUE aquele conteúdo
+       presta, e é isso que vai pro prompt junto com a transcrição. */
+    #tabInstagram .rot-obs.nota { background: var(--accent-glow); color: var(--accent); font-weight: 600; }
+    #tabInstagram .rot-capa.foto.sem { display: none; }   /* imagem sumiu: some a caixa vazia */
     #tabInstagram .rot-capa { width: 190px; height: 238px; border-radius: 12px; overflow: hidden; position: relative; background: var(--warm); border: 1px solid var(--border); flex-shrink: 0; }
     #tabInstagram .rot-capa iframe { position: absolute; top: 0; left: 0; width: 326px; height: 462px; border: 0; transform: scale(0.583) translateY(-54px); transform-origin: 0 0; }
     @media (max-width: 620px) {
@@ -9979,13 +9986,19 @@
                 : '';
             const perfil = r.perfil ? '<span class="rot-perfil">@' + rotEsc(r.perfil) + '</span>' : '';
             const link = (r.url && /^https?:/.test(r.url)) ? '<a href="' + rotEsc(r.url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">ver o vídeo ↗</a>' : '';
-            /* A capa so carrega quando ela pede: sao ~600KB por embed, nao da pra
-               deixar todos abertos de uma vez. */
+            /* A capa aparece sozinha agora. O embed do Instagram pesa ~600KB e por
+               isso pedia clique; a imagem de capa (/media/?size=m) pesa 21 a 32KB,
+               nao precisa de token e serve pra qualquer post. Se ela falhar, o
+               botao de embed reaparece como plano B. */
             const capa = rotEmbedUrl(r.url)
-                ? '<button class="rot-capa-btn" type="button" onclick="event.stopPropagation();rotVerCapa(this,\'' + rotEsc(r.id) + '\')">▶ ver capa</button>' : '';
+                ? '<button class="rot-capa-btn" type="button" onclick="event.stopPropagation();rotVerCapa(this,\'' + rotEsc(r.id) + '\')">▶ tocar aqui</button>' : '';
             const quando = r.postado_em || String(r.created_at || '').slice(0, 10);
+            const foto = rotCapaUrl(r.url);
             return '<div class="rot-card" onclick="rotAbrir(\'' + r.id + '\')">'
-                + '<div class="rot-capa-slot"></div>'
+                + '<div class="rot-capa-slot">'
+                + (foto ? '<div class="rot-capa foto"><img src="' + rotEsc(foto) + '" alt="" loading="lazy" decoding="async"'
+                    + ' onerror="this.closest(\'.rot-capa\').classList.add(\'sem\')"></div>' : '')
+                + '</div>'
                 + '<div class="rot-card-conteudo">'
                 + '<div class="rot-card-top">' + quem + estado + perfil + marcas + capa
                 + '<span class="rot-fonte">' + (ROT_FONTES[r.fonte] || ROT_FONTES.outro) + '</span>'
@@ -10000,9 +10013,23 @@
                         .map(m => '<span><b>' + igConcNum(r.metricas[m[0]]) + '</b> ' + m[1] + '</span>').join('')
                     + '</div>' : '')
                 + (r.analise && !rotNada(r.analise.gancho) ? '<div class="rot-gancho"><span>' + rotEsc(r.analise.tipo_gancho || 'gancho') + '</span> ' + rotEsc(String(r.analise.gancho).slice(0, 150)) + '</div>' : '')
+                + (r.nota_dela ? '<div class="rot-obs nota">🔖 ' + rotEsc(String(r.nota_dela).slice(0, 160)) + '</div>' : '')
                 + (r.obs ? '<div class="rot-obs">💡 ' + rotEsc(String(r.obs).slice(0, 160)) + '</div>' : '')
                 + '</div></div>';
         }).join('');
+    }
+
+    /* Capa do post como IMAGEM, sem token e sem embed pesado.
+       instagram.com/p/<codigo>/media/?size=m devolve um JPEG 320x569 de ~25KB
+       (testado em 6 posts, HTTP 200). E o que deixa a capa aparecer sozinha em
+       todos os cards, coisa que com o embed de 600KB era inviavel. */
+    function rotCapaUrl(url) {
+        const m = String(url || '').match(/instagram\.com\/(?:p|reel|reels|tv)\/([A-Za-z0-9_-]+)/);
+        /* Nao dá pra apontar direto pro Instagram: o 302 sai, mas o CDN recusa o
+           pedido vindo do navegador (testado). A edge function busca do servidor,
+           onde funciona, e devolve com cache de uma semana. */
+        /* SUPABASE_URL vive dentro do IIFE do auth.js, não é global daqui. */
+        return m ? 'https://mfrmnquvwwuxraqgemyh.supabase.co/functions/v1/capa?c=' + m[1] : '';
     }
 
     /* Abre e fecha a capa NA ESQUERDA do card, igual a miniatura das automacoes.
@@ -10013,13 +10040,18 @@
     function rotVerCapa(btn, id) {
         const card = btn.closest('.rot-card'); if (!card) return;
         const slot = card.querySelector('.rot-capa-slot'); if (!slot) return;
-        if (slot.firstChild) { slot.innerHTML = ''; btn.textContent = '▶ ver capa'; return; }
         const r = rotLista.find(x => x.id === id); if (!r) return;
+        if (slot.querySelector('iframe')) {          /* fecha o vídeo, volta a foto */
+            const foto = rotCapaUrl(r.url);
+            slot.innerHTML = foto ? '<div class="rot-capa foto"><img src="' + rotEsc(foto) + '" alt="" loading="lazy" decoding="async"'
+                + ' onerror="this.closest(\'.rot-capa\').classList.add(\'sem\')"></div>' : '';
+            btn.textContent = '▶ tocar aqui'; return;
+        }
         const e = rotEmbedUrl(r.url); if (!e) return;
         slot.onclick = (ev) => ev.stopPropagation();
         slot.innerHTML = '<div class="rot-capa"><iframe src="' + rotEsc(e) + '" frameborder="0" scrolling="no" '
             + 'allowtransparency="true" allowfullscreen loading="lazy"></iframe></div>';
-        btn.textContent = '▾ esconder';
+        btn.textContent = '▾ voltar pra capa';
     }
 
     /* Liga e desliga a etiqueta na hora, e desfaz se o banco recusar. */
