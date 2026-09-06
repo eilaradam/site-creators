@@ -2432,6 +2432,14 @@
     #tabInstagram .idea-tag.st.postado{background:#DDF2E5;color:#22694A;}
     #tabInstagram .idea-tag.ia{background:var(--accent-glow);color:var(--accent);}
     /* modal da ideia */
+    #tabInstagram .idea-gancho{background:var(--accent-glow);border-radius:10px;padding:9px 12px;margin:8px 0;font-size:13.5px;line-height:1.5;color:var(--text);font-weight:600;}
+    #tabInstagram .idea-gancho span{display:block;font-size:9.5px;font-weight:800;letter-spacing:1px;color:var(--accent);margin-bottom:3px;}
+    #tabInstagram .idea-tag.rot{background:var(--accent);color:#fff;}
+    #tabInstagram .idea-roteiro{background:var(--warm);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:14px;}
+    #tabInstagram .idea-roteiro ol{margin:8px 0 0;padding-left:20px;}
+    #tabInstagram .idea-roteiro li{font-size:13.5px;line-height:1.6;color:var(--text-soft);margin-bottom:5px;}
+    #tabInstagram .idea-roteiro .rot-cta-l{margin-top:10px;font-size:13px;color:var(--text-soft);background:var(--card);border-radius:9px;padding:8px 11px;}
+    #tabInstagram .idea-roteiro .rot-cta-l b{display:block;font-size:9.5px;letter-spacing:1px;color:var(--accent);margin-bottom:2px;}
     #tabInstagram .idea-modal{position:fixed;inset:0;background:rgba(30,26,22,.45);z-index:900;display:flex;align-items:center;justify-content:center;padding:20px;}
     #tabInstagram .idea-modal-box{background:var(--card);border-radius:20px;width:100%;max-width:620px;max-height:92vh;overflow:auto;box-shadow:0 18px 50px rgba(0,0,0,.25);}
     #tabInstagram .idea-modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:20px 24px 16px;border-bottom:1px solid var(--border);}
@@ -2796,7 +2804,8 @@
                     <button class="idea-x" type="button" onclick="igIdeiaFechar()">✕</button>
                 </div>
                 <div class="idea-modal-body">
-                    <label class="idea-lbl">Título</label>
+                    <div id="igIdeiaRoteiroBox"></div>
+                <label class="idea-lbl">Título</label>
                     <input id="igIdeiaTitulo" class="ig-input" type="text" placeholder="Ex.: 3 coisas que o Claude faz por criadoras UGC">
                     <label class="idea-lbl">Descrição / matéria-prima</label>
                     <textarea id="igIdeiaDesc" class="ig-input" style="min-height:120px;" placeholder="Como o conteúdo vai ser: o que você fala, a ordem, o gancho do fim..."></textarea>
@@ -12873,8 +12882,12 @@
                 + '<div class="idea-head"><span class="idea-ic">💡</span>'
                 + '<button class="idea-fav' + (i.favorita ? ' on' : '') + '" type="button" title="Favoritar" onclick="event.stopPropagation();igIdeiaFav(\'' + i.id + '\')">' + (i.favorita ? '♥' : '♡') + '</button></div>'
                 + '<div class="idea-t">' + escapeHtml(i.titulo || 'sem título') + '</div>'
+                + (i.roteiro && i.roteiro.gancho
+                    ? '<div class="idea-gancho"><span>GANCHO</span>' + escapeHtml(i.roteiro.gancho) + '</div>' : '')
                 + (i.descricao ? '<div class="idea-d">' + escapeHtml(i.descricao) + '</div>' : '')
                 + '<div class="idea-tags">'
+                + (i.roteiro && (i.roteiro.desenvolvimento || []).length
+                    ? '<span class="idea-tag rot">📜 roteiro pronto</span>' : '')
                 + (fmt ? '<span class="idea-tag fmt">' + escapeHtml(fmt) + '</span>' : '')
                 + '<span class="idea-tag st ' + (i.status || 'ideia') + '">' + st.ic + ' ' + st.nome + '</span>'
                 + tags
@@ -12913,6 +12926,17 @@
         document.getElementById('igIdeiaStatus').value = d.status || 'ideia';
         document.getElementById('igIdeiaTags').value = (d.tags || []).join(', ');
         document.getElementById('igIdeiaApagarBtn').style.display = igIdeiaEditando ? '' : 'none';
+        /* Roteiro gerado com a voz dela: gancho, falas e CTA. So aparece quando existe. */
+        const rb = document.getElementById('igIdeiaRoteiroBox');
+        const rt = d.roteiro;
+        if (rb) rb.innerHTML = (rt && (rt.gancho || (rt.desenvolvimento || []).length))
+            ? '<div class="idea-roteiro">'
+                + (rt.gancho ? '<div class="idea-gancho"><span>GANCHO</span>' + escapeHtml(rt.gancho) + '</div>' : '')
+                + ((rt.desenvolvimento || []).length
+                    ? '<ol>' + rt.desenvolvimento.map(f => '<li>' + escapeHtml(f) + '</li>').join('') + '</ol>' : '')
+                + (rt.cta ? '<div class="rot-cta-l"><b>CTA</b>' + escapeHtml(rt.cta) + '</div>' : '')
+                + '</div>'
+            : '';
         document.getElementById('igIdeiaModal').style.display = 'flex';
         setTimeout(() => document.getElementById('igIdeiaTitulo').focus(), 40);
     }
@@ -12965,7 +12989,16 @@
         const jaTem = new Set(igIdeias.map(i => (i.titulo || '').toLowerCase().trim()));
         const novas = temas
             .filter(t => t.tema && !jaTem.has(String(t.tema).toLowerCase().trim()))
-            .map(t => ({ titulo: t.tema, descricao: t.ideia_video || null, formato: 'Reel', status: 'ideia', origem: 'analises', tags: [] }));
+            .map(t => ({
+                titulo: t.tema,
+                /* A descricao passa a ser o POR QUE (qual dúvida dos comentários isso
+                   responde). O roteiro em si vai na coluna propria. */
+                descricao: t.por_que || t.ideia_video || null,
+                roteiro: (t.gancho || (t.desenvolvimento || []).length)
+                    ? { gancho: t.gancho || null, desenvolvimento: t.desenvolvimento || [], cta: t.cta || null }
+                    : null,
+                formato: 'Reel', status: 'ideia', origem: 'analises', tags: []
+            }));
         if (!novas.length) { alert('Tudo que as Análises sugeriram já está no seu banco de ideias.'); return; }
         const { error } = await sb.from('ig_ideias').insert(novas);
         if (error) { alert('Não consegui trazer: ' + error.message); return; }
