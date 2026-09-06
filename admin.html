@@ -2489,6 +2489,7 @@
     #tabInstagram .rot-aviso { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin-top: 9px; }
     #tabInstagram .rot-aviso:empty { display: none; }
     #tabInstagram .rot-aviso.erro { color: #A8402C; background: #FDEDE9; border: 1px solid #F0C8BE; border-radius: 10px; padding: 9px 12px; }
+    #tabInstagram .rot-link { background: none; border: none; color: var(--accent); font-family: inherit; font-size: 12.5px; font-weight: 800; cursor: pointer; text-decoration: underline; padding: 0; }
     #tabInstagram .rot-filtros { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
     #tabInstagram .rot-filtros #rotBusca { max-width: 340px; }
     #tabInstagram .rot-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; transition: border-color .15s ease, box-shadow .15s ease; }
@@ -9744,12 +9745,18 @@
                 if (data.error === 'sem_chave') {
                     rotMsg('Falta ligar a chave da transcrição. Me chama no chat que eu configuro — leva 1 minuto. '
                         + 'Enquanto isso dá pra usar o <b>+ Escrever na mão</b>.', 'erro');
+                } else if (data.error === 'sem_fala') {
+                    /* Reel so com musica: em vez de beco sem saida, abre o editor com o
+                       link preenchido pra ela anotar o que quiser do video. */
+                    rotMsg(rotEsc(data.message) + ' <button type="button" class="rot-link" onclick="rotGuardarSemFala()">guardar assim mesmo</button>', 'erro');
+                    window.__rotUltimoLink = url;
+                    window.__rotUltimoQuem = deQuem;
                 } else {
-                    rotMsg('Não deu certo: ' + rotEsc(data.message || data.error) + '', 'erro');
+                    rotMsg('Não deu certo: ' + rotEsc(data.message || data.error), 'erro');
                 }
                 return;
             }
-            rotMsg('');
+            rotMsg('✅ Transcrito' + (data.idioma ? ' (' + rotEsc(data.idioma) + ')' : '') + '. Revisa, dá um nome e salva.');
             /* Abre o editor já preenchido: ela revisa, dá um título e salva. */
             rotAbrir(null, {
                 url: data.url || url,
@@ -9764,6 +9771,18 @@
         } finally {
             btn.disabled = false; btn.textContent = 'Transcrever';
         }
+    }
+
+    function rotGuardarSemFala() {
+        const u = window.__rotUltimoLink || '';
+        rotMsg('');
+        rotAbrir(null, {
+            url: u,
+            fonte: u.includes('tiktok') ? 'tiktok' : (u.includes('youtu') ? 'youtube' : 'instagram'),
+            de_quem: window.__rotUltimoQuem || 'outra',
+            transcricao: ''
+        });
+        document.getElementById('rotUrl').value = '';
     }
 
     /* ── Editor ── */
