@@ -2515,6 +2515,15 @@
     .igcal-posts { display: flex; flex-direction: column; gap: 3px; margin-top: 3px; }
     .igcal-post { display: flex; align-items: center; gap: 3px; font-size: 11px; line-height: 1.3; }
     .igcal-post i { font-style: normal; font-size: 10px; color: var(--text-soft); font-variant-numeric: tabular-nums; }
+    .igcal-post u { text-decoration: none; font-size: 9.5px; color: var(--text-muted); font-variant-numeric: tabular-nums; margin-left: auto; }
+    .igcal-post em { font-style: normal; font-size: 9px; font-weight: 800; color: var(--accent); }
+    .igcal-post.fraco { opacity: .45; }
+    .igcal-aviso { background: #FFF6E5; border: 1px solid #E8C77A; border-radius: 12px; padding: 10px 13px; margin-bottom: 12px; font-size: 12.5px; line-height: 1.5; color: #7A5A12; }
+    .igcal-aviso button { background: none; border: none; color: var(--accent); font-family: inherit; font-size: 12.5px; font-weight: 800; cursor: pointer; text-decoration: underline; padding: 0; }
+    .igcal-vazio button { background: none; border: none; color: var(--accent); font-family: inherit; font-size: 13px; font-weight: 800; cursor: pointer; text-decoration: underline; padding: 0; }
+    .igcal-det-post.fraco { opacity: .7; border-style: dashed; }
+    .igcal-flag { display: inline-block; margin-top: 7px; margin-right: 6px; font-size: 11px; font-weight: 700; background: #FFF0D9; color: #8A6410; border-radius: 100px; padding: 3px 9px; }
+    .igcal-flag.rep { background: var(--accent-glow); color: var(--accent); }
     .igcal-dica-dia { margin-top: 14px; font-size: 12.5px; color: var(--text-muted); text-align: center; }
     .igcal-det { margin-top: 18px; border-top: 1px solid var(--border); padding-top: 14px; }
     .igcal-det h4 { font-size: 14px; font-weight: 800; color: var(--text); margin: 0 0 10px; }
@@ -9321,6 +9330,15 @@
     const IG_CAL_DIAS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
     const IG_CAL_MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
     let igCalUser = null, igCalAno = 0, igCalMes = 0, igCalDiaSel = null, igCalCache = [];
+    /* Mediana de engajamento do perfil e filtro dos itens que destoam. A API da Meta
+       devolve a GRADE do perfil, que inclui compartilhado e republicacao; nao ha campo
+       que diga qual e qual. Em vez de adivinhar, o calendario mostra o engajamento de
+       cada item e deixa a Lara esconder os que destoam. */
+    let igCalMed = 0, igCalEsconderFracos = false;
+    const IG_CAL_LIMITE_FRACO = 0.15;
+    function igCalEng(x) { return (Number(x.like_count) || 0) + (Number(x.comments_count) || 0); }
+    function igCalFraco(x) { return igCalMed > 0 && igCalEng(x) < igCalMed * IG_CAL_LIMITE_FRACO; }
+    function igCalAlternarFracos() { igCalEsconderFracos = !igCalEsconderFracos; igCalDiaSel = null; igCalRender(); }
 
     function igCalTipo(t) { return IG_CAL_TIPOS[t] || { ic: '📌', nome: 'Post' }; }
     function igCalMai(t) { return String(t || '').charAt(0).toUpperCase() + String(t || '').slice(1); }
@@ -9343,13 +9361,42 @@
                 if (!ant || eng(pp) > eng(ant)) porLink[k] = pp;
             });
         });
-        return Object.keys(porLink).map(k => porLink[k]);
+        const lista = Object.keys(porLink).map(k => porLink[k]);
+
+        /* Mesmo conteudo publicado 2x no mesmo dia conta como 1. Fica a versao de
+           maior engajamento e a outra vira contador de "versoes". */
+        const porConteudo = {};
+        lista.forEach(x => {
+            const d = new Date(x.timestamp);
+            const cap = String(x.caption || '').replace(/\s+/g, ' ').trim().toLowerCase();
+            if (!cap) { porConteudo['__' + x.permalink] = x; return; }
+            const k = igCalChave(d) + '|' + cap;
+            const eng = y => (Number(y.like_count) || 0) + (Number(y.comments_count) || 0);
+            if (!porConteudo[k]) { x._versoes = 1; porConteudo[k] = x; return; }
+            const atual = porConteudo[k];
+            const versoes = (atual._versoes || 1) + 1;
+            const fica = eng(x) > eng(atual) ? x : atual;
+            fica._versoes = versoes;
+            porConteudo[k] = fica;
+        });
+        return Object.keys(porConteudo).map(k => porConteudo[k]);
+    }
+
+    /* Engajamento tipico do perfil (mediana), pra saber o que destoa. Sem isso um
+       post com 1 curtida parece igual a um com 377 no calendario. */
+    function igCalMediana(posts) {
+        const v = posts.map(x => (Number(x.like_count) || 0) + (Number(x.comments_count) || 0)).sort((a, b) => a - b);
+        if (!v.length) return 0;
+        const m = Math.floor(v.length / 2);
+        return v.length % 2 ? v[m] : Math.round((v[m - 1] + v[m]) / 2);
     }
 
     function igConcCalendario(user) {
         igCalUser = user;
         igCalDiaSel = null;
         igCalCache = igCalPostsDe(user).filter(x => x && x.timestamp);
+        igCalMed = igCalMediana(igCalCache);
+        igCalEsconderFracos = true;
         /* Abre no último mês FECHADO (hoje é setembro, então agosto). Se não houver post
            nele, cai no mês mais recente que tenha. */
         const hoje = new Date();
@@ -9384,7 +9431,9 @@
     function igCalRender() {
         const el = document.getElementById('igCalModal'); if (!el) return;
         const nome = igConcNomes[igCalUser] || igCalUser;
-        const doMes = igCalCache.filter(x => { const d = new Date(x.timestamp); return d.getFullYear() === igCalAno && d.getMonth() === igCalMes; });
+        const doMesTudo = igCalCache.filter(x => { const d = new Date(x.timestamp); return d.getFullYear() === igCalAno && d.getMonth() === igCalMes; });
+        const nFracos = doMesTudo.filter(igCalFraco).length;
+        const doMes = igCalEsconderFracos ? doMesTudo.filter(x => !igCalFraco(x)) : doMesTudo;
 
         /* posts por dia */
         const porDia = {};
@@ -9398,6 +9447,7 @@
 
         /* ── resumo do mês: é o que responde "como ela se organiza" ── */
         let resumo = '<div class="igcal-vazio">Nenhum post deste perfil em ' + IG_CAL_MESES[igCalMes] + '.</div>';
+        if (!doMes.length && doMesTudo.length) resumo = '<div class="igcal-vazio">Os ' + doMesTudo.length + ' itens de ' + IG_CAL_MESES[igCalMes] + ' ficaram todos de fora por engajamento muito baixo. <button type="button" onclick="igCalAlternarFracos()">contar tudo mesmo assim</button></div>';
         if (doMes.length) {
             const diasNoMes = new Date(igCalAno, igCalMes + 1, 0).getDate();
             const porSemana = (doMes.length / (diasNoMes / 7));
@@ -9418,7 +9468,14 @@
             const chip = (v, r) => '<div class="igcal-chip"><b>' + v + '</b><span>' + r + '</span></div>';
             const tipos = Object.keys(contaTipo).sort((a, b) => contaTipo[b] - contaTipo[a])
                 .map(t => contaTipo[t] + ' ' + igCalPlural(t, contaTipo[t])).join(' · ');
-            resumo = '<div class="igcal-chips">'
+            const aviso = nFracos
+                ? '<div class="igcal-aviso">' + (igCalEsconderFracos ? '🧹 <b>' + nFracos + '</b> ite' + (nFracos > 1 ? 'ns ficaram' : 'm ficou') + ' de fora da conta' : '⚠️ <b>' + nFracos + '</b> ite' + (nFracos > 1 ? 'ns' : 'm') + ' entrando na conta')
+                    + ': engajamento muito abaixo do normal dela'
+                    + (igCalMed ? ' (menos de ' + igConcNum(Math.round(igCalMed * IG_CAL_LIMITE_FRACO)) + ' de curtida + comentário, contra ' + igConcNum(igCalMed) + ' de mediana)' : '')
+                    + '. Costuma ser conteúdo compartilhado ou republicado, não post novo dela. '
+                    + '<button type="button" onclick="igCalAlternarFracos()">' + (igCalEsconderFracos ? 'contar tudo mesmo assim' : 'tirar da conta') + '</button></div>'
+                : '';
+            resumo = aviso + '<div class="igcal-chips">'
                 + chip(doMes.length, 'posts no mês')
                 + chip(porSemana.toFixed(1).replace('.', ','), 'por semana')
                 + chip(diasComPost + ' de ' + diasNoMes, 'dias com post')
@@ -9441,8 +9498,15 @@
                 const h = new Date(x.timestamp);
                 const t = igCalTipo(x.media_type);
                 const cap = String(x.caption || '(sem legenda)').replace(/\s+/g, ' ').trim() || '(sem legenda)';
-                return '<span class="igcal-post" title="' + escapeHtml(t.nome + ' · ' + String(h.getHours()).padStart(2, '0') + 'h' + String(h.getMinutes()).padStart(2, '0') + '\n' + cap.slice(0, 180)) + '">'
-                    + t.ic + '<i>' + String(h.getHours()).padStart(2, '0') + 'h</i></span>';
+                const eng = igCalEng(x);
+                const fraco = igCalFraco(x);
+                const vs = (x._versoes > 1) ? ('\npublicado ' + x._versoes + 'x neste dia (contei 1)') : '';
+                const dica = t.nome + ' · ' + String(h.getHours()).padStart(2, '0') + 'h' + String(h.getMinutes()).padStart(2, '0')
+                    + ' · ' + igConcNum(eng) + ' de engajamento' + (fraco ? ' (muito abaixo do normal dela)' : '') + vs + '\n' + cap.slice(0, 180);
+                return '<span class="igcal-post' + (fraco ? ' fraco' : '') + '" title="' + escapeHtml(dica) + '">'
+                    + t.ic + '<i>' + String(h.getHours()).padStart(2, '0') + 'h</i>'
+                    + '<u>' + igConcNum(eng) + '</u>'
+                    + (x._versoes > 1 ? '<em>×' + x._versoes + '</em>' : '') + '</span>';
             }).join('');
             celulas += '<div class="igcal-cel' + (lista.length ? ' tem' : '') + (fds ? ' fds' : '') + (igCalDiaSel === iso ? ' sel' : '') + '"'
                 + (lista.length ? ' onclick="igCalSelDia(\'' + iso + '\')"' : '')
@@ -9463,10 +9527,12 @@
                     if (Number(x.comments_count) > 0) eng.push('💬 ' + igConcNum(x.comments_count));
                     const link = (x.permalink && /^https?:/.test(x.permalink))
                         ? '<a href="' + escapeHtml(x.permalink) + '" target="_blank" rel="noopener">abrir no Instagram ↗</a>' : '';
-                    return '<div class="igcal-det-post"><div class="igcal-det-top">' + t.ic + ' <b>' + t.nome + '</b>'
+                    const marca = (igCalFraco(x) ? '<span class="igcal-flag">engajamento muito abaixo do normal dela</span>' : '')
+                        + (x._versoes > 1 ? '<span class="igcal-flag rep">publicado ' + x._versoes + '× neste dia</span>' : '');
+                    return '<div class="igcal-det-post' + (igCalFraco(x) ? ' fraco' : '') + '"><div class="igcal-det-top">' + t.ic + ' <b>' + t.nome + '</b>'
                         + '<span>' + String(h.getHours()).padStart(2, '0') + 'h' + String(h.getMinutes()).padStart(2, '0') + '</span>'
                         + (eng.length ? '<span>' + eng.join(' · ') + '</span>' : '') + link + '</div>'
-                        + '<p>' + (cap ? escapeHtml(cap) : '<i>sem legenda</i>') + '</p></div>';
+                        + '<p>' + (cap ? escapeHtml(cap) : '<i>sem legenda</i>') + '</p>' + marca + '</div>';
                 }).join('') + '</div>';
         } else if (doMes.length) {
             detalhe = '<div class="igcal-dica-dia">Clique num dia com post pra ler as legendas.</div>';
