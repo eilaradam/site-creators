@@ -2478,6 +2478,49 @@
     #tabInstagram .conc-post a{color:var(--accent);text-decoration:none;flex-shrink:0;font-size:14px;}
 
 
+
+    /* ── Relatório do mês (Visão geral) ── */
+    #tabInstagram .igrel-card { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 16px; padding: 16px 20px; margin-bottom: 20px; box-shadow: var(--shadow-sm); }
+    #tabInstagram .igrel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; }
+    #tabInstagram .igrel-kicker { font-size: 10px; font-weight: 800; letter-spacing: 1.2px; color: var(--text-muted); }
+    #tabInstagram .igrel-head h4 { font-size: 17px; font-weight: 800; margin: 2px 0 0; color: var(--text); }
+    #tabInstagram .igrel-chev { color: var(--accent); font-size: 15px; }
+    #tabInstagram .igrel-previa { font-size: 13px; color: var(--text-soft); line-height: 1.55; margin: 9px 0 0; }
+    #tabInstagram .igrel-load, #tabInstagram .igrel-erro { font-size: 13px; color: var(--text-muted); padding: 6px 0; }
+    #tabInstagram .igrel-erro { color: #A8402C; }
+    #tabInstagram .igrel-erro button, #tabInstagram .igrel-mes-nav button { background: none; border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 4px 10px; font-family: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+    #tabInstagram .igrel-mes-nav { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 14px 0 12px; }
+    #tabInstagram .igrel-mes-nav button:hover { border-color: var(--accent); color: var(--accent); }
+    #tabInstagram .igrel-refazer { margin-left: auto; }
+    #tabInstagram .igrel-quando { font-size: 11px; color: var(--text-muted); }
+    #tabInstagram .igrel-conclusao { font-size: 14.5px; line-height: 1.6; color: var(--text); margin: 0 0 16px; }
+    #tabInstagram .igrel-grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+    #tabInstagram .igrel-grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin-bottom: 6px; }
+    #tabInstagram .igrel-grid4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+    #tabInstagram .igrel-bloco { background: var(--warm); border: 1px solid var(--border); border-radius: 12px; padding: 11px 13px; }
+    #tabInstagram .igrel-bloco.bom { background: rgba(16,185,129,.07); border-color: rgba(16,185,129,.25); }
+    #tabInstagram .igrel-bloco.ruim { background: #FDEDE9; border-color: #F0C8BE; }
+    #tabInstagram .igrel-bloco.op { background: var(--accent-glow); border-color: rgba(212,87,42,.25); }
+    #tabInstagram .igrel-bloco h5 { font-size: 12px; font-weight: 800; margin: 0 0 7px; color: var(--text); }
+    #tabInstagram .igrel-bloco ul { margin: 0; padding-left: 16px; }
+    #tabInstagram .igrel-bloco li { font-size: 12.5px; line-height: 1.5; color: var(--text-soft); margin-bottom: 5px; }
+    #tabInstagram .igrel-t { font-size: 13px; font-weight: 800; color: var(--text); margin: 20px 0 8px; }
+    #tabInstagram .igrel-t i { font-weight: 500; font-style: normal; color: var(--text-muted); font-size: 11.5px; }
+    #tabInstagram .igrel-sub { font-size: 12px; font-weight: 800; color: var(--text-muted); margin-bottom: 8px; }
+    #tabInstagram .igrel-tab { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; }
+    #tabInstagram .igrel-tab table { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 520px; }
+    #tabInstagram .igrel-tab th { background: var(--warm); text-align: left; font-size: 10px; font-weight: 800; letter-spacing: .8px; text-transform: uppercase; color: var(--text-muted); padding: 9px 12px; white-space: nowrap; }
+    #tabInstagram .igrel-tab td { padding: 9px 12px; border-top: 1px solid var(--border); color: var(--text-soft); line-height: 1.45; vertical-align: top; }
+    #tabInstagram .igrel-tab td b { color: var(--text); }
+    #tabInstagram .igrel-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    #tabInstagram .igrel-var { white-space: nowrap; font-weight: 700; color: var(--accent); }
+    #tabInstagram .igrel-leitura { font-size: 12.5px; color: var(--text-soft); line-height: 1.55; margin: 8px 0 0; }
+    #tabInstagram .igrel-ideia { background: var(--warm); border: 1px solid var(--border); border-radius: 12px; padding: 11px 13px; margin-bottom: 9px; }
+    #tabInstagram .igrel-ideia b { font-size: 13.5px; color: var(--text); }
+    #tabInstagram .igrel-hook { font-size: 12.5px; color: var(--text); background: var(--card); border-radius: 8px; padding: 7px 10px; margin: 7px 0; line-height: 1.45; }
+    #tabInstagram .igrel-hook span { font-weight: 800; color: var(--accent); font-size: 11px; }
+    #tabInstagram .igrel-ideia p { font-size: 12px; color: var(--text-muted); margin: 0; line-height: 1.5; }
+    #tabInstagram .igrel-rodape { font-size: 11.5px; color: var(--text-muted); margin: 18px 0 0; padding-top: 12px; border-top: 1px solid var(--border); }
     /* ── Roteiros (sub-aba do Instagram) ── */
     #tabInstagram .rot-topo { display: flex; justify-content: space-between; align-items: flex-end; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; }
     #tabInstagram .rot-topo h3 { font-size: 20px; font-weight: 800; margin: 0; color: var(--text); }
@@ -2597,7 +2640,7 @@
                  Pra devolver, é só tirar o hidden. -->
             <button class="ig-subtab-btn" data-ig-sub="sorteio" type="button" hidden>🎲 Sorteio</button>
         </div>
-        <div id="igPaneVisao"><div id="igKpisBox"></div><div id="igReviewBox"></div><div id="igVisaoBox"><div style="padding:44px;text-align:center;color:var(--text-muted);">Carregando resumo...</div></div></div>
+        <div id="igPaneVisao"><div id="igKpisBox"></div><div id="igReviewBox"></div><div id="igRelBox"></div><div id="igVisaoBox"><div style="padding:44px;text-align:center;color:var(--text-muted);">Carregando resumo...</div></div></div>
         <div id="igPaneIdeias" style="display:none;">
             <div class="idea-top">
                 <div>
@@ -9866,9 +9909,142 @@
         await rotLoad();
     }
 
+
+    /* ══ RELATÓRIO DO MÊS ══ (aba Instagram > Visão geral)
+       Estudo do mês: comparação com o mês anterior, leitura por tema e por formato,
+       recomendações e ideias. Vem da edge function `ig-relatorio`, que calcula os
+       números no servidor e só usa o GPT pra interpretar — nada de métrica inventada.
+       Diferente do "estrategista" logo acima, que é o pulso do dia. */
+    let igRelMes = null, igRelDados = null, igRelAberto = false;
+
+    function igRelMesAtual() {
+        const d = new Date(Date.now() - 3 * 3600 * 1000); // Brasília
+        return d.toISOString().slice(0, 7);
+    }
+    function igRelNomeMes(m) {
+        if (!m) return '';
+        const [a, mm] = m.split('-').map(Number);
+        return igCalMai(IG_CAL_MESES[mm - 1]) + ' de ' + a;
+    }
+    function igRelMesAnterior(m) {
+        const [a, mm] = m.split('-').map(Number);
+        const d = new Date(Date.UTC(a, mm - 2, 1));
+        return d.toISOString().slice(0, 7);
+    }
+
+    async function igLoadRelatorio(force) {
+        const box = document.getElementById('igRelBox'); if (!box) return;
+        if (!igRelMes) igRelMes = igRelMesAtual();
+        box.innerHTML = '<div class="igrel-card"><div class="igrel-load">📋 Montando o relatório de ' + escapeHtml(igRelNomeMes(igRelMes)) + '…' +
+            (force ? ' Isso analisa post por post, leva uns 30 segundos.' : '') + '</div></div>';
+        try {
+            const { data, error } = await sb.functions.invoke('ig-relatorio', { body: { mes: igRelMes, refresh: !!force } });
+            if (error) throw new Error(error.message || 'falhou');
+            if (data && data.error) {
+                box.innerHTML = '<div class="igrel-card"><div class="igrel-erro">' + escapeHtml(data.message || data.error)
+                    + ' <button type="button" onclick="igLoadRelatorio(true)">tentar de novo</button></div></div>';
+                return;
+            }
+            igRelDados = data;
+            igRelRender();
+        } catch (e) {
+            box.innerHTML = '<div class="igrel-card"><div class="igrel-erro">Não consegui montar o relatório: ' + escapeHtml(e.message || e)
+                + ' <button type="button" onclick="igLoadRelatorio(true)">tentar de novo</button></div></div>';
+        }
+    }
+
+    function igRelTrocarMes(m) { igRelMes = m; igRelAberto = true; igLoadRelatorio(false); }
+    function igRelAlternar() { igRelAberto = !igRelAberto; igRelRender(); }
+
+    function igRelLista(titulo, itens, classe) {
+        if (!itens || !itens.length) return '';
+        return '<div class="igrel-bloco ' + classe + '"><h5>' + titulo + '</h5><ul>'
+            + itens.map(x => '<li>' + escapeHtml(String(x)) + '</li>').join('') + '</ul></div>';
+    }
+
+    function igRelRender() {
+        const box = document.getElementById('igRelBox'); if (!box || !igRelDados) return;
+        const d = igRelDados, n = d.numeros || {};
+        const r = d.resumo || {};
+        const quando = d.generated_at ? new Date(d.generated_at).toLocaleDateString('pt-BR') : '';
+
+        /* cabeçalho fica sempre visível; o corpo abre e fecha */
+        const anterior = igRelMesAnterior(igRelMes);
+        const cabec = '<div class="igrel-head" onclick="igRelAlternar()">'
+            + '<div><div class="igrel-kicker">RELATÓRIO DO MÊS</div>'
+            + '<h4>' + escapeHtml(igRelNomeMes(igRelMes)) + '</h4></div>'
+            + '<span class="igrel-chev">' + (igRelAberto ? '▾' : '▸') + '</span></div>';
+
+        if (!igRelAberto) {
+            box.innerHTML = '<div class="igrel-card">' + cabec
+                + '<p class="igrel-previa">' + escapeHtml(String(r.conclusao || '').slice(0, 190)) + '…</p></div>';
+            return;
+        }
+
+        const met = (d.desempenho || []).map(m =>
+            '<tr><td><b>' + escapeHtml(m.metrica || '') + '</b></td><td class="igrel-num">' + escapeHtml(String(m.valor || '')) + '</td>'
+            + '<td class="igrel-var">' + escapeHtml(String(m.variacao || '')) + '</td>'
+            + '<td>' + escapeHtml(m.leitura || '') + '</td></tr>').join('');
+
+        const temaLinhas = ((n.por_tema && n.por_tema.linhas) || []).slice(0, 6).map(t =>
+            '<tr><td><b>' + escapeHtml(t.tema) + '</b></td><td class="igrel-num">' + t.posts + '</td>'
+            + '<td class="igrel-num">' + igConcNum(t.alcance_medio) + '</td><td class="igrel-num">' + igConcNum(t.comentarios_medio) + '</td>'
+            + '<td class="igrel-num">' + igConcNum(t.salvamentos_medio) + '</td><td class="igrel-num">' + igConcNum(t.compartilhamentos_medio) + '</td></tr>').join('');
+
+        const fmtLinhas = (n.por_formato || []).map(f =>
+            '<tr><td><b>' + escapeHtml(f.formato) + '</b></td><td class="igrel-num">' + f.posts + '</td>'
+            + '<td class="igrel-num">' + igConcNum(f.alcance_medio) + '</td><td class="igrel-num">' + igConcNum(f.comentarios_medio) + '</td>'
+            + '<td class="igrel-num">' + igConcNum(f.salvamentos_medio) + '</td><td class="igrel-num">' + igConcNum(f.compartilhamentos_medio) + '</td></tr>').join('');
+
+        const ideia = (x, capa) => '<div class="igrel-ideia"><b>' + escapeHtml(x.titulo || '') + '</b>'
+            + '<div class="igrel-hook"><span>' + capa + '</span> ' + escapeHtml(x.hook || '') + '</div>'
+            + '<p>' + escapeHtml(x.porque || '') + (x.problema ? ' · Resolve: ' + escapeHtml(x.problema) : '') + '</p></div>';
+
+        box.innerHTML = '<div class="igrel-card aberto">' + cabec
+            + '<div class="igrel-body">'
+            + '<div class="igrel-mes-nav">'
+            + '<button type="button" onclick="igRelTrocarMes(\'' + anterior + '\')">‹ ' + escapeHtml(igRelNomeMes(anterior)) + '</button>'
+            + (igRelMes < igRelMesAtual() ? '<button type="button" onclick="igRelTrocarMes(\'' + igRelMesAtual() + '\')">' + escapeHtml(igRelNomeMes(igRelMesAtual())) + ' ›</button>' : '')
+            + '<button type="button" class="igrel-refazer" onclick="igLoadRelatorio(true)">↻ Refazer</button>'
+            + (quando ? '<span class="igrel-quando">feito em ' + quando + '</span>' : '')
+            + '</div>'
+            + '<p class="igrel-conclusao">' + escapeHtml(r.conclusao || '') + '</p>'
+            + '<div class="igrel-grid3">'
+            + igRelLista('✅ Está funcionando', r.funcionando, 'bom')
+            + igRelLista('⚠️ Está piorando', r.piorando, 'ruim')
+            + igRelLista('🚀 Maior oportunidade', r.oportunidades, 'op')
+            + '</div>'
+            + (met ? '<h5 class="igrel-t">Os números do mês, e o que eles querem dizer</h5>'
+                + '<div class="igrel-tab"><table><thead><tr><th>Métrica</th><th>Valor</th><th>vs mês anterior</th><th>Leitura</th></tr></thead><tbody>'
+                + met + '</tbody></table></div>' : '')
+            + (temaLinhas ? '<h5 class="igrel-t">Por tema <i>(média por post)</i></h5>'
+                + '<div class="igrel-tab"><table><thead><tr><th>Tema</th><th>Posts</th><th>Alcance</th><th>Coment.</th><th>Salvos</th><th>Compart.</th></tr></thead><tbody>'
+                + temaLinhas + '</tbody></table></div>'
+                + (d.temas && d.temas.leitura ? '<p class="igrel-leitura">' + escapeHtml(d.temas.leitura) + '</p>' : '') : '')
+            + (fmtLinhas ? '<h5 class="igrel-t">Por formato <i>(média por post)</i></h5>'
+                + '<div class="igrel-tab"><table><thead><tr><th>Formato</th><th>Posts</th><th>Alcance</th><th>Coment.</th><th>Salvos</th><th>Compart.</th></tr></thead><tbody>'
+                + fmtLinhas + '</tbody></table></div>'
+                + (d.formatos && d.formatos.leitura ? '<p class="igrel-leitura">' + escapeHtml(d.formatos.leitura) + '</p>' : '') : '')
+            + '<h5 class="igrel-t">O que fazer</h5><div class="igrel-grid4">'
+            + igRelLista('Fazer mais', (d.recomendacoes || {}).fazer_mais, 'bom')
+            + igRelLista('Fazer menos', (d.recomendacoes || {}).fazer_menos, 'ruim')
+            + igRelLista('Testar', (d.recomendacoes || {}).testar, 'op')
+            + igRelLista('Está deixando passar', (d.recomendacoes || {}).deixando_passar, 'op')
+            + '</div>'
+            + '<h5 class="igrel-t">Ideias tiradas do que funcionou</h5>'
+            + '<div class="igrel-grid2"><div><div class="igrel-sub">🎬 Reels</div>'
+            + (((d.ideias || {}).reels) || []).map(x => ideia(x, 'Hook:')).join('')
+            + '</div><div><div class="igrel-sub">🖼️ Carrosséis</div>'
+            + (((d.ideias || {}).carrosseis) || []).map(x => ideia(x, 'Capa:')).join('')
+            + '</div></div>'
+            + '<p class="igrel-rodape">A Meta aposentou a métrica de <b>impressões</b>; o equivalente hoje é <b>visualizações</b>, que está aí em cima.</p>'
+            + '</div></div>';
+    }
+
     async function loadInstagram() {
         igSetSub('visao');
         igLoadHealth();
+        igLoadRelatorio(false);
         try { await Promise.all([igLoadAutomations(), igLoadLeads(), igLoadAgendados().then(igAgRender)]); }
         finally { igLeadsReady = true; igLoadVisao(); igRenderLeads(); }
     }
