@@ -14717,7 +14717,23 @@ input[type="email"], input[type="date"], input[type="datetime-local"], select, t
     h+='<div class="bio-sec"><h3>Produtos</h3>';
     (c.produtos||[]).forEach(function(p,i){ h+='<div class="bio-item"><div class="bio-item-head"><b>Produto '+(i+1)+'</b><button class="bio-rm" data-action="rm" data-arr="produtos" data-i="'+i+'">Remover</button></div>'+f('Título','produtos.'+i+'.titulo')+'<label class="bio-f"><span>Seção (em qual carrossel aparece)</span><select data-path="produtos.'+i+'.grupo">'+[['gerais','1º carrossel (cursos gerais)'],['claude','2º carrossel (feito com Claude)']].map(function(o){return '<option value="'+o[0]+'"'+(((p.grupo||'gerais')===o[0])?' selected':'')+'>'+o[1]+'</option>';}).join('')+'</select></label>'+'<div class="bio-row">'+f('Preço','produtos.'+i+'.preco')+f('Texto do botão','produtos.'+i+'.cta')+'</div>'+ta('Descrição','produtos.'+i+'.descricao',3)+f('Link de compra','produtos.'+i+'.checkout')+'<div class="bio-row">'+color('Cor da capa','produtos.'+i+'.capaCor')+'<label class="bio-f"><span>Tags (vírgula)</span><input type="text" data-path="produtos.'+i+'.tags" value="'+esc((p.tags||[]).join(', '))+'"></label></div>'+img('Capa (opcional)','produtos.'+i+'.imagem','produtos')+toggle('Mostrar o nome do curso escrito sobre a capa','produtos.'+i+'.tituloNaCapa',true)+'</div>'; });
     h+='<button class="bio-add" data-action="add" data-arr="produtos">+ Adicionar produto</button></div>';
-    h+='<div class="bio-sec"><h3>Link externo (ex: livro)</h3>'+f('Título','linkExterno.titulo')+ta('Descrição','linkExterno.descricao',2)+f('Link','linkExterno.url')+'<div class="bio-row">'+color('Cor da miniatura','linkExterno.thumbCor')+img('Miniatura','linkExterno.imagem','link')+'</div></div>';
+    /* Era um card so (a loja). Virou lista pra caber as ferramentas que ela
+       indica, cada uma com cupom opcional. Quem so tem o campo antigo migra
+       na hora de renderizar. */
+    if(!Array.isArray(c.linksExternos)) c.linksExternos = c.linkExterno ? [Object.assign({id:'loja'},c.linkExterno)] : [];
+    h+='<div class="bio-sec"><h3>Links externos</h3>'+f('Título da seção','textos.tituloLinks','O que eu uso');
+    c.linksExternos.forEach(function(L,i){
+      h+='<div class="bio-item"><div class="bio-item-head"><b>'+esc(L.titulo||('Link '+(i+1)))+'</b>'
+        +'<button class="bio-rm" data-action="rm" data-arr="linksExternos" data-i="'+i+'">Remover</button></div>'
+        +f('Título','linksExternos.'+i+'.titulo')
+        +ta('Descrição','linksExternos.'+i+'.descricao',2)
+        +f('Link','linksExternos.'+i+'.url')
+        +'<div class="bio-row">'+f('Cupom de desconto','linksExternos.'+i+'.cupom','deixe vazio se não tiver')
+        +f('Emoji','linksExternos.'+i+'.emoji','🛒')+'</div>'
+        +'<div class="bio-row">'+color('Cor da miniatura','linksExternos.'+i+'.thumbCor')
+        +img('Miniatura','linksExternos.'+i+'.imagem','link')+'</div></div>';
+    });
+    h+='<button class="bio-add" data-action="add" data-arr="linksExternos">+ Adicionar link</button></div>';
     h+='<div class="bio-sec"><h3>WhatsApp</h3>';
     (c.whatsapp||[]).forEach(function(w,i){ h+='<div class="bio-item"><div class="bio-item-head"><b>Contato '+(i+1)+'</b><button class="bio-rm" data-action="rm" data-arr="whatsapp" data-i="'+i+'">Remover</button></div>'+f('Categoria','whatsapp.'+i+'.categoria')+'<div class="bio-row">'+f('Número (só dígitos, com DDI)','whatsapp.'+i+'.numero','5511999999999')+f('Número (como aparece)','whatsapp.'+i+'.numeroExibicao','+55 11 99999-9999')+'</div>'+ta('Mensagem pronta','whatsapp.'+i+'.mensagem',2)+color('Cor do card','whatsapp.'+i+'.cor')+'</div>'; });
     h+='<button class="bio-add" data-action="add" data-arr="whatsapp">+ Adicionar WhatsApp</button></div>';
@@ -14779,6 +14795,7 @@ input[type="email"], input[type="date"], input[type="datetime-local"], select, t
     if(a==='produtos') return {id:'prod'+Date.now(),grupo:'gerais',titulo:'Novo produto',capaCor:'#FF5A4D',imagem:'',tituloNaCapa:true,preco:'R$ 0',descricao:'',cta:'Acessar',checkout:'',tags:[]};
     if(a==='whatsapp') return {categoria:'',numero:'',numeroExibicao:'',mensagem:'',cor:'#25D366'};
     if(a==='instagram.posts') return {cor:'#FF5A4D',imagem:'',legenda:'',link:''};
+    if(a==='linksExternos') return {id:'link'+Date.now(),titulo:'Novo link',descricao:'',url:'',cupom:'',emoji:'🔗',thumbCor:'#FFFFFF',imagem:''};
     return {};
   }
   async function uploadImg(file,folder){
