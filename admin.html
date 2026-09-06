@@ -2477,6 +2477,37 @@
     #tabInstagram .conc-post .cp-cap{flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
     #tabInstagram .conc-post a{color:var(--accent);text-decoration:none;flex-shrink:0;font-size:14px;}
 
+
+    /* ── Roteiros (sub-aba do Instagram) ── */
+    #tabInstagram .rot-topo { display: flex; justify-content: space-between; align-items: flex-end; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; }
+    #tabInstagram .rot-topo h3 { font-size: 20px; font-weight: 800; margin: 0; color: var(--text); }
+    #tabInstagram .rot-topo p { font-size: 13px; color: var(--text-muted); margin: 3px 0 0; }
+    #tabInstagram .rot-caixa { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 16px; }
+    #tabInstagram .rot-linha { display: flex; gap: 8px; flex-wrap: wrap; }
+    #tabInstagram .rot-linha #rotUrl { flex: 1 1 340px; }
+    #tabInstagram .rot-linha select { width: auto; flex: 0 0 auto; }
+    #tabInstagram .rot-aviso { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin-top: 9px; }
+    #tabInstagram .rot-aviso:empty { display: none; }
+    #tabInstagram .rot-aviso.erro { color: #A8402C; background: #FDEDE9; border: 1px solid #F0C8BE; border-radius: 10px; padding: 9px 12px; }
+    #tabInstagram .rot-filtros { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+    #tabInstagram .rot-filtros #rotBusca { max-width: 340px; }
+    #tabInstagram .rot-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; transition: border-color .15s ease, box-shadow .15s ease; }
+    #tabInstagram .rot-card:hover { border-color: var(--accent); box-shadow: var(--shadow-xs); }
+    #tabInstagram .rot-card-top { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; font-size: 12px; color: var(--text-muted); }
+    #tabInstagram .rot-card-top a { color: var(--accent); font-weight: 700; text-decoration: none; margin-left: auto; }
+    #tabInstagram .rot-tag { background: var(--warm); color: var(--text-soft); border-radius: 100px; padding: 3px 10px; font-size: 11px; font-weight: 700; }
+    #tabInstagram .rot-tag.meu { background: var(--accent-glow); color: var(--accent); }
+    #tabInstagram .rot-perfil { font-weight: 700; color: var(--text); }
+    #tabInstagram .rot-titulo { font-size: 14.5px; font-weight: 800; color: var(--text); margin-top: 7px; }
+    #tabInstagram .rot-texto { font-size: 13px; line-height: 1.55; color: var(--text-soft); margin: 6px 0 0; }
+    #tabInstagram .rot-obs { margin-top: 8px; font-size: 12.5px; color: var(--accent); background: var(--accent-glow); border-radius: 9px; padding: 7px 10px; }
+    .rot-modal { position: fixed; inset: 0; background: rgba(30,26,22,.45); z-index: 900; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .rot-modal-box { background: var(--card); border-radius: 20px; width: 100%; max-width: 720px; max-height: 92vh; overflow: auto; box-shadow: 0 18px 50px rgba(0,0,0,.25); }
+    .rot-modal-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 20px 24px 16px; border-bottom: 1px solid var(--border); }
+    .rot-modal-kicker { font-size: 10.5px; font-weight: 800; letter-spacing: 1.2px; color: var(--text-muted); }
+    .rot-modal-titulo { font-size: 20px; font-weight: 800; color: var(--text); margin-top: 3px; }
+    .rot-modal-body { padding: 18px 24px 4px; }
+    .rot-modal-pe { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 24px 22px; flex-wrap: wrap; }
     /* ── Calendário de postagem de um perfil (abre pelo nome na Concorrência) ── */
     #tabInstagram .conc-nome { background: none; border: none; padding: 0; font-family: inherit; text-align: left; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: color .15s ease; }
     #tabInstagram .conc-nome:hover { color: var(--accent); }
@@ -2554,6 +2585,7 @@
         <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
             <button class="ig-subtab-btn active" data-ig-sub="visao" type="button">📊 Visão geral</button>
             <button class="ig-subtab-btn" data-ig-sub="ideias" type="button">💡 Ideias</button>
+            <button class="ig-subtab-btn" data-ig-sub="roteiros" type="button">📜 Roteiros</button>
             <button class="ig-subtab-btn" data-ig-sub="automacoes" type="button">Automações</button>
             <button class="ig-subtab-btn" data-ig-sub="insights" type="button">Análises</button>
             <button class="ig-subtab-btn" data-ig-sub="concorrencia" type="button">🏆 Concorrência</button>
@@ -2611,6 +2643,31 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div id="igPaneRoteiros" style="display:none;">
+            <div class="rot-topo">
+                <div>
+                    <h3>📜 Roteiros</h3>
+                    <p>Cole o link de um reel e eu transcrevo. Serve pros seus e pros das outras, com etiqueta pra você separar.</p>
+                </div>
+                <button class="ig-btn ghost" type="button" onclick="rotAbrir(null)">+ Escrever na mão</button>
+            </div>
+            <div class="rot-caixa">
+                <div class="rot-linha">
+                    <input id="rotUrl" class="ig-input" type="url" placeholder="Cole aqui: instagram.com/reel/... · tiktok.com/... · youtube.com/...">
+                    <select id="rotDeQuem" class="ig-input">
+                        <option value="outra">De outra pessoa</option>
+                        <option value="minha">Meu</option>
+                    </select>
+                    <button id="rotBtn" class="ig-btn" type="button" onclick="rotTranscrever()">Transcrever</button>
+                </div>
+                <div id="rotAviso" class="rot-aviso"></div>
+            </div>
+            <div class="rot-filtros">
+                <input id="rotBusca" class="ig-input" type="search" placeholder="🔎 Buscar no texto, no perfil ou nas suas notas..." oninput="rotRender()">
+                <div class="idea-chips" id="rotChips"></div>
+            </div>
+            <div id="rotBox"></div>
         </div>
         <div id="igPaneConcorrencia" style="display:none;"><div id="igConcBox"></div></div>
         <div id="igPaneAutomacoes" style="display:none;">
@@ -3387,6 +3444,49 @@
                 <button id="igMarcasBtn" class="ig-btn" type="button">🔍 Analisar minhas DMs</button>
             </div>
             <div id="igMarcasBox"></div>
+        </div>
+    </div>
+</div>
+<div id="rotModal" class="rot-modal" style="display:none;">
+    <div class="rot-modal-box">
+        <div class="rot-modal-head">
+            <div>
+                <div class="rot-modal-kicker" id="rotModalT">NOVO ROTEIRO</div>
+                <div class="rot-modal-titulo">📜 Roteiro</div>
+            </div>
+            <button class="idea-x" type="button" onclick="rotFechar()" aria-label="Fechar">✕</button>
+        </div>
+        <div class="rot-modal-body">
+            <label class="idea-lbl">Título (do que é esse roteiro)</label>
+            <input id="rotTitulo" class="ig-input" type="text" placeholder="Ex.: gancho de 3 segundos que segurou até o fim">
+            <div class="idea-row3">
+                <div><label class="idea-lbl">De quem é</label>
+                    <select id="rotQuemEd" class="ig-input"><option value="outra">De outra pessoa</option><option value="minha">Meu</option></select>
+                </div>
+                <div><label class="idea-lbl">Perfil (sem @)</label><input id="rotPerfil" class="ig-input" type="text" placeholder="camilabertolin_"></div>
+                <div><label class="idea-lbl">Data do post</label><input id="rotData" class="ig-input" type="date"></div>
+            </div>
+            <div class="idea-row3">
+                <div style="grid-column:span 2;"><label class="idea-lbl">Link do vídeo</label><input id="rotUrlEd" class="ig-input" type="url" placeholder="https://..."></div>
+                <div><label class="idea-lbl">Origem</label>
+                    <select id="rotFonteEd" class="ig-input">
+                        <option value="instagram">Instagram</option><option value="tiktok">TikTok</option>
+                        <option value="youtube">YouTube</option><option value="manual">Escrito na mão</option>
+                        <option value="outro">Outro</option>
+                    </select>
+                </div>
+            </div>
+            <label class="idea-lbl">Roteiro / transcrição</label>
+            <textarea id="rotTexto" class="ig-input" style="min-height:220px;" placeholder="O texto falado no vídeo. Se a transcrição veio automática, dá uma revisada."></textarea>
+            <label class="idea-lbl">Suas notas (o que te chamou atenção)</label>
+            <textarea id="rotObs" class="ig-input" style="min-height:80px;" placeholder="Ex.: abre com pergunta, corta a cada 2s, CTA só no final"></textarea>
+        </div>
+        <div class="rot-modal-pe">
+            <button id="rotApagarBtn" class="idea-del" type="button" onclick="rotApagar()">🗑 Apagar</button>
+            <div style="display:flex;gap:8px;">
+                <button class="ig-btn ghost" type="button" onclick="rotFechar()">Cancelar</button>
+                <button id="rotSalvarBtn" class="ig-btn" type="button" onclick="rotSalvar()">✓ Salvar</button>
+            </div>
         </div>
     </div>
 </div>
@@ -8152,7 +8252,7 @@
             c.created_at ? new Date(c.created_at).toLocaleDateString('pt-BR') : ''
         ]);
         const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
-        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+        const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -9138,6 +9238,7 @@
         document.getElementById('igPaneIdeias').style.display = sub === 'ideias' ? '' : 'none';
         document.getElementById('igPaneInsights').style.display = sub === 'insights' ? '' : 'none';
         document.getElementById('igPaneConcorrencia').style.display = sub === 'concorrencia' ? '' : 'none';
+        document.getElementById('igPaneRoteiros').style.display = sub === 'roteiros' ? '' : 'none';
         document.getElementById('igPanePendentes').style.display = sub === 'pendentes' ? '' : 'none';
         document.getElementById('igPaneSorteio').style.display = sub === 'sorteio' ? '' : 'none';
         if (sub === 'visao' && igLeadsReady) igLoadVisao();
@@ -9150,6 +9251,7 @@
         if (sub === 'ideias' && !igIdeiasCarregado) { igIdeiasCarregado = true; igLoadIdeias(); }
         if (sub === 'insights' && !igInsightsLoaded) { igInsightsLoaded = true; igLoadInsights(); }
         if (sub === 'concorrencia' && !igConcLoaded) { igConcLoaded = true; igLoadConcorrencia(); }
+        if (sub === 'roteiros' && !rotCarregado) { rotCarregado = true; rotLoad(); }
         if (sub === 'pendentes' && !igPendLoaded) { igPendLoaded = true; igLoadPendentes(); }
         if (sub === 'sorteio' && !igSorteioLoaded) { igSorteioLoaded = true; igLoadSorteio(); }
     }
@@ -9552,6 +9654,166 @@
             + '<div class="igcal-grade-cab">' + ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map(x => '<div>' + x + '</div>').join('') + '</div>'
             + '<div class="igcal-grade">' + celulas + '</div>'
             + detalhe + '</div></div>';
+    }
+
+
+    /* ══ ROTEIROS ══ Biblioteca de transcrições, minhas e das outras.
+       A transcrição sai da edge function `transcrever`, que chama um serviço de fora.
+       Por que não é a API do Meta: ela NÃO entrega o arquivo de vídeo de reel de
+       terceiro (testado em 10/08/2026) — só capa, legenda e números. Sem o áudio não
+       tem o que transcrever, então não existe caminho oficial. */
+    let rotCarregado = false, rotLista = [], rotFiltro = 'todos', rotEditando = null;
+    const ROT_FONTES = { instagram: '📷 Instagram', tiktok: '🎵 TikTok', youtube: '🎬 YouTube', manual: '✍️ Escrito na mão', outro: '🔗 Link' };
+    const rotEsc = v => escapeHtml(v == null ? '' : String(v));
+
+    async function rotLoad() {
+        const box = document.getElementById('rotBox'); if (!box) return;
+        box.innerHTML = '<div style="padding:34px;text-align:center;color:var(--text-muted);">Carregando os roteiros…</div>';
+        const { data, error } = await sb.from('roteiros').select('*').order('created_at', { ascending: false }).range(0, 999);
+        if (error) { box.innerHTML = '<div style="padding:18px;color:var(--error);">Não consegui carregar: ' + rotEsc(error.message) + '</div>'; return; }
+        rotLista = data || [];
+        rotRender();
+    }
+
+    function rotSetFiltro(k) { rotFiltro = k; rotRender(); }
+
+    function rotFiltrados() {
+        const el = document.getElementById('rotBusca');
+        const q = ((el && el.value) || '').toLowerCase().trim();
+        return rotLista.filter(r => {
+            if (rotFiltro === 'minha' && r.de_quem !== 'minha') return false;
+            if (rotFiltro === 'outra' && r.de_quem === 'minha') return false;
+            if (!q) return true;
+            return [r.titulo, r.perfil, r.transcricao, r.obs, r.legenda].join(' ').toLowerCase().includes(q);
+        });
+    }
+
+    function rotRender() {
+        const box = document.getElementById('rotBox'); if (!box) return;
+        const chips = document.getElementById('rotChips');
+        if (chips) {
+            const n = k => k === 'todos' ? rotLista.length : rotLista.filter(r => k === 'minha' ? r.de_quem === 'minha' : r.de_quem !== 'minha').length;
+            chips.innerHTML = [['todos', 'Todos'], ['outra', 'De outras'], ['minha', 'Meus']]
+                .map(f => '<button class="idea-chip' + (f[0] === rotFiltro ? ' active' : '') + '" type="button" onclick="rotSetFiltro(\'' + f[0] + '\')">' + f[1] + ' <b>' + n(f[0]) + '</b></button>').join('');
+        }
+        const lista = rotFiltrados();
+        if (!lista.length) {
+            box.innerHTML = rotLista.length
+                ? '<div class="ig-empty"><div class="em">🔍</div><h4>Nada com esse filtro</h4><p>Tente outra busca.</p></div>'
+                : '<div class="ig-empty"><div class="em">📜</div><h4>Nenhum roteiro ainda</h4><p>Cole o link de um reel aí em cima pra guardar o primeiro.</p></div>';
+            return;
+        }
+        box.innerHTML = lista.map(r => {
+            const txt = String(r.transcricao || '').replace(/\s+/g, ' ').trim();
+            const quem = r.de_quem === 'minha' ? '<span class="rot-tag meu">meu</span>' : '<span class="rot-tag">de outra</span>';
+            const perfil = r.perfil ? '<span class="rot-perfil">@' + rotEsc(r.perfil) + '</span>' : '';
+            const link = (r.url && /^https?:/.test(r.url)) ? '<a href="' + rotEsc(r.url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">ver o vídeo ↗</a>' : '';
+            const quando = r.postado_em || String(r.created_at || '').slice(0, 10);
+            return '<div class="rot-card" onclick="rotAbrir(\'' + r.id + '\')">'
+                + '<div class="rot-card-top">' + quem + perfil
+                + '<span class="rot-fonte">' + (ROT_FONTES[r.fonte] || ROT_FONTES.outro) + '</span>'
+                + '<span class="rot-data">' + (quando ? new Date(quando + 'T12:00:00').toLocaleDateString('pt-BR') : '') + '</span>'
+                + link + '</div>'
+                + (r.titulo ? '<div class="rot-titulo">' + rotEsc(r.titulo) + '</div>' : '')
+                + '<p class="rot-texto">' + (txt ? rotEsc(txt.slice(0, 320)) + (txt.length > 320 ? '…' : '') : '<i>sem transcrição</i>') + '</p>'
+                + (r.obs ? '<div class="rot-obs">💡 ' + rotEsc(String(r.obs).slice(0, 160)) + '</div>' : '')
+                + '</div>';
+        }).join('');
+    }
+
+    function rotMsg(html, tipo) {
+        const el = document.getElementById('rotAviso'); if (!el) return;
+        el.className = 'rot-aviso' + (tipo ? ' ' + tipo : '');
+        el.innerHTML = html || '';
+    }
+
+    async function rotTranscrever() {
+        const url = (document.getElementById('rotUrl').value || '').trim();
+        const deQuem = document.getElementById('rotDeQuem').value || 'outra';
+        if (!/^https?:\/\//i.test(url)) { rotMsg('Cole um link começando com <b>https://</b>.', 'erro'); return; }
+        const jaTem = rotLista.find(r => r.url === url);
+        if (jaTem && !confirm('Esse link já está salvo. Transcrever de novo e criar outro?')) return;
+
+        const btn = document.getElementById('rotBtn');
+        btn.disabled = true; btn.textContent = 'Transcrevendo…';
+        rotMsg('Baixando e ouvindo o vídeo… costuma levar alguns segundos.');
+        try {
+            const { data, error } = await sb.functions.invoke('transcrever', { body: { url } });
+            if (error) throw new Error(error.message || 'falhou');
+            if (data && data.error) {
+                if (data.error === 'sem_chave') {
+                    rotMsg('Falta ligar a chave da transcrição. Me chama no chat que eu configuro — leva 1 minuto. '
+                        + 'Enquanto isso dá pra usar o <b>+ Escrever na mão</b>.', 'erro');
+                } else {
+                    rotMsg('Não deu certo: ' + rotEsc(data.message || data.error) + '', 'erro');
+                }
+                return;
+            }
+            rotMsg('');
+            /* Abre o editor já preenchido: ela revisa, dá um título e salva. */
+            rotAbrir(null, {
+                url: data.url || url,
+                fonte: data.fonte || 'outro',
+                perfil: data.perfil || '',
+                de_quem: deQuem,
+                transcricao: data.transcricao || ''
+            });
+            document.getElementById('rotUrl').value = '';
+        } catch (e) {
+            rotMsg('Não consegui falar com o serviço de transcrição: ' + rotEsc(e.message || e), 'erro');
+        } finally {
+            btn.disabled = false; btn.textContent = 'Transcrever';
+        }
+    }
+
+    /* ── Editor ── */
+    function rotAbrir(id, preencher) {
+        rotEditando = id ? (rotLista.find(r => r.id === id) || null) : null;
+        const r = rotEditando || preencher || {};
+        document.getElementById('rotModalT').textContent = rotEditando ? 'EDITAR ROTEIRO' : 'NOVO ROTEIRO';
+        document.getElementById('rotTitulo').value = r.titulo || '';
+        document.getElementById('rotPerfil').value = r.perfil || '';
+        document.getElementById('rotUrlEd').value = r.url || '';
+        document.getElementById('rotQuemEd').value = r.de_quem || 'outra';
+        document.getElementById('rotFonteEd').value = r.fonte || 'manual';
+        document.getElementById('rotData').value = r.postado_em || '';
+        document.getElementById('rotTexto').value = r.transcricao || '';
+        document.getElementById('rotObs').value = r.obs || '';
+        document.getElementById('rotApagarBtn').style.display = rotEditando ? '' : 'none';
+        document.getElementById('rotModal').style.display = 'flex';
+    }
+    function rotFechar() { document.getElementById('rotModal').style.display = 'none'; rotEditando = null; }
+
+    async function rotSalvar() {
+        const patch = {
+            titulo: document.getElementById('rotTitulo').value.trim() || null,
+            perfil: (document.getElementById('rotPerfil').value || '').trim().replace(/^@+/, '') || null,
+            url: document.getElementById('rotUrlEd').value.trim() || null,
+            de_quem: document.getElementById('rotQuemEd').value || 'outra',
+            fonte: document.getElementById('rotFonteEd').value || 'manual',
+            postado_em: document.getElementById('rotData').value || null,
+            transcricao: document.getElementById('rotTexto').value.trim() || null,
+            obs: document.getElementById('rotObs').value.trim() || null,
+            updated_at: new Date().toISOString()
+        };
+        if (!patch.transcricao && !patch.titulo) { alert('Escreve pelo menos um título ou o texto do roteiro.'); return; }
+        const btn = document.getElementById('rotSalvarBtn');
+        btn.disabled = true; btn.textContent = 'Salvando…';
+        const { error } = rotEditando
+            ? await sb.from('roteiros').update(patch).eq('id', rotEditando.id)
+            : await sb.from('roteiros').insert(patch);
+        btn.disabled = false; btn.textContent = '✓ Salvar';
+        if (error) { alert('Não consegui salvar: ' + error.message); return; }
+        rotFechar();
+        await rotLoad();
+    }
+
+    async function rotApagar() {
+        if (!rotEditando || !confirm('Apagar este roteiro de vez?')) return;
+        const { error } = await sb.from('roteiros').delete().eq('id', rotEditando.id);
+        if (error) { alert('Não consegui apagar: ' + error.message); return; }
+        rotFechar();
+        await rotLoad();
     }
 
     async function loadInstagram() {
