@@ -2587,7 +2587,8 @@
     #tabInstagram .rot-link { background: none; border: none; color: var(--accent); font-family: inherit; font-size: 12.5px; font-weight: 800; cursor: pointer; text-decoration: underline; padding: 0; }
     #tabInstagram .rot-filtros { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
     #tabInstagram .rot-filtros #rotBusca { max-width: 340px; }
-    #tabInstagram .rot-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; transition: border-color .15s ease, box-shadow .15s ease; }
+    #tabInstagram .rot-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; transition: border-color .15s ease, box-shadow .15s ease; display: flex; gap: 14px; align-items: flex-start; }
+    #tabInstagram .rot-card-conteudo { flex: 1; min-width: 0; }
     #tabInstagram .rot-card:hover { border-color: var(--accent); box-shadow: var(--shadow-xs); }
     #tabInstagram .rot-card-top { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; font-size: 12px; color: var(--text-muted); }
     #tabInstagram .rot-card-top a { color: var(--accent); font-weight: 700; text-decoration: none; margin-left: auto; }
@@ -2656,8 +2657,17 @@
     .rota-vazio button { background: var(--accent); border: none; color: #fff; border-radius: 11px; padding: 8px 15px; font-family: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; margin-left: 8px; }
     /* capa dentro do card da lista */
     #tabInstagram .rot-capa-btn { margin-left: auto; background: var(--accent-glow); border: none; color: var(--accent); border-radius: 100px; padding: 4px 12px; font-family: inherit; font-size: 11.5px; font-weight: 700; cursor: pointer; }
-    #tabInstagram .rot-capa { margin-top: 12px; max-width: 340px; }
-    #tabInstagram .rot-capa .rot-embed { border-radius: 14px; }
+    /* Capa a esquerda, com o texto ao lado (mesmo arranjo das automacoes).
+       Numeros medidos no navegador: o embed tem 326px de largura, cabecalho de
+       54px e a area do video 326x408. A escala de 0,58 leva isso pra 190x238. */
+    #tabInstagram .rot-capa-slot:empty { display: none; }
+    #tabInstagram .rot-capa { width: 190px; height: 238px; border-radius: 12px; overflow: hidden; position: relative; background: var(--warm); border: 1px solid var(--border); flex-shrink: 0; }
+    #tabInstagram .rot-capa iframe { position: absolute; top: 0; left: 0; width: 326px; height: 462px; border: 0; transform: scale(0.583) translateY(-54px); transform-origin: 0 0; }
+    @media (max-width: 620px) {
+        #tabInstagram .rot-card { flex-direction: column; }
+        #tabInstagram .rot-capa { width: 100%; height: 0; padding-bottom: 125%; }
+        #tabInstagram .rot-capa iframe { transform: scale(1) translateY(-54px); width: 100%; height: 700px; }
+    }
     @media (max-width: 900px) {
         .rot-modal { padding: 12px; }
         .rot-modal-box { border-radius: 18px; }
@@ -9896,6 +9906,8 @@
                 ? '<button class="rot-capa-btn" type="button" onclick="event.stopPropagation();rotVerCapa(this,\'' + rotEsc(r.id) + '\')">▶ ver capa</button>' : '';
             const quando = r.postado_em || String(r.created_at || '').slice(0, 10);
             return '<div class="rot-card" onclick="rotAbrir(\'' + r.id + '\')">'
+                + '<div class="rot-capa-slot"></div>'
+                + '<div class="rot-card-conteudo">'
                 + '<div class="rot-card-top">' + quem + estado + perfil + capa
                 + '<span class="rot-fonte">' + (ROT_FONTES[r.fonte] || ROT_FONTES.outro) + '</span>'
                 + '<span class="rot-data">' + (quando ? new Date(quando + 'T12:00:00').toLocaleDateString('pt-BR') : '') + '</span>'
@@ -9905,21 +9917,24 @@
                     : (r.status === 'falhou' ? '<i>' + rotEsc(r.erro || 'não consegui transcrever') + '</i>' : '<i>sem transcrição</i>')) + '</p>'
                 + (r.analise && !rotNada(r.analise.gancho) ? '<div class="rot-gancho"><span>' + rotEsc(r.analise.tipo_gancho || 'gancho') + '</span> ' + rotEsc(String(r.analise.gancho).slice(0, 150)) + '</div>' : '')
                 + (r.obs ? '<div class="rot-obs">💡 ' + rotEsc(String(r.obs).slice(0, 160)) + '</div>' : '')
-                + '</div>';
+                + '</div></div>';
         }).join('');
     }
 
-    /* Abre e fecha a capa dentro do card. */
+    /* Abre e fecha a capa NA ESQUERDA do card, igual a miniatura das automacoes.
+       O embed do Instagram tem largura minima de 326px e vem com cabecalho de 54px
+       e rodape; aqui a gente recorta so a area do video (326x408, medida no
+       navegador) e encolhe com transform. So carrega quando ela pede: sao ~600KB
+       por embed, nao da pra deixar todos abertos de uma vez. */
     function rotVerCapa(btn, id) {
         const card = btn.closest('.rot-card'); if (!card) return;
-        const ja = card.querySelector('.rot-capa');
-        if (ja) { ja.remove(); btn.textContent = '▶ ver capa'; return; }
+        const slot = card.querySelector('.rot-capa-slot'); if (!slot) return;
+        if (slot.firstChild) { slot.innerHTML = ''; btn.textContent = '▶ ver capa'; return; }
         const r = rotLista.find(x => x.id === id); if (!r) return;
-        const d = document.createElement('div');
-        d.className = 'rot-capa';
-        d.onclick = (e) => e.stopPropagation();
-        d.innerHTML = rotVideoHtml(r.url, 500);
-        card.appendChild(d);
+        const e = rotEmbedUrl(r.url); if (!e) return;
+        slot.onclick = (ev) => ev.stopPropagation();
+        slot.innerHTML = '<div class="rot-capa"><iframe src="' + rotEsc(e) + '" frameborder="0" scrolling="no" '
+            + 'allowtransparency="true" allowfullscreen loading="lazy"></iframe></div>';
         btn.textContent = '▾ esconder';
     }
 
