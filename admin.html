@@ -2476,6 +2476,61 @@
     #tabInstagram .conc-post .cp-eng{color:var(--text-soft);flex-shrink:0;font-weight:600;white-space:nowrap;}
     #tabInstagram .conc-post .cp-cap{flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
     #tabInstagram .conc-post a{color:var(--accent);text-decoration:none;flex-shrink:0;font-size:14px;}
+
+    /* ── Calendário de postagem de um perfil (abre pelo nome na Concorrência) ── */
+    #tabInstagram .conc-nome { background: none; border: none; padding: 0; font-family: inherit; text-align: left; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: color .15s ease; }
+    #tabInstagram .conc-nome:hover { color: var(--accent); }
+    #tabInstagram .conc-cal-ic { font-size: 12px; opacity: 0; transition: opacity .15s ease; }
+    #tabInstagram .conc-nome:hover .conc-cal-ic { opacity: 1; }
+    #tabInstagram .conc-dica { font-size: 12.5px; color: var(--text-muted); margin-top: 12px; }
+    .igcal-modal { position: fixed; inset: 0; background: rgba(30,26,22,.5); z-index: 950; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .igcal-box { background: var(--card); border-radius: 20px; width: 100%; max-width: 860px; max-height: 92vh; display: flex; flex-direction: column; box-shadow: 0 18px 50px rgba(0,0,0,.25); overflow: hidden; }
+    .igcal-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 20px 24px 14px; border-bottom: 1px solid var(--border); }
+    .igcal-kicker { font-size: 10.5px; font-weight: 800; letter-spacing: 1.2px; color: var(--text-muted); }
+    .igcal-nome { font-size: 20px; font-weight: 800; color: var(--text); margin-top: 3px; }
+    .igcal-nome span { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+    .igcal-x { background: #F1ECE6; border: none; color: var(--text-soft); width: 32px; height: 32px; border-radius: 50%; font-size: 14px; cursor: pointer; flex-shrink: 0; font-family: inherit; }
+    .igcal-mes-nav { display: flex; align-items: center; justify-content: center; gap: 18px; padding: 12px 24px; border-bottom: 1px solid var(--border); }
+    .igcal-mes-nav b { font-size: 15px; font-weight: 800; color: var(--text); min-width: 190px; text-align: center; }
+    .igcal-mes-nav button { background: var(--warm); border: 1px solid var(--border); color: var(--text); width: 32px; height: 32px; border-radius: 9px; font-size: 17px; line-height: 1; cursor: pointer; font-family: inherit; }
+    .igcal-mes-nav button:disabled { opacity: .3; cursor: default; }
+    .igcal-corpo { padding: 18px 24px 24px; overflow-y: auto; }
+    .igcal-chips { display: flex; gap: 10px; flex-wrap: wrap; }
+    .igcal-chip { background: var(--warm); border: 1px solid var(--border); border-radius: 12px; padding: 9px 14px; min-width: 96px; }
+    .igcal-chip b { display: block; font-size: 17px; font-weight: 800; color: var(--accent); line-height: 1.15; }
+    .igcal-chip span { font-size: 11px; color: var(--text-muted); }
+    .igcal-tipos { font-size: 12.5px; color: var(--text-soft); margin-top: 10px; }
+    .igcal-vazio { padding: 22px; text-align: center; color: var(--text-muted); font-size: 13px; background: var(--warm); border-radius: 12px; }
+    .igcal-grade-cab { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin: 18px 0 6px; }
+    .igcal-grade-cab div { text-align: center; font-size: 10px; font-weight: 800; letter-spacing: 1px; color: var(--text-muted); }
+    .igcal-grade { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+    .igcal-cel { min-height: 74px; border: 1px solid var(--border); border-radius: 10px; padding: 5px 6px; background: var(--card); }
+    .igcal-cel.fora { border: none; background: none; }
+    .igcal-cel.fds { background: #FCF9F5; }
+    .igcal-cel.tem { border-color: var(--accent); background: var(--accent-glow); cursor: pointer; }
+    .igcal-cel.tem:hover { box-shadow: 0 0 0 2px var(--accent) inset; }
+    .igcal-cel.sel { box-shadow: 0 0 0 2px var(--accent) inset; }
+    .igcal-num { font-size: 11px; font-weight: 700; color: var(--text-muted); }
+    .igcal-cel.tem .igcal-num { color: var(--accent); }
+    .igcal-posts { display: flex; flex-direction: column; gap: 3px; margin-top: 3px; }
+    .igcal-post { display: flex; align-items: center; gap: 3px; font-size: 11px; line-height: 1.3; }
+    .igcal-post i { font-style: normal; font-size: 10px; color: var(--text-soft); font-variant-numeric: tabular-nums; }
+    .igcal-dica-dia { margin-top: 14px; font-size: 12.5px; color: var(--text-muted); text-align: center; }
+    .igcal-det { margin-top: 18px; border-top: 1px solid var(--border); padding-top: 14px; }
+    .igcal-det h4 { font-size: 14px; font-weight: 800; color: var(--text); margin: 0 0 10px; }
+    .igcal-det-post { background: var(--warm); border: 1px solid var(--border); border-radius: 12px; padding: 11px 13px; margin-bottom: 8px; }
+    .igcal-det-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 12px; color: var(--text-soft); }
+    .igcal-det-top b { color: var(--text); }
+    .igcal-det-top a { color: var(--accent); font-weight: 700; text-decoration: none; margin-left: auto; }
+    .igcal-det-top a:hover { text-decoration: underline; }
+    .igcal-det-post p { margin: 7px 0 0; font-size: 13px; line-height: 1.5; color: var(--text); }
+    @media (max-width: 720px) {
+        .igcal-corpo { padding: 14px; }
+        .igcal-cel { min-height: 60px; padding: 3px 4px; }
+        .igcal-post i { display: none; }
+        .igcal-chip { min-width: 78px; padding: 7px 10px; }
+        .igcal-mes-nav b { min-width: 140px; font-size: 13.5px; }
+    }
     #tabInstagram .conc-card.me{grid-column:1/-1;border-color:var(--accent);background:linear-gradient(180deg,var(--accent-glow),transparent 90px),var(--card);}
     #tabInstagram .conc-tag.eu{background:var(--accent);color:#fff;}
     #tabInstagram .conc-stat i{display:block;font-style:normal;font-size:10px;font-weight:700;color:var(--accent);margin-top:3px;}
@@ -9092,6 +9147,22 @@
 
     /* ── Aba Concorrência (métricas dos concorrentes) ── */
     let igConcLoaded = false;
+    /* Snapshots crus, usados pelo calendário de postagem. */
+    let igConcSnaps = [], igConcMePosts = [], igConcNomes = {};
+    async function igConcFetchSnaps() {
+        const todos = [];
+        for (let from = 0; from < 40000; from += 1000) {
+            const { data, error } = await sb.from('ig_competitor_snapshots')
+                .select('username,followers,perfil,posts,dia')
+                .order('dia', { ascending: false })
+                .range(from, from + 999);
+            if (error) throw error;
+            if (!data || !data.length) break;
+            todos.push(...data);
+            if (data.length < 1000) break;
+        }
+        return todos;
+    }
     function igConcNum(n) { return (Number(n) || 0).toLocaleString('pt-BR'); }
     async function igConcRefresh() {
         const box = document.getElementById('igConcBox'); if (!box) return;
@@ -9126,6 +9197,8 @@
             if (ini && fim && ini !== fim) growth = (fim.followers || 0) - (ini.followers || 0);
         }
         const top = recent.slice().sort((a, b) => ((b.like_count || 0) + (b.comments_count || 0)) - ((a.like_count || 0) + (a.comments_count || 0))).slice(0, 3);
+        igConcMePosts = posts;
+        igConcNomes[account.username || 'eilaradam'] = 'Você';
         return { u: account.username || 'eilaradam', nome: 'Você', categoria: 'mentora', followers, taxa, posts7, growth, top, me: true };
     }
     function igConcPos(lista, f, alvo) {
@@ -9139,13 +9212,15 @@
         try {
             const [compsR, snapsR, meCacheR, meHistR] = await Promise.all([
                 sb.from('ig_competitors').select('username,nome,categoria,ativo').eq('ativo', true),
-                sb.from('ig_competitor_snapshots').select('username,followers,perfil,posts,dia').order('dia', { ascending: false }),
+                igConcFetchSnaps(),
                 sb.from('ig_insights_cache').select('days,payload,generated_at').in('days', ['all', '30']),
                 sb.from('ig_followers_daily').select('dia,followers').order('dia', { ascending: true })
             ]);
             const meta = {}; (compsR.data || []).forEach(c => meta[c.username] = c);
+            igConcSnaps = snapsR || [];
+            igConcNomes = {}; (compsR.data || []).forEach(c => igConcNomes[c.username] = c.nome || c.username);
             const latest = {}, hist = {};
-            (snapsR.data || []).forEach(s => { if (!latest[s.username]) latest[s.username] = s; (hist[s.username] = hist[s.username] || []).push(s); });
+            igConcSnaps.forEach(s => { if (!latest[s.username]) latest[s.username] = s; (hist[s.username] = hist[s.username] || []).push(s); });
             const now = Date.now();
             const cards = Object.keys(meta).map(u => {
                 const s = latest[u]; if (!s) return null;
@@ -9162,7 +9237,7 @@
 
             /* meu perfil, sempre em primeiro, pra comparar */
             let iniDia = null;
-            (snapsR.data || []).forEach(s => { if (s.dia && (!iniDia || s.dia < iniDia)) iniDia = s.dia; });
+            igConcSnaps.forEach(s => { if (s.dia && (!iniDia || s.dia < iniDia)) iniDia = s.dia; });
             const me = igConcMeCard(meCacheR.data || [], meHistR.data || [], iniDia, now);
             const todos = (me ? [me] : []).concat(cards);
             if (me) {
@@ -9195,7 +9270,7 @@
                     const cap = escapeHtml((p.caption || '(sem legenda)').replace(/\s+/g, ' ').trim() || '(sem legenda)');
                     return '<div class="conc-post"><span class="cp-date">' + dt + '</span><span class="cp-eng">❤ ' + igConcNum(p.like_count || 0) + ' · 💬 ' + igConcNum(p.comments_count || 0) + '</span><span class="cp-cap">' + cap + '</span>' + link + '</div>';
                 }).join('') || '<div style="color:var(--text-muted);font-size:12.5px;padding:6px 0">Sem posts recentes.</div>';
-                return '<div class="conc-card' + (isMe ? ' me' : '') + '"><div class="conc-top"><div><div class="conc-nome">' + escapeHtml(c.nome) + '</div><div class="conc-user">@' + escapeHtml(c.u) + '</div></div>' + tag + '</div>'
+                return '<div class="conc-card' + (isMe ? ' me' : '') + '"><div class="conc-top"><div><button class="conc-nome" type="button" title="Ver o calendário de postagem" onclick="igConcCalendario(\'' + escapeHtml(c.u) + '\')">' + escapeHtml(c.nome) + '<span class="conc-cal-ic">📅</span></button><div class="conc-user">@' + escapeHtml(c.u) + '</div></div>' + tag + '</div>'
                     + '<div class="conc-stats"><div class="conc-stat"><b>' + igConcNum(c.followers) + '</b><span>seguidores</span>' + rk('followers') + '</div>'
                     + '<div class="conc-stat"><b>' + (c.taxa != null ? c.taxa.toFixed(2).replace('.', ',') + '%' : '—') + '</b><span>engajamento</span>' + rk('taxa') + '</div>'
                     + '<div class="conc-stat"><b>' + c.posts7 + '</b><span>posts/7 dias</span>' + rk('posts7') + '</div>' + growthTxt + '</div>'
@@ -9213,6 +9288,7 @@
                 + '<button class="ig-btn ghost" type="button" onclick="igConcRefresh()">↻ Atualizar agora</button></div>'
                 + '<details class="conc-fold" id="igConcFold"' + (abertoAntes ? ' open' : '') + '>'
                 + '<summary>Ver os ' + todos.length + ' perfis, com seguidores, engajamento e os posts que mais bombaram</summary>'
+                + '<div class="conc-dica">📅 Clique no nome de qualquer perfil pra ver o calendário de postagem do mês.</div>'
                 + '<div class="conc-grid" style="margin-top:14px;">' + todos.map(cardHtml).join('') + '</div>'
                 + '</details>';
             const fold = document.getElementById('igConcFold');
@@ -9222,6 +9298,194 @@
         } catch (e) {
             box.innerHTML = '<div style="padding:30px;text-align:center;color:#c00">Erro ao carregar: ' + escapeHtml(e.message || String(e)) + '</div>';
         }
+    }
+
+
+    /* ══ CALENDÁRIO DE POSTAGEM DE UM PERFIL ══
+       Clicar no nome de um concorrente abre o mês dele em grade, pra estudar quando
+       posta, com que frequência e que tipo de conteúdo entra em cada dia.
+
+       De onde vem: cada linha de ig_competitor_snapshots guarda só os 12 posts mais
+       recentes daquele dia. Um mês inteiro só existe juntando vários snapshots e
+       tirando os repetidos pelo permalink. Como o snapshot mais novo tem os números
+       de engajamento maiores, na hora de deduplicar fica a versão mais "cheia".
+
+       Fuso: o timestamp da Meta vem em UTC. Os getters locais do Date (getDate,
+       getDay, getHours) já convertem pro horário dela, que é o que importa aqui —
+       um post de 01h30 UTC é 22h30 do dia ANTERIOR em Brasília. */
+    const IG_CAL_TIPOS = {
+        VIDEO: { ic: '🎬', nome: 'Reel' },
+        CAROUSEL_ALBUM: { ic: '🖼️', nome: 'Carrossel' },
+        IMAGE: { ic: '📷', nome: 'Foto' }
+    };
+    const IG_CAL_DIAS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+    const IG_CAL_MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+    let igCalUser = null, igCalAno = 0, igCalMes = 0, igCalDiaSel = null, igCalCache = [];
+
+    function igCalTipo(t) { return IG_CAL_TIPOS[t] || { ic: '📌', nome: 'Post' }; }
+    function igCalMai(t) { return String(t || '').charAt(0).toUpperCase() + String(t || '').slice(1); }
+    /* plural na mao: "carrossels" nao existe */
+    const IG_CAL_PLURAL = { Reel: 'reels', Carrossel: 'carrosséis', Foto: 'fotos', Post: 'posts' };
+    function igCalPlural(nome, n) { return n > 1 ? (IG_CAL_PLURAL[nome] || (nome.toLowerCase() + 's')) : nome.toLowerCase(); }
+    function igCalChave(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+
+    /* Junta os posts de todos os snapshots do perfil, sem repetir. */
+    function igCalPostsDe(user) {
+        if (user && igConcMePosts.length && !igConcSnaps.some(s => s.username === user)) return igConcMePosts.slice();
+        const porLink = {};
+        igConcSnaps.forEach(sn => {
+            if (sn.username !== user) return;
+            (Array.isArray(sn.posts) ? sn.posts : []).forEach(pp => {
+                if (!pp || !pp.timestamp) return;
+                const k = pp.permalink || (pp.timestamp + '|' + String(pp.caption || '').slice(0, 40));
+                const ant = porLink[k];
+                const eng = x => (Number(x.like_count) || 0) + (Number(x.comments_count) || 0);
+                if (!ant || eng(pp) > eng(ant)) porLink[k] = pp;
+            });
+        });
+        return Object.keys(porLink).map(k => porLink[k]);
+    }
+
+    function igConcCalendario(user) {
+        igCalUser = user;
+        igCalDiaSel = null;
+        igCalCache = igCalPostsDe(user).filter(x => x && x.timestamp);
+        /* Abre no último mês FECHADO (hoje é setembro, então agosto). Se não houver post
+           nele, cai no mês mais recente que tenha. */
+        const hoje = new Date();
+        let ano = hoje.getFullYear(), mes = hoje.getMonth() - 1;
+        if (mes < 0) { mes = 11; ano--; }
+        const temNoMes = (a, m) => igCalCache.some(x => { const d = new Date(x.timestamp); return d.getFullYear() === a && d.getMonth() === m; });
+        if (!temNoMes(ano, mes) && igCalCache.length) {
+            const ds = igCalCache.map(x => new Date(x.timestamp)).sort((a, b) => b - a);
+            ano = ds[0].getFullYear(); mes = ds[0].getMonth();
+        }
+        igCalAno = ano; igCalMes = mes;
+        let el = document.getElementById('igCalModal');
+        if (!el) {
+            el = document.createElement('div');
+            el.id = 'igCalModal';
+            el.className = 'igcal-modal';
+            el.addEventListener('mousedown', ev => { if (ev.target === el) igCalFechar(); });
+            document.body.appendChild(el);
+            document.addEventListener('keydown', ev => {
+                if (ev.key !== 'Escape') return;
+                const m = document.getElementById('igCalModal');
+                if (m && m.style.display !== 'none') igCalFechar();
+            });
+        }
+        el.style.display = 'flex';
+        igCalRender();
+    }
+    function igCalFechar() { const el = document.getElementById('igCalModal'); if (el) el.style.display = 'none'; }
+    function igCalIrMes(delta) { const d = new Date(igCalAno, igCalMes + delta, 1); igCalAno = d.getFullYear(); igCalMes = d.getMonth(); igCalDiaSel = null; igCalRender(); }
+    function igCalSelDia(iso) { igCalDiaSel = (igCalDiaSel === iso) ? null : iso; igCalRender(); }
+
+    function igCalRender() {
+        const el = document.getElementById('igCalModal'); if (!el) return;
+        const nome = igConcNomes[igCalUser] || igCalUser;
+        const doMes = igCalCache.filter(x => { const d = new Date(x.timestamp); return d.getFullYear() === igCalAno && d.getMonth() === igCalMes; });
+
+        /* posts por dia */
+        const porDia = {};
+        doMes.forEach(x => { const k = igCalChave(new Date(x.timestamp)); (porDia[k] = porDia[k] || []).push(x); });
+        Object.keys(porDia).forEach(k => porDia[k].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)));
+
+        /* meses que tem post, pra saber se as setas podem andar */
+        const meses = {};
+        igCalCache.forEach(x => { const d = new Date(x.timestamp); meses[d.getFullYear() + '-' + d.getMonth()] = 1; });
+        const temMes = (a, m) => { const d = new Date(a, m, 1); return !!meses[d.getFullYear() + '-' + d.getMonth()]; };
+
+        /* ── resumo do mês: é o que responde "como ela se organiza" ── */
+        let resumo = '<div class="igcal-vazio">Nenhum post deste perfil em ' + IG_CAL_MESES[igCalMes] + '.</div>';
+        if (doMes.length) {
+            const diasNoMes = new Date(igCalAno, igCalMes + 1, 0).getDate();
+            const porSemana = (doMes.length / (diasNoMes / 7));
+            const contaDia = [0, 0, 0, 0, 0, 0, 0];
+            const contaHora = {};
+            const contaTipo = {};
+            doMes.forEach(x => {
+                const d = new Date(x.timestamp);
+                contaDia[d.getDay()]++;
+                const faixa = d.getHours() < 6 ? 'madrugada' : d.getHours() < 12 ? 'manhã' : d.getHours() < 18 ? 'tarde' : 'noite';
+                contaHora[faixa] = (contaHora[faixa] || 0) + 1;
+                const t = igCalTipo(x.media_type).nome;
+                contaTipo[t] = (contaTipo[t] || 0) + 1;
+            });
+            const melhorDia = contaDia.indexOf(Math.max.apply(null, contaDia));
+            const melhorFaixa = Object.keys(contaHora).sort((a, b) => contaHora[b] - contaHora[a])[0];
+            const diasComPost = Object.keys(porDia).length;
+            const chip = (v, r) => '<div class="igcal-chip"><b>' + v + '</b><span>' + r + '</span></div>';
+            const tipos = Object.keys(contaTipo).sort((a, b) => contaTipo[b] - contaTipo[a])
+                .map(t => contaTipo[t] + ' ' + igCalPlural(t, contaTipo[t])).join(' · ');
+            resumo = '<div class="igcal-chips">'
+                + chip(doMes.length, 'posts no mês')
+                + chip(porSemana.toFixed(1).replace('.', ','), 'por semana')
+                + chip(diasComPost + ' de ' + diasNoMes, 'dias com post')
+                + chip(IG_CAL_DIAS[melhorDia], 'dia que mais posta')
+                + chip(igCalMai(melhorFaixa), 'horário de sempre')
+                + '</div><div class="igcal-tipos">' + escapeHtml(tipos) + '</div>';
+        }
+
+        /* ── grade do mês ── */
+        const primeiro = new Date(igCalAno, igCalMes, 1);
+        const diasNoMes = new Date(igCalAno, igCalMes + 1, 0).getDate();
+        let celulas = '';
+        for (let i = 0; i < primeiro.getDay(); i++) celulas += '<div class="igcal-cel fora"></div>';
+        for (let dia = 1; dia <= diasNoMes; dia++) {
+            const d = new Date(igCalAno, igCalMes, dia);
+            const iso = igCalChave(d);
+            const lista = porDia[iso] || [];
+            const fds = (d.getDay() === 0 || d.getDay() === 6);
+            const chips = lista.map(x => {
+                const h = new Date(x.timestamp);
+                const t = igCalTipo(x.media_type);
+                const cap = String(x.caption || '(sem legenda)').replace(/\s+/g, ' ').trim() || '(sem legenda)';
+                return '<span class="igcal-post" title="' + escapeHtml(t.nome + ' · ' + String(h.getHours()).padStart(2, '0') + 'h' + String(h.getMinutes()).padStart(2, '0') + '\n' + cap.slice(0, 180)) + '">'
+                    + t.ic + '<i>' + String(h.getHours()).padStart(2, '0') + 'h</i></span>';
+            }).join('');
+            celulas += '<div class="igcal-cel' + (lista.length ? ' tem' : '') + (fds ? ' fds' : '') + (igCalDiaSel === iso ? ' sel' : '') + '"'
+                + (lista.length ? ' onclick="igCalSelDia(\'' + iso + '\')"' : '')
+                + '><div class="igcal-num">' + dia + '</div><div class="igcal-posts">' + chips + '</div></div>';
+        }
+
+        /* ── detalhe do dia escolhido ── */
+        let detalhe = '';
+        if (igCalDiaSel && porDia[igCalDiaSel]) {
+            const d = new Date(igCalDiaSel + 'T12:00:00');
+            detalhe = '<div class="igcal-det"><h4>' + IG_CAL_DIAS[d.getDay()] + ', ' + d.getDate() + ' de ' + IG_CAL_MESES[d.getMonth()] + '</h4>'
+                + porDia[igCalDiaSel].map(x => {
+                    const h = new Date(x.timestamp);
+                    const t = igCalTipo(x.media_type);
+                    const cap = String(x.caption || '').replace(/\s+/g, ' ').trim();
+                    const eng = [];
+                    if (Number(x.like_count) > 0) eng.push('❤ ' + igConcNum(x.like_count));
+                    if (Number(x.comments_count) > 0) eng.push('💬 ' + igConcNum(x.comments_count));
+                    const link = (x.permalink && /^https?:/.test(x.permalink))
+                        ? '<a href="' + escapeHtml(x.permalink) + '" target="_blank" rel="noopener">abrir no Instagram ↗</a>' : '';
+                    return '<div class="igcal-det-post"><div class="igcal-det-top">' + t.ic + ' <b>' + t.nome + '</b>'
+                        + '<span>' + String(h.getHours()).padStart(2, '0') + 'h' + String(h.getMinutes()).padStart(2, '0') + '</span>'
+                        + (eng.length ? '<span>' + eng.join(' · ') + '</span>' : '') + link + '</div>'
+                        + '<p>' + (cap ? escapeHtml(cap) : '<i>sem legenda</i>') + '</p></div>';
+                }).join('') + '</div>';
+        } else if (doMes.length) {
+            detalhe = '<div class="igcal-dica-dia">Clique num dia com post pra ler as legendas.</div>';
+        }
+
+        el.innerHTML = '<div class="igcal-box">'
+            + '<div class="igcal-head"><div>'
+            + '<div class="igcal-kicker">CALENDÁRIO DE POSTAGEM</div>'
+            + '<div class="igcal-nome">' + escapeHtml(nome) + ' <span>@' + escapeHtml(igCalUser) + '</span></div></div>'
+            + '<button class="igcal-x" type="button" onclick="igCalFechar()" aria-label="Fechar">✕</button></div>'
+            + '<div class="igcal-mes-nav">'
+            + '<button type="button" onclick="igCalIrMes(-1)"' + (temMes(igCalAno, igCalMes - 1) ? '' : ' disabled') + '>‹</button>'
+            + '<b>' + igCalMai(IG_CAL_MESES[igCalMes]) + ' de ' + igCalAno + '</b>'
+            + '<button type="button" onclick="igCalIrMes(1)"' + (temMes(igCalAno, igCalMes + 1) ? '' : ' disabled') + '>›</button>'
+            + '</div>'
+            + '<div class="igcal-corpo">' + resumo
+            + '<div class="igcal-grade-cab">' + ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map(x => '<div>' + x + '</div>').join('') + '</div>'
+            + '<div class="igcal-grade">' + celulas + '</div>'
+            + detalhe + '</div></div>';
     }
 
     async function loadInstagram() {
