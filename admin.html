@@ -2599,44 +2599,73 @@
     #tabInstagram .rot-titulo { font-size: 14.5px; font-weight: 800; color: var(--text); margin-top: 7px; }
     #tabInstagram .rot-texto { font-size: 13px; line-height: 1.55; color: var(--text-soft); margin: 6px 0 0; }
     #tabInstagram .rot-obs { margin-top: 8px; font-size: 12.5px; color: var(--accent); background: var(--accent-glow); border-radius: 9px; padding: 7px 10px; }
-    .rot-modal { position: fixed; inset: 0; background: rgba(30,26,22,.45); z-index: 900; display: flex; align-items: center; justify-content: center; padding: 20px; }
-    .rot-modal-box { background: var(--card); border-radius: 20px; width: 100%; max-width: 760px; max-height: 92vh; display: flex; flex-direction: column; box-shadow: 0 18px 50px rgba(0,0,0,.25); overflow: hidden; }
-    .rot-modal-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 20px 24px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-    .rot-modal-kicker { font-size: 10.5px; font-weight: 800; letter-spacing: 1.2px; color: var(--text-muted); }
-    .rot-modal-titulo { font-size: 20px; font-weight: 800; color: var(--text); margin-top: 3px; }
-    .rot-x { background: #F1ECE6; border: none; color: var(--text-soft); width: 32px; height: 32px; border-radius: 50%; font-size: 14px; cursor: pointer; flex-shrink: 0; font-family: inherit; }
-    .rot-modal-body { padding: 18px 24px; overflow-y: auto; }
-    .rot-modal-pe { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 24px; border-top: 1px solid var(--border); flex-wrap: wrap; flex-shrink: 0; background: var(--card); }
-    .rot-pe-dir { display: flex; gap: 8px; }
-    .rot-btn { background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 9px 18px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
-    .rot-btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 9px 18px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
-    .rot-del { background: none; border: 1px solid var(--border); color: var(--text-muted); border-radius: 10px; padding: 8px 14px; font-family: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; }
-    .rot-del:hover { border-color: var(--error); color: var(--error); }
+    /* ── Editor de roteiro ──
+       Estilo pedido pela Lara (ref. de outro painel): caixa mais larga e arejada,
+       titulo grande, campos com respiro, rodape com acao principal em destaque.
+       Cores dela: coral no lugar do amarelo da referencia.
+       As classes idea-* NAO servem aqui: elas so existem dentro de #marcaModal e
+       de #tabInstagram, e este modal fica solto no body. */
+    .rot-modal { position: fixed; inset: 0; background: rgba(30,26,22,.5); z-index: 900; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .rot-modal-box { background: var(--card); border-radius: 24px; width: 100%; max-width: 1040px; max-height: 92vh; display: flex; flex-direction: column; box-shadow: 0 24px 70px rgba(0,0,0,.28); overflow: hidden; }
+    .rot-modal-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding: 28px 32px 22px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .rot-modal-kicker { font-size: 11px; font-weight: 700; letter-spacing: 1.4px; color: var(--text-muted); }
+    .rot-modal-titulo { font-size: 28px; font-weight: 800; color: var(--text); margin-top: 8px; letter-spacing: -.4px; }
+    .rot-x { background: #F1ECE6; border: none; color: var(--text-soft); width: 44px; height: 44px; border-radius: 50%; font-size: 16px; cursor: pointer; flex-shrink: 0; font-family: inherit; transition: background .15s ease, color .15s ease; }
+    .rot-x:hover { background: var(--accent-glow); color: var(--accent); }
+    .rot-modal-body { padding: 26px 32px 30px; overflow-y: auto; }
+    .rot-cols { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 28px; align-items: start; }
+    .rot-col-video { position: sticky; top: 0; }
+    .rot-vid-t { font-size: 13px; font-weight: 800; color: var(--text); margin-bottom: 10px; }
+    .rot-embed { width: 100%; border: 1px solid var(--border); border-radius: 16px; background: var(--warm); display: block; }
+    .rot-vid-link { display: inline-block; margin-top: 10px; font-size: 12.5px; font-weight: 700; color: var(--accent); text-decoration: none; }
+    .rot-vid-sem { background: var(--warm); border: 1px dashed var(--border); border-radius: 16px; padding: 26px 18px; text-align: center; font-size: 13px; font-weight: 600; color: var(--text-soft); line-height: 1.6; }
+    .rot-vid-sem span { font-weight: 400; color: var(--text-muted); font-size: 12.5px; }
+    .rot-modal-pe { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 20px 32px; border-top: 1px solid var(--border); flex-wrap: wrap; flex-shrink: 0; background: var(--card); }
+    .rot-pe-dir { display: flex; gap: 10px; }
+    .rot-btn { background: var(--accent); color: #fff; border: none; border-radius: 14px; padding: 13px 26px; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity .15s ease; }
+    .rot-btn:hover { opacity: .88; }
+    .rot-btn-ghost { background: transparent; color: var(--text); border: 1.5px solid var(--border); border-radius: 14px; padding: 13px 26px; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .rot-btn-ghost:hover { border-color: var(--text-soft); }
+    .rot-del { background: none; border: none; color: #C0392B; border-radius: 12px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background .15s ease; }
+    .rot-del svg { width: 20px; height: 20px; }
+    .rot-del:hover { background: #FDEDE9; }
     /* campos */
-    .rotf { margin-bottom: 14px; }
-    .rotf label { display: block; font-size: 12px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
-    .rotf label i { font-style: normal; font-weight: 500; color: var(--text-muted); }
-    .rotf input, .rotf select, .rotf textarea { width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: #fff; color: var(--text); font-size: 14px; font-family: inherit; }
-    .rotf textarea { resize: vertical; line-height: 1.6; min-height: 70px; }
-    .rotf input:focus, .rotf select:focus, .rotf textarea:focus { outline: none; border-color: var(--accent); }
-    .rotf-linha { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+    .rotf { margin-bottom: 22px; }
+    .rotf label { display: block; font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 9px; }
+    .rotf label i { font-style: normal; font-weight: 400; color: var(--text-muted); font-size: 13px; }
+    .rotf input, .rotf select, .rotf textarea { width: 100%; box-sizing: border-box; padding: 13px 15px; border: 1.5px solid var(--border); border-radius: 13px; background: #fff; color: var(--text); font-size: 14.5px; font-family: inherit; transition: border-color .15s ease, box-shadow .15s ease; }
+    .rotf textarea { resize: vertical; line-height: 1.65; min-height: 80px; }
+    .rotf input:focus, .rotf select:focus, .rotf textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+    .rotf-linha { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
     /* estrutura extraida */
-    .rota { border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 16px; background: var(--warm); }
-    .rota-topo { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
-    .rota-topo b { font-size: 12px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; color: var(--text-muted); }
-    .rota-tag { background: var(--card); border: 1px solid var(--border); border-radius: 100px; padding: 3px 10px; font-size: 11.5px; font-weight: 700; color: var(--text-soft); }
-    .rota-bloco { margin-bottom: 12px; }
+    .rota { border: 1px solid var(--border); border-radius: 18px; padding: 20px 22px; margin-bottom: 22px; background: var(--warm); }
+    .rota-topo { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .rota-topo b { font-size: 12px; font-weight: 800; letter-spacing: .8px; text-transform: uppercase; color: var(--text-muted); }
+    .rota-tag { background: var(--card); border: 1px solid var(--border); border-radius: 100px; padding: 5px 13px; font-size: 12px; font-weight: 600; color: var(--text-soft); }
+    .rota-bloco { margin-bottom: 16px; }
     .rota-bloco:last-child { margin-bottom: 0; }
-    .rota-rot { font-size: 10px; font-weight: 800; letter-spacing: 1px; color: var(--accent); margin-bottom: 4px; }
-    .rota-gancho { background: var(--accent-glow); border-radius: 10px; padding: 10px 13px; font-size: 14px; line-height: 1.5; color: var(--text); font-weight: 600; }
+    .rota-rot { font-size: 10.5px; font-weight: 800; letter-spacing: 1.1px; color: var(--accent); margin-bottom: 7px; }
+    .rota-gancho { background: var(--accent-glow); border-radius: 13px; padding: 14px 16px; font-size: 15px; line-height: 1.55; color: var(--text); font-weight: 600; }
     .rota-bloco ol { margin: 0; padding-left: 20px; }
-    .rota-bloco ol li { font-size: 13px; line-height: 1.6; color: var(--text-soft); margin-bottom: 4px; }
-    .rota-cta { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 9px 12px; font-size: 13px; color: var(--text-soft); line-height: 1.5; }
-    .rota-chips { display: flex; gap: 6px; flex-wrap: wrap; }
-    .rota-chip { background: var(--card); border: 1px solid var(--border); border-radius: 100px; padding: 4px 11px; font-size: 12px; color: var(--text-soft); }
-    .rota-porque { font-size: 12.5px; color: var(--text-soft); line-height: 1.55; background: var(--card); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: 8px 12px; }
-    .rota-vazio { font-size: 12.5px; color: var(--text-muted); line-height: 1.55; }
-    .rota-vazio button { background: var(--accent); border: none; color: #fff; border-radius: 9px; padding: 6px 13px; font-family: inherit; font-size: 12px; font-weight: 700; cursor: pointer; margin-left: 6px; }
+    .rota-bloco ol li { font-size: 13.5px; line-height: 1.65; color: var(--text-soft); margin-bottom: 6px; }
+    .rota-cta { background: var(--card); border: 1px solid var(--border); border-radius: 13px; padding: 12px 15px; font-size: 13.5px; color: var(--text-soft); line-height: 1.55; }
+    .rota-chips { display: flex; gap: 7px; flex-wrap: wrap; }
+    .rota-chip { background: var(--card); border: 1px solid var(--border); border-radius: 100px; padding: 6px 13px; font-size: 12.5px; color: var(--text-soft); }
+    .rota-porque { font-size: 13px; color: var(--text-soft); line-height: 1.6; background: var(--card); border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0; padding: 11px 15px; }
+    .rota-vazio { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+    .rota-vazio button { background: var(--accent); border: none; color: #fff; border-radius: 11px; padding: 8px 15px; font-family: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; margin-left: 8px; }
+    /* capa dentro do card da lista */
+    #tabInstagram .rot-capa-btn { margin-left: auto; background: var(--accent-glow); border: none; color: var(--accent); border-radius: 100px; padding: 4px 12px; font-family: inherit; font-size: 11.5px; font-weight: 700; cursor: pointer; }
+    #tabInstagram .rot-capa { margin-top: 12px; max-width: 340px; }
+    #tabInstagram .rot-capa .rot-embed { border-radius: 14px; }
+    @media (max-width: 900px) {
+        .rot-modal { padding: 12px; }
+        .rot-modal-box { border-radius: 18px; }
+        .rot-modal-head, .rot-modal-body, .rot-modal-pe { padding-left: 18px; padding-right: 18px; }
+        .rot-modal-titulo { font-size: 22px; }
+        .rot-cols { grid-template-columns: 1fr; gap: 20px; }
+        .rot-col-video { position: static; order: -1; max-width: 340px; }
+    }
     /* ── Calendário de postagem de um perfil (abre pelo nome na Concorrência) ── */
     #tabInstagram .conc-nome { background: none; border: none; padding: 0; font-family: inherit; text-align: left; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: color .15s ease; }
     #tabInstagram .conc-nome:hover { color: var(--accent); }
@@ -3587,6 +3616,8 @@
             <button class="rot-x" type="button" onclick="rotFechar()" aria-label="Fechar">✕</button>
         </div>
         <div class="rot-modal-body">
+          <div class="rot-cols">
+           <div class="rot-col-main">
             <div class="rotf">
                 <label for="rotTitulo">Título <i>do que é esse roteiro</i></label>
                 <input id="rotTitulo" type="text" placeholder="Ex.: gancho de 3 segundos que segurou até o fim">
@@ -3621,9 +3652,16 @@
                 <label for="rotObs">Suas notas <i>o que te chamou atenção</i></label>
                 <textarea id="rotObs" rows="3" placeholder="Ex.: abre com pergunta, corta a cada 2s, CTA só no final"></textarea>
             </div>
+           </div>
+           <!-- Coluna do video: o Instagram deixa incorporar sem token, entao da pra
+                ver a capa e dar play sem sair daqui. -->
+           <aside class="rot-col-video" id="rotVideoBox"></aside>
+          </div>
         </div>
         <div class="rot-modal-pe">
-            <button id="rotApagarBtn" class="rot-del" type="button" onclick="rotApagar()">🗑 Apagar</button>
+            <button id="rotApagarBtn" class="rot-del" type="button" onclick="rotApagar()" title="Apagar este roteiro" aria-label="Apagar este roteiro">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+            </button>
             <div class="rot-pe-dir">
                 <button class="rot-btn-ghost" type="button" onclick="rotFechar()">Cancelar</button>
                 <button id="rotSalvarBtn" class="rot-btn" type="button" onclick="rotSalvar()">✓ Salvar</button>
@@ -9852,9 +9890,13 @@
                 : (r.status === 'falhou' ? '<span class="rot-tag falhou">não deu certo</span>' : '');
             const perfil = r.perfil ? '<span class="rot-perfil">@' + rotEsc(r.perfil) + '</span>' : '';
             const link = (r.url && /^https?:/.test(r.url)) ? '<a href="' + rotEsc(r.url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">ver o vídeo ↗</a>' : '';
+            /* A capa so carrega quando ela pede: sao ~600KB por embed, nao da pra
+               deixar todos abertos de uma vez. */
+            const capa = rotEmbedUrl(r.url)
+                ? '<button class="rot-capa-btn" type="button" onclick="event.stopPropagation();rotVerCapa(this,\'' + rotEsc(r.id) + '\')">▶ ver capa</button>' : '';
             const quando = r.postado_em || String(r.created_at || '').slice(0, 10);
             return '<div class="rot-card" onclick="rotAbrir(\'' + r.id + '\')">'
-                + '<div class="rot-card-top">' + quem + estado + perfil
+                + '<div class="rot-card-top">' + quem + estado + perfil + capa
                 + '<span class="rot-fonte">' + (ROT_FONTES[r.fonte] || ROT_FONTES.outro) + '</span>'
                 + '<span class="rot-data">' + (quando ? new Date(quando + 'T12:00:00').toLocaleDateString('pt-BR') : '') + '</span>'
                 + link + '</div>'
@@ -9865,6 +9907,20 @@
                 + (r.obs ? '<div class="rot-obs">💡 ' + rotEsc(String(r.obs).slice(0, 160)) + '</div>' : '')
                 + '</div>';
         }).join('');
+    }
+
+    /* Abre e fecha a capa dentro do card. */
+    function rotVerCapa(btn, id) {
+        const card = btn.closest('.rot-card'); if (!card) return;
+        const ja = card.querySelector('.rot-capa');
+        if (ja) { ja.remove(); btn.textContent = '▶ ver capa'; return; }
+        const r = rotLista.find(x => x.id === id); if (!r) return;
+        const d = document.createElement('div');
+        d.className = 'rot-capa';
+        d.onclick = (e) => e.stopPropagation();
+        d.innerHTML = rotVideoHtml(r.url, 500);
+        card.appendChild(d);
+        btn.textContent = '▾ esconder';
     }
 
     function rotMsg(html, tipo) {
@@ -10101,6 +10157,35 @@
         return !t || t === 'null' || t === 'none' || t === 'nenhum' || t === 'n/a' || t === '-';
     }
 
+    /* Endereco de incorporacao. O Instagram permite sem token (testado 06/09/2026):
+       mostra a capa real, o @ e o play. YouTube e TikTok tambem tem o deles. */
+    function rotEmbedUrl(url) {
+        const u = String(url || '');
+        let m = u.match(/instagram\.com\/(?:[A-Za-z0-9._]+\/)?(?:reel|reels|p|tv)\/([A-Za-z0-9_-]+)/i);
+        if (m) return 'https://www.instagram.com/reel/' + m[1] + '/embed';
+        m = u.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/i);
+        if (m) return 'https://www.youtube.com/embed/' + m[1];
+        m = u.match(/tiktok\.com\/.*\/video\/(\d+)/i);
+        if (m) return 'https://www.tiktok.com/embed/v2/' + m[1];
+        return null;
+    }
+    function rotVideoHtml(url, altura) {
+        const e = rotEmbedUrl(url);
+        if (!e) return '';
+        return '<iframe class="rot-embed" src="' + rotEsc(e) + '" height="' + (altura || 520) + '" '
+            + 'frameborder="0" scrolling="no" allowtransparency="true" allowfullscreen loading="lazy"></iframe>';
+    }
+
+    function rotVideoRender(r) {
+        const box = document.getElementById('rotVideoBox'); if (!box) return;
+        const html = rotVideoHtml(r && r.url, 540);
+        box.innerHTML = html
+            ? '<div class="rot-vid-t">O vídeo</div>' + html
+                + '<a class="rot-vid-link" href="' + rotEsc(r.url) + '" target="_blank" rel="noopener">abrir no Instagram ↗</a>'
+            : '<div class="rot-vid-sem">Sem link de vídeo.<br><span>Cole o link ao lado pra ver a capa aqui.</span></div>';
+        box.style.display = '';
+    }
+
     function rotAnaliseRender(r) {
         const box = document.getElementById('rotAnaliseBox'); if (!box) return;
         const a = r && r.analise;
@@ -10140,6 +10225,7 @@
         document.getElementById('rotObs').value = r.obs || '';
         document.getElementById('rotApagarBtn').style.display = rotEditando ? '' : 'none';
         rotAnaliseRender(rotEditando);
+        rotVideoRender(rotEditando || preencher || {});
         document.getElementById('rotModal').style.display = 'flex';
     }
     function rotFechar() { document.getElementById('rotModal').style.display = 'none'; rotEditando = null; }
