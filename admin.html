@@ -3972,6 +3972,46 @@
 
 
 <!-- modal de meta / projeto -->
+
+<style>
+/* ══ CONTROLES DA ABA OBJETIVOS ══
+   Os campos, botões e modais do painel vivem em blocos <style> presos ao
+   #tabInstagram e ao #marcaModal. A aba Objetivos e os dois modais dela ficam
+   FORA desses escopos, então herdavam zero: os campos saíam sem largura, com o
+   rótulo colado do lado. É a terceira vez que esse escopo morde, então fica
+   escrito aqui o porquê. */
+#tabObjetivos .ig-input, #objModal .ig-input, #pubModal .ig-input { width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:11px;background:#fff;color:var(--text);font-size:14px;font-family:inherit;box-sizing:border-box; }
+#tabObjetivos textarea.ig-input, #objModal textarea.ig-input, #pubModal textarea.ig-input { min-height:78px;resize:vertical; }
+#tabObjetivos .ig-input:focus, #objModal .ig-input:focus, #pubModal .ig-input:focus { outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-glow); }
+#tabObjetivos .ig-btn, #objModal .ig-btn, #pubModal .ig-btn { background:var(--accent);color:#fff;border:none;border-radius:11px;padding:9px 16px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;box-shadow:0 2px 8px rgba(123,62,27,.20); }
+#tabObjetivos .ig-btn.ghost, #objModal .ig-btn.ghost, #pubModal .ig-btn.ghost { background:transparent;color:var(--text);border:1px solid var(--border);box-shadow:none; }
+#tabObjetivos .ig-btn.ghost:hover, #objModal .ig-btn.ghost:hover, #pubModal .ig-btn.ghost:hover { background:#F5F0EA; }
+#tabObjetivos .ig-subtab-btn, #objModal .ig-subtab-btn, #pubModal .ig-subtab-btn { background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:999px;padding:8px 18px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;transition:all .18s ease; }
+#tabObjetivos .ig-hchip, #objModal .ig-hchip, #pubModal .ig-hchip { background:var(--card);border:1px solid var(--border);border-radius:999px;padding:7px 14px;font-size:12.5px;font-weight:600;color:var(--text-muted);cursor:pointer;font-family:inherit;white-space:nowrap; }
+/* O próprio #objModal É o .idea-modal, então aqui não pode ter espaço: com
+   descendente a regra não pegava e o modal caía no meio da página. */
+#objModal, #pubModal { position:fixed;inset:0;background:rgba(30,26,22,.45);z-index:900;align-items:center;justify-content:center;padding:20px; }
+#tabObjetivos .idea-modal-box, #objModal .idea-modal-box, #pubModal .idea-modal-box { background:var(--card);border-radius:20px;width:100%;max-width:620px;max-height:92vh;overflow:auto;box-shadow:0 18px 50px rgba(0,0,0,.25); }
+#tabObjetivos .idea-modal-head, #objModal .idea-modal-head, #pubModal .idea-modal-head { display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:20px 24px 16px;border-bottom:1px solid var(--border); }
+#tabObjetivos .idea-modal-head h3, #objModal .idea-modal-head h3, #pubModal .idea-modal-head h3 { font-size:20px;font-weight:800;color:var(--text);margin:3px 0 0; }
+#tabObjetivos .idea-modal-kicker, #objModal .idea-modal-kicker, #pubModal .idea-modal-kicker { font-size:10.5px;font-weight:800;letter-spacing:1.2px;color:var(--text-muted);text-transform:uppercase; }
+#tabObjetivos .idea-x, #objModal .idea-x, #pubModal .idea-x { background:var(--cream,#F1ECE6);border:none;color:var(--text-soft);width:32px;height:32px;border-radius:50%;font-size:14px;cursor:pointer;flex-shrink:0;font-family:inherit; }
+#tabObjetivos .idea-x:hover, #objModal .idea-x:hover, #pubModal .idea-x:hover { background:var(--border); }
+#tabObjetivos .idea-modal-body, #objModal .idea-modal-body, #pubModal .idea-modal-body { padding:18px 24px 4px; }
+#tabObjetivos .idea-lbl, #objModal .idea-lbl, #pubModal .idea-lbl { display:block;font-size:12.5px;font-weight:800;color:var(--text);margin:14px 0 6px; }
+#tabObjetivos .idea-lbl i, #objModal .idea-lbl i, #pubModal .idea-lbl i { font-style:normal;font-weight:400;color:var(--text-muted); }
+#tabObjetivos .idea-modal-body .idea-lbl:first-child, #objModal .idea-modal-body .idea-lbl:first-child, #pubModal .idea-modal-body .idea-lbl:first-child { margin-top:0; }
+#tabObjetivos .idea-row3, #objModal .idea-row3, #pubModal .idea-row3 { display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px; }
+#tabObjetivos .idea-modal-pe, #objModal .idea-modal-pe, #pubModal .idea-modal-pe { display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 24px 22px;flex-wrap:wrap; }
+#tabObjetivos .idea-del, #objModal .idea-del, #pubModal .idea-del { background:none;border:none;color:var(--error);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;padding:8px 4px; }
+#tabObjetivos .idea-del:hover, #objModal .idea-del:hover, #pubModal .idea-del:hover { text-decoration:underline; }
+/* o modal só vira flex quando está aberto; o display:none inline é quem manda */
+#objModal[style*="flex"], #pubModal[style*="flex"] { display: flex; }
+@media(max-width:640px){
+    #objModal, #pubModal { padding: 0; align-items: flex-end; }
+    #objModal .idea-modal-box, #pubModal .idea-modal-box { max-width: none; border-radius: 20px 20px 0 0; max-height: 94vh; }
+}
+</style>
 <div id="objModal" class="idea-modal" style="display:none;">
     <div class="idea-modal-box">
         <div class="idea-modal-head">
