@@ -94,6 +94,9 @@
         .sidebar-avatar svg { width: 18px; height: 18px; }
         .sidebar-foot .header-user { font-size: 13px; font-weight: 500; color: var(--text-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .sidebar-foot .btn-logout { width: 100%; }
+        .sidebar-gear { margin-left: auto; flex-shrink: 0; width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; border: none; background: none; border-radius: 8px; color: var(--text-muted); opacity: 0.5; cursor: pointer; transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease; }
+        .sidebar-gear svg { width: 16px; height: 16px; }
+        .sidebar-gear:hover, .sidebar-gear.active { opacity: 1; background: var(--accent-glow); color: var(--accent); }
         .app-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
         .topbar { height: 64px; flex-shrink: 0; background: var(--card); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 16px; padding: 0 24px; position: sticky; top: 0; z-index: 40; }
         .topbar-title { font-size: 22px; font-weight: 700; color: var(--text); margin: 0; }
@@ -112,6 +115,8 @@
         .app-shell.collapsed .nav-item { justify-content: center; padding: 11px 0; }
         .app-shell.collapsed .nav-item span { display: none; }
         .app-shell.collapsed .sidebar-foot .header-user { display: none; }
+        .app-shell.collapsed .sidebar-user { flex-direction: column; gap: 8px; }
+        .app-shell.collapsed .sidebar-gear { margin-left: 0; }
         .app-shell.collapsed .sidebar-foot .btn-logout { font-size: 0; padding: 8px; }
         .app-shell.collapsed .sidebar-foot .btn-logout::after { content: '\21AA'; font-size: 14px; }
         /* mobile: drawer */
@@ -124,6 +129,8 @@
             .app-shell.collapsed .sidebar-logo { font-size: 17px; }
             .app-shell.collapsed .sidebar-logo small { display: block; }
             .app-shell.collapsed .sidebar-foot .header-user { display: block; }
+            .app-shell.collapsed .sidebar-user { flex-direction: row; gap: 10px; }
+            .app-shell.collapsed .sidebar-gear { margin-left: auto; }
             .app-shell.collapsed .sidebar-foot .btn-logout { font-size: 13px; padding: 8px 20px; }
             .app-shell.collapsed .sidebar-foot .btn-logout::after { content: ''; }
             .topbar-burger { display: flex; }
@@ -1234,16 +1241,17 @@
                 <span>Link na Bio</span>
             </button>
 
-            <div class="nav-section-label">Ajustes</div>
-            <button class="tab nav-item" data-tab="admin" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                <span>Conteúdo do site</span>
-            </button>
         </nav>
         <div class="sidebar-foot">
             <div class="sidebar-user">
                 <div class="sidebar-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
                 <span class="header-user" id="userName"></span>
+                <!-- Conteudo do site (Termos, Links, Banners): saiu da lista de navegacao e virou
+                     esta engrenagem discreta, porque e coisa de mexer de vez em quando. Continua
+                     sendo um .tab com data-tab="admin", entao o roteamento e o mesmo de antes. -->
+                <button class="tab sidebar-gear" data-tab="admin" type="button" title="Conteúdo do site" aria-label="Conteúdo do site">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                </button>
             </div>
             <button class="btn-logout" id="logoutBtn" type="button">Sair</button>
         </div>
