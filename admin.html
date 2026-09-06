@@ -2600,12 +2600,43 @@
     #tabInstagram .rot-texto { font-size: 13px; line-height: 1.55; color: var(--text-soft); margin: 6px 0 0; }
     #tabInstagram .rot-obs { margin-top: 8px; font-size: 12.5px; color: var(--accent); background: var(--accent-glow); border-radius: 9px; padding: 7px 10px; }
     .rot-modal { position: fixed; inset: 0; background: rgba(30,26,22,.45); z-index: 900; display: flex; align-items: center; justify-content: center; padding: 20px; }
-    .rot-modal-box { background: var(--card); border-radius: 20px; width: 100%; max-width: 720px; max-height: 92vh; overflow: auto; box-shadow: 0 18px 50px rgba(0,0,0,.25); }
-    .rot-modal-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 20px 24px 16px; border-bottom: 1px solid var(--border); }
+    .rot-modal-box { background: var(--card); border-radius: 20px; width: 100%; max-width: 760px; max-height: 92vh; display: flex; flex-direction: column; box-shadow: 0 18px 50px rgba(0,0,0,.25); overflow: hidden; }
+    .rot-modal-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 20px 24px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
     .rot-modal-kicker { font-size: 10.5px; font-weight: 800; letter-spacing: 1.2px; color: var(--text-muted); }
     .rot-modal-titulo { font-size: 20px; font-weight: 800; color: var(--text); margin-top: 3px; }
-    .rot-modal-body { padding: 18px 24px 4px; }
-    .rot-modal-pe { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 24px 22px; flex-wrap: wrap; }
+    .rot-x { background: #F1ECE6; border: none; color: var(--text-soft); width: 32px; height: 32px; border-radius: 50%; font-size: 14px; cursor: pointer; flex-shrink: 0; font-family: inherit; }
+    .rot-modal-body { padding: 18px 24px; overflow-y: auto; }
+    .rot-modal-pe { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 24px; border-top: 1px solid var(--border); flex-wrap: wrap; flex-shrink: 0; background: var(--card); }
+    .rot-pe-dir { display: flex; gap: 8px; }
+    .rot-btn { background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 9px 18px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .rot-btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 9px 18px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .rot-del { background: none; border: 1px solid var(--border); color: var(--text-muted); border-radius: 10px; padding: 8px 14px; font-family: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+    .rot-del:hover { border-color: var(--error); color: var(--error); }
+    /* campos */
+    .rotf { margin-bottom: 14px; }
+    .rotf label { display: block; font-size: 12px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+    .rotf label i { font-style: normal; font-weight: 500; color: var(--text-muted); }
+    .rotf input, .rotf select, .rotf textarea { width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: #fff; color: var(--text); font-size: 14px; font-family: inherit; }
+    .rotf textarea { resize: vertical; line-height: 1.6; min-height: 70px; }
+    .rotf input:focus, .rotf select:focus, .rotf textarea:focus { outline: none; border-color: var(--accent); }
+    .rotf-linha { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+    /* estrutura extraida */
+    .rota { border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 16px; background: var(--warm); }
+    .rota-topo { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .rota-topo b { font-size: 12px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; color: var(--text-muted); }
+    .rota-tag { background: var(--card); border: 1px solid var(--border); border-radius: 100px; padding: 3px 10px; font-size: 11.5px; font-weight: 700; color: var(--text-soft); }
+    .rota-bloco { margin-bottom: 12px; }
+    .rota-bloco:last-child { margin-bottom: 0; }
+    .rota-rot { font-size: 10px; font-weight: 800; letter-spacing: 1px; color: var(--accent); margin-bottom: 4px; }
+    .rota-gancho { background: var(--accent-glow); border-radius: 10px; padding: 10px 13px; font-size: 14px; line-height: 1.5; color: var(--text); font-weight: 600; }
+    .rota-bloco ol { margin: 0; padding-left: 20px; }
+    .rota-bloco ol li { font-size: 13px; line-height: 1.6; color: var(--text-soft); margin-bottom: 4px; }
+    .rota-cta { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 9px 12px; font-size: 13px; color: var(--text-soft); line-height: 1.5; }
+    .rota-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .rota-chip { background: var(--card); border: 1px solid var(--border); border-radius: 100px; padding: 4px 11px; font-size: 12px; color: var(--text-soft); }
+    .rota-porque { font-size: 12.5px; color: var(--text-soft); line-height: 1.55; background: var(--card); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: 8px 12px; }
+    .rota-vazio { font-size: 12.5px; color: var(--text-muted); line-height: 1.55; }
+    .rota-vazio button { background: var(--accent); border: none; color: #fff; border-radius: 9px; padding: 6px 13px; font-family: inherit; font-size: 12px; font-weight: 700; cursor: pointer; margin-left: 6px; }
     /* ── Calendário de postagem de um perfil (abre pelo nome na Concorrência) ── */
     #tabInstagram .conc-nome { background: none; border: none; padding: 0; font-family: inherit; text-align: left; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: color .15s ease; }
     #tabInstagram .conc-nome:hover { color: var(--accent); }
@@ -3553,38 +3584,49 @@
                 <div class="rot-modal-kicker" id="rotModalT">NOVO ROTEIRO</div>
                 <div class="rot-modal-titulo">📜 Roteiro</div>
             </div>
-            <button class="idea-x" type="button" onclick="rotFechar()" aria-label="Fechar">✕</button>
+            <button class="rot-x" type="button" onclick="rotFechar()" aria-label="Fechar">✕</button>
         </div>
         <div class="rot-modal-body">
-            <label class="idea-lbl">Título (do que é esse roteiro)</label>
-            <input id="rotTitulo" class="ig-input" type="text" placeholder="Ex.: gancho de 3 segundos que segurou até o fim">
-            <div class="idea-row3">
-                <div><label class="idea-lbl">De quem é</label>
-                    <select id="rotQuemEd" class="ig-input"><option value="outra">De outra pessoa</option><option value="minha">Meu</option></select>
-                </div>
-                <div><label class="idea-lbl">Perfil (sem @)</label><input id="rotPerfil" class="ig-input" type="text" placeholder="camilabertolin_"></div>
-                <div><label class="idea-lbl">Data do post</label><input id="rotData" class="ig-input" type="date"></div>
+            <div class="rotf">
+                <label for="rotTitulo">Título <i>do que é esse roteiro</i></label>
+                <input id="rotTitulo" type="text" placeholder="Ex.: gancho de 3 segundos que segurou até o fim">
             </div>
-            <div class="idea-row3">
-                <div style="grid-column:span 2;"><label class="idea-lbl">Link do vídeo</label><input id="rotUrlEd" class="ig-input" type="url" placeholder="https://..."></div>
-                <div><label class="idea-lbl">Origem</label>
-                    <select id="rotFonteEd" class="ig-input">
+            <div class="rotf-linha">
+                <div class="rotf"><label for="rotQuemEd">De quem é</label>
+                    <select id="rotQuemEd"><option value="outra">De outra pessoa</option><option value="minha">Meu</option></select>
+                </div>
+                <div class="rotf"><label for="rotPerfil">Perfil <i>sem @</i></label><input id="rotPerfil" type="text" placeholder="camilabertolin_"></div>
+                <div class="rotf"><label for="rotData">Data do post</label><input id="rotData" type="date"></div>
+                <div class="rotf"><label for="rotFonteEd">Origem</label>
+                    <select id="rotFonteEd">
                         <option value="instagram">Instagram</option><option value="tiktok">TikTok</option>
-                        <option value="youtube">YouTube</option><option value="manual">Escrito na mão</option>
-                        <option value="outro">Outro</option>
+                        <option value="youtube">YouTube</option><option value="gerado">Gerado aqui</option>
+                        <option value="manual">Escrito na mão</option><option value="outro">Outro</option>
                     </select>
                 </div>
             </div>
-            <label class="idea-lbl">Roteiro / transcrição</label>
-            <textarea id="rotTexto" class="ig-input" style="min-height:220px;" placeholder="O texto falado no vídeo. Se a transcrição veio automática, dá uma revisada."></textarea>
-            <label class="idea-lbl">Suas notas (o que te chamou atenção)</label>
-            <textarea id="rotObs" class="ig-input" style="min-height:80px;" placeholder="Ex.: abre com pergunta, corta a cada 2s, CTA só no final"></textarea>
+            <div class="rotf">
+                <label for="rotUrlEd">Link do vídeo</label>
+                <input id="rotUrlEd" type="url" placeholder="https://...">
+            </div>
+
+            <!-- A estrutura extraida pela analise. So aparece quando existe. -->
+            <div id="rotAnaliseBox"></div>
+
+            <div class="rotf">
+                <label for="rotTexto">Roteiro / transcrição</label>
+                <textarea id="rotTexto" rows="9" placeholder="O texto falado no vídeo. Se a transcrição veio automática, dá uma revisada."></textarea>
+            </div>
+            <div class="rotf">
+                <label for="rotObs">Suas notas <i>o que te chamou atenção</i></label>
+                <textarea id="rotObs" rows="3" placeholder="Ex.: abre com pergunta, corta a cada 2s, CTA só no final"></textarea>
+            </div>
         </div>
         <div class="rot-modal-pe">
-            <button id="rotApagarBtn" class="idea-del" type="button" onclick="rotApagar()">🗑 Apagar</button>
-            <div style="display:flex;gap:8px;">
-                <button class="ig-btn ghost" type="button" onclick="rotFechar()">Cancelar</button>
-                <button id="rotSalvarBtn" class="ig-btn" type="button" onclick="rotSalvar()">✓ Salvar</button>
+            <button id="rotApagarBtn" class="rot-del" type="button" onclick="rotApagar()">🗑 Apagar</button>
+            <div class="rot-pe-dir">
+                <button class="rot-btn-ghost" type="button" onclick="rotFechar()">Cancelar</button>
+                <button id="rotSalvarBtn" class="rot-btn" type="button" onclick="rotSalvar()">✓ Salvar</button>
             </div>
         </div>
     </div>
@@ -9819,7 +9861,7 @@
                 + (r.titulo ? '<div class="rot-titulo">' + rotEsc(r.titulo) + '</div>' : '')
                 + '<p class="rot-texto">' + (txt ? rotEsc(txt.slice(0, 320)) + (txt.length > 320 ? '…' : '')
                     : (r.status === 'falhou' ? '<i>' + rotEsc(r.erro || 'não consegui transcrever') + '</i>' : '<i>sem transcrição</i>')) + '</p>'
-                + (r.analise && r.analise.gancho ? '<div class="rot-gancho"><span>' + rotEsc(r.analise.tipo_gancho || 'gancho') + '</span> ' + rotEsc(String(r.analise.gancho).slice(0, 150)) + '</div>' : '')
+                + (r.analise && !rotNada(r.analise.gancho) ? '<div class="rot-gancho"><span>' + rotEsc(r.analise.tipo_gancho || 'gancho') + '</span> ' + rotEsc(String(r.analise.gancho).slice(0, 150)) + '</div>' : '')
                 + (r.obs ? '<div class="rot-obs">💡 ' + rotEsc(String(r.obs).slice(0, 160)) + '</div>' : '')
                 + '</div>';
         }).join('');
@@ -10051,6 +10093,38 @@
             + '</div></div>';
     }
 
+    /* Desenha a estrutura que a analise extraiu: gancho, desenvolvimento, CTA e
+       o resto. So aparece pra roteiro ja lido; senao mostra o botao pra ler. */
+    /* O GPT as vezes devolve a PALAVRA "null" em vez de vazio; nao pode virar texto na tela. */
+    function rotNada(v) {
+        const t = String(v == null ? '' : v).trim().toLowerCase();
+        return !t || t === 'null' || t === 'none' || t === 'nenhum' || t === 'n/a' || t === '-';
+    }
+
+    function rotAnaliseRender(r) {
+        const box = document.getElementById('rotAnaliseBox'); if (!box) return;
+        const a = r && r.analise;
+        if (!a || rotNada(a.gancho)) {
+            box.innerHTML = (r && r.id && r.transcricao)
+                ? '<div class="rota"><div class="rota-vazio">Esse roteiro ainda não foi lido. Quando eu ler, aparece aqui o gancho, o desenvolvimento e o CTA separados.'
+                    + '<button type="button" onclick="rotFechar();rotAnalisar()">Ler agora</button></div></div>'
+                : '';
+            return;
+        }
+        const tag = (t) => rotNada(t) ? '' : '<span class="rota-tag">' + rotEsc(t) + '</span>';
+        const bloco = (rot, html) => '<div class="rota-bloco"><div class="rota-rot">' + rot + '</div>' + html + '</div>';
+        box.innerHTML = '<div class="rota">'
+            + '<div class="rota-topo"><b>A estrutura</b>' + tag(a.tema) + tag(a.formato) + tag(a.objetivo) + '</div>'
+            + bloco('🪝 GANCHO' + (a.tipo_gancho ? ' · ' + rotEsc(a.tipo_gancho) : ''), '<div class="rota-gancho">' + rotEsc(a.gancho) + '</div>')
+            + ((a.desenvolvimento || []).length
+                ? bloco('📋 DESENVOLVIMENTO', '<ol>' + a.desenvolvimento.map(x => '<li>' + rotEsc(x) + '</li>').join('') + '</ol>') : '')
+            + (rotNada(a.cta) ? '' : bloco('📣 CTA', '<div class="rota-cta">' + rotEsc(a.cta) + '</div>'))
+            + ((a.expressoes || []).length
+                ? bloco('💬 EXPRESSÕES QUE ELA USA', '<div class="rota-chips">' + a.expressoes.map(x => '<span class="rota-chip">' + rotEsc(x) + '</span>').join('') + '</div>') : '')
+            + (rotNada(a.por_que_funciona) ? '' : bloco('✅ POR QUE PRENDE', '<div class="rota-porque">' + rotEsc(a.por_que_funciona) + '</div>'))
+            + '</div>';
+    }
+
     /* ── Editor ── */
     function rotAbrir(id, preencher) {
         rotEditando = id ? (rotLista.find(r => r.id === id) || null) : null;
@@ -10065,6 +10139,7 @@
         document.getElementById('rotTexto').value = r.transcricao || '';
         document.getElementById('rotObs').value = r.obs || '';
         document.getElementById('rotApagarBtn').style.display = rotEditando ? '' : 'none';
+        rotAnaliseRender(rotEditando);
         document.getElementById('rotModal').style.display = 'flex';
     }
     function rotFechar() { document.getElementById('rotModal').style.display = 'none'; rotEditando = null; }
