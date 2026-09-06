@@ -2795,13 +2795,53 @@
     #tabInstagram .conc-stat i{display:block;font-style:normal;font-size:10px;font-weight:700;color:var(--accent);margin-top:3px;}
     #tabInstagram .conc-rank{margin-top:12px;padding-top:10px;border-top:1px solid var(--border);font-size:12.5px;color:var(--text-muted);}
     @media(max-width:760px){ #tabInstagram .conc-grid{grid-template-columns:1fr;} }
+
+    /* ══ CAPA DA ABA ══
+       Antes eram três coisas soltas empilhadas: título, chips de saúde e a fila
+       de abas. Agora é um bloco só, no marrom da marca, e as abas vivem dentro
+       dele. O que está aberto vira a única coisa branca da capa. */
+    #tabInstagram .ig-capa{position:relative;overflow:hidden;margin:0 0 22px;padding:22px 24px 0;
+        border-radius:20px;color:#fff;background:linear-gradient(135deg,#7B3E1B 0%,#5E2F14 55%,#48230F 100%);
+        box-shadow:0 10px 30px rgba(88,44,19,.22);}
+    /* clarão no canto pra não ficar chapado */
+    #tabInstagram .ig-capa::after{content:'';position:absolute;right:-70px;top:-100px;width:300px;height:300px;
+        border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.11),transparent 70%);pointer-events:none;}
+    #tabInstagram .ig-capa-topo{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;position:relative;z-index:1;}
+    #tabInstagram .ig-capa-id{display:flex;gap:14px;align-items:center;min-width:0;}
+    #tabInstagram .ig-capa-mark{flex-shrink:0;width:46px;height:46px;border-radius:14px;font-size:21px;
+        display:flex;align-items:center;justify-content:center;
+        background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.18);}
+    #tabInstagram .ig-capa h2{margin:0;font-size:22px;font-weight:800;color:#fff;letter-spacing:-.2px;line-height:1.2;}
+    #tabInstagram .ig-capa .sub{margin:3px 0 0;font-size:12.5px;color:rgba(255,255,255,.7);}
+    /* os chips de saúde precisam virar claros sobre o marrom */
+    #tabInstagram .ig-capa .ig-hchip{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.2);color:#fff;}
+    #tabInstagram .ig-capa .ig-hchip:hover{background:rgba(255,255,255,.22);}
+    #tabInstagram .ig-capa .ig-hchip.bad{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.4);}
+    #tabInstagram .ig-capa-abas{display:flex;gap:7px;flex-wrap:wrap;position:relative;z-index:1;
+        margin-top:20px;padding:14px 0 16px;border-top:1px solid rgba(255,255,255,.14);}
+    #tabInstagram .ig-capa-abas .ig-subtab-btn{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.16);color:rgba(255,255,255,.82);}
+    #tabInstagram .ig-capa-abas .ig-subtab-btn:not(.active):hover{background:rgba(255,255,255,.19);border-color:rgba(255,255,255,.32);color:#fff;}
+    #tabInstagram .ig-capa-abas .ig-subtab-btn.active{background:#fff;color:var(--accent);border-color:#fff;
+        box-shadow:0 3px 10px rgba(0,0,0,.16);}
+    @media(max-width:620px){
+        #tabInstagram .ig-capa{padding:18px 16px 0;border-radius:16px;}
+        #tabInstagram .ig-capa h2{font-size:19px;}
+        #tabInstagram .ig-capa-abas{margin-top:16px;}
+    }
     </style>
     <div style="max-width:1140px;margin:0 auto;">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin:0 0 18px;">
-            <h2 style="font-size:22px;font-weight:800;margin:0;color:var(--text);">📸 Automação do Instagram</h2>
-            <div id="igHealth" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
-        </div>
-        <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+        <div class="ig-capa">
+            <div class="ig-capa-topo">
+                <div class="ig-capa-id">
+                    <span class="ig-capa-mark">📸</span>
+                    <div>
+                        <h2>Automação do Instagram</h2>
+                        <p class="sub">@eilaradam · o que está no ar, o que rendeu e o que gravar</p>
+                    </div>
+                </div>
+                <div id="igHealth" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+            </div>
+            <div class="ig-capa-abas">
             <button class="ig-subtab-btn active" data-ig-sub="visao" type="button">📊 Visão geral</button>
             <button class="ig-subtab-btn" data-ig-sub="ideias" type="button">💡 Ideias</button>
             <button class="ig-subtab-btn" data-ig-sub="roteiros" type="button">📜 Roteiros</button>
@@ -2812,6 +2852,7 @@
             <!-- ESCONDIDO (30/08/2026) a pedido da Lara: o sorteio saiu do caminho.
                  Pra devolver, é só tirar o hidden. -->
             <button class="ig-subtab-btn" data-ig-sub="sorteio" type="button" hidden>🎲 Sorteio</button>
+            </div>
         </div>
         <div id="igPaneVisao"><div id="igKpisBox"></div><div id="igReviewBox"></div><div id="igRelBox"></div><div id="igVisaoBox"><div style="padding:44px;text-align:center;color:var(--text-muted);">Carregando resumo...</div></div></div>
         <div id="igPaneIdeias" style="display:none;">
