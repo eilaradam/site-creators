@@ -78,7 +78,9 @@
         .subnav-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
         .subnav-btn:hover { color: var(--accent); }
         #tabCandidaturas .subnav-btn[data-tab="candidaturas"],
-        #tabCreators .subnav-btn[data-tab="creators"] { color: var(--accent); border-bottom-color: var(--accent); }
+        #tabCreators .subnav-btn[data-tab="creators"],
+        #tabImersao .subnav-btn[data-tab="imersao"],
+        #tabDirect .subnav-btn[data-tab="direct"] { color: var(--accent); border-bottom-color: var(--accent); }
         @media (max-width: 860px) { .subnav-btn { padding: 10px 12px; font-size: 12.5px; } }
 
         /* ===== Shell: sidebar + topbar ===== */
@@ -1200,9 +1202,9 @@
             </button>
 
             <div class="nav-section-label">Agência</div>
-            <!-- Um botao so pra Campanhas + Base de creators. Abre em Campanhas; a troca
+            <!-- Um botao so pra Base de creators + Campanhas. Abre na Base; a troca
                  entre as duas e pelo menuzinho no topo do painel (.subnav). -->
-            <button class="tab nav-item" data-tab="candidaturas" type="button">
+            <button class="tab nav-item" data-tab="creators" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 <span>Creators</span>
             </button>
@@ -1224,19 +1226,13 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>
                 <span>Automações</span>
             </button>
-            <button class="tab nav-item" data-tab="instagram" data-ig-jump="insights" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg>
-                <span>Análises</span>
-            </button>
 
             <div class="nav-section-label">Aulas e produtos</div>
+            <!-- Um botao so pra Imersao + Direct no Automatico. Abre na Imersao; a troca
+                 entre as duas e pelo menuzinho no topo do painel (.subnav). -->
             <button class="tab nav-item" data-tab="imersao" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                <span>Imersão</span>
-            </button>
-            <button class="tab nav-item" data-tab="direct" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l2-5.2A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg>
-                <span>Curso Direct no Automático</span>
+                <span>Aulas</span>
             </button>
 
             <div class="nav-section-label">Meus sites</div>
@@ -1662,8 +1658,8 @@
 <!-- ── TAB: CREATORS ── -->
 <div class="dashboard" id="tabCreators">
     <div class="subnav">
-        <button class="tab subnav-btn" data-tab="candidaturas" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg><span>Campanhas</span></button>
         <button class="tab subnav-btn" data-tab="creators" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Base de creators</span></button>
+        <button class="tab subnav-btn" data-tab="candidaturas" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg><span>Campanhas</span></button>
     </div>
     <div class="stats-row">
         <div class="stat-card accent"><div class="stat-value" id="statTotal">—</div><div class="stat-label">Total de creators</div></div>
@@ -2058,6 +2054,10 @@
 
 <!-- ── TAB: IMERSÃO ── -->
 <div class="dashboard" id="tabImersao">
+    <div class="subnav">
+        <button class="tab subnav-btn" data-tab="imersao" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Imersão</span></button>
+        <button class="tab subnav-btn" data-tab="direct" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l2-5.2A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg><span>Direct no Automático</span></button>
+    </div>
     <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
         <div>
             <h2 style="margin:0 0 4px 0;font-family:'DM Sans',sans-serif;font-weight:700;font-size:24px;">Imersão · imersao.laradam.com</h2>
@@ -2127,6 +2127,10 @@
 
 <!-- ── TAB: DIRECT NO AUTOMÁTICO (direct.laradam.com) ── -->
 <div class="dashboard" id="tabDirect">
+    <div class="subnav">
+        <button class="tab subnav-btn" data-tab="imersao" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Imersão</span></button>
+        <button class="tab subnav-btn" data-tab="direct" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l2-5.2A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg><span>Direct no Automático</span></button>
+    </div>
     <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
         <div>
             <h2 style="margin:0 0 4px 0;font-family:'DM Sans',sans-serif;font-weight:700;font-size:24px;">Direct no Automático · direct.laradam.com</h2>
@@ -3134,8 +3138,8 @@
 <!-- ── TAB: DISPARO DE E-MAIL ── -->
 <div class="dashboard" id="tabCandidaturas">
     <div class="subnav">
-        <button class="tab subnav-btn" data-tab="candidaturas" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg><span>Campanhas</span></button>
         <button class="tab subnav-btn" data-tab="creators" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Base de creators</span></button>
+        <button class="tab subnav-btn" data-tab="candidaturas" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg><span>Campanhas</span></button>
     </div>
     <div style="max-width:1000px;margin:0 auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
@@ -4132,8 +4136,9 @@
             /* Campanhas e Base de creators dividem o mesmo botao da barra lateral:
                ele precisa continuar aceso nas duas, inclusive quando a troca vem do
                menuzinho de cima (que tambem e um .tab e por isso limpou o active). */
-            if (target === 'candidaturas' || target === 'creators') {
-                const navBtn = document.querySelector('.sidebar-nav .nav-item[data-tab="candidaturas"]');
+            const DONO_NA_BARRA = { candidaturas: 'creators', creators: 'creators', direct: 'imersao', imersao: 'imersao' };
+            if (DONO_NA_BARRA[target]) {
+                const navBtn = document.querySelector('.sidebar-nav .nav-item[data-tab="' + DONO_NA_BARRA[target] + '"]');
                 if (navBtn) navBtn.classList.add('active');
             }
             try { localStorage.setItem('adminActiveTab', target); } catch {}
