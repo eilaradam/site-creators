@@ -2447,6 +2447,13 @@
     #tabInstagram .idea-rot-chips span.obj.crescer{border-color:#22a06b;color:#22a06b;}
     #tabInstagram .idea-rot-chips span.obj.engajar{border-color:#b7791f;color:#b7791f;}
     #tabInstagram .idea-rot-chips span.obj.vender{border-color:var(--accent);color:var(--accent);}
+    /* Qual IA escreve os roteiros. Fica junto do botão que dispara a geração. */
+    #tabInstagram .ig-modelo-l{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;
+        letter-spacing:.5px;text-transform:uppercase;color:var(--text-muted);}
+    #tabInstagram .ig-modelo-l select{font:inherit;font-size:12px;text-transform:none;letter-spacing:0;
+        font-weight:600;color:var(--text);background:var(--card);border:1px solid var(--border);
+        border-radius:9px;padding:6px 9px;cursor:pointer;max-width:230px;}
+    #tabInstagram .ig-modelo-l select:hover{border-color:var(--accent);}
     #tabInstagram .idea-batidas{margin-top:10px;}
     #tabInstagram .idea-batidas .bat{display:grid;grid-template-columns:92px minmax(0,1fr) minmax(0,30%);
         gap:0 12px;padding:10px 0;border-top:1px solid var(--border);align-items:start;}
@@ -5341,6 +5348,32 @@
 
     // ── Tabela estilo agencia (abas Fala inglês / Faz LiveShop) ──
     const C_NIVEL = { basico:'Básico', intermediario:'Intermediário', avancado:'Avançado', fluente:'Fluente', nativo:'Nativo' };
+    /* Qual modelo escreve os roteiros. Fica em configuracoes.id='ia_modelo' e a
+       edge function le de la, entao trocar aqui muda a geracao de verdade.
+       Todos foram testados na chave dela em 06/09/2026 e respondem em JSON. */
+    const IG_MODELOS = [
+        ['gpt-6-astra',   'GPT-6 Astra  ·  o mais novo'],
+        ['gpt-5.6-terra', 'GPT-5.6 Terra  ·  rápido'],
+        ['gpt-5.6-sol',   'GPT-5.6 Sol'],
+        ['gpt-5.6-luna',  'GPT-5.6 Luna'],
+        ['gpt-5.5',       'GPT-5.5'],
+        ['gpt-5.4',       'GPT-5.4'],
+        ['gpt-5.2',       'GPT-5.2'],
+        ['gpt-4o',        'GPT-4o  ·  o mais barato']
+    ];
+    let igModeloIA = 'gpt-6-astra';
+    async function igModeloCarregar() {
+        const { data } = await sb.from('configuracoes').select('conteudo').eq('id', 'ia_modelo').maybeSingle();
+        if (data && data.conteudo) igModeloIA = data.conteudo.trim();
+    }
+    async function igModeloSalvar(v) {
+        const antes = igModeloIA;
+        igModeloIA = v;
+        const { error } = await sb.from('configuracoes')
+            .upsert({ id: 'ia_modelo', conteudo: v, updated_at: new Date().toISOString() });
+        if (error) { igModeloIA = antes; alert('Não consegui salvar o modelo: ' + error.message); }
+    }
+
     const C_LIVE = { natural:'Sim, natural', topicos:'Sim, com tópicos', roteiro:'Só com roteiro', nao:'Ainda não / não faz' };
     const C_UGC = { natural:'Sim, natural', dificuldade:'Com dificuldade', nao:'Ainda não' };
     const C_SOT = { americano:'Americano', britanico:'Britânico', neutro:'Neutro', br_leve:'Sotaque BR leve', br_forte:'Sotaque BR forte' };
@@ -9476,6 +9509,7 @@
         if (sub === 'insights' && !igInsightsLoaded) { igInsightsLoaded = true; igLoadInsights(); }
         if (sub === 'concorrencia' && !igConcLoaded) { igConcLoaded = true; igLoadConcorrencia(); }
         if (sub === 'roteiros' && !rotCarregado) { rotCarregado = true; rotLoad(); }
+        igModeloCarregar();   /* qual IA escreve os roteiros */
         if (sub === 'pendentes' && !igPendLoaded) { igPendLoaded = true; igLoadPendentes(); }
         if (sub === 'sorteio' && !igSorteioLoaded) { igSorteioLoaded = true; igLoadSorteio(); }
     }
@@ -13336,9 +13370,14 @@
         html += '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 16px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">'
             + '<div>'
             + '<div style="font-size:13px;color:var(--text);font-weight:700;">' + (upd ? '🕒 Última atualização: ' + upd : 'Você ainda não gerou o estudo.') + '</div>'
-            + '<div style="font-size:12px;color:var(--text-muted);margin-top:2px;">' + (cm.posts_studied ? igNum(cm.posts_studied) + ' posts e ' + igNum(cm.total_comments || 0) + ' comentários analisados. Só atualiza quando você clica.' : 'Clique em "Atualizar agora" pra varrer todos os posts (leva 1-2 min).') + '</div>'
+            + '<div style="font-size:12px;color:var(--text-muted);margin-top:2px;">' + (cm.posts_studied ? igNum(cm.posts_studied) + ' posts e ' + igNum(cm.total_comments || 0) + ' comentários analisados' + (cm.modelo ? ', escritos pelo ' + escapeHtml(cm.modelo) : '') + '. Só atualiza quando você clica.' : 'Clique em "Atualizar agora" pra varrer todos os posts (leva 1-2 min).') + '</div>'
             + '</div>'
+            + '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'
+            + '<label class="ig-modelo-l" for="igModeloSel">Escreve com<select id="igModeloSel" onchange="igModeloSalvar(this.value)">'
+            + IG_MODELOS.map(m => '<option value="' + m[0] + '"' + (m[0] === igModeloIA ? ' selected' : '') + '>' + m[1] + '</option>').join('')
+            + '</select></label>'
             + '<button id="igRecalc" class="ig-sortbtn" type="button" style="font-weight:700;">🔄 Atualizar agora</button>'
+            + '</div>'
             + '</div>'
             + (MOSTRAR_QUEM_COMENTA
                 ? '<div style="font-size:15px;font-weight:800;color:var(--text);margin:0 0 3px;">🏆 Quem mais comenta <span style="font-weight:600;color:var(--text-muted);font-size:12px;">(todos os posts)</span></div>'
