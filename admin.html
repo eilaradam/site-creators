@@ -2440,6 +2440,27 @@
     #tabInstagram .idea-roteiro li{font-size:13.5px;line-height:1.6;color:var(--text-soft);margin-bottom:5px;}
     #tabInstagram .idea-roteiro .rot-cta-l{margin-top:10px;font-size:13px;color:var(--text-soft);background:var(--card);border-radius:9px;padding:8px 11px;}
     #tabInstagram .idea-roteiro .rot-cta-l b{display:block;font-size:9.5px;letter-spacing:1px;color:var(--accent);margin-bottom:2px;}
+    /* Roteiro por segundo: tempo · fala · direção de imagem, do jeito que ela escreve. */
+    #tabInstagram .idea-rot-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+    #tabInstagram .idea-rot-chips span{font-size:9.5px;letter-spacing:.6px;text-transform:uppercase;font-weight:700;
+        background:var(--card);border:1px solid var(--border);color:var(--text-muted);border-radius:20px;padding:3px 9px;}
+    #tabInstagram .idea-rot-chips span.obj.crescer{border-color:#22a06b;color:#22a06b;}
+    #tabInstagram .idea-rot-chips span.obj.engajar{border-color:#b7791f;color:#b7791f;}
+    #tabInstagram .idea-rot-chips span.obj.vender{border-color:var(--accent);color:var(--accent);}
+    #tabInstagram .idea-batidas{margin-top:10px;}
+    #tabInstagram .idea-batidas .bat{display:grid;grid-template-columns:92px minmax(0,1fr) minmax(0,30%);
+        gap:0 12px;padding:10px 0;border-top:1px solid var(--border);align-items:start;}
+    #tabInstagram .idea-batidas .bat:first-child{border-top:0;padding-top:2px;}
+    #tabInstagram .idea-batidas .t{font-size:11px;color:var(--text-muted);font-variant-numeric:tabular-nums;line-height:1.4;}
+    #tabInstagram .idea-batidas .t i{display:block;font-style:normal;font-weight:700;font-size:9.5px;
+        letter-spacing:.8px;color:var(--accent);margin-top:3px;}
+    #tabInstagram .idea-batidas .f{font-size:13.5px;line-height:1.6;color:var(--text);min-width:0;overflow-wrap:anywhere;}
+    #tabInstagram .idea-batidas .i{font-size:12px;line-height:1.5;color:var(--text-muted);min-width:0;
+        overflow-wrap:anywhere;padding-left:12px;border-left:1px solid var(--border);}
+    @media(max-width:640px){
+        #tabInstagram .idea-batidas .bat{grid-template-columns:1fr;gap:4px;}
+        #tabInstagram .idea-batidas .i{padding-left:0;border-left:0;}
+    }
     #tabInstagram .idea-modal{position:fixed;inset:0;background:rgba(30,26,22,.45);z-index:900;display:flex;align-items:center;justify-content:center;padding:20px;}
     #tabInstagram .idea-modal-box{background:var(--card);border-radius:20px;width:100%;max-width:620px;max-height:92vh;overflow:auto;box-shadow:0 18px 50px rgba(0,0,0,.25);}
     #tabInstagram .idea-modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:20px 24px 16px;border-bottom:1px solid var(--border);}
@@ -12886,8 +12907,10 @@
                     ? '<div class="idea-gancho"><span>GANCHO</span>' + escapeHtml(i.roteiro.gancho) + '</div>' : '')
                 + (i.descricao ? '<div class="idea-d">' + escapeHtml(i.descricao) + '</div>' : '')
                 + '<div class="idea-tags">'
-                + (i.roteiro && (i.roteiro.desenvolvimento || []).length
-                    ? '<span class="idea-tag rot">📜 roteiro pronto</span>' : '')
+                + (i.roteiro && (i.roteiro.batidas || []).length
+                    ? '<span class="idea-tag rot">📜 roteiro por segundo</span>'
+                    : (i.roteiro && (i.roteiro.desenvolvimento || []).length
+                        ? '<span class="idea-tag rot">📜 roteiro pronto</span>' : ''))
                 + (fmt ? '<span class="idea-tag fmt">' + escapeHtml(fmt) + '</span>' : '')
                 + '<span class="idea-tag st ' + (i.status || 'ideia') + '">' + st.ic + ' ' + st.nome + '</span>'
                 + tags
@@ -12929,12 +12952,29 @@
         /* Roteiro gerado com a voz dela: gancho, falas e CTA. So aparece quando existe. */
         const rb = document.getElementById('igIdeiaRoteiroBox');
         const rt = d.roteiro;
-        if (rb) rb.innerHTML = (rt && (rt.gancho || (rt.desenvolvimento || []).length))
+        if (rb) rb.innerHTML = (rt && (rt.gancho || (rt.batidas || []).length || (rt.desenvolvimento || []).length))
             ? '<div class="idea-roteiro">'
+                /* etiquetas do roteiro: objetivo, gravação, mecânica do gancho */
+                + ((rt.objetivo || rt.gravacao || rt.tipo_gancho)
+                    ? '<div class="idea-rot-chips">'
+                        + (rt.objetivo ? '<span class="obj ' + escapeHtml(rt.objetivo) + '">' + escapeHtml(rt.objetivo) + '</span>' : '')
+                        + (rt.gravacao ? '<span>' + escapeHtml(rt.gravacao) + '</span>' : '')
+                        + (rt.tipo_gancho ? '<span>gancho: ' + escapeHtml(rt.tipo_gancho) + '</span>' : '')
+                      + '</div>' : '')
                 + (rt.gancho ? '<div class="idea-gancho"><span>GANCHO</span>' + escapeHtml(rt.gancho) + '</div>' : '')
-                + ((rt.desenvolvimento || []).length
-                    ? '<ol>' + rt.desenvolvimento.map(f => '<li>' + escapeHtml(f) + '</li>').join('') + '</ol>' : '')
+                /* O roteiro por segundo. É assim que ela roteiriza: tempo, fala e imagem. */
+                + ((rt.batidas || []).length
+                    ? '<div class="idea-batidas">' + rt.batidas.map(b =>
+                        '<div class="bat"><div class="t">' + escapeHtml(b.tempo || '') + '<i>' + escapeHtml(b.batida || '') + '</i></div>'
+                        + '<div class="f">' + escapeHtml(b.fala || '') + '</div>'
+                        + '<div class="i">' + escapeHtml(b.imagem || '') + '</div></div>').join('')
+                      + '</div>'
+                    : ((rt.desenvolvimento || []).length
+                        ? '<ol>' + rt.desenvolvimento.map(f => '<li>' + escapeHtml(f) + '</li>').join('') + '</ol>' : ''))
+                + (rt.texto_na_tela ? '<div class="rot-cta-l"><b>TEXTO NA TELA</b>' + escapeHtml(rt.texto_na_tela) + '</div>' : '')
                 + (rt.cta ? '<div class="rot-cta-l"><b>CTA</b>' + escapeHtml(rt.cta) + '</div>' : '')
+                + (rt.legenda ? '<div class="rot-cta-l"><b>LEGENDA DO POST</b>' + escapeHtml(rt.legenda) + '</div>' : '')
+                + (rt.referencia ? '<div class="rot-cta-l"><b>SE PARECE COM</b>' + escapeHtml(rt.referencia) + '</div>' : '')
                 + '</div>'
             : '';
         document.getElementById('igIdeiaModal').style.display = 'flex';
@@ -12986,24 +13026,57 @@
         const temas = (d && d.themes) || [];
         if (btn) { btn.disabled = false; btn.textContent = '✨ Trazer das Análises'; }
         if (!temas.length) { alert('As Análises ainda não têm ideias de vídeo. Abra a aba Análises e clique em "Atualizar agora" pra a IA ler os comentários.'); return; }
-        const jaTem = new Set(igIdeias.map(i => (i.titulo || '').toLowerCase().trim()));
-        const novas = temas
-            .filter(t => t.tema && !jaTem.has(String(t.tema).toLowerCase().trim()))
-            .map(t => ({
-                titulo: t.tema,
-                /* A descricao passa a ser o POR QUE (qual dúvida dos comentários isso
-                   responde). O roteiro em si vai na coluna propria. */
+        /* Antes eu PULAVA todo tema cujo título já existia. Isso travava a
+           melhoria: as ideias velhas e genéricas ("gestão de leads") ocupavam o
+           título, então a versão nova, já com roteiro, nunca entrava. Agora,
+           título repetido cuja ideia antiga está SEM roteiro vira atualização. */
+        const porTitulo = new Map(igIdeias.map(i => [(i.titulo || '').toLowerCase().trim(), i]));
+        const F_FORMATO = { 'reel narrado': 'Reel', 'montagem muda': 'Reel', 'carrossel': 'Carrossel' };
+        const F_ESTILO = { camera: 'Câmera Frontal', criativo: 'Storytelling Looping', bastidor: 'Bastidor' };
+        const montaRoteiro = t => (t.gancho || (t.roteiro || []).length || (t.desenvolvimento || []).length)
+            ? {
+                gancho: t.gancho || null,
+                desenvolvimento: t.desenvolvimento || [],
+                cta: t.cta || null,
+                batidas: (t.roteiro || []).length ? t.roteiro : null,   /* tempo · fala · imagem */
+                legenda: t.legenda || null,
+                texto_na_tela: t.texto_na_tela || null,
+                objetivo: t.objetivo || null,
+                gravacao: t.gravacao || null,
+                tipo_gancho: t.tipo_gancho || null,
+                referencia: t.referencia || null
+            }
+            : null;
+        const novas = [], atualizar = [];
+        temas.forEach(t => {
+            if (!t.tema) return;
+            const rot = montaRoteiro(t);
+            const comum = {
                 descricao: t.por_que || t.ideia_video || null,
-                roteiro: (t.gancho || (t.desenvolvimento || []).length)
-                    ? { gancho: t.gancho || null, desenvolvimento: t.desenvolvimento || [], cta: t.cta || null }
-                    : null,
-                formato: 'Reel', status: 'ideia', origem: 'analises', tags: []
-            }));
-        if (!novas.length) { alert('Tudo que as Análises sugeriram já está no seu banco de ideias.'); return; }
-        const { error } = await sb.from('ig_ideias').insert(novas);
-        if (error) { alert('Não consegui trazer: ' + error.message); return; }
+                roteiro: rot,
+                formato: F_FORMATO[String(t.formato || '').toLowerCase()] || 'Reel',
+                estilo: F_ESTILO[String(t.gravacao || '').toLowerCase()] || null
+            };
+            const velha = porTitulo.get(String(t.tema).toLowerCase().trim());
+            if (!velha) novas.push(Object.assign({ titulo: t.tema, status: 'ideia', origem: 'analises', tags: [] }, comum));
+            else if (rot && !(velha.roteiro && velha.roteiro.batidas)) atualizar.push(Object.assign({ id: velha.id }, comum));
+        });
+        if (!novas.length && !atualizar.length) { alert('Tudo que as Análises sugeriram já está no seu banco, e já com roteiro.'); return; }
+        if (novas.length) {
+            const { error } = await sb.from('ig_ideias').insert(novas);
+            if (error) { alert('Não consegui trazer: ' + error.message); return; }
+        }
+        for (const a of atualizar) {
+            const id = a.id; delete a.id;
+            a.updated_at = new Date().toISOString();
+            const { error } = await sb.from('ig_ideias').update(a).eq('id', id);
+            if (error) { alert('Não consegui atualizar uma ideia: ' + error.message); break; }
+        }
         await igLoadIdeias();
-        alert(novas.length === 1 ? '1 ideia nova veio das Análises.' : novas.length + ' ideias novas vieram das Análises.');
+        const p = [];
+        if (novas.length) p.push(novas.length === 1 ? '1 ideia nova' : novas.length + ' ideias novas');
+        if (atualizar.length) p.push(atualizar.length === 1 ? '1 ideia antiga ganhou roteiro' : atualizar.length + ' ideias antigas ganharam roteiro');
+        alert(p.join(' e ') + '.');
     }
 
     // ---- Análises: blocos que ligam os números com trabalho ----
