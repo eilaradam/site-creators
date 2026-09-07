@@ -1362,6 +1362,24 @@
     .pnl-item .txt { flex: 1; min-width: 0; }
     .pnl-item .t { font-size: 14.5px; font-weight: 600; }
     .pnl-item .s { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
+    /* Briefings vindos da /ugc-ia. A pagina promete resposta em 24h, entao eles
+       ficam no Painel, que e a tela que ela abre todo dia. */
+    .pnl-brief { display: flex; gap: 13px; padding: 14px 17px; border-bottom: 1px solid var(--border); align-items: flex-start; }
+    .pnl-brief:last-child { border-bottom: none; }
+    .pnl-brief.lido { opacity: .5; }
+    .pnl-brief .quem { flex: 1; min-width: 0; }
+    .pnl-brief .n { font-size: 14.5px; font-weight: 700; }
+    .pnl-brief .n span { font-weight: 400; color: var(--text-muted); }
+    .pnl-brief .tags { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0 5px; }
+    .pnl-brief .tag { font-size: 11px; font-weight: 700; background: var(--accent-glow); color: var(--accent);
+        border-radius: 100px; padding: 2px 9px; white-space: nowrap; }
+    .pnl-brief .msg { font-size: 12.5px; color: var(--text-soft); line-height: 1.5; }
+    .pnl-brief .quando { font-size: 11.5px; color: var(--text-muted); white-space: nowrap; }
+    .pnl-brief .acoes { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; flex-shrink: 0; }
+    .pnl-brief .btn { border: 1px solid var(--border); background: var(--card); border-radius: 100px;
+        padding: 5px 12px; font-family: inherit; font-size: 11.5px; font-weight: 700; color: var(--text-soft); cursor: pointer; white-space: nowrap; }
+    .pnl-brief .btn:hover { border-color: var(--accent); color: var(--accent); }
+    .pnl-brief .btn.ok { border-color: var(--success); color: var(--success); }
     .pnl-item.feito .t { text-decoration: line-through; color: var(--text-muted); font-weight: 500; }
     .pnl-prazo { font-size: 12px; font-weight: 700; padding: 4px 11px; border-radius: 100px; white-space: nowrap; background: var(--warm); color: var(--text-soft); }
     .pnl-prazo.hoje { background: var(--accent-glow); color: var(--accent); }
@@ -1453,6 +1471,11 @@
             <div class="pnl-acoes" id="pnlAcoes">
                 <div class="pnl-vazio">Carregando…</div>
             </div>
+        </section>
+
+        <section class="pnl-sec">
+            <h3>Briefings do site <span class="aside" id="pnlBriefResumo"></span></h3>
+            <div class="pnl-linha" id="pnlBriefings"><div class="pnl-vazio">Carregando…</div></div>
         </section>
 
         <section class="pnl-sec">
@@ -11432,10 +11455,64 @@
             (h < 5 ? 'Boa madrugada' : h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite') + ', Lara';
         document.getElementById('pnlData').textContent =
             dias[dt.getDay()] + ', ' + dt.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' });
-        pnlAcoes(); pnlEntregas(); pnlMail();
+        pnlAcoes(); pnlBriefings(); pnlEntregas(); pnlMail();
     }
 
     /* ── bloco 1: o que precisa de você ── */
+    /* ── Briefings recebidos pela pagina /ugc-ia ──
+       Caem na tabela gestao_leads, que ate agora so era vista por e-mail. Se um
+       e-mail se perdesse, o lead sumia. Aqui ela ve, responde e marca. */
+    let pnlBriefTudo = false;
+    async function pnlBriefings() {
+        const box = document.getElementById('pnlBriefings'); if (!box) return;
+        const { data, error } = await sb.from('gestao_leads')
+            .select('id,created_at,name,email,whatsapp,company,budget,goal,message,status')
+            .order('created_at', { ascending: false }).limit(40);
+        if (error) { box.innerHTML = '<div class="pnl-vazio">Não consegui ler: ' + escapeHtml(error.message) + '</div>'; return; }
+        const todos = data || [];
+        const novos = todos.filter(l => l.status !== 'respondido');
+        const lista = pnlBriefTudo ? todos : novos;
+        const resumo = document.getElementById('pnlBriefResumo');
+        if (resumo) {
+            resumo.innerHTML = (novos.length ? '<b style="color:var(--accent);">' + novos.length + ' esperando</b>' : 'nenhum esperando')
+                + (todos.length > novos.length
+                    ? ' · <button class="btn" style="border:none;background:none;padding:0;color:var(--text-muted);text-decoration:underline;cursor:pointer;font-size:11px;" onclick="pnlBriefTudo=!pnlBriefTudo;pnlBriefings()">'
+                      + (pnlBriefTudo ? 'só os que esperam' : 'ver os respondidos') + '</button>'
+                    : '');
+        }
+        if (!lista.length) {
+            box.innerHTML = '<div class="pnl-vazio">Nenhum briefing esperando. Eles chegam pela página <b>ugc.laradam.com/ugc-ia</b>.</div>';
+            return;
+        }
+        box.innerHTML = lista.map(l => {
+            const quando = new Date(l.created_at);
+            const horas = Math.floor((Date.now() - quando.getTime()) / 36e5);
+            /* A pagina promete resposta em 24h: passou disso, fica vermelho. */
+            const atrasado = l.status !== 'respondido' && horas >= 24;
+            const idade = horas < 1 ? 'agora' : (horas < 24 ? horas + 'h' : Math.floor(horas / 24) + 'd');
+            const tags = [l.goal, l.budget].filter(Boolean)
+                .map(t => '<span class="tag">' + escapeHtml(t) + '</span>').join('');
+            return '<div class="pnl-brief' + (l.status === 'respondido' ? ' lido' : '') + '">'
+                + '<div class="quem">'
+                + '<div class="n">' + escapeHtml(l.name || 'sem nome')
+                + (l.company ? ' <span>· ' + escapeHtml(l.company) + '</span>' : '') + '</div>'
+                + (tags ? '<div class="tags">' + tags + '</div>' : '')
+                + (l.message ? '<div class="msg">' + escapeHtml(String(l.message).slice(0, 200)) + '</div>' : '')
+                + '</div>'
+                + '<div class="acoes">'
+                + '<span class="quando"' + (atrasado ? ' style="color:var(--error);font-weight:700;"' : '') + '>' + idade + '</span>'
+                + (l.email ? '<a class="btn" href="mailto:' + encodeURIComponent(l.email) + '?subject=' + encodeURIComponent('Sobre o seu briefing') + '">✉ responder</a>' : '')
+                + '<button class="btn' + (l.status === 'respondido' ? ' ok' : '') + '" type="button" onclick="pnlBriefMarcar(\'' + l.id + '\',\'' + (l.status === 'respondido' ? 'novo' : 'respondido') + '\')">'
+                + (l.status === 'respondido' ? '✓ respondido' : 'marcar como feito') + '</button>'
+                + '</div></div>';
+        }).join('');
+    }
+    async function pnlBriefMarcar(id, status) {
+        const { error } = await sb.from('gestao_leads').update({ status: status }).eq('id', id);
+        if (error) { alert('Não consegui salvar: ' + error.message); return; }
+        pnlBriefings();
+    }
+
     async function pnlAcoes() {
         const box = document.getElementById('pnlAcoes'); if (!box) return;
         const cnt = async (tabela, filtro) => {
