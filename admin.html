@@ -4123,31 +4123,31 @@
    FORA desses escopos, então herdavam zero: os campos saíam sem largura, com o
    rótulo colado do lado. É a terceira vez que esse escopo morde, então fica
    escrito aqui o porquê. */
-#tabObjetivos .ig-input, #objModal .ig-input, #pubModal .ig-input { width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:11px;background:#fff;color:var(--text);font-size:14px;font-family:inherit;box-sizing:border-box; }
+#tabObjetivos .ig-input, #objModal .ig-input, #pubModal .ig-input, #retroModal .ig-input { width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:11px;background:#fff;color:var(--text);font-size:14px;font-family:inherit;box-sizing:border-box; }
 #tabObjetivos textarea.ig-input, #objModal textarea.ig-input, #pubModal textarea.ig-input { min-height:78px;resize:vertical; }
-#tabObjetivos .ig-input:focus, #objModal .ig-input:focus, #pubModal .ig-input:focus { outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-glow); }
-#tabObjetivos .ig-btn, #objModal .ig-btn, #pubModal .ig-btn { background:var(--accent);color:#fff;border:none;border-radius:11px;padding:9px 16px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;box-shadow:0 2px 8px rgba(123,62,27,.20); }
-#tabObjetivos .ig-btn.ghost, #objModal .ig-btn.ghost, #pubModal .ig-btn.ghost { background:transparent;color:var(--text);border:1px solid var(--border);box-shadow:none; }
-#tabObjetivos .ig-btn.ghost:hover, #objModal .ig-btn.ghost:hover, #pubModal .ig-btn.ghost:hover { background:#F5F0EA; }
-#tabObjetivos .ig-subtab-btn, #objModal .ig-subtab-btn, #pubModal .ig-subtab-btn { background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:999px;padding:8px 18px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;transition:all .18s ease; }
-#tabObjetivos .ig-hchip, #objModal .ig-hchip, #pubModal .ig-hchip { background:var(--card);border:1px solid var(--border);border-radius:999px;padding:7px 14px;font-size:12.5px;font-weight:600;color:var(--text-muted);cursor:pointer;font-family:inherit;white-space:nowrap; }
+#tabObjetivos .ig-input:focus, #objModal .ig-input:focus, #pubModal .ig-input:focus, #retroModal .ig-input:focus { outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-glow); }
+#tabObjetivos .ig-btn, #objModal .ig-btn, #pubModal .ig-btn, #retroModal .ig-btn { background:var(--accent);color:#fff;border:none;border-radius:11px;padding:9px 16px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;box-shadow:0 2px 8px rgba(123,62,27,.20); }
+#tabObjetivos .ig-btn.ghost, #objModal .ig-btn.ghost, #pubModal .ig-btn.ghost, #retroModal .ig-btn.ghost { background:transparent;color:var(--text);border:1px solid var(--border);box-shadow:none; }
+#tabObjetivos .ig-btn.ghost:hover, #objModal .ig-btn.ghost:hover, #pubModal .ig-btn.ghost:hover, #retroModal .ig-btn.ghost:hover { background:#F5F0EA; }
+#tabObjetivos .ig-subtab-btn, #objModal .ig-subtab-btn, #pubModal .ig-subtab-btn, #retroModal .ig-subtab-btn { background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:999px;padding:8px 18px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;transition:all .18s ease; }
+#tabObjetivos .ig-hchip, #objModal .ig-hchip, #pubModal .ig-hchip, #retroModal .ig-hchip { background:var(--card);border:1px solid var(--border);border-radius:999px;padding:7px 14px;font-size:12.5px;font-weight:600;color:var(--text-muted);cursor:pointer;font-family:inherit;white-space:nowrap; }
 /* O próprio #objModal É o .idea-modal, então aqui não pode ter espaço: com
    descendente a regra não pegava e o modal caía no meio da página. */
-#objModal, #pubModal { position:fixed;inset:0;background:rgba(30,26,22,.45);z-index:900;align-items:center;justify-content:center;padding:20px; }
-#tabObjetivos .idea-modal-box, #objModal .idea-modal-box, #pubModal .idea-modal-box { background:var(--card);border-radius:20px;width:100%;max-width:620px;max-height:92vh;overflow:auto;box-shadow:0 18px 50px rgba(0,0,0,.25); }
-#tabObjetivos .idea-modal-head, #objModal .idea-modal-head, #pubModal .idea-modal-head { display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:20px 24px 16px;border-bottom:1px solid var(--border); }
-#tabObjetivos .idea-modal-head h3, #objModal .idea-modal-head h3, #pubModal .idea-modal-head h3 { font-size:20px;font-weight:800;color:var(--text);margin:3px 0 0; }
-#tabObjetivos .idea-modal-kicker, #objModal .idea-modal-kicker, #pubModal .idea-modal-kicker { font-size:10.5px;font-weight:800;letter-spacing:1.2px;color:var(--text-muted);text-transform:uppercase; }
-#tabObjetivos .idea-x, #objModal .idea-x, #pubModal .idea-x { background:var(--cream,#F1ECE6);border:none;color:var(--text-soft);width:32px;height:32px;border-radius:50%;font-size:14px;cursor:pointer;flex-shrink:0;font-family:inherit; }
-#tabObjetivos .idea-x:hover, #objModal .idea-x:hover, #pubModal .idea-x:hover { background:var(--border); }
-#tabObjetivos .idea-modal-body, #objModal .idea-modal-body, #pubModal .idea-modal-body { padding:18px 24px 4px; }
-#tabObjetivos .idea-lbl, #objModal .idea-lbl, #pubModal .idea-lbl { display:block;font-size:12.5px;font-weight:800;color:var(--text);margin:14px 0 6px; }
-#tabObjetivos .idea-lbl i, #objModal .idea-lbl i, #pubModal .idea-lbl i { font-style:normal;font-weight:400;color:var(--text-muted); }
-#tabObjetivos .idea-modal-body .idea-lbl:first-child, #objModal .idea-modal-body .idea-lbl:first-child, #pubModal .idea-modal-body .idea-lbl:first-child { margin-top:0; }
-#tabObjetivos .idea-row3, #objModal .idea-row3, #pubModal .idea-row3 { display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px; }
-#tabObjetivos .idea-modal-pe, #objModal .idea-modal-pe, #pubModal .idea-modal-pe { display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 24px 22px;flex-wrap:wrap; }
-#tabObjetivos .idea-del, #objModal .idea-del, #pubModal .idea-del { background:none;border:none;color:var(--error);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;padding:8px 4px; }
-#tabObjetivos .idea-del:hover, #objModal .idea-del:hover, #pubModal .idea-del:hover { text-decoration:underline; }
+#objModal, #pubModal, #retroModal { position:fixed;inset:0;background:rgba(30,26,22,.45);z-index:900;align-items:center;justify-content:center;padding:20px; }
+#tabObjetivos .idea-modal-box, #objModal .idea-modal-box, #pubModal .idea-modal-box, #retroModal .idea-modal-box { background:var(--card);border-radius:20px;width:100%;max-width:620px;max-height:92vh;overflow:auto;box-shadow:0 18px 50px rgba(0,0,0,.25); }
+#tabObjetivos .idea-modal-head, #objModal .idea-modal-head, #pubModal .idea-modal-head, #retroModal .idea-modal-head { display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:20px 24px 16px;border-bottom:1px solid var(--border); }
+#tabObjetivos .idea-modal-head h3, #objModal .idea-modal-head h3, #pubModal .idea-modal-head h3, #retroModal .idea-modal-head h3 { font-size:20px;font-weight:800;color:var(--text);margin:3px 0 0; }
+#tabObjetivos .idea-modal-kicker, #objModal .idea-modal-kicker, #pubModal .idea-modal-kicker, #retroModal .idea-modal-kicker { font-size:10.5px;font-weight:800;letter-spacing:1.2px;color:var(--text-muted);text-transform:uppercase; }
+#tabObjetivos .idea-x, #objModal .idea-x, #pubModal .idea-x, #retroModal .idea-x { background:var(--cream,#F1ECE6);border:none;color:var(--text-soft);width:32px;height:32px;border-radius:50%;font-size:14px;cursor:pointer;flex-shrink:0;font-family:inherit; }
+#tabObjetivos .idea-x:hover, #objModal .idea-x:hover, #pubModal .idea-x:hover, #retroModal .idea-x:hover { background:var(--border); }
+#tabObjetivos .idea-modal-body, #objModal .idea-modal-body, #pubModal .idea-modal-body, #retroModal .idea-modal-body { padding:18px 24px 4px; }
+#tabObjetivos .idea-lbl, #objModal .idea-lbl, #pubModal .idea-lbl, #retroModal .idea-lbl { display:block;font-size:12.5px;font-weight:800;color:var(--text);margin:14px 0 6px; }
+#tabObjetivos .idea-lbl i, #objModal .idea-lbl i, #pubModal .idea-lbl i, #retroModal .idea-lbl i { font-style:normal;font-weight:400;color:var(--text-muted); }
+#tabObjetivos .idea-modal-body .idea-lbl:first-child, #objModal .idea-modal-body .idea-lbl:first-child, #pubModal .idea-modal-body .idea-lbl:first-child, #retroModal .idea-modal-body .idea-lbl:first-child { margin-top:0; }
+#tabObjetivos .idea-row3, #objModal .idea-row3, #pubModal .idea-row3, #retroModal .idea-row3 { display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px; }
+#tabObjetivos .idea-modal-pe, #objModal .idea-modal-pe, #pubModal .idea-modal-pe, #retroModal .idea-modal-pe { display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 24px 22px;flex-wrap:wrap; }
+#tabObjetivos .idea-del, #objModal .idea-del, #pubModal .idea-del, #retroModal .idea-del { background:none;border:none;color:var(--error);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;padding:8px 4px; }
+#tabObjetivos .idea-del:hover, #objModal .idea-del:hover, #pubModal .idea-del:hover, #retroModal .idea-del:hover { text-decoration:underline; }
 /* a aba Carrossel usa os mesmos controles e também está fora do escopo */
 #tabCarrossel .ig-input { width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:11px;background:#fff;color:var(--text);font-size:14px;font-family:inherit;box-sizing:border-box; }
 #tabCarrossel .ig-input:focus { outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-glow); }
@@ -4177,6 +4177,40 @@
     #objModal .idea-modal-box, #pubModal .idea-modal-box { max-width: none; border-radius: 20px 20px 0 0; max-height: 94vh; }
 }
 </style>
+
+<!-- Alcançar quem comentou antes da automação existir. Manda "private reply" no
+     comentário, que o Instagram só aceita por 7 dias. Sempre simula antes. -->
+<div id="retroModal" class="idea-modal" style="display:none;">
+    <div class="idea-modal-box">
+        <div class="idea-modal-head">
+            <div><div class="idea-modal-kicker">QUEM COMENTOU ANTES</div><h3 id="retroT">Alcançar quem ficou de fora</h3></div>
+            <button class="idea-x" type="button" onclick="retroFechar()">✕</button>
+        </div>
+        <div class="idea-modal-body">
+            <div id="retroInfo" style="font-size:13.5px;color:var(--text-soft);line-height:1.6;">Lendo os comentários…</div>
+            <div id="retroForm" style="display:none;">
+                <label class="idea-lbl">Mensagem <i>o {LINK} vira o link; sem ele o link entra no fim</i></label>
+                <textarea id="retroMsg" class="ig-input" rows="5"></textarea>
+                <label class="idea-lbl">Link</label>
+                <input id="retroLink" class="ig-input" type="text">
+                <label class="idea-lbl">Enviar no máximo</label>
+                <input id="retroMax" class="ig-input" type="number" value="25" min="1" max="200">
+                <div style="font-size:12px;color:var(--text-muted);margin-top:8px;line-height:1.55;">
+                    Vai com 2 segundos entre um envio e outro, e em três versões diferentes do texto,
+                    pra não parecer disparo. Quem já recebeu é pulado.
+                </div>
+            </div>
+        </div>
+        <div class="idea-modal-pe">
+            <span id="retroStatus" style="font-size:12.5px;color:var(--text-muted);"></span>
+            <div style="display:flex;gap:8px;">
+                <button class="ig-btn ghost" type="button" onclick="retroFechar()">Fechar</button>
+                <button id="retroEnviar" class="ig-btn" type="button" onclick="retroEnviar()" style="display:none;">📨 Enviar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="objModal" class="idea-modal" style="display:none;">
     <div class="idea-modal-box">
         <div class="idea-modal-head">
@@ -13007,6 +13041,97 @@
         carGuarda(); carDesenha();
     }
 
+
+    /* ── Alcançar quem comentou antes da automação existir ──
+       O Instagram só aceita resposta privada até 7 dias depois do comentário,
+       então isso tem prazo. Simula sempre antes de enviar: mandar DM pra gente
+       de verdade não é coisa de clicar e torcer. */
+    let retroAuto = null, retroDados = null;
+
+    function retroMsgPadrao(a) {
+        const f = a.flow && a.flow.steps ? a.flow.steps : [];
+        const ultimo = f.length ? f[f.length - 1] : null;
+        const btn = ultimo && (ultimo.buttons || []).find(function (b) { return b.url; });
+        const corpo = f.map(function (s) { return String(s.message || '').trim(); }).filter(Boolean).join('\n\n');
+        return { msg: corpo || String(a.link_message || '').trim(), link: (btn && btn.url) || a.link_url || '' };
+    }
+    async function retroAbrir(id) {
+        const a = igAutomations.find(function (x) { return x.id === id; }); if (!a) return;
+        retroAuto = a; retroDados = null;
+        const mid = (a.media_ids || [])[0];
+        document.getElementById('retroT').textContent = a.nome || 'Automação';
+        document.getElementById('retroForm').style.display = 'none';
+        document.getElementById('retroEnviar').style.display = 'none';
+        document.getElementById('retroStatus').textContent = '';
+        document.getElementById('retroModal').style.display = 'flex';
+        const info = document.getElementById('retroInfo');
+        if (!mid) { info.textContent = 'Essa automação não está ligada a nenhum post, então não há comentários pra varrer.'; return; }
+        info.textContent = 'Lendo os comentários do post…';
+        const palavra = String(a.keyword || '').split(',')[0].trim() || 'aula';
+        try {
+            const r = await sb.functions.invoke('ig-retro', { body: { action: 'scan', media_id: mid, keyword: palavra } });
+            const d = r && r.data;
+            if (!d || d.error || typeof d.total_comments !== 'number') {
+                throw new Error((d && d.error && (d.error.message || d.error)) || 'a função não devolveu os comentários');
+            }
+            const s = await sb.functions.invoke('ig-retro', {
+                body: { action: 'send', dry: true, media_id: mid, keyword: palavra, automation_id: a.id },
+            });
+            retroDados = { scan: d, seco: (s && s.data) || {}, media_id: mid, palavra: palavra };
+            const faltam = retroDados.seco.faltam_receber;
+            info.innerHTML = '<b>' + d.total_comments + '</b> comentários no post · <b>' + d.pessoas_que_casam
+                + '</b> escreveram "' + escapeHtml(palavra) + '"<br>'
+                + '<b style="color:var(--success);">' + (faltam == null ? '?' : faltam) + '</b> ainda dá pra alcançar'
+                + (retroDados.seco.ja_receberam ? ' · ' + retroDados.seco.ja_receberam + ' já receberam' : '')
+                + (d.fora_da_janela ? ' · <b style="color:var(--alerta);">' + d.fora_da_janela + ' passaram dos 7 dias</b>' : '')
+                + (d.fora_da_janela ? '<br><span style="font-size:12px;color:var(--text-muted);">Quem passou dos 7 dias o Instagram não deixa mais responder. Esses só por post novo.</span>' : '');
+            if (!faltam) { document.getElementById('retroForm').style.display = 'none'; return; }
+            const p = retroMsgPadrao(a);
+            document.getElementById('retroMsg').value = p.msg;
+            document.getElementById('retroLink').value = p.link;
+            document.getElementById('retroMax').value = Math.min(faltam, 60);
+            document.getElementById('retroForm').style.display = '';
+            document.getElementById('retroEnviar').style.display = '';
+            document.getElementById('retroEnviar').textContent = '📨 Enviar pra ' + faltam;
+        } catch (e) {
+            info.textContent = 'Não consegui ler os comentários: ' + (e.message || e);
+        }
+    }
+    function retroFechar() { document.getElementById('retroModal').style.display = 'none'; retroAuto = null; }
+
+    async function retroEnviar() {
+        if (!retroAuto || !retroDados) return;
+        const msg = document.getElementById('retroMsg').value.trim();
+        if (!msg) { alert('Escreve a mensagem.'); return; }
+        const link = document.getElementById('retroLink').value.trim();
+        const max = Math.max(1, Number(document.getElementById('retroMax').value) || 25);
+        if (!confirm('Vou mandar DM pra ' + max + ' pessoa(s) de verdade. Confirma?')) return;
+        const btn = document.getElementById('retroEnviar');
+        btn.disabled = true; btn.textContent = 'Enviando…';
+        document.getElementById('retroStatus').textContent = 'leva uns ' + Math.ceil(max * 2 / 60) + ' min, não feche';
+        /* Três versões do mesmo recado: texto idêntico em massa é o padrão que já
+           derrubou a conta dela uma vez. */
+        const variantes = [msg, msg.replace(/^Oie!?/i, 'Oi!'), msg.replace(/^Oie!?/i, 'Oiee')];
+        try {
+            const r = await sb.functions.invoke('ig-retro', {
+                body: { action: 'send', media_id: retroDados.media_id, keyword: retroDados.palavra,
+                        automation_id: retroAuto.id, message_variants: [...new Set(variantes)],
+                        link: link, max: max, delayMs: 2000 },
+            });
+            const d = (r && r.data) || {};
+            document.getElementById('retroStatus').textContent = '';
+            document.getElementById('retroInfo').innerHTML = '<b style="color:var(--success);">' + (d.enviados || d.sent || 0)
+                + ' enviadas</b>' + ((d.falhas || d.failed) ? ' · ' + (d.falhas || d.failed) + ' falharam' : '')
+                + (d.motivo_parada || d.stopReason ? '<br><span style="color:var(--alerta);">parou: ' + escapeHtml(String(d.motivo_parada || d.stopReason)) + '</span>' : '');
+            document.getElementById('retroForm').style.display = 'none';
+            btn.style.display = 'none';
+        } catch (e) {
+            document.getElementById('retroStatus').textContent = '';
+            alert('Não consegui enviar: ' + (e.message || e));
+            btn.disabled = false; btn.textContent = '📨 Enviar';
+        }
+    }
+
     // ---- Faixa de saúde (entregas) + tela de Entregas ----
     let igLogFilter = 'all';
     let igLogRows = [];
@@ -13246,6 +13371,8 @@
                 + '</div>'
                 + '<div style="display:flex;gap:8px;flex-shrink:0;align-items:center;">'
                 + '<button class="ig-switch' + (a.active ? ' on' : '') + '" type="button" role="switch" aria-checked="' + (a.active ? 'true' : 'false') + '" title="' + (a.active ? 'Ativa · clique pra pausar' : 'Pausada · clique pra ativar') + '" data-ig-act="toggle" data-ig-id="' + a.id + '"></button>'
+                + ((a.media_ids && a.media_ids.length)
+                    ? '<button class="ig-btn ghost" type="button" title="Mandar pra quem comentou antes da automação existir" data-ig-act="retro" data-ig-id="' + a.id + '">📨 Quem ficou de fora</button>' : '')
                 + '<button class="ig-btn ghost" type="button" data-ig-act="edit" data-ig-id="' + a.id + '">Editar</button>'
                 + '<button class="ig-iconbtn" type="button" title="Excluir" data-ig-act="delete" data-ig-id="' + a.id + '">🗑</button>'
                 + '</div>'
@@ -15002,6 +15129,7 @@
             if (act === 'toggle') igToggleActive(id);
             else if (act === 'edit') igEdit(id);
             else if (act === 'delete') igDeleteAuto(id);
+            else if (act === 'retro') retroAbrir(id);
         });
     })();
 </script>
