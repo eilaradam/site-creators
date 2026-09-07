@@ -1363,23 +1363,41 @@
     .pnl-item .t { font-size: 14.5px; font-weight: 600; }
     .pnl-item .s { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
     /* Briefings vindos da /ugc-ia. A pagina promete resposta em 24h, entao eles
-       ficam no Painel, que e a tela que ela abre todo dia. */
-    .pnl-brief { display: flex; gap: 13px; padding: 14px 17px; border-bottom: 1px solid var(--border); align-items: flex-start; }
-    .pnl-brief:last-child { border-bottom: none; }
-    .pnl-brief.lido { opacity: .5; }
-    .pnl-brief .quem { flex: 1; min-width: 0; }
-    .pnl-brief .n { font-size: 14.5px; font-weight: 700; }
-    .pnl-brief .n span { font-weight: 400; color: var(--text-muted); }
-    .pnl-brief .tags { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0 5px; }
-    .pnl-brief .tag { font-size: 11px; font-weight: 700; background: var(--accent-glow); color: var(--accent);
-        border-radius: 100px; padding: 2px 9px; white-space: nowrap; }
-    .pnl-brief .msg { font-size: 12.5px; color: var(--text-soft); line-height: 1.5; }
-    .pnl-brief .quando { font-size: 11.5px; color: var(--text-muted); white-space: nowrap; }
-    .pnl-brief .acoes { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; flex-shrink: 0; }
+       ficam no Painel, que e a tela que ela abre todo dia. Cartao e nao linha:
+       cada pedido traz nome, contato, tamanho, orcamento e mensagem, e linha
+       larga deixava tudo isso boiando no vazio. */
+    .pnl-briefs { display: grid; gap: 10px; }
+    .pnl-brief { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+        border-radius: var(--radius); padding: 15px 17px; display: grid; gap: 11px; transition: border-color .15s, box-shadow .15s; }
+    .pnl-brief:hover { box-shadow: var(--shadow-sm); }
+    .pnl-brief.lido { border-left-color: var(--border); background: var(--bege); }
+    .pnl-brief.lido .cab .n, .pnl-brief.lido .msg { color: var(--text-muted); }
+    .pnl-brief .cab { display: flex; align-items: center; gap: 11px; }
+    .pnl-brief .ini { flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%; background: var(--accent-glow);
+        color: var(--accent); font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+    .pnl-brief.lido .ini { background: var(--warm); color: var(--text-muted); }
+    .pnl-brief .quem { flex: 1; min-width: 0; display: block; }
+    .pnl-brief .n { display: block; font-size: 15px; font-weight: 800; color: var(--text); line-height: 1.25; }
+    .pnl-brief .c { display: block; font-size: 12.5px; color: var(--text-muted); margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pnl-brief .quando { font-size: 11.5px; font-weight: 700; color: var(--text-muted); white-space: nowrap;
+        background: var(--warm); border-radius: 100px; padding: 4px 10px; flex-shrink: 0; }
+    .pnl-brief .quando.tarde { background: rgba(196,69,60,0.1); color: var(--error); }
+    .pnl-brief .tags { display: flex; gap: 7px; flex-wrap: wrap; }
+    .pnl-brief .tag { font-size: 11.5px; font-weight: 700; border-radius: 100px; padding: 4px 11px; white-space: nowrap;
+        background: var(--warm); color: var(--text-soft); }
+    .pnl-brief .tag.grana { background: var(--accent-glow); color: var(--accent); }
+    .pnl-brief .msg { font-size: 13px; color: var(--text-soft); line-height: 1.55; background: var(--bege);
+        border-radius: 10px; padding: 10px 13px; }
+    .pnl-brief.lido .msg { background: var(--card); }
+    .pnl-brief .pe { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
     .pnl-brief .btn { border: 1px solid var(--border); background: var(--card); border-radius: 100px;
-        padding: 5px 12px; font-family: inherit; font-size: 11.5px; font-weight: 700; color: var(--text-soft); cursor: pointer; white-space: nowrap; }
+        padding: 7px 15px; font-family: inherit; font-size: 12.5px; font-weight: 700; color: var(--text-soft);
+        cursor: pointer; white-space: nowrap; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
     .pnl-brief .btn:hover { border-color: var(--accent); color: var(--accent); }
+    .pnl-brief .btn.forte { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .pnl-brief .btn.forte:hover { background: var(--accent-dark); color: #fff; }
     .pnl-brief .btn.ok { border-color: var(--success); color: var(--success); }
+    @media (max-width: 640px) { .pnl-brief .pe { justify-content: stretch; } .pnl-brief .btn { flex: 1; justify-content: center; } }
     .pnl-item.feito .t { text-decoration: line-through; color: var(--text-muted); font-weight: 500; }
     .pnl-prazo { font-size: 12px; font-weight: 700; padding: 4px 11px; border-radius: 100px; white-space: nowrap; background: var(--warm); color: var(--text-soft); }
     .pnl-prazo.hoje { background: var(--accent-glow); color: var(--accent); }
@@ -1475,7 +1493,7 @@
 
         <section class="pnl-sec">
             <h3>Briefings do site <span class="aside" id="pnlBriefResumo"></span></h3>
-            <div class="pnl-linha" id="pnlBriefings"><div class="pnl-vazio">Carregando…</div></div>
+            <div id="pnlBriefings"><div class="pnl-linha"><div class="pnl-vazio">Carregando…</div></div></div>
         </section>
 
         <section class="pnl-sec">
@@ -11468,7 +11486,7 @@
         const { data, error } = await sb.from('gestao_leads')
             .select('id,created_at,name,email,whatsapp,company,budget,goal,message,status')
             .order('created_at', { ascending: false }).limit(40);
-        if (error) { box.innerHTML = '<div class="pnl-vazio">Não consegui ler: ' + escapeHtml(error.message) + '</div>'; return; }
+        if (error) { box.innerHTML = '<div class="pnl-linha"><div class="pnl-vazio">Não consegui ler: ' + escapeHtml(error.message) + '</div></div>'; return; }
         const todos = data || [];
         const novos = todos.filter(l => l.status !== 'respondido');
         const lista = pnlBriefTudo ? todos : novos;
@@ -11481,31 +11499,40 @@
                     : '');
         }
         if (!lista.length) {
-            box.innerHTML = '<div class="pnl-vazio">Nenhum briefing esperando. Eles chegam pela página <b>ugc.laradam.com/ugc-ia</b>.</div>';
+            box.innerHTML = '<div class="pnl-linha"><div class="pnl-vazio">Nenhum briefing esperando. Eles chegam pela página <b>ugc.laradam.com/ugc-ia</b>.</div></div>';
             return;
         }
-        box.innerHTML = lista.map(l => {
+        box.innerHTML = '<div class="pnl-briefs">' + lista.map(l => {
             const quando = new Date(l.created_at);
             const horas = Math.floor((Date.now() - quando.getTime()) / 36e5);
             /* A pagina promete resposta em 24h: passou disso, fica vermelho. */
             const atrasado = l.status !== 'respondido' && horas >= 24;
             const idade = horas < 1 ? 'agora' : (horas < 24 ? horas + 'h' : Math.floor(horas / 24) + 'd');
-            const tags = [l.goal, l.budget].filter(Boolean)
-                .map(t => '<span class="tag">' + escapeHtml(t) + '</span>').join('');
-            return '<div class="pnl-brief' + (l.status === 'respondido' ? ' lido' : '') + '">'
-                + '<div class="quem">'
-                + '<div class="n">' + escapeHtml(l.name || 'sem nome')
-                + (l.company ? ' <span>· ' + escapeHtml(l.company) + '</span>' : '') + '</div>'
-                + (tags ? '<div class="tags">' + tags + '</div>' : '')
-                + (l.message ? '<div class="msg">' + escapeHtml(String(l.message).slice(0, 200)) + '</div>' : '')
+            const nome = (l.name || 'sem nome').trim();
+            const inicial = nome.charAt(0).toUpperCase() || '?';
+            /* Empresa e contato na mesma linha: e o que ela precisa pra decidir se
+               responde agora, e antes nao aparecia em lugar nenhum. */
+            const contato = [l.company, l.email, l.whatsapp].filter(Boolean).join(' · ');
+            const tags = [
+                l.goal ? '<span class="tag">' + escapeHtml(l.goal) + '</span>' : '',
+                l.budget ? '<span class="tag grana">' + escapeHtml(l.budget) + '</span>' : ''
+            ].join('');
+            const resp = l.status === 'respondido';
+            return '<div class="pnl-brief' + (resp ? ' lido' : '') + '">'
+                + '<div class="cab">'
+                + '<span class="ini">' + escapeHtml(inicial) + '</span>'
+                + '<span class="quem"><span class="n">' + escapeHtml(nome) + '</span>'
+                + (contato ? '<span class="c">' + escapeHtml(contato) + '</span>' : '') + '</span>'
+                + '<span class="quando' + (atrasado ? ' tarde' : '') + '">' + idade + '</span>'
                 + '</div>'
-                + '<div class="acoes">'
-                + '<span class="quando"' + (atrasado ? ' style="color:var(--error);font-weight:700;"' : '') + '>' + idade + '</span>'
-                + (l.email ? '<a class="btn" href="mailto:' + encodeURIComponent(l.email) + '?subject=' + encodeURIComponent('Sobre o seu briefing') + '">✉ responder</a>' : '')
-                + '<button class="btn' + (l.status === 'respondido' ? ' ok' : '') + '" type="button" onclick="pnlBriefMarcar(\'' + l.id + '\',\'' + (l.status === 'respondido' ? 'novo' : 'respondido') + '\')">'
-                + (l.status === 'respondido' ? '✓ respondido' : 'marcar como feito') + '</button>'
+                + (tags ? '<div class="tags">' + tags + '</div>' : '')
+                + (l.message ? '<div class="msg">' + escapeHtml(String(l.message).slice(0, 260)) + '</div>' : '')
+                + '<div class="pe">'
+                + '<button class="btn' + (resp ? ' ok' : '') + '" type="button" onclick="pnlBriefMarcar(\'' + l.id + '\',\'' + (resp ? 'novo' : 'respondido') + '\')">'
+                + (resp ? '✓ respondido' : 'marcar como feito') + '</button>'
+                + (l.email ? '<a class="btn' + (resp ? '' : ' forte') + '" href="mailto:' + escapeHtml(l.email) + '?subject=' + encodeURIComponent('Sobre o seu briefing') + '">✉ responder</a>' : '')
                 + '</div></div>';
-        }).join('');
+        }).join('') + '</div>';
     }
     async function pnlBriefMarcar(id, status) {
         const { error } = await sb.from('gestao_leads').update({ status: status }).eq('id', id);
@@ -12262,7 +12289,7 @@
         const grid = document.getElementById('igAssetsGrid'); if (!grid) return;
         grid.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);">Carregando...</div>';
         const { data, error } = await sb.from('ig_assets').select('*').order('created_at', { ascending: false });
-        if (error) { grid.innerHTML = '<div style="color:var(--error);padding:12px;">Erro: ' + escapeHtml(error.message) + '</div>'; return; }
+        if (error) { grid.innerHTML = '<div style="color:var(--error);padding:12px;">Erro: ' + escapeHtml(error.message) + '</div></div>'; return; }
         igAssets = data || [];
         igRenderAssets();
     }
@@ -13345,7 +13372,7 @@
         const list = document.getElementById('igLogList');
         list.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando...</div>';
         const { data, error } = await sb.from('ig_deliveries').select('*').order('ts', { ascending: false }).limit(100);
-        if (error) { list.innerHTML = '<div style="color:var(--error);padding:16px;">Erro: ' + escapeHtml(error.message) + '</div>'; return; }
+        if (error) { list.innerHTML = '<div style="color:var(--error);padding:16px;">Erro: ' + escapeHtml(error.message) + '</div></div>'; return; }
         igLogRows = data || [];
         igRenderLog();
     }
@@ -13377,7 +13404,7 @@
         const box = document.getElementById('igMarcasBox');
         box.innerHTML = '<div style="color:var(--text-muted);padding:16px;">Carregando conversas analisadas...</div>';
         const { data, error } = await sb.from('ig_dm_convos').select('*').order('last_message_at', { ascending: false });
-        if (error) { box.innerHTML = '<div style="color:var(--error);padding:16px;">Erro: ' + escapeHtml(error.message) + '</div>'; return; }
+        if (error) { box.innerHTML = '<div style="color:var(--error);padding:16px;">Erro: ' + escapeHtml(error.message) + '</div></div>'; return; }
         igMarcasData = data || [];
         igRenderMarcas();
         igUpdateMarcasBtn();
@@ -13510,7 +13537,7 @@
         const list = document.getElementById('igAutoList');
         list.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando...</div>';
         const { data, error } = await sb.from('ig_automations').select('*').order('created_at', { ascending: false });
-        if (error) { list.innerHTML = '<div style="color:var(--error);padding:16px;">Erro ao carregar: ' + escapeHtml(error.message) + '</div>'; return; }
+        if (error) { list.innerHTML = '<div style="color:var(--error);padding:16px;">Erro ao carregar: ' + escapeHtml(error.message) + '</div></div>'; return; }
         igAutomations = data || [];
         igRenderAutomations();
     }
@@ -14583,7 +14610,7 @@
         const box = document.getElementById('igIdeiasBox'); if (!box) return;
         box.innerHTML = '<div style="padding:36px;text-align:center;color:var(--text-muted);">Carregando suas ideias…</div>';
         const { data, error } = await sb.from('ig_ideias').select('*').order('created_at', { ascending: false });
-        if (error) { box.innerHTML = '<div style="color:var(--error);padding:16px;">Não consegui carregar as ideias: ' + escapeHtml(error.message) + '</div>'; return; }
+        if (error) { box.innerHTML = '<div style="color:var(--error);padding:16px;">Não consegui carregar as ideias: ' + escapeHtml(error.message) + '</div></div>'; return; }
         igIdeias = data || [];
         igIdeiasRender();
     }
