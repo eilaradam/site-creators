@@ -2539,6 +2539,24 @@
         #tabInstagram .idea-batidas .bat{grid-template-columns:1fr;gap:4px;}
         #tabInstagram .idea-batidas .i{padding-left:0;border-left:0;}
     }
+    /* Card da automação vira botão: clique abre o painel de resultado. */
+    #tabInstagram .ig-autocard{background:var(--card);border:1px solid var(--border);border-radius:14px;
+        padding:16px 18px;margin-bottom:12px;cursor:pointer;transition:border-color .15s,box-shadow .15s;}
+    #tabInstagram .ig-autocard:hover{border-color:var(--border-strong);}
+    #tabInstagram .ig-autocard.aberto{border-color:var(--accent);box-shadow:0 4px 18px rgba(123,62,27,.10);}
+    #tabInstagram .igp{margin-top:15px;padding-top:15px;border-top:1px solid var(--border);cursor:default;}
+    #tabInstagram .igp-load{font-size:13px;color:var(--text-muted);padding:6px 0;}
+    #tabInstagram .igp-grade{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;}
+    #tabInstagram .igp-c{background:var(--warm);border-radius:11px;padding:11px 13px;}
+    #tabInstagram .igp-c b{display:block;font-size:23px;font-weight:800;letter-spacing:-.6px;color:var(--text);line-height:1.1;}
+    #tabInstagram .igp-c span{display:block;font-size:11.5px;color:var(--text-soft);margin-top:3px;line-height:1.35;}
+    #tabInstagram .igp-c i{display:block;font-style:normal;font-size:11px;font-weight:700;color:var(--accent);margin-top:4px;}
+    #tabInstagram .igp-linha{display:flex;gap:16px;flex-wrap:wrap;margin-top:11px;font-size:12.5px;color:var(--text-soft);}
+    #tabInstagram .igp-gap{margin-top:11px;font-size:12.5px;color:var(--text-muted);line-height:1.55;
+        background:var(--bege);border-radius:10px;padding:10px 12px;}
+    #tabInstagram .igp-gap b{color:var(--text);}
+    #tabInstagram .igp-link{background:none;border:none;padding:0;font-family:inherit;font-size:12.5px;
+        font-weight:700;color:var(--accent);cursor:pointer;text-decoration:underline;}
     #tabInstagram .idea-modal{position:fixed;inset:0;background:rgba(30,26,22,.45);z-index:900;display:flex;align-items:center;justify-content:center;padding:20px;}
     #tabInstagram .idea-modal-box{background:var(--card);border-radius:20px;width:100%;max-width:620px;max-height:92vh;overflow:auto;box-shadow:0 18px 50px rgba(0,0,0,.25);}
     #tabInstagram .idea-modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:20px 24px 16px;border-bottom:1px solid var(--border);}
@@ -13148,6 +13166,74 @@
         }
     }
 
+
+    /* ── Painel da automação: abre no clique do card ──
+       Tudo aqui sai de dado que já existe. ig_deliveries diz quem recebeu,
+       ig_leads.flow_step diz quem TOCOU no botão (passar do passo 1 só acontece
+       por toque), e comments_count do post diz quantos comentaram. Clique em
+       link externo o Instagram não conta, então isso não aparece. */
+    const igPainelAberto = new Set();
+    const igPainelCache = {};
+
+    async function igPainel(id) {
+        if (igPainelAberto.has(id)) { igPainelAberto.delete(id); igRenderAutomations(); return; }
+        igPainelAberto.add(id); igRenderAutomations();
+        if (igPainelCache[id]) return;
+        const [ent, leads] = await Promise.all([
+            sb.from('ig_deliveries').select('ig_user_id,tipo,status,ts').eq('automation_id', id).range(0, 4999),
+            sb.from('ig_leads').select('ig_user_id,flow_step,link_sent,updated_at').eq('automation_id', id).range(0, 4999),
+        ]);
+        igPainelCache[id] = { ent: ent.data || [], leads: leads.data || [] };
+        igRenderAutomations();
+    }
+
+    function igPainelHtml(a) {
+        if (!igPainelAberto.has(a.id)) return '';
+        const d = igPainelCache[a.id];
+        if (!d) return '<div class="igp"><div class="igp-load">Somando…</div></div>';
+
+        const ok = d.ent.filter(x => x.status === 'ok');
+        const receberam = new Set(ok.map(x => x.ig_user_id).filter(Boolean));
+        const naFila = new Set(d.ent.filter(x => x.status === 'na_fila').map(x => x.ig_user_id).filter(Boolean));
+        const erros = d.ent.filter(x => x.status === 'erro').length;
+        /* passar do passo 1 só acontece se a pessoa tocar no botão */
+        const tocaram = d.leads.filter(l => Number(l.flow_step) >= 2).length;
+        const comLink = d.leads.filter(l => l.link_sent).length;
+
+        const posts = (a.media_ids || []).map(m => igMediaById(m)).filter(Boolean);
+        const coments = posts.reduce((t, m) => t + (Number(m.comments_count) || 0), 0);
+        const temComents = posts.length && posts.some(m => m.comments_count != null);
+
+        const pct = (n, base) => base > 0 ? Math.round(n / base * 100) + '%' : '—';
+        const naoReceberam = temComents ? Math.max(0, coments - receberam.size) : null;
+
+        /* últimos 7 dias, pra ela ver se ainda está rendendo ou já morreu */
+        const seteDias = Date.now() - 7 * 86400000;
+        const recentes = new Set(ok.filter(x => new Date(x.ts).getTime() >= seteDias).map(x => x.ig_user_id)).size;
+
+        const cel = (v, rot, ex) => '<div class="igp-c"><b>' + v + '</b><span>' + rot + '</span>'
+            + (ex ? '<i>' + ex + '</i>' : '') + '</div>';
+
+        return '<div class="igp">'
+            + '<div class="igp-grade">'
+            + cel(temComents ? igNum(coments) : '—', 'comentários no post', posts.length > 1 ? posts.length + ' posts somados' : '')
+            + cel(igNum(receberam.size), 'receberam a DM', temComents ? pct(receberam.size, coments) + ' de quem comentou' : '')
+            + cel(igNum(tocaram), 'tocaram no botão', pct(tocaram, receberam.size) + ' de quem recebeu')
+            + cel(igNum(comLink), 'chegaram no link', pct(comLink, receberam.size) + ' de quem recebeu')
+            + '</div>'
+            + '<div class="igp-linha">'
+            + (recentes ? '<span>🔥 <b>' + recentes + '</b> nos últimos 7 dias</span>' : '<span>💤 nada nos últimos 7 dias</span>')
+            + (naFila.size ? '<span>⏳ <b>' + naFila.size + '</b> na fila, saindo sozinhas</span>' : '')
+            + (erros ? '<span style="color:var(--error);">⚠ <b>' + erros + '</b> falharam</span>' : '')
+            + '</div>'
+            + (naoReceberam
+                ? '<div class="igp-gap"><b>' + igNum(naoReceberam) + '</b> comentaram e não receberam. '
+                  + 'Nem todo comentário pede a automação, mas se muita gente escreveu a palavra e ficou de fora, '
+                  + '<button type="button" class="igp-link" data-ig-act="retro" data-ig-id="' + a.id + '">veja quem ficou de fora</button>.</div>'
+                : '')
+            + '</div>';
+    }
+
     // ---- Faixa de saúde (entregas) + tela de Entregas ----
     let igLogFilter = 'all';
     let igLogRows = [];
@@ -13372,7 +13458,7 @@
                            : '⏳ esperando o próximo post' + (a.pending_caption ? ' com "' + escapeHtml(a.pending_caption) + '" na legenda' : ''))
                    + (nposts ? ' + ' + nposts + ' post' + (nposts > 1 ? 's' : '') : ''))
                 : (nposts ? (nposts + ' post' + (nposts > 1 ? 's' : '')) : 'todos os posts');
-            return '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:12px;">'
+            return '<div class="ig-autocard' + (igPainelAberto.has(a.id) ? ' aberto' : '') + '" data-ig-act="painel" data-ig-id="' + a.id + '">'
                 + '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">'
                 + '<div style="display:flex;gap:12px;align-items:flex-start;flex:1;min-width:220px;' + (a.active ? '' : 'opacity:.5;') + '">'
                 + igAutoMediaHtml(a)
@@ -13392,7 +13478,9 @@
                 + '<button class="ig-btn ghost" type="button" data-ig-act="edit" data-ig-id="' + a.id + '">Editar</button>'
                 + '<button class="ig-iconbtn" type="button" title="Excluir" data-ig-act="delete" data-ig-id="' + a.id + '">🗑</button>'
                 + '</div>'
-                + '</div></div>';
+                + '</div>'
+                + igPainelHtml(a)
+                + '</div>';
         }).join('');
         /* se ainda não temos os posts em cache, busca uma vez e re-renderiza c/ miniaturas */
         igAgRender();
@@ -15145,7 +15233,8 @@
             if (act === 'toggle') igToggleActive(id);
             else if (act === 'edit') igEdit(id);
             else if (act === 'delete') igDeleteAuto(id);
-            else if (act === 'retro') retroAbrir(id);
+            else if (act === 'retro') { e.stopPropagation(); retroAbrir(id); }
+            else if (act === 'painel') igPainel(id);
         });
     })();
 </script>
