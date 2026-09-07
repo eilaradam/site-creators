@@ -13048,6 +13048,19 @@
        de verdade não é coisa de clicar e torcer. */
     let retroAuto = null, retroDados = null;
 
+    /* O supabase-js embrulha erro de HTTP num objeto cujo texto é sempre
+       "Edge Function returned a non-2xx status code". A mensagem de verdade está
+       no corpo da resposta, dentro de error.context. */
+    async function retroErro(err) {
+        try {
+            if (err.context && typeof err.context.json === 'function') {
+                const b = await err.context.json();
+                if (b && (b.error || b.message)) return String(b.error && b.error.message ? b.error.message : (b.error || b.message));
+            }
+        } catch (e) {}
+        return err.message || String(err);
+    }
+
     function retroMsgPadrao(a) {
         const f = a.flow && a.flow.steps ? a.flow.steps : [];
         const ultimo = f.length ? f[f.length - 1] : null;
@@ -13070,6 +13083,7 @@
         const palavra = String(a.keyword || '').split(',')[0].trim() || 'aula';
         try {
             const r = await sb.functions.invoke('ig-retro', { body: { action: 'scan', media_id: mid, keyword: palavra } });
+            if (r && r.error) throw new Error(await retroErro(r.error));
             const d = r && r.data;
             if (!d || d.error || typeof d.total_comments !== 'number') {
                 throw new Error((d && d.error && (d.error.message || d.error)) || 'a função não devolveu os comentários');
@@ -13116,13 +13130,15 @@
             const r = await sb.functions.invoke('ig-retro', {
                 body: { action: 'send', media_id: retroDados.media_id, keyword: retroDados.palavra,
                         automation_id: retroAuto.id, message_variants: [...new Set(variantes)],
-                        link: link, max: max, delayMs: 2000 },
+                        link: link, max: max, delayMs: 2500 },
             });
+            if (r && r.error) throw new Error(await retroErro(r.error));
             const d = (r && r.data) || {};
             document.getElementById('retroStatus').textContent = '';
-            document.getElementById('retroInfo').innerHTML = '<b style="color:var(--success);">' + (d.enviados || d.sent || 0)
-                + ' enviadas</b>' + ((d.falhas || d.failed) ? ' · ' + (d.falhas || d.failed) + ' falharam' : '')
-                + (d.motivo_parada || d.stopReason ? '<br><span style="color:var(--alerta);">parou: ' + escapeHtml(String(d.motivo_parada || d.stopReason)) + '</span>' : '');
+            document.getElementById('retroInfo').innerHTML = '<b style="color:var(--success);">' + (d.enviados_agora != null ? d.enviados_agora : (d.enviados || 0))
+                + ' enviadas</b>' + (d.falhas ? ' · ' + d.falhas + ' falharam' : '')
+                + (d.parou_por_bloqueio ? '<br><span style="color:var(--alerta);">Parei no meio: o Instagram começou a recusar. Tente o resto daqui a algumas horas.</span>' : '')
+                + (d.restantes ? '<br>' + d.restantes + ' ainda faltam, é só clicar de novo.' : '');
             document.getElementById('retroForm').style.display = 'none';
             btn.style.display = 'none';
         } catch (e) {
