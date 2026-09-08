@@ -4292,8 +4292,13 @@
             </div>
 
             <div id="recadoBoxCom" style="display:none;margin-top:18px;padding-top:16px;border-top:1px solid var(--border);">
-                <label class="idea-lbl">No comentário <i>quem recebeu a DM e não tocou no botão; uma versão por linha, {USUARIO} vira o @ da pessoa</i></label>
+                <label class="idea-lbl">No comentário <i>uma versão por linha, {USUARIO} vira o @ da pessoa</i></label>
                 <textarea id="recadoCom" class="ig-input" rows="5"></textarea>
+                <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;color:var(--text-soft);cursor:pointer;">
+                    <input id="recadoComTodos" type="checkbox" onchange="recadoContarCom()">
+                    Responder <b>todo mundo</b> que comentou a palavra, não só quem não tocou no botão
+                    <i style="color:var(--text-muted);font-weight:400;">(serve pra chamar de volta post antigo)</i>
+                </label>
                 <button id="recadoEnviarCom" class="ig-btn" type="button" onclick="recadoEnviarCom()" style="margin-top:12px;">💬 Responder nos comentários</button>
             </div>
         </div>
@@ -13307,20 +13312,11 @@
             const nDM = ((dm && dm.data) || {}).candidatos || 0;
 
             /* quem só dá pra alcançar no comentário, post a post */
-            const palavra = recadoPalavra(a);
-            const posts = [];
-            for (const mid of (a.media_ids || [])) {
-                const r = await sb.functions.invoke('ig-retro', {
-                    body: { action: 'publico', dry: true, media_id: mid, automation_id: a.id, keyword: palavra },
-                });
-                const d = (r && r.data) || {};
-                posts.push({ media_id: mid, faltam: d.responderia_agora || 0, ja: d.ja_respondidos || 0 });
-            }
-            const nCom = posts.reduce(function (t, x) { return t + x.faltam; }, 0);
-            recadoDados = { dm: nDM, posts: posts, palavra: palavra };
+            recadoDados = { dm: nDM, posts: [], palavra: recadoPalavra(a) };
+            const nCom = await recadoContarCom(true);
 
             info.innerHTML = '<b style="color:var(--success);">' + nDM + '</b> tocaram no botão nas últimas 24h, essas dá pra chamar no <b>direct</b>.<br>'
-                + '<b>' + nCom + '</b> receberam a DM e não tocaram, essas só dá pra chamar <b>no comentário</b>.'
+                + '<b>' + nCom + '</b> dá pra chamar <b>no comentário</b>.'
                 + '<div style="font-size:12px;color:var(--text-muted);margin-top:8px;line-height:1.55;">'
                 + 'Não é escolha nossa: o Instagram só deixa mandar mensagem nova pra quem mexeu na conversa nas últimas 24h. '
                 + 'Comentar não conta, e a resposta privada do comentário a automação já usou.</div>';
@@ -13332,14 +13328,34 @@
                 document.getElementById('recadoEnviarDM').textContent = '📨 Enviar no direct pra ' + nDM;
                 document.getElementById('recadoBoxDM').style.display = '';
             }
-            if (nCom) {
-                document.getElementById('recadoCom').value = RECADO_COM_PADRAO;
-                document.getElementById('recadoEnviarCom').textContent = '💬 Responder ' + nCom + ' comentários';
-                document.getElementById('recadoBoxCom').style.display = '';
-            }
+            document.getElementById('recadoCom').value = RECADO_COM_PADRAO;
+            document.getElementById('recadoBoxCom').style.display = '';
         } catch (e) {
             info.textContent = 'Não consegui contar as pessoas: ' + (e.message || e);
         }
+    }
+    /* conta quantos comentários dá pra responder, post a post. Chamada de novo quando
+       ela marca "todo mundo", porque aí o alvo muda. */
+    async function recadoContarCom(silencioso) {
+        if (!recadoAuto || !recadoDados) return 0;
+        const todos = !!document.getElementById('recadoComTodos').checked;
+        const btn = document.getElementById('recadoEnviarCom');
+        if (!silencioso) btn.textContent = 'Contando…';
+        const posts = [];
+        for (const mid of (recadoAuto.media_ids || [])) {
+            const r = await sb.functions.invoke('ig-retro', {
+                body: { action: 'publico', dry: true, media_id: mid, automation_id: recadoAuto.id,
+                        keyword: recadoDados.palavra, todos: todos },
+            });
+            const d = (r && r.data) || {};
+            posts.push({ media_id: mid, faltam: d.responderia_agora || 0 });
+        }
+        recadoDados.posts = posts;
+        recadoDados.todos = todos;
+        const n = posts.reduce(function (t, x) { return t + x.faltam; }, 0);
+        btn.textContent = '💬 Responder ' + n + ' comentários';
+        btn.disabled = !n;
+        return n;
     }
     function recadoFechar() { document.getElementById('recadoModal').style.display = 'none'; recadoAuto = null; }
 
@@ -13403,7 +13419,8 @@
                     st.textContent = 'vai com 6 segundos entre um e outro, não feche';
                     const r = await sb.functions.invoke('ig-retro', {
                         body: { action: 'publico', media_id: post.media_id, automation_id: recadoAuto.id,
-                                keyword: recadoDados.palavra, textos: textos, max: 20, espaco_ms: 6000 },
+                                keyword: recadoDados.palavra, todos: !!recadoDados.todos,
+                                textos: textos, max: 12, espaco_ms: 4000 },
                     });
                     if (r && r.error) throw new Error(await retroErro(r.error));
                     const d = (r && r.data) || {};
