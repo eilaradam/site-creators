@@ -4270,6 +4270,40 @@
     </div>
 </div>
 
+<!-- Mandar um recado NOVO pra quem já interagiu com a automação. Duas portas, porque
+     a Meta trata cada uma de um jeito (a explicação está dentro do modal). -->
+<div id="recadoModal" class="idea-modal" style="display:none;">
+    <div class="idea-modal-box">
+        <div class="idea-modal-head">
+            <div><div class="idea-modal-kicker">RECADO NOVO</div><h3 id="recadoT">Mandar recado</h3></div>
+            <button class="idea-x" type="button" onclick="recadoFechar()">✕</button>
+        </div>
+        <div class="idea-modal-body">
+            <div id="recadoInfo" style="font-size:13.5px;color:var(--text-soft);line-height:1.6;">Contando as pessoas…</div>
+
+            <div id="recadoBoxDM" style="display:none;margin-top:18px;padding-top:16px;border-top:1px solid var(--border);">
+                <label class="idea-lbl">No direct <i>só pra quem tocou no botão nas últimas 24h</i></label>
+                <textarea id="recadoMsg" class="ig-input" rows="4" placeholder="Oie! Passando pra saber se…"></textarea>
+                <div class="idea-row3" style="margin-top:8px;">
+                    <div><label class="idea-lbl">Texto do botão</label><input id="recadoBtnTxt" class="ig-input" type="text" placeholder="ENTRAR NO GRUPO"></div>
+                    <div style="grid-column:span 2;"><label class="idea-lbl">Link do botão <i>vazio = sem botão</i></label><input id="recadoBtnUrl" class="ig-input" type="text" placeholder="https://…"></div>
+                </div>
+                <button id="recadoEnviarDM" class="ig-btn" type="button" onclick="recadoEnviarDM()" style="margin-top:12px;">📨 Enviar no direct</button>
+            </div>
+
+            <div id="recadoBoxCom" style="display:none;margin-top:18px;padding-top:16px;border-top:1px solid var(--border);">
+                <label class="idea-lbl">No comentário <i>quem recebeu a DM e não tocou no botão; uma versão por linha, {USUARIO} vira o @ da pessoa</i></label>
+                <textarea id="recadoCom" class="ig-input" rows="5"></textarea>
+                <button id="recadoEnviarCom" class="ig-btn" type="button" onclick="recadoEnviarCom()" style="margin-top:12px;">💬 Responder nos comentários</button>
+            </div>
+        </div>
+        <div class="idea-modal-pe">
+            <span id="recadoStatus" style="font-size:12.5px;color:var(--text-muted);"></span>
+            <button class="ig-btn ghost" type="button" onclick="recadoFechar()">Fechar</button>
+        </div>
+    </div>
+</div>
+
 <div id="objModal" class="idea-modal" style="display:none;">
     <div class="idea-modal-box">
         <div class="idea-modal-head">
@@ -13235,6 +13269,162 @@
     }
     function retroFechar() { document.getElementById('retroModal').style.display = 'none'; retroAuto = null; }
 
+    /* ── Recado novo pra quem já interagiu ──
+       Duas portas, e a diferença é regra da Meta, não escolha nossa:
+       · quem TOCOU no botão tem a janela de 24h aberta -> dá pra mandar direct (ig-broadcast);
+       · quem só COMENTOU não abre janela nenhuma, e a resposta privada que cada comentário
+         permite já foi gasta pela automação -> só sobra responder no próprio comentário. */
+    let recadoAuto = null, recadoDados = null;
+    const RECADO_COM_PADRAO = [
+        '{USUARIO} oie! te mandei no direct, dá uma olhadinha lá e toca no botão 💛',
+        '{USUARIO} passei no seu direct! entra lá e toca no botão pra garantir sua vaga 💛',
+        '{USUARIO} oie, tá tudo no seu direct! é só tocar no botão 💛',
+        '{USUARIO} corre no direct que eu te respondi por lá, toca no botão 💛',
+    ].join('\n');
+
+    function recadoCampanha(a) {
+        return 'recado-' + String(a.id).slice(0, 8) + '-' + new Date().toISOString().slice(0, 10);
+    }
+    function recadoPalavra(a) { return String(a.keyword || '').split(',')[0].trim(); }
+
+    async function recadoAbrir(id) {
+        const a = igAutomations.find(function (x) { return x.id === id; }); if (!a) return;
+        recadoAuto = a; recadoDados = null;
+        document.getElementById('recadoT').textContent = a.nome || 'Automação';
+        document.getElementById('recadoBoxDM').style.display = 'none';
+        document.getElementById('recadoBoxCom').style.display = 'none';
+        document.getElementById('recadoStatus').textContent = '';
+        document.getElementById('recadoModal').style.display = 'flex';
+        const info = document.getElementById('recadoInfo');
+        info.textContent = 'Contando as pessoas…';
+        try {
+            /* quem dá pra alcançar no direct */
+            const dm = await sb.functions.invoke('ig-broadcast', {
+                body: { dry_run: true, automation_id: a.id, incluir_toque_botao: true, horas: 24,
+                        max: 120, campanha: recadoCampanha(a), message2: '.', button_title: '' },
+            });
+            if (dm && dm.error) throw new Error(await retroErro(dm.error));
+            const nDM = ((dm && dm.data) || {}).candidatos || 0;
+
+            /* quem só dá pra alcançar no comentário, post a post */
+            const palavra = recadoPalavra(a);
+            const posts = [];
+            for (const mid of (a.media_ids || [])) {
+                const r = await sb.functions.invoke('ig-retro', {
+                    body: { action: 'publico', dry: true, media_id: mid, automation_id: a.id, keyword: palavra },
+                });
+                const d = (r && r.data) || {};
+                posts.push({ media_id: mid, faltam: d.responderia_agora || 0, ja: d.ja_respondidos || 0 });
+            }
+            const nCom = posts.reduce(function (t, x) { return t + x.faltam; }, 0);
+            recadoDados = { dm: nDM, posts: posts, palavra: palavra };
+
+            info.innerHTML = '<b style="color:var(--success);">' + nDM + '</b> tocaram no botão nas últimas 24h, essas dá pra chamar no <b>direct</b>.<br>'
+                + '<b>' + nCom + '</b> receberam a DM e não tocaram, essas só dá pra chamar <b>no comentário</b>.'
+                + '<div style="font-size:12px;color:var(--text-muted);margin-top:8px;line-height:1.55;">'
+                + 'Não é escolha nossa: o Instagram só deixa mandar mensagem nova pra quem mexeu na conversa nas últimas 24h. '
+                + 'Comentar não conta, e a resposta privada do comentário a automação já usou.</div>';
+
+            if (nDM) {
+                const p = retroMsgPadrao(a);
+                document.getElementById('recadoBtnUrl').value = p.link || '';
+                document.getElementById('recadoBtnTxt').value = document.getElementById('recadoBtnTxt').value || '';
+                document.getElementById('recadoEnviarDM').textContent = '📨 Enviar no direct pra ' + nDM;
+                document.getElementById('recadoBoxDM').style.display = '';
+            }
+            if (nCom) {
+                document.getElementById('recadoCom').value = RECADO_COM_PADRAO;
+                document.getElementById('recadoEnviarCom').textContent = '💬 Responder ' + nCom + ' comentários';
+                document.getElementById('recadoBoxCom').style.display = '';
+            }
+        } catch (e) {
+            info.textContent = 'Não consegui contar as pessoas: ' + (e.message || e);
+        }
+    }
+    function recadoFechar() { document.getElementById('recadoModal').style.display = 'none'; recadoAuto = null; }
+
+    async function recadoEnviarDM() {
+        if (!recadoAuto || !recadoDados) return;
+        const msg = document.getElementById('recadoMsg').value.trim();
+        if (!msg) { alert('Escreve a mensagem.'); return; }
+        const btnTxt = document.getElementById('recadoBtnTxt').value.trim();
+        const btnUrl = document.getElementById('recadoBtnUrl').value.trim();
+        if (btnTxt && !btnUrl) { alert('O botão precisa de um link.'); return; }
+        if (!confirm('Vou mandar direct pra ' + recadoDados.dm + ' pessoa(s) de verdade. Confirma?')) return;
+        const btn = document.getElementById('recadoEnviarDM');
+        const st = document.getElementById('recadoStatus');
+        btn.disabled = true;
+        /* vai em lotes: a função tem tempo limite, e ir devagar é o que protege a conta */
+        let enviados = 0, falhas = 0, voltas = 0;
+        try {
+            while (voltas++ < 30) {
+                btn.textContent = 'Enviando… ' + enviados;
+                st.textContent = 'não feche essa janela';
+                const r = await sb.functions.invoke('ig-broadcast', {
+                    body: { dry_run: false, automation_id: recadoAuto.id, incluir_toque_botao: true,
+                            horas: 24, max: 40, campanha: recadoCampanha(recadoAuto),
+                            message1: '', message2: msg,
+                            button_title: btnUrl ? (btnTxt || 'ABRIR') : '', button_url: btnUrl },
+                });
+                if (r && r.error) throw new Error(await retroErro(r.error));
+                const d = (r && r.data) || {};
+                enviados += d.enviados || 0; falhas += d.falhas || 0;
+                if (!d.enviados && !d.falhas) break;
+                if (!d.faltam) break;
+            }
+            st.textContent = '';
+            document.getElementById('recadoBoxDM').style.display = 'none';
+            document.getElementById('recadoInfo').innerHTML = '<b style="color:var(--success);">' + enviados + ' direct enviados</b>'
+                + (falhas ? ' · ' + falhas + ' falharam (janela de 24h já tinha fechado)' : '');
+        } catch (e) {
+            st.textContent = '';
+            alert('Não consegui enviar: ' + (e.message || e));
+            btn.disabled = false; btn.textContent = '📨 Enviar no direct';
+        }
+    }
+
+    async function recadoEnviarCom() {
+        if (!recadoAuto || !recadoDados) return;
+        const textos = document.getElementById('recadoCom').value.split('\n')
+            .map(function (t) { return t.trim(); }).filter(Boolean);
+        if (!textos.length) { alert('Escreve pelo menos uma versão do texto.'); return; }
+        const total = recadoDados.posts.reduce(function (t, x) { return t + x.faltam; }, 0);
+        if (!confirm('Vou responder ' + total + ' comentário(s) no post, marcando cada pessoa. Confirma?')) return;
+        const btn = document.getElementById('recadoEnviarCom');
+        const st = document.getElementById('recadoStatus');
+        btn.disabled = true;
+        let ok = 0, erro = 0, parou = '';
+        try {
+            for (const post of recadoDados.posts) {
+                if (!post.faltam) continue;
+                let voltas = 0;
+                while (voltas++ < 30) {
+                    btn.textContent = 'Respondendo… ' + ok;
+                    st.textContent = 'vai com 6 segundos entre um e outro, não feche';
+                    const r = await sb.functions.invoke('ig-retro', {
+                        body: { action: 'publico', media_id: post.media_id, automation_id: recadoAuto.id,
+                                keyword: recadoDados.palavra, textos: textos, max: 20, espaco_ms: 6000 },
+                    });
+                    if (r && r.error) throw new Error(await retroErro(r.error));
+                    const d = (r && r.data) || {};
+                    ok += d.respondidos || 0; erro += d.erros || 0;
+                    if (d.parou_por_bloqueio) { parou = d.motivo_parada || 'o Instagram recusou'; break; }
+                    if (!d.faltam) break;
+                }
+                if (parou) break;
+            }
+            st.textContent = '';
+            document.getElementById('recadoBoxCom').style.display = 'none';
+            document.getElementById('recadoInfo').innerHTML = '<b style="color:var(--success);">' + ok + ' comentários respondidos</b>'
+                + (erro ? ' · ' + erro + ' falharam' : '')
+                + (parou ? '<br><span style="color:var(--alerta);">Parei no meio: ' + escapeHtml(parou) + '. Tente o resto daqui a algumas horas.</span>' : '');
+        } catch (e) {
+            st.textContent = '';
+            alert('Não consegui responder: ' + (e.message || e));
+            btn.disabled = false; btn.textContent = '💬 Responder nos comentários';
+        }
+    }
+
     async function retroEnviar() {
         if (!retroAuto || !retroDados) return;
         const msg = document.getElementById('retroMsg').value.trim();
@@ -13579,6 +13769,8 @@
                 + '<button class="ig-switch' + (a.active ? ' on' : '') + '" type="button" role="switch" aria-checked="' + (a.active ? 'true' : 'false') + '" title="' + (a.active ? 'Ativa · clique pra pausar' : 'Pausada · clique pra ativar') + '" data-ig-act="toggle" data-ig-id="' + a.id + '"></button>'
                 + ((a.media_ids && a.media_ids.length)
                     ? '<button class="ig-btn ghost" type="button" title="Mandar pra quem comentou antes da automação existir" data-ig-act="retro" data-ig-id="' + a.id + '">📨 Quem ficou de fora</button>' : '')
+                + ((a.media_ids && a.media_ids.length)
+                    ? '<button class="ig-btn ghost" type="button" title="Mandar uma mensagem nova pra quem já interagiu" data-ig-act="recado" data-ig-id="' + a.id + '">💬 Mandar recado</button>' : '')
                 + '<button class="ig-btn ghost" type="button" data-ig-act="edit" data-ig-id="' + a.id + '">Editar</button>'
                 + '<button class="ig-iconbtn" type="button" title="Excluir" data-ig-act="delete" data-ig-id="' + a.id + '">🗑</button>'
                 + '</div>'
@@ -15338,6 +15530,7 @@
             else if (act === 'edit') igEdit(id);
             else if (act === 'delete') igDeleteAuto(id);
             else if (act === 'retro') { e.stopPropagation(); retroAbrir(id); }
+            else if (act === 'recado') { e.stopPropagation(); recadoAbrir(id); }
             else if (act === 'painel') igPainel(id);
         });
     })();
