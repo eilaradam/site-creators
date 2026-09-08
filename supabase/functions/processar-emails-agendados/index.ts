@@ -15,6 +15,16 @@ const AGENDADOS_KEY = Deno.env.get("AGENDADOS_KEY")!;
 const FROM = "Lara Dam <contato@ugcmanager.com.br>";
 const REPLY_TO = "contato@ugcmanager.com.br";
 
+// A Resend recusa o LOTE INTEIRO quando UM endereco esta quebrado. Foi o que comeu 200
+// pessoas em cada um dos dois disparos de julho (2 enderecos ruins, 2 lotes de 100 perdidos).
+// Entao: filtra o obviamente invalido antes, e se o lote cair mesmo assim, reenvia um a um
+// pra so o culpado ficar de fora.
+const EMAIL_OK = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)*\.[a-zA-Z]{2,}$/;
+function emailValido(e: string): boolean {
+  const v = String(e || "").trim();
+  return !!v && v.length <= 254 && EMAIL_OK.test(v) && !v.includes("..") && !v.startsWith(".") && !v.includes(".@");
+}
+
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...cors, "Content-Type": "application/json" } });
 
@@ -109,8 +119,19 @@ Deno.serve(async (req) => {
         }
       } catch (_) { /* sem registro ainda: manda pra lista inteira */ }
 
-      const targets = recs.filter((r) => !optout.has(r.email) && !jaRecebeu.has(r.email));
+      const querem = recs.filter((r) => !optout.has(r.email) && !jaRecebeu.has(r.email));
+      const targets = querem.filter((r) => emailValido(r.email));
+      const invalidos = querem.filter((r) => !emailValido(r.email));
       const pulados = recs.length - targets.length;
+      if (invalidos.length) {
+        console.error("[email] enderecos quebrados, fora do disparo:", invalidos.map((r) => r.email).join(", "));
+        try {
+          await admin.from("email_envios").insert(invalidos.map((r) => ({
+            email: r.email, assunto: job.assunto, status: "erro",
+            erro: "endereco invalido, nao foi enviado", origem: "agendado",
+          })));
+        } catch (e) { console.error("[log] email_envios falhou:", e); }
+      }
 
       let sent = 0, falhas = 0;
       const CH = 100; // limite do endpoint em lote da Resend
@@ -138,16 +159,17 @@ Deno.serve(async (req) => {
               })));
             } catch (e) { console.error("[log] email_envios falhou:", e); }
           } else {
-            falhas += chunk.length;
             const corpo = await res.text();
             console.error("resend batch err", res.status, corpo);
-            try {
-              await admin.from("email_envios").insert(chunk.map((r) => ({
-                email: r.email, assunto: job.assunto, status: "erro", erro: corpo.slice(0, 300), origem: "agendado",
-              })));
-            } catch (e) { console.error("[log] email_envios falhou:", e); }
+            // lote recusado: tenta de novo um a um, pra nao perder 99 por causa de 1
+            const r2 = await umAUm(chunk, job, admin, corpo);
+            sent += r2.ok; falhas += r2.erro;
           }
-        } catch (e) { falhas += chunk.length; console.error("batch exc", e); }
+        } catch (e) {
+          console.error("batch exc", e);
+          const r2 = await umAUm(chunk, job, admin, String(e).slice(0, 200));
+          sent += r2.ok; falhas += r2.erro;
+        }
         await new Promise((rs) => setTimeout(rs, 120));
       }
 
@@ -165,3 +187,40 @@ Deno.serve(async (req) => {
     return json({ error: String((e as Error)?.message || e) }, 500);
   }
 });
+
+// Reenvio individual do lote que a Resend recusou. Mais lento, mas so acontece quando
+// algo deu errado, e garante que um endereco podre nao derrube os outros 99.
+// deno-lint-ignore no-explicit-any
+async function umAUm(chunk: any[], job: any, admin: any, motivoLote: string) {
+  let ok = 0, erro = 0;
+  const logs: any[] = [];
+  for (const r of chunk) {
+    try {
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${RESEND_API_KEY}` },
+        body: JSON.stringify({
+          from: FROM,
+          reply_to: REPLY_TO,
+          to: [r.email],
+          subject: job.assunto,
+          html: String(job.html).replace(/\{\{nome\}\}/g, (String(r.nome).trim().split(/\s+/)[0] || "creator")),
+          headers: { "List-Unsubscribe": `<mailto:${REPLY_TO}?subject=SAIR>` },
+        }),
+      });
+      if (res.ok) { ok++; logs.push({ email: r.email, assunto: job.assunto, status: "ok", origem: "agendado" }); }
+      else {
+        erro++;
+        const c = await res.text();
+        logs.push({ email: r.email, assunto: job.assunto, status: "erro", erro: c.slice(0, 300), origem: "agendado" });
+      }
+    } catch (e) {
+      erro++;
+      logs.push({ email: r.email, assunto: job.assunto, status: "erro", erro: String(e).slice(0, 300), origem: "agendado" });
+    }
+    await new Promise((rs) => setTimeout(rs, 120));
+  }
+  console.error(`[email] lote recusado (${motivoLote.slice(0, 120)}) -> um a um: ${ok} ok, ${erro} erro`);
+  try { await admin.from("email_envios").insert(logs); } catch (e) { console.error("[log] email_envios falhou:", e); }
+  return { ok, erro };
+}
