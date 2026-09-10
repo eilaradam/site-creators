@@ -2371,6 +2371,12 @@
         <div class="stat-card"><div class="stat-value" id="abStatHoje">--</div><div class="stat-label">Hoje</div></div>
         <div class="stat-card"><div class="stat-value" id="abStatFeedback">--</div><div class="stat-label">Deixaram opinião</div></div>
         <div class="stat-card"><div class="stat-value" id="abStatTema">--</div><div class="stat-label">Pediram tema</div></div>
+        <div class="stat-card"><div class="stat-value" id="abStatNota">--</div><div class="stat-label">Nota da aula</div></div>
+    </div>
+
+    <div id="abNotasBox" style="margin-bottom:18px;display:none;">
+        <h3 style="margin:0 0 8px 0;font-family:'DM Sans',sans-serif;font-weight:700;font-size:16px;">Como elas avaliaram</h3>
+        <div id="abNotas" style="display:grid;gap:6px;max-width:420px;"></div>
     </div>
 
     <div style="margin-bottom:18px;">
@@ -6807,7 +6813,7 @@
         loadAulaBonusAnon();
         try {
             const { data, error } = await sb.from('aula_bonus')
-                .select('id,nome,email,telefone,achou,achou_anonimo,proximo_tema,aula,created_at')
+                .select('id,nome,email,telefone,achou,achou_anonimo,nota,proximo_tema,aula,created_at')
                 .order('created_at', { ascending: false });
             if (error) throw error;
             abCache = data || [];
@@ -6817,6 +6823,32 @@
             setTxt('abStatHoje', abCache.filter(r => new Date(r.created_at).toDateString() === hoje).length);
             setTxt('abStatFeedback', abCache.filter(r => (r.achou || '').trim() || r.achou_anonimo).length);
             setTxt('abStatTema', abCache.filter(r => (r.proximo_tema || '').trim()).length);
+
+            /* nota da aula: junta as notas com nome e as anônimas */
+            window.abPintarNotas = function () {
+                const notas = abCache.map(r => r.nota).filter(Boolean).concat(abNotasAnon);
+                const caixa = document.getElementById('abNotasBox');
+                if (!notas.length) {
+                    setTxt('abStatNota', '--');
+                    if (caixa) caixa.style.display = 'none';
+                    return;
+                }
+                const media = notas.reduce((a, b) => a + b, 0) / notas.length;
+                setTxt('abStatNota', '★ ' + media.toFixed(1).replace('.', ','));
+                if (!caixa) return;
+                caixa.style.display = 'block';
+                const linhas = [5, 4, 3, 2, 1].map(n => {
+                    const q = notas.filter(x => x === n).length;
+                    const pct = Math.round((q / notas.length) * 100);
+                    return '<div style="display:flex;align-items:center;gap:10px;font-size:13px;">'
+                        + '<span style="width:52px;color:#E8A317;letter-spacing:1px;">' + '★'.repeat(n) + '</span>'
+                        + '<span style="flex:1;height:9px;background:var(--warm);border-radius:999px;overflow:hidden;">'
+                        + '<span style="display:block;height:100%;width:' + pct + '%;background:var(--accent);border-radius:999px;"></span></span>'
+                        + '<span style="width:58px;text-align:right;color:var(--text-muted);">' + q + ' (' + pct + '%)</span></div>';
+                }).join('');
+                document.getElementById('abNotas').innerHTML = linhas;
+            };
+            abPintarNotas();
 
             /* nuvem simples: cada tema pedido vira uma etiqueta, repetido mostra contagem */
             const temas = {};
@@ -6844,7 +6876,7 @@
                 + '<table style="width:100%;border-collapse:collapse;font-size:13px;">'
                 + '<thead><tr style="background:var(--warm);text-align:left;">'
                 + '<th style="padding:9px 12px;">Quando</th><th style="padding:9px 12px;">Nome</th><th style="padding:9px 12px;">Contato</th>'
-                + '<th style="padding:9px 12px;">O que achou</th><th style="padding:9px 12px;">Tema que quer</th>'
+                + '<th style="padding:9px 12px;">Nota</th><th style="padding:9px 12px;">O que achou</th><th style="padding:9px 12px;">Tema que quer</th>'
                 + '</tr></thead><tbody>'
                 + abCache.map(r => '<tr style="border-top:1px solid var(--border);vertical-align:top;">'
                     + '<td style="padding:9px 12px;color:var(--text-muted);white-space:nowrap;">' + dt(r.created_at) + '</td>'
@@ -6852,6 +6884,9 @@
                     + '<td style="padding:9px 12px;">' + escapeHtml(r.email || '')
                         + (zap(r.telefone) ? '<br><a href="https://wa.me/55' + zap(r.telefone) + '" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;font-weight:600;">' + escapeHtml(r.telefone) + ' ↗</a>' : '')
                         + '</td>'
+                    + '<td style="padding:9px 12px;white-space:nowrap;color:#E8A317;letter-spacing:1px;">'
+                        + (r.nota ? '★'.repeat(r.nota) + '<span style="color:var(--border);">' + '★'.repeat(5 - r.nota) + '</span>'
+                          : '<span style="color:var(--text-muted);letter-spacing:0;">' + (r.achou_anonimo ? '🙈' : '—') + '</span>') + '</td>'
                     + '<td style="padding:9px 12px;max-width:280px;">' + (r.achou_anonimo
                         ? '<span style="color:var(--text-muted);font-style:italic;">🙈 respondeu no anônimo</span>'
                         : escapeHtml(r.achou || '—')) + '</td>'
@@ -6863,6 +6898,7 @@
             box.innerHTML = '<div style="padding:30px;text-align:center;color:#c00;">Erro ao carregar. Confirme que a tabela <b>aula_bonus</b> existe no Supabase (rode o sql-aula-bonus.sql).</div>';
         }
     }
+    let abNotasAnon = [];
     async function loadAulaBonusAnon() {
         const box = document.getElementById('abAnon');
         const cnt = document.getElementById('abAnonCount');
@@ -6871,13 +6907,16 @@
             /* ordena por id (uuid) de propósito: a ordem de chegada também
                entregaria quem escreveu o quê, comparando com a tabela de cadastro. */
             const { data, error } = await sb.from('aula_feedback_anonimo')
-                .select('id,achou,dia').order('id', { ascending: true });
+                .select('id,achou,nota,dia').order('id', { ascending: true });
             if (error) throw error;
             const lista = data || [];
+            abNotasAnon = lista.map(r => r.nota).filter(Boolean);
+            if (typeof abPintarNotas === 'function') abPintarNotas();
             if (cnt) cnt.textContent = lista.length ? '(' + lista.length + ')' : '';
             box.innerHTML = lista.length
                 ? '<div style="display:grid;gap:8px;">' + lista.map(r =>
                     '<div style="background:var(--card);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:10px;padding:11px 14px;font-size:13.5px;">'
+                    + (r.nota ? '<div style="color:#E8A317;letter-spacing:1px;margin-bottom:3px;">' + '★'.repeat(r.nota) + '<span style="color:var(--border);">' + '★'.repeat(5 - r.nota) + '</span></div>' : '')
                     + escapeHtml(r.achou) + '</div>').join('') + '</div>'
                 : '<span style="color:var(--text-muted);font-size:13px;">Ninguém respondeu no anônimo ainda.</span>';
         } catch (e) {
@@ -6889,8 +6928,9 @@
     function exportAulaBonusCsv() {
         if (!abCache.length) { alert('Ninguém respondeu ainda.'); return; }
         const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
-        const linhas = [['nome', 'email', 'telefone', 'o_que_achou', 'tema_proxima_aula', 'aula', 'data'].join(',')]
+        const linhas = [['nome', 'email', 'telefone', 'nota', 'o_que_achou', 'tema_proxima_aula', 'aula', 'data'].join(',')]
             .concat(abCache.map(r => [r.nome, r.email, r.telefone,
+                r.achou_anonimo ? '(anonimo)' : (r.nota || ''),
                 r.achou_anonimo ? '(respondeu no anonimo)' : r.achou,
                 r.proximo_tema, r.aula, r.created_at].map(esc).join(',')));
         const blob = new Blob(['\ufeff' + linhas.join('\n')], { type: 'text/csv;charset=utf-8;' });

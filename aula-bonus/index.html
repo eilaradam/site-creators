@@ -39,6 +39,14 @@ input,textarea{width:100%;font-family:inherit;font-size:16px;color:var(--text);b
   border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;transition:border-color .15s,background .15s}
 input:focus,textarea:focus{outline:none;border-color:var(--accent);background:#fff}
 textarea{min-height:92px;resize:vertical}
+.estrelas{display:flex;gap:6px;justify-content:center;margin:4px 0 2px}
+.estrela{background:none;border:0;padding:4px;font-size:38px;line-height:1;cursor:pointer;color:#D9D2C7;
+  transition:transform .12s,color .12s;-webkit-tap-highlight-color:transparent}
+.estrela:hover{transform:scale(1.14)}
+.estrela.on{color:#F2B441}
+.nota-legenda{text-align:center;font-size:13.5px;color:var(--text-muted);min-height:20px;font-weight:600}
+.nota-caixa{background:var(--paper);border:1.5px solid var(--border);border-radius:14px;padding:14px 14px 10px;margin-bottom:16px}
+.nota-caixa.on{border-color:var(--accent);background:var(--accent-soft)}
 .anon{display:flex;gap:11px;align-items:flex-start;background:var(--paper);border:1.5px solid var(--border);
   border-radius:14px;padding:13px 15px;margin:-6px 0 16px;cursor:pointer;transition:border-color .15s,background .15s}
 .anon:hover{border-color:var(--accent)}
@@ -97,6 +105,20 @@ textarea{min-height:92px;resize:vertical}
         <input type="tel" id="telefone" name="telefone" inputmode="numeric" placeholder="(00) 00000-0000" autocomplete="tel" required>
       </div>
 
+      <div class="campo">
+        <label>Que nota você dá pra aula de hoje?</label>
+        <div class="nota-caixa" id="notaCaixa">
+          <div class="estrelas" id="estrelas">
+            <button type="button" class="estrela" data-n="1" aria-label="1 estrela">★</button>
+            <button type="button" class="estrela" data-n="2" aria-label="2 estrelas">★</button>
+            <button type="button" class="estrela" data-n="3" aria-label="3 estrelas">★</button>
+            <button type="button" class="estrela" data-n="4" aria-label="4 estrelas">★</button>
+            <button type="button" class="estrela" data-n="5" aria-label="5 estrelas">★</button>
+          </div>
+          <div class="nota-legenda" id="notaLegenda">toca nas estrelinhas</div>
+        </div>
+      </div>
+
       <div class="campo" style="margin-bottom:12px;">
         <label for="achou">O que você achou da imersão?</label>
         <textarea id="achou" name="achou" placeholder="Pode ser sincera, é isso que me faz melhorar a próxima."></textarea>
@@ -106,7 +128,7 @@ textarea{min-height:92px;resize:vertical}
         <input type="checkbox" id="anonimo">
         <div>
           <b>🙈 Mandar essa resposta no anônimo</b>
-          <span>Marcando aqui, sua opinião chega pra mim separada do seu cadastro: eu leio, mas não tem nome, e-mail nem horário junto. Pode falar o que achou de verdade.</span>
+          <span>Marcando aqui, sua nota e sua opinião chegam pra mim separadas do seu cadastro: eu leio, mas não tem nome, e-mail nem horário junto. Pode falar o que achou de verdade.</span>
         </div>
       </label>
 
@@ -146,6 +168,24 @@ function mostrarPronto() {
   window.scrollTo(0, 0);
 }
 
+/* estrelinhas da nota */
+let nota = 0;
+const LEGENDAS = { 1: 'Poxa, me conta o que faltou 🥲', 2: 'Deu pra melhorar bastante', 3: 'Foi boa', 4: 'Gostei muito!', 5: 'Amei, foi demais! 💛' };
+const estrelas = [...document.querySelectorAll('.estrela')];
+function pintarEstrelas(n) {
+  estrelas.forEach(e => e.classList.toggle('on', Number(e.dataset.n) <= n));
+}
+estrelas.forEach(e => {
+  e.addEventListener('click', () => {
+    nota = Number(e.dataset.n);
+    pintarEstrelas(nota);
+    document.getElementById('notaLegenda').textContent = LEGENDAS[nota];
+    document.getElementById('notaCaixa').classList.add('on');
+  });
+  e.addEventListener('mouseenter', () => pintarEstrelas(Number(e.dataset.n)));
+});
+document.getElementById('estrelas').addEventListener('mouseleave', () => pintarEstrelas(nota));
+
 /* botão do anônimo: só destaca a caixinha */
 const anon = document.getElementById('anonimo');
 const anonBox = document.getElementById('anonBox');
@@ -182,18 +222,19 @@ document.getElementById('form').addEventListener('submit', async (e) => {
 
   try {
     if (!sbc) throw new Error('sem conexão');
-    const anonimo = anon.checked && !!achou;
+    const anonimo = anon.checked && (!!achou || !!nota);
 
     /* no anônimo o texto NÃO vai junto do cadastro: vai pra outra tabela,
        sem nome, sem e-mail e sem hora, só com o dia. */
     if (anonimo) {
-      const r = await sbc.from('aula_feedback_anonimo').insert({ aula: AULA, achou });
+      const r = await sbc.from('aula_feedback_anonimo').insert({ aula: AULA, achou: achou || '(só a nota)', nota: nota || null });
       if (r.error) throw r.error;
     }
 
     const { error } = await sbc.from('aula_bonus').insert({
       aula: AULA, nome, email, telefone,
       achou: anonimo ? null : (achou || null),
+      nota: anonimo ? null : (nota || null),
       achou_anonimo: anonimo,
       proximo_tema: tema || null,
       referrer: document.referrer || null,

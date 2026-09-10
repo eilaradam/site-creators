@@ -52,3 +52,9 @@ create policy "feedback anonimo insert publico" on public.aula_feedback_anonimo
 drop policy if exists "feedback anonimo leitura logada" on public.aula_feedback_anonimo;
 create policy "feedback anonimo leitura logada" on public.aula_feedback_anonimo
   for select to authenticated using (true);
+
+-- ── Nota da aula, de 1 a 5 estrelas (10/09) ──────────────────────────────
+-- A nota conta como opinião: se a aluna marcar "anônimo", ela vai junto do
+-- texto pra tabela anônima e NÃO fica na linha do cadastro dela.
+alter table public.aula_bonus add column if not exists nota smallint check (nota between 1 and 5);
+alter table public.aula_feedback_anonimo add column if not exists nota smallint check (nota between 1 and 5);
