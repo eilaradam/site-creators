@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resumo da Aula + Checklist do Filtro de 1 Minuto · Lara Dam</title>
+<meta name="description" content="O resumo da aula e o checklist dos 4 pontos que eu olho quando abro um portfólio pra campanha.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F5F3EF; --paper:#FBF9F6; --warm:#EDE7DF; --accent:#D4572A; --accent-dark:#B8461F;
+  --accent-soft:rgba(212,87,42,0.10); --text:#1B1B1B; --text-soft:#5c554d; --text-muted:#9c948a;
+  --border:#E2DBD1; --card:#FFFFFF; --ok:#2D7A4F;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--text);line-height:1.65;-webkit-font-smoothing:antialiased}
+.wrap{max-width:760px;margin:0 auto;padding:0 20px 80px}
+a{color:var(--accent)}
+
+/* capa */
+.capa{padding:40px 0 26px;text-align:center}
+.selo{display:inline-flex;align-items:center;gap:8px;background:var(--accent-soft);color:var(--accent-dark);border:1px solid rgba(212,87,42,.25);
+  border-radius:999px;padding:7px 15px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.09em}
+h1{font-family:'Fraunces',serif;font-weight:900;font-size:clamp(29px,6.4vw,44px);line-height:1.08;margin:16px 0 10px;letter-spacing:-.02em}
+h1 em{font-style:italic;color:var(--accent)}
+.capa p{color:var(--text-soft);max-width:52ch;margin:0 auto}
+
+/* menuzinho */
+.atalhos{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:22px 0 10px}
+.atalhos a{background:var(--card);border:1px solid var(--border);border-radius:999px;padding:8px 15px;font-size:13.5px;font-weight:600;text-decoration:none;color:var(--text-soft)}
+.atalhos a:hover{border-color:var(--accent);color:var(--accent-dark)}
+
+section{margin-top:38px;scroll-margin-top:20px}
+.tit{display:flex;align-items:center;gap:11px;margin-bottom:6px}
+.tit .ic{width:38px;height:38px;border-radius:12px;background:var(--accent-soft);display:grid;place-items:center;font-size:19px;flex:0 0 auto}
+h2{font-family:'Fraunces',serif;font-weight:900;font-size:25px;line-height:1.15}
+h3{font-size:17.5px;font-weight:700;margin:22px 0 6px}
+.intro{color:var(--text-soft);margin-bottom:14px}
+p{margin-bottom:10px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px 20px 16px;margin-bottom:14px}
+.card.tempo{border-left:4px solid var(--accent)}
+.rel{font-family:'Outfit',sans-serif;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+ul{margin:8px 0 12px 20px}
+li{margin-bottom:6px}
+.destaque{background:var(--accent-soft);border-radius:12px;padding:14px 16px;margin:12px 0;font-size:15px}
+.destaque b{color:var(--accent-dark)}
+.ruim,.bom{border-radius:12px;padding:13px 15px;margin:8px 0;font-size:14.5px}
+.ruim{background:#fdecea;border:1px solid #f3c2bb}
+.bom{background:#eaf5ee;border:1px solid #bfe0cb}
+.ruim b{color:#a3271b}.bom b{color:var(--ok)}
+.frases{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0 4px}
+.frases span{background:var(--warm);border-radius:999px;padding:6px 13px;font-size:13.5px}
+
+/* checklist */
+.barra{position:sticky;top:0;z-index:20;background:rgba(245,243,239,.95);backdrop-filter:blur(6px);padding:12px 0;margin-bottom:8px;border-bottom:1px solid var(--border)}
+.barra-in{display:flex;align-items:center;gap:12px}
+.progresso{flex:1;height:9px;background:var(--warm);border-radius:999px;overflow:hidden}
+.progresso i{display:block;height:100%;width:0;background:var(--accent);border-radius:999px;transition:width .3s}
+.barra b{font-size:13.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.grupo{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px 18px 8px;margin-bottom:12px}
+.grupo h3{margin:0 0 10px;display:flex;align-items:center;gap:9px;font-size:17px}
+.grupo h3 span.t{font-family:'Outfit';font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);
+  background:var(--accent-soft);border-radius:999px;padding:4px 10px}
+.item{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--border);cursor:pointer}
+.grupo .item:first-of-type{border-top:0}
+.item input{appearance:none;width:22px;height:22px;flex:0 0 auto;border:1.8px solid var(--border);border-radius:7px;background:var(--paper);cursor:pointer;position:relative;margin-top:1px}
+.item input:checked{background:var(--accent);border-color:var(--accent)}
+.item input:checked::after{content:"✓";position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-size:14px;font-weight:800}
+.item span{font-size:15px}
+.item input:checked + span{color:var(--text-muted);text-decoration:line-through}
+.acoes{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0}
+.bt{border:1px solid var(--border);background:var(--card);border-radius:999px;padding:11px 20px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;color:var(--text-soft)}
+.bt:hover{border-color:var(--accent);color:var(--accent-dark)}
+.bt.cheio{background:var(--accent);border-color:var(--accent);color:#fff}
+.bt.cheio:hover{background:var(--accent-dark);color:#fff}
+.fim{text-align:center;margin-top:44px;padding-top:26px;border-top:1px solid var(--border);color:var(--text-muted);font-size:14px}
+.fim a{font-weight:700;text-decoration:none}
+@media print{
+  body{background:#fff}
+  .atalhos,.barra,.acoes,.fim{display:none}
+  .card,.grupo{break-inside:avoid;box-shadow:none}
+  section{margin-top:22px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="capa">
+  <span class="selo">🎁 Bônus da aula</span>
+  <h1>Resumo da Aula + <em>Checklist</em> do Filtro de 1 Minuto</h1>
+  <p>Tudo o que a gente falou hoje, e as caixinhas pra você revisar o seu portfólio do jeito que eu reviso quando estou escolhendo creator pra campanha.</p>
+  <nav class="atalhos">
+    <a href="#filtro">O Filtro de 1 Minuto</a>
+    <a href="#estrutura">O que o portfólio precisa ter</a>
+    <a href="#claude">Como pedir pro Claude</a>
+    <a href="#checklist">✅ Checklist</a>
+  </nav>
+</header>
+
+<!-- ================= RESUMO ================= -->
+<section id="cena">
+  <div class="tit"><span class="ic">👀</span><h2>A cena do outro lado</h2></div>
+  <p class="intro">Eu abro dezenas de portfólios por semana pra montar lista de campanha, e a maioria eu fecho em menos de um minuto.</p>
+  <div class="destaque"><b>A frase da aula:</b> a empresa não te conhece. Ela não sabe quanto você estudou, se você é boa, se você é legal. Ela só tem o link que você mandou. O seu portfólio precisa se defender sozinho.</div>
+</section>
+
+<section id="filtro">
+  <div class="tit"><span class="ic">⏱️</span><h2>O Filtro de 1 Minuto</h2></div>
+  <p class="intro">Quatro pontos, 15 segundos cada. É literalmente o que passa na minha cabeça entre abrir o link e decidir.</p>
+
+  <div class="card tempo">
+    <div class="rel">0 a 15 segundos</div>
+    <h3>Filtro 1 · O link e a capa</h3>
+    <p>Antes da capa tem o link. Se ele abre direto no aplicativo, ou abre e começa tudo a tocar ao mesmo tempo, eu já fechei ali.</p>
+    <div class="ruim"><b>O que me faz fechar:</b> imagem sem qualidade, foto antiga que não é como você está hoje, foto feita com IA, foto em família, foto com as amigas, selfie.</div>
+    <div class="bom"><b>O que funciona:</b> foto sua segurando as caixas dos trabalhos que já fez. Nunca fez nenhum? Foto de frente pra luz, um pouco mais distante, mostrando seu cabelo, sua pele, seu estilo, como você é hoje. A empresa quer ver você.</div>
+    <p>E traz o seu diferencial pra capa. É nutricionista e quer falar de gastronomia e bem-estar? Mostra isso. É mãe e quer falar de maternidade? Mostra também. Se não der pra mostrar em foto, uma frase na capa já resolve.</p>
+    <div class="destaque"><b>Técnica do teste às cegas:</b> manda o link do seu portfólio pra uma amiga, pede pra ela olhar 3 segundos e fechar. Pergunta o que ela lembrou. Se não foi o que você queria passar, a capa não está funcionando. Vale pros 4 filtros, não só pra capa.</div>
+  </div>
+
+  <div class="card tempo">
+    <div class="rel">15 a 30 segundos</div>
+    <h3>Filtro 2 · Destaque</h3>
+    <p>São os três vídeos que aparecem primeiro. É isso que decide se eu continuo olhando.</p>
+    <ul>
+      <li><b>Um com resultado real:</b> o mais visto ou o mais comentado.</li>
+      <li><b>Um do nicho que você quer atrair</b>, não o que você mais tem gravado.</li>
+      <li><b>Um recente</b>, provando que você está ativa.</li>
+    </ul>
+    <div class="bom"><b>Nunca trabalhou com marca?</b> Pega o melhor conteúdo que você já fez: o melhor roteiro, a melhor ideia, o melhor vídeo. Isso já é destaque.</div>
+  </div>
+
+  <div class="card tempo">
+    <div class="rel">30 a 45 segundos</div>
+    <h3>Filtro 3 · Roteiro</h3>
+    <p>A marca aperta o play e em cinco segundos sabe se a ideia foi sua ou se veio pronta da IA. Problema e solução em todo vídeo, hoje, não converte.</p>
+    <p><b>Frases batidas.</b> Se o seu roteiro começa com uma dessas, troca:</p>
+    <div class="frases">
+      <span>"Você sabia que..."</span><span>"Se você ainda tá no ciclo de..."</span><span>"Você já reparou que..."</span>
+      <span>"Tem produtos que... e tem produtos que..."</span><span>"Não é sobre isso, é sobre aquilo"</span>
+      <span>"Aí eu descobri que o problema não era X, era Y"</span><span>"É o tipo de..."</span>
+    </div>
+    <div class="destaque"><b>Teste da frase:</b> só eu poderia ter dito isso, ou qualquer pessoa diria igual?</div>
+    <p><b>O exemplo da feira.</b> Recebi uma bolinha que faz fruta durar mais. O batido seria "se você faz feira e suas frutas estragam, você precisa ver isso". O que eu fiz: fui na feira da minha cidade perguntar pras pessoas qual o segredo delas pra fruta não estragar. Uma congela, outra pendura a banana. Três respostas de gente de verdade, e só no fim eu apresento o produto como solução.</p>
+    <div class="bom"><b>Como eu peço pro Claude:</b> eu não peço "crie um roteiro pra essa marca". Eu dou a ideia (tem esse produto, esse é o diferencial, a ideia é entrevista na feira, produto como solução no fim) e ele escreve. A ideia é sempre minha.</div>
+    <p>Se for focar em uma coisa depois da aula, foca em <b>variedade de roteiro</b>: conteúdo externo, interno, problema e solução, entrevista, rotina.</p>
+  </div>
+
+  <div class="card tempo">
+    <div class="rel">45 a 60 segundos</div>
+    <h3>Filtro 4 · Nicho</h3>
+    <p>Quando eu fazia gestão pra uma marca de decoração, eu abria portfólio atrás de portfólio e era só beleza. Beleza é o maior nicho do mercado, mas não é o único. Se só tem beleza no seu, eu não sei como você fala de aplicativo, de casa, de comida, e não consigo te indicar.</p>
+    <div class="destaque"><b>Anota:</b> influenciadora precisa ser nichada. UGC é o contrário: quanto mais categorias você toca, em mais campanha você entra.</div>
+    <p>As 10 categorias que eu mostrei: Tech e App · Sites de IA · Financeiro · Drinks · Gastronomia · Viagens · Casa e Deco · Estilo de vida · Família e Maternidade · Pet.</p>
+    <div class="bom"><b>Nunca fechou com marca?</b> Grava com o que você já usa. UGC é falar da sua experiência: o aplicativo que te organiza, o produto que tem na sua casa, o almoço em família, o pote que você usa todo dia.</div>
+  </div>
+</section>
+
+<section id="estrutura">
+  <div class="tit"><span class="ic">🧱</span><h2>O que seu portfólio precisa ter</h2></div>
+  <p class="intro">Eu usei o Canva por dois anos e fechei muito trabalho com ele, inclusive um mês de mais de 20 mil reais. Dá pra começar simples. O que me fez mudar foi outra coisa.</p>
+
+  <div class="card">
+    <h3>As perguntas que o Canva não responde</h3>
+    <ul>
+      <li>Qual vídeo do seu portfólio é o mais visto?</li>
+      <li>Quantas pessoas abriram ele essa semana?</li>
+      <li>Quantas mandaram mensagem por ele?</li>
+      <li>Quantas clicaram no seu WhatsApp ou e-mail?</li>
+      <li>Quais vídeos elas pulam?</li>
+    </ul>
+    <p>Quando eu passei a ter esse dado, descobri que meu nicho mais visto era casa e decoração, que nem estava no destaque. Troquei os vídeos que as pessoas pulavam, reorganizei tudo, e comecei a receber mais proposta. Não é purpurina, é dado.</p>
+  </div>
+
+  <div class="card">
+    <h3>A estrutura da página, na ordem que a empresa olha</h3>
+    <ul>
+      <li><b>1. Topo:</b> seu nome, uma linha do que você faz e os seus três melhores vídeos. Não vinte. Três.</li>
+      <li><b>2. Nichos e formatos:</b> em uma linha eu preciso saber pra que tipo de marca você serve e o que você grava.</li>
+      <li><b>3. Prova:</b> marcas que você já gravou ou o resultado de um vídeo. Uma só já muda como eu leio o resto.</li>
+      <li><b>4. Como te contratar:</b> formatos, prazo, se emite nota, e o formulário. O formulário é o que vira lead. Sem ele você tem visita e não tem conversão.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="claude">
+  <div class="tit"><span class="ic">🤖</span><h2>Como se pede pro Claude</h2></div>
+  <p class="intro">O limite dele é a sua imaginação. A diferença entre quem consegue e quem desiste está em como você pede.</p>
+  <div class="ruim"><b>Genérico, volta genérico:</b> "faz um site bonito de portfólio".</div>
+  <div class="bom"><b>Específico, volta certo:</b> "quero uma página com meu nome no topo, três vídeos em destaque logo abaixo, uma linha dizendo que gravo pra marcas de casa e beleza, e um botão de contato no fim".</div>
+  <p>Em português, uma seção por vez. Ele monta, você olha, pede o ajuste. Igual roteiro: a ideia é sua, ele executa.</p>
+</section>
+
+<!-- ================= CHECKLIST ================= -->
+<section id="checklist">
+  <div class="tit"><span class="ic">✅</span><h2>Checklist do Filtro de 1 Minuto</h2></div>
+  <p class="intro">Abre o seu portfólio agora, do celular, e vai marcando. O que sobrar desmarcado é a sua lista de tarefas de hoje à noite.</p>
+
+  <div class="barra">
+    <div class="barra-in">
+      <div class="progresso"><i id="barra"></i></div>
+      <b id="conta">0 de 0</b>
+    </div>
+  </div>
+
+  <div class="grupo">
+    <h3><span class="t">Filtro 1</span> Link e capa</h3>
+    <label class="item"><input type="checkbox"><span>O link abre no navegador, sem pedir aplicativo e sem tocar tudo ao mesmo tempo.</span></label>
+    <label class="item"><input type="checkbox"><span>A foto da capa é atual e tem qualidade boa.</span></label>
+    <label class="item"><input type="checkbox"><span>Não é selfie, não é foto em família, não é foto com as amigas.</span></label>
+    <label class="item"><input type="checkbox"><span>Não é foto feita com IA.</span></label>
+    <label class="item"><input type="checkbox"><span>Dá pra ver como eu sou hoje: cabelo, pele, estilo.</span></label>
+    <label class="item"><input type="checkbox"><span>Meu diferencial aparece na capa, em foto ou em uma frase.</span></label>
+    <label class="item"><input type="checkbox"><span>Fiz o teste às cegas com uma amiga: ela olhou 3 segundos e lembrou do que eu queria.</span></label>
+  </div>
+
+  <div class="grupo">
+    <h3><span class="t">Filtro 2</span> Destaque</h3>
+    <label class="item"><input type="checkbox"><span>Tenho exatamente 3 vídeos em destaque, não vinte.</span></label>
+    <label class="item"><input type="checkbox"><span>Um deles tem resultado real (mais visto ou mais comentado).</span></label>
+    <label class="item"><input type="checkbox"><span>Um deles é do nicho que eu quero atrair, não do que eu mais tenho.</span></label>
+    <label class="item"><input type="checkbox"><span>Um deles é recente, mostrando que eu estou ativa.</span></label>
+  </div>
+
+  <div class="grupo">
+    <h3><span class="t">Filtro 3</span> Roteiro</h3>
+    <label class="item"><input type="checkbox"><span>Meus vídeos não seguem todos a mesma estrutura.</span></label>
+    <label class="item"><input type="checkbox"><span>Nenhum roteiro começa com uma das frases batidas da lista.</span></label>
+    <label class="item"><input type="checkbox"><span>Cada roteiro passa no teste da frase: só eu poderia ter dito isso.</span></label>
+    <label class="item"><input type="checkbox"><span>Tem pelo menos um formato diferente de problema e solução (entrevista, rotina, externo).</span></label>
+    <label class="item"><input type="checkbox"><span>A ideia partiu de mim, a IA só escreveu.</span></label>
+    <label class="item"><input type="checkbox"><span>O áudio dá pra ouvir bem nos 5 primeiros segundos.</span></label>
+  </div>
+
+  <div class="grupo">
+    <h3><span class="t">Filtro 4</span> Nicho</h3>
+    <label class="item"><input type="checkbox"><span>Meu portfólio mostra mais de um nicho.</span></label>
+    <label class="item"><input type="checkbox"><span>Marquei 2 ou 3 categorias que eu já vivo mas nunca gravei.</span></label>
+    <label class="item"><input type="checkbox"><span>Tenho conteúdo fora de beleza.</span></label>
+    <label class="item"><input type="checkbox"><span>Dá pra entender, em uma linha, pra que tipo de marca eu sirvo.</span></label>
+  </div>
+
+  <div class="grupo">
+    <h3><span class="t">Estrutura</span> A página</h3>
+    <label class="item"><input type="checkbox"><span>Topo: meu nome, uma linha do que eu faço e os 3 vídeos.</span></label>
+    <label class="item"><input type="checkbox"><span>Nichos e formatos aparecem logo depois.</span></label>
+    <label class="item"><input type="checkbox"><span>Tenho prova: marca que já gravei ou resultado de um vídeo.</span></label>
+    <label class="item"><input type="checkbox"><span>Tenho como me contratar: formatos, prazo e se emito nota.</span></label>
+    <label class="item"><input type="checkbox"><span>Tenho formulário de contato, não só um link solto.</span></label>
+  </div>
+
+  <div class="grupo">
+    <h3><span class="t">Antes de enviar</span> Pra marca</h3>
+    <label class="item"><input type="checkbox"><span>Abri o meu link no celular de outra pessoa e funcionou.</span></label>
+    <label class="item"><input type="checkbox"><span>Todos os vídeos abrem e tocam.</span></label>
+    <label class="item"><input type="checkbox"><span>Meu WhatsApp e meu e-mail estão certos e clicáveis.</span></label>
+    <label class="item"><input type="checkbox"><span>Sei responder: que impressão eu quero passar pra essa empresa?</span></label>
+  </div>
+
+  <div class="acoes">
+    <button class="bt cheio" onclick="window.print()">🖨️ Salvar em PDF ou imprimir</button>
+    <button class="bt" onclick="limpar()">Limpar marcações</button>
+  </div>
+</section>
+
+<p class="fim">Feito com carinho pra quem ficou até o final 💛<br>
+<a href="https://instagram.com/eilaradam" target="_blank" rel="noopener">@eilaradam</a></p>
+</div>
+
+<script>
+/* checklist com memória: fica marcado mesmo se fechar a página */
+const caixas = [...document.querySelectorAll('.item input')];
+const CHAVE = 'checklistFiltro1min';
+
+function salvar() {
+  try { localStorage.setItem(CHAVE, JSON.stringify(caixas.map(c => c.checked))); } catch (e) {}
+}
+function pintar() {
+  const feitos = caixas.filter(c => c.checked).length;
+  document.getElementById('conta').textContent = feitos + ' de ' + caixas.length;
+  document.getElementById('barra').style.width = (caixas.length ? (feitos / caixas.length) * 100 : 0) + '%';
+}
+function limpar() {
+  caixas.forEach(c => c.checked = false);
+  salvar(); pintar();
+}
+try {
+  const salvo = JSON.parse(localStorage.getItem(CHAVE) || '[]');
+  salvo.forEach((v, i) => { if (caixas[i]) caixas[i].checked = !!v; });
+} catch (e) {}
+caixas.forEach(c => c.addEventListener('change', () => { salvar(); pintar(); }));
+pintar();
+</script>
+</body>
+</html>

@@ -83,7 +83,8 @@
         #tabCandidaturas .subnav-btn[data-tab="candidaturas"],
         #tabCreators .subnav-btn[data-tab="creators"],
         #tabImersao .subnav-btn[data-tab="imersao"],
-        #tabDirect .subnav-btn[data-tab="direct"] { color: var(--accent); border-bottom-color: var(--accent); }
+        #tabDirect .subnav-btn[data-tab="direct"],
+        #tabAulaBonus .subnav-btn[data-tab="aulabonus"] { color: var(--accent); border-bottom-color: var(--accent); }
         @media (max-width: 860px) { .subnav-btn { padding: 10px 12px; font-size: 12.5px; } }
 
         /* ===== Shell: sidebar + topbar ===== */
@@ -2191,6 +2192,7 @@
         <div class="capa-abas">
         <button class="tab subnav-btn" data-tab="imersao" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Imersão</span></button>
         <button class="tab subnav-btn" data-tab="direct" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l2-5.2A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg><span>Direct no Automático</span></button>
+        <button class="tab subnav-btn" data-tab="aulabonus" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg><span>Aula ao vivo</span></button>
     </div>
     </div>
     <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
@@ -2275,6 +2277,7 @@
         <div class="capa-abas">
         <button class="tab subnav-btn" data-tab="imersao" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Imersão</span></button>
         <button class="tab subnav-btn" data-tab="direct" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l2-5.2A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg><span>Direct no Automático</span></button>
+        <button class="tab subnav-btn" data-tab="aulabonus" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg><span>Aula ao vivo</span></button>
     </div>
     </div>
     <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
@@ -2330,6 +2333,52 @@
         <p style="margin:0 0 12px 0;color:var(--text-muted);font-size:12.5px;">Gente que entrou em <b>direct.laradam.com</b>, não comprou agora e deixou o e-mail pra ser avisada. Quando abrir condição nova ou sair aula nova, exporta o CSV e dispara e-mail pra essa lista.</p>
         <div id="dnLeadBox"><div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando...</div></div>
     </div>
+</div>
+
+<!-- ── TAB: AULA AO VIVO (bônus / captação de quem ficou até o fim) ── -->
+<div class="dashboard" id="tabAulaBonus">
+    <div class="capa">
+        <div class="capa-topo">
+            <div class="capa-id">
+                <span class="capa-mark">🎓</span>
+                <div>
+                    <h2>Aulas</h2>
+                    <p class="sub">As duas páginas de venda e quem respondeu o formulário da aula ao vivo.</p>
+                </div>
+            </div>
+        </div>
+        <div class="capa-abas">
+        <button class="tab subnav-btn" data-tab="imersao" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Imersão</span></button>
+        <button class="tab subnav-btn" data-tab="direct" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l2-5.2A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg><span>Direct no Automático</span></button>
+        <button class="tab subnav-btn" data-tab="aulabonus" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg><span>Aula ao vivo</span></button>
+    </div>
+    </div>
+
+    <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+            <h2 style="margin:0 0 4px 0;font-family:'DM Sans',sans-serif;font-weight:700;font-size:24px;">Aula ao vivo · bônus do final</h2>
+            <p style="margin:0;color:var(--text-muted);font-size:13px;">Quem ficou até o fim, preencheu o formulário e liberou o Resumo + Checklist em <b>creators.laradam.com/aula-bonus</b>.</p>
+        </div>
+        <span style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button type="button" onclick="loadAulaBonus()" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 16px;font-family:inherit;font-size:13px;font-weight:600;color:var(--text-soft);cursor:pointer;">↻ Atualizar</button>
+            <button type="button" onclick="exportAulaBonusCsv()" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 16px;font-family:inherit;font-size:13px;font-weight:600;color:var(--text-soft);cursor:pointer;">⬇ Exportar CSV</button>
+            <a href="/aula-bonus" target="_blank" rel="noopener" style="background:var(--accent);color:#fff;border-radius:10px;padding:9px 16px;font-size:13px;font-weight:600;text-decoration:none;">Abrir formulário ↗</a>
+        </span>
+    </div>
+
+    <div class="stats-row" style="margin-bottom:14px;">
+        <div class="stat-card accent"><div class="stat-value" id="abStatTotal">--</div><div class="stat-label">Respostas</div></div>
+        <div class="stat-card"><div class="stat-value" id="abStatHoje">--</div><div class="stat-label">Hoje</div></div>
+        <div class="stat-card"><div class="stat-value" id="abStatFeedback">--</div><div class="stat-label">Deixaram opinião</div></div>
+        <div class="stat-card"><div class="stat-value" id="abStatTema">--</div><div class="stat-label">Pediram tema</div></div>
+    </div>
+
+    <div style="margin-bottom:18px;">
+        <h3 style="margin:0 0 8px 0;font-family:'DM Sans',sans-serif;font-weight:700;font-size:16px;">Temas mais pedidos pra próxima aula</h3>
+        <div id="abTemas" style="display:flex;flex-wrap:wrap;gap:8px;"><span style="color:var(--text-muted);font-size:13px;">Carregando...</span></div>
+    </div>
+
+    <div id="abBox"><div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando...</div></div>
 </div>
 
 <!-- ── TAB: INSTAGRAM (ManyChat próprio) ── -->
@@ -2975,7 +3024,8 @@
     #tabCandidaturas .capa .subnav-btn[data-tab="candidaturas"],
     #tabCreators .capa .subnav-btn[data-tab="creators"],
     #tabImersao .capa .subnav-btn[data-tab="imersao"],
-    #tabDirect .capa .subnav-btn[data-tab="direct"]{
+    #tabDirect .capa .subnav-btn[data-tab="direct"],
+    #tabAulaBonus .capa .subnav-btn[data-tab="aulabonus"]{
         background:#fff;color:var(--accent);border-color:#fff;box-shadow:0 3px 10px rgba(0,0,0,.16);}
     .capa .subnav-btn svg{width:15px;height:15px;}
     /* Botão de ação no canto direito da capa (recarregar, etc). */
@@ -5278,7 +5328,7 @@
     document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
 
     /* ── Tabs ── */
-    const PAGE_TITLES = { objetivos: 'Objetivos', carrossel: 'Carrossel', painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', marcas: 'Marcas', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', instagram: 'Instagram', bio: 'Link na Bio' };
+    const PAGE_TITLES = { objetivos: 'Objetivos', carrossel: 'Carrossel', painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', marcas: 'Marcas', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', aulabonus: 'Aula ao vivo', instagram: 'Instagram', bio: 'Link na Bio' };
     function setPageTitle(target) {
         const el = document.getElementById('pageTitle');
         if (el && PAGE_TITLES[target]) el.textContent = PAGE_TITLES[target];
@@ -5291,7 +5341,7 @@
             /* Campanhas e Base de creators dividem o mesmo botao da barra lateral:
                ele precisa continuar aceso nas duas, inclusive quando a troca vem do
                menuzinho de cima (que tambem e um .tab e por isso limpou o active). */
-            const DONO_NA_BARRA = { candidaturas: 'creators', creators: 'creators', direct: 'imersao', imersao: 'imersao' };
+            const DONO_NA_BARRA = { candidaturas: 'creators', creators: 'creators', direct: 'imersao', imersao: 'imersao', aulabonus: 'imersao' };
             if (DONO_NA_BARRA[target]) {
                 const navBtn = document.querySelector('.sidebar-nav .nav-item[data-tab="' + DONO_NA_BARRA[target] + '"]');
                 if (navBtn) navBtn.classList.add('active');
@@ -5314,6 +5364,7 @@
             document.getElementById('tabDisparo').classList.toggle('show', target === 'disparo');
             document.getElementById('tabImersao').classList.toggle('show', target === 'imersao');
             document.getElementById('tabDirect').classList.toggle('show', target === 'direct');
+            document.getElementById('tabAulaBonus').classList.toggle('show', target === 'aulabonus');
             document.getElementById('tabInstagram').classList.toggle('show', target === 'instagram');
             document.getElementById('tabBio').classList.toggle('show', target === 'bio');
             document.getElementById('tabObjetivos').classList.toggle('show', target === 'objetivos');
@@ -5333,6 +5384,7 @@
             if (target === 'disparo') loadDisparo();
             if (target === 'imersao') { loadImersao(); loadAlunas(); }
             if (target === 'direct') loadDirect();
+            if (target === 'aulabonus') loadAulaBonus();
             if (target === 'painel') loadPainel();
             /* itens do grupo Instagram na barra: abrem a aba e ja caem na sub-aba certa */
             if (target === 'instagram') {
@@ -6735,6 +6787,82 @@
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
         a.download = 'direct-no-automatico-lista.csv';
+        a.click();
+        URL.revokeObjectURL(a.href);
+    }
+
+    /* ── Aula ao vivo: quem respondeu o formulário do bônus ── */
+    let abCache = [];
+    async function loadAulaBonus() {
+        const box = document.getElementById('abBox');
+        if (!box) return;
+        box.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando...</div>';
+        const setTxt = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+        try {
+            const { data, error } = await sb.from('aula_bonus')
+                .select('id,nome,email,telefone,achou,proximo_tema,aula,created_at')
+                .order('created_at', { ascending: false });
+            if (error) throw error;
+            abCache = data || [];
+
+            const hoje = new Date().toDateString();
+            setTxt('abStatTotal', abCache.length);
+            setTxt('abStatHoje', abCache.filter(r => new Date(r.created_at).toDateString() === hoje).length);
+            setTxt('abStatFeedback', abCache.filter(r => (r.achou || '').trim()).length);
+            setTxt('abStatTema', abCache.filter(r => (r.proximo_tema || '').trim()).length);
+
+            /* nuvem simples: cada tema pedido vira uma etiqueta, repetido mostra contagem */
+            const temas = {};
+            abCache.forEach(r => {
+                const t = (r.proximo_tema || '').trim().toLowerCase();
+                if (!t) return;
+                temas[t] = (temas[t] || 0) + 1;
+            });
+            const caixaTemas = document.getElementById('abTemas');
+            const lista = Object.entries(temas).sort((a, b) => b[1] - a[1]).slice(0, 20);
+            caixaTemas.innerHTML = lista.length
+                ? lista.map(([t, n]) => '<span style="background:var(--warm);border-radius:999px;padding:6px 13px;font-size:13px;">'
+                    + escapeHtml(t.length > 60 ? t.slice(0, 60) + '...' : t)
+                    + (n > 1 ? ' <b style="color:var(--accent);">' + n + '×</b>' : '') + '</span>').join('')
+                : '<span style="color:var(--text-muted);font-size:13px;">Ninguém pediu tema ainda.</span>';
+
+            if (!abCache.length) {
+                box.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">Ninguém respondeu ainda. Manda o link <b>creators.laradam.com/aula-bonus</b> no chat da aula.</div>';
+                return;
+            }
+
+            const dt = s => { const d = new Date(s); return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); };
+            const zap = t => (t || '').replace(/\D/g, '');
+            box.innerHTML = '<div style="border:1px solid var(--border);border-radius:12px;overflow:auto;">'
+                + '<table style="width:100%;border-collapse:collapse;font-size:13px;">'
+                + '<thead><tr style="background:var(--warm);text-align:left;">'
+                + '<th style="padding:9px 12px;">Quando</th><th style="padding:9px 12px;">Nome</th><th style="padding:9px 12px;">Contato</th>'
+                + '<th style="padding:9px 12px;">O que achou</th><th style="padding:9px 12px;">Tema que quer</th>'
+                + '</tr></thead><tbody>'
+                + abCache.map(r => '<tr style="border-top:1px solid var(--border);vertical-align:top;">'
+                    + '<td style="padding:9px 12px;color:var(--text-muted);white-space:nowrap;">' + dt(r.created_at) + '</td>'
+                    + '<td style="padding:9px 12px;font-weight:600;">' + escapeHtml(r.nome || '—') + '</td>'
+                    + '<td style="padding:9px 12px;">' + escapeHtml(r.email || '')
+                        + (zap(r.telefone) ? '<br><a href="https://wa.me/55' + zap(r.telefone) + '" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;font-weight:600;">' + escapeHtml(r.telefone) + ' ↗</a>' : '')
+                        + '</td>'
+                    + '<td style="padding:9px 12px;max-width:280px;">' + escapeHtml(r.achou || '—') + '</td>'
+                    + '<td style="padding:9px 12px;max-width:240px;">' + escapeHtml(r.proximo_tema || '—') + '</td>'
+                    + '</tr>').join('')
+                + '</tbody></table></div>';
+        } catch (e) {
+            console.error('[aula-bonus] erro', e);
+            box.innerHTML = '<div style="padding:30px;text-align:center;color:#c00;">Erro ao carregar. Confirme que a tabela <b>aula_bonus</b> existe no Supabase (rode o sql-aula-bonus.sql).</div>';
+        }
+    }
+    function exportAulaBonusCsv() {
+        if (!abCache.length) { alert('Ninguém respondeu ainda.'); return; }
+        const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+        const linhas = [['nome', 'email', 'telefone', 'o_que_achou', 'tema_proxima_aula', 'aula', 'data'].join(',')]
+            .concat(abCache.map(r => [r.nome, r.email, r.telefone, r.achou, r.proximo_tema, r.aula, r.created_at].map(esc).join(',')));
+        const blob = new Blob(['\ufeff' + linhas.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'aula-ao-vivo-respostas.csv';
         a.click();
         URL.revokeObjectURL(a.href);
     }

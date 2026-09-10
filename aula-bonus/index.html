@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seu bônus da aula · Lara Dam</title>
+<meta name="description" content="Resumo da Aula + Checklist do Filtro de 1 Minuto. Responde rapidinho e os dois liberam.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.98.0" crossorigin="anonymous"></script>
+<style>
+:root{
+  --cream:#F5F3EF; --paper:#FBF9F6; --warm:#EDE7DF; --accent:#D4572A; --accent-dark:#B8461F;
+  --accent-soft:rgba(212,87,42,0.10); --text:#1B1B1B; --text-soft:#5c554d; --text-muted:#9c948a;
+  --border:#E2DBD1; --card:#FFFFFF; --ok:#2D7A4F;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(circle at 15% 0%,rgba(212,87,42,.07),transparent 45%),radial-gradient(circle at 90% 100%,rgba(212,87,42,.05),transparent 40%)}
+.wrap{max-width:620px;margin:0 auto;padding:28px 20px 60px}
+.selo{display:inline-flex;align-items:center;gap:8px;background:var(--accent-soft);color:var(--accent-dark);border:1px solid rgba(212,87,42,.25);
+  border-radius:999px;padding:7px 15px;font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.09em}
+h1{font-family:'Fraunces',serif;font-weight:900;font-size:clamp(28px,7vw,40px);line-height:1.1;margin:16px 0 10px;letter-spacing:-.02em}
+h1 em{font-style:italic;color:var(--accent)}
+.lead{color:var(--text-soft);font-size:16.5px}
+.materiais{display:grid;gap:10px;margin:22px 0 26px}
+.mat{display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px}
+.mat b{display:block;font-size:15px}
+.mat span{font-size:13.5px;color:var(--text-muted)}
+.mat i{font-style:normal;font-size:22px;line-height:1.2}
+form{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px 20px;box-shadow:0 24px 50px -40px rgba(0,0,0,.5)}
+label{display:block;font-size:14px;font-weight:700;margin:0 0 6px}
+label small{display:block;font-weight:500;color:var(--text-muted);font-size:12.5px;margin-top:2px}
+.campo{margin-bottom:16px}
+input,textarea{width:100%;font-family:inherit;font-size:16px;color:var(--text);background:var(--paper);
+  border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;transition:border-color .15s,background .15s}
+input:focus,textarea:focus{outline:none;border-color:var(--accent);background:#fff}
+textarea{min-height:92px;resize:vertical}
+.btn{width:100%;background:var(--accent);color:#fff;border:0;border-radius:999px;padding:15px 20px;font-family:inherit;
+  font-size:16px;font-weight:700;cursor:pointer;transition:background .18s,transform .18s}
+.btn:hover{background:var(--accent-dark);transform:translateY(-1px)}
+.btn:disabled{opacity:.6;cursor:default;transform:none}
+.aviso{font-size:12.5px;color:var(--text-muted);text-align:center;margin-top:12px}
+.erro{background:#fdecea;color:#a3271b;border:1px solid #f3c2bb;border-radius:12px;padding:12px 14px;font-size:14px;margin-bottom:14px;display:none}
+/* tela de sucesso */
+#pronto{display:none;text-align:center;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:34px 22px;box-shadow:0 24px 50px -40px rgba(0,0,0,.5)}
+#pronto .festa{font-size:46px;line-height:1}
+#pronto h2{font-family:'Fraunces',serif;font-weight:900;font-size:27px;margin:10px 0 8px}
+#pronto p{color:var(--text-soft);margin-bottom:22px}
+.btn-mat{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;border-radius:999px;padding:16px 30px;font-weight:700;font-size:16px}
+.btn-mat:hover{background:var(--accent-dark)}
+.rodape{text-align:center;font-size:13px;color:var(--text-muted);margin-top:26px}
+.rodape a{color:var(--accent);text-decoration:none;font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="formArea">
+    <span class="selo">🎁 Bônus desbloqueado</span>
+    <h1>Seus materiais da <em>aula</em> estão aqui</h1>
+    <p class="lead">Responde essas cinco perguntinhas rápidas e os dois materiais liberam na hora, nessa mesma tela.</p>
+
+    <div class="materiais">
+      <div class="mat"><i>📄</i><div><b>Resumo da Aula</b><span>tudo o que a gente falou hoje, organizado pra você reler.</span></div></div>
+      <div class="mat"><i>✅</i><div><b>Checklist do Filtro de 1 Minuto</b><span>os 4 pontos que eu olho, com caixinhas pra marcar no seu portfólio hoje.</span></div></div>
+    </div>
+
+    <form id="form" novalidate>
+      <div class="erro" id="erro"></div>
+
+      <div class="campo">
+        <label for="nome">Nome completo</label>
+        <input type="text" id="nome" name="nome" autocomplete="name" required>
+      </div>
+
+      <div class="campo">
+        <label for="email">E-mail<small>é pra onde eu mando as próximas novidades</small></label>
+        <input type="email" id="email" name="email" autocomplete="email" required>
+      </div>
+
+      <div class="campo">
+        <label for="telefone">Telefone com WhatsApp</label>
+        <input type="tel" id="telefone" name="telefone" inputmode="numeric" placeholder="(00) 00000-0000" autocomplete="tel" required>
+      </div>
+
+      <div class="campo">
+        <label for="achou">O que você achou da imersão?</label>
+        <textarea id="achou" name="achou" placeholder="Pode ser sincera, é isso que me faz melhorar a próxima."></textarea>
+      </div>
+
+      <div class="campo">
+        <label for="tema">Qual tema você quer na próxima aula ao vivo?</label>
+        <textarea id="tema" name="tema" placeholder="Ex: roteiro, abordagem de marca, precificação..."></textarea>
+      </div>
+
+      <button class="btn" type="submit" id="btn">Liberar meus materiais 🎁</button>
+      <p class="aviso">Leva 30 segundos. Seus dados ficam só comigo.</p>
+    </form>
+  </div>
+
+  <div id="pronto">
+    <div class="festa">🎉</div>
+    <h2>Prontinho!</h2>
+    <p>Seus dois materiais estão liberados. Clica no botão e já deixa salvo nos favoritos.</p>
+    <a class="btn-mat" href="material.html">Abrir meus materiais →</a>
+  </div>
+
+  <p class="rodape">Aula do dia 10 de setembro · <a href="https://instagram.com/eilaradam" target="_blank" rel="noopener">@eilaradam</a></p>
+</div>
+
+<script>
+const SB_URL = 'https://mfrmnquvwwuxraqgemyh.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mcm1ucXV2d3d1eHJhcWdlbXloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNDI1NDIsImV4cCI6MjA4NzYxODU0Mn0.zmsi08dV5L1IlXJSr34vOii71w0g0OsD5_5DKio5g-o';
+let sbc = null; try { sbc = window.supabase.createClient(SB_URL, SB_KEY); } catch (e) {}
+
+const AULA = 'portfolio-30min-10-09';
+
+/* quem já respondeu não precisa responder de novo */
+try { if (localStorage.getItem('aulaBonusOk') === '1') mostrarPronto(); } catch (e) {}
+
+function mostrarPronto() {
+  document.getElementById('formArea').style.display = 'none';
+  document.getElementById('pronto').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+/* máscara do telefone */
+const tel = document.getElementById('telefone');
+tel.addEventListener('input', () => {
+  let v = tel.value.replace(/\D/g, '').slice(0, 11);
+  if (v.length > 6) v = '(' + v.slice(0, 2) + ') ' + v.slice(2, 7) + '-' + v.slice(7);
+  else if (v.length > 2) v = '(' + v.slice(0, 2) + ') ' + v.slice(2);
+  else if (v.length > 0) v = '(' + v;
+  tel.value = v;
+});
+
+document.getElementById('form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const erro = document.getElementById('erro');
+  const btn = document.getElementById('btn');
+  erro.style.display = 'none';
+
+  const nome = document.getElementById('nome').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const telefone = tel.value.trim();
+  const achou = document.getElementById('achou').value.trim();
+  const tema = document.getElementById('tema').value.trim();
+
+  if (nome.length < 3) return falhar('Escreve seu nome completo, por favor.');
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return falhar('Confere o e-mail, parece que faltou alguma coisa.');
+  if (telefone.replace(/\D/g, '').length < 10) return falhar('Coloca o telefone com DDD.');
+
+  btn.disabled = true;
+  btn.textContent = 'Liberando...';
+
+  try {
+    if (!sbc) throw new Error('sem conexão');
+    const { error } = await sbc.from('aula_bonus').insert({
+      aula: AULA, nome, email, telefone,
+      achou: achou || null, proximo_tema: tema || null,
+      referrer: document.referrer || null,
+      user_agent: navigator.userAgent
+    });
+    if (error) throw error;
+    try { localStorage.setItem('aulaBonusOk', '1'); } catch (e) {}
+    mostrarPronto();
+  } catch (err) {
+    console.error(err);
+    /* nunca deixar a aluna na mão: se o banco falhar, o material abre do mesmo jeito */
+    try { localStorage.setItem('aulaBonusOk', '1'); } catch (e) {}
+    mostrarPronto();
+  }
+
+  function falhar(msg) {
+    erro.textContent = msg;
+    erro.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Liberar meus materiais 🎁';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+});
+</script>
+</body>
+</html>
