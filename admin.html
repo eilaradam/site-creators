@@ -4560,6 +4560,19 @@
             </div>
         </div>
 
+        <div id="dispStatsWrap" style="margin-bottom:20px;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap;">
+                <div>
+                    <b style="font-size:14px;">📊 Resultado dos disparos</b>
+                    <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Entregas, aberturas e cliques que o Resend devolve</div>
+                </div>
+                <button type="button" onclick="loadEmailStats()" style="padding:8px 14px;border:1px solid var(--border);background:var(--cream);color:var(--text);border-radius:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;">Atualizar</button>
+            </div>
+            <div class="stats" id="dispStatsCards" style="display:flex;flex-wrap:wrap;"></div>
+            <div id="dispStatsCampanhas" style="padding:4px 18px 8px;"></div>
+            <div id="dispStatsLinks" style="padding:0 18px 16px;"></div>
+        </div>
+
         <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;">
         <div style="flex:1.1;min-width:360px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;">
             <div style="margin-bottom:16px;">
@@ -5814,12 +5827,68 @@
         }
         return all.filter(c => c.email && String(c.email).includes('@')).map(c => ({ nome: c.nome || '', email: String(c.email).trim() }));
     }
+    function dispPct(parte, total) { return total ? Math.round(parte * 1000 / total) / 10 : 0; }
+
+    async function loadEmailStats() {
+        const cards = document.getElementById('dispStatsCards');
+        if (!cards || typeof sb === 'undefined') return;
+        cards.innerHTML = '<div class="stat-card"><div class="stat-value">...</div><div class="stat-label">Carregando</div></div>';
+        const { data, error } = await sb.rpc('email_stats', { dias: 60 });
+        const camps = document.getElementById('dispStatsCampanhas');
+        const links = document.getElementById('dispStatsLinks');
+        if (error) {
+            cards.innerHTML = '<div class="stat-card"><div class="stat-value" style="color:var(--error);">erro</div><div class="stat-label">' + dispEsc(error.message) + '</div></div>';
+            return;
+        }
+        const lista = (data && data.campanhas) || [];
+        const soma = (campo) => lista.reduce((t, c) => t + (Number(c[campo]) || 0), 0);
+        const enviados = soma('enviados'), entregues = soma('entregues'), abertos = soma('abertos'),
+              clicaram = soma('clicaram'), bounces = soma('bounces'), spam = soma('spam');
+
+        cards.innerHTML =
+            '<div class="stat-card"><div class="stat-value">' + enviados + '</div><div class="stat-label">Enviados</div></div>' +
+            '<div class="stat-card"><div class="stat-value">' + entregues + '</div><div class="stat-label">Entregues ' + dispPct(entregues, enviados) + '%</div></div>' +
+            '<div class="stat-card accent"><div class="stat-value">' + abertos + '</div><div class="stat-label">Abriram ' + dispPct(abertos, entregues || enviados) + '%</div></div>' +
+            '<div class="stat-card accent"><div class="stat-value">' + clicaram + '</div><div class="stat-label">Clicaram ' + dispPct(clicaram, entregues || enviados) + '%</div></div>' +
+            '<div class="stat-card"><div class="stat-value">' + bounces + '</div><div class="stat-label">Não chegou</div></div>' +
+            '<div class="stat-card"><div class="stat-value">' + spam + '</div><div class="stat-label">Marcou spam</div></div>';
+
+        if (!lista.length) {
+            camps.innerHTML = '<p style="font-size:12.5px;color:var(--text-muted);margin:10px 0;">Nenhum disparo nos últimos 60 dias.</p>';
+        } else {
+            camps.innerHTML = '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12.5px;">' +
+                '<tr style="text-align:left;color:var(--text-muted);"><th style="padding:8px 6px;font-weight:600;">Assunto</th><th style="padding:8px 6px;font-weight:600;">Quando</th><th style="padding:8px 6px;font-weight:600;">Enviados</th><th style="padding:8px 6px;font-weight:600;">Entregues</th><th style="padding:8px 6px;font-weight:600;">Abriram</th><th style="padding:8px 6px;font-weight:600;">Clicaram</th></tr>' +
+                lista.map(function (c) {
+                    const d = new Date(c.primeiro);
+                    return '<tr style="border-top:1px solid var(--border);">' +
+                        '<td style="padding:9px 6px;"><b>' + dispEsc(c.assunto || 'sem assunto') + '</b></td>' +
+                        '<td style="padding:9px 6px;color:var(--text-muted);">' + d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) + '</td>' +
+                        '<td style="padding:9px 6px;">' + c.enviados + '</td>' +
+                        '<td style="padding:9px 6px;">' + c.entregues + ' <span style="color:var(--text-muted);">(' + dispPct(c.entregues, c.enviados) + '%)</span></td>' +
+                        '<td style="padding:9px 6px;">' + c.abertos + ' <span style="color:var(--text-muted);">(' + dispPct(c.abertos, c.entregues || c.enviados) + '%)</span></td>' +
+                        '<td style="padding:9px 6px;">' + c.clicaram + ' <span style="color:var(--text-muted);">(' + dispPct(c.clicaram, c.entregues || c.enviados) + '%)</span></td>' +
+                    '</tr>';
+                }).join('') + '</table></div>';
+        }
+
+        const ls = (data && data.links) || [];
+        links.innerHTML = ls.length
+            ? '<div style="font-size:12px;color:var(--text-muted);margin:12px 0 6px;font-weight:700;">Links mais clicados</div>' +
+              ls.map(function (l) {
+                  return '<div style="display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--border);font-size:12.5px;">' +
+                      '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%;">' + dispEsc(l.url) + '</span>' +
+                      '<b>' + l.pessoas + ' pessoas</b></div>';
+              }).join('')
+            : '';
+    }
+
     async function loadDisparo() {
         const el = document.getElementById('dispCount');
         if (!el) return;
         ['dispSubject', 'dispBody', 'dispBtnText', 'dispBtnLink', 'dispHtml'].forEach(id => { const f = document.getElementById(id); if (f) f.oninput = renderDispPreview; });
         setDispMode(dispMode);
         loadAgendados();
+        loadEmailStats();
         const cidSel = document.getElementById('dispCidade');
         if (cidSel && cidSel.options.length <= 1) { const uf0 = (document.getElementById('dispUF') || {}).value || ''; cidSel.disabled = !uf0; const w0 = document.getElementById('dispCidadeWrap'); if (w0) w0.style.opacity = uf0 ? '1' : '0.55'; }
         el.textContent = 'Contando...';
