@@ -2374,6 +2374,12 @@
     </div>
 
     <div style="margin-bottom:18px;">
+        <h3 style="margin:0 0 8px 0;font-family:'DM Sans',sans-serif;font-weight:700;font-size:16px;">🙈 Opiniões anônimas <span id="abAnonCount" style="color:var(--text-muted);font-weight:500;"></span></h3>
+        <p style="margin:0 0 10px 0;color:var(--text-muted);font-size:12.5px;">Quem marcou "anônimo" no formulário. O texto fica numa tabela separada, sem nome, sem e-mail e sem horário, então não dá pra saber quem escreveu (nem eu).</p>
+        <div id="abAnon"><span style="color:var(--text-muted);font-size:13px;">Carregando...</span></div>
+    </div>
+
+    <div style="margin-bottom:18px;">
         <h3 style="margin:0 0 8px 0;font-family:'DM Sans',sans-serif;font-weight:700;font-size:16px;">Temas mais pedidos pra próxima aula</h3>
         <div id="abTemas" style="display:flex;flex-wrap:wrap;gap:8px;"><span style="color:var(--text-muted);font-size:13px;">Carregando...</span></div>
     </div>
@@ -6798,9 +6804,10 @@
         if (!box) return;
         box.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando...</div>';
         const setTxt = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+        loadAulaBonusAnon();
         try {
             const { data, error } = await sb.from('aula_bonus')
-                .select('id,nome,email,telefone,achou,proximo_tema,aula,created_at')
+                .select('id,nome,email,telefone,achou,achou_anonimo,proximo_tema,aula,created_at')
                 .order('created_at', { ascending: false });
             if (error) throw error;
             abCache = data || [];
@@ -6808,7 +6815,7 @@
             const hoje = new Date().toDateString();
             setTxt('abStatTotal', abCache.length);
             setTxt('abStatHoje', abCache.filter(r => new Date(r.created_at).toDateString() === hoje).length);
-            setTxt('abStatFeedback', abCache.filter(r => (r.achou || '').trim()).length);
+            setTxt('abStatFeedback', abCache.filter(r => (r.achou || '').trim() || r.achou_anonimo).length);
             setTxt('abStatTema', abCache.filter(r => (r.proximo_tema || '').trim()).length);
 
             /* nuvem simples: cada tema pedido vira uma etiqueta, repetido mostra contagem */
@@ -6845,7 +6852,9 @@
                     + '<td style="padding:9px 12px;">' + escapeHtml(r.email || '')
                         + (zap(r.telefone) ? '<br><a href="https://wa.me/55' + zap(r.telefone) + '" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;font-weight:600;">' + escapeHtml(r.telefone) + ' ↗</a>' : '')
                         + '</td>'
-                    + '<td style="padding:9px 12px;max-width:280px;">' + escapeHtml(r.achou || '—') + '</td>'
+                    + '<td style="padding:9px 12px;max-width:280px;">' + (r.achou_anonimo
+                        ? '<span style="color:var(--text-muted);font-style:italic;">🙈 respondeu no anônimo</span>'
+                        : escapeHtml(r.achou || '—')) + '</td>'
                     + '<td style="padding:9px 12px;max-width:240px;">' + escapeHtml(r.proximo_tema || '—') + '</td>'
                     + '</tr>').join('')
                 + '</tbody></table></div>';
@@ -6854,11 +6863,36 @@
             box.innerHTML = '<div style="padding:30px;text-align:center;color:#c00;">Erro ao carregar. Confirme que a tabela <b>aula_bonus</b> existe no Supabase (rode o sql-aula-bonus.sql).</div>';
         }
     }
+    async function loadAulaBonusAnon() {
+        const box = document.getElementById('abAnon');
+        const cnt = document.getElementById('abAnonCount');
+        if (!box) return;
+        try {
+            /* ordena por id (uuid) de propósito: a ordem de chegada também
+               entregaria quem escreveu o quê, comparando com a tabela de cadastro. */
+            const { data, error } = await sb.from('aula_feedback_anonimo')
+                .select('id,achou,dia').order('id', { ascending: true });
+            if (error) throw error;
+            const lista = data || [];
+            if (cnt) cnt.textContent = lista.length ? '(' + lista.length + ')' : '';
+            box.innerHTML = lista.length
+                ? '<div style="display:grid;gap:8px;">' + lista.map(r =>
+                    '<div style="background:var(--card);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:10px;padding:11px 14px;font-size:13.5px;">'
+                    + escapeHtml(r.achou) + '</div>').join('') + '</div>'
+                : '<span style="color:var(--text-muted);font-size:13px;">Ninguém respondeu no anônimo ainda.</span>';
+        } catch (e) {
+            console.error('[aula-bonus-anon] erro', e);
+            box.innerHTML = '<span style="color:#c00;font-size:13px;">Erro ao carregar. Confirme a tabela <b>aula_feedback_anonimo</b> (rode o sql-aula-bonus.sql).</span>';
+        }
+    }
+
     function exportAulaBonusCsv() {
         if (!abCache.length) { alert('Ninguém respondeu ainda.'); return; }
         const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
         const linhas = [['nome', 'email', 'telefone', 'o_que_achou', 'tema_proxima_aula', 'aula', 'data'].join(',')]
-            .concat(abCache.map(r => [r.nome, r.email, r.telefone, r.achou, r.proximo_tema, r.aula, r.created_at].map(esc).join(',')));
+            .concat(abCache.map(r => [r.nome, r.email, r.telefone,
+                r.achou_anonimo ? '(respondeu no anonimo)' : r.achou,
+                r.proximo_tema, r.aula, r.created_at].map(esc).join(',')));
         const blob = new Blob(['\ufeff' + linhas.join('\n')], { type: 'text/csv;charset=utf-8;' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);

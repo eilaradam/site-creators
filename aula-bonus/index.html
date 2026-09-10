@@ -39,6 +39,16 @@ input,textarea{width:100%;font-family:inherit;font-size:16px;color:var(--text);b
   border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;transition:border-color .15s,background .15s}
 input:focus,textarea:focus{outline:none;border-color:var(--accent);background:#fff}
 textarea{min-height:92px;resize:vertical}
+.anon{display:flex;gap:11px;align-items:flex-start;background:var(--paper);border:1.5px solid var(--border);
+  border-radius:14px;padding:13px 15px;margin:-6px 0 16px;cursor:pointer;transition:border-color .15s,background .15s}
+.anon:hover{border-color:var(--accent)}
+.anon.on{border-color:var(--accent);background:var(--accent-soft)}
+.anon input{appearance:none;width:22px;height:22px;flex:0 0 auto;margin:2px 0 0;border:1.8px solid var(--border);
+  border-radius:7px;background:#fff;cursor:pointer;position:relative}
+.anon input:checked{background:var(--accent);border-color:var(--accent)}
+.anon input:checked::after{content:"✓";position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-size:14px;font-weight:800}
+.anon b{display:block;font-size:14.5px}
+.anon span{display:block;font-size:12.8px;color:var(--text-muted);line-height:1.45;margin-top:2px}
 .btn{width:100%;background:var(--accent);color:#fff;border:0;border-radius:999px;padding:15px 20px;font-family:inherit;
   font-size:16px;font-weight:700;cursor:pointer;transition:background .18s,transform .18s}
 .btn:hover{background:var(--accent-dark);transform:translateY(-1px)}
@@ -87,10 +97,18 @@ textarea{min-height:92px;resize:vertical}
         <input type="tel" id="telefone" name="telefone" inputmode="numeric" placeholder="(00) 00000-0000" autocomplete="tel" required>
       </div>
 
-      <div class="campo">
+      <div class="campo" style="margin-bottom:12px;">
         <label for="achou">O que você achou da imersão?</label>
         <textarea id="achou" name="achou" placeholder="Pode ser sincera, é isso que me faz melhorar a próxima."></textarea>
       </div>
+
+      <label class="anon" id="anonBox">
+        <input type="checkbox" id="anonimo">
+        <div>
+          <b>🙈 Mandar essa resposta no anônimo</b>
+          <span>Marcando aqui, sua opinião chega pra mim separada do seu cadastro: eu leio, mas não tem nome, e-mail nem horário junto. Pode falar o que achou de verdade.</span>
+        </div>
+      </label>
 
       <div class="campo">
         <label for="tema">Qual tema você quer na próxima aula ao vivo?</label>
@@ -128,6 +146,11 @@ function mostrarPronto() {
   window.scrollTo(0, 0);
 }
 
+/* botão do anônimo: só destaca a caixinha */
+const anon = document.getElementById('anonimo');
+const anonBox = document.getElementById('anonBox');
+anon.addEventListener('change', () => anonBox.classList.toggle('on', anon.checked));
+
 /* máscara do telefone */
 const tel = document.getElementById('telefone');
 tel.addEventListener('input', () => {
@@ -159,9 +182,20 @@ document.getElementById('form').addEventListener('submit', async (e) => {
 
   try {
     if (!sbc) throw new Error('sem conexão');
+    const anonimo = anon.checked && !!achou;
+
+    /* no anônimo o texto NÃO vai junto do cadastro: vai pra outra tabela,
+       sem nome, sem e-mail e sem hora, só com o dia. */
+    if (anonimo) {
+      const r = await sbc.from('aula_feedback_anonimo').insert({ aula: AULA, achou });
+      if (r.error) throw r.error;
+    }
+
     const { error } = await sbc.from('aula_bonus').insert({
       aula: AULA, nome, email, telefone,
-      achou: achou || null, proximo_tema: tema || null,
+      achou: anonimo ? null : (achou || null),
+      achou_anonimo: anonimo,
+      proximo_tema: tema || null,
       referrer: document.referrer || null,
       user_agent: navigator.userAgent
     });
