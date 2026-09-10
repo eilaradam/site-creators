@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- TROCAR: título e descrição do SEO -->
+<title>[SEU NOME] · UGC Creator</title>
+<meta name="description" content="[FRASE QUE TE RESUME]. Portfólio de UGC Creator: conteúdo em vídeo para marcas.">
+<meta property="og:title" content="[SEU NOME] · UGC Creator">
+<meta property="og:description" content="[FRASE QUE TE RESUME]. Portfólio de UGC Creator: conteúdo em vídeo para marcas.">
+<!-- TROCAR: og:image pela sua imagem de capa (1200x630) -->
+<meta property="og:image" content="capa-og.jpg">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%AC%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --papel:#F4F0E9; --card:#FBF9F5; --borda:#EAE5DB;
+  --terra:#CC7C5E; --manteiga:#FEF7CF; --preto:#09090B; --cinza:#A9A9A9;
+  --raio:18px;
+  --tit:"Be Vietnam Pro",system-ui,sans-serif;
+  --txt:"DM Sans",system-ui,sans-serif;
+  --mono:"DM Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:78px;-webkit-text-size-adjust:100%}
+body{
+  background:var(--papel);color:var(--preto);font-family:var(--txt);
+  font-size:15px;line-height:1.6;overflow-x:hidden;position:relative;
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.08;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+main,header,footer{position:relative;z-index:1}
+img,video{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+h1,h2,h3,h4{font-family:var(--tit);font-weight:800;line-height:1.15;letter-spacing:-.02em}
+
+.wrap{width:100%;max-width:1140px;margin:0 auto;padding-inline:20px}
+section{padding-block:56px}
+.grifo{background:var(--manteiga);padding:0 .18em;border-radius:6px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+
+/* etiquetas e pilulas */
+.tag{
+  font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  background:var(--manteiga);border:1px solid #EFE4B4;color:var(--preto);
+  padding:5px 11px;border-radius:999px;display:inline-block;
+}
+.tag.terra{background:rgba(204,124,94,.12);border-color:rgba(204,124,94,.35);color:#8E4B30}
+.tag.branca{background:var(--card);border-color:var(--borda);color:var(--cinza)}
+.pill{
+  display:inline-flex;align-items:center;gap:7px;background:var(--card);
+  border:1px solid var(--borda);border-radius:999px;padding:9px 15px;font-size:13.5px;font-weight:500;
+}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:13px 22px;border-radius:999px;font-weight:700;font-size:14.5px;
+  transition:transform .16s ease,box-shadow .16s ease,background .16s ease;
+}
+.btn:active{transform:scale(.97)}
+.btn-terra{background:var(--terra);color:#fff;box-shadow:0 6px 18px rgba(204,124,94,.28)}
+.btn-terra:hover{background:#BB6E51}
+.btn-linha{border:1.5px solid var(--preto);color:var(--preto)}
+.btn-linha:hover{background:var(--preto);color:var(--papel)}
+.btn-claro{background:#fff;color:var(--preto)}
+
+/* caixas tracejadas de midia */
+.slot{
+  border:2px dashed var(--terra);border-radius:14px;
+  background:repeating-linear-gradient(135deg,rgba(204,124,94,.05) 0 10px,transparent 10px 20px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  text-align:center;padding:12px;width:100%;height:100%;overflow:hidden;
+}
+.slot span{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:#A9613F;text-transform:uppercase}
+.slot .ico{font-size:20px;line-height:1}
+.ratio45{aspect-ratio:4/5}
+.ratio916{aspect-ratio:9/16}
+
+/* cabecalho de secao */
+.cab{margin-bottom:26px}
+.cab h2{font-size:clamp(24px,5vw,34px);margin-top:12px}
+.cab p{color:var(--cinza);margin-top:8px;max-width:56ch}
+
+/* ===== MENU ===== */
+header{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  background:rgba(244,240,233,.92);border-bottom:1px solid var(--borda);
+  backdrop-filter:saturate(140%) blur(6px);
+}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:14px;height:64px}
+.marca{font-family:var(--tit);font-weight:800;font-size:16.5px;letter-spacing:-.02em}
+.marca i{font-style:normal;color:var(--terra)}
+.menu{display:none;gap:4px;align-items:center}
+.menu a{
+  font-size:13.5px;font-weight:500;padding:8px 11px;border-radius:999px;color:#4a4a4f;
+  transition:background .15s,color .15s;
+}
+.menu a:hover{background:var(--card);color:var(--preto)}
+.menu a.on{background:var(--manteiga);color:var(--preto);font-weight:700}
+.nav .btn{padding:10px 17px;font-size:13.5px}
+.burger{
+  display:inline-flex;flex-direction:column;gap:4px;padding:10px;border:1px solid var(--borda);
+  border-radius:12px;background:var(--card);
+}
+.burger i{display:block;width:18px;height:2px;background:var(--preto);border-radius:2px;transition:.2s}
+.burger.aberto i:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.burger.aberto i:nth-child(2){opacity:0}
+.burger.aberto i:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+.gaveta{
+  display:none;border-top:1px solid var(--borda);background:var(--papel);
+  padding:14px 20px 20px;
+}
+.gaveta.aberta{display:block}
+.gaveta a{display:block;padding:13px 4px;border-bottom:1px solid var(--borda);font-weight:500}
+.gaveta a.on{color:var(--terra);font-weight:700}
+.gaveta .btn{width:100%;margin-top:14px}
+@media(min-width:960px){
+  .menu{display:flex}
+  .burger{display:none}
+  .gaveta{display:none !important}
+}
+
+/* ===== CAPA ===== */
+#capa{padding-top:96px;padding-bottom:40px}
+.capa-grid{display:grid;gap:34px}
+.capa h1{font-size:clamp(30px,7.4vw,50px);margin:14px 0 14px}
+.capa .sub{font-size:16px;color:#57575c;max-width:44ch}
+.capa .acoes{display:flex;flex-wrap:wrap;gap:11px;margin-top:22px}
+.capa .mini{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.post{
+  background:var(--card);border:1px solid var(--borda);border-radius:var(--raio);
+  overflow:hidden;box-shadow:0 12px 34px rgba(9,9,11,.06);max-width:380px;width:100%;margin-inline:auto;
+}
+.post-top{display:flex;align-items:center;gap:10px;padding:11px 13px;border-bottom:1px solid var(--borda)}
+.post-av{
+  width:36px;height:36px;border-radius:50%;flex:0 0 auto;
+  border:2px dashed var(--terra);display:grid;place-items:center;font-size:13px;
+}
+.post-top b{font-size:13.5px;display:block;font-family:var(--txt)}
+.post-top small{font-family:var(--mono);font-size:10.5px;color:var(--cinza)}
+.post-top .dots{margin-left:auto;color:var(--cinza);letter-spacing:2px}
+.post-mid{padding:10px}
+.post-bot{padding:6px 13px 15px}
+.post-acs{display:flex;gap:12px;font-size:17px;padding-bottom:7px}
+.post-bot p{font-size:13px;color:#57575c}
+.post-bot p b{font-family:var(--txt)}
+.coracao{cursor:pointer;transition:transform .18s}
+.coracao:active{transform:scale(1.3)}
+
+/* ===== MARQUEE ===== */
+.faixa{border-block:1px solid var(--borda);background:var(--card);padding:16px 0;overflow:hidden}
+.faixa-trilho{display:flex;width:max-content;animation:desliza 26s linear infinite}
+.faixa:hover .faixa-trilho{animation-play-state:paused}
+.faixa-item{
+  display:flex;align-items:center;gap:16px;padding-inline:16px;
+  font-family:var(--tit);font-weight:700;font-size:16px;color:#6d6d72;white-space:nowrap;
+}
+.faixa-item::after{content:"✦";color:var(--terra);font-size:12px}
+@keyframes desliza{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ===== NUMEROS ===== */
+.nums{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.num{
+  background:var(--card);border:1px solid var(--borda);border-radius:var(--raio);
+  padding:20px 16px 18px;position:relative;overflow:hidden;
+}
+.num .listra{position:absolute;top:0;left:0;right:0;height:5px}
+.num b{font-family:var(--mono);font-weight:500;font-size:clamp(26px,6vw,36px);display:block;line-height:1.1}
+.num small{color:var(--cinza);font-size:12.5px;display:block;margin-top:5px}
+.num .emo{font-size:17px}
+
+/* ===== SOBRE ===== */
+.sobre{display:grid;gap:26px}
+.sobre .foto{max-width:340px;width:100%}
+.sobre p{margin-bottom:14px;color:#4a4a4f}
+.nichos{display:flex;flex-wrap:wrap;gap:9px;margin-top:18px}
+
+/* ===== FRENTES ===== */
+.frentes{display:grid;gap:16px}
+.frente{border-radius:22px;padding:26px 22px;border:1px solid var(--borda);background:var(--card)}
+.frente.escura{background:var(--preto);color:var(--papel);border-color:var(--preto)}
+.frente .emo{font-size:30px}
+.frente h3{font-size:21px;margin:12px 0 8px}
+.frente .desc{color:#57575c;font-size:14.5px}
+.frente.escura .desc{color:#b9b9be}
+.frente ul{list-style:none;margin:18px 0 0;display:grid;gap:9px}
+.frente li{display:flex;gap:9px;font-size:14px;align-items:flex-start}
+.frente li::before{content:"✓";color:var(--terra);font-weight:700}
+.frente.escura li::before{color:var(--manteiga)}
+.frente .linha-num{
+  display:flex;gap:18px;margin-top:20px;padding-top:16px;border-top:1px solid var(--borda);flex-wrap:wrap;
+}
+.frente.escura .linha-num{border-color:#2a2a2e}
+.frente .linha-num b{font-family:var(--mono);font-weight:500;font-size:19px;display:block}
+.frente .linha-num small{font-size:11px;color:var(--cinza);font-family:var(--mono);letter-spacing:.06em}
+
+/* ===== DESTAQUES ===== */
+#destaques{background:var(--manteiga);border-block:1px solid #EFE4B4}
+.dest-grid{display:grid;gap:20px}
+.player{
+  width:100%;max-width:300px;margin-inline:auto;aspect-ratio:9/16;border-radius:20px;overflow:hidden;
+  background:#fff;border:1px solid #EFE4B4;position:relative;cursor:pointer;
+}
+.player video{width:100%;height:100%;object-fit:cover}
+.player .play{
+  position:absolute;inset:0;display:grid;place-items:center;font-size:44px;pointer-events:none;
+  text-shadow:0 4px 16px rgba(0,0,0,.3);
+}
+.dest-lista{display:grid;gap:11px;align-content:start}
+.dest-item{
+  display:flex;gap:12px;align-items:center;text-align:left;width:100%;
+  background:#fff;border:1px solid #EFE4B4;border-radius:16px;padding:11px;transition:.18s;
+}
+.dest-item:hover{transform:translateY(-2px)}
+.dest-item.on{border-color:var(--terra);box-shadow:0 0 0 2px rgba(204,124,94,.18)}
+.dest-item .capinha{width:54px;height:72px;flex:0 0 auto;border-radius:10px;overflow:hidden}
+.dest-item h4{font-size:14.5px;font-family:var(--tit);font-weight:700}
+.dest-item small{color:var(--cinza);font-size:12px;display:block;margin-top:3px}
+.dest-item .n{font-family:var(--mono);font-size:11px;color:var(--terra);margin-left:auto;flex:0 0 auto}
+.dest-legenda{background:#fff;border:1px solid #EFE4B4;border-radius:16px;padding:16px}
+.dest-legenda h3{font-size:18px;margin-bottom:6px}
+.dest-legenda p{color:#57575c;font-size:14px}
+.porque{
+  background:#fff;border:1px solid #EFE4B4;border-left:4px solid var(--terra);
+  border-radius:12px;padding:15px 16px;
+}
+.porque ul{list-style:none;margin-top:9px;display:grid;gap:6px}
+.porque li{font-size:13.5px;display:flex;gap:8px}
+.porque li::before{content:"→";color:var(--terra)}
+
+/* ===== PORTFOLIO ===== */
+.fileira{margin-bottom:34px}
+.fileira-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.fileira-top h3{font-size:18px}
+.fileira-top .cont{font-family:var(--mono);font-size:12px;color:var(--cinza)}
+.setas{margin-left:auto;display:none;gap:7px}
+.setas.ver{display:flex}
+.seta{
+  width:36px;height:36px;border-radius:50%;border:1px solid var(--borda);background:var(--card);
+  display:grid;place-items:center;font-size:15px;transition:.15s;
+}
+.seta:hover{background:var(--terra);color:#fff;border-color:var(--terra)}
+.trilho{
+  display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 14px)/2);gap:14px;
+  overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-ms-overflow-style:none;
+  padding-bottom:4px;
+}
+.trilho::-webkit-scrollbar{display:none}
+.vcard{
+  scroll-snap-align:start;background:var(--card);border:1px solid var(--borda);
+  border-radius:16px;overflow:hidden;text-align:left;transition:.18s;
+}
+.vcard:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(9,9,11,.08)}
+.vcard .capa{position:relative;aspect-ratio:9/16;background:var(--papel)}
+.vcard .capa video,.vcard .capa img{width:100%;height:100%;object-fit:cover}
+.vcard .views{position:absolute;top:9px;left:9px;font-size:10px;padding:4px 8px}
+.vcard .info{padding:11px 12px 13px}
+.vcard .info b{display:block;font-size:13.5px;font-family:var(--tit);font-weight:700}
+.vcard .info .tag{margin-top:7px;font-size:10px;padding:4px 9px}
+
+/* ===== SERVICOS ===== */
+.servs{display:grid;gap:12px}
+.serv{
+  background:var(--card);border:1px solid var(--borda);border-radius:var(--raio);padding:20px 18px;position:relative;
+}
+.serv .emo{font-size:26px}
+.serv h3{font-size:16.5px;margin:11px 0 6px}
+.serv p{color:var(--cinza);font-size:13.5px}
+.serv .tag{position:absolute;top:16px;right:16px}
+
+/* ===== DEPOIMENTOS ===== */
+.deps{display:grid;gap:14px}
+.dep{background:var(--card);border:1px solid var(--borda);border-radius:var(--raio);padding:22px 20px}
+.dep .aspa{font-family:var(--tit);font-size:44px;line-height:.7;color:var(--terra);display:block;margin-bottom:12px}
+.dep p{font-size:15px;margin-bottom:16px}
+.dep .quem{display:flex;align-items:center;gap:11px;padding-top:14px;border-top:1px solid var(--borda)}
+.dep .quem b{display:block;font-size:14px;font-family:var(--tit);font-weight:700}
+.dep .quem small{color:var(--cinza);font-size:12px}
+.dep .metrica{margin-left:auto;text-align:right}
+.dep .metrica b{font-family:var(--mono);font-weight:500;font-size:18px;color:var(--terra)}
+.dep .metrica small{font-family:var(--mono);font-size:10px;letter-spacing:.06em}
+
+/* ===== CONTATO ===== */
+.contato{
+  background:var(--terra);color:#fff;border-radius:26px;padding:38px 24px;text-align:center;
+  box-shadow:0 18px 44px rgba(204,124,94,.24);
+}
+.contato .tag{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.3);color:#fff}
+.contato h2{font-size:clamp(25px,6vw,38px);margin:14px 0 12px}
+.contato h2 .grifo{color:var(--preto)}
+.contato p{color:rgba(255,255,255,.9);max-width:46ch;margin-inline:auto}
+.contato .acoes{display:flex;flex-direction:column;gap:10px;margin-top:24px}
+.contato .btn-linha{border-color:rgba(255,255,255,.75);color:#fff}
+.contato .btn-linha:hover{background:#fff;color:var(--terra)}
+footer{
+  border-top:1px solid var(--borda);padding:22px 0 34px;margin-top:46px;
+  display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;
+  font-family:var(--mono);font-size:11.5px;color:var(--cinza);letter-spacing:.04em;
+}
+
+/* ===== MODAL ===== */
+.modal{position:fixed;inset:0;z-index:80;background:rgba(9,9,11,.82);display:none;place-items:center;padding:20px}
+.modal.aberto{display:grid}
+.modal-in{width:100%;max-width:330px;aspect-ratio:9/16;border-radius:20px;overflow:hidden;background:var(--card)}
+.modal-x{position:absolute;top:18px;right:18px;color:#fff;font-size:26px;line-height:1;padding:8px}
+
+/* ===== ANIMACAO ===== */
+.rv{opacity:0;transform:translateY(14px);transition:opacity .5s ease,transform .5s ease}
+.rv.on{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){
+  .rv{opacity:1;transform:none;transition:none}
+  .faixa-trilho{animation:none}
+  html{scroll-behavior:auto}
+}
+
+/* ===== DESKTOP ===== */
+@media(min-width:760px){
+  section{padding-block:74px}
+  .nums{grid-template-columns:repeat(4,1fr)}
+  .frentes{grid-template-columns:1fr 1fr}
+  .servs{grid-template-columns:repeat(2,1fr)}
+  .deps{grid-template-columns:repeat(3,1fr)}
+  .sobre{grid-template-columns:340px 1fr;align-items:center}
+  .capa-grid{grid-template-columns:1.05fr .95fr;align-items:center}
+  .capa .sub{font-size:17px}
+  .contato{padding:56px 40px}
+  .contato .acoes{flex-direction:row;justify-content:center}
+  .trilho{grid-auto-columns:calc((100% - 4*14px)/5)}
+  .dest-grid{grid-template-columns:300px 1fr;align-items:start}
+  .servs{grid-template-columns:repeat(3,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ 1. MENU ============ -->
+<header>
+  <div class="wrap nav">
+    <!-- TROCAR: seu nome no menu -->
+    <a href="#capa" class="marca">[SEU NOME]<i>.</i></a>
+    <nav class="menu" id="menu">
+      <a href="#sobre">Sobre</a>
+      <a href="#portfolio">Portfólio</a>
+      <a href="#destaques">⭐ Destaques</a>
+      <a href="#servicos">Serviços</a>
+      <a href="#depoimentos">Depoimentos</a>
+      <a href="#contato">Contato</a>
+    </nav>
+    <a href="#contato" class="btn btn-terra" style="display:none" id="btnTopo">Fechar parceria</a>
+    <button class="burger" id="burger" aria-label="Abrir menu" aria-expanded="false"><i></i><i></i><i></i></button>
+  </div>
+  <div class="gaveta" id="gaveta">
+    <a href="#sobre">Sobre</a>
+    <a href="#portfolio">Portfólio</a>
+    <a href="#destaques">⭐ Destaques</a>
+    <a href="#servicos">Serviços</a>
+    <a href="#depoimentos">Depoimentos</a>
+    <a href="#contato">Contato</a>
+    <a href="#contato" class="btn btn-terra">Fechar parceria</a>
+  </div>
+</header>
+
+<main>
+
+<!-- ============ 2. CAPA ============ -->
+<section id="capa" class="capa">
+  <div class="wrap capa-grid">
+    <div class="rv">
+      <span class="tag">🎬 UGC Creator · disponível pra collab</span>
+      <!-- TROCAR: título da capa e a palavra grifada -->
+      <h1>Conteúdo que parece <span class="grifo">de amiga</span> e vende como anúncio.</h1>
+      <!-- TROCAR: sua frase de posicionamento -->
+      <p class="sub">[FRASE QUE TE RESUME]. Vídeos verticais feitos pra rodar em Reels, TikTok e tráfego pago.</p>
+      <div class="acoes">
+        <a href="#contato" class="btn btn-terra">Quero fechar parceria</a>
+        <a href="#portfolio" class="btn btn-linha">Ver portfólio</a>
+      </div>
+      <div class="mini">
+        <span class="pill">📍 [SUA CIDADE]</span>
+        <span class="pill">⚡ Entrega em [NÚMERO] dias</span>
+        <span class="pill">🗣️ Português BR</span>
+      </div>
+    </div>
+
+    <div class="rv">
+      <article class="post">
+        <div class="post-top">
+          <!-- TROCAR: avatar e arroba -->
+          <div class="post-av">👤</div>
+          <div>
+            <b>[SEU NOME]</b>
+            <small>[@SEU_INSTAGRAM]</small>
+          </div>
+          <span class="dots">•••</span>
+        </div>
+        <div class="post-mid">
+          <!-- TROCAR: sua foto principal, formato 4:5 -->
+          <div class="slot ratio45"><span class="ico">📸</span><span>SUA FOTO AQUI</span><span style="color:#c39b86">4:5 · 1080x1350</span></div>
+        </div>
+        <div class="post-bot">
+          <div class="post-acs"><span class="coracao" id="coracao">🤍</span><span>💬</span><span>📤</span></div>
+          <!-- TROCAR: legenda do post -->
+          <p><b>[@SEU_INSTAGRAM]</b> [FRASE QUE TE RESUME] ✨ #ugccreator</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. FAIXA DE MARCAS ============ -->
+<div class="faixa"><div class="faixa-trilho" id="faixa"></div></div>
+
+<!-- ============ 4. NÚMEROS ============ -->
+<section id="numeros">
+  <div class="wrap">
+    <div class="nums" id="nums"></div>
+  </div>
+</section>
+
+<!-- ============ 5. SOBRE ============ -->
+<section id="sobre">
+  <div class="wrap">
+    <div class="cab rv">
+      <span class="tag">👋 Sobre mim</span>
+      <h2>Quem tá do outro lado da câmera</h2>
+    </div>
+    <div class="sobre">
+      <div class="rv foto">
+        <!-- TROCAR: sua foto da seção sobre -->
+        <div class="slot ratio45"><span class="ico">🖼️</span><span>SUA FOTO AQUI</span><span style="color:#c39b86">4:5</span></div>
+      </div>
+      <div class="rv">
+        <!-- TROCAR: os dois parágrafos do sobre -->
+        <p>[ESCREVA AQUI O PRIMEIRO PARÁGRAFO: quem você é, há quanto tempo cria conteúdo e o que te levou pro UGC. Duas ou três linhas bastam, esse texto é só pra marca sentir o seu tom.]</p>
+        <p>[ESCREVA AQUI O SEGUNDO PARÁGRAFO: como você trabalha, o que a marca recebe e por que seu vídeo converte. Fale de processo, prazo e cuidado com briefing.]</p>
+        <div class="nichos" id="nichos"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6. DUAS FRENTES ============ -->
+<section id="frentes">
+  <div class="wrap">
+    <div class="cab rv">
+      <span class="tag">🧩 Como eu trabalho</span>
+      <h2>Duas frentes de trabalho</h2>
+      <p>Dá pra me contratar como creator pra marca ou como criadora do meu próprio conteúdo. As duas se alimentam.</p>
+    </div>
+    <div class="frentes" id="frentes"></div>
+  </div>
+</section>
+
+<!-- ============ 7. DESTAQUES ============ -->
+<section id="destaques">
+  <div class="wrap">
+    <div class="cab rv">
+      <span class="tag terra">⭐ Conteúdos em destaque</span>
+      <h2>Os três que eu mostraria primeiro</h2>
+      <p>Clica em um da lista pra trocar o vídeo do player.</p>
+    </div>
+    <div class="dest-grid">
+      <div class="rv">
+        <div class="player" id="player"></div>
+      </div>
+      <div class="rv">
+        <div class="dest-lista" id="destLista"></div>
+        <div class="dest-legenda" style="margin-top:14px" id="destLegenda"></div>
+        <div class="porque" style="margin-top:12px" id="destPorque"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 8. PORTFÓLIO ============ -->
+<section id="portfolio">
+  <div class="wrap">
+    <div class="cab rv">
+      <span class="tag">🎞️ Portfólio</span>
+      <h2>Vídeos por nicho</h2>
+      <p>Arrasta pro lado pra ver o resto de cada fileira.</p>
+    </div>
+    <div id="fileiras"></div>
+  </div>
+</section>
+
+<!-- ============ 9. SERVIÇOS ============ -->
+<section id="servicos">
+  <div class="wrap">
+    <div class="cab rv">
+      <span class="tag">🧾 Serviços</span>
+      <h2>O que dá pra contratar</h2>
+    </div>
+    <div class="servs" id="servs"></div>
+  </div>
+</section>
+
+<!-- ============ 10. DEPOIMENTOS ============ -->
+<section id="depoimentos">
+  <div class="wrap">
+    <div class="cab rv">
+      <span class="tag">💬 Depoimentos</span>
+      <h2>O que as marcas falaram</h2>
+    </div>
+    <div class="deps" id="deps"></div>
+  </div>
+</section>
+
+<!-- ============ 11. CONTATO ============ -->
+<section id="contato">
+  <div class="wrap">
+    <div class="contato rv">
+      <span class="tag">📩 Bora trabalhar junto</span>
+      <!-- TROCAR: chamada final -->
+      <h2>Sua marca precisa de vídeo <span class="grifo">que parece real</span>.</h2>
+      <p>Me chama com o briefing, o prazo e a rede onde vai rodar. Respondo com formato, prazo e valor.</p>
+      <div class="acoes">
+        <!-- TROCAR: links de contato (whatsapp, e-mail, instagram) -->
+        <a class="btn btn-claro" href="https://wa.me/[SEU WHATSAPP]" target="_blank" rel="noopener">💚 Chamar no WhatsApp</a>
+        <a class="btn btn-linha" href="mailto:[SEU E-MAIL]">✉️ [SEU E-MAIL]</a>
+        <a class="btn btn-linha" href="https://instagram.com/[@SEU_INSTAGRAM]" target="_blank" rel="noopener">📸 [@SEU_INSTAGRAM]</a>
+      </div>
+    </div>
+    <footer class="wrap" style="padding-inline:0">
+      <span>© <span id="ano"></span> [SEU NOME]</span>
+      <span>[@SEU_INSTAGRAM]</span>
+      <span>UGC CREATOR · BRASIL</span>
+    </footer>
+  </div>
+</section>
+
+</main>
+
+<div class="modal" id="modal">
+  <button class="modal-x" id="modalX" aria-label="Fechar">✕</button>
+  <div class="modal-in" id="modalIn"></div>
+</div>
+
+<script>
+// ===== CONTEÚDO PRA PREENCHER =====
+// Tudo que você vai editar depois está aqui embaixo. Troque só os textos entre colchetes
+// e coloque o caminho dos seus vídeos e fotos nos campos "video" e "capa" (deixe "" pra
+// continuar mostrando a caixa tracejada). Nos campos de número, escreva só o número
+// (ex: 250) que ele passa a contar sozinho na tela.
+
+const MARCAS = ["[MARCA 1]", "[MARCA 2]", "[MARCA 3]", "[MARCA 4]", "[MARCA 5]", "[MARCA 6]"];
+
+const NICHOS = [
+  { emoji: "💄", nome: "[NICHO 1]" },
+  { emoji: "🍔", nome: "[NICHO 2]" },
+  { emoji: "🏠", nome: "[NICHO 3]" }
+];
+
+const NUMEROS = [
+  { valor: "[NÚMERO]", sufixo: "",  rotulo: "[O QUE ESSE NÚMERO É]", emoji: "🎬", cor: "#CC7C5E" },
+  { valor: "[NÚMERO]", sufixo: "M", rotulo: "[O QUE ESSE NÚMERO É]", emoji: "👀", cor: "#FEF7CF" },
+  { valor: "[NÚMERO]", sufixo: "+", rotulo: "[O QUE ESSE NÚMERO É]", emoji: "🤝", cor: "#09090B" },
+  { valor: "[NÚMERO]", sufixo: "%", rotulo: "[O QUE ESSE NÚMERO É]", emoji: "📈", cor: "#A9A9A9" }
+];
+
+const FRENTES = [
+  {
+    escura: false, emoji: "🎥", titulo: "[FRENTE 1: ex UGC pra marcas]",
+    desc: "[EXPLIQUE EM UMA OU DUAS LINHAS O QUE VOCÊ ENTREGA NESSA FRENTE.]",
+    entregas: ["[ENTREGA 1]", "[ENTREGA 2]", "[ENTREGA 3]", "[ENTREGA 4]"],
+    numeros: [ { valor: "[NÚMERO]", rotulo: "VÍDEOS" }, { valor: "[NÚMERO]", rotulo: "MARCAS" }, { valor: "[NÚMERO]", rotulo: "DIAS" } ]
+  },
+  {
+    escura: true, emoji: "📱", titulo: "[FRENTE 2: ex conteúdo autoral]",
+    desc: "[EXPLIQUE EM UMA OU DUAS LINHAS O QUE VOCÊ ENTREGA NESSA FRENTE.]",
+    entregas: ["[ENTREGA 1]", "[ENTREGA 2]", "[ENTREGA 3]", "[ENTREGA 4]"],
+    numeros: [ { valor: "[NÚMERO]", rotulo: "SEGUIDORES" }, { valor: "[NÚMERO]", rotulo: "POSTS/MÊS" }, { valor: "[NÚMERO]", rotulo: "ALCANCE" } ]
+  }
+];
+
+const DESTAQUES = [
+  {
+    titulo: "[TÍTULO DO DESTAQUE 1]", marca: "[MARCA]", metrica: "[NÚMERO] views",
+    legenda: "[CONTE EM DUAS LINHAS O QUE ESSE VÍDEO ERA, PRA QUEM E QUAL FOI O RESULTADO.]",
+    motivos: ["[MOTIVO 1: ex melhor retenção do mês]", "[MOTIVO 2: ex virou anúncio da marca]"],
+    video: "", capa: ""
+  },
+  {
+    titulo: "[TÍTULO DO DESTAQUE 2]", marca: "[MARCA]", metrica: "[NÚMERO] views",
+    legenda: "[CONTE EM DUAS LINHAS O QUE ESSE VÍDEO ERA, PRA QUEM E QUAL FOI O RESULTADO.]",
+    motivos: ["[MOTIVO 1]", "[MOTIVO 2]"],
+    video: "", capa: ""
+  },
+  {
+    titulo: "[TÍTULO DO DESTAQUE 3]", marca: "[MARCA]", metrica: "[NÚMERO] views",
+    legenda: "[CONTE EM DUAS LINHAS O QUE ESSE VÍDEO ERA, PRA QUEM E QUAL FOI O RESULTADO.]",
+    motivos: ["[MOTIVO 1]", "[MOTIVO 2]"],
+    video: "", capa: ""
+  }
+];
+
+// Portfólio: uma entrada por nicho, cada uma com a sua lista de vídeos.
+const PORTFOLIO = [
+  {
+    emoji: "💄", nicho: "[NICHO 1]",
+    videos: [
+      { marca: "[MARCA]", views: "[NÚMERO]", video: "", capa: "" },
+      { marca: "[MARCA]", views: "[NÚMERO]", video: "", capa: "" },
+      { marca: "[MARCA]", views: "",          video: "", capa: "" },
+      { marca: "[MARCA]", views: "[NÚMERO]", video: "", capa: "" },
+      { marca: "[MARCA]", views: "",          video: "", capa: "" }
+    ]
+  },
+  {
+    emoji: "🍔", nicho: "[NICHO 2]",
+    videos: [
+      { marca: "[MARCA]", views: "[NÚMERO]", video: "", capa: "" },
+      { marca: "[MARCA]", views: "",          video: "", capa: "" },
+      { marca: "[MARCA]", views: "[NÚMERO]", video: "", capa: "" },
+      { marca: "[MARCA]", views: "",          video: "", capa: "" },
+      { marca: "[MARCA]", views: "[NÚMERO]", video: "", capa: "" }
+    ]
+  }
+];
+
+const SERVICOS = [
+  { emoji: "🎬", titulo: "[SERVIÇO 1]", linha: "[UMA LINHA EXPLICANDO O QUE ENTRA NESSE SERVIÇO.]", maisPedido: true },
+  { emoji: "✂️", titulo: "[SERVIÇO 2]", linha: "[UMA LINHA EXPLICANDO O QUE ENTRA NESSE SERVIÇO.]" },
+  { emoji: "📸", titulo: "[SERVIÇO 3]", linha: "[UMA LINHA EXPLICANDO O QUE ENTRA NESSE SERVIÇO.]" },
+  { emoji: "🗣️", titulo: "[SERVIÇO 4]", linha: "[UMA LINHA EXPLICANDO O QUE ENTRA NESSE SERVIÇO.]" },
+  { emoji: "📝", titulo: "[SERVIÇO 5]", linha: "[UMA LINHA EXPLICANDO O QUE ENTRA NESSE SERVIÇO.]" },
+  { emoji: "🚀", titulo: "[SERVIÇO 6]", linha: "[UMA LINHA EXPLICANDO O QUE ENTRA NESSE SERVIÇO.]" }
+];
+
+const DEPOIMENTOS = [
+  { texto: "[COLE AQUI O DEPOIMENTO DA MARCA, DUAS OU TRÊS LINHAS.]", marca: "[MARCA]", trabalho: "[TIPO DE TRABALHO]", metrica: "[NÚMERO]", metricaRotulo: "[MÉTRICA]" },
+  { texto: "[COLE AQUI O DEPOIMENTO DA MARCA, DUAS OU TRÊS LINHAS.]", marca: "[MARCA]", trabalho: "[TIPO DE TRABALHO]", metrica: "[NÚMERO]", metricaRotulo: "[MÉTRICA]" },
+  { texto: "[COLE AQUI O DEPOIMENTO DA MARCA, DUAS OU TRÊS LINHAS.]", marca: "[MARCA]", trabalho: "[TIPO DE TRABALHO]", metrica: "[NÚMERO]", metricaRotulo: "[MÉTRICA]" }
+];
+// ===== FIM DO CONTEÚDO PRA PREENCHER =====
+
+
+/* ---------- utilitários ---------- */
+const $  = (s, e = document) => e.querySelector(s);
+const $$ = (s, e = document) => [...e.querySelectorAll(s)];
+const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+
+// caixa tracejada de mídia
+function slot(rotulo, ico, ratio) {
+  return '<div class="slot ' + (ratio || "") + '"><span class="ico">' + ico + '</span><span>' + rotulo + '</span></div>';
+}
+// devolve vídeo se tiver arquivo, senão a caixa tracejada
+function midia(item, rotulo, ratio) {
+  if (item.video) return '<video src="' + esc(item.video) + '" ' + (item.capa ? 'poster="' + esc(item.capa) + '" ' : '') + 'muted playsinline preload="metadata"></video>';
+  if (item.capa)  return '<img src="' + esc(item.capa) + '" alt="">';
+  return slot(rotulo, "🎥", ratio);
+}
+
+/* ---------- 3. marquee ---------- */
+const faixaHTML = MARCAS.map(m => '<span class="faixa-item">' + esc(m) + '</span>').join("");
+$("#faixa").innerHTML = faixaHTML + faixaHTML;
+
+/* ---------- 4. números ---------- */
+$("#nums").innerHTML = NUMEROS.map(n =>
+  '<div class="num rv">' +
+    '<div class="listra" style="background:' + n.cor + '"></div>' +
+    '<span class="emo">' + n.emoji + '</span>' +
+    '<b data-valor="' + esc(n.valor) + '" data-sufixo="' + esc(n.sufixo) + '">' + esc(n.valor) + esc(n.sufixo) + '</b>' +
+    '<small>' + esc(n.rotulo) + '</small>' +
+  '</div>'
+).join("");
+
+/* ---------- 5. nichos ---------- */
+$("#nichos").innerHTML = NICHOS.map(n => '<span class="pill">' + n.emoji + " " + esc(n.nome) + '</span>').join("");
+
+/* ---------- 6. frentes ---------- */
+$("#frentes").innerHTML = FRENTES.map(f =>
+  '<article class="frente rv' + (f.escura ? " escura" : "") + '">' +
+    '<span class="emo">' + f.emoji + '</span>' +
+    '<h3>' + esc(f.titulo) + '</h3>' +
+    '<p class="desc">' + esc(f.desc) + '</p>' +
+    '<ul>' + f.entregas.map(e => '<li>' + esc(e) + '</li>').join("") + '</ul>' +
+    '<div class="linha-num">' + f.numeros.map(n =>
+      '<div><b>' + esc(n.valor) + '</b><small>' + esc(n.rotulo) + '</small></div>'
+    ).join("") + '</div>' +
+  '</article>'
+).join("");
+
+/* ---------- 7. destaques ---------- */
+let destAtivo = 0;
+function pintaDestaques() {
+  const d = DESTAQUES[destAtivo];
+
+  $("#player").innerHTML = d.video
+    ? '<video src="' + esc(d.video) + '" ' + (d.capa ? 'poster="' + esc(d.capa) + '" ' : '') + 'playsinline controls></video>'
+    : slot("SEU VÍDEO AQUI", "▶️", "");
+
+  $("#destLista").innerHTML = DESTAQUES.map((x, i) =>
+    '<button class="dest-item' + (i === destAtivo ? " on" : "") + '" data-i="' + i + '">' +
+      '<div class="capinha">' + (x.capa ? '<img src="' + esc(x.capa) + '" alt="">' : slot("CAPA", "🖼️", "")) + '</div>' +
+      '<div><h4>' + esc(x.titulo) + '</h4><small>' + esc(x.marca) + '</small></div>' +
+      '<span class="n">' + esc(x.metrica) + '</span>' +
+    '</button>'
+  ).join("");
+
+  $("#destLegenda").innerHTML = '<span class="tag terra">' + esc(d.marca) + '</span><h3 style="margin-top:10px">' + esc(d.titulo) + '</h3><p>' + esc(d.legenda) + '</p>';
+  $("#destPorque").innerHTML = '<span class="tag terra">POR QUE É DESTAQUE</span><ul>' + d.motivos.map(m => '<li>' + esc(m) + '</li>').join("") + '</ul>';
+
+  $$("#destLista .dest-item").forEach(b => b.onclick = () => { destAtivo = +b.dataset.i; pintaDestaques(); });
+}
+pintaDestaques();
+$("#player").addEventListener("click", () => {
+  const v = $("#player video");
+  if (!v) return;
+  v.paused ? v.play() : v.pause();
+});
+
+/* ---------- 8. portfólio ---------- */
+$("#fileiras").innerHTML = PORTFOLIO.map((g, gi) =>
+  '<div class="fileira rv">' +
+    '<div class="fileira-top">' +
+      '<h3>' + g.emoji + " " + esc(g.nicho) + '</h3>' +
+      '<span class="cont">' + String(g.videos.length).padStart(2, "0") + ' vídeos</span>' +
+      '<div class="setas" data-setas="' + gi + '">' +
+        '<button class="seta" data-dir="-1" aria-label="Voltar">‹</button>' +
+        '<button class="seta" data-dir="1" aria-label="Avançar">›</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="trilho" data-trilho="' + gi + '">' +
+      g.videos.map((v, vi) =>
+        '<button class="vcard" data-g="' + gi + '" data-v="' + vi + '">' +
+          '<div class="capa">' + midia(v, "SEU VÍDEO AQUI", "") +
+            (v.views ? '<span class="tag views">👀 ' + esc(v.views) + '</span>' : "") +
+          '</div>' +
+          '<div class="info"><b>' + esc(v.marca) + '</b><span class="tag branca">' + esc(g.nicho) + '</span></div>' +
+        '</button>'
+      ).join("") +
+    '</div>' +
+  '</div>'
+).join("");
+
+function ajustaSetas() {
+  $$("[data-trilho]").forEach(t => {
+    const setas = $('[data-setas="' + t.dataset.trilho + '"]');
+    setas.classList.toggle("ver", t.scrollWidth > t.clientWidth + 4 && window.innerWidth >= 760);
+  });
+}
+$$(".seta").forEach(b => b.onclick = () => {
+  const t = $('[data-trilho="' + b.closest(".setas").dataset.setas + '"]');
+  t.scrollBy({ left: +b.dataset.dir * t.clientWidth * 0.8, behavior: "smooth" });
+});
+window.addEventListener("resize", ajustaSetas);
+ajustaSetas();
+
+// modal do vídeo
+const modal = $("#modal");
+function abreModal(html) { $("#modalIn").innerHTML = html; modal.classList.add("aberto"); document.body.style.overflow = "hidden"; }
+function fechaModal() { modal.classList.remove("aberto"); $("#modalIn").innerHTML = ""; document.body.style.overflow = ""; }
+$$(".vcard").forEach(c => c.onclick = () => {
+  const v = PORTFOLIO[+c.dataset.g].videos[+c.dataset.v];
+  abreModal(v.video
+    ? '<video src="' + esc(v.video) + '" controls autoplay playsinline style="width:100%;height:100%;object-fit:cover"></video>'
+    : slot("SEU VÍDEO AQUI", "🎥", ""));
+});
+$("#modalX").onclick = fechaModal;
+modal.onclick = e => { if (e.target === modal) fechaModal(); };
+document.addEventListener("keydown", e => { if (e.key === "Escape") fechaModal(); });
+
+/* ---------- 9. serviços ---------- */
+$("#servs").innerHTML = SERVICOS.map(s =>
+  '<article class="serv rv">' +
+    (s.maisPedido ? '<span class="tag terra">Mais pedido</span>' : "") +
+    '<span class="emo">' + s.emoji + '</span>' +
+    '<h3>' + esc(s.titulo) + '</h3>' +
+    '<p>' + esc(s.linha) + '</p>' +
+  '</article>'
+).join("");
+
+/* ---------- 10. depoimentos ---------- */
+$("#deps").innerHTML = DEPOIMENTOS.map(d =>
+  '<article class="dep rv">' +
+    '<span class="aspa">&ldquo;</span>' +
+    '<p>' + esc(d.texto) + '</p>' +
+    '<div class="quem">' +
+      '<div class="post-av" style="width:34px;height:34px;font-size:12px">🏷️</div>' +
+      '<div><b>' + esc(d.marca) + '</b><small>' + esc(d.trabalho) + '</small></div>' +
+      '<div class="metrica"><b>' + esc(d.metrica) + '</b><br><small>' + esc(d.metricaRotulo) + '</small></div>' +
+    '</div>' +
+  '</article>'
+).join("");
+
+/* ---------- menu ---------- */
+const burger = $("#burger"), gaveta = $("#gaveta");
+burger.onclick = () => {
+  const abriu = gaveta.classList.toggle("aberta");
+  burger.classList.toggle("aberto", abriu);
+  burger.setAttribute("aria-expanded", abriu);
+};
+$$("#gaveta a").forEach(a => a.onclick = () => {
+  gaveta.classList.remove("aberta"); burger.classList.remove("aberto");
+});
+
+// link marca a seção atual
+const secoes = ["sobre", "portfolio", "destaques", "servicos", "depoimentos", "contato"];
+const marcaLink = id => $$('#menu a, #gaveta a').forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + id));
+const espia = new IntersectionObserver(entradas => {
+  entradas.forEach(e => { if (e.isIntersecting) marcaLink(e.target.id); });
+}, { rootMargin: "-45% 0px -50% 0px", threshold: 0 });
+secoes.forEach(id => {
+  const alvo = document.getElementById(id);
+  if (alvo) espia.observe(alvo);
+});
+
+/* ---------- entrada suave com trava de 4s ---------- */
+const io = new IntersectionObserver((es, obs) => {
+  es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("on"); obs.unobserve(e.target); } });
+}, { threshold: .12, rootMargin: "0px 0px -40px 0px" });
+$$(".rv").forEach((el, i) => { el.style.transitionDelay = (i % 4) * 60 + "ms"; io.observe(el); });
+setTimeout(() => $$(".rv").forEach(el => el.classList.add("on")), 4000);
+
+/* ---------- números contando ---------- */
+const ioNum = new IntersectionObserver((es, obs) => {
+  es.forEach(e => {
+    if (!e.isIntersecting) return;
+    obs.unobserve(e.target);
+    const el = e.target, bruto = el.dataset.valor, suf = el.dataset.sufixo || "";
+    const alvo = parseFloat(String(bruto).replace(",", "."));
+    if (isNaN(alvo)) return;               // ainda é placeholder, deixa como está
+    const dur = 1100, ini = performance.now(), dec = String(bruto).includes(".") || String(bruto).includes(",") ? 1 : 0;
+    (function passo(t) {
+      const p = Math.min((t - ini) / dur, 1), suave = 1 - Math.pow(1 - p, 3);
+      el.textContent = (alvo * suave).toFixed(dec) + suf;
+      if (p < 1) requestAnimationFrame(passo);
+    })(ini);
+  });
+}, { threshold: .4 });
+$$("#nums b").forEach(b => ioNum.observe(b));
+
+/* ---------- miudezas ---------- */
+$("#ano").textContent = new Date().getFullYear();
+$("#coracao").onclick = e => { e.target.textContent = e.target.textContent === "🤍" ? "❤️" : "🤍"; };
+if (window.innerWidth >= 960) $("#btnTopo").style.display = "inline-flex";
+window.addEventListener("resize", () => { $("#btnTopo").style.display = window.innerWidth >= 960 ? "inline-flex" : "none"; });
+</script>
+</body>
+</html>
