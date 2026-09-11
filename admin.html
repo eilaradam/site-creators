@@ -4354,7 +4354,10 @@
 
             <div id="recadoBoxCom" style="display:none;margin-top:18px;padding-top:16px;border-top:1px solid var(--border);">
                 <label class="idea-lbl">No comentário <i>uma versão por linha, {USUARIO} vira o @ da pessoa</i></label>
-                <textarea id="recadoCom" class="ig-input" rows="5"></textarea>
+                <textarea id="recadoCom" class="ig-input" rows="5" oninput="recadoRenderPreview()"></textarea>
+                <!-- Ela ia postar dezenas de comentarios publicos no nome dela sem nunca ver
+                     como ficam. Aqui mostra o texto ja montado com gente de verdade da fila. -->
+                <div id="recadoPreview" style="display:none;"></div>
                 <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;color:var(--text-soft);cursor:pointer;">
                     <input id="recadoComTodos" type="checkbox" onchange="recadoContarCom()">
                     Responder <b>todo mundo</b> que comentou a palavra, não só quem não tocou no botão
@@ -4363,7 +4366,11 @@
                 <!-- Uma automação pode estar ligada em vários posts, e nem sempre ela quer
                      responder todos de uma vez. A lista aparece só quando tem mais de um. -->
                 <div id="recadoPosts" style="display:none;"></div>
-                <button id="recadoEnviarCom" class="ig-btn" type="button" onclick="recadoEnviarCom()" style="margin-top:12px;">💬 Responder nos comentários</button>
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px;">
+                    <button id="recadoEnviarCom" class="ig-btn" type="button" onclick="recadoEnviarCom()">💬 Responder nos comentários</button>
+                    <!-- Responder 1 so, ir ver no Instagram, e depois soltar o resto. -->
+                    <button id="recadoTestar1" class="ig-btn ghost" type="button" onclick="recadoTestar1()">🧪 Testar em 1 comentário</button>
+                </div>
             </div>
         </div>
         <div class="idea-modal-pe">
@@ -13613,6 +13620,7 @@
             }
             document.getElementById('recadoCom').value = RECADO_COM_PADRAO;
             document.getElementById('recadoBoxCom').style.display = '';
+            recadoRenderPreview();
         } catch (e) {
             info.textContent = 'Não consegui contar as pessoas: ' + (e.message || e);
         }
@@ -13631,7 +13639,8 @@
                         keyword: recadoDados.palavra, todos: todos },
             });
             const d = (r && r.data) || {};
-            posts.push({ media_id: mid, faltam: d.responderia_agora || 0 });
+            /* a amostra vem com quem está na fila de verdade: é com ela que a prévia é montada */
+            posts.push({ media_id: mid, faltam: d.responderia_agora || 0, amostra: d.amostra || [] });
         }
         recadoDados.posts = posts;
         recadoDados.todos = todos;
@@ -13639,7 +13648,52 @@
            depois disso a escolha dela manda, mesmo que a contagem rode de novo. */
         if (!recadoSel) recadoSel = new Set(posts.map(function (p) { return p.media_id; }));
         recadoRenderPosts();
+        recadoRenderPreview();
         return recadoAtualizaBotao();
+    }
+    /* Textos escritos por ela, um por linha, vazios fora. */
+    function recadoTextos() {
+        return document.getElementById('recadoCom').value.split('\n')
+            .map(function (t) { return t.trim(); }).filter(Boolean);
+    }
+    /* Quem está na frente da fila, entre os posts marcados. */
+    function recadoFila() {
+        const fila = [];
+        recadoPostsAlvo().forEach(function (p) {
+            (p.amostra || []).forEach(function (x) { fila.push(x); });
+        });
+        return fila;
+    }
+    /* PRÉVIA: o comentário montado do jeito que vai sair, com as pessoas de verdade que
+       estão na frente da fila. Ela revezar 4 textos significa que a 1a pessoa leva o 1o
+       texto, a 2a leva o 2o, e assim por diante: a prévia respeita essa mesma ordem. */
+    function recadoRenderPreview() {
+        const box = document.getElementById('recadoPreview');
+        if (!box) return;
+        const textos = recadoTextos();
+        const fila = recadoFila();
+        if (!textos.length || !fila.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+        box.style.display = '';
+        const quantos = Math.min(4, fila.length);
+        let h = '<div class="idea-lbl" style="margin-top:12px;">Como vai ficar '
+            + '<i>os ' + quantos + ' primeiros da fila, de verdade</i></div>'
+            + '<div style="background:var(--warm);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:grid;gap:11px;">';
+        for (let i = 0; i < quantos; i++) {
+            const p = fila[i];
+            const texto = textos[i % textos.length].replaceAll('{USUARIO}', '@' + (p.username || 'alguem'));
+            h += '<div style="display:grid;gap:3px;">'
+                + '<div style="font-size:11.5px;color:var(--text-muted);line-height:1.35;">'
+                + '@' + escapeHtml(p.username || '?') + ' comentou: “' + escapeHtml((p.texto || '').slice(0, 60)) + '”</div>'
+                + '<div style="font-size:13px;color:var(--text);line-height:1.45;padding-left:11px;border-left:2px solid var(--accent);">'
+                + escapeHtml(texto) + '</div></div>';
+        }
+        h += '</div>';
+        if (textos.length < 2) {
+            h += '<div style="font-size:11.5px;color:var(--alerta);margin-top:7px;line-height:1.45;">'
+                + 'Só um texto: todo mundo vai receber o comentário igualzinho, o que tem cara de robô. '
+                + 'Escreve 3 ou 4 versões, uma por linha.</div>';
+        }
+        box.innerHTML = h;
     }
     /* Lista de posts da automação, com foto, pra ela escolher onde responder.
        Só aparece com 2 ou mais: com um post só não há o que escolher. */
@@ -13668,6 +13722,7 @@
     function recadoTogglePost(el) {
         const id = el.dataset.recadoPost;
         if (el.checked) recadoSel.add(id); else recadoSel.delete(id);
+        recadoRenderPreview();
         recadoAtualizaBotao();
     }
     /* posts marcados E que ainda têm comentário pra responder */
@@ -13767,6 +13822,47 @@
             alert('Não consegui responder: ' + (e.message || e));
             btn.disabled = false; btn.textContent = '💬 Responder nos comentários';
         }
+    }
+
+    /* Responde UM comentário só, pra ela ir ver no Instagram antes de soltar o resto.
+       Mesmo caminho do envio de verdade, só que com max 1. */
+    async function recadoTestar1() {
+        if (!recadoAuto || !recadoDados) return;
+        const textos = recadoTextos();
+        if (!textos.length) { alert('Escreve pelo menos uma versão do texto.'); return; }
+        const alvos = recadoPostsAlvo();
+        if (!alvos.length) { alert('Nenhum post marcado com comentário pra responder.'); return; }
+        const quem = (alvos[0].amostra || [])[0];
+        const nome = (quem && quem.username) ? ' (o de @' + quem.username + ')' : '';
+        if (!confirm('Vou responder 1 comentário de verdade' + nome + '. Depois você confere no Instagram e solta o resto. Confirma?')) return;
+        const btn = document.getElementById('recadoTestar1');
+        const st = document.getElementById('recadoStatus');
+        btn.disabled = true; btn.textContent = 'Respondendo…';
+        try {
+            const r = await sb.functions.invoke('ig-retro', {
+                body: { action: 'publico', media_id: alvos[0].media_id, automation_id: recadoAuto.id,
+                        keyword: recadoDados.palavra, todos: !!recadoDados.todos,
+                        textos: textos, max: 1, espaco_ms: 4000 },
+            });
+            if (r && r.error) throw new Error(await retroErro(r.error));
+            const d = (r && r.data) || {};
+            st.textContent = '';
+            if (d.respondidos) {
+                document.getElementById('recadoInfo').innerHTML = '<b style="color:var(--success);">Respondi 1 comentário'
+                    + (quem && quem.username ? ', o de @' + escapeHtml(quem.username) : '') + '.</b>'
+                    + '<div style="font-size:12.5px;color:var(--text-soft);margin-top:6px;line-height:1.5;">'
+                    + 'Abre o post no Instagram e vê como ficou. Se estiver bom, clica em “Responder” pra soltar o resto. '
+                    + 'Essa pessoa não vai receber de novo.</div>';
+                await recadoContarCom(true);
+            } else {
+                document.getElementById('recadoInfo').innerHTML = '<b style="color:var(--alerta);">Não respondeu ninguém.</b> '
+                    + escapeHtml(d.parou_por_bloqueio ? (d.motivo_parada || 'o Instagram recusou') : 'a fila estava vazia.');
+            }
+        } catch (e) {
+            st.textContent = '';
+            alert('Não consegui responder: ' + (e.message || e));
+        }
+        btn.disabled = false; btn.textContent = '🧪 Testar em 1 comentário';
     }
 
     async function retroEnviar() {
