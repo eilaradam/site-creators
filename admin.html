@@ -4360,6 +4360,9 @@
                     Responder <b>todo mundo</b> que comentou a palavra, não só quem não tocou no botão
                     <i style="color:var(--text-muted);font-weight:400;">(serve pra chamar de volta post antigo)</i>
                 </label>
+                <!-- Uma automação pode estar ligada em vários posts, e nem sempre ela quer
+                     responder todos de uma vez. A lista aparece só quando tem mais de um. -->
+                <div id="recadoPosts" style="display:none;"></div>
                 <button id="recadoEnviarCom" class="ig-btn" type="button" onclick="recadoEnviarCom()" style="margin-top:12px;">💬 Responder nos comentários</button>
             </div>
         </div>
@@ -13549,7 +13552,7 @@
        · quem TOCOU no botão tem a janela de 24h aberta -> dá pra mandar direct (ig-broadcast);
        · quem só COMENTOU não abre janela nenhuma, e a resposta privada que cada comentário
          permite já foi gasta pela automação -> só sobra responder no próprio comentário. */
-    let recadoAuto = null, recadoDados = null;
+    let recadoAuto = null, recadoDados = null, recadoSel = null;
     const RECADO_COM_PADRAO = [
         '{USUARIO} oie! te mandei no direct, dá uma olhadinha lá e toca no botão 💛',
         '{USUARIO} passei no seu direct! entra lá e toca no botão pra garantir sua vaga 💛',
@@ -13564,7 +13567,11 @@
 
     async function recadoAbrir(id) {
         const a = igAutomations.find(function (x) { return x.id === id; }); if (!a) return;
-        recadoAuto = a; recadoDados = null;
+        recadoAuto = a; recadoDados = null; recadoSel = null;
+        /* as fotos dos posts vêm daqui; se falhar, a lista cai no nome do post e segue */
+        if (typeof igEnsureMediaCache === 'function') igEnsureMediaCache().catch(function () {});
+        document.getElementById('recadoPosts').innerHTML = '';
+        document.getElementById('recadoPosts').style.display = 'none';
         document.getElementById('recadoT').textContent = a.nome || 'Automação';
         document.getElementById('recadoBoxDM').style.display = 'none';
         document.getElementById('recadoBoxCom').style.display = 'none';
@@ -13622,7 +13629,49 @@
         }
         recadoDados.posts = posts;
         recadoDados.todos = todos;
-        const n = posts.reduce(function (t, x) { return t + x.faltam; }, 0);
+        /* na primeira contagem vêm todos marcados (era o que ele fazia antes de dar escolha);
+           depois disso a escolha dela manda, mesmo que a contagem rode de novo. */
+        if (!recadoSel) recadoSel = new Set(posts.map(function (p) { return p.media_id; }));
+        recadoRenderPosts();
+        return recadoAtualizaBotao();
+    }
+    /* Lista de posts da automação, com foto, pra ela escolher onde responder.
+       Só aparece com 2 ou mais: com um post só não há o que escolher. */
+    function recadoRenderPosts() {
+        const box = document.getElementById('recadoPosts');
+        const posts = (recadoDados && recadoDados.posts) || [];
+        if (posts.length < 2) { box.innerHTML = ''; box.style.display = 'none'; return; }
+        box.style.display = '';
+        box.innerHTML = '<label class="idea-lbl" style="margin-top:14px;">Em quais posts <i>desmarque os que não quer responder agora</i></label>'
+            + posts.map(function (p) {
+                const m = (typeof igMediaById === 'function') ? igMediaById(p.media_id) : null;
+                const legenda = (m && m.caption) ? m.caption.slice(0, 80) : ('Post ' + p.media_id);
+                return '<label style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer;">'
+                    + '<input type="checkbox" data-recado-post="' + escapeHtml(p.media_id) + '"'
+                    + (recadoSel.has(p.media_id) ? ' checked' : '') + ' onchange="recadoTogglePost(this)">'
+                    + (m && m.thumb
+                        ? '<img src="' + escapeHtml(m.thumb) + '" loading="lazy" style="width:40px;height:40px;border-radius:7px;object-fit:cover;flex-shrink:0;">'
+                        : '<span style="width:40px;height:40px;border-radius:7px;background:var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;">🖼</span>')
+                    + '<span style="flex:1;min-width:0;font-size:12.5px;color:var(--text-soft);line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'
+                    + escapeHtml(legenda) + '</span>'
+                    + '<b style="font-size:12.5px;flex-shrink:0;color:' + (p.faltam ? 'var(--accent)' : 'var(--text-muted)') + ';">'
+                    + p.faltam + '</b></label>';
+            }).join('');
+    }
+    function recadoTogglePost(el) {
+        const id = el.dataset.recadoPost;
+        if (el.checked) recadoSel.add(id); else recadoSel.delete(id);
+        recadoAtualizaBotao();
+    }
+    /* posts marcados E que ainda têm comentário pra responder */
+    function recadoPostsAlvo() {
+        return ((recadoDados && recadoDados.posts) || []).filter(function (p) {
+            return p.faltam && (!recadoSel || recadoSel.has(p.media_id));
+        });
+    }
+    function recadoAtualizaBotao() {
+        const n = recadoPostsAlvo().reduce(function (t, x) { return t + x.faltam; }, 0);
+        const btn = document.getElementById('recadoEnviarCom');
         btn.textContent = '💬 Responder ' + n + ' comentários';
         btn.disabled = !n;
         return n;
@@ -13674,15 +13723,16 @@
         const textos = document.getElementById('recadoCom').value.split('\n')
             .map(function (t) { return t.trim(); }).filter(Boolean);
         if (!textos.length) { alert('Escreve pelo menos uma versão do texto.'); return; }
-        const total = recadoDados.posts.reduce(function (t, x) { return t + x.faltam; }, 0);
-        if (!confirm('Vou responder ' + total + ' comentário(s) no post, marcando cada pessoa. Confirma?')) return;
+        const alvos = recadoPostsAlvo();
+        const total = alvos.reduce(function (t, x) { return t + x.faltam; }, 0);
+        if (!total) { alert('Nenhum post marcado com comentário pra responder.'); return; }
+        if (!confirm('Vou responder ' + total + ' comentário(s) em ' + alvos.length + ' post(s), marcando cada pessoa. Confirma?')) return;
         const btn = document.getElementById('recadoEnviarCom');
         const st = document.getElementById('recadoStatus');
         btn.disabled = true;
         let ok = 0, erro = 0, parou = '';
         try {
-            for (const post of recadoDados.posts) {
-                if (!post.faltam) continue;
+            for (const post of alvos) {
                 let voltas = 0;
                 while (voltas++ < 30) {
                     btn.textContent = 'Respondendo… ' + ok;
