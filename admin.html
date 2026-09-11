@@ -13633,7 +13633,22 @@
         const btn = document.getElementById('recadoEnviarCom');
         if (!silencioso) btn.textContent = 'Contando…';
         const posts = [];
-        for (const mid of (recadoAuto.media_ids || [])) {
+        /* Contar relê TODOS os comentários do post, um post de cada vez, e post grande
+           demora. Sem dizer em qual vai, a tela fica parada e parece travada. */
+        const mids = (recadoAuto.media_ids || []);
+        const info = document.getElementById('recadoInfo');
+        for (let i = 0; i < mids.length; i++) {
+            const mid = mids[i];
+            const passo = mids.length > 1 ? (' post ' + (i + 1) + ' de ' + mids.length) : '';
+            if (silencioso) {
+                if (info) {
+                    info.innerHTML = 'Lendo os comentários' + passo + '…'
+                        + '<div style="font-size:12px;color:var(--text-muted);margin-top:6px;line-height:1.5;">'
+                        + 'Post com muito comentário demora, pode passar de um minuto. Nada é enviado nessa parte.</div>';
+                }
+            } else {
+                btn.textContent = 'Contando…' + passo;
+            }
             const r = await sb.functions.invoke('ig-retro', {
                 body: { action: 'publico', dry: true, media_id: mid, automation_id: recadoAuto.id,
                         keyword: recadoDados.palavra, todos: todos },
