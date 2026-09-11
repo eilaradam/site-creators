@@ -13566,17 +13566,23 @@
     function recadoPalavra(a) { return String(a.keyword || '').split(',')[0].trim(); }
 
     async function recadoAbrir(id) {
-        const a = igAutomations.find(function (x) { return x.id === id; }); if (!a) return;
+        const a = igAutomations.find(function (x) { return x.id === id; });
+        /* sem isso a janela simplesmente nao abria e ninguem sabia por que */
+        if (!a) { alert('Não achei essa automação na lista. Recarrega a página e tenta de novo.'); return; }
         recadoAuto = a; recadoDados = null; recadoSel = null;
-        /* as fotos dos posts vêm daqui; se falhar, a lista cai no nome do post e segue */
-        if (typeof igEnsureMediaCache === 'function') igEnsureMediaCache().catch(function () {});
-        document.getElementById('recadoPosts').innerHTML = '';
-        document.getElementById('recadoPosts').style.display = 'none';
+        /* A JANELA ABRE PRIMEIRO. Qualquer preparo vem depois, senao um erro no meio
+           do caminho mata a abertura e o clique parece nao ter feito nada. */
         document.getElementById('recadoT').textContent = a.nome || 'Automação';
         document.getElementById('recadoBoxDM').style.display = 'none';
         document.getElementById('recadoBoxCom').style.display = 'none';
         document.getElementById('recadoStatus').textContent = '';
         document.getElementById('recadoModal').style.display = 'flex';
+        const boxPosts = document.getElementById('recadoPosts');
+        if (boxPosts) { boxPosts.innerHTML = ''; boxPosts.style.display = 'none'; }
+        /* as fotos dos posts vêm daqui; se falhar, a lista cai no nome do post e segue */
+        try {
+            if (typeof igEnsureMediaCache === 'function') igEnsureMediaCache().catch(function () {});
+        } catch (e) { /* sem foto, a lista ainda funciona */ }
         const info = document.getElementById('recadoInfo');
         info.textContent = 'Contando as pessoas…';
         try {
@@ -13639,6 +13645,7 @@
        Só aparece com 2 ou mais: com um post só não há o que escolher. */
     function recadoRenderPosts() {
         const box = document.getElementById('recadoPosts');
+        if (!box) return;
         const posts = (recadoDados && recadoDados.posts) || [];
         if (posts.length < 2) { box.innerHTML = ''; box.style.display = 'none'; return; }
         box.style.display = '';
