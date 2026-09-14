@@ -1402,14 +1402,16 @@
     .pnl-item.feito .t { text-decoration: line-through; color: var(--text-muted); font-weight: 500; }
     /* As concluídas ficam dobradas atrás deste botão. Sem isso, 17 entregas prontas
        ficavam empilhadas em cima das 3 que ainda faltavam. */
-    .pnl-feitas-btn { width: 100%; display: flex; align-items: center; gap: 9px; padding: 12px 17px;
-        background: none; border: none; border-top: 1px solid var(--border); font-family: inherit;
-        font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; text-align: left; }
-    .pnl-feitas-btn:hover { color: var(--accent); }
+    .pnl-feitas-btn { width: 100%; display: flex; align-items: center; gap: 8px; padding: 13px 17px;
+        background: var(--warm); border: none; border-top: 1px solid var(--border); font-family: inherit;
+        font-size: 13.5px; font-weight: 700; color: var(--text-soft); cursor: pointer; text-align: left; }
+    .pnl-feitas-btn:hover { color: var(--accent); background: var(--accent-glow); }
     /* a entrega logo acima já tem a linha de baixo: sem isso ficava risco duplo */
     .pnl-item + .pnl-feitas-btn { border-top: none; }
-    .pnl-feitas-btn .seta { font-size: 9px; transition: transform .18s ease; }
+    .pnl-feitas-btn .seta { font-size: 10px; transition: transform .18s ease; display: inline-block; }
     .pnl-feitas-btn.aberto .seta { transform: rotate(90deg); }
+    .pnl-feitas-btn .ok { width: 18px; height: 18px; border-radius: 5px; background: var(--success);
+        color: #fff; font-size: 11px; line-height: 18px; text-align: center; flex: none; }
     .pnl-prazo { font-size: 12px; font-weight: 700; padding: 4px 11px; border-radius: 100px; white-space: nowrap; background: var(--warm); color: var(--text-soft); }
     .pnl-prazo.hoje { background: var(--accent-glow); color: var(--accent); }
     .pnl-prazo.atrasado { background: rgba(220,38,38,.10); color: var(--error); }
@@ -11957,8 +11959,11 @@
             : '<div class="pnl-vazio">Nada em aberto. Tudo entregue 🎉</div>';
         if (feitas.length) {
             const aberto = pnlFeitasAbertas();
+            const plural = feitas.length > 1 ? 's' : '';
             html += '<button class="pnl-feitas-btn' + (aberto ? ' aberto' : '') + '" id="pnlFeitasBtn" type="button" onclick="pnlToggleFeitas()">'
-                + '<span class="seta">▶</span>' + feitas.length + ' já concluída' + (feitas.length > 1 ? 's' : '') + '</button>'
+                + '<span class="seta">▶</span><span class="ok">✓</span>'
+                + '<span id="pnlFeitasTxt">' + (aberto ? 'Esconder' : 'Ver') + ' ' + feitas.length + ' concluída' + plural + '</span>'
+                + '</button>'
                 + '<div id="pnlFeitasLista"' + (aberto ? '' : ' hidden') + '>' + feitas.map(item).join('') + '</div>';
         }
         box.innerHTML = html;
@@ -11972,8 +11977,10 @@
         try { localStorage.setItem('pnlEntregasFeitas', novo ? '1' : '0'); } catch (e) {}
         const btn = document.getElementById('pnlFeitasBtn');
         const lista = document.getElementById('pnlFeitasLista');
+        const txt = document.getElementById('pnlFeitasTxt');
         if (btn) btn.classList.toggle('aberto', novo);
         if (lista) lista.hidden = !novo;
+        if (txt) txt.textContent = txt.textContent.replace(novo ? 'Ver' : 'Esconder', novo ? 'Esconder' : 'Ver');
     }
     async function pnlAddEntrega() {
         const el = document.getElementById('pnlNovaEntrega'), pz = document.getElementById('pnlNovoPrazo');
