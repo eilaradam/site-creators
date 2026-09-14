@@ -1400,6 +1400,16 @@
     .pnl-brief .btn.ok { border-color: var(--success); color: var(--success); }
     @media (max-width: 640px) { .pnl-brief .pe { justify-content: stretch; } .pnl-brief .btn { flex: 1; justify-content: center; } }
     .pnl-item.feito .t { text-decoration: line-through; color: var(--text-muted); font-weight: 500; }
+    /* As concluídas ficam dobradas atrás deste botão. Sem isso, 17 entregas prontas
+       ficavam empilhadas em cima das 3 que ainda faltavam. */
+    .pnl-feitas-btn { width: 100%; display: flex; align-items: center; gap: 9px; padding: 12px 17px;
+        background: none; border: none; border-top: 1px solid var(--border); font-family: inherit;
+        font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; text-align: left; }
+    .pnl-feitas-btn:hover { color: var(--accent); }
+    /* a entrega logo acima já tem a linha de baixo: sem isso ficava risco duplo */
+    .pnl-item + .pnl-feitas-btn { border-top: none; }
+    .pnl-feitas-btn .seta { font-size: 9px; transition: transform .18s ease; }
+    .pnl-feitas-btn.aberto .seta { transform: rotate(90deg); }
     .pnl-prazo { font-size: 12px; font-weight: 700; padding: 4px 11px; border-radius: 100px; white-space: nowrap; background: var(--warm); color: var(--text-soft); }
     .pnl-prazo.hoje { background: var(--accent-glow); color: var(--accent); }
     .pnl-prazo.atrasado { background: rgba(220,38,38,.10); color: var(--error); }
@@ -11905,8 +11915,10 @@
         const box = document.getElementById('pnlEntregas'); if (!box) return;
         let linhas = [];
         try {
-            const { data, error } = await sb.from('entregas').select('*')
-                .order('status', { ascending: true }).order('prazo', { ascending: true, nullsFirst: false }).limit(50);
+            /* Ordena aqui embaixo, no navegador. Ordenar por status no banco colocava
+               'entregue' antes de 'pendente' (é a ordem alfabética) e ainda comia o
+               limite com coisa pronta, escondendo o que faltava. */
+            const { data, error } = await sb.from('entregas').select('*').limit(200);
             if (error) throw error;
             linhas = data || [];
         } catch (e) { box.innerHTML = '<div class="pnl-vazio">Não consegui carregar as entregas.</div>'; return; }
@@ -11918,7 +11930,12 @@
             box.innerHTML = '<div class="pnl-vazio">Nada anotado ainda. Escreve aí embaixo o que você precisa entregar.</div>';
             return;
         }
-        box.innerHTML = linhas.map(l => {
+        const feitas = linhas.filter(l => l.status === 'entregue');
+        /* em aberto: prazo mais apertado primeiro, sem prazo por último */
+        abertas.sort((a, b) => String(a.prazo || '9999-99-99').localeCompare(String(b.prazo || '9999-99-99')));
+        /* concluídas: a última que ela marcou fica em cima */
+        feitas.sort((a, b) => String(b.entregue_em || '').localeCompare(String(a.entregue_em || '')));
+        const item = l => {
             const d = l.prazo ? pnlDias(l.prazo) : null;
             let cls = '', txt = '';
             if (d !== null) {
@@ -11935,7 +11952,28 @@
                 + '</div>'
                 + (txt && !feito ? '<span class="pnl-prazo ' + cls + '">' + txt + '</span>' : '')
                 + '</div>';
-        }).join('');
+        };
+        let html = abertas.length ? abertas.map(item).join('')
+            : '<div class="pnl-vazio">Nada em aberto. Tudo entregue 🎉</div>';
+        if (feitas.length) {
+            const aberto = pnlFeitasAbertas();
+            html += '<button class="pnl-feitas-btn' + (aberto ? ' aberto' : '') + '" id="pnlFeitasBtn" type="button" onclick="pnlToggleFeitas()">'
+                + '<span class="seta">▶</span>' + feitas.length + ' já concluída' + (feitas.length > 1 ? 's' : '') + '</button>'
+                + '<div id="pnlFeitasLista"' + (aberto ? '' : ' hidden') + '>' + feitas.map(item).join('') + '</div>';
+        }
+        box.innerHTML = html;
+    }
+    /* A escolha de deixar as concluídas abertas ou fechadas fica salva no navegador. */
+    function pnlFeitasAbertas() {
+        try { return localStorage.getItem('pnlEntregasFeitas') === '1'; } catch (e) { return false; }
+    }
+    function pnlToggleFeitas() {
+        const novo = !pnlFeitasAbertas();
+        try { localStorage.setItem('pnlEntregasFeitas', novo ? '1' : '0'); } catch (e) {}
+        const btn = document.getElementById('pnlFeitasBtn');
+        const lista = document.getElementById('pnlFeitasLista');
+        if (btn) btn.classList.toggle('aberto', novo);
+        if (lista) lista.hidden = !novo;
     }
     async function pnlAddEntrega() {
         const el = document.getElementById('pnlNovaEntrega'), pz = document.getElementById('pnlNovoPrazo');
