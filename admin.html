@@ -2698,6 +2698,28 @@
         border:1px solid var(--border);background:var(--card);color:var(--text-soft);cursor:pointer;}
     #tabInstagram .conc-per-b:hover{border-color:var(--accent);color:var(--accent);}
     #tabInstagram .conc-per-b.ativo{background:var(--accent);border-color:var(--accent);color:#fff;}
+    /* Tabela de ritmo (todo mundo lado a lado, a linha dela destacada) */
+    #tabInstagram .conc-rt{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:18px;}
+    #tabInstagram .crt-h{padding:13px 16px 11px;border-bottom:1px solid var(--border);}
+    #tabInstagram .crt-h b{display:block;font-size:14px;font-weight:800;color:var(--text);}
+    #tabInstagram .crt-h i{display:block;font-size:11.5px;font-style:normal;color:var(--text-muted);margin-top:2px;line-height:1.4;}
+    #tabInstagram .crt-l{display:grid;grid-template-columns:26px minmax(0,1fr) 88px 74px 74px;gap:8px;align-items:center;
+        padding:9px 16px;border-bottom:1px solid var(--border);font-size:13px;}
+    #tabInstagram .crt-l:last-child{border-bottom:none;}
+    #tabInstagram .crt-l>span:nth-child(n+3){text-align:right;font-variant-numeric:tabular-nums;color:var(--text-soft);}
+    #tabInstagram .crt-cab{font-size:10.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);font-weight:700;padding:7px 16px;background:var(--warm);}
+    #tabInstagram .crt-cab>span:nth-child(n+3){color:var(--text-muted);}
+    #tabInstagram .crt-p{font-size:11.5px;font-weight:800;color:var(--text-muted);}
+    #tabInstagram .crt-n{font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    #tabInstagram .crt-pc{font-weight:800;color:#0B7A54 !important;}
+    #tabInstagram .crt-pc.neg{color:var(--error) !important;}
+    #tabInstagram .crt-l.eu{background:var(--accent-glow);}
+    #tabInstagram .crt-l.eu .crt-n,#tabInstagram .crt-l.eu .crt-p{color:var(--accent);}
+    @media (max-width:560px){
+        #tabInstagram .crt-l{grid-template-columns:22px minmax(0,1fr) 66px 66px;}
+        #tabInstagram .crt-l>span:nth-child(3){display:none;}
+        #tabInstagram .crt-cab>span:nth-child(3){display:none;}
+    }
     #tabInstagram .conc-fold{border:1px solid var(--border);border-radius:var(--radius);background:var(--card);padding:14px 18px;}
     #tabInstagram .conc-fold>summary{cursor:pointer;font-size:13.5px;font-weight:600;color:var(--accent);list-style:none;display:flex;align-items:center;gap:8px;}
     #tabInstagram .conc-fold>summary::-webkit-details-marker{display:none;}
@@ -10678,13 +10700,20 @@
             /* meu perfil, sempre em primeiro, pra comparar */
             const me = igConcMeCard(igConcCarregado.meCache, igConcCarregado.meHist, now);
             const todos = (me ? [me] : []).concat(cards);
+            /* Em número seco quem tem 900 mil seguidores sempre ganha. O que dá pra
+               comparar entre perfis de tamanhos tão diferentes é o RITMO: quanto por
+               cento da própria base cada uma cresceu no recorte. */
+            todos.forEach(c => {
+                const base = (c.followers || 0) - (c.growth || 0);
+                c.growthPct = (c.growth != null && base > 0) ? (c.growth / base * 100) : null;
+            });
             if (me) {
                 const rot = r => r ? (r.pos + 'º de ' + r.total) : '';
                 me.rk = {
                     followers: rot(igConcPos(todos, x => x.followers, me)),
                     taxa: rot(igConcPos(todos, x => x.taxa, me)),
                     posts7: rot(igConcPos(todos, x => x.posts7, me)),
-                    growth: rot(igConcPos(todos, x => x.growth, me))
+                    growth: rot(igConcPos(todos, x => x.growthPct, me))
                 };
                 const men = todos.filter(x => x.categoria === 'mentora');
                 const mf = igConcPos(men, x => x.followers, me), mt = igConcPos(men, x => x.taxa, me);
@@ -10723,6 +10752,21 @@
                guarda sozinho se estava aberto, então não precisa reabrir toda vez. */
             const resumoMe = (me && me.resumo) ? me.resumo : '';
             const abertoAntes = localStorage.getItem('igConcAberto') === '1';
+            /* Tabela de ritmo: todo mundo lado a lado, ordenado por quanto cresceu em
+               relação ao próprio tamanho, com a linha dela destacada. */
+            const rank = todos.filter(c => c.growthPct != null).sort((a, b) => b.growthPct - a.growthPct);
+            const pc = v => (v >= 0 ? '+' : '') + v.toFixed(2).replace('.', ',') + '%';
+            const tabela = rank.length < 2 ? '' : ('<div class="conc-rt">'
+                + '<div class="crt-h"><b>Quem mais cresceu ' + (igConcPeriodo ? 'em ' + igConcPeriodo + ' dias' : 'desde o início') + '</b>'
+                + '<i>por ritmo, ou seja o quanto cresceu em relação ao próprio tamanho</i></div>'
+                + '<div class="crt-l crt-cab"><span></span><span>perfil</span><span>seguidores</span><span>novos</span><span>ritmo</span></div>'
+                + rank.map((c, i) => '<div class="crt-l' + (c.me ? ' eu' : '') + '">'
+                    + '<span class="crt-p">' + (i + 1) + '</span>'
+                    + '<span class="crt-n">' + escapeHtml(c.nome) + '</span>'
+                    + '<span>' + igConcNum(c.followers) + '</span>'
+                    + '<span>' + (c.growth >= 0 ? '+' : '') + igConcNum(c.growth) + '</span>'
+                    + '<span class="crt-pc' + (c.growthPct < 0 ? ' neg' : '') + '">' + pc(c.growthPct) + '</span>'
+                    + '</div>').join('') + '</div>');
             box.innerHTML = '<div class="conc-head"><div><h3>🏆 Você vs. sua concorrência</h3>'
                 + '<p>' + (resumoMe ? escapeHtml(resumoMe) : 'Dados públicos via API oficial da Meta, média dos 12 posts mais recentes.') + '</p></div>'
                 + '<button class="ig-btn ghost" type="button" onclick="igConcRefresh()">↻ Atualizar agora</button></div>'
@@ -10731,6 +10775,7 @@
                     return '<button type="button" class="conc-per-b' + (igConcPeriodo === o[0] ? ' ativo' : '')
                         + '" onclick="igConcSetPeriodo(' + o[0] + ')">' + o[1] + '</button>';
                 }).join('') + '</div>'
+                + tabela
                 + '<details class="conc-fold" id="igConcFold"' + (abertoAntes ? ' open' : '') + '>'
                 + '<summary>Ver os ' + todos.length + ' perfis, com seguidores, engajamento e os posts que mais bombaram</summary>'
                 + '<div class="conc-dica">📅 Clique no nome de qualquer perfil pra ver o calendário de postagem do mês.</div>'
