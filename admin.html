@@ -2690,6 +2690,14 @@
     #tabInstagram .conc-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px;}
     #tabInstagram .conc-head h3{font-size:17px;font-weight:800;margin:0;color:var(--text);}
     #tabInstagram .conc-head p{font-size:12.5px;color:var(--text-muted);margin:3px 0 0;}
+    /* Recorte do crescimento. Antes o card dizia "seguidores/período" e ninguém
+       sabia se era uma semana ou dois meses (era desde a 1a medição). */
+    #tabInstagram .conc-per{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:-6px 0 16px;}
+    #tabInstagram .conc-per>span{font-size:12.5px;font-weight:700;color:var(--text-muted);margin-right:2px;}
+    #tabInstagram .conc-per-b{font-family:inherit;font-size:12.5px;font-weight:700;padding:6px 13px;border-radius:100px;
+        border:1px solid var(--border);background:var(--card);color:var(--text-soft);cursor:pointer;}
+    #tabInstagram .conc-per-b:hover{border-color:var(--accent);color:var(--accent);}
+    #tabInstagram .conc-per-b.ativo{background:var(--accent);border-color:var(--accent);color:#fff;}
     #tabInstagram .conc-fold{border:1px solid var(--border);border-radius:var(--radius);background:var(--card);padding:14px 18px;}
     #tabInstagram .conc-fold>summary{cursor:pointer;font-size:13.5px;font-weight:600;color:var(--accent);list-style:none;display:flex;align-items:center;gap:8px;}
     #tabInstagram .conc-fold>summary::-webkit-details-marker{display:none;}
@@ -10540,6 +10548,38 @@
     let igConcLoaded = false;
     /* Snapshots crus, usados pelo calendário de postagem. */
     let igConcSnaps = [], igConcMePosts = [], igConcNomes = {};
+    /* Dados já baixados, pra trocar o recorte sem buscar tudo de novo. */
+    let igConcCarregado = null;
+    /* Recorte do crescimento: 7, 15, 30 dias ou 0 = desde a primeira medição.
+       Antes era sempre "desde o começo", e o card só dizia "seguidores/período",
+       sem falar de quanto tempo era. */
+    let igConcPeriodo = 30;
+    try { const v = localStorage.getItem('igConcPeriodo'); if (v !== null) igConcPeriodo = Number(v) || 0; } catch (e) {}
+    /* Crescimento no recorte pedido. A lista chega do mais novo pro mais velho.
+       null = ainda não existe medição velha o bastante pra fechar esse recorte. */
+    function igConcCresc(h, dias) {
+        if (!h || h.length < 2) return null;
+        const atual = h[0];
+        if (!dias) return (atual.followers || 0) - (h[h.length - 1].followers || 0);
+        const alvo = Date.now() - dias * 864e5;
+        for (let i = 0; i < h.length; i++) {
+            if (new Date(h[i].dia + 'T12:00:00').getTime() <= alvo) {
+                return (atual.followers || 0) - (h[i].followers || 0);
+            }
+        }
+        return null;
+    }
+    function igConcPerLabel() {
+        if (igConcPeriodo) return 'seguidores em ' + igConcPeriodo + ' dias';
+        let ini = null;
+        igConcSnaps.forEach(s => { if (s.dia && (!ini || s.dia < ini)) ini = s.dia; });
+        return ini ? ('seguidores desde ' + ini.slice(8, 10) + '/' + ini.slice(5, 7)) : 'seguidores no total';
+    }
+    function igConcSetPeriodo(d) {
+        igConcPeriodo = Number(d) || 0;
+        try { localStorage.setItem('igConcPeriodo', String(igConcPeriodo)); } catch (e) {}
+        igConcRender();
+    }
     async function igConcFetchSnaps() {
         const todos = [];
         for (let from = 0; from < 40000; from += 1000) {
@@ -10561,7 +10601,7 @@
         try { await sb.functions.invoke('ig-competitors', { body: {} }); } catch (e) {}
         igLoadConcorrencia(true);
     }
-    function igConcMeCard(rows, histRows, startDia, now) {
+    function igConcMeCard(rows, histRows, now) {
         if (!rows || !rows.length) return null;
         const ord = rows.slice().sort((a, b) => new Date(b.generated_at || 0) - new Date(a.generated_at || 0));
         let account = null; const byId = {};
@@ -10580,13 +10620,10 @@
         const eng = (soma('like_count') + soma('comments_count')) / recent.length;
         const taxa = followers ? (eng / followers * 100) : null;
         const posts7 = posts.filter(x => (now - new Date(x.timestamp).getTime()) / 864e5 <= 7).length;
-        let growth = null;
-        const h = (histRows || []).filter(x => x && x.followers != null);
-        if (h.length >= 2) {
-            const ini = (startDia ? h.find(x => x.dia >= startDia) : null) || h[0];
-            const fim = h[h.length - 1];
-            if (ini && fim && ini !== fim) growth = (fim.followers || 0) - (ini.followers || 0);
-        }
+        /* ig_followers_daily vem do mais velho pro mais novo; a régua do crescimento
+           é a mesma dos concorrentes, então inverte e usa a mesma conta. */
+        const h = (histRows || []).filter(x => x && x.followers != null).slice().reverse();
+        const growth = igConcCresc(h, igConcPeriodo);
         const top = recent.slice().sort((a, b) => ((b.like_count || 0) + (b.comments_count || 0)) - ((a.like_count || 0) + (a.comments_count || 0))).slice(0, 3);
         igConcMePosts = posts;
         igConcNomes[account.username || 'eilaradam'] = 'Você';
@@ -10610,6 +10647,19 @@
             const meta = {}; (compsR.data || []).forEach(c => meta[c.username] = c);
             igConcSnaps = snapsR || [];
             igConcNomes = {}; (compsR.data || []).forEach(c => igConcNomes[c.username] = c.nome || c.username);
+            igConcCarregado = { meta: meta, meCache: meCacheR.data || [], meHist: meHistR.data || [] };
+            igConcRender();
+        } catch (e) {
+            box.innerHTML = '<div style="padding:30px;text-align:center;color:#c00">Erro ao carregar: ' + escapeHtml(e.message || String(e)) + '</div>';
+        }
+    }
+
+    /* Desenha com o que já foi baixado, pra trocar o recorte do crescimento
+       sem buscar as centenas de medições de novo. */
+    function igConcRender() {
+        const box = document.getElementById('igConcBox'); if (!box || !igConcCarregado) return;
+        const meta = igConcCarregado.meta;
+        try {
             const latest = {}, hist = {};
             igConcSnaps.forEach(s => { if (!latest[s.username]) latest[s.username] = s; (hist[s.username] = hist[s.username] || []).push(s); });
             const now = Date.now();
@@ -10620,16 +10670,13 @@
                 const eng = (p.avg_likes || 0) + (p.avg_comments || 0);
                 const taxa = s.followers ? (eng / s.followers * 100) : null;
                 const posts7 = posts.filter(x => (now - new Date(x.timestamp).getTime()) / 864e5 <= 7).length;
-                const h = hist[u] || [];
-                const growth = h.length >= 2 ? ((s.followers || 0) - (h[h.length - 1].followers || 0)) : null;
+                const growth = igConcCresc(hist[u] || [], igConcPeriodo);
                 const top = posts.slice().sort((a, b) => ((b.like_count || 0) + (b.comments_count || 0)) - ((a.like_count || 0) + (a.comments_count || 0))).slice(0, 3);
                 return { u, nome: meta[u].nome || u, categoria: meta[u].categoria, followers: s.followers, taxa, posts7, growth, top };
             }).filter(Boolean).sort((a, b) => (b.followers || 0) - (a.followers || 0));
 
             /* meu perfil, sempre em primeiro, pra comparar */
-            let iniDia = null;
-            igConcSnaps.forEach(s => { if (s.dia && (!iniDia || s.dia < iniDia)) iniDia = s.dia; });
-            const me = igConcMeCard(meCacheR.data || [], meHistR.data || [], iniDia, now);
+            const me = igConcMeCard(igConcCarregado.meCache, igConcCarregado.meHist, now);
             const todos = (me ? [me] : []).concat(cards);
             if (me) {
                 const rot = r => r ? (r.pos + 'º de ' + r.total) : '';
@@ -10653,7 +10700,9 @@
                 const tag = isMe ? '<span class="conc-tag eu">você</span>'
                     : (c.categoria === 'referencia' ? '<span class="conc-tag ref">referência</span>' : '<span class="conc-tag men">mentora</span>');
                 const rk = k => (isMe && c.rk && c.rk[k]) ? '<i>' + c.rk[k] + '</i>' : '';
-                const growthTxt = c.growth != null ? ('<div class="conc-stat"><b>' + (c.growth >= 0 ? '+' : '') + igConcNum(c.growth) + '</b><span>seguidores/período</span>' + rk('growth') + '</div>') : '';
+                const growthTxt = c.growth != null
+                    ? ('<div class="conc-stat"><b' + (c.growth < 0 ? ' style="color:var(--error)"' : '') + '>' + (c.growth >= 0 ? '+' : '') + igConcNum(c.growth) + '</b><span>' + igConcPerLabel() + '</span>' + rk('growth') + '</div>')
+                    : '<div class="conc-stat" title="Ainda não tem medição antiga o bastante pra fechar esse recorte"><b>—</b><span>' + igConcPerLabel() + '</span></div>';
                 const posts = c.top.map(p => {
                     const d = new Date(p.timestamp);
                     const dt = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0');
@@ -10677,6 +10726,11 @@
             box.innerHTML = '<div class="conc-head"><div><h3>🏆 Você vs. sua concorrência</h3>'
                 + '<p>' + (resumoMe ? escapeHtml(resumoMe) : 'Dados públicos via API oficial da Meta, média dos 12 posts mais recentes.') + '</p></div>'
                 + '<button class="ig-btn ghost" type="button" onclick="igConcRefresh()">↻ Atualizar agora</button></div>'
+                + '<div class="conc-per"><span>Crescimento em:</span>'
+                + [[7, '7 dias'], [15, '15 dias'], [30, '30 dias'], [0, 'desde o início']].map(function (o) {
+                    return '<button type="button" class="conc-per-b' + (igConcPeriodo === o[0] ? ' ativo' : '')
+                        + '" onclick="igConcSetPeriodo(' + o[0] + ')">' + o[1] + '</button>';
+                }).join('') + '</div>'
                 + '<details class="conc-fold" id="igConcFold"' + (abertoAntes ? ' open' : '') + '>'
                 + '<summary>Ver os ' + todos.length + ' perfis, com seguidores, engajamento e os posts que mais bombaram</summary>'
                 + '<div class="conc-dica">📅 Clique no nome de qualquer perfil pra ver o calendário de postagem do mês.</div>'
