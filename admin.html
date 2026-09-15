@@ -10558,6 +10558,8 @@
     let igSorteioData = null;
     let igInsightsLoaded = false;
     let igInsightsData = null;
+    /* Aviso amarelo quando o recalculo pesado falhou e a tela caiu pro cache. */
+    let igAvisoInsights = '';
     let igDays = 30;
     let igOppFilter = 'all';
     let igSort = 'engagement';
@@ -15388,14 +15390,33 @@
     async function igLoadInsights(refresh, rescan) {
         const box = document.getElementById('igInsightsBox');
         box.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted);">'
-            + (refresh
-                ? 'Recalculando com <b>TODOS os posts</b>...<br><span style="font-size:12px;">Estou lendo todos os comentários do seu perfil. Isso pode levar 1-2 minutos, pode deixar aberto. ☕</span>'
-                : 'Carregando análises...<br><span style="font-size:12px;">(pode levar alguns segundos)</span>')
+            + (rescan
+                ? 'Varrendo <b>todos os comentários de todos os posts</b>...<br><span style="font-size:12px;">É o cálculo mais pesado que existe aqui e pode não terminar a tempo. Se falhar, eu mostro os números do último cálculo automático. ☕</span>'
+                : refresh
+                    ? 'Recalculando os números ao vivo...<br><span style="font-size:12px;">(uns segundos)</span>'
+                    : 'Carregando análises...<br><span style="font-size:12px;">(pode levar alguns segundos)</span>')
             + '</div>';
-        const { data, error } = await sb.functions.invoke('ig-insights', { body: { days: igDays, refresh: !!refresh, rescan: !!rescan } });
+        igAvisoInsights = '';
+        const r = await sb.functions.invoke('ig-insights', { body: { days: igDays, refresh: !!refresh, rescan: !!rescan } });
+        let data = r.data, error = r.error;
         if (error || (data && data.error)) {
-            box.innerHTML = '<div style="color:var(--error);padding:16px;">Erro ao carregar: ' + escapeHtml((error && error.message) || (data && data.error) || 'desconhecido') + '</div>';
-            return;
+            /* Recálculo é o caminho pesado: a varredura lê TODOS os comentários de TODOS
+               os posts e, com o volume dela, estoura o tempo da função. Não é motivo pra
+               deixar a tela vermelha e vazia: o cron reaquece o cache a cada 30 min, então
+               cai pro que já está guardado e avisa. */
+            if (refresh || rescan) {
+                const r2 = await sb.functions.invoke('ig-insights', { body: { days: igDays } });
+                if (!r2.error && r2.data && !r2.data.error) {
+                    data = r2.data; error = null;
+                    igAvisoInsights = 'O recálculo completo não terminou a tempo (é uma varredura pesada, lê todos os comentários de todos os posts). '
+                        + 'Estes números são do último cálculo automático, que roda sozinho a cada 30 minutos.';
+                }
+            }
+            if (error || (data && data.error)) {
+                box.innerHTML = '<div style="color:var(--error);padding:16px;">Erro ao carregar: '
+                    + escapeHtml((error && error.message) || (data && data.error) || 'desconhecido') + '</div>';
+                return;
+            }
         }
         igInsightsData = data;
         igRenderInsights();
@@ -15997,11 +16018,15 @@
         const d = igInsightsData; if (!d) return;
         const box = document.getElementById('igInsightsBox');
         const acc = d.account || {};
+        const aviso = igAvisoInsights
+            ? ('<div style="background:#FFF4E5;border:1px solid #F0C088;border-radius:12px;padding:11px 14px;margin-bottom:16px;font-size:12.5px;color:#7A4A00;line-height:1.5;">⚠️ '
+                + escapeHtml(igAvisoInsights) + '</div>')
+            : '';
         const reachArr = d.reach || [];
         const reachTotal = reachArr.reduce((s, x) => s + (x.value || 0), 0);
         const followerNew = (d.follower_growth || []).reduce((s, x) => s + (x.value || 0), 0);
         const per = d.days === 'all' ? '90d' : d.days + 'd';
-        let html = '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">'
+        let html = aviso + '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">'
             + igCard('Seguidores', igNum(acc.followers_count))
             + igCard('Novos seg. (' + per + ')', igNum(followerNew))
             + igCard('Alcance (' + per + ')', igNum(reachTotal))
