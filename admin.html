@@ -16060,6 +16060,10 @@
             + '<div>'
             + '<div style="font-size:13px;color:var(--text);font-weight:700;">' + (upd ? '🕒 Última atualização: ' + upd : 'Você ainda não gerou o estudo.') + '</div>'
             + '<div style="font-size:12px;color:var(--text-muted);margin-top:2px;">' + (cm.posts_studied ? igNum(cm.posts_studied) + ' posts e ' + igNum(cm.total_comments || 0) + ' comentários analisados' + (cm.modelo ? ', escritos pelo ' + escapeHtml(cm.modelo) : '') + '. Só atualiza quando você clica.' : 'Clique em "Atualizar agora" pra varrer todos os posts (leva 1-2 min).') + '</div>'
+            /* A IA escreve os roteiros depois da resposta, em segundo plano, porque leva
+               mais de 2 min e derrubava a varredura inteira. Avisa em vez de a tela
+               parecer que veio sem ideia nenhuma. */
+            + (cm.ia_em_andamento ? '<div style="font-size:12px;color:var(--accent);margin-top:5px;font-weight:700;">✍️ A IA está escrevendo as ideias de conteúdo agora. Elas aparecem em uns 2 minutos: é só clicar em Atualizar de novo (o rápido, sem varredura).</div>' : '')
             + '</div>'
             + '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'
             + '<label class="ig-modelo-l" for="igModeloSel">Escreve com<select id="igModeloSel" onchange="igModeloSalvar(this.value)">'
