@@ -1900,8 +1900,30 @@
         <button class="admin-subtab-btn active" data-admin-subtab="termos">Termos</button>
         <button class="admin-subtab-btn" data-admin-subtab="links">Links</button>
         <button class="admin-subtab-btn" data-admin-subtab="banners">Banners</button>
+        <button class="admin-subtab-btn" data-admin-subtab="imersao">Imersão ao vivo</button>
     </div>
     </div>
+
+<!-- ── Sub-aba: IMERSÃO AO VIVO ── -->
+<div class="admin-pane" id="tabImersao">
+    <div class="iv-topo">
+        <div>
+            <h2>Imersão ao vivo</h2>
+            <p>Quem está na apostila agora e em que etapa cada uma parou. Atualiza sozinho a cada 30 segundos enquanto esta aba estiver aberta.</p>
+        </div>
+        <button id="ivRecarregar">Atualizar agora</button>
+    </div>
+    <div class="iv-resumo" id="ivResumo"></div>
+    <div class="iv-wrap">
+        <table class="iv-table">
+            <thead><tr>
+                <th>Aluna</th><th>Progresso</th><th>Etapa em que está</th><th>Marcados</th><th>Vista</th>
+            </tr></thead>
+            <tbody id="ivCorpo"></tbody>
+        </table>
+    </div>
+    <div class="iv-vazio" id="ivVazio">Carregando...</div>
+</div>
 
 <!-- ── Sub-aba: ALUNAS ── -->
 
@@ -4868,6 +4890,31 @@
 .admin-subtab-btn { padding: 10px 16px; font-size: 13px; font-weight: 600; color: var(--text-muted); background: transparent; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
 .admin-subtab-btn:hover { color: var(--text); }
 .admin-subtab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ── Imersão ao vivo ── */
+.iv-topo { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:18px; }
+.iv-topo h2 { font-family:'DM Sans',sans-serif; font-size:16px; font-weight:700; margin-bottom:4px; }
+.iv-topo p { font-size:12px; color:var(--text-soft); max-width:60ch; }
+#ivRecarregar { background:var(--accent); color:#fff; border:0; border-radius:8px; padding:9px 16px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; cursor:pointer; }
+#ivRecarregar:hover { background:var(--accent-dark); }
+.iv-resumo { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:20px; }
+.iv-bloco { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px 16px; }
+.iv-bloco b { display:block; font-family:'DM Sans',sans-serif; font-size:26px; font-weight:700; line-height:1.1; color:var(--text); }
+.iv-bloco span { font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); }
+.iv-wrap { border:1px solid var(--border); border-radius:10px; overflow:auto; background:var(--card); }
+.iv-table { width:100%; border-collapse:collapse; font-size:13px; }
+.iv-table th { text-align:left; padding:11px 14px; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); border-bottom:1px solid var(--border); white-space:nowrap; }
+.iv-table td { padding:12px 14px; border-bottom:1px solid var(--border); vertical-align:middle; }
+.iv-table tr:last-child td { border-bottom:0; }
+.iv-nome { font-weight:600; color:var(--text); }
+.iv-arroba { font-size:11.5px; color:var(--text-muted); }
+.iv-barra { width:110px; height:7px; border-radius:4px; background:var(--border); overflow:hidden; display:inline-block; vertical-align:middle; margin-right:9px; }
+.iv-barra i { display:block; height:100%; background:var(--accent); border-radius:4px; }
+.iv-pct { font-variant-numeric:tabular-nums; font-weight:600; }
+.iv-parte { display:inline-block; font-size:10.5px; text-transform:uppercase; letter-spacing:.07em; background:var(--accent-tint); color:var(--accent-dark); border-radius:4px; padding:2px 7px; margin-right:7px; }
+.iv-quente td { background:var(--accent-glow); }
+.iv-frio .iv-visto { color:#C0392B; font-weight:600; }
+.iv-vazio { padding:30px; text-align:center; color:var(--text-muted); font-size:13px; }
 .admin-pane { display: none; }
 .admin-pane.show { display: block; }
 
@@ -5541,10 +5588,12 @@
         document.getElementById('tabTermos').classList.toggle('show', target === 'termos');
         document.getElementById('tabLinks').classList.toggle('show', target === 'links');
         document.getElementById('tabBanners').classList.toggle('show', target === 'banners');
+        document.getElementById('tabImersao').classList.toggle('show', target === 'imersao');
         if (target === 'campanhas') updateCampanhaStats();
         if (target === 'gestao') loadGestao();
         if (target === 'termos') loadTermos();
         if (target === 'banners') loadAdminBanners();
+        if (target === 'imersao') ligarImersaoVivo(); else pararImersaoVivo();
     }
     document.querySelectorAll('.admin-subtab-btn').forEach(btn => {
         btn.addEventListener('click', () => showAdminSubtab(btn.dataset.adminSubtab));
@@ -10095,6 +10144,90 @@
        ══════════════════════════════════════ */
 
     let termosLoaded = false;
+
+    /* ═══════════ Imersão ao vivo ═══════════ */
+    const IV_ETAPAS = {
+        e1:['Como usar este guia','Entender'],      e2:['O Claude Code em 2 minutos','Entender'],
+        e3:['Como pedir bem','Entender'],           e4:['Sua ficha','Portfólio'],
+        e5:['Escolher o modelo','Portfólio'],       e6:['Gerar o portfólio','Portfólio'],
+        e7:['Deixar com a sua cara','Portfólio'],   e8:['Testar no celular','Portfólio'],
+        e9:['Colocar no ar','Portfólio'],           e10:['Seu domínio próprio','Portfólio'],
+        e11:['As três peças','Admin'],              e12:['Supabase sem medo','Admin'],
+        e13:['Construir o admin','Admin'],          e14:['Formulário e outras abas','Admin'],
+        e15:['Quando trava','Socorro'],             e16:['Todos os prompts','Socorro']
+    };
+    let ivTimer = null;
+
+    function ivHaQuanto(iso) {
+        const min = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+        if (min < 1) return 'agora';
+        if (min < 60) return min + ' min';
+        const h = Math.floor(min / 60);
+        if (h < 24) return h + 'h';
+        return Math.floor(h / 24) + 'd';
+    }
+
+    async function loadImersaoVivo() {
+        const corpo = document.getElementById('ivCorpo');
+        const vazio = document.getElementById('ivVazio');
+        const resumo = document.getElementById('ivResumo');
+        try {
+            const { data, error } = await sb.rpc('admin_imersao_progresso');
+            if (error) throw error;
+            const linhas = data || [];
+            if (!linhas.length) {
+                corpo.innerHTML = '';
+                vazio.textContent = 'Ninguém entrou na apostila ainda.';
+                vazio.style.display = '';
+                resumo.innerHTML = '';
+                return;
+            }
+            vazio.style.display = 'none';
+
+            const agora = Date.now();
+            const ativas = linhas.filter(l => agora - new Date(l.visto_em).getTime() < 15 * 60000).length;
+            const media = Math.round(linhas.reduce((s, l) => s + (l.total ? l.marcados / l.total : 0), 0) / linhas.length * 100);
+            const prontas = linhas.filter(l => l.total && l.marcados >= l.total).length;
+            const contagem = {};
+            linhas.forEach(l => { const e = l.etapa || 'e1'; contagem[e] = (contagem[e] || 0) + 1; });
+            const gargalo = Object.keys(contagem).sort((x, y) => contagem[y] - contagem[x])[0];
+
+            resumo.innerHTML =
+                '<div class="iv-bloco"><b>' + linhas.length + '</b><span>entraram</span></div>' +
+                '<div class="iv-bloco"><b>' + ativas + '</b><span>ativas agora</span></div>' +
+                '<div class="iv-bloco"><b>' + media + '%</b><span>progresso médio</span></div>' +
+                '<div class="iv-bloco"><b>' + prontas + '</b><span>terminaram tudo</span></div>' +
+                '<div class="iv-bloco"><b>' + contagem[gargalo] + '</b><span>paradas em ' + ((IV_ETAPAS[gargalo] || ['?'])[0]) + '</span></div>';
+
+            corpo.innerHTML = linhas.map(l => {
+                const pct = l.total ? Math.round(l.marcados / l.total * 100) : 0;
+                const info = IV_ETAPAS[l.etapa] || ['—', ''];
+                const idade = agora - new Date(l.visto_em).getTime();
+                const cls = idade < 5 * 60000 ? 'iv-quente' : (idade > 30 * 60000 ? 'iv-frio' : '');
+                return '<tr class="' + cls + '">' +
+                    '<td><div class="iv-nome">' + (l.nome || '(sem nome)') + '</div><div class="iv-arroba">@' + l.arroba + '</div></td>' +
+                    '<td><span class="iv-barra"><i style="width:' + pct + '%"></i></span><span class="iv-pct">' + pct + '%</span></td>' +
+                    '<td><span class="iv-parte">' + info[1] + '</span>' + info[0] + '</td>' +
+                    '<td>' + l.marcados + ' de ' + l.total + '</td>' +
+                    '<td class="iv-visto">' + ivHaQuanto(l.visto_em) + '</td>' +
+                    '</tr>';
+            }).join('');
+        } catch (err) {
+            vazio.style.display = '';
+            vazio.textContent = 'Não consegui carregar: ' + err.message;
+        }
+    }
+
+    function ligarImersaoVivo() {
+        loadImersaoVivo();
+        pararImersaoVivo();
+        ivTimer = setInterval(loadImersaoVivo, 30000);
+    }
+    function pararImersaoVivo() { if (ivTimer) { clearInterval(ivTimer); ivTimer = null; } }
+    document.addEventListener('DOMContentLoaded', () => {
+        const b = document.getElementById('ivRecarregar');
+        if (b) b.addEventListener('click', loadImersaoVivo);
+    });
 
     async function loadTermos() {
         if (termosLoaded) return;
