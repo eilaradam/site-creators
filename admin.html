@@ -2216,7 +2216,13 @@
             <h2>Imersão ao vivo</h2>
             <p>Quem está na apostila agora e em que etapa cada uma parou. Atualiza sozinho a cada 30 segundos enquanto esta aba estiver aberta.</p>
         </div>
-        <button id="ivRecarregar">Atualizar agora</button>
+        <div class="iv-acoes" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <div class="iv-dias">
+                <button class="iv-dia on" data-ivdia="1" type="button">Dia 1 · Construir</button>
+                <button class="iv-dia" data-ivdia="2" type="button">Dia 2 · Prospectar</button>
+            </div>
+            <button id="ivRecarregar">Atualizar agora</button>
+        </div>
     </div>
     <div class="iv-resumo" id="ivResumo"></div>
     <div class="iv-wrap">
@@ -4919,6 +4925,10 @@
 .iv-topo p { font-size:12px; color:var(--text-soft); max-width:60ch; }
 #ivRecarregar { background:var(--accent); color:#fff; border:0; border-radius:8px; padding:9px 16px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; cursor:pointer; }
 #ivRecarregar:hover { background:var(--accent-dark); }
+.iv-dias { display:flex; gap:8px; }
+.iv-dia { background:var(--card); color:var(--text-soft); border:1px solid var(--border); border-radius:8px; padding:9px 15px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; cursor:pointer; transition:background .15s,color .15s,border-color .15s; }
+.iv-dia:hover { border-color:var(--accent); color:var(--text); }
+.iv-dia.on { background:var(--accent); border-color:var(--accent); color:#fff; }
 .iv-resumo { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:20px; }
 .iv-bloco { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px 16px; }
 .iv-bloco b { display:block; font-family:'DM Sans',sans-serif; font-size:26px; font-weight:700; line-height:1.1; color:var(--text); }
@@ -10180,6 +10190,17 @@
         e13:['Construir o admin','Admin'],          e14:['Formulário e outras abas','Admin'],
         e15:['Quando trava','Socorro'],             e16:['Todos os prompts','Socorro']
     };
+    const IV_ETAPAS_D2 = {
+        e1:['Como usar este guia','Preparar'],        e2:['O Claude no Chrome','Preparar'],
+        e3:['Quem você vai procurar','Preparar'],     e4:['Caminho 1: pesquisa no Chrome','Encontrar'],
+        e5:['Caminho 2: Instagram','Encontrar'],      e6:['Caminho 3: LinkedIn','Encontrar'],
+        e7:['Caminho 4: e-commerces','Encontrar'],    e8:['A aba Marcas no admin','Organizar'],
+        e9:['Importar a lista e o status','Organizar'], e10:['O e-mail de prospecção','Escrever'],
+        e11:['Revisar antes de enviar','Escrever'],   e12:['O Resend','Escrever'],
+        e13:['A aba Prospecção e o disparo','Escrever'], e14:['Depois que o e-mail sai','Depois'],
+        e15:['Quando trava','Depois'],                e16:['Todos os prompts','Depois']
+    };
+    let ivDia = 1;
     let ivTimer = null;
 
     /* o que a aluna digita entra como texto, nunca como html */
@@ -10207,12 +10228,13 @@
         const vazio = document.getElementById('ivVazio');
         const resumo = document.getElementById('ivResumo');
         try {
-            const { data, error } = await sb.rpc('admin_imersao_progresso');
+            const mapaEtapas = ivDia === 2 ? IV_ETAPAS_D2 : IV_ETAPAS;
+            const { data, error } = await sb.rpc(ivDia === 2 ? 'admin_imersao_progresso_d2' : 'admin_imersao_progresso');
             if (error) throw error;
             const linhas = data || [];
             if (!linhas.length) {
                 corpo.innerHTML = '';
-                vazio.textContent = 'Ninguém entrou na apostila ainda.';
+                vazio.textContent = 'Ninguém entrou na apostila do dia ' + ivDia + ' ainda.';
                 vazio.style.display = '';
                 resumo.innerHTML = '';
                 return;
@@ -10232,11 +10254,11 @@
                 '<div class="iv-bloco"><b>' + ativas + '</b><span>ativas agora</span></div>' +
                 '<div class="iv-bloco"><b>' + media + '%</b><span>progresso médio</span></div>' +
                 '<div class="iv-bloco"><b>' + prontas + '</b><span>terminaram tudo</span></div>' +
-                '<div class="iv-bloco"><b>' + contagem[gargalo] + '</b><span>paradas em ' + ((IV_ETAPAS[gargalo] || ['?'])[0]) + '</span></div>';
+                '<div class="iv-bloco"><b>' + contagem[gargalo] + '</b><span>paradas em ' + ((mapaEtapas[gargalo] || ['?'])[0]) + '</span></div>';
 
             corpo.innerHTML = linhas.map(l => {
                 const pct = l.total ? Math.round(l.marcados / l.total * 100) : 0;
-                const info = IV_ETAPAS[l.etapa] || ['—', ''];
+                const info = mapaEtapas[l.etapa] || ['—', ''];
                 const idade = agora - new Date(l.visto_em).getTime();
                 const cls = idade < 5 * 60000 ? 'iv-quente' : (idade > 30 * 60000 ? 'iv-frio' : '');
                 return '<tr class="' + cls + '">' +
@@ -10267,6 +10289,17 @@
     document.addEventListener('DOMContentLoaded', () => {
         const b = document.getElementById('ivRecarregar');
         if (b) b.addEventListener('click', loadImersaoVivo);
+        document.querySelectorAll('.iv-dia').forEach(btn => {
+            btn.addEventListener('click', () => {
+                ivDia = Number(btn.dataset.ivdia) || 1;
+                document.querySelectorAll('.iv-dia').forEach(o => o.classList.toggle('on', o === btn));
+                const vazio = document.getElementById('ivVazio');
+                if (vazio) { vazio.style.display = ''; vazio.textContent = 'Carregando...'; }
+                document.getElementById('ivCorpo').innerHTML = '';
+                document.getElementById('ivResumo').innerHTML = '';
+                loadImersaoVivo();
+            });
+        });
     });
 
     async function loadTermos() {
