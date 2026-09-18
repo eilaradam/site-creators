@@ -2260,7 +2260,7 @@
 <div class="vt-topo">
         <div>
             <h2>Vibe da turma</h2>
-            <p>O que elas escreveram no formulário antes da aula: como vão acompanhar, o que estão ansiosas pra aprender, onde travam hoje, a dúvida que querem ver respondida ao vivo e o medo dos dois dias.</p>
+            <p>O que elas escreveram no formulário antes da aula: o que estão ansiosas pra aprender, onde travam hoje, a dúvida que querem ver respondida ao vivo e o medo dos dois dias.</p>
         </div>
         <div class="vt-acoes">
             <button class="fraco" id="vtCopiar" type="button">Copiar tudo</button>
@@ -10414,36 +10414,32 @@
             vazio.style.display = 'none';
             const total = vtLinhas.length;
 
-            const cIa = {}, cComp = {}, cPort = {};
+            const cIa = {}, cPort = {};
             vtLinhas.forEach(l => {
                 if (l.ia) cIa[l.ia] = (cIa[l.ia] || 0) + 1;
-                if (l.computador) cComp[l.computador] = (cComp[l.computador] || 0) + 1;
                 if (l.portfolio) cPort[l.portfolio] = (cPort[l.portfolio] || 0) + 1;
             });
             const comDuvida = vtLinhas.filter(l => (l.duvida || '').trim()).length;
             const comMedo = vtLinhas.filter(l => (l.medo || '').trim()).length;
-            const soCelular = vtLinhas.filter(l => l.computador === 'Só tenho celular').length;
+            const comExpectativa = vtLinhas.filter(l => (l.aprender || '').trim()).length;
             const semPortfolio = vtLinhas.filter(l => l.portfolio === 'Não tenho nenhum').length;
             const nuncaIa = vtLinhas.filter(l => l.ia === 'Nunca usei').length;
 
             resumo.innerHTML =
                 '<div class="iv-bloco"><b>' + total + '</b><span>responderam</span></div>' +
-                '<div class="iv-bloco' + (soCelular ? ' vt-alerta' : '') + '"><b>' + soCelular + '</b><span>só têm celular</span></div>' +
+                '<div class="iv-bloco"><b>' + comExpectativa + '</b><span>contaram o que esperam</span></div>' +
                 '<div class="iv-bloco"><b>' + semPortfolio + '</b><span>sem portfólio nenhum</span></div>' +
                 '<div class="iv-bloco"><b>' + comDuvida + '</b><span>mandaram dúvida</span></div>' +
                 '<div class="iv-bloco"><b>' + comMedo + '</b><span>contaram um medo</span></div>' +
                 '<div class="iv-bloco"><b>' + nuncaIa + '</b><span>nunca usaram IA</span></div>';
 
             barras.innerHTML =
-                vtBarras('Como vão acompanhar a aula', cComp, total) +
                 vtBarras('Portfólio que já têm hoje', cPort, total) +
                 vtBarras('O quanto já usam IA', cIa, total);
 
             lista.innerHTML = '<div class="vt-bloco-t">Resposta por resposta</div>' + vtLinhas.map(l => {
-                const alerta = l.computador === 'Só tenho celular';
-                const chips = (alerta ? '<span class="vt-chip perigo">📱 Só tem celular</span>' : '') +
-                    (l.dificuldades || []).map(d => '<span class="vt-chip forte">' + vtEsc(d) + '</span>').join('');
-                const base = [l.nicho, alerta ? '' : l.computador, l.portfolio, l.ia]
+                const chips = (l.dificuldades || []).map(d => '<span class="vt-chip forte">' + vtEsc(d) + '</span>').join('');
+                const base = [l.nicho, l.portfolio, l.ia]
                     .filter(Boolean).map(x => '<span class="vt-chip">' + vtEsc(x) + '</span>').join('');
                 const fala = (rot, txt) => (txt || '').trim()
                     ? '<div class="vt-fala"><small>' + rot + '</small>' + vtEsc(txt) + '</div>' : '';
@@ -10471,7 +10467,6 @@
             if ((l.dificuldades || []).length) p.push('Trava em: ' + l.dificuldades.join('; '));
             if (l.ia) p.push('Usa IA: ' + l.ia);
             if (l.nicho) p.push('Nicho: ' + l.nicho);
-            if (l.computador) p.push('Vai acompanhar: ' + l.computador);
             if (l.portfolio) p.push('Portfólio hoje: ' + l.portfolio);
             if ((l.aprender || '').trim()) p.push('Está ansiosa pra aprender: ' + l.aprender.trim());
             if ((l.trava || '').trim()) p.push('Onde trava hoje: ' + l.trava.trim());
