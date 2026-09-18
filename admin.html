@@ -1904,43 +1904,6 @@
     </div>
     </div>
 
-<!-- ── Aulas: TURMA AO VIVO ── -->
-<div class="dashboard" id="tabTurmaVivo">
-    <div class="capa">
-        <div class="capa-topo">
-            <div class="capa-id">
-                <span class="capa-mark">🎓</span>
-                <div>
-                    <h2>Aulas</h2>
-                    <p class="sub">As duas páginas de venda: quem visitou, quem clicou em comprar.</p>
-                </div>
-            </div>
-        </div>
-    <div class="capa-abas">
-        <button class="tab subnav-btn" data-tab="imersao" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Imersão</span></button>
-        <button class="tab subnav-btn" data-tab="direct" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l2-5.2A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg><span>Direct no Automático</span></button>
-        <button class="tab subnav-btn" data-tab="aulabonus" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg><span>Aula ao vivo</span></button>
-        <button class="tab subnav-btn" data-tab="turmavivo" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Turma ao vivo</span></button>
-    </div>
-    </div>
-<div class="iv-topo">
-        <div>
-            <h2>Imersão ao vivo</h2>
-            <p>Quem está na apostila agora e em que etapa cada uma parou. Atualiza sozinho a cada 30 segundos enquanto esta aba estiver aberta.</p>
-        </div>
-        <button id="ivRecarregar">Atualizar agora</button>
-    </div>
-    <div class="iv-resumo" id="ivResumo"></div>
-    <div class="iv-wrap">
-        <table class="iv-table">
-            <thead><tr>
-                <th>Aluna</th><th>Progresso</th><th>Etapa em que está</th><th>Marcados</th><th>Vista</th>
-            </tr></thead>
-            <tbody id="ivCorpo"></tbody>
-        </table>
-    </div>
-    <div class="iv-vazio" id="ivVazio">Carregando...</div>
-</div>
 
 <!-- ── Sub-aba: ALUNAS ── -->
 
@@ -2229,6 +2192,44 @@
 </div>
 
 <!-- ── TAB: IMERSÃO ── -->
+<!-- ── Aulas: TURMA AO VIVO ── -->
+<div class="dashboard" id="tabTurmaVivo">
+    <div class="capa">
+        <div class="capa-topo">
+            <div class="capa-id">
+                <span class="capa-mark">🎓</span>
+                <div>
+                    <h2>Aulas</h2>
+                    <p class="sub">As duas páginas de venda: quem visitou, quem clicou em comprar.</p>
+                </div>
+            </div>
+        </div>
+    <div class="capa-abas">
+        <button class="tab subnav-btn" data-tab="imersao" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Imersão</span></button>
+        <button class="tab subnav-btn" data-tab="direct" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l2-5.2A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg><span>Direct no Automático</span></button>
+        <button class="tab subnav-btn" data-tab="aulabonus" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg><span>Aula ao vivo</span></button>
+        <button class="tab subnav-btn" data-tab="turmavivo" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Turma ao vivo</span></button>
+    </div>
+    </div>
+<div class="iv-topo">
+        <div>
+            <h2>Imersão ao vivo</h2>
+            <p>Quem está na apostila agora e em que etapa cada uma parou. Atualiza sozinho a cada 30 segundos enquanto esta aba estiver aberta.</p>
+        </div>
+        <button id="ivRecarregar">Atualizar agora</button>
+    </div>
+    <div class="iv-resumo" id="ivResumo"></div>
+    <div class="iv-wrap">
+        <table class="iv-table">
+            <thead><tr>
+                <th>Aluna</th><th>Progresso</th><th>Etapa em que está</th><th>Marcados</th><th>Vista</th>
+            </tr></thead>
+            <tbody id="ivCorpo"></tbody>
+        </table>
+    </div>
+    <div class="iv-vazio" id="ivVazio">Carregando...</div>
+</div>
+
 <div class="dashboard" id="tabImersao">
     <div class="capa">
         <div class="capa-topo">
