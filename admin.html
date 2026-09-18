@@ -4930,6 +4930,8 @@
 .iv-table tr:last-child td { border-bottom:0; }
 .iv-nome { font-weight:600; color:var(--text); }
 .iv-arroba { font-size:11.5px; color:var(--text-muted); }
+.iv-zap { color:var(--accent); text-decoration:none; font-weight:600; }
+.iv-zap:hover { text-decoration:underline; }
 .iv-barra { width:110px; height:7px; border-radius:4px; background:var(--border); overflow:hidden; display:inline-block; vertical-align:middle; margin-right:9px; }
 .iv-barra i { display:block; height:100%; background:var(--accent); border-radius:4px; }
 .iv-pct { font-variant-numeric:tabular-nums; font-weight:600; }
@@ -10180,6 +10182,17 @@
     };
     let ivTimer = null;
 
+    /* o que a aluna digita entra como texto, nunca como html */
+    function ivEsc(t) {
+        return String(t == null ? '' : t).replace(/[&<>"']/g, c =>
+            ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+    }
+    function ivZap(n) {
+        const d = String(n || '').replace(/\D/g, '');
+        if (d.length === 11) return '(' + d.slice(0,2) + ') ' + d.slice(2,7) + '-' + d.slice(7);
+        if (d.length === 10) return '(' + d.slice(0,2) + ') ' + d.slice(2,6) + '-' + d.slice(6);
+        return d;
+    }
     function ivHaQuanto(iso) {
         const min = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
         if (min < 1) return 'agora';
@@ -10227,7 +10240,12 @@
                 const idade = agora - new Date(l.visto_em).getTime();
                 const cls = idade < 5 * 60000 ? 'iv-quente' : (idade > 30 * 60000 ? 'iv-frio' : '');
                 return '<tr class="' + cls + '">' +
-                    '<td><div class="iv-nome">' + (l.nome || '(sem nome)') + '</div><div class="iv-arroba">@' + l.arroba + '</div></td>' +
+                    '<td><div class="iv-nome">' + ivEsc(l.nome || '(sem nome)') + '</div>' +
+                        '<div class="iv-arroba">@' + ivEsc(l.arroba) +
+                            (l.whatsapp ? ' · <a class="iv-zap" href="https://wa.me/55' + ivEsc(String(l.whatsapp).replace(/\D/g,'')) + '" target="_blank" rel="noopener">' + ivZap(l.whatsapp) + '</a>' : '') +
+                        '</div>' +
+                        (l.email ? '<div class="iv-arroba">' + ivEsc(l.email) + '</div>' : '') +
+                    '</td>' +
                     '<td><span class="iv-barra"><i style="width:' + pct + '%"></i></span><span class="iv-pct">' + pct + '%</span></td>' +
                     '<td><span class="iv-parte">' + info[1] + '</span>' + info[0] + '</td>' +
                     '<td>' + l.marcados + ' de ' + l.total + '</td>' +
