@@ -10443,8 +10443,11 @@
                     .filter(Boolean).map(x => '<span class="vt-chip">' + vtEsc(x) + '</span>').join('');
                 const fala = (rot, txt) => (txt || '').trim()
                     ? '<div class="vt-fala"><small>' + rot + '</small>' + vtEsc(txt) + '</div>' : '';
+                const zap = l.whatsapp ? String(l.whatsapp).replace(/\D/g, '') : '';
                 return '<div class="vt-card">' +
-                    '<div class="quem"><b>' + vtEsc(l.nome || '(sem nome)') + '</b><span>@' + vtEsc(l.arroba) + '</span></div>' +
+                    '<div class="quem"><b>' + vtEsc(l.nome || '(sem nome)') + '</b><span>@' + vtEsc(l.arroba) + '</span>' +
+                        (zap ? '<span>· <a class="iv-zap" href="https://wa.me/55' + vtEsc(zap) + '" target="_blank" rel="noopener">' + vtEsc(ivZap(zap)) + '</a></span>' : '') +
+                    '</div>' +
                     '<div class="vt-chips">' + base + chips + '</div>' +
                     fala('Quer aprender', l.aprender) +
                     fala('Onde trava hoje', l.trava) +
@@ -10467,6 +10470,7 @@
             if ((l.dificuldades || []).length) p.push('Trava em: ' + l.dificuldades.join('; '));
             if (l.ia) p.push('Usa IA: ' + l.ia);
             if (l.nicho) p.push('Nicho: ' + l.nicho);
+            if (l.whatsapp) p.push('WhatsApp: ' + l.whatsapp);
             if (l.portfolio) p.push('Portfólio hoje: ' + l.portfolio);
             if ((l.aprender || '').trim()) p.push('Está ansiosa pra aprender: ' + l.aprender.trim());
             if ((l.trava || '').trim()) p.push('Onde trava hoje: ' + l.trava.trim());
