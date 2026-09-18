@@ -86,6 +86,7 @@
         #tabDirect .subnav-btn[data-tab="direct"],
         #tabAulaBonus .subnav-btn[data-tab="aulabonus"],
         #tabTurmaVivo .subnav-btn[data-tab="turmavivo"] { color: var(--accent); border-bottom-color: var(--accent); }
+        #tabVibeTurma .subnav-btn[data-tab="vibeturma"] { color: var(--accent); border-bottom-color: var(--accent); }
         @media (max-width: 860px) { .subnav-btn { padding: 10px 12px; font-size: 12.5px; } }
 
         /* ===== Shell: sidebar + topbar ===== */
@@ -2209,6 +2210,7 @@
         <button class="tab subnav-btn" data-tab="direct" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l2-5.2A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg><span>Direct no Automático</span></button>
         <button class="tab subnav-btn" data-tab="aulabonus" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg><span>Aula ao vivo</span></button>
         <button class="tab subnav-btn" data-tab="turmavivo" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Turma ao vivo</span></button>
+        <button class="tab subnav-btn" data-tab="vibeturma" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.6 1.1-1a5.5 5.5 0 0 0 0-7.8z"/></svg><span>Vibe da turma</span></button>
     </div>
     </div>
 <div class="iv-topo">
@@ -2236,6 +2238,41 @@
     <div class="iv-vazio" id="ivVazio">Carregando...</div>
 </div>
 
+<div class="dashboard" id="tabVibeTurma">
+    <div class="capa">
+        <div class="capa-topo">
+            <div class="capa-id">
+                <span class="capa-mark">🎓</span>
+                <div>
+                    <h2>Aulas</h2>
+                    <p class="sub">As duas páginas de venda: quem visitou, quem clicou em comprar.</p>
+                </div>
+            </div>
+        </div>
+    <div class="capa-abas">
+        <button class="tab subnav-btn" data-tab="imersao" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Imersão</span></button>
+        <button class="tab subnav-btn" data-tab="direct" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l2-5.2A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg><span>Direct no Automático</span></button>
+        <button class="tab subnav-btn" data-tab="aulabonus" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg><span>Aula ao vivo</span></button>
+        <button class="tab subnav-btn" data-tab="turmavivo" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Turma ao vivo</span></button>
+        <button class="tab subnav-btn" data-tab="vibeturma" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.6 1.1-1a5.5 5.5 0 0 0 0-7.8z"/></svg><span>Vibe da turma</span></button>
+    </div>
+    </div>
+<div class="vt-topo">
+        <div>
+            <h2>Vibe da turma</h2>
+            <p>O que elas responderam no formulário antes da aula: em que ponto estão, o que trava, o que querem aprender e a dúvida que cada uma quer ver respondida ao vivo.</p>
+        </div>
+        <div class="vt-acoes">
+            <button class="fraco" id="vtCopiar" type="button">Copiar tudo</button>
+            <button id="vtRecarregar" type="button">Atualizar</button>
+        </div>
+    </div>
+    <div class="iv-resumo" id="vtResumo"></div>
+    <div id="vtBarras"></div>
+    <div id="vtLista" class="vt-lista"></div>
+    <div class="iv-vazio" id="vtVazio">Carregando...</div>
+</div>
+
 <div class="dashboard" id="tabImersao">
     <div class="capa">
         <div class="capa-topo">
@@ -2252,6 +2289,7 @@
         <button class="tab subnav-btn" data-tab="direct" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l2-5.2A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg><span>Direct no Automático</span></button>
         <button class="tab subnav-btn" data-tab="aulabonus" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg><span>Aula ao vivo</span></button>
         <button class="tab subnav-btn" data-tab="turmavivo" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Turma ao vivo</span></button>
+        <button class="tab subnav-btn" data-tab="vibeturma" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.6 1.1-1a5.5 5.5 0 0 0 0-7.8z"/></svg><span>Vibe da turma</span></button>
     </div>
     </div>
     <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
@@ -2338,6 +2376,7 @@
         <button class="tab subnav-btn" data-tab="direct" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l2-5.2A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg><span>Direct no Automático</span></button>
         <button class="tab subnav-btn" data-tab="aulabonus" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg><span>Aula ao vivo</span></button>
         <button class="tab subnav-btn" data-tab="turmavivo" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Turma ao vivo</span></button>
+        <button class="tab subnav-btn" data-tab="vibeturma" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.6 1.1-1a5.5 5.5 0 0 0 0-7.8z"/></svg><span>Vibe da turma</span></button>
     </div>
     </div>
     <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
@@ -2412,6 +2451,7 @@
         <button class="tab subnav-btn" data-tab="direct" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l2-5.2A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg><span>Direct no Automático</span></button>
         <button class="tab subnav-btn" data-tab="aulabonus" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg><span>Aula ao vivo</span></button>
         <button class="tab subnav-btn" data-tab="turmavivo" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Turma ao vivo</span></button>
+        <button class="tab subnav-btn" data-tab="vibeturma" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.6 1.1-1a5.5 5.5 0 0 0 0-7.8z"/></svg><span>Vibe da turma</span></button>
     </div>
     </div>
 
@@ -3164,6 +3204,7 @@
     #tabImersao .capa .subnav-btn[data-tab="imersao"],
     #tabDirect .capa .subnav-btn[data-tab="direct"],
     #tabAulaBonus .capa .subnav-btn[data-tab="aulabonus"],
+    #tabVibeTurma .capa .subnav-btn[data-tab="vibeturma"],
     #tabTurmaVivo .capa .subnav-btn[data-tab="turmavivo"]{
         background:#fff;color:var(--accent);border-color:#fff;box-shadow:0 3px 10px rgba(0,0,0,.16);}
     .capa .subnav-btn svg{width:15px;height:15px;}
@@ -4925,6 +4966,31 @@
 .iv-topo p { font-size:12px; color:var(--text-soft); max-width:60ch; }
 #ivRecarregar { background:var(--accent); color:#fff; border:0; border-radius:8px; padding:9px 16px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; cursor:pointer; }
 #ivRecarregar:hover { background:var(--accent-dark); }
+.vt-topo { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:18px; }
+.vt-topo h2 { font-family:'DM Sans',sans-serif; font-size:16px; font-weight:700; margin-bottom:4px; }
+.vt-topo p { font-size:12px; color:var(--text-soft); max-width:62ch; }
+.vt-topo .vt-acoes { display:flex; gap:8px; }
+.vt-topo button { background:var(--accent); color:#fff; border:0; border-radius:8px; padding:9px 16px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; cursor:pointer; }
+.vt-topo button.fraco { background:var(--card); color:var(--text-soft); border:1px solid var(--border); }
+.vt-topo button:hover { filter:brightness(.95); }
+.vt-barras { display:grid; gap:9px; margin-bottom:22px; }
+.vt-barra { display:grid; grid-template-columns:230px 1fr 44px; gap:12px; align-items:center; font-size:13px; }
+.vt-barra .rot { color:var(--text-soft); }
+.vt-barra .trilho { background:var(--border); border-radius:6px; height:12px; overflow:hidden; }
+.vt-barra .trilho i { display:block; height:100%; background:var(--accent); border-radius:6px; }
+.vt-barra .num { font-family:'DM Sans',sans-serif; font-weight:700; text-align:right; }
+.vt-bloco-t { font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); margin:18px 0 10px; }
+.vt-lista { display:grid; gap:12px; }
+.vt-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px 18px; }
+.vt-card .quem { display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; margin-bottom:9px; }
+.vt-card .quem b { font-family:'DM Sans',sans-serif; font-size:15px; }
+.vt-card .quem span { font-size:12px; color:var(--text-soft); }
+.vt-chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+.vt-chip { background:var(--bg); border:1px solid var(--border); border-radius:100px; padding:4px 11px; font-size:12px; color:var(--text-soft); }
+.vt-chip.forte { background:var(--accent); border-color:var(--accent); color:#fff; }
+.vt-fala { border-left:3px solid var(--accent); padding:2px 0 2px 12px; margin:9px 0; font-size:13.5px; line-height:1.5; }
+.vt-fala small { display:block; font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); margin-bottom:3px; }
+@media (max-width:640px){ .vt-barra { grid-template-columns:1fr; gap:4px; } }
 .iv-dias { display:flex; gap:8px; }
 .iv-dia { background:var(--card); color:var(--text-soft); border:1px solid var(--border); border-radius:8px; padding:9px 15px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; cursor:pointer; transition:background .15s,color .15s,border-color .15s; }
 .iv-dia:hover { border-color:var(--accent); color:var(--text); }
@@ -5520,7 +5586,7 @@
     document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
 
     /* ── Tabs ── */
-    const PAGE_TITLES = { objetivos: 'Objetivos', carrossel: 'Carrossel', painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', turmavivo: 'Turma ao vivo', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', marcas: 'Marcas', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', aulabonus: 'Aula ao vivo', instagram: 'Instagram', bio: 'Link na Bio' };
+    const PAGE_TITLES = { objetivos: 'Objetivos', carrossel: 'Carrossel', painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', turmavivo: 'Turma ao vivo', vibeturma: 'Vibe da turma', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', marcas: 'Marcas', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', aulabonus: 'Aula ao vivo', instagram: 'Instagram', bio: 'Link na Bio' };
     function setPageTitle(target) {
         const el = document.getElementById('pageTitle');
         if (el && PAGE_TITLES[target]) el.textContent = PAGE_TITLES[target];
@@ -5533,7 +5599,7 @@
             /* Campanhas e Base de creators dividem o mesmo botao da barra lateral:
                ele precisa continuar aceso nas duas, inclusive quando a troca vem do
                menuzinho de cima (que tambem e um .tab e por isso limpou o active). */
-            const DONO_NA_BARRA = { candidaturas: 'creators', creators: 'creators', direct: 'imersao', imersao: 'imersao', aulabonus: 'imersao', turmavivo: 'imersao' };
+            const DONO_NA_BARRA = { candidaturas: 'creators', creators: 'creators', direct: 'imersao', imersao: 'imersao', aulabonus: 'imersao', turmavivo: 'imersao', vibeturma: 'imersao' };
             if (DONO_NA_BARRA[target]) {
                 const navBtn = document.querySelector('.sidebar-nav .nav-item[data-tab="' + DONO_NA_BARRA[target] + '"]');
                 if (navBtn) navBtn.classList.add('active');
@@ -5558,6 +5624,7 @@
             document.getElementById('tabDirect').classList.toggle('show', target === 'direct');
             document.getElementById('tabAulaBonus').classList.toggle('show', target === 'aulabonus');
             document.getElementById('tabTurmaVivo').classList.toggle('show', target === 'turmavivo');
+            document.getElementById('tabVibeTurma').classList.toggle('show', target === 'vibeturma');
             document.getElementById('tabInstagram').classList.toggle('show', target === 'instagram');
             document.getElementById('tabBio').classList.toggle('show', target === 'bio');
             document.getElementById('tabObjetivos').classList.toggle('show', target === 'objetivos');
@@ -5568,6 +5635,7 @@
             const _ta = document.getElementById('topbarActions');
             if (_ta && target !== 'planejamento') _ta.innerHTML = '';
             if (target === 'turmavivo') ligarImersaoVivo(); else pararImersaoVivo();
+            if (target === 'vibeturma') loadVibeTurma();
             if (target === 'agenda') loadAgenda();
             if (target === 'dashboard') loadDashboard();
             if (target === 'portfolio') loadPortfolio();
@@ -10299,6 +10367,125 @@
                 document.getElementById('ivResumo').innerHTML = '';
                 loadImersaoVivo();
             });
+        });
+    });
+
+
+    /* ================= Vibe da turma: as respostas do formulário ================= */
+    const VT_DIFS = ['Não sei onde encontrar marcas','Não sei quanto cobrar','Não tenho portfólio bom pra mandar',
+        'Mando proposta e ninguém responde','Não sei gravar ou roteirizar','Falta tempo e organização',
+        'Medo de me expor','A parte técnica me assusta'];
+    let vtLinhas = [];
+
+    function vtEsc(x) {
+        return String(x == null ? '' : x).replace(/[&<>"']/g, c =>
+            ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+    }
+    function vtBarras(titulo, contagem, total) {
+        const itens = Object.keys(contagem).sort((a,b) => contagem[b] - contagem[a]);
+        if (!itens.length) return '';
+        return '<div class="vt-bloco-t">' + vtEsc(titulo) + '</div><div class="vt-barras">' +
+            itens.map(k => {
+                const n = contagem[k], pct = total ? Math.round(n / total * 100) : 0;
+                return '<div class="vt-barra"><span class="rot">' + vtEsc(k) + '</span>' +
+                    '<span class="trilho"><i style="width:' + pct + '%"></i></span>' +
+                    '<span class="num">' + n + '</span></div>';
+            }).join('') + '</div>';
+    }
+    async function loadVibeTurma() {
+        const vazio = document.getElementById('vtVazio');
+        const resumo = document.getElementById('vtResumo');
+        const barras = document.getElementById('vtBarras');
+        const lista = document.getElementById('vtLista');
+        if (!vazio) return;
+        try {
+            const { data, error } = await sb.rpc('admin_imersao_pesquisa');
+            if (error) throw error;
+            vtLinhas = data || [];
+            if (!vtLinhas.length) {
+                resumo.innerHTML = ''; barras.innerHTML = ''; lista.innerHTML = '';
+                vazio.style.display = '';
+                vazio.textContent = 'Ninguém respondeu ainda. Assim que a primeira responder, aparece aqui.';
+                return;
+            }
+            vazio.style.display = 'none';
+            const total = vtLinhas.length;
+
+            const cDif = {}, cMomento = {}, cFechados = {}, cIa = {};
+            vtLinhas.forEach(l => {
+                (l.dificuldades || []).forEach(d => { cDif[d] = (cDif[d] || 0) + 1; });
+                if (l.momento) cMomento[l.momento] = (cMomento[l.momento] || 0) + 1;
+                if (l.fechados) cFechados[l.fechados] = (cFechados[l.fechados] || 0) + 1;
+                if (l.ia) cIa[l.ia] = (cIa[l.ia] || 0) + 1;
+            });
+            const topDif = Object.keys(cDif).sort((a,b) => cDif[b] - cDif[a])[0];
+            const comDuvida = vtLinhas.filter(l => (l.duvida || '').trim()).length;
+            const nuncaIa = vtLinhas.filter(l => l.ia === 'Nunca usei').length;
+
+            resumo.innerHTML =
+                '<div class="iv-bloco"><b>' + total + '</b><span>responderam</span></div>' +
+                '<div class="iv-bloco"><b>' + comDuvida + '</b><span>mandaram dúvida</span></div>' +
+                '<div class="iv-bloco"><b>' + (cMomento['Começando agora'] || 0) + '</b><span>começando agora</span></div>' +
+                '<div class="iv-bloco"><b>' + nuncaIa + '</b><span>nunca usaram IA</span></div>' +
+                (topDif ? '<div class="iv-bloco"><b>' + cDif[topDif] + '</b><span>travam em: ' + vtEsc(topDif) + '</span></div>' : '');
+
+            barras.innerHTML =
+                vtBarras('O que mais trava a turma', cDif, total) +
+                vtBarras('Em que momento elas estão', cMomento, total) +
+                vtBarras('Quantas marcas já fecharam', cFechados, total) +
+                vtBarras('O quanto já usam IA', cIa, total);
+
+            lista.innerHTML = '<div class="vt-bloco-t">Resposta por resposta</div>' + vtLinhas.map(l => {
+                const chips = (l.dificuldades || []).map(d => '<span class="vt-chip forte">' + vtEsc(d) + '</span>').join('');
+                const base = [l.momento, l.fechados ? (l.fechados === 'Nenhuma ainda' ? 'Nenhuma marca ainda' : l.fechados + ' marcas') : '', l.ia]
+                    .filter(Boolean).map(x => '<span class="vt-chip">' + vtEsc(x) + '</span>').join('');
+                const fala = (rot, txt) => (txt || '').trim()
+                    ? '<div class="vt-fala"><small>' + rot + '</small>' + vtEsc(txt) + '</div>' : '';
+                return '<div class="vt-card">' +
+                    '<div class="quem"><b>' + vtEsc(l.nome || '(sem nome)') + '</b><span>@' + vtEsc(l.arroba) + '</span></div>' +
+                    '<div class="vt-chips">' + base + chips + '</div>' +
+                    fala('Quer aprender', l.aprender) +
+                    fala('Dúvida pra aula', l.duvida) +
+                    fala('Contou também', l.extra) +
+                    '</div>';
+            }).join('');
+        } catch (err) {
+            vazio.style.display = '';
+            vazio.textContent = 'Não consegui carregar: ' + err.message;
+        }
+    }
+    function vtTexto() {
+        return vtLinhas.map(l => {
+            const p = [];
+            p.push((l.nome || 'sem nome') + ' (@' + l.arroba + ')');
+            if (l.momento) p.push('Momento: ' + l.momento);
+            if (l.fechados) p.push('Marcas fechadas: ' + l.fechados);
+            if ((l.dificuldades || []).length) p.push('Trava em: ' + l.dificuldades.join('; '));
+            if (l.ia) p.push('Usa IA: ' + l.ia);
+            if ((l.aprender || '').trim()) p.push('Quer aprender: ' + l.aprender.trim());
+            if ((l.duvida || '').trim()) p.push('Dúvida: ' + l.duvida.trim());
+            if ((l.extra || '').trim()) p.push('Contou também: ' + l.extra.trim());
+            return p.join('\n');
+        }).join('\n\n----\n\n');
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+        const r = document.getElementById('vtRecarregar');
+        if (r) r.addEventListener('click', loadVibeTurma);
+        const c = document.getElementById('vtCopiar');
+        if (c) c.addEventListener('click', () => {
+            if (!vtLinhas.length) return;
+            const txt = 'Respostas da turma da Imersão (' + vtLinhas.length + ' alunas)\n\n' + vtTexto();
+            const feito = () => { c.textContent = 'Copiado'; setTimeout(() => { c.textContent = 'Copiar tudo'; }, 1800); };
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(txt).then(feito).catch(naMao);
+            } else naMao();
+            function naMao() {
+                const ta = document.createElement('textarea');
+                ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+                document.body.appendChild(ta); ta.select();
+                try { document.execCommand('copy'); feito(); } catch (e) { c.textContent = 'Não deu'; }
+                document.body.removeChild(ta);
+            }
         });
     });
 
