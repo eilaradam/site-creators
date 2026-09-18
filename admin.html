@@ -2260,7 +2260,7 @@
 <div class="vt-topo">
         <div>
             <h2>Vibe da turma</h2>
-            <p>O que elas responderam no formulário antes da aula: em que ponto estão, o que trava, o que querem aprender e a dúvida que cada uma quer ver respondida ao vivo.</p>
+            <p>O que elas escreveram no formulário antes da aula: o que estão ansiosas pra aprender, a dúvida que querem ver respondida ao vivo e o que mais chamou atenção na imersão.</p>
         </div>
         <div class="vt-acoes">
             <button class="fraco" id="vtCopiar" type="button">Copiar tudo</button>
@@ -10418,26 +10418,23 @@
                 if (l.fechados) cFechados[l.fechados] = (cFechados[l.fechados] || 0) + 1;
                 if (l.ia) cIa[l.ia] = (cIa[l.ia] || 0) + 1;
             });
-            const topDif = Object.keys(cDif).sort((a,b) => cDif[b] - cDif[a])[0];
             const comDuvida = vtLinhas.filter(l => (l.duvida || '').trim()).length;
+            const comExpectativa = vtLinhas.filter(l => (l.aprender || '').trim()).length;
+            const comAtencao = vtLinhas.filter(l => (l.extra || '').trim()).length;
             const nuncaIa = vtLinhas.filter(l => l.ia === 'Nunca usei').length;
 
             resumo.innerHTML =
                 '<div class="iv-bloco"><b>' + total + '</b><span>responderam</span></div>' +
+                '<div class="iv-bloco"><b>' + comExpectativa + '</b><span>contaram o que esperam</span></div>' +
                 '<div class="iv-bloco"><b>' + comDuvida + '</b><span>mandaram dúvida</span></div>' +
-                '<div class="iv-bloco"><b>' + (cMomento['Começando agora'] || 0) + '</b><span>começando agora</span></div>' +
-                '<div class="iv-bloco"><b>' + nuncaIa + '</b><span>nunca usaram IA</span></div>' +
-                (topDif ? '<div class="iv-bloco"><b>' + cDif[topDif] + '</b><span>travam em: ' + vtEsc(topDif) + '</span></div>' : '');
+                '<div class="iv-bloco"><b>' + comAtencao + '</b><span>disseram o que chamou atenção</span></div>' +
+                '<div class="iv-bloco"><b>' + nuncaIa + '</b><span>nunca usaram IA</span></div>';
 
-            barras.innerHTML =
-                vtBarras('O que mais trava a turma', cDif, total) +
-                vtBarras('Em que momento elas estão', cMomento, total) +
-                vtBarras('Quantas marcas já fecharam', cFechados, total) +
-                vtBarras('O quanto já usam IA', cIa, total);
+            barras.innerHTML = vtBarras('O quanto já usam IA', cIa, total);
 
             lista.innerHTML = '<div class="vt-bloco-t">Resposta por resposta</div>' + vtLinhas.map(l => {
                 const chips = (l.dificuldades || []).map(d => '<span class="vt-chip forte">' + vtEsc(d) + '</span>').join('');
-                const base = [l.momento, l.fechados ? (l.fechados === 'Nenhuma ainda' ? 'Nenhuma marca ainda' : l.fechados + ' marcas') : '', l.ia]
+                const base = [l.momento, l.fechados, l.ia]
                     .filter(Boolean).map(x => '<span class="vt-chip">' + vtEsc(x) + '</span>').join('');
                 const fala = (rot, txt) => (txt || '').trim()
                     ? '<div class="vt-fala"><small>' + rot + '</small>' + vtEsc(txt) + '</div>' : '';
@@ -10446,7 +10443,7 @@
                     '<div class="vt-chips">' + base + chips + '</div>' +
                     fala('Quer aprender', l.aprender) +
                     fala('Dúvida pra aula', l.duvida) +
-                    fala('Contou também', l.extra) +
+                    fala('O que chamou atenção', l.extra) +
                     '</div>';
             }).join('');
         } catch (err) {
@@ -10462,9 +10459,9 @@
             if (l.fechados) p.push('Marcas fechadas: ' + l.fechados);
             if ((l.dificuldades || []).length) p.push('Trava em: ' + l.dificuldades.join('; '));
             if (l.ia) p.push('Usa IA: ' + l.ia);
-            if ((l.aprender || '').trim()) p.push('Quer aprender: ' + l.aprender.trim());
-            if ((l.duvida || '').trim()) p.push('Dúvida: ' + l.duvida.trim());
-            if ((l.extra || '').trim()) p.push('Contou também: ' + l.extra.trim());
+            if ((l.aprender || '').trim()) p.push('Está ansiosa pra aprender: ' + l.aprender.trim());
+            if ((l.duvida || '').trim()) p.push('Dúvida pra aula: ' + l.duvida.trim());
+            if ((l.extra || '').trim()) p.push('O que chamou atenção: ' + l.extra.trim());
             return p.join('\n');
         }).join('\n\n----\n\n');
     }
