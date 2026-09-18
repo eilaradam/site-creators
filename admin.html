@@ -84,7 +84,8 @@
         #tabCreators .subnav-btn[data-tab="creators"],
         #tabImersao .subnav-btn[data-tab="imersao"],
         #tabDirect .subnav-btn[data-tab="direct"],
-        #tabAulaBonus .subnav-btn[data-tab="aulabonus"] { color: var(--accent); border-bottom-color: var(--accent); }
+        #tabAulaBonus .subnav-btn[data-tab="aulabonus"],
+        #tabTurmaVivo .subnav-btn[data-tab="turmavivo"] { color: var(--accent); border-bottom-color: var(--accent); }
         @media (max-width: 860px) { .subnav-btn { padding: 10px 12px; font-size: 12.5px; } }
 
         /* ===== Shell: sidebar + topbar ===== */
@@ -1900,13 +1901,29 @@
         <button class="admin-subtab-btn active" data-admin-subtab="termos">Termos</button>
         <button class="admin-subtab-btn" data-admin-subtab="links">Links</button>
         <button class="admin-subtab-btn" data-admin-subtab="banners">Banners</button>
-        <button class="admin-subtab-btn" data-admin-subtab="imersao">Imersão ao vivo</button>
     </div>
     </div>
 
-<!-- ── Sub-aba: IMERSÃO AO VIVO ── -->
-<div class="admin-pane" id="tabImersao">
-    <div class="iv-topo">
+<!-- ── Aulas: TURMA AO VIVO ── -->
+<div class="dashboard" id="tabTurmaVivo">
+    <div class="capa">
+        <div class="capa-topo">
+            <div class="capa-id">
+                <span class="capa-mark">🎓</span>
+                <div>
+                    <h2>Aulas</h2>
+                    <p class="sub">As duas páginas de venda: quem visitou, quem clicou em comprar.</p>
+                </div>
+            </div>
+        </div>
+    <div class="capa-abas">
+        <button class="tab subnav-btn" data-tab="imersao" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Imersão</span></button>
+        <button class="tab subnav-btn" data-tab="direct" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l2-5.2A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg><span>Direct no Automático</span></button>
+        <button class="tab subnav-btn" data-tab="aulabonus" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg><span>Aula ao vivo</span></button>
+        <button class="tab subnav-btn" data-tab="turmavivo" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Turma ao vivo</span></button>
+    </div>
+    </div>
+<div class="iv-topo">
         <div>
             <h2>Imersão ao vivo</h2>
             <p>Quem está na apostila agora e em que etapa cada uma parou. Atualiza sozinho a cada 30 segundos enquanto esta aba estiver aberta.</p>
@@ -2227,6 +2244,7 @@
         <button class="tab subnav-btn" data-tab="imersao" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Imersão</span></button>
         <button class="tab subnav-btn" data-tab="direct" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l2-5.2A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg><span>Direct no Automático</span></button>
         <button class="tab subnav-btn" data-tab="aulabonus" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg><span>Aula ao vivo</span></button>
+        <button class="tab subnav-btn" data-tab="turmavivo" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Turma ao vivo</span></button>
     </div>
     </div>
     <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
@@ -2312,6 +2330,7 @@
         <button class="tab subnav-btn" data-tab="imersao" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Imersão</span></button>
         <button class="tab subnav-btn" data-tab="direct" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l2-5.2A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg><span>Direct no Automático</span></button>
         <button class="tab subnav-btn" data-tab="aulabonus" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg><span>Aula ao vivo</span></button>
+        <button class="tab subnav-btn" data-tab="turmavivo" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Turma ao vivo</span></button>
     </div>
     </div>
     <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
@@ -2385,6 +2404,7 @@
         <button class="tab subnav-btn" data-tab="imersao" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Imersão</span></button>
         <button class="tab subnav-btn" data-tab="direct" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l2-5.2A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg><span>Direct no Automático</span></button>
         <button class="tab subnav-btn" data-tab="aulabonus" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg><span>Aula ao vivo</span></button>
+        <button class="tab subnav-btn" data-tab="turmavivo" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Turma ao vivo</span></button>
     </div>
     </div>
 
@@ -3136,7 +3156,8 @@
     #tabCreators .capa .subnav-btn[data-tab="creators"],
     #tabImersao .capa .subnav-btn[data-tab="imersao"],
     #tabDirect .capa .subnav-btn[data-tab="direct"],
-    #tabAulaBonus .capa .subnav-btn[data-tab="aulabonus"]{
+    #tabAulaBonus .capa .subnav-btn[data-tab="aulabonus"],
+    #tabTurmaVivo .capa .subnav-btn[data-tab="turmavivo"]{
         background:#fff;color:var(--accent);border-color:#fff;box-shadow:0 3px 10px rgba(0,0,0,.16);}
     .capa .subnav-btn svg{width:15px;height:15px;}
     /* Botão de ação no canto direito da capa (recarregar, etc). */
@@ -5486,7 +5507,7 @@
     document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
 
     /* ── Tabs ── */
-    const PAGE_TITLES = { objetivos: 'Objetivos', carrossel: 'Carrossel', painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', marcas: 'Marcas', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', aulabonus: 'Aula ao vivo', instagram: 'Instagram', bio: 'Link na Bio' };
+    const PAGE_TITLES = { objetivos: 'Objetivos', carrossel: 'Carrossel', painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', turmavivo: 'Turma ao vivo', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', marcas: 'Marcas', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', aulabonus: 'Aula ao vivo', instagram: 'Instagram', bio: 'Link na Bio' };
     function setPageTitle(target) {
         const el = document.getElementById('pageTitle');
         if (el && PAGE_TITLES[target]) el.textContent = PAGE_TITLES[target];
@@ -5499,7 +5520,7 @@
             /* Campanhas e Base de creators dividem o mesmo botao da barra lateral:
                ele precisa continuar aceso nas duas, inclusive quando a troca vem do
                menuzinho de cima (que tambem e um .tab e por isso limpou o active). */
-            const DONO_NA_BARRA = { candidaturas: 'creators', creators: 'creators', direct: 'imersao', imersao: 'imersao', aulabonus: 'imersao' };
+            const DONO_NA_BARRA = { candidaturas: 'creators', creators: 'creators', direct: 'imersao', imersao: 'imersao', aulabonus: 'imersao', turmavivo: 'imersao' };
             if (DONO_NA_BARRA[target]) {
                 const navBtn = document.querySelector('.sidebar-nav .nav-item[data-tab="' + DONO_NA_BARRA[target] + '"]');
                 if (navBtn) navBtn.classList.add('active');
@@ -5523,6 +5544,7 @@
             document.getElementById('tabImersao').classList.toggle('show', target === 'imersao');
             document.getElementById('tabDirect').classList.toggle('show', target === 'direct');
             document.getElementById('tabAulaBonus').classList.toggle('show', target === 'aulabonus');
+            document.getElementById('tabTurmaVivo').classList.toggle('show', target === 'turmavivo');
             document.getElementById('tabInstagram').classList.toggle('show', target === 'instagram');
             document.getElementById('tabBio').classList.toggle('show', target === 'bio');
             document.getElementById('tabObjetivos').classList.toggle('show', target === 'objetivos');
@@ -5532,6 +5554,7 @@
             document.getElementById('sidebarBackdrop').classList.remove('show');
             const _ta = document.getElementById('topbarActions');
             if (_ta && target !== 'planejamento') _ta.innerHTML = '';
+            if (target === 'turmavivo') ligarImersaoVivo(); else pararImersaoVivo();
             if (target === 'agenda') loadAgenda();
             if (target === 'dashboard') loadDashboard();
             if (target === 'portfolio') loadPortfolio();
@@ -5588,12 +5611,10 @@
         document.getElementById('tabTermos').classList.toggle('show', target === 'termos');
         document.getElementById('tabLinks').classList.toggle('show', target === 'links');
         document.getElementById('tabBanners').classList.toggle('show', target === 'banners');
-        document.getElementById('tabImersao').classList.toggle('show', target === 'imersao');
         if (target === 'campanhas') updateCampanhaStats();
         if (target === 'gestao') loadGestao();
         if (target === 'termos') loadTermos();
         if (target === 'banners') loadAdminBanners();
-        if (target === 'imersao') ligarImersaoVivo(); else pararImersaoVivo();
     }
     document.querySelectorAll('.admin-subtab-btn').forEach(btn => {
         btn.addEventListener('click', () => showAdminSubtab(btn.dataset.adminSubtab));
