@@ -8,8 +8,16 @@ create table if not exists public.imersao_alunas (
   whatsapp   text,
   obs        text,
   ativo      boolean not null default true,
+  turma1     boolean not null default false,
+  turma2     boolean not null default false,
   created_at timestamptz not null default now()
 );
+-- Uma linha por aluna. Quem fez as duas turmas tem turma1 e turma2 = true,
+-- por isso sao dois booleanos e nao uma coluna "turma" so.
+comment on column public.imersao_alunas.turma1 is 'Aluna da Turma 1 da Imersao (11/07/2026).';
+comment on column public.imersao_alunas.turma2 is 'Aluna da Turma 2 da Imersao (19-20/09/2026). Quem repetiu tem as duas true.';
+create index if not exists imersao_alunas_turma1_idx on public.imersao_alunas (turma1);
+create index if not exists imersao_alunas_turma2_idx on public.imersao_alunas (turma2);
 comment on table public.imersao_alunas is 'Alunas da Imersao. Lista de disparo "imersao" no admin. ativo=false nao recebe email.';
 create index if not exists imersao_alunas_ativo_idx on public.imersao_alunas (ativo);
 
@@ -19,7 +27,15 @@ drop policy if exists "imersao_alunas admin" on public.imersao_alunas;
 create policy "imersao_alunas admin" on public.imersao_alunas
   for all to authenticated using (true) with check (true);
 
--- Os 44 contatos foram inseridos em 11/07/2026 (turma da Imersao Portfolio).
+-- Turma 1: 44 contatos inseridos em 11/07/2026 (Imersao Portfolio).
+-- Turma 2: 65 contatos inseridos em 19/09/2026, da planilha de vendas da Kiwify
+--   (so status "paid"; reembolsadas, recusadas e pix nao pago ficaram de fora).
+--   7 delas ja eram da Turma 1 e agora tem turma1 e turma2 = true.
 -- Para adicionar mais:
---   insert into public.imersao_alunas (nome, email, whatsapp) values ('Nome', 'email@x.com', '+5511999999999')
---   on conflict (email) do nothing;
+--   insert into public.imersao_alunas (nome, email, whatsapp, turma2) values ('Nome', 'email@x.com', '+5511999999999', true)
+--   on conflict (email) do update set turma2 = true, ativo = true;
+--
+-- No admin (aba Disparo) essa tabela vira 3 opcoes de destinatario:
+--   imersao     -> todas as alunas ativas (Turma 1 + 2)
+--   imersao_t1  -> so turma1 = true
+--   imersao_t2  -> so turma2 = true

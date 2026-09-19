@@ -56,9 +56,13 @@ Deno.serve(async (req) => {
       const recs: { nome: string; email: string }[] = [];
       if (job.destinatario === "teste") {
         recs.push({ nome: "Lara", email: "laradam.ugc@gmail.com" });
-      } else if (job.destinatario === "imersao") {
+      } else if (String(job.destinatario || "").startsWith("imersao")) {
         // Lista da Imersao: tabela propria, nao e a base de creators.
-        const { data, error } = await admin.from("imersao_alunas").select("nome,email").eq("ativo", true);
+        // "imersao" = todas as turmas; "imersao_t1"/"imersao_t2" = so aquela turma.
+        let qa = admin.from("imersao_alunas").select("nome,email").eq("ativo", true);
+        if (job.destinatario === "imersao_t1") qa = qa.eq("turma1", true);
+        if (job.destinatario === "imersao_t2") qa = qa.eq("turma2", true);
+        const { data, error } = await qa.limit(5000);
         if (error) throw error;
         const seen = new Set<string>();
         for (const a of (data || [])) {
