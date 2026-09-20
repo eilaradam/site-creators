@@ -24,7 +24,7 @@ const ESTILOS: Record<string, string> = {
   direta: "Direto ao ponto: apresentacao, conexao, proposta, pergunta. O mais parecido com o modelo da aula.",
   ideia: "Comeca pela ideia de conteudo, que e o gancho, e so depois se apresenta.",
   resultado: "Fala a lingua de quem compra midia: conteudo que parece feito por cliente, teste de criativo, uso em anuncio. Sem inventar numero.",
-  curta: "Versao enxuta: mantem a estrutura mas corta o paragrafo da janela e encurta tudo, no maximo 170 palavras, ainda com o P.S. no fim.",
+  curta: "Versao enxuta de verdade: no maximo 130 palavras, tres paragrafos curtos mais o fecho e o P.S.",
 };
 
 function limpar(t: unknown): string {
@@ -76,54 +76,51 @@ serve(async (req) => {
     // comia o {{detalhe}} e o {{link}}, que sao justamente o que a aluna troca
     // a cada marca.
     const sistema = [
-      "Voce escreve e-mails de prospeccao para criadoras de conteudo UGC brasileiras, no metodo da Lara Dam.",
-      "",
-      "Voce recebe respostas cruas, escritas do jeito que a pessoa fala, as vezes sem pontuacao, emendadas por virgula e fora de ordem.",
-      "Seu trabalho e REESCREVER e REDISTRIBUIR: quebrar em frases, arrumar a ordem, tirar o que repete e transformar em argumento. NUNCA cole a frase dela inteira dentro de uma frase sua. Se a resposta dela vier emendada por virgula, separe em frases.",
+      "Voce monta um e-mail de proposta de collab a partir dos campos que a creator preencheu.",
+      "Sua funcao NAO e encaixar as respostas dela num template. E reescrever o que ela disse como se ela mesma tivesse escrito direto, num dia bom.",
       "",
       "RESPONDA SO COM JSON, com exatamente estas chaves:",
       '{"assunto":"","apresentacao":"","motivo":"","ideia":"","credenciais":"","fecho_extra":"","ps":""}',
       "",
+      "REGRAS DE REESCRITA:",
+      "1. Preserve as palavras dela, principalmente as tortas e especificas. Se ela escreveu \"o doce que posso comer todo dia\", use exatamente isso e construa em cima. NUNCA normalize a fala dela pra vocabulario de negocio. Proibidas: uma otima opcao, excelente oportunidade, agregar valor, solucao ideal, parceria de sucesso.",
+      "2. Varie o tamanho das frases de proposito. Uma frase de quatro palavras perto de uma de vinte. Pode usar frase sem verbo, aposto, e um comentario solto entre virgulas, do jeito que a pessoa pensa enquanto escreve. Ritmo uniforme e o que mais entrega automacao.",
+      "3. NUNCA repita um dado. Se o tempo de mercado apareceu na apresentacao, nao volta no fim. Se ads apareceu uma vez, nao volta.",
+      "4. Concreto vence adjetivo. Em vez de dizer que o produto e bom, mostre o que acontece na cena: onde ela vai levar, o que vai fazer com aquilo, o que a camera pega.",
+      "5. NUNCA invente data, numero, prazo, detalhe da marca ou urgencia. Se um campo veio vazio, corte a frase inteira em vez de preencher com algo generico.",
+      "6. Identifique o campo mais forte e de espaco a ele. Se ela contou algo pessoal de verdade (mudanca, diagnostico, transicao, comeco de alguma coisa), isso e o CORACAO do e-mail: merece DUAS OU TRES frases, com o detalhe que ela deu, e vem logo no comeco. Os outros campos encolhem pra caber. Despachar isso em meia linha e o erro mais caro que voce pode cometer aqui.",
+      "7. Se o campo do que ela viu no site vier fraco, generico ou so repetindo o proprio produto, nao force: escreva sem esse elemento em vez de fingir especificidade.",
+      "8. PROIBIDO: travessao, emoji em qualquer lugar que nao seja o :) do fecho, falso contraste (nao e X, e Y), vou te contar por que, faz sentido ser agora e nao daqui a seis meses, isso vira conteudo em formato UGC, e qualquer frase que soe midia kit.",
+      "8a. LISTA NEGRA DO EXEMPLO: aeroporto, mala, mala de mao, rotulo, panqueca, ovo, ceramica, antiaderente, fogao, apartamento novo. Essas palavras sao do exemplo deste prompt. So podem aparecer se estiverem nas respostas DELA.",
+      "8b. A CENA tem que sair do que ELA escreveu. Desdobre com as palavras dela, sem acrescentar lugar, objeto ou evento que ela nao citou: se ela disse viagem, fale da viagem, nao invente aeroporto nem mala de mao. Nunca empreste cena ou objeto do exemplo que esta neste prompt.",
+      "8c. Nao crie missao, proposito, jornada, sonho realizado nem virada de vida pra ela. Ela contou um fato, nao um manifesto.",
+      "8d. O falso contraste esta proibido em qualquer forma, inclusive com exclamacao: nao e sonho, e realidade / nao e so isso, e aquilo / mais que X, e Y.",
+      "9. TESTE ANTES DE ENTREGAR: troque mentalmente o nome da marca e o produto por outros. Se o e-mail continuar funcionando, ele esta generico demais: volte e enraize nos detalhes que ela deu.",
+      "10. Tamanho alvo: 150 a 190 palavras no e-mail inteiro, fecho e P.S. incluidos. Se voce entregar menos de 150, cortou demais: volte e desenvolva o campo mais forte, que e onde o e-mail ganha ou perde.",
+      "",
       "O QUE VAI EM CADA CHAVE:",
-      "assunto: especifico, com cara de pessoa escrevendo pra pessoa, e se possivel citando o produto e o contexto dela. Exemplo bom: proposta de conteudo, {{produto}} na minha cozinha nova. Proibido: tom de anuncio, promessa, a palavra parceria, proposta comercial, ponto de exclamacao de propaganda.",
-      "apresentacao: uma frase com quem ela e, de onde ela e e o @ dela. Depois, como ela chegou na marca, usando O QUE ELA VIU NO SITE (item 5 das respostas). Forma: Cheguei em voces pesquisando {{produto}} e acabei ficando um tempao no site, principalmente <o que ela viu>. Se o item 5 vier vazio, escreva o marcador {{detalhe}} nesse lugar. NAO cite aqui tempo de estrada, numero de marcas nem prazo: isso vai em credenciais.",
-      "motivo: o contexto real da vida dela, reescrito em duas ou tres frases curtas, mostrando por que esse produto encaixa agora. Inclui o link do produto com o marcador {{link}}. NAO diga que isso e real ou que nao foi inventado pra fazer conteudo: quem precisa dizer que e verdade levanta suspeita, e o contexto ja prova sozinho.",
-      "ideia: a ideia de conteudo dela em TRES MOMENTOS concretos, tirados do que ela escreveu, com o detalhe sensorial que ela deu. Depois, no que isso vira em arquivo pra marca (video vertical e fotos pra usar como UGC, inclusive em trafego pago) e que ela documenta o processo no perfil dela, marcando a marca, com link nos stories. Diga isso UMA vez so: nao repita trafego, ads ou UGC em frases seguidas.",
-      "credenciais: uma frase curta so com o que ela deu (tempo de estrada, quantas marcas, como grava, prazo). Se houver observacoes extras sobre disponibilidade ou prazo, ELAS ENTRAM AQUI, no fim dessa mesma frase, nunca num paragrafo solto. Se ela nao deu nada disso, devolva string vazia.",
-      "fecho_extra: normalmente vazio. So use se as observacoes extras dela forem sobre outra coisa que nao caiba nas credenciais, e mesmo assim em uma frase.",
-      "ps: sempre este, com as palavras dela: independente dessa collab, me conta como funciona o processo de voces com criativos hoje? Se tiverem lista de creators, quero entrar nela.",
+      "assunto: curto e concreto, do jeito que uma pessoa escreveria. Pode citar o produto. Proibido tom de anuncio, promessa e a palavra parceria.",
+      "apresentacao: uma frase curta de quem ela e e o @, e EM SEGUIDA o comeco do campo mais forte, com as palavras dela. Nunca devolva so o nome e o @: paragrafo de uma linha so deixa o e-mail frio.",
+      "motivo: como ela chegou nesse produto e por que ele encaixa nela agora, com o link no marcador {{link}}. Se ela deu algo especifico que viu no site, use a frase dela aqui. Sem isso, nao invente especificidade.",
+      "ideia: a ideia de conteudo contada como cena, na voz dela: onde, quando, o que aparece. Depois, em UMA frase natural, o que a marca leva (video vertical e fotos em arquivo, inclusive pra ads) e que ela marca a marca nos stories com o link. Nada de catalogo de servico.",
+      "credenciais: UMA frase curta, so com o que ela deu e so com o que ainda nao foi dito. Se tudo ja apareceu antes, devolva string vazia.",
+      "fecho_extra: quase sempre vazio. So se sobrou uma informacao util dela que nao cabia em nenhum outro campo.",
+      "ps: sempre o mesmo texto dela.",
       "",
-      "PROIBIDO ESCREVER, em nenhuma variacao, porque sai igual pra todas e nao prova nada:",
-      "- Encontrei o site de voces e dei uma olhada em tudo",
-      "- Vou te contar por que eu vim falar com voces e nao com outra marca",
-      "- E por isso que faz sentido ser agora, e nao daqui a seis meses",
-      "- Qualquer urgencia, prazo, data ou janela que ela NAO tenha escrito. Sem data dela, sem urgencia nenhuma.",
-      "- Em troca do produto, pra voces conhecerem o meu trabalho na pratica. Ela nao pede aprovacao, ela oferece conteudo. Se for permuta, diga de forma direta e sem se diminuir.",
-      "- Isso e assunto real do meu dia a dia, nao inventado pra conteudo, e qualquer variacao disso.",
-      "- Se nao rolar, me avisa que a gente pensa em outra coisa, e qualquer variacao que ja ofereca saida pra marca antes de ela responder.",
-      "- Fico no aguardo, no aguardo do retorno, aguardo ansiosamente. O fecho de desejo ja fecha o e-mail.",
-      "- Trabalho com varios formatos, conteudo voltado pro ads e pra venda no trafego, solto no fim do paragrafo.",
+      "EXEMPLO. Entrada crua:",
+      "diferenciais: trabalho com criacao de conteudo a 3 anos e ja trabalhei com mais de 400 marcas",
+      "o que viu no site: estava rodando o feed do instagram e acabei encontrando o produto de voces! descobri uma intolerancia a lactose a pouco tempo e descobri um doce que posso comer todo dia! haha (parece ate um sonho)",
+      "conexao: quando descobri a intolerancia, pesquisei muito e nao encontrei tantas possibilidades, mas amei todas as opcoes de voces e acho que o mundo precisa saber disso",
+      "ideia: pensei em criarmos alguns conteudos em conjunto pra trafego pago, mostrando as possibilidades de levar no dia a dia, viagem e mais da rotina",
       "",
-      "COMO ESCREVER:",
-      "- Portugues do Brasil falado, caloroso, com conviccao. Ela fala com vontade, nao pede licenca e nao se diminui.",
-      "- Nada de venho por meio desta, espero que esteja bem, gostaria de propor, sou apaixonada por.",
-      "- Nunca use travessao. Use virgula, dois pontos ou ponto.",
-      "- O e-mail inteiro entre 180 e 220 palavras, contando tudo. NUNCA passe de 220: e-mail frio longo nao e lido no celular.",
-      "- Teto por campo, para nao estourar: apresentacao ate 45 palavras, motivo ate 45, ideia ate 65, credenciais ate 30, fecho_extra ate 20.",
-      "- PROIBIDO inventar numero, tempo de carreira, marca atendida, premio, metrica, prazo, data ou detalhe do site. Se ela nao disse, nao existe.",
-      "- PROIBIDAS as palavras de robo: autentico, cativante, envolvente, engajador, solucao perfeita, conteudo de qualidade, storytelling, jornada, universo da marca, parceria de sucesso.",
-      "- Um emoji no maximo no e-mail inteiro.",
-      "- MARCADORES: so {{pessoa}}, {{produto}}, {{detalhe}} e {{link}}, e so quando a informacao nao vier das respostas dela. Fora esses, nunca deixe colchete nem lacuna.",
+      "Saida esperada (178 palavras, escrita pela Lara, esse e o padrao de ritmo e de voz):",
+      "apresentacao: Sou a Lara, criadora de conteúdo UGC (@eilaradam). Descobri faz pouco tempo que sou intolerante à lactose e estou naquela fase de refazer tudo que eu comia, item por item. Doce foi o que mais doeu perder.",
+      "motivo: Cheguei no site de vocês procurando alguma coisa que eu pudesse comer sem pensar, e achei: {{link}}. É o primeiro doce em meses que eu não preciso ler o rótulo três vezes antes.",
+      "ideia: A ideia é levar comigo. Viajo bastante e é sempre nessa hora que a comida sem lactose some, então quero gravar isso: aeroporto, mala, dia corrido, e o doce resolvendo. Vídeo vertical e fotos em arquivo pra vocês usarem, inclusive em ads, e eu marco vocês nos stories com o link.",
+      "credenciais: Faço isso há 3 anos e já colaborei com mais de 400 marcas.",
       "",
-      "EXEMPLO DE SAIDA, escrito pela Lara, e esse e o padrao de TOM, RITMO e TAMANHO (cerca de 200 palavras no e-mail inteiro).",
-      "ATENCAO: o exemplo e de OUTRA pessoa. NUNCA reaproveite nenhum dado dele. Luz natural, 5 dias, 20 marcas, panelas, apartamento novo, ovo e panqueca: nada disso existe a menos que venha nas respostas que voce recebeu. Se as respostas forem curtas, o e-mail sai curto, e esta certo assim.",
-      "assunto: Ideia de conteúdo pro conjunto de panelas de vocês",
-      "apresentacao: Sou a Lara, criadora de conteúdo UGC há 3 anos (@eilaradam). Cheguei em vocês procurando {{produto}} e fiquei um tempão no site, principalmente na linha que não solta revestimento.",
-      "motivo: Acabei de me mudar pro meu primeiro apartamento e estou montando a cozinha do zero. As panelas são a última coisa que falta, e o conjunto de vocês é esse aqui ó: {{link}}.",
-      "ideia: Quero gravar a chegada da caixa, a primeira vez cozinhando (um ovo e uma panqueca, pra mostrar o quanto desgruda de verdade) e depois a lavagem, tudo em tempo real. Isso vira vídeo vertical e fotos pra vocês usarem como UGC e em tráfego pago, e eu documento no meu perfil com @ e link.",
-      "credenciais: Gravo em casa com luz natural, entrego em até 5 dias e já fiz pra mais de 20 marcas de casa e cozinha. Tenho as próximas duas semanas livres.",
-      "",
-      "ULTIMA CONFERIDA: leia o e-mail que voce escreveu e pergunte, frase por frase, de onde veio aquela informacao. Se alguma nao estiver nas respostas dela, apague a frase antes de responder.",
+      "Repare no exemplo: a dor veio pra frente, a frase da propria creator virou o eixo em vez de ser traduzida, o paragrafo de entrega foi dito em voz de pessoa e nao de tabela de servico, e o tempo de mercado aparece UMA vez so, no fim.",
+      "ATENCAO: o exemplo e de outra pessoa. Nunca reaproveite nenhum dado dele.",
       "",
       "ESTILO DESTA VERSAO: " + estilo,
     ].join("\n");
@@ -191,18 +188,8 @@ serve(async (req) => {
 
     if (!apresentacao && !motivo && !pIdeia) return json({ error: "ia_vazia" }, 502);
 
-    // rede de seguranca, sem duplicar o que a IA ja escreveu
-    const temChegada = /cheguei em voc|fiquei um tempão|ficando um tempão|conheci voc/i.test(apresentacao);
-    if (!temChegada) {
-      apresentacao += detalhe
-        ? " Cheguei em vocês pesquisando {{produto}} e acabei ficando um tempão no site, principalmente " + detalhe.replace(/^[,.]\s*/, "") + "."
-        : " Cheguei em vocês pesquisando {{produto}} e acabei ficando um tempão no site, principalmente em {{detalhe}}.";
-    } else if (!detalhe && !apresentacao.includes("{{detalhe}}")) {
-      // a IA as vezes inventa o detalhe do site: troca pelo marcador, nao acrescenta outro
-      apresentacao = /principalmente/i.test(apresentacao)
-        ? apresentacao.replace(/,?\s*principalmente[^.!?]*/i, ", principalmente {{detalhe}}")
-        : apresentacao.replace(/\s*$/, "").replace(/\.$/, "") + ", principalmente {{detalhe}}.";
-    }
+    // so o link tem rede de seguranca: e o unico que a aluna precisa trocar e que
+    // o modelo as vezes esquece. O resto segue a regra 7: nao forcar.
     if (!motivo.includes("{{link}}") && !/https?:\/\//.test(motivo)) {
       motivo = motivo.replace(/\s*$/, "") + " É esse aqui ó: {{link}}.";
     }
@@ -226,7 +213,7 @@ serve(async (req) => {
     // trava de tamanho: e-mail frio comprido nao e lido. So gasta uma segunda
     // chamada quando realmente estourou.
     const contar = (lista: string[]) => lista.join(" ").split(/\s+/).filter(Boolean).length;
-    if (contar(paragrafos) > 235) {
+    if (contar(paragrafos) > 205) {
       try {
         const corte = await fetch("https://api.openai.com/v1/chat/completions", {
           method: "POST",
@@ -241,7 +228,7 @@ serve(async (req) => {
                 role: "system",
                 content: [
                   "Voce enxuga e-mails sem mudar o sentido nem a voz de quem escreveu.",
-                  "Corte para no maximo 210 palavras no total.",
+                  "Corte para no maximo 185 palavras no total.",
                   "Mantenha todos os paragrafos que existem, na mesma ordem, e mantenha intactos os marcadores {{pessoa}}, {{produto}}, {{detalhe}}, {{link}} e {{data}}.",
                   "Nao invente nada, nao acrescente informacao, nao use travessao. So tire palavra e frase que sobra.",
                   'Responda so com JSON: {"paragrafos":["...","..."]}',
