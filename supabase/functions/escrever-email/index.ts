@@ -55,6 +55,7 @@ serve(async (req) => {
     const site = limpar(corpo.site) || "{{site}}";
     const cidade = limpar(corpo.cidade);
     const estilo = ESTILOS[String(corpo.estilo || "direta")] || ESTILOS.direta;
+    const formato = ["email", "dm", "followup"].includes(String(corpo.formato)) ? String(corpo.formato) : "email";
 
     // teto de uso
     const admin = createClient(
@@ -123,6 +124,29 @@ serve(async (req) => {
       "ATENCAO: o exemplo e de outra pessoa. Nunca reaproveite nenhum dado dele.",
       "",
       "ESTILO DESTA VERSAO: " + estilo,
+      "",
+      formato === "dm"
+        ? [
+            "FORMATO: MENSAGEM DE DIRECT NO INSTAGRAM, nao e-mail.",
+            "Devolva as chaves assim: assunto vazio, ps vazio, credenciais vazio, fecho_extra vazio.",
+            "Ponha a mensagem inteira em apresentacao, motivo e ideia, uma parte em cada, pra virarem tres blocos curtos.",
+            "No maximo 70 palavras no total. Frases curtas, uma ideia por linha, do jeito que se manda DM.",
+            "Comeca com Oieee! sem nome, porque na DM ela ja esta falando com a marca.",
+            "Nada de link de produto e nada de {{link}}. NAO cite o portfolio nem o link dele em lugar nenhum: o sistema acrescenta a linha do portfolio no fim sozinho, e se voce escrever tambem, sai duas vezes.",
+            "Termina com uma pergunta facil de responder.",
+          ].join("\n")
+        : formato === "followup"
+        ? [
+            "FORMATO: SEGUNDO E-MAIL, mandado alguns dias depois do primeiro, que nao teve resposta.",
+            "No maximo 70 palavras no total. Tres frases curtas, no maximo quatro.",
+            "assunto: curtinho, retomando o assunto anterior, tipo: sobre a ideia que eu mandei.",
+            "apresentacao: uma linha retomando o contato, sem cobranca e sem soar chateada. Nada de nao obtive retorno. NAO comece com Oi nem Oiee nem tudo bem: a saudacao ja vem pronta na linha de cima, e repetir fica estranho.",
+            "motivo: uma oferta NOVA que facilite o sim, tirada do que ela escreveu: gravar um teste curto antes de qualquer acordo, adaptar a ideia, mandar mais referencias.",
+            "ideia: string vazia, credenciais vazia, fecho_extra vazia.",
+            "ps: string vazia.",
+            "Nao repita a apresentacao dela nem as credenciais: ela ja se apresentou no primeiro e-mail.",
+          ].join("\n")
+        : "FORMATO: E-MAIL de primeiro contato, como descrito acima.",
     ].join("\n");
 
     const usuario = [
@@ -190,30 +214,41 @@ serve(async (req) => {
 
     // so o link tem rede de seguranca: e o unico que a aluna precisa trocar e que
     // o modelo as vezes esquece. O resto segue a regra 7: nao forcar.
-    if (!motivo.includes("{{link}}") && !/https?:\/\//.test(motivo)) {
+    if (formato === "email" && !motivo.includes("{{link}}") && !/https?:\/\//.test(motivo)) {
       motivo = motivo.replace(/\s*$/, "") + " É esse aqui ó: {{link}}.";
     }
 
     const arrobaOk = arroba ? (arroba.startsWith("@") ? arroba : "@" + arroba) : "";
-    const fecho = "Se fizer sentido, vai ser incrível ter vocês nesse projeto :)\nPortfólio: " + site;
-    const assinatura = "Att, " + (nome !== "{{nome}}" ? nome : "{{nome}}") + (arrobaOk ? " / " + arrobaOk : "");
+    const assinaturaCurta = "Att, " + (nome !== "{{nome}}" ? nome : "{{nome}}") + (arrobaOk ? " / " + arrobaOk : "");
 
-    const paragrafos: string[] = [
-      "Oieee {{pessoa}}, tudo bem?",
-      apresentacao,
-      motivo,
-      pIdeia,
-      pCred,
-      pExtra,
-      fecho,
-      assinatura,
-      ps,
-    ].filter(Boolean);
+    let paragrafos: string[] = [];
+    if (formato === "dm") {
+      paragrafos = [apresentacao, motivo, pIdeia, "Meu portfólio: " + site].filter(Boolean);
+    } else if (formato === "followup") {
+      paragrafos = [
+        "Oieee {{pessoa}}, tudo bem?",
+        apresentacao,
+        motivo,
+        assinaturaCurta,
+      ].filter(Boolean);
+    } else {
+      paragrafos = [
+        "Oieee {{pessoa}}, tudo bem?",
+        apresentacao,
+        motivo,
+        pIdeia,
+        pCred,
+        pExtra,
+        "Se fizer sentido, vai ser incrível ter vocês nesse projeto :)\nPortfólio: " + site,
+        assinaturaCurta,
+        ps,
+      ].filter(Boolean);
+    }
 
     // trava de tamanho: e-mail frio comprido nao e lido. So gasta uma segunda
     // chamada quando realmente estourou.
     const contar = (lista: string[]) => lista.join(" ").split(/\s+/).filter(Boolean).length;
-    if (contar(paragrafos) > 205) {
+    if (formato === "email" && contar(paragrafos) > 205) {
       try {
         const corte = await fetch("https://api.openai.com/v1/chat/completions", {
           method: "POST",
@@ -256,7 +291,7 @@ serve(async (req) => {
 
     return json({
       ok: true,
-      assunto: limpaRobo(o.assunto) || "Ideia de conteúdo pro {{produto}} de vocês",
+      assunto: formato === "dm" ? "" : (limpaRobo(o.assunto) || "Ideia de conteúdo pro {{produto}} de vocês"),
       paragrafos,
     });
   } catch (e) {
