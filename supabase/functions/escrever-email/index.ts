@@ -47,6 +47,7 @@ serve(async (req) => {
     const conexao = limpar(corpo.conexao);
     const ideia = limpar(corpo.ideia);
     const extras = limpar(corpo.extras);
+    const detalhe = limpar(corpo.detalhe);
     if (!dif && !conexao && !ideia) return json({ error: "vazio" }, 400);
 
     const nome = limpar(corpo.nome) || "{{nome}}";
@@ -77,30 +78,44 @@ serve(async (req) => {
     const sistema = [
       "Voce escreve e-mails de prospeccao para criadoras de conteudo UGC brasileiras, no metodo da Lara Dam.",
       "",
-      "Voce recebe respostas cruas, escritas do jeito que a pessoa fala, as vezes sem pontuacao e fora de ordem.",
-      "Voce reescreve isso como e-mail pronto pra marca ler: entende o que ela quis dizer, arruma, desenvolve e transforma em argumento, sem perder a voz dela e sem inventar fato nenhum.",
+      "Voce recebe respostas cruas, escritas do jeito que a pessoa fala, as vezes sem pontuacao, emendadas por virgula e fora de ordem.",
+      "Seu trabalho e REESCREVER e REDISTRIBUIR: quebrar em frases, arrumar a ordem, tirar o que repete e transformar em argumento. NUNCA cole a frase dela inteira dentro de uma frase sua. Se a resposta dela vier emendada por virgula, separe em frases.",
       "",
       "RESPONDA SO COM JSON, com exatamente estas chaves:",
-      '{"assunto":"","apresentacao":"","motivo":"","ideia":"","credenciais":"","janela":"","ps":""}',
+      '{"assunto":"","apresentacao":"","motivo":"","ideia":"","credenciais":"","fecho_extra":"","ps":""}',
       "",
       "O QUE VAI EM CADA CHAVE:",
-      "assunto: simples e pessoal, fala da ideia ou do produto. Bom: Ideia de conteúdo pro {{produto}} de vocês. Proibido: tom de anuncio, promessa, a palavra parceria, proposta comercial.",
-      "apresentacao: quem ela e, de onde ela e e o @ dela, em uma frase. NAO cite aqui tempo de estrada, quantidade de marcas nem prazo: isso vai no campo credenciais, e repetir fica feio. Depois, OBRIGATORIAMENTE, como ela chegou na marca, nesta forma: Cheguei em vocês procurando {{produto}} e acabei ficando um tempão no site, principalmente em {{detalhe}}. Pode variar as palavras, mas {{produto}} e {{detalhe}} tem que aparecer.",
-      "motivo: por que ela esta mandando AGORA. O contexto real da vida dela que explica o desejo por esse produto neste momento, e o produto especifico com o link, OBRIGATORIAMENTE com o marcador {{link}} escrito (exemplo: é esse aqui ó: {{link}}). Fecha lembrando que isso nao e assunto inventado pra fazer conteudo, e o que esta acontecendo na vida dela agora.",
-      "ideia: a ideia de conteudo em TRES MOMENTOS concretos, tirados do que ela escreveu (por exemplo a chegada, o uso real, o resultado ou o antes e depois). Diz no que isso vira em arquivo pra marca: video vertical e fotos pra usar como UGC e em trafego pago. Termina dizendo que ela documenta o processo no perfil dela, marcando a marca e com link nos stories.",
-      "credenciais: uma frase curta so com o que ela deu: tempo de estrada, quantas marcas, como grava, prazo de entrega. Se ela nao deu nada disso, devolva string vazia.",
-      "janela: SO se ela citou data, evento ou prazo. Um trecho curto e transparente sobre a janela ser curta, ate quando precisaria da confirmacao pro produto dar tempo de chegar, e que se nao rolar e so avisar que se pensa em outra coisa. Se ela nao citou data nenhuma, devolva string vazia.",
-      "ps: sempre este, com as palavras dela: independente dessa collab, me conta como funciona o processo de vocês com criativos hoje? Se tiverem uma lista de creators, quero entrar nela.",
+      "assunto: especifico, com cara de pessoa escrevendo pra pessoa, e se possivel citando o produto e o contexto dela. Exemplo bom: proposta de conteudo, {{produto}} na minha cozinha nova. Proibido: tom de anuncio, promessa, a palavra parceria, proposta comercial, ponto de exclamacao de propaganda.",
+      "apresentacao: uma frase com quem ela e, de onde ela e e o @ dela. Depois, como ela chegou na marca, usando O QUE ELA VIU NO SITE (item 5 das respostas). Forma: Cheguei em voces pesquisando {{produto}} e acabei ficando um tempao no site, principalmente <o que ela viu>. Se o item 5 vier vazio, escreva o marcador {{detalhe}} nesse lugar. NAO cite aqui tempo de estrada, numero de marcas nem prazo: isso vai em credenciais.",
+      "motivo: o contexto real da vida dela, reescrito em frases curtas, mostrando por que esse produto encaixa agora. Inclui o link do produto com o marcador {{link}}. Fecha com a ideia de que isso esta acontecendo de verdade, nao e assunto inventado pra fazer conteudo.",
+      "ideia: a ideia de conteudo dela em TRES MOMENTOS concretos, tirados do que ela escreveu, com o detalhe sensorial que ela deu. Depois, no que isso vira em arquivo pra marca (video vertical e fotos pra usar como UGC, inclusive em trafego pago) e que ela documenta o processo no perfil dela, marcando a marca, com link nos stories. Diga isso UMA vez so: nao repita trafego, ads ou UGC em frases seguidas.",
+      "credenciais: uma frase curta so com o que ela deu (tempo de estrada, quantas marcas, como grava, prazo). Se houver observacoes extras sobre disponibilidade ou prazo, ELAS ENTRAM AQUI, no fim dessa mesma frase, nunca num paragrafo solto. Se ela nao deu nada disso, devolva string vazia.",
+      "fecho_extra: normalmente vazio. So use se as observacoes extras dela forem sobre outra coisa que nao caiba nas credenciais, e mesmo assim em uma frase.",
+      "ps: sempre este, com as palavras dela: independente dessa collab, me conta como funciona o processo de voces com criativos hoje? Se tiverem lista de creators, quero entrar nela.",
+      "",
+      "PROIBIDO ESCREVER, em nenhuma variacao, porque sai igual pra todas e nao prova nada:",
+      "- Encontrei o site de voces e dei uma olhada em tudo",
+      "- Vou te contar por que eu vim falar com voces e nao com outra marca",
+      "- E por isso que faz sentido ser agora, e nao daqui a seis meses",
+      "- Qualquer urgencia, prazo, data ou janela que ela NAO tenha escrito. Sem data dela, sem urgencia nenhuma.",
+      "- Em troca do produto, pra voces conhecerem o meu trabalho na pratica. Ela nao pede aprovacao, ela oferece conteudo. Se for permuta, diga de forma direta e sem se diminuir.",
+      "- Trabalho com varios formatos, conteudo voltado pro ads e pra venda no trafego, solto no fim do paragrafo.",
       "",
       "COMO ESCREVER:",
       "- Portugues do Brasil falado, caloroso, com conviccao. Ela fala com vontade, nao pede licenca e nao se diminui.",
-      "- Nada de 'venho por meio desta', 'espero que esteja bem', 'gostaria de propor', 'sou apaixonada por'.",
+      "- Nada de venho por meio desta, espero que esteja bem, gostaria de propor, sou apaixonada por.",
       "- Nunca use travessao. Use virgula, dois pontos ou ponto.",
-      "- Cada campo tem de uma a quatro frases. O e-mail inteiro fica entre 230 e 330 palavras.",
-      "- PROIBIDO inventar numero, tempo de carreira, marca atendida, premio, metrica, prazo, data ou resultado que ela nao escreveu. Se ela nao disse, escreva a frase sem aquilo.",
+      "- O e-mail inteiro entre 200 e 300 palavras.",
+      "- PROIBIDO inventar numero, tempo de carreira, marca atendida, premio, metrica, prazo, data ou detalhe do site. Se ela nao disse, nao existe.",
       "- PROIBIDAS as palavras de robo: autentico, cativante, envolvente, engajador, solucao perfeita, conteudo de qualidade, storytelling, jornada, universo da marca, parceria de sucesso.",
       "- Um emoji no maximo no e-mail inteiro.",
-      "- MARCADORES: use so {{pessoa}}, {{produto}}, {{detalhe}}, {{link}} e {{data}}. {{detalhe}} e {{link}} nunca vem nas respostas dela, entao vao sempre escritos assim mesmo, porque e o que ela troca a cada marca. Fora esses cinco, nunca deixe colchete nem lacuna.",
+      "- MARCADORES: so {{pessoa}}, {{produto}}, {{detalhe}} e {{link}}, e so quando a informacao nao vier das respostas dela. Fora esses, nunca deixe colchete nem lacuna.",
+      "",
+      "EXEMPLO DE SAIDA, escrito pela Lara, e esse e o padrao de tom, ritmo e tamanho:",
+      "apresentacao: Aqui é a Ana, criadora de conteúdo UGC de Curitiba (@anacozinha). Cheguei em vocês pesquisando panela de cerâmica e acabei ficando um tempão no site, principalmente na linha que não solta revestimento.",
+      "motivo: Acabei de me mudar pro meu primeiro apartamento e estou montando a cozinha do zero. Parei de usar antiaderente, então vinha pesquisando cerâmica faz um tempo, e o conjunto de vocês é o que cabe no meu fogão e no meu orçamento: {{link}}. As panelas são literalmente a última coisa que falta aqui.",
+      "ideia: A ideia que eu já tenho na cabeça é gravar a chegada da caixa, a primeira vez cozinhando (quero fazer um ovo e uma panqueca pra mostrar o quanto desgruda de verdade) e depois a lavagem, sem corte mágico, tudo em tempo real. Isso vira vídeo vertical em arquivo pra vocês usarem como UGC, inclusive em tráfego pago, e eu documento a cozinha ficando pronta no meu perfil, marcando vocês e com link.",
+      "credenciais: Gravo tudo em casa com luz natural, entrego em até 5 dias e já fiz conteúdo pra mais de 20 marcas de casa e cozinha. Tenho disponibilidade nas próximas duas semanas.",
       "",
       "ESTILO DESTA VERSAO: " + estilo,
     ].join("\n");
@@ -118,6 +133,8 @@ serve(async (req) => {
       "3) IDEIA DE CONTEUDO: " + (ideia || "(nao respondeu, proponha gravar o uso real do produto em tres momentos)"),
       "",
       "4) OBSERVACOES EXTRAS: " + (extras || "(nenhuma)"),
+      "",
+      "5) O QUE ELA VIU NO SITE DESSA MARCA: " + (detalhe || "(nao respondeu, use o marcador {{detalhe}} literalmente)"),
     ].filter(Boolean).join("\n");
 
     const res = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -160,21 +177,28 @@ serve(async (req) => {
     let motivo = limpaRobo(o.motivo);
     const pIdeia = limpaRobo(o.ideia);
     const pCred = limpaRobo(o.credenciais);
-    const pJanela = limpaRobo(o.janela);
-    const ps = limpaRobo(o.ps) ||
-      "P.S.: independente dessa collab, me conta como funciona o processo de vocês com criativos hoje? Se tiverem uma lista de creators, quero entrar nela.";
+    const pExtra = limpaRobo(o.fecho_extra);
+    // o P.S. e sempre o texto dela, com acento e tudo: a IA vive devolvendo "voces"
+    const ps = "P.S.: independente dessa collab, me conta como funciona o processo de vocês com criativos hoje? Se tiverem lista de creators, quero entrar nela.";
 
     if (!apresentacao && !motivo && !pIdeia) return json({ error: "ia_vazia" }, 502);
 
-    // o esqueleto e garantido aqui, nao no humor do modelo
-    if (!apresentacao.includes("{{detalhe}}")) {
-      apresentacao += " Cheguei em vocês procurando {{produto}} e acabei ficando um tempão no site, principalmente em {{detalhe}}.";
+    // rede de seguranca, sem duplicar o que a IA ja escreveu
+    const temChegada = /cheguei em voc|fiquei um tempão|ficando um tempão|conheci voc/i.test(apresentacao);
+    if (!temChegada) {
+      apresentacao += detalhe
+        ? " Cheguei em vocês pesquisando {{produto}} e acabei ficando um tempão no site, principalmente " + detalhe.replace(/^[,.]\s*/, "") + "."
+        : " Cheguei em vocês pesquisando {{produto}} e acabei ficando um tempão no site, principalmente em {{detalhe}}.";
+    } else if (!detalhe && !apresentacao.includes("{{detalhe}}")) {
+      apresentacao = apresentacao.replace(/\.$/, "") + ", principalmente em {{detalhe}}.";
     }
-    if (!motivo.includes("{{link}}")) {
-      motivo += " É esse aqui ó: {{link}}.";
+    if (!motivo.includes("{{link}}") && !/https?:\/\//.test(motivo)) {
+      motivo = motivo.replace(/\s*$/, "") + " É esse aqui ó: {{link}}.";
     }
-    const assinatura = "Fico no aguardo! " + (nome !== "{{nome}}" ? nome : "{{nome}}") + (arroba ? " " + arroba : "");
-    const fecho = "Se fizer sentido, vai ser incrível ter vocês nesse projeto :) Portfólio: " + site;
+
+    const arrobaOk = arroba ? (arroba.startsWith("@") ? arroba : "@" + arroba) : "";
+    const fecho = "Se fizer sentido, vai ser incrível ter vocês nesse projeto :)\nPortfólio: " + site;
+    const assinatura = "Att, " + (nome !== "{{nome}}" ? nome : "{{nome}}") + (arrobaOk ? "\n" + arrobaOk : "");
 
     const paragrafos = [
       "Oieee {{pessoa}}, tudo bem?",
@@ -182,10 +206,10 @@ serve(async (req) => {
       motivo,
       pIdeia,
       pCred,
-      pJanela,
+      pExtra,
       fecho,
       assinatura,
-      ps.startsWith("P.S") ? ps : "P.S.: " + ps,
+      ps,
     ].filter(Boolean);
 
     try { await admin.from("email_ia_uso").insert({ dia: hoje, ip }); } catch (_) { /* log e opcional */ }
