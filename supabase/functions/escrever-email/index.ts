@@ -20,6 +20,10 @@ const LIMITE_IP = 40;      // por IP por dia
 const LIMITE_DIA = 700;    // total por dia, pra chave nao virar torneira aberta
 const MAX_CAMPO = 1200;    // caracteres por resposta
 
+const ESTILOS_PLATAFORMA: Record<string, string> = {
+  direta: "Caminho dos NUMEROS. A primeira linha e o numero mais forte dela ou o nicho, nunca o entusiasmo pelo produto. Depois a saudacao curta, os numeros dela e a frase de desejo. Maximo 70 palavras.",
+  ideia: "Caminho do ENTUSIASMO. Abre com o que ela sente pelo produto, do jeito dela, e segue com as ideias que ela ja teve. Nao cite numero de marcas nem de videos aqui, mesmo que ela tenha dado. Maximo 70 palavras.",
+};
 const ESTILOS: Record<string, string> = {
   direta: "Direto ao ponto: apresentacao, conexao, proposta, pergunta. O mais parecido com o modelo da aula.",
   ideia: "Comeca pela ideia de conteudo, que e o gancho, e so depois se apresenta.",
@@ -54,7 +58,11 @@ serve(async (req) => {
     const arroba = limpar(corpo.arroba);
     const site = limpar(corpo.site) || "{{site}}";
     const cidade = limpar(corpo.cidade);
-    const estilo = ESTILOS[String(corpo.estilo || "direta")] || ESTILOS.direta;
+    const estiloBruto = String(corpo.estilo || "direta");
+    const ehPlataforma = String(corpo.formato) === "plataforma";
+    const estilo = ehPlataforma
+      ? (ESTILOS_PLATAFORMA[estiloBruto] || ESTILOS_PLATAFORMA.direta)
+      : (ESTILOS[estiloBruto] || ESTILOS.direta);
     const formato = ["email", "dm", "followup", "plataforma"].includes(String(corpo.formato)) ? String(corpo.formato) : "email";
 
     // teto de uso
@@ -148,15 +156,29 @@ serve(async (req) => {
           ].join("\n")
         : formato === "plataforma"
         ? [
-            "FORMATO: CANDIDATURA EM PLATAFORMA DE CAMPANHA (tipo Seu Influencer). A marca publicou uma campanha e vai ler uma pilha de candidaturas seguidas, entao as primeiras duas linhas decidem tudo.",
+            "FORMATO: CANDIDATURA EM PLATAFORMA DE CAMPANHA (tipo Seu Influencer). A marca publicou uma campanha e le uma pilha de candidaturas seguidas.",
+            "Esse formato NAO e e-mail. E curto, animado e direto, e o que decide e a primeira linha.",
             "Devolva: assunto vazio, ps vazio, fecho_extra vazio.",
-            "NAO comece com saudacao a ninguem: nao existe destinatario com nome aqui. Comece direto por quem ela e.",
-            "apresentacao: duas ou tres frases. Quem ela e, e POR QUE ela e a pessoa certa pra essa campanha, usando o motivo pessoal dela. E aqui que ela ganha ou perde.",
-            "motivo: a ideia de conteudo dela como cena concreta, pensada pra essa campanha. Sem link de produto e sem {{link}}.",
-            "ideia: o que ela entrega em arquivo (video vertical, fotos, cortes), prazo e formatos, em UMA frase direta, mais uma frase final curta se colocando a disposicao pra ajustar a ideia ao briefing da marca.",
-            "credenciais: uma frase curta so com o que ela deu, se ainda nao apareceu.",
-            "Total entre 90 e 140 palavras. Candidatura longa nao e lida ate o fim.",
-            "Nada de {{pessoa}}: aqui nao se sabe quem le.",
+            "TAMANHO: entre 40 e 80 palavras no total. NUNCA passe de 90. Candidatura comprida perde pra curta.",
+            "NAO use {{pessoa}}, {{produto}}, {{link}} nem {{detalhe}}: aqui nao se sabe quem le e nao existe pagina de produto.",
+            "Emoji e permitido e ate bem-vindo aqui, no maximo dois no texto todo (🎬 ✨ 🫶🏼 sao os que ela usa).",
+            "Se usar o @ dela, ponha entre parenteses logo depois do nome, tipo Sou a Bruna (@brunacachos). Nunca solte o @ no fim de uma frase.",
+            "",
+            "ESTRUTURA, e cada item vai numa chave:",
+            "apresentacao: comeca com UMA linha de gancho, que pode ser o nicho dela ou o numero mais forte que ela deu, seguida da saudacao curta e animada e de quem ela e com os numeros. Exemplo de gancho: Sou especialista no nicho TECH! ou + de 500 conteudos criados so no ultimo ano! ✨",
+            "motivo: SO se ela tiver contado uma conexao real com o produto. Uma ou duas frases de entusiasmo verdadeiro, com o detalhe dela. Se ela nao deu conexao nenhuma, devolva string vazia: e melhor curto do que forcado.",
+            "ideia: uma frase de desejo de trabalhar junto, tipo adoraria fazer parte desse trabalho e construir algo incrivel juntos, ou, se ela deu ideia de conteudo, uma linha dizendo que ja tem ideias de como usar o produto. Nunca detalhe a ideia inteira aqui: isso e candidatura, nao proposta.",
+            "credenciais: so se sobrou alguma coisa forte que nao coube na apresentacao (nota fiscal, nichos, nomes de marcas que ela citou). Senao, vazio.",
+            "",
+            "TRES CANDIDATURAS REAIS DELA QUE FORAM APROVADAS, esse e o alvo:",
+            "1) Oie, equipe! Cheguei 🎬\\nSou criadora de conteúdo há mais de 2 anos e, nesse tempo, já trabalhei com mais de 300 marcas e produzi mais de 500 vídeos.\\nAdoraria fazer parte desse trabalho e construir algo incrível juntos!",
+            "2) + de 500 conteúdos criados só no último ano! ✨\\nOie, sou criadora de conteúdo há mais de 2 anos e, nesse tempo, já trabalhei com mais de 300 marcas e produzi mais de 500 vídeos!\\nEspecialista no nicho TECH. Emito Nota Fiscal.",
+            "3) Olá equipe!\\nVocês acabaram de encontrar a UGC mais apaixonada por bubbles dessa plataforma 😂🫶🏼\\nRealmente sou muito fã e sempre compro com sucos, mas não sabia que existia a possibilidade de comprar o produto individual, incrível!\\nJá tive algumas ideias de como usar o produto e to super animada pra colaborarmos juntos nessa!",
+            "",
+            "Nos exemplos acima a barra invertida n e quebra de linha: escreva em linhas curtas, nao ponha barra nenhuma no texto.",
+            "NAO cite portfolio, link nem endereco de site em lugar nenhum: o sistema poe a ultima linha do portfolio sozinho, e escrito por voce tambem sai duas vezes.",
+            "Repare: a 3 nao tem numero nenhum, e o entusiasmo especifico pelo produto que carrega. Use esse caminho quando a creator deu uma conexao real. Use o caminho das outras duas quando o forte dela sao os numeros.",
+            "ATENCAO: os numeros dos exemplos (2 anos, 300 marcas, 500 videos) sao DELA. Nunca use numero que nao esteja nas respostas que voce recebeu.",
           ].join("\n")
         : "FORMATO: E-MAIL de primeiro contato, como descrito acima.",
     ].join("\n");
@@ -210,6 +232,7 @@ serve(async (req) => {
         .replace(/\benvolvente(s)?\b/gi, "boa")
         .replace(/solu[çc][ãa]o perfeita/gi, "o que resolve")
         .replace(/\bengajador(a|es|as)?\b/gi, "que funciona")
+       .replace(/\bjornada\b/gi, "história")
         .replace(/de verdade de verdade/gi, "de verdade")
         .replace(/\s{2,}/g, " ")
         .trim();
@@ -237,7 +260,11 @@ serve(async (req) => {
     if (formato === "dm") {
       paragrafos = [apresentacao, motivo, pIdeia, "Meu portfólio: " + site].filter(Boolean);
     } else if (formato === "plataforma") {
-      paragrafos = [apresentacao, motivo, pIdeia, pCred, "Meu portfólio: " + site].filter(Boolean);
+      // aqui nao existe marcador pra trocar, entao o que sobrar de {{...}} sai fora
+      const semChave = (t: string) => t.replace(/\{\{[^}]*\}\}/g, "").replace(/\s{2,}/g, " ").replace(/\s+([.,!?])/g, "$1").trim();
+      apresentacao = semChave(apresentacao);
+      motivo = semChave(motivo);
+      paragrafos = [apresentacao, motivo, semChave(pIdeia), semChave(pCred), "Deixo aqui meu portfólio com alguns dos meus vídeos favoritos:\n" + site].filter(Boolean);
     } else if (formato === "followup") {
       paragrafos = [
         "Oieee {{pessoa}}, tudo bem?",
