@@ -87,7 +87,7 @@ serve(async (req) => {
       "O QUE VAI EM CADA CHAVE:",
       "assunto: especifico, com cara de pessoa escrevendo pra pessoa, e se possivel citando o produto e o contexto dela. Exemplo bom: proposta de conteudo, {{produto}} na minha cozinha nova. Proibido: tom de anuncio, promessa, a palavra parceria, proposta comercial, ponto de exclamacao de propaganda.",
       "apresentacao: uma frase com quem ela e, de onde ela e e o @ dela. Depois, como ela chegou na marca, usando O QUE ELA VIU NO SITE (item 5 das respostas). Forma: Cheguei em voces pesquisando {{produto}} e acabei ficando um tempao no site, principalmente <o que ela viu>. Se o item 5 vier vazio, escreva o marcador {{detalhe}} nesse lugar. NAO cite aqui tempo de estrada, numero de marcas nem prazo: isso vai em credenciais.",
-      "motivo: o contexto real da vida dela, reescrito em frases curtas, mostrando por que esse produto encaixa agora. Inclui o link do produto com o marcador {{link}}. Fecha com a ideia de que isso esta acontecendo de verdade, nao e assunto inventado pra fazer conteudo.",
+      "motivo: o contexto real da vida dela, reescrito em duas ou tres frases curtas, mostrando por que esse produto encaixa agora. Inclui o link do produto com o marcador {{link}}. NAO diga que isso e real ou que nao foi inventado pra fazer conteudo: quem precisa dizer que e verdade levanta suspeita, e o contexto ja prova sozinho.",
       "ideia: a ideia de conteudo dela em TRES MOMENTOS concretos, tirados do que ela escreveu, com o detalhe sensorial que ela deu. Depois, no que isso vira em arquivo pra marca (video vertical e fotos pra usar como UGC, inclusive em trafego pago) e que ela documenta o processo no perfil dela, marcando a marca, com link nos stories. Diga isso UMA vez so: nao repita trafego, ads ou UGC em frases seguidas.",
       "credenciais: uma frase curta so com o que ela deu (tempo de estrada, quantas marcas, como grava, prazo). Se houver observacoes extras sobre disponibilidade ou prazo, ELAS ENTRAM AQUI, no fim dessa mesma frase, nunca num paragrafo solto. Se ela nao deu nada disso, devolva string vazia.",
       "fecho_extra: normalmente vazio. So use se as observacoes extras dela forem sobre outra coisa que nao caiba nas credenciais, e mesmo assim em uma frase.",
@@ -99,23 +99,30 @@ serve(async (req) => {
       "- E por isso que faz sentido ser agora, e nao daqui a seis meses",
       "- Qualquer urgencia, prazo, data ou janela que ela NAO tenha escrito. Sem data dela, sem urgencia nenhuma.",
       "- Em troca do produto, pra voces conhecerem o meu trabalho na pratica. Ela nao pede aprovacao, ela oferece conteudo. Se for permuta, diga de forma direta e sem se diminuir.",
+      "- Isso e assunto real do meu dia a dia, nao inventado pra conteudo, e qualquer variacao disso.",
+      "- Se nao rolar, me avisa que a gente pensa em outra coisa, e qualquer variacao que ja ofereca saida pra marca antes de ela responder.",
+      "- Fico no aguardo, no aguardo do retorno, aguardo ansiosamente. O fecho de desejo ja fecha o e-mail.",
       "- Trabalho com varios formatos, conteudo voltado pro ads e pra venda no trafego, solto no fim do paragrafo.",
       "",
       "COMO ESCREVER:",
       "- Portugues do Brasil falado, caloroso, com conviccao. Ela fala com vontade, nao pede licenca e nao se diminui.",
       "- Nada de venho por meio desta, espero que esteja bem, gostaria de propor, sou apaixonada por.",
       "- Nunca use travessao. Use virgula, dois pontos ou ponto.",
-      "- O e-mail inteiro entre 200 e 300 palavras.",
+      "- O e-mail inteiro entre 150 e 190 palavras. NUNCA passe de 200. E-mail frio longo nao e lido no celular.",
       "- PROIBIDO inventar numero, tempo de carreira, marca atendida, premio, metrica, prazo, data ou detalhe do site. Se ela nao disse, nao existe.",
       "- PROIBIDAS as palavras de robo: autentico, cativante, envolvente, engajador, solucao perfeita, conteudo de qualidade, storytelling, jornada, universo da marca, parceria de sucesso.",
       "- Um emoji no maximo no e-mail inteiro.",
       "- MARCADORES: so {{pessoa}}, {{produto}}, {{detalhe}} e {{link}}, e so quando a informacao nao vier das respostas dela. Fora esses, nunca deixe colchete nem lacuna.",
       "",
-      "EXEMPLO DE SAIDA, escrito pela Lara, e esse e o padrao de tom, ritmo e tamanho:",
-      "apresentacao: Aqui é a Ana, criadora de conteúdo UGC de Curitiba (@anacozinha). Cheguei em vocês pesquisando panela de cerâmica e acabei ficando um tempão no site, principalmente na linha que não solta revestimento.",
-      "motivo: Acabei de me mudar pro meu primeiro apartamento e estou montando a cozinha do zero. Parei de usar antiaderente, então vinha pesquisando cerâmica faz um tempo, e o conjunto de vocês é o que cabe no meu fogão e no meu orçamento: {{link}}. As panelas são literalmente a última coisa que falta aqui.",
-      "ideia: A ideia que eu já tenho na cabeça é gravar a chegada da caixa, a primeira vez cozinhando (quero fazer um ovo e uma panqueca pra mostrar o quanto desgruda de verdade) e depois a lavagem, sem corte mágico, tudo em tempo real. Isso vira vídeo vertical em arquivo pra vocês usarem como UGC, inclusive em tráfego pago, e eu documento a cozinha ficando pronta no meu perfil, marcando vocês e com link.",
-      "credenciais: Gravo tudo em casa com luz natural, entrego em até 5 dias e já fiz conteúdo pra mais de 20 marcas de casa e cozinha. Tenho disponibilidade nas próximas duas semanas.",
+      "EXEMPLO DE SAIDA, escrito pela Lara, e esse e o padrao de TOM, RITMO e TAMANHO (172 palavras no e-mail inteiro).",
+      "ATENCAO: o exemplo e de OUTRA pessoa. NUNCA reaproveite nenhum dado dele. Luz natural, 5 dias, 20 marcas, panelas, apartamento novo, ovo e panqueca: nada disso existe a menos que venha nas respostas que voce recebeu. Se as respostas forem curtas, o e-mail sai curto, e esta certo assim.",
+      "assunto: Ideia de conteúdo pro conjunto de panelas de vocês",
+      "apresentacao: Sou a Lara, criadora de conteúdo UGC há 3 anos (@eilaradam). Cheguei em vocês procurando {{produto}} e fiquei um tempão no site, principalmente na linha que não solta revestimento.",
+      "motivo: Acabei de me mudar pro meu primeiro apartamento e estou montando a cozinha do zero. As panelas são a última coisa que falta, e o conjunto de vocês é esse aqui ó: {{link}}.",
+      "ideia: Quero gravar a chegada da caixa, a primeira vez cozinhando (um ovo e uma panqueca, pra mostrar o quanto desgruda de verdade) e depois a lavagem, tudo em tempo real. Isso vira vídeo vertical e fotos pra vocês usarem como UGC e em tráfego pago, e eu documento no meu perfil com @ e link.",
+      "credenciais: Gravo em casa com luz natural, entrego em até 5 dias e já fiz pra mais de 20 marcas de casa e cozinha. Tenho as próximas duas semanas livres.",
+      "",
+      "ULTIMA CONFERIDA: leia o e-mail que voce escreveu e pergunte, frase por frase, de onde veio aquela informacao. Se alguma nao estiver nas respostas dela, apague a frase antes de responder.",
       "",
       "ESTILO DESTA VERSAO: " + estilo,
     ].join("\n");
@@ -190,7 +197,10 @@ serve(async (req) => {
         ? " Cheguei em vocês pesquisando {{produto}} e acabei ficando um tempão no site, principalmente " + detalhe.replace(/^[,.]\s*/, "") + "."
         : " Cheguei em vocês pesquisando {{produto}} e acabei ficando um tempão no site, principalmente em {{detalhe}}.";
     } else if (!detalhe && !apresentacao.includes("{{detalhe}}")) {
-      apresentacao = apresentacao.replace(/\.$/, "") + ", principalmente em {{detalhe}}.";
+      // a IA as vezes inventa o detalhe do site: troca pelo marcador, nao acrescenta outro
+      apresentacao = /principalmente/i.test(apresentacao)
+        ? apresentacao.replace(/,?\s*principalmente[^.!?]*/i, ", principalmente {{detalhe}}")
+        : apresentacao.replace(/\s*$/, "").replace(/\.$/, "") + ", principalmente {{detalhe}}.";
     }
     if (!motivo.includes("{{link}}") && !/https?:\/\//.test(motivo)) {
       motivo = motivo.replace(/\s*$/, "") + " É esse aqui ó: {{link}}.";
@@ -198,7 +208,7 @@ serve(async (req) => {
 
     const arrobaOk = arroba ? (arroba.startsWith("@") ? arroba : "@" + arroba) : "";
     const fecho = "Se fizer sentido, vai ser incrível ter vocês nesse projeto :)\nPortfólio: " + site;
-    const assinatura = "Att, " + (nome !== "{{nome}}" ? nome : "{{nome}}") + (arrobaOk ? "\n" + arrobaOk : "");
+    const assinatura = "Att, " + (nome !== "{{nome}}" ? nome : "{{nome}}") + (arrobaOk ? " / " + arrobaOk : "");
 
     const paragrafos = [
       "Oieee {{pessoa}}, tudo bem?",
