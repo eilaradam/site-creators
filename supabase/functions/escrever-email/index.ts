@@ -55,7 +55,7 @@ serve(async (req) => {
     const site = limpar(corpo.site) || "{{site}}";
     const cidade = limpar(corpo.cidade);
     const estilo = ESTILOS[String(corpo.estilo || "direta")] || ESTILOS.direta;
-    const formato = ["email", "dm", "followup"].includes(String(corpo.formato)) ? String(corpo.formato) : "email";
+    const formato = ["email", "dm", "followup", "plataforma"].includes(String(corpo.formato)) ? String(corpo.formato) : "email";
 
     // teto de uso
     const admin = createClient(
@@ -146,6 +146,18 @@ serve(async (req) => {
             "ps: string vazia.",
             "Nao repita a apresentacao dela nem as credenciais: ela ja se apresentou no primeiro e-mail.",
           ].join("\n")
+        : formato === "plataforma"
+        ? [
+            "FORMATO: CANDIDATURA EM PLATAFORMA DE CAMPANHA (tipo Seu Influencer). A marca publicou uma campanha e vai ler uma pilha de candidaturas seguidas, entao as primeiras duas linhas decidem tudo.",
+            "Devolva: assunto vazio, ps vazio, fecho_extra vazio.",
+            "NAO comece com saudacao a ninguem: nao existe destinatario com nome aqui. Comece direto por quem ela e.",
+            "apresentacao: duas ou tres frases. Quem ela e, e POR QUE ela e a pessoa certa pra essa campanha, usando o motivo pessoal dela. E aqui que ela ganha ou perde.",
+            "motivo: a ideia de conteudo dela como cena concreta, pensada pra essa campanha. Sem link de produto e sem {{link}}.",
+            "ideia: o que ela entrega em arquivo (video vertical, fotos, cortes), prazo e formatos, em UMA frase direta, mais uma frase final curta se colocando a disposicao pra ajustar a ideia ao briefing da marca.",
+            "credenciais: uma frase curta so com o que ela deu, se ainda nao apareceu.",
+            "Total entre 90 e 140 palavras. Candidatura longa nao e lida ate o fim.",
+            "Nada de {{pessoa}}: aqui nao se sabe quem le.",
+          ].join("\n")
         : "FORMATO: E-MAIL de primeiro contato, como descrito acima.",
     ].join("\n");
 
@@ -224,6 +236,8 @@ serve(async (req) => {
     let paragrafos: string[] = [];
     if (formato === "dm") {
       paragrafos = [apresentacao, motivo, pIdeia, "Meu portfólio: " + site].filter(Boolean);
+    } else if (formato === "plataforma") {
+      paragrafos = [apresentacao, motivo, pIdeia, pCred, "Meu portfólio: " + site].filter(Boolean);
     } else if (formato === "followup") {
       paragrafos = [
         "Oieee {{pessoa}}, tudo bem?",
@@ -291,7 +305,7 @@ serve(async (req) => {
 
     return json({
       ok: true,
-      assunto: formato === "dm" ? "" : (limpaRobo(o.assunto) || "Ideia de conteúdo pro {{produto}} de vocês"),
+      assunto: (formato === "dm" || formato === "plataforma") ? "" : (limpaRobo(o.assunto) || "Ideia de conteúdo pro {{produto}} de vocês"),
       paragrafos,
     });
   } catch (e) {
