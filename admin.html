@@ -1211,7 +1211,58 @@
             .cal-money { gap: 14px; }
             .cal-form-row, .cal-form-row:nth-of-type(2) { grid-template-columns: 1fr; }
         }
-    </style>
+    
+/* ═══ aba Disparo de e-mail: capa, cartões coloridos e prévia grande ═══ */
+.ds-capa{position:relative;overflow:hidden;margin:0 0 20px;padding:26px 28px;border-radius:22px;color:#fff;
+  background:radial-gradient(1200px 300px at 85% -40%, rgba(255,196,150,.35), transparent 60%),
+             linear-gradient(135deg,#8A4520 0%,#6A3417 52%,#46220E 100%);
+  box-shadow:0 14px 36px rgba(88,44,19,.26)}
+.ds-capa:after{content:"";position:absolute;inset:0;opacity:.5;pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,.10) 1px, transparent 1px);background-size:4px 4px}
+.ds-capa .in{position:relative;z-index:1;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.ds-capa .mark{flex:0 0 58px;width:58px;height:58px;border-radius:18px;font-size:27px;display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.22)}
+.ds-capa h2{font-size:26px;letter-spacing:-.02em;margin:0}
+.ds-capa p{margin:5px 0 0;font-size:14px;line-height:1.55;color:rgba(255,255,255,.82);max-width:62ch}
+.ds-capa .num{margin-left:auto;text-align:right;padding-left:18px}
+.ds-capa .num b{display:block;font-size:34px;line-height:1;letter-spacing:-.02em}
+.ds-capa .num span{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.ds-chips{position:relative;z-index:1;display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.ds-chip{font-size:12px;font-weight:600;padding:6px 12px;border-radius:99px;background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.2);color:#fff}
+.ds-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:10px;padding:14px 16px}
+.ds-card{border-radius:14px;padding:13px 14px;border:1px solid var(--border);background:var(--card);position:relative;overflow:hidden}
+.ds-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--cor)}
+.ds-card .v{font-size:25px;font-weight:800;letter-spacing:-.02em;color:var(--cor);line-height:1.1}
+.ds-card .l{font-size:11.5px;color:var(--text-soft);margin-top:3px;font-weight:600}
+.ds-card .p{font-size:11px;color:var(--text-muted)}
+.ds-card.enviados{--cor:#7B3E1B;background:linear-gradient(180deg,rgba(123,62,27,.06),transparent)}
+.ds-card.entregues{--cor:#1C7A4E;background:linear-gradient(180deg,rgba(28,122,78,.07),transparent)}
+.ds-card.abriram{--cor:#C08A12;background:linear-gradient(180deg,rgba(212,154,24,.10),transparent)}
+.ds-card.clicaram{--cor:#1F6F8B;background:linear-gradient(180deg,rgba(31,111,139,.08),transparent)}
+.ds-card.bounce{--cor:#A0522D;background:linear-gradient(180deg,rgba(160,82,45,.06),transparent)}
+.ds-card.spam{--cor:#B3261E;background:linear-gradient(180deg,rgba(179,38,30,.07),transparent)}
+.ds-previa-cab{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.ds-previa-cab .t{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted)}
+.ds-previa-cab button{margin-left:auto;background:var(--card);border:1px solid var(--border);border-radius:9px;
+  padding:6px 12px;font-family:inherit;font-size:12px;font-weight:600;color:var(--text-soft);cursor:pointer}
+.ds-previa-cab button:hover{border-color:var(--accent);color:var(--accent)}
+.ds-palco{background:linear-gradient(180deg,#F0E7DD,#E7DCD1);border:1px solid var(--border);border-radius:18px;padding:18px}
+.ds-janela{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 8px 26px rgba(70,34,14,.14)}
+.ds-janela .cab{display:flex;gap:11px;align-items:flex-start;padding:14px 16px;border-bottom:1px solid #EEE9E4;background:#FCFAF8}
+.ds-janela .av{flex:0 0 36px;width:36px;height:36px;border-radius:50%;background:#7B3E1B;color:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px}
+.ds-janela .de{font-size:13px;color:#3B342E;line-height:1.5;min-width:0}
+.ds-janela .de b{color:#1B1B1B}
+.ds-janela .as{font-weight:800;font-size:15px;color:#1B1B1B;margin-bottom:2px;word-break:break-word}
+.ds-corpo{max-height:none}
+.ds-full{position:fixed;inset:0;z-index:999;background:rgba(27,27,27,.55);display:none;align-items:flex-start;justify-content:center;padding:30px 16px;overflow:auto}
+.ds-full.on{display:flex}
+.ds-full .caixa{width:100%;max-width:700px}
+.ds-full .fechar{display:block;margin:0 0 12px auto;background:#fff;border:0;border-radius:10px;padding:9px 16px;
+  font-family:inherit;font-weight:700;font-size:13px;cursor:pointer}
+
+</style>
 </head>
 <body style="visibility:hidden">
 
@@ -4725,15 +4776,20 @@
 </div>
 <div class="dashboard" id="tabDisparo">
     <div style="max-width:1140px;margin:0 auto;">
-        <div class="capa simples">
-            <div class="capa-topo">
-                <div class="capa-id">
-                    <span class="capa-mark">📨</span>
-                    <div>
-                        <h2>Disparo de e-mail</h2>
-                        <p class="sub">Um e-mail pra sua base de creators ou pra sua base de marcas, pelo Resend. Use <b>{{nome}}</b> no texto pra chamar cada uma pelo primeiro nome.</p>
-                    </div>
+        <div class="ds-capa">
+            <div class="in">
+                <span class="mark">📨</span>
+                <div>
+                    <h2>Disparo de e-mail</h2>
+                    <p>Um e-mail pra sua base de creators ou pra sua base de marcas, pelo Resend. Use <b>{{nome}}</b> no texto pra chamar cada uma pelo primeiro nome.</p>
                 </div>
+                <div class="num"><b id="dispCapaNum">·</b><span>enviados em 60 dias</span></div>
+            </div>
+            <div class="ds-chips">
+                <span class="ds-chip">🧪 Teste antes, sempre</span>
+                <span class="ds-chip">🔒 A chave vive no Supabase</span>
+                <span class="ds-chip">📅 Dá pra agendar</span>
+                <span class="ds-chip">↩️ Quem responde SAIR sai da lista</span>
             </div>
         </div>
 
@@ -4745,7 +4801,7 @@
                 </div>
                 <button type="button" onclick="loadEmailStats()" style="padding:8px 14px;border:1px solid var(--border);background:var(--cream);color:var(--text);border-radius:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;">Atualizar</button>
             </div>
-            <div class="stats" id="dispStatsCards" style="display:flex;flex-wrap:wrap;"></div>
+            <div class="ds-cards" id="dispStatsCards"></div>
             <div id="dispStatsCampanhas" style="padding:4px 18px 8px;"></div>
             <div id="dispStatsLinks" style="padding:0 18px 16px;"></div>
         </div>
@@ -4882,9 +4938,13 @@
                 <div id="agendadosList"></div>
             </div>
         </div>
-        <div style="flex:1;min-width:320px;position:sticky;top:14px;">
-            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:8px;">📱 Como vai chegar</div>
-            <div id="dispPreview" style="background:#f1f1f1;border:1px solid var(--border);border-radius:14px;padding:14px;"></div>
+        <div style="flex:1.05;min-width:380px;position:sticky;top:14px;">
+            <div class="ds-previa-cab">
+                <span class="t">📱 Como vai chegar</span>
+                <button type="button" onclick="dispPreviaGrande()">Ver em tela cheia</button>
+            </div>
+            <div class="ds-palco"><div id="dispPreview"></div></div>
+            <p style="font-size:12.5px;color:var(--text-muted);line-height:1.55;margin-top:10px;">É assim que cai na caixa de entrada, com o nome de exemplo no lugar do {{nome}}. Antes de disparar, manda o teste pra você e abre no celular.</p>
         </div>
         </div>
     </div>
@@ -6096,13 +6156,18 @@
         const enviados = soma('enviados'), entregues = soma('entregues'), abertos = soma('abertos'),
               clicaram = soma('clicaram'), bounces = soma('bounces'), spam = soma('spam');
 
+        const capaNum = document.getElementById('dispCapaNum');
+        if (capaNum) capaNum.textContent = enviados.toLocaleString('pt-BR');
+        const cartao = (classe, valor, rotulo, pct) =>
+            '<div class="ds-card ' + classe + '"><div class="v">' + valor + '</div><div class="l">' + rotulo + '</div>'
+            + (pct !== undefined ? '<div class="p">' + pct + '% de quem recebeu</div>' : '') + '</div>';
         cards.innerHTML =
-            '<div class="stat-card"><div class="stat-value">' + enviados + '</div><div class="stat-label">Enviados</div></div>' +
-            '<div class="stat-card"><div class="stat-value">' + entregues + '</div><div class="stat-label">Entregues ' + dispPct(entregues, enviados) + '%</div></div>' +
-            '<div class="stat-card accent"><div class="stat-value">' + abertos + '</div><div class="stat-label">Abriram ' + dispPct(abertos, entregues || enviados) + '%</div></div>' +
-            '<div class="stat-card accent"><div class="stat-value">' + clicaram + '</div><div class="stat-label">Clicaram ' + dispPct(clicaram, entregues || enviados) + '%</div></div>' +
-            '<div class="stat-card"><div class="stat-value">' + bounces + '</div><div class="stat-label">Não chegou</div></div>' +
-            '<div class="stat-card"><div class="stat-value">' + spam + '</div><div class="stat-label">Marcou spam</div></div>';
+            cartao('enviados', enviados, 'Enviados') +
+            cartao('entregues', entregues, 'Entregues', dispPct(entregues, enviados)) +
+            cartao('abriram', abertos, 'Abriram', dispPct(abertos, entregues || enviados)) +
+            cartao('clicaram', clicaram, 'Clicaram', dispPct(clicaram, entregues || enviados)) +
+            cartao('bounce', bounces, 'Não chegou') +
+            cartao('spam', spam, 'Marcou spam');
 
         if (!lista.length) {
             camps.innerHTML = '<p style="font-size:12.5px;color:var(--text-muted);margin:10px 0;">Nenhum disparo nos últimos 60 dias.</p>';
@@ -6199,9 +6264,22 @@
         const html = dispContentEmpty()
             ? '<div style="padding:26px;color:#999;font-family:Arial,sans-serif;font-size:14px;">Escreva a mensagem (ou cole o HTML) e veja aqui como vai ficar...</div>'
             : buildFinalHtml().replace(/\{\{nome\}\}/g, 'Maria');
-        el.innerHTML = '<div style="background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,.08);">'
-            + '<div style="padding:11px 16px;border-bottom:1px solid #eee;font-size:12px;color:#555;line-height:1.5;"><div><b>De:</b> Lara Dam &lt;contato@ugcmanager.com.br&gt;</div><div><b>Assunto:</b> ' + dispEsc(subject) + '</div></div>'
-            + html + '</div>';
+        el.innerHTML = '<div class="ds-janela">'
+            + '<div class="cab"><div class="av">L</div><div class="de">'
+            + '<div class="as">' + dispEsc(subject) + '</div>'
+            + '<b>Lara Dam</b> &lt;contato@ugcmanager.com.br&gt;<br>para <b>você</b></div></div>'
+            + '<div class="ds-corpo">' + html + '</div></div>';
+        const full = document.getElementById('dispFullCorpo');
+        if (full && document.getElementById('dispFull').classList.contains('on')) full.innerHTML = el.innerHTML;
+    }
+
+    /* a mesma prévia, grande, pra ela ler com calma antes de mandar */
+    function dispPreviaGrande() {
+        const full = document.getElementById('dispFull');
+        const corpo = document.getElementById('dispFullCorpo');
+        if (!full || !corpo) return;
+        corpo.innerHTML = document.getElementById('dispPreview').innerHTML;
+        full.classList.add('on');
     }
     function dispEsc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
     function buildEmailHtml(corpo, btnText, btnLink) {
