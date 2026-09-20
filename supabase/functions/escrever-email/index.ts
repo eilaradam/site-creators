@@ -16,10 +16,16 @@ const cors = {
 };
 const OPENAI_KEY = Deno.env.get("OPENAI_API_KEY") || "";
 const PALAVRAS = ["imersao", "imersao2", "turma2"];
-const LIMITE_IP = 40;      // por IP por dia
-const LIMITE_DIA = 700;    // total por dia, pra chave nao virar torneira aberta
+const LIMITE_IP = 80;      // por IP por dia
+const LIMITE_DIA = 900;    // total por dia, pra chave nao virar torneira aberta
 const MAX_CAMPO = 1200;    // caracteres por resposta
 
+const ESTILOS_DM: Record<string, string> = {
+  direta: "A EDUCADA. So o essencial: quem ela e, que tem uma proposta, e o pedido do canal. Nao cite produto, nao cite post, nao diga que e cliente.",
+  ideia: "COM ELOGIO AO PERFIL. Comeca citando o que ela viu no perfil deles, em meia frase, e so depois diz que tem proposta e pede o canal. Nao diga que e cliente.",
+  resultado: "DUAS LINHAS. Corte ao osso: sem o tudo bem, sem agradecimento longo. Uma frase dizendo o que ela faz e pedindo o canal, e um obrigada curto. NO MAXIMO 30 PALAVRAS no total, conte antes de responder. Nada de post, nada de cliente.",
+  curta: "DE CLIENTE PRA MARCA. Abre dizendo que ja e cliente ou fa, com as palavras dela, e por isso quer falar. Nao cite post do perfil.",
+};
 const ESTILOS_PLATAFORMA: Record<string, string> = {
   direta: "Caminho dos NUMEROS. A primeira linha e o numero mais forte dela ou o nicho, nunca o entusiasmo pelo produto. Depois a saudacao curta, os numeros dela e a frase de desejo. Maximo 70 palavras.",
   ideia: "Caminho do ENTUSIASMO. Abre com o que ela sente pelo produto, do jeito dela, e segue com as ideias que ela ja teve. Nao cite numero de marcas nem de videos aqui, mesmo que ela tenha dado. Maximo 70 palavras.",
@@ -54,6 +60,7 @@ serve(async (req) => {
     const detalhe = limpar(corpo.detalhe);
     const oferta = limpar(corpo.oferta);
     const quando = limpar(corpo.quando);
+    const pedido = limpar(corpo.pedido);
     if (!dif && !conexao && !ideia) return json({ error: "vazio" }, 400);
 
     const nome = limpar(corpo.nome) || "{{nome}}";
@@ -62,8 +69,11 @@ serve(async (req) => {
     const cidade = limpar(corpo.cidade);
     const estiloBruto = String(corpo.estilo || "direta");
     const ehPlataforma = String(corpo.formato) === "plataforma";
+    const ehDm = String(corpo.formato) === "dm";
     const estilo = ehPlataforma
       ? (ESTILOS_PLATAFORMA[estiloBruto] || ESTILOS_PLATAFORMA.direta)
+      : ehDm
+      ? (ESTILOS_DM[estiloBruto] || ESTILOS_DM.direta)
       : (ESTILOS[estiloBruto] || ESTILOS.direta);
     const formato = ["email", "dm", "followup", "plataforma"].includes(String(corpo.formato)) ? String(corpo.formato) : "email";
 
@@ -137,13 +147,24 @@ serve(async (req) => {
       "",
       formato === "dm"
         ? [
-            "FORMATO: MENSAGEM DE DIRECT NO INSTAGRAM, nao e-mail.",
-            "Devolva as chaves assim: assunto vazio, ps vazio, credenciais vazio, fecho_extra vazio.",
-            "Ponha a mensagem inteira em apresentacao, motivo e ideia, uma parte em cada, pra virarem tres blocos curtos.",
-            "No maximo 70 palavras no total. Frases curtas, uma ideia por linha, do jeito que se manda DM.",
-            "Comeca com Oieee! sem nome, porque na DM ela ja esta falando com a marca.",
-            "Nada de link de produto e nada de {{link}}. NAO cite o portfolio nem o link dele em lugar nenhum: o sistema acrescenta a linha do portfolio no fim sozinho, e se voce escrever tambem, sai duas vezes.",
-            "Termina com uma pergunta facil de responder.",
+            "FORMATO: MENSAGEM DE DIRECT NO INSTAGRAM, e o objetivo dela NAO e vender nada.",
+            "O objetivo e UM SO: conseguir um canal de contato pra mandar a proposta depois, normalmente um e-mail.",
+            "Entao nao descreva a ideia de conteudo, nao fale de entrega, de formato, de trafego, de portfolio nem de numeros. Isso tudo vai no e-mail, depois.",
+            "Devolva: assunto vazio, ps vazio, credenciais vazio, fecho_extra vazio.",
+            "TAMANHO: entre 35 e 60 palavras no total. Passou disso, esta errado.",
+            "Tom educado e simples, sem gritaria e sem emoji. Aqui ela esta batendo na porta de um perfil comercial.",
+            "",
+            "ESTRUTURA, uma parte em cada chave:",
+            "apresentacao: a saudacao com o nome da marca e um tudo bem. Use {{pessoa}} no lugar do nome da marca. Exemplo: Oi, equipe {{pessoa}}! Tudo bem?",
+            "motivo: uma frase dizendo o que ela faz e que tem uma proposta pra mandar. Se ela contou o que viu no perfil, pode entrar aqui em meia frase, sem exagero. Termina PEDINDO o canal de contato que ela escolheu.",
+            "ideia: uma linha curta de agradecimento e despedida, tipo: Agradeco desde ja e fico no aguardo. Obrigada!",
+            "",
+            "EXEMPLO QUE FUNCIONA, escrito pela Lara:",
+            "Oi, equipe {{pessoa}}! Tudo bem?",
+            "Trabalho com criação de conteúdo para marcas e tenho uma proposta que gostaria de enviar para vocês. Poderiam me informar um e-mail específico para esse tipo de contato?",
+            "Agradeço desde já e fico no aguardo. Obrigada!",
+            "",
+            "O CANAL QUE ELA QUER PEDIR: " + (pedido || "um e-mail especifico para esse tipo de contato"),
           ].join("\n")
         : formato === "followup"
         ? [
@@ -188,10 +209,12 @@ serve(async (req) => {
     // na candidatura, cada versao usa um material: a dos numeros nao recebe a
     // conexao nem a ideia, e a do entusiasmo nao recebe os numeros. Sem isso a IA
     // junta tudo e estoura o tamanho.
+    const dmSemDetalhe = ehDm && estiloBruto !== "ideia";
+    const dmSemConexao = ehDm && estiloBruto !== "curta";
     const soNumeros = ehPlataforma && estiloBruto === "direta";
     const soEntusiasmo = ehPlataforma && estiloBruto === "ideia";
     const difU = soEntusiasmo ? "" : dif;
-    const conexaoU = soNumeros ? "" : conexao;
+    const conexaoU = (soNumeros || dmSemConexao) ? "" : conexao;
     const ideiaU = soNumeros ? "" : ideia;
 
     const usuario = [
@@ -208,7 +231,7 @@ serve(async (req) => {
       "",
       "4) OBSERVACOES EXTRAS: " + (extras || "(nenhuma)"),
       "",
-      "5) O QUE ELA VIU NO SITE DESSA MARCA: " + (detalhe || "(nao respondeu, use o marcador {{detalhe}} literalmente)"),
+      "5) O QUE ELA VIU NO SITE DESSA MARCA: " + ((dmSemDetalhe ? "" : detalhe) || (ehDm ? "(nao usar nesta versao)" : "(nao respondeu, use o marcador {{detalhe}} literalmente)")),
       formato === "followup" ? "6) A OFERTA NOVA DO SEGUNDO E-MAIL: " + (oferta || "(nao respondeu: ofereca gravar um teste curto antes de qualquer acordo)") : "",
       formato === "followup" && quando ? "7) QUANDO ELA MANDOU O PRIMEIRO: " + quando : "",
     ].filter(Boolean).join("\n");
@@ -271,7 +294,7 @@ serve(async (req) => {
 
     let paragrafos: string[] = [];
     if (formato === "dm") {
-      paragrafos = [apresentacao, motivo, pIdeia, "Meu portfólio: " + site].filter(Boolean);
+      paragrafos = [apresentacao, motivo, pIdeia].filter(Boolean);
     } else if (formato === "plataforma") {
       // aqui nao existe marcador pra trocar, entao o que sobrar de {{...}} sai fora
       const semChave = (t: string) => t.replace(/\{\{[^}]*\}\}/g, "").replace(/\s{2,}/g, " ").replace(/\s+([.,!?])/g, "$1").trim();
