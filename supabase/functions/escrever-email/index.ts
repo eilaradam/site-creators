@@ -108,13 +108,14 @@ serve(async (req) => {
       "- Portugues do Brasil falado, caloroso, com conviccao. Ela fala com vontade, nao pede licenca e nao se diminui.",
       "- Nada de venho por meio desta, espero que esteja bem, gostaria de propor, sou apaixonada por.",
       "- Nunca use travessao. Use virgula, dois pontos ou ponto.",
-      "- O e-mail inteiro entre 150 e 190 palavras. NUNCA passe de 200. E-mail frio longo nao e lido no celular.",
+      "- O e-mail inteiro entre 180 e 220 palavras, contando tudo. NUNCA passe de 220: e-mail frio longo nao e lido no celular.",
+      "- Teto por campo, para nao estourar: apresentacao ate 45 palavras, motivo ate 45, ideia ate 65, credenciais ate 30, fecho_extra ate 20.",
       "- PROIBIDO inventar numero, tempo de carreira, marca atendida, premio, metrica, prazo, data ou detalhe do site. Se ela nao disse, nao existe.",
       "- PROIBIDAS as palavras de robo: autentico, cativante, envolvente, engajador, solucao perfeita, conteudo de qualidade, storytelling, jornada, universo da marca, parceria de sucesso.",
       "- Um emoji no maximo no e-mail inteiro.",
       "- MARCADORES: so {{pessoa}}, {{produto}}, {{detalhe}} e {{link}}, e so quando a informacao nao vier das respostas dela. Fora esses, nunca deixe colchete nem lacuna.",
       "",
-      "EXEMPLO DE SAIDA, escrito pela Lara, e esse e o padrao de TOM, RITMO e TAMANHO (172 palavras no e-mail inteiro).",
+      "EXEMPLO DE SAIDA, escrito pela Lara, e esse e o padrao de TOM, RITMO e TAMANHO (cerca de 200 palavras no e-mail inteiro).",
       "ATENCAO: o exemplo e de OUTRA pessoa. NUNCA reaproveite nenhum dado dele. Luz natural, 5 dias, 20 marcas, panelas, apartamento novo, ovo e panqueca: nada disso existe a menos que venha nas respostas que voce recebeu. Se as respostas forem curtas, o e-mail sai curto, e esta certo assim.",
       "assunto: Ideia de conteúdo pro conjunto de panelas de vocês",
       "apresentacao: Sou a Lara, criadora de conteúdo UGC há 3 anos (@eilaradam). Cheguei em vocês procurando {{produto}} e fiquei um tempão no site, principalmente na linha que não solta revestimento.",
@@ -210,7 +211,7 @@ serve(async (req) => {
     const fecho = "Se fizer sentido, vai ser incrível ter vocês nesse projeto :)\nPortfólio: " + site;
     const assinatura = "Att, " + (nome !== "{{nome}}" ? nome : "{{nome}}") + (arrobaOk ? " / " + arrobaOk : "");
 
-    const paragrafos = [
+    const paragrafos: string[] = [
       "Oieee {{pessoa}}, tudo bem?",
       apresentacao,
       motivo,
@@ -221,6 +222,48 @@ serve(async (req) => {
       assinatura,
       ps,
     ].filter(Boolean);
+
+    // trava de tamanho: e-mail frio comprido nao e lido. So gasta uma segunda
+    // chamada quando realmente estourou.
+    const contar = (lista: string[]) => lista.join(" ").split(/\s+/).filter(Boolean).length;
+    if (contar(paragrafos) > 235) {
+      try {
+        const corte = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${OPENAI_KEY}` },
+          body: JSON.stringify({
+            model: String(corpo.modelo || "gpt-4o"),
+            response_format: { type: "json_object" },
+            temperature: 0.3,
+            max_tokens: 900,
+            messages: [
+              {
+                role: "system",
+                content: [
+                  "Voce enxuga e-mails sem mudar o sentido nem a voz de quem escreveu.",
+                  "Corte para no maximo 210 palavras no total.",
+                  "Mantenha todos os paragrafos que existem, na mesma ordem, e mantenha intactos os marcadores {{pessoa}}, {{produto}}, {{detalhe}}, {{link}} e {{data}}.",
+                  "Nao invente nada, nao acrescente informacao, nao use travessao. So tire palavra e frase que sobra.",
+                  'Responda so com JSON: {"paragrafos":["...","..."]}',
+                ].join("\n"),
+              },
+              { role: "user", content: JSON.stringify({ paragrafos }) },
+            ],
+          }),
+        });
+        if (corte.ok) {
+          const d2 = await corte.json();
+          const p2 = JSON.parse(d2?.choices?.[0]?.message?.content || "{}")?.paragrafos;
+          if (Array.isArray(p2) && p2.length >= 4) {
+            const enxuto = p2.map((x: string) => limpaRobo(String(x))).filter(Boolean);
+            if (contar(enxuto) < contar(paragrafos)) {
+              paragrafos.length = 0;
+              paragrafos.push(...enxuto);
+            }
+          }
+        }
+      } catch (_) { /* se falhar, vai do jeito que estava */ }
+    }
 
     try { await admin.from("email_ia_uso").insert({ dia: hoje, ip }); } catch (_) { /* log e opcional */ }
 
