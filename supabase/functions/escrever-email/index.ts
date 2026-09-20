@@ -62,6 +62,7 @@ serve(async (req) => {
     const quando = limpar(corpo.quando);
     const pedido = limpar(corpo.pedido);
     const destaque = limpar(corpo.destaque);
+    const contato2 = limpar(corpo.contato2);
     if (!dif && !conexao && !ideia) return json({ error: "vazio" }, 400);
 
     const nome = limpar(corpo.nome) || "{{nome}}";
@@ -170,13 +171,22 @@ serve(async (req) => {
         : formato === "followup"
         ? [
             "FORMATO: SEGUNDO E-MAIL, mandado alguns dias depois do primeiro, que nao teve resposta.",
-            "No maximo 70 palavras no total. Tres frases curtas, no maximo quatro.",
-            "assunto: curtinho, retomando o assunto anterior, tipo: sobre a ideia que eu mandei.",
-            "apresentacao: uma linha retomando o contato, citando o assunto do primeiro e-mail (item 3) e, se ela disse quando mandou (item 7), a referencia de tempo. Sem cobranca e sem soar chateada. Nada de nao obtive retorno. NAO comece com Oi nem Oiee nem tudo bem: a saudacao ja vem pronta na linha de cima.",
-            "motivo: a OFERTA NOVA que ela escreveu no item 6, reescrita em uma frase que facilite o sim. Se ela nao deu, ofereca gravar um teste curto antes de qualquer acordo.",
-            "ideia: string vazia, credenciais vazia, fecho_extra vazia.",
-            "ps: string vazia.",
-            "Nao repita a apresentacao dela nem as credenciais: ela ja se apresentou no primeiro e-mail.",
+            "O objetivo dele mudou: nao e insistir na proposta, e REABRIR A CONVERSA e conseguir um segundo meio de contato, normalmente o WhatsApp.",
+            "TAMANHO: entre 55 e 80 palavras. Devolva: credenciais vazio, fecho_extra vazio, ps vazio.",
+            "",
+            "ESTRUTURA, uma parte em cada chave:",
+            "assunto: curto, retomando o que ela propos. Exemplo: sobre o vídeo pro {{produto}}.",
+            "apresentacao: uma frase perguntando se conseguiram dar uma olhadinha no ultimo e-mail e se a ideia faz sentido, citando de leve o assunto do primeiro e-mail. Sem cobranca. Nada de nao obtive retorno. NAO comece com Oi nem tudo bem: a saudacao ja vem pronta na linha de cima.",
+            "motivo: ela se coloca a disposicao pra conversar e entender o momento do lado da marca, e diz que tem certeza de que a parceria vai ser incrivel.",
+            "ideia: o PEDIDO DO SEGUNDO CONTATO. Pergunta se eles teriam outro meio de contato e oferece chamar pelo canal que ela escolheu.",
+            "",
+            "MODELO ESCRITO PELA LARA. A primeira linha, Oie {{pessoa}}!, o sistema poe sozinho: NAO escreva saudacao nenhuma dentro dos campos, comece a apresentacao direto no Passando rapidinho.",
+            "[o sistema poe: Oie, {{pessoa}}!]",
+            "apresentacao: Passando rapidinho pra saber se vocês conseguiram dar uma olhadinha no último e-mail e se a ideia faz sentido pra vocês.",
+            "motivo: Se for melhor, fico à disposição para conversarmos e entender o momento do lado de vocês! Tenho certeza de que a parceria vai ser incrível.",
+            "ideia: Vocês teriam um segundo meio de contato? Se preferir posso chamar através do WhatsApp.",
+            "",
+            "O CANAL QUE ELA QUER OFERECER: " + (contato2 || "o WhatsApp"),
           ].join("\n")
         : formato === "plataforma"
         ? [
@@ -250,7 +260,7 @@ serve(async (req) => {
       "4) OBSERVACOES EXTRAS: " + (extras || "(nenhuma)"),
       "",
       "5) O QUE ELA VIU NO SITE DESSA MARCA: " + ((dmSemDetalhe ? "" : detalhe) || (ehDm ? "(nao usar nesta versao)" : "(nao respondeu, use o marcador {{detalhe}} literalmente)")),
-      formato === "followup" ? "6) A OFERTA NOVA DO SEGUNDO E-MAIL: " + (oferta || "(nao respondeu: ofereca gravar um teste curto antes de qualquer acordo)") : "",
+      formato === "followup" ? "6) O SEGUNDO CONTATO QUE ELA QUER PEDIR: " + (contato2 || oferta || "(nao respondeu: ofereca o WhatsApp)") : "",
       formato === "followup" && quando ? "7) QUANDO ELA MANDOU O PRIMEIRO: " + quando : "",
     ].filter(Boolean).join("\n");
 
@@ -326,11 +336,14 @@ serve(async (req) => {
       motivo = semTronco(semChave(motivo));
       paragrafos = [apresentacao, motivo, semTronco(semChave(pIdeia)), semTronco(semChave(pCred)), "Deixo aqui meu portfólio com alguns dos meus vídeos favoritos:\n" + site].filter(Boolean);
     } else if (formato === "followup") {
+      apresentacao = apresentacao.replace(/^\s*(oi+ê*e*|ol[áa])[^,!.]*[,!]\s*/i, "");
+      apresentacao = apresentacao.charAt(0).toUpperCase() + apresentacao.slice(1);
       paragrafos = [
-        "Oieee {{pessoa}}, tudo bem?",
+        "Oie, {{pessoa}}!",
         apresentacao,
         motivo,
-        assinaturaCurta,
+        pIdeia,
+        "Obrigada, fico aguardando\n" + (nome !== "{{nome}}" ? nome : "{{nome}}"),
       ].filter(Boolean);
     } else {
       paragrafos = [
