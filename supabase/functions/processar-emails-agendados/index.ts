@@ -74,7 +74,9 @@ Deno.serve(async (req) => {
         // marcado como "nao mandar e-mail" fica de fora.
         const st = String(job.destinatario).split("_")[1];
         let qm = admin.from("marcas").select("nome,email").eq("descadastrada", false).eq("descartada", false).not("email", "is", null);
-        if (st) qm = qm.eq("status", st);
+        // "marcas_favoritas" nao e um status: e a estrelinha (marcas.favorita) da aba Marcas.
+        if (st === "favoritas") qm = qm.eq("favorita", true);
+        else if (st) qm = qm.eq("status", st);
         const { data, error } = await qm.limit(5000);
         if (error) throw error;
         const seen = new Set<string>();

@@ -1510,6 +1510,15 @@
     #tabMarcas .marca-x:hover { background: var(--border); color: var(--error); }
     #tabMarcas .marca-x.voltar { opacity: 1; color: var(--accent); }
     @media (max-width: 720px) { #tabMarcas .marca-x { opacity: 1; } }
+    /* Estrela de favorita: apagadinha, acende no hover, fica dourada quando ligada. */
+    #tabMarcas .marca-fav { background: none; border: none; font-size: 15px; line-height: 1; cursor: pointer; padding: 5px 6px; border-radius: 7px; font-family: inherit; color: var(--text-muted); opacity: .22; transition: opacity .15s, transform .12s; }
+    #tabMarcas .marca-row:hover .marca-fav { opacity: .55; }
+    #tabMarcas .marca-fav:hover { opacity: 1; transform: scale(1.2); }
+    #tabMarcas .marca-fav.on, #tabMarcas .marca-row:hover .marca-fav.on { opacity: 1; }
+    #tabMarcas tr.fav { background: var(--alerta-bg); }
+    #tabMarcas tr.fav:hover { background: var(--alerta-bg); box-shadow: inset 0 0 0 99px rgba(212,140,20,0.06); }
+    #tabMarcas tr.fav td:first-child { box-shadow: inset 3px 0 0 var(--alerta); }
+    @media (max-width: 720px) { #tabMarcas .marca-fav { opacity: .55; } }
     #tabMarcas .marca-row:hover { background: var(--cream, #FBF7F3); }
     #tabMarcas .ig-empty { background: var(--card); border: 1px dashed var(--border); border-radius: 14px; padding: 36px 24px; text-align: center; }
     #tabMarcas .ig-empty .em { font-size: 30px; }
@@ -4755,9 +4764,12 @@
                 <div><label class="idea-lbl">Último contato</label><input id="marcaUltimo" class="ig-input" type="date"></div>
                 <div><label class="idea-lbl">Disparo</label>
                     <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);padding:10px 0 4px;cursor:pointer;">
-                        <input id="marcaDescad" type="checkbox" style="width:16px;height:16px;"> não mandar e-mail
+                        <input id="marcaFav" type="checkbox" style="width:16px;height:16px;"> ⭐ favorita
                     </label>
                     <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer;">
+                        <input id="marcaDescad" type="checkbox" style="width:16px;height:16px;"> não mandar e-mail
+                    </label>
+                    <label class="idea-lbl" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
                         <input id="marcaDescart" type="checkbox" style="width:16px;height:16px;"> não é marca
                     </label>
                 </div>
@@ -4816,6 +4828,7 @@
                     <option value="imersao">🎓 Imersão — todas as alunas (Turma 1 + 2)</option>
                     <option value="imersao_t1">🎓 Imersão — só a Turma 1</option>
                     <option value="imersao_t2">🎓 Imersão — só as alunas da Turma 2</option>
+                    <option value="marcas_favoritas">⭐ Marcas — só as favoritas</option>
                     <option value="marcas">🏢 Marcas — todas com e-mail</option>
                     <option value="marcas_cliente">🏢 Marcas — só quem já foi cliente</option>
                     <option value="marcas_conversando">🏢 Marcas — só quem está conversando</option>
@@ -5856,13 +5869,17 @@
             // O que ela marcou como "não é marca" some da lista, menos no filtro próprio.
             if (marcaFiltro === 'descartadas') { if (!m.descartada) return false; }
             else if (m.descartada) return false;
+            else if (marcaFiltro === 'favoritas' && !m.favorita) return false;
             else if (marcaFiltro === 'comemail' && !(m.email || '').includes('@')) return false;
             else if (marcaFiltro === 'dm_negociando' && !marcaEmNegociacao(m)) return false;
             else if (marcaFiltro === 'dm_voce' && !marcaEsperandoVoce(m)) return false;
             else if (MARCA_STATUS[marcaFiltro] && (m.status || 'lead') !== marcaFiltro) return false;
             if (!q) return true;
             return [m.nome, m.instagram, m.email, m.telefone, m.contato, m.nicho, m.obs].join(' ').toLowerCase().includes(q);
-        });
+        })
+        // Favorita fica fixada em cima; o resto segue a ordem que veio (contato mais recente).
+        // O sort do JS e estavel, entao empate nao embaralha.
+        .sort((a, b) => (b.favorita ? 1 : 0) - (a.favorita ? 1 : 0));
     }
 
     function marcasRender() {
@@ -5873,15 +5890,17 @@
         const cabec = document.getElementById('marcasResumo');
         const nDmNeg = valendo.filter(marcaEmNegociacao).length;
         const nDmVoce = valendo.filter(marcaEsperandoVoce).length;
+        const nFav = valendo.filter(m => m.favorita).length;
         if (cabec) cabec.innerHTML = '<div class="ig-chip"><b>' + valendo.length + '</b>marcas na base</div>'
             + '<div class="ig-chip"><b>' + comEmail + '</b>com e-mail pra disparo</div>'
+            + '<div class="ig-chip"><b>' + nFav + '</b>⭐ favoritas</div>'
             + '<div class="ig-chip"><b>' + valendo.filter(m => (m.status || 'lead') === 'cliente').length + '</b>já foram clientes</div>'
             + '<div class="ig-chip"><b>' + nDmNeg + '</b>💬 negociando na DM</div>'
             + '<div class="ig-chip"><b>' + nDmVoce + '</b>⏳ esperando você</div>';
         const nPor = k => valendo.filter(m => (m.status || 'lead') === k).length;
         const fEl = document.getElementById('marcaFiltros');
         if (fEl) {
-            const fs = [['todas', 'Todas', valendo.length], ['comemail', '📧 Com e-mail', valendo.filter(m => (m.email || '').includes('@')).length],
+            const fs = [['todas', 'Todas', valendo.length], ['favoritas', '⭐ Favoritas', nFav], ['comemail', '📧 Com e-mail', valendo.filter(m => (m.email || '').includes('@')).length],
                 ['dm_negociando', '💬 Negociando na DM', nDmNeg], ['dm_voce', '⏳ Esperando você', nDmVoce]]
                 .concat(Object.keys(MARCA_STATUS).map(k => [k, MARCA_STATUS[k].ic + ' ' + MARCA_STATUS[k].nome, nPor(k)]))
                 .concat(descartadas ? [['descartadas', '🚫 Não são marca', descartadas]] : []);
@@ -5902,11 +5921,12 @@
                 + '<button class="ig-btn" type="button" style="padding:5px 12px;font-size:12px;margin-left:6px;" onclick="marcasImportar()">↻ Trazer pra base</button></div>'
             : '';
         box.innerHTML = aviso + '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:auto;"><table><thead><tr>'
-            + '<th>Marca</th><th>Instagram</th><th>📧 E-mail</th><th>📱 Telefone</th><th>Situação</th><th>💬 Na DM</th><th>Observação</th><th>Último contato</th><th></th></tr></thead><tbody>'
+            + '<th style="width:34px;"></th><th>Marca</th><th>Instagram</th><th>📧 E-mail</th><th>📱 Telefone</th><th>Situação</th><th>💬 Na DM</th><th>Observação</th><th>Último contato</th><th></th></tr></thead><tbody>'
             + mostrar.map(m => {
                 const st = MARCA_STATUS[m.status || 'lead'] || MARCA_STATUS.lead;
                 const uc = m.ultimo_contato ? new Date(m.ultimo_contato + 'T12:00:00').toLocaleDateString('pt-BR') : '—';
-                return '<tr class="marca-row" onclick="marcaAbrir(\'' + m.id + '\')">'
+                return '<tr class="marca-row' + (m.favorita ? ' fav' : '') + '" onclick="marcaAbrir(\'' + m.id + '\')">'
+                    + '<td style="text-align:center;padding-right:0;"><button class="marca-fav' + (m.favorita ? ' on' : '') + '" type="button" title="' + (m.favorita ? 'Tirar dos favoritos' : 'Fixar em cima e mandar e-mail só pra ela') + '" onclick="event.stopPropagation();marcaFavoritar(\'' + m.id + '\', ' + (m.favorita ? 'false' : 'true') + ')">' + (m.favorita ? '⭐' : '☆') + '</button></td>'
                     + '<td><b>' + mkEsc(m.nome) + '</b>' + (m.descadastrada ? ' <span class="idea-tag" style="background:#F3E3E1;color:#B03A32;">não enviar</span>' : '') + '</td>'
                     + '<td>' + (m.instagram ? '<a href="https://instagram.com/' + encodeURIComponent(m.instagram) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="color:var(--accent);text-decoration:none;">@' + mkEsc(m.instagram) + '</a>' : '<span style="color:var(--text-muted);">—</span>') + '</td>'
                     + '<td style="white-space:normal;max-width:210px;">' + (m.email ? mkEsc(m.email) : '<span style="color:var(--text-muted);">—</span>') + '</td>'
@@ -5953,6 +5973,17 @@
         return h;
     }
 
+    // Favorita: marca preferida dela. Sobe pro topo da lista e vira a lista
+    // "⭐ Marcas favoritas" do Disparo de e-mail. Salva na coluna marcas.favorita.
+    async function marcaFavoritar(id, ligar) {
+        const m = marcas.find(x => x.id === id); if (!m) return;
+        const antes = !!m.favorita;
+        m.favorita = !!ligar;
+        marcasRender();
+        const { error } = await sb.from('marcas').update({ favorita: !!ligar, updated_at: new Date().toISOString() }).eq('id', id);
+        if (error) { m.favorita = antes; marcasRender(); alert('Não consegui salvar: ' + error.message); }
+    }
+
     // "Não é marca": creator que se ofereceu, spam, engano do robô. Não apaga a linha,
     // porque o botão "Trazer da DM e das propostas" traria tudo de volta. Marca e esconde.
     async function marcaDescartar(id, tirar) {
@@ -5979,6 +6010,7 @@
             .forEach(par => { document.getElementById(par[0]).value = d[par[1]] || ''; });
         document.getElementById('marcaStatus').value = d.status || 'lead';
         document.getElementById('marcaUltimo').value = d.ultimo_contato || '';
+        document.getElementById('marcaFav').checked = !!d.favorita;
         document.getElementById('marcaDescad').checked = !!d.descadastrada;
         document.getElementById('marcaDescart').checked = !!d.descartada;
         document.getElementById('marcaApagarBtn').style.display = marcaEditando ? '' : 'none';
@@ -6004,6 +6036,7 @@
             obs: val('marcaObs'),
             status: document.getElementById('marcaStatus').value || 'lead',
             ultimo_contato: val('marcaUltimo'),
+            favorita: document.getElementById('marcaFav').checked,
             descadastrada: document.getElementById('marcaDescad').checked,
             descartada: document.getElementById('marcaDescart').checked,
             updated_at: new Date().toISOString()
@@ -6074,8 +6107,8 @@
     }
 
     function marcasCSV() {
-        const linhas = [['nome', 'instagram', 'email', 'telefone', 'contato', 'site', 'nicho', 'situacao', 'observacao', 'ultimo_contato', 'origem']];
-        marcasFiltradas().forEach(m => linhas.push([m.nome, m.instagram, m.email, m.telefone, m.contato, m.site, m.nicho, m.status, m.obs, m.ultimo_contato, m.origem]));
+        const linhas = [['favorita', 'nome', 'instagram', 'email', 'telefone', 'contato', 'site', 'nicho', 'situacao', 'observacao', 'ultimo_contato', 'origem']];
+        marcasFiltradas().forEach(m => linhas.push([m.favorita ? 'sim' : '', m.nome, m.instagram, m.email, m.telefone, m.contato, m.site, m.nicho, m.status, m.obs, m.ultimo_contato, m.origem]));
         const csv = linhas.map(r => r.map(c => '"' + String(c == null ? '' : c).replace(/"/g, '""') + '"').join(',')).join('\n');
         const a = document.createElement('a');
         a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' }));
@@ -6107,7 +6140,9 @@
         if (target && target.indexOf('marcas') === 0) {
             const st = target.split('_')[1];
             let qm = sb.from('marcas').select('nome,email').eq('descadastrada', false).eq('descartada', false).not('email', 'is', null);
-            if (st) qm = qm.eq('status', st);
+            // "marcas_favoritas" nao e um status: e a estrelinha da aba Marcas.
+            if (st === 'favoritas') qm = qm.eq('favorita', true);
+            else if (st) qm = qm.eq('status', st);
             const { data, error } = await qm.limit(5000);
             if (error) return null;
             const vistos = new Set(), saida = [];
@@ -6218,8 +6253,11 @@
         }
         else if (target.indexOf('marcas') === 0) {
             const alvo = document.getElementById('dispTarget');
+            const nomeAlvo = alvo.options[alvo.selectedIndex].text.replace('🏢 Marcas — ', '').replace('⭐ Marcas — ', '');
             el.innerHTML = '<b style="color:var(--accent);">' + recs.length + '</b> <b>marcas</b> vão receber este e-mail ('
-                + dispEsc(alvo.options[alvo.selectedIndex].text.replace('🏢 Marcas — ', '')) + '). O filtro de estado não vale aqui, e quem está marcado como "não mandar e-mail" fica de fora.';
+                + dispEsc(nomeAlvo) + ')'
+                + (target === 'marcas_favoritas' ? ' — as que você estrelou na aba <b>Marcas</b>' : '')
+                + '. O filtro de estado não vale aqui, e quem está marcado como "não mandar e-mail" fica de fora.';
         }
         else {
             const uf = (document.getElementById('dispUF') || {}).value || '';
