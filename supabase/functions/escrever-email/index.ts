@@ -183,17 +183,26 @@ serve(async (req) => {
         : "FORMATO: E-MAIL de primeiro contato, como descrito acima.",
     ].join("\n");
 
+    // na candidatura, cada versao usa um material: a dos numeros nao recebe a
+    // conexao nem a ideia, e a do entusiasmo nao recebe os numeros. Sem isso a IA
+    // junta tudo e estoura o tamanho.
+    const soNumeros = ehPlataforma && estiloBruto === "direta";
+    const soEntusiasmo = ehPlataforma && estiloBruto === "ideia";
+    const difU = soEntusiasmo ? "" : dif;
+    const conexaoU = soNumeros ? "" : conexao;
+    const ideiaU = soNumeros ? "" : ideia;
+
     const usuario = [
       "NOME DELA: " + nome,
       arroba ? "@ DELA: " + arroba : "",
       "PORTFOLIO: " + site,
       cidade ? "CIDADE DELA: " + cidade : "CIDADE: (nao informou, nao cite cidade nenhuma)",
       "",
-      "1) DIFERENCIAIS (quem ela e): " + (dif || "(nao respondeu, se apresente so como criadora de conteudo UGC)"),
+      "1) DIFERENCIAIS (quem ela e): " + (difU || "(nao respondeu, se apresente so como criadora de conteudo UGC)"),
       "",
-      "2) CONEXAO COM A MARCA: " + (conexao || "(nao respondeu, escreva um motivo curto e honesto)"),
+      "2) CONEXAO COM A MARCA: " + (conexaoU || "(nao respondeu, nao invente conexao: escreva sem isso)"),
       "",
-      "3) IDEIA DE CONTEUDO: " + (ideia || "(nao respondeu, proponha gravar o uso real do produto em tres momentos)"),
+      "3) IDEIA DE CONTEUDO: " + (ideiaU || (ehPlataforma ? "(nao respondeu, so diga que adoraria fazer parte)" : "(nao respondeu, proponha gravar o uso real do produto em tres momentos)")),
       "",
       "4) OBSERVACOES EXTRAS: " + (extras || "(nenhuma)"),
       "",
