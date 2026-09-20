@@ -52,6 +52,8 @@ serve(async (req) => {
     const ideia = limpar(corpo.ideia);
     const extras = limpar(corpo.extras);
     const detalhe = limpar(corpo.detalhe);
+    const oferta = limpar(corpo.oferta);
+    const quando = limpar(corpo.quando);
     if (!dif && !conexao && !ideia) return json({ error: "vazio" }, 400);
 
     const nome = limpar(corpo.nome) || "{{nome}}";
@@ -148,8 +150,8 @@ serve(async (req) => {
             "FORMATO: SEGUNDO E-MAIL, mandado alguns dias depois do primeiro, que nao teve resposta.",
             "No maximo 70 palavras no total. Tres frases curtas, no maximo quatro.",
             "assunto: curtinho, retomando o assunto anterior, tipo: sobre a ideia que eu mandei.",
-            "apresentacao: uma linha retomando o contato, sem cobranca e sem soar chateada. Nada de nao obtive retorno. NAO comece com Oi nem Oiee nem tudo bem: a saudacao ja vem pronta na linha de cima, e repetir fica estranho.",
-            "motivo: uma oferta NOVA que facilite o sim, tirada do que ela escreveu: gravar um teste curto antes de qualquer acordo, adaptar a ideia, mandar mais referencias.",
+            "apresentacao: uma linha retomando o contato, citando o assunto do primeiro e-mail (item 3) e, se ela disse quando mandou (item 7), a referencia de tempo. Sem cobranca e sem soar chateada. Nada de nao obtive retorno. NAO comece com Oi nem Oiee nem tudo bem: a saudacao ja vem pronta na linha de cima.",
+            "motivo: a OFERTA NOVA que ela escreveu no item 6, reescrita em uma frase que facilite o sim. Se ela nao deu, ofereca gravar um teste curto antes de qualquer acordo.",
             "ideia: string vazia, credenciais vazia, fecho_extra vazia.",
             "ps: string vazia.",
             "Nao repita a apresentacao dela nem as credenciais: ela ja se apresentou no primeiro e-mail.",
@@ -207,6 +209,8 @@ serve(async (req) => {
       "4) OBSERVACOES EXTRAS: " + (extras || "(nenhuma)"),
       "",
       "5) O QUE ELA VIU NO SITE DESSA MARCA: " + (detalhe || "(nao respondeu, use o marcador {{detalhe}} literalmente)"),
+      formato === "followup" ? "6) A OFERTA NOVA DO SEGUNDO E-MAIL: " + (oferta || "(nao respondeu: ofereca gravar um teste curto antes de qualquer acordo)") : "",
+      formato === "followup" && quando ? "7) QUANDO ELA MANDOU O PRIMEIRO: " + quando : "",
     ].filter(Boolean).join("\n");
 
     const res = await fetch("https://api.openai.com/v1/chat/completions", {
