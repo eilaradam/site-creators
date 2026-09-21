@@ -7103,7 +7103,7 @@
         box.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando...</div>';
         try {
             const { data, error } = await sb.from('lista_espera')
-                .select('nome,email,whatsapp,instagram,origem,created_at')
+                .select('*')
                 .eq('interesse', 'imersao')
                 .order('created_at', { ascending: false });
             if (error) throw error;
@@ -7114,10 +7114,22 @@
                 return;
             }
             const dt = s => { const d = new Date(s); return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); };
-            box.innerHTML = '<div style="border:1px solid var(--border);border-radius:12px;overflow:auto;">'
+            /* Resumo do que elas mais querem aprender (pergunta da página; "Outra: xyz" agrupa em "Outra") */
+            const LE_EMOJI = { 'Portfólio': '🎨', 'Canva': '🖼️', 'Automação de DM': '🤖', 'Prospecção de marcas': '📩', 'Outra': '✨' };
+            const leCont = {};
+            let leResp = 0;
+            leCache.forEach(r => { const k = String(r.quer_aprender || '').split(':')[0].trim(); if (k) { leCont[k] = (leCont[k] || 0) + 1; leResp++; } });
+            const leOrd = Object.entries(leCont).sort((a, b) => b[1] - a[1]);
+            const leResumo = leOrd.length
+                ? '<div style="margin-bottom:14px;"><div style="font-size:12.5px;font-weight:700;margin-bottom:8px;">O que elas mais querem aprender <span style="color:var(--text-muted);font-weight:600;">(' + leResp + ' responderam)</span></div>'
+                  + '<div style="display:flex;flex-wrap:wrap;gap:8px;">'
+                  + leOrd.map(([k, n], i) => '<span style="display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:100px;font-size:12.5px;font-weight:600;' + (i === 0 ? 'background:var(--accent);color:#fff;' : 'background:var(--warm);color:var(--text);') + '">' + (LE_EMOJI[k] || '💛') + ' ' + escapeHtml(k) + ' <b>' + n + '</b> <span style="opacity:.75;font-weight:500;">(' + Math.round(n * 100 / leResp) + '%)</span></span>').join('')
+                  + '</div></div>'
+                : '';
+            box.innerHTML = leResumo + '<div style="border:1px solid var(--border);border-radius:12px;overflow:auto;">'
                 + '<table style="width:100%;border-collapse:collapse;font-size:13px;">'
                 + '<thead><tr style="background:var(--warm);text-align:left;">'
-                + '<th style="padding:9px 12px;">Quando</th><th style="padding:9px 12px;">Nome</th><th style="padding:9px 12px;">E-mail</th><th style="padding:9px 12px;">WhatsApp</th><th style="padding:9px 12px;">Instagram</th><th style="padding:9px 12px;">Veio de</th>'
+                + '<th style="padding:9px 12px;">Quando</th><th style="padding:9px 12px;">Nome</th><th style="padding:9px 12px;">E-mail</th><th style="padding:9px 12px;">WhatsApp</th><th style="padding:9px 12px;">Instagram</th><th style="padding:9px 12px;">Quer aprender</th><th style="padding:9px 12px;">Veio de</th>'
                 + '</tr></thead><tbody>'
                 + leCache.map(r => {
                     const ig = (r.instagram || '').replace(/^@/, '');
@@ -7128,6 +7140,7 @@
                         + '<td style="padding:9px 12px;">' + escapeHtml(r.email || '') + '</td>'
                         + '<td style="padding:9px 12px;">' + (zap ? '<a href="https://wa.me/55' + zap + '" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;">' + escapeHtml(r.whatsapp) + '</a>' : '<span style="color:var(--text-muted);">—</span>') + '</td>'
                         + '<td style="padding:9px 12px;">' + (ig ? '<a href="https://instagram.com/' + encodeURIComponent(ig) + '" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;">@' + escapeHtml(ig) + '</a>' : '<span style="color:var(--text-muted);">—</span>') + '</td>'
+                        + '<td style="padding:9px 12px;">' + (r.quer_aprender ? (LE_EMOJI[String(r.quer_aprender).split(':')[0].trim()] || '💛') + ' ' + escapeHtml(r.quer_aprender) : '<span style="color:var(--text-muted);">—</span>') + '</td>'
                         + '<td style="padding:9px 12px;color:var(--text-muted);">' + escapeHtml(r.origem || 'direto') + '</td>'
                         + '</tr>';
                 }).join('')
@@ -7140,8 +7153,8 @@
     function exportListaEsperaCsv() {
         if (!leCache.length) { alert('Ninguém na lista ainda.'); return; }
         const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
-        const linhas = [['nome', 'email', 'whatsapp', 'instagram', 'origem', 'data'].join(',')]
-            .concat(leCache.map(r => [r.nome, r.email, r.whatsapp, r.instagram, r.origem, r.created_at].map(esc).join(',')));
+        const linhas = [['nome', 'email', 'whatsapp', 'instagram', 'quer_aprender', 'origem', 'data'].join(',')]
+            .concat(leCache.map(r => [r.nome, r.email, r.whatsapp, r.instagram, r.quer_aprender, r.origem, r.created_at].map(esc).join(',')));
         const blob = new Blob(['﻿' + linhas.join('\n')], { type: 'text/csv;charset=utf-8;' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);

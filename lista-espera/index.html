@@ -40,6 +40,13 @@
         .field-group input:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
         .field-hint { color: var(--text-muted); font-weight: 400; }
         .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+        .chip { display: inline-flex; align-items: center; gap: 6px; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 100px; background: var(--cream); font-size: 14px; font-weight: 500; color: var(--text); cursor: pointer; transition: all 0.2s; user-select: none; }
+        .chip:hover { border-color: var(--accent); }
+        .chip.on { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 4px 14px rgba(212,87,42,0.25); }
+        .chip input { display: none; }
+        #outraWrap { display: none; margin-top: 10px; }
+        #outraWrap.show { display: block; }
         .form-submit { width: 100%; margin-top: 6px; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 14px; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
         .form-submit:hover { background: var(--accent-dark); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(212,87,42,0.3); }
         .form-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
@@ -100,6 +107,18 @@
                         </div>
                     </div>
 
+                    <div class="field-group">
+                        <label>Qual funcionalidade você viu e mais quer aprender? <span class="field-hint">(opcional)</span></label>
+                        <div class="chips" id="chips">
+                            <label class="chip"><input type="radio" name="quer" value="Portfólio">🎨 Portfólio</label>
+                            <label class="chip"><input type="radio" name="quer" value="Canva">🖼️ Canva</label>
+                            <label class="chip"><input type="radio" name="quer" value="Automação de DM">🤖 Automação de DM</label>
+                            <label class="chip"><input type="radio" name="quer" value="Prospecção de marcas">📩 Prospecção de marcas</label>
+                            <label class="chip"><input type="radio" name="quer" value="Outra">✨ Outra</label>
+                        </div>
+                        <div id="outraWrap"><input type="text" id="outraTxt" placeholder="Me conta qual" maxlength="80"></div>
+                    </div>
+
                     <button type="submit" class="form-submit" id="submitBtn">Quero entrar na lista</button>
                     <p class="form-footer">Prometo não encher sua caixa de entrada. Só te aviso quando a próxima turma abrir. 💛<br><a href="https://instagram.com/eilaradam" target="_blank" rel="noopener">@eilaradam</a></p>
                 </form>
@@ -141,6 +160,25 @@
         });
     })();
 
+    /* Chips da pergunta "o que mais quer aprender" (escolha única) */
+    (function bindChips() {
+        const chips = document.querySelectorAll('#chips .chip');
+        chips.forEach(function (c) {
+            c.querySelector('input').addEventListener('change', function () {
+                chips.forEach(function (x) { x.classList.toggle('on', x.querySelector('input').checked); });
+                const outra = document.querySelector('#chips input[value="Outra"]').checked;
+                document.getElementById('outraWrap').classList.toggle('show', outra);
+                if (outra) document.getElementById('outraTxt').focus();
+            });
+        });
+    })();
+    function querAprender() {
+        const sel = document.querySelector('#chips input:checked');
+        if (!sel) return null;
+        if (sel.value === 'Outra') { const t = gv('outraTxt'); return t ? 'Outra: ' + t.slice(0, 80) : 'Outra'; }
+        return sel.value;
+    }
+
     function showSuccess(title, sub) {
         if (title) document.getElementById('successTitle').textContent = title;
         if (sub) document.getElementById('successSub').textContent = sub;
@@ -166,14 +204,22 @@
 
             btn.textContent = 'Entrando na lista...'; btn.disabled = true;
 
-            const { error } = await sb.from('lista_espera').insert([{
+            const linha = {
                 nome: nome,
                 email: email,
                 whatsapp: gv('whatsapp') || null,
                 instagram: instagram || null,
                 origem: ORIGEM,
-                interesse: 'imersao'
-            }]);
+                interesse: 'imersao',
+                quer_aprender: querAprender()
+            };
+            let { error } = await sb.from('lista_espera').insert([linha]);
+
+            /* Se a coluna quer_aprender ainda não existir no banco, grava sem ela. Ninguém fica de fora. */
+            if (error && (error.code === 'PGRST204' || /quer_aprender/.test(error.message || ''))) {
+                delete linha.quer_aprender;
+                ({ error } = await sb.from('lista_espera').insert([linha]));
+            }
 
             /* 23505 = e-mail já está na lista. Pra pessoa, isso é sucesso. */
             if (error && error.code !== '23505') throw new Error('Não consegui te inscrever agora. Tenta de novo em instantes.');

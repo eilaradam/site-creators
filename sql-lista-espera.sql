@@ -40,3 +40,6 @@ create policy "lista_espera update logada" on public.lista_espera
 drop policy if exists "lista_espera delete logada" on public.lista_espera;
 create policy "lista_espera delete logada" on public.lista_espera
     for delete to authenticated using (true);
+
+-- 21/09/2026: pergunta "Qual funcionalidade você viu e mais quer aprender?" (Portfólio, Canva, Automação de DM, Prospecção de marcas, Outra: ...)
+alter table public.lista_espera add column if not exists quer_aprender text;
