@@ -14332,15 +14332,18 @@
             if (dm && dm.error) throw new Error(await retroErro(dm.error));
             const nDM = ((dm && dm.data) || {}).candidatos || 0;
 
-            /* quem só dá pra alcançar no comentário, post a post */
             recadoDados = { dm: nDM, posts: [], palavra: recadoPalavra(a) };
-            const nCom = await recadoContarCom(true);
 
-            info.innerHTML = '<b style="color:var(--success);">' + nDM + '</b> tocaram no botão nas últimas 24h, essas dá pra chamar no <b>direct</b>.<br>'
-                + '<b>' + nCom + '</b> dá pra chamar <b>no comentário</b>.'
-                + '<div style="font-size:12px;color:var(--text-muted);margin-top:8px;line-height:1.55;">'
+            /* O DIRECT APARECE JÁ. Ler os comentários (post grande tem mais de mil) demora
+               e já travou a janela: a caixa do direct só aparecia depois, e parecia que o
+               botão não fazia nada. Agora a contagem dos comentários roda por trás. */
+            const explica = '<div style="font-size:12px;color:var(--text-muted);margin-top:8px;line-height:1.55;">'
                 + 'Não é escolha nossa: o Instagram só deixa mandar mensagem nova pra quem mexeu na conversa nas últimas 24h. '
                 + 'Comentar não conta, e a resposta privada do comentário a automação já usou.</div>';
+            const linhaDM = '<b style="color:var(--success);">' + nDM + '</b> tocaram no botão nas últimas 24h, essas dá pra chamar no <b>direct</b>.<br>';
+            info.innerHTML = linhaDM
+                + '<span id="recadoComCount" style="color:var(--text-muted);">Lendo os comentários pra contar quem dá pra chamar por lá… (pode demorar, o direct já pode ir)</span>'
+                + explica;
 
             if (nDM) {
                 const p = retroMsgPadrao(a);
@@ -14350,8 +14353,17 @@
                 document.getElementById('recadoBoxDM').style.display = '';
             }
             document.getElementById('recadoCom').value = RECADO_COM_PADRAO;
-            document.getElementById('recadoBoxCom').style.display = '';
-            recadoRenderPreview();
+
+            /* quem só dá pra alcançar no comentário, post a post (por trás, sem travar o direct) */
+            recadoContarCom(true).then(function (nCom) {
+                if (recadoAuto !== a) return;
+                info.innerHTML = linhaDM + '<b>' + nCom + '</b> dá pra chamar <b>no comentário</b>.' + explica;
+                document.getElementById('recadoBoxCom').style.display = '';
+                recadoRenderPreview();
+            }).catch(function (e) {
+                const c = document.getElementById('recadoComCount');
+                if (c) c.textContent = 'Não consegui ler os comentários agora (' + (e.message || e) + '). O direct funciona mesmo assim.';
+            });
         } catch (e) {
             info.textContent = 'Não consegui contar as pessoas: ' + (e.message || e);
         }
@@ -14372,8 +14384,10 @@
             const mid = mids[i];
             const passo = mids.length > 1 ? (' post ' + (i + 1) + ' de ' + mids.length) : '';
             if (silencioso) {
-                if (info) {
-                    info.innerHTML = 'Lendo os comentários' + passo + '…'
+                /* enquanto o direct já está na tela, o progresso vai na linha de baixo, não por cima dele */
+                const alvo = document.getElementById('recadoComCount') || info;
+                if (alvo) {
+                    alvo.innerHTML = 'Lendo os comentários' + passo + '…'
                         + '<div style="font-size:12px;color:var(--text-muted);margin-top:6px;line-height:1.5;">'
                         + 'Post com muito comentário demora, pode passar de um minuto. Nada é enviado nessa parte.</div>';
                 }
