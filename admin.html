@@ -7114,11 +7114,13 @@
                 return;
             }
             const dt = s => { const d = new Date(s); return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); };
-            /* Resumo do que elas mais querem aprender (pergunta da página; "Outra: xyz" agrupa em "Outra") */
+            /* Resumo do que elas mais querem aprender (pergunta da página; cada pessoa pode marcar várias,
+               vem "Portfólio, Canva, Outra: xyz"; "Outra: xyz" agrupa em "Outra") */
             const LE_EMOJI = { 'Portfólio': '🎨', 'Canva': '🖼️', 'Automação de DM': '🤖', 'Prospecção de marcas': '📩', 'Outra': '✨' };
+            const leTokens = v => String(v || '').split(',').map(t => t.split(':')[0].trim()).filter(Boolean);
             const leCont = {};
             let leResp = 0;
-            leCache.forEach(r => { const k = String(r.quer_aprender || '').split(':')[0].trim(); if (k) { leCont[k] = (leCont[k] || 0) + 1; leResp++; } });
+            leCache.forEach(r => { const ks = leTokens(r.quer_aprender); if (ks.length) { leResp++; ks.forEach(k => { leCont[k] = (leCont[k] || 0) + 1; }); } });
             const leOrd = Object.entries(leCont).sort((a, b) => b[1] - a[1]);
             const leResumo = leOrd.length
                 ? '<div style="margin-bottom:14px;"><div style="font-size:12.5px;font-weight:700;margin-bottom:8px;">O que elas mais querem aprender <span style="color:var(--text-muted);font-weight:600;">(' + leResp + ' responderam)</span></div>'
@@ -7140,7 +7142,7 @@
                         + '<td style="padding:9px 12px;">' + escapeHtml(r.email || '') + '</td>'
                         + '<td style="padding:9px 12px;">' + (zap ? '<a href="https://wa.me/55' + zap + '" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;">' + escapeHtml(r.whatsapp) + '</a>' : '<span style="color:var(--text-muted);">—</span>') + '</td>'
                         + '<td style="padding:9px 12px;">' + (ig ? '<a href="https://instagram.com/' + encodeURIComponent(ig) + '" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;">@' + escapeHtml(ig) + '</a>' : '<span style="color:var(--text-muted);">—</span>') + '</td>'
-                        + '<td style="padding:9px 12px;">' + (r.quer_aprender ? (LE_EMOJI[String(r.quer_aprender).split(':')[0].trim()] || '💛') + ' ' + escapeHtml(r.quer_aprender) : '<span style="color:var(--text-muted);">—</span>') + '</td>'
+                        + '<td style="padding:9px 12px;">' + (r.quer_aprender ? leTokens(r.quer_aprender).map(k => (LE_EMOJI[k] || '💛')).join('') + ' ' + escapeHtml(r.quer_aprender) : '<span style="color:var(--text-muted);">—</span>') + '</td>'
                         + '<td style="padding:9px 12px;color:var(--text-muted);">' + escapeHtml(r.origem || 'direto') + '</td>'
                         + '</tr>';
                 }).join('')

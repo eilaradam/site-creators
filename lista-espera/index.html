@@ -108,13 +108,13 @@
                     </div>
 
                     <div class="field-group">
-                        <label>Qual funcionalidade você viu e mais quer aprender? <span class="field-hint">(opcional)</span></label>
+                        <label>Qual funcionalidade você viu e mais quer aprender? <span class="field-hint">(pode marcar quantas quiser)</span></label>
                         <div class="chips" id="chips">
-                            <label class="chip"><input type="radio" name="quer" value="Portfólio">🎨 Portfólio</label>
-                            <label class="chip"><input type="radio" name="quer" value="Canva">🖼️ Canva</label>
-                            <label class="chip"><input type="radio" name="quer" value="Automação de DM">🤖 Automação de DM</label>
-                            <label class="chip"><input type="radio" name="quer" value="Prospecção de marcas">📩 Prospecção de marcas</label>
-                            <label class="chip"><input type="radio" name="quer" value="Outra">✨ Outra</label>
+                            <label class="chip"><input type="checkbox" name="quer" value="Portfólio">🎨 Portfólio</label>
+                            <label class="chip"><input type="checkbox" name="quer" value="Canva">🖼️ Canva</label>
+                            <label class="chip"><input type="checkbox" name="quer" value="Automação de DM">🤖 Automação de DM</label>
+                            <label class="chip"><input type="checkbox" name="quer" value="Prospecção de marcas">📩 Prospecção de marcas</label>
+                            <label class="chip"><input type="checkbox" name="quer" value="Outra">✨ Outra</label>
                         </div>
                         <div id="outraWrap"><input type="text" id="outraTxt" placeholder="Me conta qual" maxlength="80"></div>
                     </div>
@@ -160,23 +160,27 @@
         });
     })();
 
-    /* Chips da pergunta "o que mais quer aprender" (escolha única) */
+    /* Chips da pergunta "o que mais quer aprender" (pode marcar várias) */
     (function bindChips() {
         const chips = document.querySelectorAll('#chips .chip');
         chips.forEach(function (c) {
-            c.querySelector('input').addEventListener('change', function () {
-                chips.forEach(function (x) { x.classList.toggle('on', x.querySelector('input').checked); });
-                const outra = document.querySelector('#chips input[value="Outra"]').checked;
-                document.getElementById('outraWrap').classList.toggle('show', outra);
-                if (outra) document.getElementById('outraTxt').focus();
+            const inp = c.querySelector('input');
+            inp.addEventListener('change', function () {
+                c.classList.toggle('on', inp.checked);
+                if (inp.value === 'Outra') {
+                    document.getElementById('outraWrap').classList.toggle('show', inp.checked);
+                    if (inp.checked) document.getElementById('outraTxt').focus();
+                }
             });
         });
     })();
+    /* Vira "Portfólio, Canva, Outra: xyz" (a "Outra" sempre por último) */
     function querAprender() {
-        const sel = document.querySelector('#chips input:checked');
-        if (!sel) return null;
-        if (sel.value === 'Outra') { const t = gv('outraTxt'); return t ? 'Outra: ' + t.slice(0, 80) : 'Outra'; }
-        return sel.value;
+        const sel = Array.from(document.querySelectorAll('#chips input:checked')).map(function (i) { return i.value; });
+        if (!sel.length) return null;
+        const lista = sel.filter(function (v) { return v !== 'Outra'; });
+        if (sel.indexOf('Outra') >= 0) { const t = gv('outraTxt').replace(/,/g, ' '); lista.push(t ? 'Outra: ' + t.slice(0, 80) : 'Outra'); }
+        return lista.join(', ');
     }
 
     function showSuccess(title, sub) {
