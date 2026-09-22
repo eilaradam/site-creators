@@ -4240,6 +4240,9 @@
 .ct-stopt { text-align:left; background:none; border:0; border-radius:9px; padding:8px 10px; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; color:var(--text); }
 .ct-stopt:hover { background:var(--accent-tint); }
 .ct-stopt.on { background:var(--accent); color:#fff; }
+.ct-rotmenu { min-width:340px; max-width:92vw; gap:8px; padding:10px; }
+.ct-rotmenu .ct-input { width:100%; }
+.ct-rotmenu-b { display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; }
 #tabConteudos .ct-drag { cursor:grab; color:var(--text-muted); font-size:17px; line-height:1; padding:0 5px; touch-action:none; user-select:none; -webkit-user-select:none; }
 #tabConteudos .ct-drag:hover { color:var(--accent); }
 #tabConteudos tr.ct-row.arrastando td { opacity:.4; }
@@ -17584,11 +17587,46 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const id = c.id;
         if (c.roteiro_url) {
             return '<div class="ct-rotc"><a class="ct-link" href="' + ctEsc(ctUrl(c.roteiro_url)) + '" target="_blank" rel="noopener" title="' + ctEsc(c.roteiro_arquivo ? 'Arquivo que você subiu' : c.roteiro_url) + '" onclick="event.stopPropagation()">📄 Abrir ↗</a>'
-                + '<button class="ct-ab" type="button" title="Trocar por outro arquivo" onclick="event.stopPropagation();ctEscolherArquivo(\'' + id + '\')">📎</button>'
+                + '<button class="ct-ab" type="button" title="Trocar o link ou o arquivo" onclick="event.stopPropagation();ctRotMenu(\'' + id + '\', this)">✏️</button>'
                 + '<button class="ct-ab del" type="button" title="Tirar o roteiro" onclick="event.stopPropagation();ctRemoverRoteiro(\'' + id + '\')">✕</button></div>';
         }
-        return '<div class="ct-rotc"><button class="ct-mini" type="button" title="Subir o arquivo do modelo (PDF, Word, imagem...)" onclick="event.stopPropagation();ctEscolherArquivo(\'' + id + '\')">📎 Subir</button>'
-            + '<button class="ct-mini" type="button" title="Colar um link (Google Docs, Canva, Notion...)" onclick="event.stopPropagation();ctColarLinkRoteiro(\'' + id + '\')">🔗 Link</button></div>';
+        return '<div class="ct-rotc"><button class="ct-mini" type="button" title="Colar o link do modelo (Drive, Docs, Canva, Notion...)" onclick="event.stopPropagation();ctRotMenu(\'' + id + '\', this)">🔗 Colocar link</button></div>';
+    }
+    /* caixinha pra colar o link (Drive, Docs, Canva...). Subir arquivo fica como segunda opção. */
+    let ctRotMenuId = null;
+    function ctRotMenu(id, btn) {
+        if (ctRotMenuId === id) { ctRotMenuFechar(); return; }
+        ctRotMenuFechar(); if (typeof ctStatusFechar === 'function') ctStatusFechar();
+        const c = ctLista.find(x => x.id === id); if (!c || !btn) return;
+        const atual = c.roteiro_url && !c.roteiro_arquivo ? c.roteiro_url : '';
+        const m = document.createElement('div');
+        m.id = 'ctRotMenu'; m.className = 'ct-stmenu ct-rotmenu';
+        m.innerHTML = '<div class="ct-stmenu-t">📄 Modelo de roteiro</div>'
+            + '<input id="ctRotInput" class="ct-input" type="url" placeholder="Cole o link do Drive, Docs, Canva, Notion..." value="' + ctEsc(atual) + '">'
+            + '<div class="ct-rotmenu-b"><button class="ct-btn" type="button" onclick="ctRotSalvarLink(\'' + id + '\')">✓ Salvar link</button>'
+            + '<button class="ct-mini" type="button" onclick="ctRotMenuFechar();ctEscolherArquivo(\'' + id + '\')">📎 ou subir um arquivo</button></div>';
+        m.addEventListener('click', e => e.stopPropagation());
+        document.body.appendChild(m);
+        const r = btn.getBoundingClientRect();
+        let top = r.bottom + 6, left = r.left;
+        if (top + m.offsetHeight > window.innerHeight - 8) top = Math.max(8, r.top - m.offsetHeight - 6);
+        if (left + m.offsetWidth > window.innerWidth - 8) left = Math.max(8, window.innerWidth - m.offsetWidth - 8);
+        m.style.top = top + 'px'; m.style.left = left + 'px';
+        ctRotMenuId = id;
+        const inp = document.getElementById('ctRotInput');
+        inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); ctRotSalvarLink(id); } if (e.key === 'Escape') ctRotMenuFechar(); });
+        setTimeout(() => { inp.focus(); document.addEventListener('click', ctRotMenuFechar, { once: true }); }, 0);
+    }
+    function ctRotMenuFechar() { const m = document.getElementById('ctRotMenu'); if (m) m.remove(); ctRotMenuId = null; }
+    async function ctRotSalvarLink(id) {
+        const inp = document.getElementById('ctRotInput'); const url = ((inp && inp.value) || '').trim();
+        if (!url) { ctToast('Cola o link primeiro.', true); return; }
+        if (!/^(https?:\/\/)?[^\s]+\.[^\s]+/i.test(url)) { ctToast('Isso não parece um link. Cola o endereço que começa com https://', true); return; }
+        const c = ctLista.find(x => x.id === id); if (!c) return;
+        ctRotMenuFechar();
+        const antigo = c.roteiro_arquivo;
+        const ok = await ctPatch(id, { roteiro_url: ctUrl(url), roteiro_arquivo: null }, '🔗 Link do roteiro guardado ✓');
+        if (ok && antigo) sb.storage.from('conteudos').remove([antigo]).catch(() => {});
     }
     function ctEscolherArquivo(id) {
         ctRoteiroAlvo = id;
@@ -17613,14 +17651,6 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const antigo = c.roteiro_arquivo;
         const ok = await ctPatch(id, { roteiro_url: url, roteiro_arquivo: path }, '📄 Modelo de roteiro guardado ✓');
         if (ok && antigo && antigo !== path) sb.storage.from('conteudos').remove([antigo]).catch(() => {});
-    }
-    async function ctColarLinkRoteiro(id) {
-        const c = ctLista.find(x => x.id === id); if (!c) return;
-        const url = (prompt('Cole o link do modelo de roteiro (Google Docs, Canva, Notion...):', c.roteiro_url && !c.roteiro_arquivo ? c.roteiro_url : '') || '').trim();
-        if (!url) return;
-        const antigo = c.roteiro_arquivo;
-        const ok = await ctPatch(id, { roteiro_url: ctUrl(url), roteiro_arquivo: null }, '🔗 Link do roteiro guardado ✓');
-        if (ok && antigo) sb.storage.from('conteudos').remove([antigo]).catch(() => {});
     }
     async function ctRemoverRoteiro(id) {
         const c = ctLista.find(x => x.id === id); if (!c) return;
