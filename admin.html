@@ -1317,6 +1317,10 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/><path d="M9 11h.01"/><path d="M15 11h.01"/></svg>
                         <span>Marcas</span>
                     </button>
+                    <button class="tab nav-item" data-tab="conteudos" type="button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M3 9l2-5h14l2 5"/><path d="M8 4l2 5"/><path d="M13 4l2 5"/><path d="M10 13v5l4-2.5z"/></svg>
+                        <span>Conteúdos</span>
+                    </button>
                     <button class="tab nav-item" data-tab="disparo" type="button">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9z"/></svg>
                         <span>Disparo de e-mail</span>
@@ -4172,6 +4176,285 @@
     </div>
 </div>
 
+<!-- ── TAB: CONTEÚDOS ──
+     As campanhas de publi e UGC (vieram do MeuManager pra tabela `conteudos`):
+     da negociação ao pagamento, com funil de status, valor, pagamento e datas.
+     Tudo com prefixo ct- (CSS) e ct* (JS). -->
+<div class="dashboard" id="tabConteudos">
+<style>
+/* ---- Conteúdos: campanhas ---- */
+#tabConteudos .ct-wrap { max-width:1240px; margin:0 auto; }
+#tabConteudos .ct-btn, #ctModal .ct-btn { background:var(--accent); color:#fff; border:none; border-radius:10px; padding:9px 16px; font-weight:700; font-size:13px; cursor:pointer; font-family:inherit; white-space:nowrap; }
+#tabConteudos .ct-btn:hover, #ctModal .ct-btn:hover { filter:brightness(1.08); }
+#tabConteudos .ct-btn:disabled, #ctModal .ct-btn:disabled { opacity:.6; cursor:default; }
+#tabConteudos .ct-btn.ghost, #ctModal .ct-btn.ghost { background:transparent; color:var(--text); border:1px solid var(--border); }
+#tabConteudos .ct-btn.na-capa { background:#fff; color:var(--accent); box-shadow:0 3px 10px rgba(0,0,0,.16); }
+#tabConteudos .ct-input, #ctModal .ct-input { width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:10px; background:#fff; color:var(--text); font-size:14px; font-family:inherit; box-sizing:border-box; }
+#tabConteudos .ct-input:focus, #ctModal .ct-input:focus { outline:none; border-color:var(--accent); }
+/* cards de resumo */
+#tabConteudos .ct-cards { display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin-bottom:18px; }
+#tabConteudos .ct-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; position:relative; overflow:hidden; min-width:0; }
+#tabConteudos .ct-card .lb { font-size:11px; font-weight:800; letter-spacing:.8px; text-transform:uppercase; color:var(--text-muted); }
+#tabConteudos .ct-card .vl { font-size:24px; font-weight:800; color:var(--text); margin-top:4px; letter-spacing:-.3px; font-variant-numeric:tabular-nums; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#tabConteudos .ct-card .info { font-size:12px; color:var(--text-soft); margin-top:4px; }
+#tabConteudos .ct-card .em { position:absolute; right:14px; top:12px; font-size:22px; opacity:.55; }
+#tabConteudos .ct-card.dinheiro .vl { color:var(--accent); }
+#tabConteudos .ct-card.receber .vl { color:var(--alerta); }
+/* controles */
+#tabConteudos .ct-controls { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:14px; }
+#tabConteudos .ct-chips { display:flex; gap:7px; flex-wrap:wrap; }
+#tabConteudos .ct-chip { background:var(--card); border:1px solid var(--border); color:var(--text-soft); border-radius:100px; padding:7px 13px; font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit; transition:border-color .15s, color .15s, background .15s; }
+#tabConteudos .ct-chip b { color:var(--text-muted); font-weight:800; margin-left:3px; }
+#tabConteudos .ct-chip:hover { border-color:var(--accent); color:var(--accent); }
+#tabConteudos .ct-chip.on { background:var(--accent); border-color:var(--accent); color:#fff; }
+#tabConteudos .ct-chip.on b { color:rgba(255,255,255,.75); }
+#tabConteudos .ct-sep { width:1px; height:22px; background:var(--border); }
+#tabConteudos .ct-search { width:auto; min-width:220px; flex:1 1 220px; max-width:340px; margin-left:auto; padding:8px 13px; font-size:13px; }
+/* tabela */
+#tabConteudos .ct-tw { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow-x:auto; box-shadow:0 1px 2px rgba(33,29,26,.04), 0 2px 6px rgba(33,29,26,.05); }
+#tabConteudos .ct-table { width:100%; min-width:900px; border-collapse:separate; border-spacing:0; font-size:13.5px; }
+#tabConteudos .ct-table th { text-align:left; font-size:10.5px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--text-soft); padding:12px 14px; border-bottom:1px solid var(--border); white-space:nowrap; background:#FBF6F0; user-select:none; -webkit-user-select:none; }
+#tabConteudos .ct-table th.sortable { cursor:pointer; transition:color .15s; }
+#tabConteudos .ct-table th.sortable:hover, #tabConteudos .ct-table th.sorted { color:var(--accent); }
+#tabConteudos .ct-arrow { font-size:9px; opacity:.45; margin-left:3px; }
+#tabConteudos th.sorted .ct-arrow { opacity:1; }
+#tabConteudos .ct-table td { padding:11px 14px; border-bottom:1px solid var(--border); vertical-align:middle; background:var(--card); }
+#tabConteudos .ct-table tbody tr:last-child td { border-bottom:none; }
+#tabConteudos tr.ct-row { cursor:pointer; }
+#tabConteudos tr.ct-row:hover td { background:var(--cream, #FBF7F3); }
+#tabConteudos tr.ct-row.aberta td { background:var(--accent-tint); border-bottom-color:transparent; }
+#tabConteudos tr.ct-row.destaque td:first-child { box-shadow:inset 3px 0 0 var(--alerta); }
+#tabConteudos tr.ct-row.cancelada .ct-nome span { color:var(--text-muted); text-decoration:line-through; }
+#tabConteudos .ct-nome { font-weight:700; color:var(--text); display:flex; align-items:center; gap:4px; min-width:0; }
+#tabConteudos .ct-nome span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:320px; }
+#tabConteudos .ct-sub { font-size:12px; color:var(--text-muted); margin-top:2px; padding-left:26px; }
+#tabConteudos .ct-star { background:none; border:none; font-size:15px; line-height:1; cursor:pointer; padding:2px 4px; border-radius:6px; font-family:inherit; opacity:.25; transition:opacity .15s, transform .12s; flex-shrink:0; }
+#tabConteudos .ct-star.on { opacity:1; }
+#tabConteudos tr.ct-row:hover .ct-star { opacity:.6; }
+#tabConteudos tr.ct-row:hover .ct-star.on { opacity:1; }
+#tabConteudos .ct-star:hover { opacity:1; transform:scale(1.2); }
+#tabConteudos .ct-cli { min-width:0; }
+#tabConteudos .ct-cliente { font-weight:600; color:var(--text); }
+#tabConteudos .ct-ig { display:block; color:var(--accent); font-weight:600; text-decoration:none; font-size:12px; margin-top:2px; }
+#tabConteudos .ct-ig:hover { text-decoration:underline; }
+#tabConteudos .ct-num { font-variant-numeric:tabular-nums; white-space:nowrap; }
+#tabConteudos .ct-valor { font-weight:700; color:var(--text); }
+#tabConteudos .ct-data { white-space:nowrap; color:var(--text-soft); font-size:12.5px; }
+#tabConteudos .ct-mute { color:var(--text-muted); }
+/* badges */
+#tabConteudos .ct-badge { display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:700; padding:4px 10px; border-radius:100px; white-space:nowrap; background:#F1ECE6; color:var(--text-soft); border:none; font-family:inherit; line-height:1.3; }
+#tabConteudos .ct-badge.tp-publicidade { background:#FDE8D0; color:#9A4A0A; }
+#tabConteudos .ct-badge.tp-ugc { background:#DBEAFE; color:#1D4ED8; }
+#tabConteudos .ct-badge.tp-permuta { background:#DDF2E5; color:#22694A; }
+#tabConteudos .ct-badge.tp-outro { background:#ECE8E3; color:#7A736B; }
+#tabConteudos .ct-badge.st-negociando { background:#FFF2D9; color:#8A5A00; }
+#tabConteudos .ct-badge.st-briefing { background:#DBEAFE; color:#1D4ED8; }
+#tabConteudos .ct-badge.st-roteiro { background:#E5DBFF; color:#5B3AA8; }
+#tabConteudos .ct-badge.st-aprovacao_roteiro { background:#E0E7FF; color:#3730A3; }
+#tabConteudos .ct-badge.st-gravacao { background:#FCE7F3; color:#9D174D; }
+#tabConteudos .ct-badge.st-aprovacao_video { background:#CCFBF1; color:#0F766E; }
+#tabConteudos .ct-badge.st-aprovado { background:#DDF2E5; color:#22694A; }
+#tabConteudos .ct-badge.st-postado { background:var(--accent-tint); color:var(--accent); }
+#tabConteudos .ct-badge.st-cancelado { background:#ECE8E3; color:#7A736B; }
+#tabConteudos .ct-badge.pg { cursor:pointer; transition:transform .12s, box-shadow .12s; }
+#tabConteudos .ct-badge.pg:hover { transform:translateY(-1px); box-shadow:0 2px 6px rgba(0,0,0,.12); }
+#tabConteudos .ct-badge.pg-pendente { background:var(--alerta-bg); color:var(--alerta); }
+#tabConteudos .ct-badge.pg-pago { background:rgba(16,185,129,.13); color:#0B7A55; }
+/* ações da linha */
+#tabConteudos .ct-acoes { display:flex; gap:2px; justify-content:flex-end; }
+#tabConteudos .ct-ab { background:none; border:none; color:var(--text-muted); font-size:14px; line-height:1; cursor:pointer; padding:6px 7px; border-radius:7px; font-family:inherit; opacity:.55; transition:opacity .15s, background .15s; }
+#tabConteudos tr.ct-row:hover .ct-ab { opacity:1; }
+#tabConteudos .ct-ab:hover { background:var(--border); }
+#tabConteudos .ct-ab.del:hover { color:var(--error); }
+/* painel expandido */
+#tabConteudos tr.ct-detail td { background:var(--accent-tint); padding:0 14px 16px; cursor:default; }
+#tabConteudos .ct-painel { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px 18px; }
+#tabConteudos .ct-linha { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:14px; }
+#tabConteudos .ct-linha .ct-lbl { font-size:11px; font-weight:800; letter-spacing:.7px; text-transform:uppercase; color:var(--text-muted); margin-right:2px; }
+#tabConteudos .ct-timeline { display:grid; grid-template-columns:repeat(8, 1fr); gap:6px; margin-bottom:16px; }
+#tabConteudos .ct-step { background:#FBF6F0; border:1px dashed var(--border); border-radius:12px; padding:9px 8px; text-align:center; min-width:0; }
+#tabConteudos .ct-step.ok { background:var(--card); border:1px solid var(--accent); }
+#tabConteudos .ct-step .ic { font-size:17px; }
+#tabConteudos .ct-step .nm { font-size:10px; font-weight:700; color:var(--text-muted); margin-top:3px; text-transform:uppercase; letter-spacing:.4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#tabConteudos .ct-step .dt { font-size:12.5px; font-weight:700; color:var(--text-muted); margin-top:3px; font-variant-numeric:tabular-nums; white-space:nowrap; }
+#tabConteudos .ct-step.ok .dt { color:var(--accent); }
+#tabConteudos .ct-step.ok .nm { color:var(--text-soft); }
+#tabConteudos .ct-sel { padding:7px 10px; border:1px solid var(--border); border-radius:10px; background:#fff; color:var(--text); font-size:13px; font-family:inherit; font-weight:600; cursor:pointer; }
+#tabConteudos .ct-sel:focus { outline:none; border-color:var(--accent); }
+#tabConteudos .ct-switch { display:inline-flex; align-items:center; gap:8px; font-size:13px; color:var(--text); cursor:pointer; background:var(--card); border:1px solid var(--border); border-radius:100px; padding:5px 12px 5px 6px; font-family:inherit; font-weight:600; }
+#tabConteudos .ct-switch:hover { border-color:var(--accent); }
+#tabConteudos .ct-switch .tg { position:relative; width:34px; height:20px; border-radius:999px; background:var(--border); transition:background .15s; flex-shrink:0; }
+#tabConteudos .ct-switch .tg::after { content:""; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; transition:left .15s; box-shadow:0 1px 2px rgba(0,0,0,.25); }
+#tabConteudos .ct-switch.on .tg { background:var(--success); }
+#tabConteudos .ct-switch.on .tg::after { left:16px; }
+#tabConteudos .ct-link { display:inline-flex; align-items:center; gap:6px; color:var(--accent); font-weight:700; font-size:12.5px; text-decoration:none; background:var(--accent-tint); border-radius:100px; padding:6px 12px; }
+#tabConteudos .ct-link:hover { text-decoration:underline; }
+#tabConteudos .ct-cols { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+#tabConteudos .ct-bloco { background:#FBF6F0; border-radius:12px; padding:12px 14px; min-width:0; }
+#tabConteudos .ct-bloco .tit { display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:11px; font-weight:800; letter-spacing:.7px; text-transform:uppercase; color:var(--text-muted); margin-bottom:6px; }
+#tabConteudos .ct-bloco .txt { font-size:13px; color:var(--text); line-height:1.5; white-space:pre-wrap; word-break:break-word; max-height:260px; overflow:auto; }
+#tabConteudos .ct-bloco .vazio { font-size:12.5px; color:var(--text-muted); font-style:italic; }
+#tabConteudos .ct-mini { background:var(--card); border:1px solid var(--border); color:var(--text-soft); border-radius:8px; padding:4px 10px; font-family:inherit; font-size:11.5px; font-weight:700; cursor:pointer; white-space:nowrap; }
+#tabConteudos .ct-mini:hover { border-color:var(--accent); color:var(--accent); }
+/* vazio + rodapé */
+#tabConteudos .ct-empty { background:var(--card); border:1px dashed var(--border); border-radius:14px; padding:36px 24px; text-align:center; }
+#tabConteudos .ct-empty .em { font-size:30px; }
+#tabConteudos .ct-empty h4 { margin:10px 0 4px; font-size:15px; font-weight:800; color:var(--text); }
+#tabConteudos .ct-empty p { margin:0 0 14px; font-size:13px; color:var(--text-muted); }
+#tabConteudos .ct-count { font-size:12px; color:var(--text-muted); margin-top:9px; }
+/* toast */
+#tabConteudos .ct-toast { position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(8px); background:#211D1A; color:#fff; padding:10px 18px; border-radius:100px; font-size:13px; font-weight:700; z-index:960; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; box-shadow:0 8px 24px rgba(0,0,0,.2); max-width:calc(100vw - 32px); box-sizing:border-box; text-align:center; }
+#tabConteudos .ct-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+#tabConteudos .ct-toast.erro { background:#A8402C; }
+/* modal (fica fora da aba, por isso vai por id) */
+#ctModal { position:fixed; inset:0; background:rgba(30,26,22,.45); z-index:900; display:flex; align-items:center; justify-content:center; padding:20px; }
+#ctModal .ct-mbox { background:var(--card); border-radius:20px; width:100%; max-width:780px; max-height:92vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 18px 50px rgba(0,0,0,.25); }
+#ctModal .ct-mhead { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; padding:20px 24px 16px; border-bottom:1px solid var(--border); flex-shrink:0; }
+#ctModal .ct-mkicker { font-size:10.5px; font-weight:800; letter-spacing:1.2px; color:var(--text-muted); }
+#ctModal .ct-mtit { font-size:20px; font-weight:800; color:var(--text); margin-top:3px; }
+#ctModal .ct-x { background:#F1ECE6; border:none; color:var(--text-soft); width:32px; height:32px; border-radius:50%; font-size:14px; cursor:pointer; flex-shrink:0; font-family:inherit; }
+#ctModal .ct-mbody { padding:18px 24px 10px; overflow-y:auto; }
+#ctModal .ct-lbl { display:block; font-size:12.5px; font-weight:800; color:var(--text); margin:14px 0 6px; }
+#ctModal .ct-lbl i { font-style:normal; font-weight:500; color:var(--text-muted); }
+#ctModal .ct-mbody > .ct-lbl:first-child { margin-top:0; }
+#ctModal textarea.ct-input { min-height:90px; resize:vertical; }
+#ctModal .ct-row3 { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:12px; }
+#ctModal .ct-row4 { display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; }
+#ctModal .ct-sec { font-size:11px; font-weight:800; letter-spacing:.8px; text-transform:uppercase; color:var(--text-muted); margin:20px 0 2px; padding-top:14px; border-top:1px solid var(--border); }
+#ctModal .ct-check { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text); cursor:pointer; padding:7px 0 0; font-weight:600; }
+#ctModal .ct-check input { width:16px; height:16px; margin:0; }
+#ctModal .ct-mpe { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:16px 24px 20px; border-top:1px solid var(--border); flex-wrap:wrap; flex-shrink:0; }
+#ctModal .ct-del { background:none; border:none; color:var(--error); font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; padding:8px 4px; }
+/* telas menores */
+@media (max-width: 1000px) {
+  #tabConteudos .ct-cards { grid-template-columns:repeat(2, 1fr); }
+  #tabConteudos .ct-timeline { grid-template-columns:repeat(4, 1fr); }
+}
+@media (max-width: 720px) {
+  #tabConteudos .ct-search { max-width:none; margin-left:0; }
+  #tabConteudos .ct-controls .ct-sep { display:none; }
+  #tabConteudos .ct-cards { grid-template-columns:1fr; }
+  /* a tabela vira cards empilhados */
+  #tabConteudos .ct-tw { background:transparent; border:none; box-shadow:none; overflow:visible; }
+  #tabConteudos .ct-table { min-width:0; }
+  #tabConteudos .ct-table thead { display:none; }
+  #tabConteudos .ct-table, #tabConteudos .ct-table tbody, #tabConteudos .ct-table tr, #tabConteudos .ct-table td { display:block; width:100%; box-sizing:border-box; }
+  #tabConteudos tr.ct-row { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:8px 14px; margin-bottom:10px; }
+  #tabConteudos tr.ct-row.destaque { box-shadow:inset 3px 0 0 var(--alerta); }
+  #tabConteudos tr.ct-row.destaque td:first-child { box-shadow:none; }
+  #tabConteudos tr.ct-row.aberta { border-color:var(--accent); border-radius:14px 14px 0 0; margin-bottom:0; }
+  #tabConteudos .ct-table td { border:none; padding:5px 0; display:flex; justify-content:space-between; align-items:center; gap:10px; background:transparent !important; }
+  #tabConteudos .ct-table td::before { content:attr(data-l); font-size:10.5px; font-weight:800; letter-spacing:.7px; text-transform:uppercase; color:var(--text-muted); flex-shrink:0; }
+  #tabConteudos .ct-table td.ct-td-nome { display:block; padding:6px 0 8px; }
+  #tabConteudos .ct-table td.ct-td-nome::before { display:none; }
+  #tabConteudos .ct-nome span { white-space:normal; max-width:none; }
+  #tabConteudos .ct-cli { text-align:right; }
+  #tabConteudos .ct-ig { display:block; margin:1px 0 0; }
+  #tabConteudos .ct-ab { opacity:1; }
+  #tabConteudos tr.ct-detail { background:var(--card); border:1px solid var(--accent); border-top:none; border-radius:0 0 14px 14px; padding:0 10px 10px; margin:0 0 10px; }
+  #tabConteudos tr.ct-detail td { padding:0; display:block; }
+  #tabConteudos tr.ct-detail td::before { display:none; }
+  #tabConteudos .ct-painel { border:none; padding:8px 4px 4px; }
+  #tabConteudos .ct-cols { grid-template-columns:1fr; }
+  #tabConteudos .ct-timeline { grid-template-columns:repeat(2, 1fr); }
+  #tabConteudos .ct-linha .ct-sep { display:none; }
+  #ctModal { padding:0; align-items:flex-end; }
+  #ctModal .ct-mbox { max-width:none; border-radius:20px 20px 0 0; max-height:94vh; }
+  #ctModal .ct-row4 { grid-template-columns:1fr 1fr; }
+  #ctModal .ct-mhead, #ctModal .ct-mbody, #ctModal .ct-mpe { padding-left:16px; padding-right:16px; }
+}
+</style>
+    <div class="ct-wrap">
+        <div class="capa simples">
+            <div class="capa-topo">
+                <div class="capa-id">
+                    <span class="capa-mark">🎬</span>
+                    <div>
+                        <h2>Conteúdos</h2>
+                        <p class="sub">Suas campanhas de publi e UGC, da negociação ao pagamento.</p>
+                    </div>
+                </div>
+                <button class="ct-btn na-capa" type="button" onclick="ctAbrir(null)">+ Nova campanha</button>
+            </div>
+        </div>
+        <div class="ct-cards" id="ctCards"></div>
+        <div class="ct-controls">
+            <div class="ct-chips" id="ctChipsFase"></div>
+            <span class="ct-sep"></span>
+            <div class="ct-chips" id="ctChipsTipo"></div>
+            <input id="ctBusca" class="ct-input ct-search" type="search" placeholder="🔎 Buscar campanha, cliente ou observação..." oninput="ctRender()">
+        </div>
+        <div id="ctBox"></div>
+        <div id="ctToast" class="ct-toast" role="status" aria-live="polite"></div>
+    </div>
+</div>
+<div id="ctModal" style="display:none;">
+    <div class="ct-mbox">
+        <div class="ct-mhead">
+            <div>
+                <div class="ct-mkicker" id="ctModalT">NOVA CAMPANHA</div>
+                <div class="ct-mtit">🎬 Campanha</div>
+            </div>
+            <button class="ct-x" type="button" onclick="ctFechar()" aria-label="Fechar">✕</button>
+        </div>
+        <div class="ct-mbody">
+            <label class="ct-lbl" for="ctFNome">Nome da campanha</label>
+            <input id="ctFNome" class="ct-input" type="text" placeholder="Ex.: Lançamento da linha de verão">
+            <div class="ct-row3">
+                <div><label class="ct-lbl" for="ctFCliente">Cliente</label><input id="ctFCliente" class="ct-input" type="text" placeholder="Ex.: Lorenzetti"></div>
+                <div><label class="ct-lbl" for="ctFInsta">@ do cliente <i>sem o @</i></label><input id="ctFInsta" class="ct-input" type="text" placeholder="lorenzetti"></div>
+                <div><label class="ct-lbl" for="ctFTipo">Tipo</label><select id="ctFTipo" class="ct-input"></select></div>
+            </div>
+            <div class="ct-row3">
+                <div><label class="ct-lbl" for="ctFStatus">Status</label><select id="ctFStatus" class="ct-input"></select></div>
+                <div><label class="ct-lbl" for="ctFQtd">Quantidade de vídeos</label><input id="ctFQtd" class="ct-input" type="number" min="0" step="1" placeholder="1"></div>
+                <div><label class="ct-lbl" for="ctFValor">Valor <i>R$</i></label><input id="ctFValor" class="ct-input" type="number" min="0" step="0.01" placeholder="0,00"></div>
+            </div>
+            <div class="ct-row3">
+                <div><label class="ct-lbl" for="ctFPag">Pagamento</label>
+                    <select id="ctFPag" class="ct-input"><option value="pendente">⏳ Pendente</option><option value="pago">💚 Pago</option></select>
+                </div>
+                <div><label class="ct-lbl" for="ctFPrazo">Prazo de pagamento</label>
+                    <input id="ctFPrazo" class="ct-input" type="text" list="ctPrazos" placeholder="Ex.: 30dias">
+                    <datalist id="ctPrazos"><option value="a_vista"><option value="15dias"><option value="30dias"><option value="45dias"><option value="60dias"><option value="90dias"></datalist>
+                </div>
+                <div><label class="ct-lbl">Marcações</label>
+                    <label class="ct-check"><input id="ctFDestaque" type="checkbox"> ⭐ destaque</label>
+                    <label class="ct-check"><input id="ctFContrato" type="checkbox"> 📝 contrato assinado</label>
+                    <label class="ct-check"><input id="ctFNota" type="checkbox"> 🧾 nota fiscal enviada</label>
+                </div>
+            </div>
+            <div class="ct-sec">📅 Datas do funil</div>
+            <div class="ct-row4">
+                <div><label class="ct-lbl" for="ctFDBriefing">📋 Briefing</label><input id="ctFDBriefing" class="ct-input" type="date"></div>
+                <div><label class="ct-lbl" for="ctFDRoteiro">✍️ Roteiro</label><input id="ctFDRoteiro" class="ct-input" type="date"></div>
+                <div><label class="ct-lbl" for="ctFDGravacao">🎬 Gravação</label><input id="ctFDGravacao" class="ct-input" type="date"></div>
+                <div><label class="ct-lbl" for="ctFDAprovacao">✅ Aprovação</label><input id="ctFDAprovacao" class="ct-input" type="date"></div>
+                <div><label class="ct-lbl" for="ctFDPostagem">🚀 Postagem</label><input id="ctFDPostagem" class="ct-input" type="date"></div>
+                <div><label class="ct-lbl" for="ctFDFaturamento">🧾 Faturamento</label><input id="ctFDFaturamento" class="ct-input" type="date"></div>
+                <div><label class="ct-lbl" for="ctFDPgtoPrev">📅 Pagamento previsto</label><input id="ctFDPgtoPrev" class="ct-input" type="date"></div>
+                <div><label class="ct-lbl" for="ctFDPgto">💰 Pagamento</label><input id="ctFDPgto" class="ct-input" type="date"></div>
+            </div>
+            <div class="ct-sec">🔗 Links</div>
+            <div class="ct-row3">
+                <div><label class="ct-lbl" for="ctFLinkBrief">Briefing</label><input id="ctFLinkBrief" class="ct-input" type="url" placeholder="https://..."></div>
+                <div><label class="ct-lbl" for="ctFLinkEntrega">Entrega final</label><input id="ctFLinkEntrega" class="ct-input" type="url" placeholder="https://..."></div>
+            </div>
+            <label class="ct-lbl" for="ctFRoteiro">✍️ Roteiro</label>
+            <textarea id="ctFRoteiro" class="ct-input" style="min-height:140px;" placeholder="O texto do vídeo, cena por cena."></textarea>
+            <label class="ct-lbl" for="ctFObs">📝 Observações</label>
+            <textarea id="ctFObs" class="ct-input" placeholder="O que ficou combinado, contatos, detalhes da entrega..."></textarea>
+        </div>
+        <div class="ct-mpe">
+            <button id="ctApagarBtn" class="ct-del" type="button" onclick="ctApagarDoModal()">🗑️ Apagar</button>
+            <div style="display:flex;gap:8px;">
+                <button class="ct-btn ghost" type="button" onclick="ctFechar()">Cancelar</button>
+                <button id="ctSalvarBtn" class="ct-btn" type="button" onclick="ctSalvar()">✓ Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- ── TAB: OBJETIVOS ──
      Duas coisas que andam juntas: onde ela quer chegar (metas com numero e
      projetos com passos) e o que vai ao ar pra chegar la (calendario do mes,
@@ -5664,7 +5947,7 @@
     document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
 
     /* ── Tabs ── */
-    const PAGE_TITLES = { objetivos: 'Objetivos', carrossel: 'Carrossel', painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', turmavivo: 'Turma ao vivo', vibeturma: 'Vibe da turma', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', marcas: 'Marcas', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', aulabonus: 'Aula ao vivo', instagram: 'Instagram', bio: 'Link na Bio' };
+    const PAGE_TITLES = { objetivos: 'Objetivos', carrossel: 'Carrossel', painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', turmavivo: 'Turma ao vivo', vibeturma: 'Vibe da turma', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', marcas: 'Marcas', conteudos: 'Conteúdos', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', aulabonus: 'Aula ao vivo', instagram: 'Instagram', bio: 'Link na Bio' };
     function setPageTitle(target) {
         const el = document.getElementById('pageTitle');
         if (el && PAGE_TITLES[target]) el.textContent = PAGE_TITLES[target];
@@ -5697,6 +5980,7 @@
             document.getElementById('tabOrcamentos').classList.toggle('show', target === 'orcamentos');
             document.getElementById('tabCandidaturas').classList.toggle('show', target === 'candidaturas');
             document.getElementById('tabMarcas').classList.toggle('show', target === 'marcas');
+            document.getElementById('tabConteudos').classList.toggle('show', target === 'conteudos');
             document.getElementById('tabDisparo').classList.toggle('show', target === 'disparo');
             document.getElementById('tabImersao').classList.toggle('show', target === 'imersao');
             document.getElementById('tabDirect').classList.toggle('show', target === 'direct');
@@ -5721,6 +6005,7 @@
             if (target === 'orcamentos') { orcMountTopbar(); loadOrcamentos(); }
             if (target === 'candidaturas') loadCandidaturas();
             if (target === 'marcas') { if (!marcasCarregado) loadMarcas(); if (!igPropsLoaded) { igPropsLoaded = true; igLoadProps(); } if (!igMarcasLoaded) { igMarcasLoaded = true; igLoadMarcas(); } }
+            if (target === 'conteudos') ctLoad();
             if (target === 'disparo') loadDisparo();
             if (target === 'imersao') { loadImersao(); loadAlunas(); }
             if (target === 'direct') loadDirect();
@@ -16909,6 +17194,318 @@
             else if (act === 'painel') igPainel(id);
         });
     })();
+
+    /* ══ CONTEÚDOS ══ (aba Conteúdos: campanhas de publi e UGC)
+       Vieram do MeuManager pra tabela `conteudos`, no mesmo Supabase. Funil de
+       status, valor, pagamento e as datas de cada etapa. Tudo grava direto pelo
+       `sb`; a lista local é atualizada na hora, sem recarregar. Prefixo ct*. */
+    const CT_TIPOS = { publicidade: { ic: '📣', nome: 'Publicidade' }, ugc: { ic: '🎥', nome: 'UGC' }, permuta: { ic: '🔄', nome: 'Permuta' }, outro: { ic: '✨', nome: 'Outro' } };
+    const CT_STATUS = {
+        negociando: { ic: '🤝', nome: 'Negociando' }, briefing: { ic: '📋', nome: 'Briefing' }, roteiro: { ic: '✍️', nome: 'Roteiro' },
+        aprovacao_roteiro: { ic: '👀', nome: 'Aprovação do roteiro' }, gravacao: { ic: '🎬', nome: 'Gravação' }, aprovacao_video: { ic: '🎞️', nome: 'Aprovação do vídeo' },
+        aprovado: { ic: '✅', nome: 'Aprovado' }, postado: { ic: '🚀', nome: 'Postado' }, cancelado: { ic: '❌', nome: 'Cancelado' }
+    };
+    const CT_FUNIL = Object.keys(CT_STATUS); // ordem do funil; cancelado fica por último
+    const CT_DATAS = [['data_briefing', '📋', 'Briefing'], ['data_roteiro', '✍️', 'Roteiro'], ['data_gravacao', '🎬', 'Gravação'], ['data_aprovacao', '✅', 'Aprovação'],
+        ['data_postagem', '🚀', 'Postagem'], ['data_faturamento', '🧾', 'Faturamento'], ['data_pagamento_prevista', '📅', 'Pgto previsto'], ['data_pagamento', '💰', 'Pagamento']];
+    const CT_CAMPOS_TXT = [['ctFNome', 'nome'], ['ctFCliente', 'cliente'], ['ctFInsta', 'cliente_instagram'], ['ctFPrazo', 'prazo_pagamento'],
+        ['ctFLinkBrief', 'link_briefing'], ['ctFLinkEntrega', 'link_entrega_final'], ['ctFRoteiro', 'roteiro'], ['ctFObs', 'observacoes']];
+    const CT_CAMPOS_DATA = [['ctFDBriefing', 'data_briefing'], ['ctFDRoteiro', 'data_roteiro'], ['ctFDGravacao', 'data_gravacao'], ['ctFDAprovacao', 'data_aprovacao'],
+        ['ctFDPostagem', 'data_postagem'], ['ctFDFaturamento', 'data_faturamento'], ['ctFDPgtoPrev', 'data_pagamento_prevista'], ['ctFDPgto', 'data_pagamento']];
+    const CT_CAMPOS_BOOL = [['ctFDestaque', 'destaque'], ['ctFContrato', 'contrato_assinado'], ['ctFNota', 'nota_fiscal_enviada']];
+    const CT_BOOL_MSG = { contrato_assinado: ['📝 Contrato assinado ✓', '📝 Contrato desmarcado ✓'], nota_fiscal_enviada: ['🧾 Nota fiscal enviada ✓', '🧾 Nota fiscal desmarcada ✓'], destaque: ['⭐ Campanha em destaque ✓', '☆ Destaque tirado ✓'] };
+    let ctLista = [], ctCarregado = false, ctFase = 'ativas', ctTipo = 'todos', ctOrd = { por: 'data', asc: false };
+    let ctAberto = null, ctEditando = null, ctToastTimer = null, ctSelectsProntos = false;
+
+    const ctEsc = s => escapeHtml(s);
+    function ctMoeda(n) { return (Number(n) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+    function ctData(d) { if (!d) return ''; const p = String(d).slice(0, 10).split('-'); return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : String(d); }
+    function ctDataCurta(d) { if (!d) return ''; const p = String(d).slice(0, 10).split('-'); return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0].slice(2) : String(d); }
+    function ctHoje() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+    function ctAtiva(c) { return c.status !== 'postado' && c.status !== 'cancelado'; }
+    function ctUrl(u) { u = String(u || '').trim(); if (!u) return ''; return /^https?:\/\//i.test(u) ? u : 'https://' + u; }
+    function ctInsta(c) { return String(c.cliente_instagram || '').replace(/^@+/, '').trim(); }
+    function ctPrazoNome(p) {
+        if (!p) return '';
+        const m = String(p).match(/^(\d+)\s*dias?$/i); if (m) return m[1] + ' dias';
+        if (/^a_?vista$/i.test(p)) return 'à vista';
+        return String(p).replace(/_/g, ' ');
+    }
+    /* Data de referência da linha: o marco mais adiantado do funil que já tem data.
+       Sem nenhuma, vale o dia em que a campanha foi criada. */
+    function ctDataRef(c) {
+        for (let i = CT_DATAS.length - 1; i >= 0; i--) { if (c[CT_DATAS[i][0]]) return { d: String(c[CT_DATAS[i][0]]).slice(0, 10), ic: CT_DATAS[i][1], nome: CT_DATAS[i][2] }; }
+        return { d: String(c.created_at || '').slice(0, 10), ic: '🗓️', nome: 'Criada' };
+    }
+    function ctToast(msg, erro) {
+        const el = document.getElementById('ctToast'); if (!el) return;
+        el.textContent = msg; el.className = 'ct-toast show' + (erro ? ' erro' : '');
+        clearTimeout(ctToastTimer); ctToastTimer = setTimeout(() => { el.className = 'ct-toast'; }, erro ? 4500 : 2200);
+    }
+    function ctErro(prefixo, error) { ctToast(prefixo + ': ' + ((error && error.message) || 'deu um erro que não entendi'), true); }
+
+    async function ctLoad() {
+        const box = document.getElementById('ctBox'); if (!box) return;
+        if (!ctCarregado) box.innerHTML = '<div style="padding:36px;text-align:center;color:var(--text-muted);">Carregando as campanhas…</div>';
+        const todas = [];
+        for (let from = 0; from < 5000; from += 1000) {
+            const { data, error } = await sb.from('conteudos').select('*').order('created_at', { ascending: false }).range(from, from + 999);
+            if (error) { box.innerHTML = '<div class="ct-empty"><div class="em">😕</div><h4>Não consegui carregar as campanhas</h4><p>' + ctEsc(error.message) + '</p><button class="ct-btn ghost" type="button" onclick="ctLoad()">Tentar de novo</button></div>'; return; }
+            if (!data || !data.length) break;
+            todas.push(...data);
+            if (data.length < 1000) break;
+        }
+        ctLista = todas; ctCarregado = true;
+        ctRender();
+    }
+
+    function ctSetFase(k) { ctFase = k; ctRender(); }
+    function ctSetTipo(k) { ctTipo = k; ctRender(); }
+    function ctLimparFiltros() { ctFase = 'todas'; ctTipo = 'todos'; const b = document.getElementById('ctBusca'); if (b) b.value = ''; ctRender(); }
+    function ctOrdenar(por) {
+        if (ctOrd.por === por) ctOrd.asc = !ctOrd.asc;
+        else ctOrd = { por: por, asc: !(por === 'valor' || por === 'data' || por === 'qtd') }; // número e data começam do maior
+        ctRender();
+    }
+
+    function ctFiltrados() {
+        const el = document.getElementById('ctBusca');
+        const q = ((el && el.value) || '').toLowerCase().trim();
+        const lista = ctLista.filter(c => {
+            if (ctFase === 'ativas' && !ctAtiva(c)) return false;
+            if (ctFase === 'finalizadas' && c.status !== 'postado') return false;
+            if (ctTipo !== 'todos' && (c.tipo || 'outro') !== ctTipo) return false;
+            if (!q) return true;
+            return [c.nome, c.cliente, c.cliente_instagram, c.observacoes].join(' ').toLowerCase().includes(q);
+        });
+        const dir = ctOrd.asc ? 1 : -1;
+        const txt = v => (v == null ? '' : String(v)).toLowerCase();
+        lista.sort((a, b) => {
+            let r = 0;
+            switch (ctOrd.por) {
+                case 'campanha': r = txt(a.nome).localeCompare(txt(b.nome), 'pt-BR'); break;
+                case 'cliente': r = txt(a.cliente).localeCompare(txt(b.cliente), 'pt-BR'); break;
+                case 'tipo': r = txt(a.tipo).localeCompare(txt(b.tipo), 'pt-BR'); break;
+                case 'status': r = CT_FUNIL.indexOf(a.status) - CT_FUNIL.indexOf(b.status); break;
+                case 'qtd': r = (Number(a.quantidade_videos) || 0) - (Number(b.quantidade_videos) || 0); break;
+                case 'valor': r = (Number(a.valor) || 0) - (Number(b.valor) || 0); break;
+                case 'pagamento': r = txt(a.status_pagamento).localeCompare(txt(b.status_pagamento)); break;
+                default: r = txt(ctDataRef(a).d).localeCompare(txt(ctDataRef(b).d));
+            }
+            if (r === 0) return txt(b.created_at).localeCompare(txt(a.created_at)); // empate: mais nova primeiro
+            return r * dir;
+        });
+        return lista;
+    }
+
+    function ctRender() {
+        const box = document.getElementById('ctBox'); if (!box) return;
+        /* Cards do topo: olham a base inteira, não o filtro. As canceladas contam no
+           total de campanhas mas ficam fora das somas em dinheiro. */
+        const valendo = ctLista.filter(c => c.status !== 'cancelado');
+        const soma = arr => arr.reduce((s, c) => s + (Number(c.valor) || 0), 0);
+        const somaValor = soma(valendo);
+        const somaVideos = valendo.reduce((s, c) => s + (Number(c.quantidade_videos) || 0), 0);
+        const aReceber = soma(valendo.filter(c => c.status_pagamento !== 'pago'));
+        const recebido = soma(valendo.filter(c => c.status_pagamento === 'pago'));
+        const nAtivas = ctLista.filter(ctAtiva).length;
+        const nPostadas = ctLista.filter(c => c.status === 'postado').length;
+        const nCanceladas = ctLista.length - valendo.length;
+        const cards = document.getElementById('ctCards');
+        if (cards) cards.innerHTML =
+            '<div class="ct-card"><span class="em">🎬</span><div class="lb">Total</div><div class="vl">' + ctLista.length + '</div><div class="info">' + nPostadas + ' postada' + (nPostadas === 1 ? '' : 's') + (nCanceladas ? ' · ' + nCanceladas + ' cancelada' + (nCanceladas === 1 ? '' : 's') : '') + '</div></div>'
+            + '<div class="ct-card"><span class="em">🔥</span><div class="lb">Ativas</div><div class="vl">' + nAtivas + '</div><div class="info">em andamento agora</div></div>'
+            + '<div class="ct-card dinheiro"><span class="em">💰</span><div class="lb">Total R$</div><div class="vl">' + ctMoeda(somaValor) + '</div><div class="info">ticket médio: ' + ctMoeda(somaVideos ? somaValor / somaVideos : 0) + '/vídeo</div></div>'
+            + '<div class="ct-card receber"><span class="em">⏳</span><div class="lb">Receber R$</div><div class="vl">' + ctMoeda(aReceber) + '</div><div class="info">Recebido: ' + ctMoeda(recebido) + '</div></div>';
+        /* chips */
+        const nFase = { todas: ctLista.length, ativas: nAtivas, finalizadas: nPostadas };
+        const fEl = document.getElementById('ctChipsFase');
+        if (fEl) fEl.innerHTML = [['todas', 'Todas'], ['ativas', '🔥 Ativas'], ['finalizadas', '🚀 Finalizadas']]
+            .map(f => '<button class="ct-chip' + (ctFase === f[0] ? ' on' : '') + '" type="button" onclick="ctSetFase(\'' + f[0] + '\')">' + f[1] + ' <b>' + nFase[f[0]] + '</b></button>').join('');
+        const tEl = document.getElementById('ctChipsTipo');
+        if (tEl) tEl.innerHTML = [['todos', 'Todos os tipos', null]].concat(Object.keys(CT_TIPOS).map(k => [k, CT_TIPOS[k].ic + ' ' + CT_TIPOS[k].nome, ctLista.filter(c => (c.tipo || 'outro') === k).length]))
+            .map(f => '<button class="ct-chip' + (ctTipo === f[0] ? ' on' : '') + '" type="button" onclick="ctSetTipo(\'' + f[0] + '\')">' + f[1] + (f[2] === null ? '' : ' <b>' + f[2] + '</b>') + '</button>').join('');
+        const lista = ctFiltrados();
+        if (!lista.length) {
+            box.innerHTML = ctLista.length
+                ? '<div class="ct-empty"><div class="em">🔍</div><h4>Nenhuma campanha por aqui</h4><p>Tente outra busca, troque o filtro ou veja todas.</p><button class="ct-btn ghost" type="button" onclick="ctLimparFiltros()">Limpar filtros</button></div>'
+                : '<div class="ct-empty"><div class="em">🎬</div><h4>Nenhuma campanha cadastrada ainda</h4><p>Clique em "+ Nova campanha" pra registrar a primeira publi ou UGC.</p><button class="ct-btn" type="button" onclick="ctAbrir(null)">+ Nova campanha</button></div>';
+            return;
+        }
+        const th = (por, label, extra) => '<th class="sortable' + (ctOrd.por === por ? ' sorted' : '') + '"' + (extra || '') + ' onclick="ctOrdenar(\'' + por + '\')">' + label + '<span class="ct-arrow">' + (ctOrd.por === por ? (ctOrd.asc ? '▲' : '▼') : '⇅') + '</span></th>';
+        box.innerHTML = '<div class="ct-tw"><table class="ct-table"><thead><tr>'
+            + th('campanha', 'Campanha') + th('cliente', 'Cliente') + th('tipo', 'Tipo') + th('status', 'Status')
+            + th('qtd', 'Qtd', ' style="text-align:right;"') + th('valor', 'Valor', ' style="text-align:right;"') + th('pagamento', 'Pagamento') + th('data', '📅 Data') + '<th></th>'
+            + '</tr></thead><tbody>' + lista.map(ctLinhaHtml).join('') + '</tbody></table></div>'
+            + '<div class="ct-count">' + lista.length + ' campanha' + (lista.length === 1 ? '' : 's') + (lista.length !== ctLista.length ? ' de ' + ctLista.length : '') + '</div>';
+    }
+
+    function ctLinhaHtml(c) {
+        const id = c.id;
+        const tp = CT_TIPOS[c.tipo] || CT_TIPOS.outro;
+        const st = CT_STATUS[c.status] || { ic: '❔', nome: c.status || 'Sem status' };
+        const pago = c.status_pagamento === 'pago';
+        const ref = ctDataRef(c);
+        const aberta = ctAberto === id;
+        const insta = ctInsta(c);
+        let html = '<tr class="ct-row' + (c.destaque ? ' destaque' : '') + (aberta ? ' aberta' : '') + (c.status === 'cancelado' ? ' cancelada' : '') + '" onclick="ctExpandir(\'' + id + '\')">'
+            + '<td class="ct-td-nome" data-l="Campanha"><div class="ct-nome">'
+                + '<button class="ct-star' + (c.destaque ? ' on' : '') + '" type="button" title="' + (c.destaque ? 'Tirar o destaque' : 'Marcar como destaque') + '" onclick="event.stopPropagation();ctToggleDestaque(\'' + id + '\')">' + (c.destaque ? '⭐' : '☆') + '</button>'
+                + '<span title="' + ctEsc(c.nome || '') + '">' + ctEsc(c.nome || 'Sem nome') + '</span></div>'
+                + (c.cliente ? '<div class="ct-sub">' + ctEsc(c.cliente) + '</div>' : '') + '</td>'
+            + '<td data-l="Cliente"><div class="ct-cli">' + (c.cliente ? '<span class="ct-cliente">' + ctEsc(c.cliente) + '</span>' : '<span class="ct-mute">sem cliente</span>')
+                + (insta ? '<a class="ct-ig" href="https://instagram.com/' + encodeURIComponent(insta) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">@' + ctEsc(insta) + '</a>' : '') + '</div></td>'
+            + '<td data-l="Tipo"><span class="ct-badge tp-' + ctEsc(CT_TIPOS[c.tipo] ? c.tipo : 'outro') + '">' + tp.ic + ' ' + tp.nome + '</span></td>'
+            + '<td data-l="Status"><span class="ct-badge st-' + ctEsc(c.status || '') + '">' + st.ic + ' ' + ctEsc(st.nome) + '</span></td>'
+            + '<td data-l="Qtd" class="ct-num" style="text-align:right;">' + (c.quantidade_videos != null ? ctEsc(c.quantidade_videos) + ' 🎥' : '<span class="ct-mute">·</span>') + '</td>'
+            + '<td data-l="Valor" class="ct-num ct-valor" style="text-align:right;">' + (c.valor != null ? ctMoeda(c.valor) : '<span class="ct-mute">·</span>') + '</td>'
+            + '<td data-l="Pagamento"><button class="ct-badge pg ' + (pago ? 'pg-pago' : 'pg-pendente') + '" type="button" title="' + (pago ? 'Pago' + (c.data_pagamento ? ' em ' + ctData(c.data_pagamento) : '') + '. Clique pra voltar a pendente.' : 'Pendente. Clique pra marcar como pago.') + '" onclick="event.stopPropagation();ctTogglePago(\'' + id + '\')">' + (pago ? '💚 Pago' : '⏳ Pendente') + '</button></td>'
+            + '<td data-l="Data" class="ct-data" title="' + ctEsc(ref.nome) + '">' + (ref.d ? ref.ic + ' ' + ctDataCurta(ref.d) : '<span class="ct-mute">·</span>') + '</td>'
+            + '<td data-l="Ações"><div class="ct-acoes"><button class="ct-ab" type="button" title="Editar" onclick="event.stopPropagation();ctAbrir(\'' + id + '\')">✏️</button><button class="ct-ab del" type="button" title="Apagar" onclick="event.stopPropagation();ctApagar(\'' + id + '\')">🗑️</button></div></td>'
+            + '</tr>';
+        if (aberta) html += '<tr class="ct-detail"><td colspan="9">' + ctDetalheHtml(c) + '</td></tr>';
+        return html;
+    }
+
+    function ctDetalheHtml(c) {
+        const id = c.id;
+        const steps = CT_DATAS.map(d => '<div class="ct-step' + (c[d[0]] ? ' ok' : '') + '" title="' + d[2] + '"><div class="ic">' + d[1] + '</div><div class="nm">' + d[2] + '</div><div class="dt">' + (c[d[0]] ? ctDataCurta(c[d[0]]) : 'sem data') + '</div></div>').join('');
+        const sel = '<select class="ct-sel" onchange="ctSetStatus(\'' + id + '\', this.value)">' + CT_FUNIL.map(k => '<option value="' + k + '"' + (c.status === k ? ' selected' : '') + '>' + CT_STATUS[k].ic + ' ' + CT_STATUS[k].nome + '</option>').join('') + '</select>';
+        const sw = (campo, ic, nome) => '<button class="ct-switch' + (c[campo] ? ' on' : '') + '" type="button" onclick="ctToggleBool(\'' + id + '\', \'' + campo + '\')"><span class="tg"></span>' + ic + ' ' + nome + '</button>';
+        const link = (url, ic, nome) => url
+            ? '<a class="ct-link" href="' + ctEsc(ctUrl(url)) + '" target="_blank" rel="noopener">' + ic + ' ' + nome + ' ↗</a>'
+            : '<span class="ct-badge" style="opacity:.7;">' + ic + ' ' + nome + ': sem link</span>';
+        return '<div class="ct-painel" onclick="event.stopPropagation()">'
+            + '<div class="ct-linha"><span class="ct-lbl">Status</span>' + sel
+                + '<span class="ct-sep"></span><span class="ct-lbl">Pagamento</span>'
+                + (c.prazo_pagamento ? '<span class="ct-badge">⏱️ ' + ctEsc(ctPrazoNome(c.prazo_pagamento)) + '</span>' : '<span class="ct-badge" style="opacity:.7;">⏱️ sem prazo</span>')
+                + sw('contrato_assinado', '📝', 'Contrato assinado') + sw('nota_fiscal_enviada', '🧾', 'Nota fiscal enviada') + '</div>'
+            + '<div class="ct-timeline">' + steps + '</div>'
+            + '<div class="ct-linha">' + link(c.link_briefing, '📋', 'Briefing') + link(c.link_entrega_final, '📦', 'Entrega final')
+                + '<span style="margin-left:auto;display:flex;gap:6px;"><button class="ct-mini" type="button" onclick="ctAbrir(\'' + id + '\')">✏️ Editar tudo</button></span></div>'
+            + '<div class="ct-cols">'
+                + '<div class="ct-bloco"><div class="tit"><span>📝 Observações</span></div>' + (c.observacoes ? '<div class="txt">' + ctEsc(c.observacoes) + '</div>' : '<div class="vazio">Nada anotado ainda.</div>') + '</div>'
+                + '<div class="ct-bloco"><div class="tit"><span>✍️ Roteiro</span>' + (c.roteiro ? '<button class="ct-mini" type="button" onclick="ctCopiarRoteiro(\'' + id + '\')">📋 Copiar roteiro</button>' : '') + '</div>'
+                    + (c.roteiro ? '<div class="txt">' + ctEsc(c.roteiro) + '</div>' : '<div class="vazio">Sem roteiro guardado.</div>') + '</div>'
+            + '</div></div>';
+    }
+
+    function ctExpandir(id) { ctAberto = ctAberto === id ? null : id; ctRender(); }
+
+    /* Grava um pedaço da campanha e atualiza a lista local sem recarregar tudo. */
+    async function ctPatch(id, patch, msgOk) {
+        patch.updated_at = new Date().toISOString();
+        const { error } = await sb.from('conteudos').update(patch).eq('id', id);
+        if (error) { ctErro('Não consegui salvar', error); return false; }
+        const c = ctLista.find(x => x.id === id); if (c) Object.assign(c, patch);
+        ctRender();
+        if (msgOk) ctToast(msgOk);
+        return true;
+    }
+    function ctTogglePago(id) {
+        const c = ctLista.find(x => x.id === id); if (!c) return;
+        const pago = c.status_pagamento !== 'pago';
+        const patch = { status_pagamento: pago ? 'pago' : 'pendente' };
+        if (pago && !c.data_pagamento) patch.data_pagamento = ctHoje();
+        ctPatch(id, patch, pago ? '💚 Marcado como pago ✓' : '⏳ Voltou pra pendente ✓');
+    }
+    function ctToggleBool(id, campo) {
+        const c = ctLista.find(x => x.id === id); if (!c || !CT_BOOL_MSG[campo]) return;
+        const ligar = !c[campo];
+        ctPatch(id, { [campo]: ligar }, CT_BOOL_MSG[campo][ligar ? 0 : 1]);
+    }
+    function ctToggleDestaque(id) { ctToggleBool(id, 'destaque'); }
+    function ctSetStatus(id, status) {
+        if (!CT_STATUS[status]) return;
+        ctPatch(id, { status: status }, CT_STATUS[status].ic + ' Status: ' + CT_STATUS[status].nome + ' ✓');
+    }
+    async function ctCopiarRoteiro(id) {
+        const c = ctLista.find(x => x.id === id); if (!c || !c.roteiro) return;
+        try { await navigator.clipboard.writeText(c.roteiro); ctToast('📋 Roteiro copiado ✓'); }
+        catch (e) { ctToast('Não consegui copiar. Selecione o texto e copie na mão.', true); }
+    }
+
+    /* ── modal nova / editar ── */
+    function ctAbrir(id) {
+        if (!ctSelectsProntos) {
+            ctSelectsProntos = true;
+            document.getElementById('ctFTipo').innerHTML = Object.keys(CT_TIPOS).map(k => '<option value="' + k + '">' + CT_TIPOS[k].ic + ' ' + CT_TIPOS[k].nome + '</option>').join('');
+            document.getElementById('ctFStatus').innerHTML = CT_FUNIL.map(k => '<option value="' + k + '">' + CT_STATUS[k].ic + ' ' + CT_STATUS[k].nome + '</option>').join('');
+        }
+        ctEditando = id ? (ctLista.find(x => x.id === id) || null) : null;
+        const d = ctEditando || { tipo: 'publicidade', status: 'negociando', status_pagamento: 'pendente', quantidade_videos: 1 };
+        document.getElementById('ctModalT').textContent = ctEditando ? 'EDITAR CAMPANHA' : 'NOVA CAMPANHA';
+        CT_CAMPOS_TXT.forEach(p => { document.getElementById(p[0]).value = d[p[1]] || ''; });
+        CT_CAMPOS_DATA.forEach(p => { document.getElementById(p[0]).value = d[p[1]] ? String(d[p[1]]).slice(0, 10) : ''; });
+        CT_CAMPOS_BOOL.forEach(p => { document.getElementById(p[0]).checked = !!d[p[1]]; });
+        document.getElementById('ctFTipo').value = CT_TIPOS[d.tipo] ? d.tipo : 'outro';
+        document.getElementById('ctFStatus').value = CT_STATUS[d.status] ? d.status : 'negociando';
+        document.getElementById('ctFPag').value = d.status_pagamento === 'pago' ? 'pago' : 'pendente';
+        document.getElementById('ctFQtd').value = d.quantidade_videos != null ? d.quantidade_videos : '';
+        document.getElementById('ctFValor').value = d.valor != null ? d.valor : '';
+        document.getElementById('ctApagarBtn').style.display = ctEditando ? '' : 'none';
+        document.getElementById('ctModal').style.display = 'flex';
+        setTimeout(() => document.getElementById('ctFNome').focus(), 40);
+    }
+    function ctFechar() { document.getElementById('ctModal').style.display = 'none'; ctEditando = null; }
+    function ctApagarDoModal() { if (ctEditando) ctApagar(ctEditando.id); }
+
+    async function ctSalvar() {
+        const nome = document.getElementById('ctFNome').value.trim();
+        if (!nome) { ctToast('A campanha precisa de um nome.', true); document.getElementById('ctFNome').focus(); return; }
+        const val = id => document.getElementById(id).value.trim() || null;
+        const patch = { nome: nome };
+        CT_CAMPOS_TXT.forEach(p => { if (p[1] !== 'nome') patch[p[1]] = val(p[0]); });
+        patch.cliente_instagram = (patch.cliente_instagram || '').replace(/^@+/, '').toLowerCase() || null;
+        CT_CAMPOS_DATA.forEach(p => { patch[p[1]] = val(p[0]); });
+        CT_CAMPOS_BOOL.forEach(p => { patch[p[1]] = document.getElementById(p[0]).checked; });
+        patch.tipo = CT_TIPOS[document.getElementById('ctFTipo').value] ? document.getElementById('ctFTipo').value : 'outro';
+        patch.status = CT_STATUS[document.getElementById('ctFStatus').value] ? document.getElementById('ctFStatus').value : 'negociando';
+        patch.status_pagamento = document.getElementById('ctFPag').value === 'pago' ? 'pago' : 'pendente';
+        const qtd = val('ctFQtd'); patch.quantidade_videos = qtd === null ? null : parseInt(qtd, 10);
+        if (patch.quantidade_videos !== null && isNaN(patch.quantidade_videos)) patch.quantidade_videos = null;
+        const valor = val('ctFValor'); patch.valor = valor === null ? null : Number(String(valor).replace(',', '.'));
+        if (patch.valor !== null && isNaN(patch.valor)) { ctToast('O valor precisa ser um número, tipo 1500 ou 1500.50.', true); return; }
+        if (patch.status_pagamento === 'pago' && !patch.data_pagamento) patch.data_pagamento = ctHoje();
+        patch.updated_at = new Date().toISOString();
+        const btn = document.getElementById('ctSalvarBtn');
+        btn.disabled = true; btn.textContent = 'Salvando…';
+        const editando = ctEditando;
+        const r = editando
+            ? await sb.from('conteudos').update(patch).eq('id', editando.id).select().single()
+            : await sb.from('conteudos').insert(patch).select().single();
+        btn.disabled = false; btn.textContent = '✓ Salvar';
+        if (r.error) { ctErro('Não consegui salvar', r.error); return; }
+        if (r.data) {
+            const i = ctLista.findIndex(x => x.id === r.data.id);
+            if (i >= 0) ctLista[i] = r.data; else ctLista.unshift(r.data);
+            if (!editando) {
+                /* campanha nova: abre o painel dela e garante que o filtro deixa ver */
+                ctAberto = r.data.id;
+                if (ctFase === 'finalizadas' && r.data.status !== 'postado') ctFase = 'todas';
+                if (ctFase === 'ativas' && !ctAtiva(r.data)) ctFase = 'todas';
+                if (ctTipo !== 'todos' && (r.data.tipo || 'outro') !== ctTipo) ctTipo = 'todos';
+            }
+        } else if (editando) {
+            Object.assign(editando, patch);
+        }
+        ctFechar();
+        if (!r.data && !editando) { await ctLoad(); } else { ctRender(); }
+        ctToast(editando ? 'Salvo ✓' : '🎬 Campanha criada ✓');
+    }
+
+    async function ctApagar(id) {
+        const c = ctLista.find(x => x.id === id); if (!c) return;
+        if (!confirm('Apagar a campanha "' + (c.nome || 'sem nome') + '" de vez? Isso não tem volta.')) return;
+        const { error } = await sb.from('conteudos').delete().eq('id', id);
+        if (error) { ctErro('Não consegui apagar', error); return; }
+        ctLista = ctLista.filter(x => x.id !== id);
+        if (ctAberto === id) ctAberto = null;
+        if (ctEditando && ctEditando.id === id) ctFechar();
+        ctRender();
+        ctToast('🗑️ Campanha apagada ✓');
+    }
+
 </script>
 <style>
 /* ============================================================
