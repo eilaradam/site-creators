@@ -11,3 +11,6 @@ create policy "conteudos storage leitura publica" on storage.objects for select 
 create policy "conteudos storage logado sobe" on storage.objects for insert to authenticated with check (bucket_id = 'conteudos');
 create policy "conteudos storage logado atualiza" on storage.objects for update to authenticated using (bucket_id = 'conteudos');
 create policy "conteudos storage logado apaga" on storage.objects for delete to authenticated using (bucket_id = 'conteudos');
+-- 22/09/2026: favoritas com posição manual e cor de fundo
+alter table public.conteudos add column if not exists ordem integer;
+alter table public.conteudos add column if not exists cor text;

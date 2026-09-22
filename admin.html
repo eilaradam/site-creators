@@ -4224,6 +4224,18 @@
 #tabConteudos tr.ct-row:hover td { background:var(--cream, #FBF7F3); }
 #tabConteudos tr.ct-row.aberta td { background:var(--accent-tint); border-bottom-color:transparent; }
 #tabConteudos tr.ct-row.destaque td:first-child { box-shadow:inset 3px 0 0 var(--alerta); }
+#tabConteudos tr.ct-row.cor-amarelo td { background:#FFF3C4; } #tabConteudos tr.ct-row.cor-rosa td { background:#FFE1EA; }
+#tabConteudos tr.ct-row.cor-verde td { background:#DFF5E3; } #tabConteudos tr.ct-row.cor-azul td { background:#DCEBFF; }
+#tabConteudos tr.ct-row.cor-lilas td { background:#EBE0FF; } #tabConteudos tr.ct-row.cor-laranja td { background:#FFE4CC; }
+#tabConteudos tr.ct-row[class*="cor-"]:hover td { filter:brightness(.97); }
+#tabConteudos .ct-fav-ctl { display:inline-flex; gap:2px; margin-left:6px; vertical-align:middle; }
+#tabConteudos .ct-fav-ctl button { border:1px solid var(--border); background:var(--card); border-radius:6px; min-width:22px; height:22px; font-size:11px; line-height:1; cursor:pointer; color:var(--text-soft); padding:0 4px; }
+#tabConteudos .ct-fav-ctl button:hover { border-color:var(--accent); color:var(--accent); }
+#tabConteudos .ct-fav-ctl button:disabled { opacity:.25; cursor:default; }
+#tabConteudos .ct-pal { display:inline-flex; gap:5px; align-items:center; margin-left:6px; padding:3px 6px; background:var(--card); border:1px solid var(--border); border-radius:100px; vertical-align:middle; }
+#tabConteudos .ct-sw { width:18px; height:18px; border-radius:50%; border:2px solid #fff; box-shadow:0 0 0 1px var(--border); cursor:pointer; padding:0; }
+#tabConteudos .ct-sw.on { box-shadow:0 0 0 2px var(--accent); }
+#tabConteudos .ct-sw.none { background:#fff; font-size:10px; color:var(--text-muted); }
 #tabConteudos tr.ct-row.cancelada .ct-nome span { color:var(--text-muted); text-decoration:line-through; }
 #tabConteudos .ct-nome { font-weight:700; color:var(--text); display:flex; align-items:center; gap:4px; min-width:0; }
 #tabConteudos .ct-nome span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:320px; }
@@ -17284,8 +17296,9 @@
         const dir = ctOrd.asc ? 1 : -1;
         const txt = v => (v == null ? '' : String(v)).toLowerCase();
         lista.sort((a, b) => {
-            /* favoritas (⭐) sempre em cima, seja qual for a ordenação */
+            /* favoritas (⭐) sempre em cima, na ordem que ela arrumou com as setinhas */
             if (!!a.destaque !== !!b.destaque) return a.destaque ? -1 : 1;
+            if (a.destaque && b.destaque) { const oa = a.ordem == null ? 1e9 : a.ordem, ob = b.ordem == null ? 1e9 : b.ordem; if (oa !== ob) return oa - ob; }
             let r = 0;
             switch (ctOrd.por) {
                 case 'campanha': r = txt(a.nome).localeCompare(txt(b.nome), 'pt-BR'); break;
@@ -17353,10 +17366,18 @@
         const ref = ctDataRef(c);
         const aberta = ctAberto === id;
         const insta = ctInsta(c);
-        let html = '<tr class="ct-row' + (c.destaque ? ' destaque' : '') + (aberta ? ' aberta' : '') + (c.status === 'cancelado' ? ' cancelada' : '') + '" onclick="ctExpandir(\'' + id + '\')">'
+        const favs = c.destaque ? ctFavoritas() : null;
+        const posFav = favs ? favs.findIndex(x => x.id === id) : -1;
+        const ctl = c.destaque
+            ? '<span class="ct-fav-ctl"><button type="button" title="Subir uma posição"' + (posFav <= 0 ? ' disabled' : '') + ' onclick="event.stopPropagation();ctMoverFav(\'' + id + '\', -1)">▲</button>'
+              + '<button type="button" title="Descer uma posição"' + (posFav >= favs.length - 1 ? ' disabled' : '') + ' onclick="event.stopPropagation();ctMoverFav(\'' + id + '\', 1)">▼</button>'
+              + '<button type="button" title="Cor de fundo" onclick="event.stopPropagation();ctPalToggle(\'' + id + '\')">🎨</button></span>'
+              + (ctPalAberta === id ? ctPaletaHtml(c) : '')
+            : '';
+        let html = '<tr class="ct-row' + (c.destaque ? ' destaque' : '') + (aberta ? ' aberta' : '') + (c.status === 'cancelado' ? ' cancelada' : '') + (CT_CORES[c.cor] ? ' cor-' + c.cor : '') + '" onclick="ctExpandir(\'' + id + '\')">'
             + '<td class="ct-td-nome" data-l="Campanha"><div class="ct-nome">'
                 + '<button class="ct-star' + (c.destaque ? ' on' : '') + '" type="button" title="' + (c.destaque ? 'Tirar o destaque' : 'Marcar como destaque') + '" onclick="event.stopPropagation();ctToggleDestaque(\'' + id + '\')">' + (c.destaque ? '⭐' : '☆') + '</button>'
-                + '<span title="' + ctEsc(c.nome || '') + '">' + ctEsc(c.nome || 'Sem nome') + '</span></div>'
+                + '<span title="' + ctEsc(c.nome || '') + '">' + ctEsc(c.nome || 'Sem nome') + '</span>' + ctl + '</div>'
                 + (c.cliente ? '<div class="ct-sub">' + ctEsc(c.cliente) + '</div>' : '') + '</td>'
             + '<td data-l="Cliente"><div class="ct-cli">' + (c.cliente ? '<span class="ct-cliente">' + ctEsc(c.cliente) + '</span>' : '<span class="ct-mute">sem cliente</span>')
                 + (insta ? '<a class="ct-ig" href="https://instagram.com/' + encodeURIComponent(insta) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">@' + ctEsc(insta) + '</a>' : '') + '</div></td>'
@@ -17397,6 +17418,42 @@
     }
 
     function ctExpandir(id) { ctAberto = ctAberto === id ? null : id; ctRender(); }
+
+    /* ── favoritas: posição manual (setinhas) e cor de fundo ── */
+    const CT_CORES = { amarelo: '#FFF3C4', rosa: '#FFE1EA', verde: '#DFF5E3', azul: '#DCEBFF', lilas: '#EBE0FF', laranja: '#FFE4CC' };
+    let ctPalAberta = null;
+    function ctFavoritas() {
+        const txt = v => (v == null ? '' : String(v));
+        return ctLista.filter(c => c.destaque).sort((a, b) => {
+            const oa = a.ordem == null ? 1e9 : a.ordem, ob = b.ordem == null ? 1e9 : b.ordem;
+            return (oa - ob) || txt(b.created_at).localeCompare(txt(a.created_at));
+        });
+    }
+    async function ctMoverFav(id, dir) {
+        const favs = ctFavoritas();
+        const i = favs.findIndex(c => c.id === id), j = i + dir;
+        if (i < 0 || j < 0 || j >= favs.length) return;
+        const tmp = favs[i]; favs[i] = favs[j]; favs[j] = tmp;
+        /* renumera todas (1, 2, 3...) e só grava as que mudaram */
+        const mudou = favs.map((c, k) => ({ c: c, ordem: k + 1 })).filter(x => x.c.ordem !== x.ordem);
+        for (const m of mudou) {
+            const { error } = await sb.from('conteudos').update({ ordem: m.ordem, updated_at: new Date().toISOString() }).eq('id', m.c.id);
+            if (error) { ctErro('Não consegui mover', error); ctRender(); return; }
+            m.c.ordem = m.ordem;
+        }
+        ctRender();
+        ctToast(dir < 0 ? '⬆️ Subiu uma posição ✓' : '⬇️ Desceu uma posição ✓');
+    }
+    function ctPalToggle(id) { ctPalAberta = ctPalAberta === id ? null : id; ctRender(); }
+    function ctPaletaHtml(c) {
+        return '<span class="ct-pal" onclick="event.stopPropagation()">'
+            + Object.keys(CT_CORES).map(k => '<button class="ct-sw' + (c.cor === k ? ' on' : '') + '" type="button" title="' + k + '" style="background:' + CT_CORES[k] + '" onclick="ctSetCor(\'' + c.id + '\', \'' + k + '\')"></button>').join('')
+            + '<button class="ct-sw none' + (!c.cor ? ' on' : '') + '" type="button" title="Sem cor" onclick="ctSetCor(\'' + c.id + '\', null)">✕</button></span>';
+    }
+    function ctSetCor(id, cor) {
+        ctPalAberta = null;
+        ctPatch(id, { cor: cor && CT_CORES[cor] ? cor : null }, cor ? '🎨 Cor trocada ✓' : 'Cor removida ✓');
+    }
 
     /* ── coluna Roteiro: modelo de roteiro por arquivo (bucket "conteudos") ou por link ── */
     let ctRoteiroAlvo = null;
