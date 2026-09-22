@@ -4261,6 +4261,8 @@
 #tabConteudos .ct-badge.pg-pendente { background:var(--alerta-bg); color:var(--alerta); }
 #tabConteudos .ct-badge.pg-pago { background:rgba(16,185,129,.13); color:#0B7A55; }
 /* ações da linha */
+            .ct-rotc { display:flex; align-items:center; gap:4px; white-space:nowrap; }
+            .ct-rotc .ct-mini { padding:4px 8px; font-size:12px; }
 #tabConteudos .ct-acoes { display:flex; gap:2px; justify-content:flex-end; }
 #tabConteudos .ct-ab { background:none; border:none; color:var(--text-muted); font-size:14px; line-height:1; cursor:pointer; padding:6px 7px; border-radius:7px; font-family:inherit; opacity:.55; transition:opacity .15s, background .15s; }
 #tabConteudos tr.ct-row:hover .ct-ab { opacity:1; }
@@ -4439,6 +4441,7 @@
             <div class="ct-row3">
                 <div><label class="ct-lbl" for="ctFLinkBrief">Briefing</label><input id="ctFLinkBrief" class="ct-input" type="url" placeholder="https://..."></div>
                 <div><label class="ct-lbl" for="ctFLinkEntrega">Entrega final</label><input id="ctFLinkEntrega" class="ct-input" type="url" placeholder="https://..."></div>
+                <div><label class="ct-lbl" for="ctFRoteiroUrl">📄 Modelo de roteiro (link)</label><input id="ctFRoteiroUrl" class="ct-input" type="url" placeholder="https://... ou suba o arquivo pela tabela"></div>
             </div>
             <label class="ct-lbl" for="ctFRoteiro">✍️ Roteiro</label>
             <textarea id="ctFRoteiro" class="ct-input" style="min-height:140px;" placeholder="O texto do vídeo, cena por cena."></textarea>
@@ -17209,7 +17212,7 @@
     const CT_DATAS = [['data_briefing', '📋', 'Briefing'], ['data_roteiro', '✍️', 'Roteiro'], ['data_gravacao', '🎬', 'Gravação'], ['data_aprovacao', '✅', 'Aprovação'],
         ['data_postagem', '🚀', 'Postagem'], ['data_faturamento', '🧾', 'Faturamento'], ['data_pagamento_prevista', '📅', 'Pgto previsto'], ['data_pagamento', '💰', 'Pagamento']];
     const CT_CAMPOS_TXT = [['ctFNome', 'nome'], ['ctFCliente', 'cliente'], ['ctFInsta', 'cliente_instagram'], ['ctFPrazo', 'prazo_pagamento'],
-        ['ctFLinkBrief', 'link_briefing'], ['ctFLinkEntrega', 'link_entrega_final'], ['ctFRoteiro', 'roteiro'], ['ctFObs', 'observacoes']];
+        ['ctFLinkBrief', 'link_briefing'], ['ctFLinkEntrega', 'link_entrega_final'], ['ctFRoteiroUrl', 'roteiro_url'], ['ctFRoteiro', 'roteiro'], ['ctFObs', 'observacoes']];
     const CT_CAMPOS_DATA = [['ctFDBriefing', 'data_briefing'], ['ctFDRoteiro', 'data_roteiro'], ['ctFDGravacao', 'data_gravacao'], ['ctFDAprovacao', 'data_aprovacao'],
         ['ctFDPostagem', 'data_postagem'], ['ctFDFaturamento', 'data_faturamento'], ['ctFDPgtoPrev', 'data_pagamento_prevista'], ['ctFDPgto', 'data_pagamento']];
     const CT_CAMPOS_BOOL = [['ctFDestaque', 'destaque'], ['ctFContrato', 'contrato_assinado'], ['ctFNota', 'nota_fiscal_enviada']];
@@ -17281,6 +17284,8 @@
         const dir = ctOrd.asc ? 1 : -1;
         const txt = v => (v == null ? '' : String(v)).toLowerCase();
         lista.sort((a, b) => {
+            /* favoritas (⭐) sempre em cima, seja qual for a ordenação */
+            if (!!a.destaque !== !!b.destaque) return a.destaque ? -1 : 1;
             let r = 0;
             switch (ctOrd.por) {
                 case 'campanha': r = txt(a.nome).localeCompare(txt(b.nome), 'pt-BR'); break;
@@ -17335,7 +17340,7 @@
         const th = (por, label, extra) => '<th class="sortable' + (ctOrd.por === por ? ' sorted' : '') + '"' + (extra || '') + ' onclick="ctOrdenar(\'' + por + '\')">' + label + '<span class="ct-arrow">' + (ctOrd.por === por ? (ctOrd.asc ? '▲' : '▼') : '⇅') + '</span></th>';
         box.innerHTML = '<div class="ct-tw"><table class="ct-table"><thead><tr>'
             + th('campanha', 'Campanha') + th('cliente', 'Cliente') + th('tipo', 'Tipo') + th('status', 'Status')
-            + th('qtd', 'Qtd', ' style="text-align:right;"') + th('valor', 'Valor', ' style="text-align:right;"') + th('pagamento', 'Pagamento') + th('data', '📅 Data') + '<th></th>'
+            + th('qtd', 'Qtd', ' style="text-align:right;"') + th('valor', 'Valor', ' style="text-align:right;"') + th('pagamento', 'Pagamento') + '<th>📄 Roteiro</th>' + th('data', '📅 Data') + '<th></th>'
             + '</tr></thead><tbody>' + lista.map(ctLinhaHtml).join('') + '</tbody></table></div>'
             + '<div class="ct-count">' + lista.length + ' campanha' + (lista.length === 1 ? '' : 's') + (lista.length !== ctLista.length ? ' de ' + ctLista.length : '') + '</div>';
     }
@@ -17360,10 +17365,11 @@
             + '<td data-l="Qtd" class="ct-num" style="text-align:right;">' + (c.quantidade_videos != null ? ctEsc(c.quantidade_videos) + ' 🎥' : '<span class="ct-mute">·</span>') + '</td>'
             + '<td data-l="Valor" class="ct-num ct-valor" style="text-align:right;">' + (c.valor != null ? ctMoeda(c.valor) : '<span class="ct-mute">·</span>') + '</td>'
             + '<td data-l="Pagamento"><button class="ct-badge pg ' + (pago ? 'pg-pago' : 'pg-pendente') + '" type="button" title="' + (pago ? 'Pago' + (c.data_pagamento ? ' em ' + ctData(c.data_pagamento) : '') + '. Clique pra voltar a pendente.' : 'Pendente. Clique pra marcar como pago.') + '" onclick="event.stopPropagation();ctTogglePago(\'' + id + '\')">' + (pago ? '💚 Pago' : '⏳ Pendente') + '</button></td>'
+            + '<td data-l="Roteiro" class="ct-rot">' + ctRoteiroCelula(c) + '</td>'
             + '<td data-l="Data" class="ct-data" title="' + ctEsc(ref.nome) + '">' + (ref.d ? ref.ic + ' ' + ctDataCurta(ref.d) : '<span class="ct-mute">·</span>') + '</td>'
             + '<td data-l="Ações"><div class="ct-acoes"><button class="ct-ab" type="button" title="Editar" onclick="event.stopPropagation();ctAbrir(\'' + id + '\')">✏️</button><button class="ct-ab del" type="button" title="Apagar" onclick="event.stopPropagation();ctApagar(\'' + id + '\')">🗑️</button></div></td>'
             + '</tr>';
-        if (aberta) html += '<tr class="ct-detail"><td colspan="9">' + ctDetalheHtml(c) + '</td></tr>';
+        if (aberta) html += '<tr class="ct-detail"><td colspan="10">' + ctDetalheHtml(c) + '</td></tr>';
         return html;
     }
 
@@ -17381,7 +17387,7 @@
                 + (c.prazo_pagamento ? '<span class="ct-badge">⏱️ ' + ctEsc(ctPrazoNome(c.prazo_pagamento)) + '</span>' : '<span class="ct-badge" style="opacity:.7;">⏱️ sem prazo</span>')
                 + sw('contrato_assinado', '📝', 'Contrato assinado') + sw('nota_fiscal_enviada', '🧾', 'Nota fiscal enviada') + '</div>'
             + '<div class="ct-timeline">' + steps + '</div>'
-            + '<div class="ct-linha">' + link(c.link_briefing, '📋', 'Briefing') + link(c.link_entrega_final, '📦', 'Entrega final')
+            + '<div class="ct-linha">' + link(c.link_briefing, '📋', 'Briefing') + link(c.link_entrega_final, '📦', 'Entrega final') + link(c.roteiro_url, '📄', 'Modelo de roteiro')
                 + '<span style="margin-left:auto;display:flex;gap:6px;"><button class="ct-mini" type="button" onclick="ctAbrir(\'' + id + '\')">✏️ Editar tudo</button></span></div>'
             + '<div class="ct-cols">'
                 + '<div class="ct-bloco"><div class="tit"><span>📝 Observações</span></div>' + (c.observacoes ? '<div class="txt">' + ctEsc(c.observacoes) + '</div>' : '<div class="vazio">Nada anotado ainda.</div>') + '</div>'
@@ -17391,6 +17397,58 @@
     }
 
     function ctExpandir(id) { ctAberto = ctAberto === id ? null : id; ctRender(); }
+
+    /* ── coluna Roteiro: modelo de roteiro por arquivo (bucket "conteudos") ou por link ── */
+    let ctRoteiroAlvo = null;
+    function ctRoteiroCelula(c) {
+        const id = c.id;
+        if (c.roteiro_url) {
+            return '<div class="ct-rotc"><a class="ct-link" href="' + ctEsc(ctUrl(c.roteiro_url)) + '" target="_blank" rel="noopener" title="' + ctEsc(c.roteiro_arquivo ? 'Arquivo que você subiu' : c.roteiro_url) + '" onclick="event.stopPropagation()">📄 Abrir ↗</a>'
+                + '<button class="ct-ab" type="button" title="Trocar por outro arquivo" onclick="event.stopPropagation();ctEscolherArquivo(\'' + id + '\')">📎</button>'
+                + '<button class="ct-ab del" type="button" title="Tirar o roteiro" onclick="event.stopPropagation();ctRemoverRoteiro(\'' + id + '\')">✕</button></div>';
+        }
+        return '<div class="ct-rotc"><button class="ct-mini" type="button" title="Subir o arquivo do modelo (PDF, Word, imagem...)" onclick="event.stopPropagation();ctEscolherArquivo(\'' + id + '\')">📎 Subir</button>'
+            + '<button class="ct-mini" type="button" title="Colar um link (Google Docs, Canva, Notion...)" onclick="event.stopPropagation();ctColarLinkRoteiro(\'' + id + '\')">🔗 Link</button></div>';
+    }
+    function ctEscolherArquivo(id) {
+        ctRoteiroAlvo = id;
+        let inp = document.getElementById('ctFileRoteiro');
+        if (!inp) {
+            inp = document.createElement('input'); inp.type = 'file'; inp.id = 'ctFileRoteiro'; inp.style.display = 'none';
+            inp.accept = '.pdf,.doc,.docx,.txt,.md,.png,.jpg,.jpeg,.webp,.key,.pptx';
+            inp.addEventListener('change', () => { if (inp.files && inp.files[0]) ctSubirRoteiro(ctRoteiroAlvo, inp.files[0]); inp.value = ''; });
+            document.body.appendChild(inp);
+        }
+        inp.click();
+    }
+    async function ctSubirRoteiro(id, file) {
+        const c = ctLista.find(x => x.id === id); if (!c || !file) return;
+        if (file.size > 25 * 1024 * 1024) { ctToast('Arquivo grande demais (máx. 25MB).', true); return; }
+        ctToast('⏳ Subindo "' + file.name + '"...');
+        const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const path = 'roteiros/' + id + '/' + Date.now() + '_' + safe;
+        const up = await sb.storage.from('conteudos').upload(path, file, { contentType: file.type || undefined, upsert: false });
+        if (up.error) { ctErro('Não consegui subir o arquivo', up.error); return; }
+        const url = sb.storage.from('conteudos').getPublicUrl(path).data.publicUrl;
+        const antigo = c.roteiro_arquivo;
+        const ok = await ctPatch(id, { roteiro_url: url, roteiro_arquivo: path }, '📄 Modelo de roteiro guardado ✓');
+        if (ok && antigo && antigo !== path) sb.storage.from('conteudos').remove([antigo]).catch(() => {});
+    }
+    async function ctColarLinkRoteiro(id) {
+        const c = ctLista.find(x => x.id === id); if (!c) return;
+        const url = (prompt('Cole o link do modelo de roteiro (Google Docs, Canva, Notion...):', c.roteiro_url && !c.roteiro_arquivo ? c.roteiro_url : '') || '').trim();
+        if (!url) return;
+        const antigo = c.roteiro_arquivo;
+        const ok = await ctPatch(id, { roteiro_url: ctUrl(url), roteiro_arquivo: null }, '🔗 Link do roteiro guardado ✓');
+        if (ok && antigo) sb.storage.from('conteudos').remove([antigo]).catch(() => {});
+    }
+    async function ctRemoverRoteiro(id) {
+        const c = ctLista.find(x => x.id === id); if (!c) return;
+        if (!confirm('Tirar o modelo de roteiro dessa campanha?')) return;
+        const antigo = c.roteiro_arquivo;
+        const ok = await ctPatch(id, { roteiro_url: null, roteiro_arquivo: null }, 'Roteiro removido ✓');
+        if (ok && antigo) sb.storage.from('conteudos').remove([antigo]).catch(() => {});
+    }
 
     /* Grava um pedaço da campanha e atualiza a lista local sem recarregar tudo. */
     async function ctPatch(id, patch, msgOk) {
