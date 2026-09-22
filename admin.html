@@ -4397,7 +4397,9 @@
             <span class="ct-sep"></span>
             <div class="ct-chips" id="ctChipsTipo"></div>
             <input id="ctBusca" class="ct-input ct-search" type="search" placeholder="🔎 Buscar campanha, cliente ou observação..." oninput="ctRender()">
+            <button class="ct-chip" type="button" id="ctColsBtn" title="Esconder ou mostrar colunas da tabela" onclick="ctColsToggle()">👁️ Colunas</button>
         </div>
+        <div class="ct-chips" id="ctColsPanel" style="display:none;margin:-6px 0 14px;align-items:center;"></div>
         <div id="ctBox"></div>
         <div id="ctToast" class="ct-toast" role="status" aria-live="polite"></div>
     </div>
@@ -17318,6 +17320,7 @@
 
     function ctRender() {
         const box = document.getElementById('ctBox'); if (!box) return;
+        ctColsRender();
         /* Cards do topo: olham a base inteira, não o filtro. As canceladas contam no
            total de campanhas mas ficam fora das somas em dinheiro. */
         const valendo = ctLista.filter(c => c.status !== 'cancelado');
@@ -17350,10 +17353,10 @@
                 : '<div class="ct-empty"><div class="em">🎬</div><h4>Nenhuma campanha cadastrada ainda</h4><p>Clique em "+ Nova campanha" pra registrar a primeira publi ou UGC.</p><button class="ct-btn" type="button" onclick="ctAbrir(null)">+ Nova campanha</button></div>';
             return;
         }
-        const th = (por, label, extra) => '<th class="sortable' + (ctOrd.por === por ? ' sorted' : '') + '"' + (extra || '') + ' onclick="ctOrdenar(\'' + por + '\')">' + label + '<span class="ct-arrow">' + (ctOrd.por === por ? (ctOrd.asc ? '▲' : '▼') : '⇅') + '</span></th>';
+        const th = (por, label, extra) => ctOc(por) ? '' : '<th class="sortable' + (ctOrd.por === por ? ' sorted' : '') + '"' + (extra || '') + ' onclick="ctOrdenar(\'' + por + '\')">' + label + '<span class="ct-arrow">' + (ctOrd.por === por ? (ctOrd.asc ? '▲' : '▼') : '⇅') + '</span></th>';
         box.innerHTML = '<div class="ct-tw"><table class="ct-table"><thead><tr>'
             + th('campanha', 'Campanha') + th('cliente', 'Cliente') + th('tipo', 'Tipo') + th('status', 'Status')
-            + th('qtd', 'Qtd', ' style="text-align:right;"') + th('valor', 'Valor', ' style="text-align:right;"') + th('pagamento', 'Pagamento') + '<th>📄 Roteiro</th>' + th('data', '📅 Data') + '<th></th>'
+            + th('qtd', 'Qtd', ' style="text-align:right;"') + th('valor', 'Valor', ' style="text-align:right;"') + th('pagamento', 'Pagamento') + (ctOc('roteiro') ? '' : '<th>📄 Roteiro</th>') + th('data', '📅 Data') + '<th></th>'
             + '</tr></thead><tbody>' + lista.map(ctLinhaHtml).join('') + '</tbody></table></div>'
             + '<div class="ct-count">' + lista.length + ' campanha' + (lista.length === 1 ? '' : 's') + (lista.length !== ctLista.length ? ' de ' + ctLista.length : '') + '</div>';
     }
@@ -17390,7 +17393,8 @@
             + '<td data-l="Data" class="ct-data" title="' + ctEsc(ref.nome) + '">' + (ref.d ? ref.ic + ' ' + ctDataCurta(ref.d) : '<span class="ct-mute">·</span>') + '</td>'
             + '<td data-l="Ações"><div class="ct-acoes"><button class="ct-ab" type="button" title="Editar" onclick="event.stopPropagation();ctAbrir(\'' + id + '\')">✏️</button><button class="ct-ab del" type="button" title="Apagar" onclick="event.stopPropagation();ctApagar(\'' + id + '\')">🗑️</button></div></td>'
             + '</tr>';
-        if (aberta) html += '<tr class="ct-detail"><td colspan="10">' + ctDetalheHtml(c) + '</td></tr>';
+        if (ctOcultas.size) ctOcultas.forEach(k => { if (CT_COL_LABEL[k]) html = html.replace(new RegExp('<td data-l="' + CT_COL_LABEL[k] + '"[^>]*>[\\s\\S]*?<\\/td>'), ''); });
+        if (aberta) html += '<tr class="ct-detail"><td colspan="' + (10 - ctOcultas.size) + '">' + ctDetalheHtml(c) + '</td></tr>';
         return html;
     }
 
@@ -17418,6 +17422,33 @@
     }
 
     function ctExpandir(id) { ctAberto = ctAberto === id ? null : id; ctRender(); }
+
+    /* ── colunas que ela pode esconder (escolha fica salva no navegador) ── */
+    const CT_COLUNAS = [['cliente', 'Cliente'], ['tipo', 'Tipo'], ['status', 'Status'], ['qtd', 'Qtd'], ['valor', 'Valor'], ['pagamento', 'Pagamento'], ['roteiro', '📄 Roteiro'], ['data', '📅 Data']];
+    const CT_COL_LABEL = { cliente: 'Cliente', tipo: 'Tipo', status: 'Status', qtd: 'Qtd', valor: 'Valor', pagamento: 'Pagamento', roteiro: 'Roteiro', data: 'Data' };
+    let ctOcultas = new Set();
+    try { ctOcultas = new Set(JSON.parse(localStorage.getItem('ctColunasOcultas') || '[]').filter(k => CT_COL_LABEL[k])); } catch (e) {}
+    const ctOc = k => ctOcultas.has(k);
+    function ctColsToggle() {
+        const p = document.getElementById('ctColsPanel'); if (!p) return;
+        p.style.display = p.style.display === 'none' ? 'flex' : 'none';
+        ctColsRender();
+    }
+    function ctColsRender() {
+        const b = document.getElementById('ctColsBtn');
+        if (b) b.textContent = '👁️ Colunas' + (ctOcultas.size ? ' · ' + ctOcultas.size + ' escondida' + (ctOcultas.size > 1 ? 's' : '') : '');
+        const p = document.getElementById('ctColsPanel'); if (!p || p.style.display === 'none') return;
+        p.innerHTML = '<span class="ct-lbl" style="margin-right:4px;">Mostrar na tabela:</span>'
+            + CT_COLUNAS.map(c => '<button class="ct-chip' + (ctOc(c[0]) ? '' : ' on') + '" type="button" onclick="ctColToggle(\'' + c[0] + '\')">' + (ctOc(c[0]) ? '🙈 ' : '👁️ ') + c[1] + '</button>').join('')
+            + (ctOcultas.size ? '<button class="ct-chip" type="button" onclick="ctColsTodas()">↺ Mostrar todas</button>' : '');
+    }
+    function ctColToggle(k) {
+        if (!CT_COL_LABEL[k]) return;
+        if (ctOcultas.has(k)) ctOcultas.delete(k); else ctOcultas.add(k);
+        try { localStorage.setItem('ctColunasOcultas', JSON.stringify(Array.from(ctOcultas))); } catch (e) {}
+        ctColsRender(); ctRender();
+    }
+    function ctColsTodas() { ctOcultas.clear(); try { localStorage.removeItem('ctColunasOcultas'); } catch (e) {} ctColsRender(); ctRender(); }
 
     /* ── favoritas: posição manual (setinhas) e cor de fundo ── */
     const CT_CORES = { amarelo: '#FFF3C4', rosa: '#FFE1EA', verde: '#DFF5E3', azul: '#DCEBFF', lilas: '#EBE0FF', laranja: '#FFE4CC' };
