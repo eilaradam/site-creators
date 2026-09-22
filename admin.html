@@ -4232,6 +4232,14 @@
 #tabConteudos .ct-fav-ctl button { border:1px solid var(--border); background:var(--card); border-radius:6px; min-width:22px; height:22px; font-size:11px; line-height:1; cursor:pointer; color:var(--text-soft); padding:0 4px; }
 #tabConteudos .ct-fav-ctl button:hover { border-color:var(--accent); color:var(--accent); }
 #tabConteudos .ct-fav-ctl button:disabled { opacity:.25; cursor:default; }
+#tabConteudos .ct-stbtn { border:0; cursor:pointer; font-family:inherit; }
+#tabConteudos .ct-stbtn:hover { filter:brightness(.96); }
+#tabConteudos .ct-stcar { opacity:.55; font-size:10px; margin-left:1px; }
+.ct-stmenu { position:fixed; z-index:9999; background:var(--card); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow-md); padding:6px; min-width:230px; display:flex; flex-direction:column; gap:2px; }
+.ct-stmenu-t { font-size:10.5px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--text-muted); padding:6px 10px 4px; }
+.ct-stopt { text-align:left; background:none; border:0; border-radius:9px; padding:8px 10px; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; color:var(--text); }
+.ct-stopt:hover { background:var(--accent-tint); }
+.ct-stopt.on { background:var(--accent); color:#fff; }
 #tabConteudos .ct-drag { cursor:grab; color:var(--text-muted); font-size:17px; line-height:1; padding:0 5px; touch-action:none; user-select:none; -webkit-user-select:none; }
 #tabConteudos .ct-drag:hover { color:var(--accent); }
 #tabConteudos tr.ct-row.arrastando td { opacity:.4; }
@@ -17395,7 +17403,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             + '<td data-l="Cliente"><div class="ct-cli">' + (c.cliente ? '<span class="ct-cliente">' + ctEsc(c.cliente) + '</span>' : '<span class="ct-mute">sem cliente</span>')
                 + (insta ? '<a class="ct-ig" href="https://instagram.com/' + encodeURIComponent(insta) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">@' + ctEsc(insta) + '</a>' : '') + '</div></td>'
             + '<td data-l="Tipo"><span class="ct-badge tp-' + ctEsc(CT_TIPOS[c.tipo] ? c.tipo : 'outro') + '">' + tp.ic + ' ' + tp.nome + '</span></td>'
-            + '<td data-l="Status"><span class="ct-badge st-' + ctEsc(c.status || '') + '">' + st.ic + ' ' + ctEsc(st.nome) + '</span></td>'
+            + '<td data-l="Status"><button class="ct-badge ct-stbtn st-' + ctEsc(c.status || '') + '" type="button" title="Trocar só o status" onclick="event.stopPropagation();ctStatusToggle(\'' + id + '\', this)">' + st.ic + ' ' + ctEsc(st.nome) + ' <span class="ct-stcar">▾</span></button></td>'
             + '<td data-l="Qtd" class="ct-num" style="text-align:right;">' + (c.quantidade_videos != null ? ctEsc(c.quantidade_videos) + ' 🎥' : '<span class="ct-mute">·</span>') + '</td>'
             + '<td data-l="Valor" class="ct-num ct-valor" style="text-align:right;">' + (c.valor != null ? ctMoeda(c.valor) : '<span class="ct-mute">·</span>') + '</td>'
             + '<td data-l="Pagamento"><button class="ct-badge pg ' + (pago ? 'pg-pago' : 'pg-pendente') + '" type="button" title="' + (pago ? 'Pago' + (c.data_pagamento ? ' em ' + ctData(c.data_pagamento) : '') + '. Clique pra voltar a pendente.' : 'Pendente. Clique pra marcar como pago.') + '" onclick="event.stopPropagation();ctTogglePago(\'' + id + '\')">' + (pago ? '💚 Pago' : '⏳ Pendente') + '</button></td>'
@@ -17645,6 +17653,32 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         ctPatch(id, { [campo]: ligar }, CT_BOOL_MSG[campo][ligar ? 0 : 1]);
     }
     function ctToggleDestaque(id) { ctToggleBool(id, 'destaque'); }
+    /* menuzinho de status na própria linha (pedido dela: não abrir o painel inteiro) */
+    let ctStMenuId = null;
+    function ctStatusToggle(id, btn) {
+        if (ctStMenuId === id) { ctStatusFechar(); return; }
+        ctStatusFechar();
+        const c = ctLista.find(x => x.id === id); if (!c || !btn) return;
+        const m = document.createElement('div');
+        m.id = 'ctStMenu'; m.className = 'ct-stmenu';
+        m.innerHTML = '<div class="ct-stmenu-t">Trocar o status</div>'
+            + CT_FUNIL.map(k => '<button type="button" class="ct-stopt' + (c.status === k ? ' on' : '') + '" onclick="ctEscolherStatus(\'' + id + '\', \'' + k + '\')">' + CT_STATUS[k].ic + ' ' + CT_STATUS[k].nome + '</button>').join('');
+        m.addEventListener('click', e => e.stopPropagation());
+        document.body.appendChild(m);
+        const r = btn.getBoundingClientRect();
+        let top = r.bottom + 6, left = r.left;
+        if (top + m.offsetHeight > window.innerHeight - 8) top = Math.max(8, r.top - m.offsetHeight - 6);
+        if (left + m.offsetWidth > window.innerWidth - 8) left = Math.max(8, window.innerWidth - m.offsetWidth - 8);
+        m.style.top = top + 'px'; m.style.left = left + 'px';
+        ctStMenuId = id;
+        setTimeout(() => {
+            document.addEventListener('click', ctStatusFechar, { once: true });
+            window.addEventListener('scroll', ctStatusFechar, { once: true, capture: true });
+            window.addEventListener('resize', ctStatusFechar, { once: true });
+        }, 0);
+    }
+    function ctStatusFechar() { const m = document.getElementById('ctStMenu'); if (m) m.remove(); ctStMenuId = null; }
+    function ctEscolherStatus(id, status) { ctStatusFechar(); ctSetStatus(id, status); }
     function ctSetStatus(id, status) {
         if (!CT_STATUS[status]) return;
         ctPatch(id, { status: status }, CT_STATUS[status].ic + ' Status: ' + CT_STATUS[status].nome + ' ✓');
