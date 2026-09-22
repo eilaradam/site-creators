@@ -17239,7 +17239,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         ['ctFDPostagem', 'data_postagem'], ['ctFDFaturamento', 'data_faturamento'], ['ctFDPgtoPrev', 'data_pagamento_prevista'], ['ctFDPgto', 'data_pagamento']];
     const CT_CAMPOS_BOOL = [['ctFDestaque', 'destaque'], ['ctFContrato', 'contrato_assinado'], ['ctFNota', 'nota_fiscal_enviada']];
     const CT_BOOL_MSG = { contrato_assinado: ['📝 Contrato assinado ✓', '📝 Contrato desmarcado ✓'], nota_fiscal_enviada: ['🧾 Nota fiscal enviada ✓', '🧾 Nota fiscal desmarcada ✓'], destaque: ['⭐ Campanha em destaque ✓', '☆ Destaque tirado ✓'] };
-    let ctLista = [], ctCarregado = false, ctFase = 'ativas', ctTipo = 'todos', ctOrd = { por: 'data', asc: false };
+    let ctLista = [], ctCarregado = false, ctFase = 'ativas', ctTipo = 'todos', ctOrd = { por: 'status', asc: true };
     let ctAberto = null, ctEditando = null, ctToastTimer = null, ctSelectsProntos = false;
 
     const ctEsc = s => escapeHtml(s);
@@ -17305,10 +17305,13 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         });
         const dir = ctOrd.asc ? 1 : -1;
         const txt = v => (v == null ? '' : String(v)).toLowerCase();
+        ctBlocoCache = null;
         lista.sort((a, b) => {
-            /* favoritas (⭐) sempre em cima, na ordem que ela arrumou com as setinhas */
+            /* favoritas (⭐) sempre em cima. Entre elas: cada COR é um bloco (a posição do
+               bloco é a que ela arrastou); dentro do bloco, a ordem do funil; sem cor,
+               cada uma é um bloco sozinha. Regra dela de 22/09. */
             if (!!a.destaque !== !!b.destaque) return a.destaque ? -1 : 1;
-            if (a.destaque && b.destaque) { const oa = a.ordem == null ? 1e9 : a.ordem, ob = b.ordem == null ? 1e9 : b.ordem; if (oa !== ob) return oa - ob; }
+            if (a.destaque && b.destaque) { const f = ctCmpFav(a, b); if (f) return f; }
             let r = 0;
             switch (ctOrd.por) {
                 case 'campanha': r = txt(a.nome).localeCompare(txt(b.nome), 'pt-BR'); break;
@@ -17460,6 +17463,27 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     /* ── favoritas: posição manual (setinhas) e cor de fundo ── */
     const CT_CORES = { amarelo: '#FFF3C4', rosa: '#FFE1EA', verde: '#DFF5E3', azul: '#DCEBFF', lilas: '#EBE0FF', laranja: '#FFE4CC' };
     let ctPalAberta = null;
+    const ctOrdemNum = c => (c.ordem == null ? 1e9 : Number(c.ordem));
+    const ctFunilIdx = c => { const i = CT_FUNIL.indexOf(c.status); return i < 0 ? CT_FUNIL.length : i; };
+    /* bloco = a cor (favorita sem cor é um bloco só dela, identificado pelo id) */
+    const ctBloco = c => (CT_CORES[c.cor] ? 'cor:' + c.cor : 'id:' + c.id);
+    function ctBlocoOrdem() {
+        const m = {};
+        ctLista.filter(c => c.destaque).forEach(c => { const g = ctBloco(c), o = ctOrdemNum(c); if (m[g] == null || o < m[g]) m[g] = o; });
+        return m;
+    }
+    let ctBlocoCache = null;
+    function ctCmpFav(a, b) {
+        const ga = ctBloco(a), gb = ctBloco(b);
+        if (ga !== gb) { const m = ctBlocoCache || (ctBlocoCache = ctBlocoOrdem()); return (m[ga] - m[gb]) || ga.localeCompare(gb); }
+        return (ctFunilIdx(a) - ctFunilIdx(b)) || (ctOrdemNum(a) - ctOrdemNum(b));
+    }
+    /* todas as favoritas, na ordem em que aparecem na tela */
+    function ctFavoritasExibicao() {
+        ctBlocoCache = null;
+        const txt = v => (v == null ? '' : String(v));
+        return ctLista.filter(c => c.destaque).sort((a, b) => ctCmpFav(a, b) || txt(b.created_at).localeCompare(txt(a.created_at)));
+    }
     function ctFavoritas() {
         const txt = v => (v == null ? '' : String(v));
         return ctLista.filter(c => c.destaque).sort((a, b) => {
@@ -17506,12 +17530,25 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         });
     }
     async function ctSoltarFav(id, alvoId, depois) {
-        const favs = ctFavoritas();
-        const i = favs.findIndex(c => c.id === id); if (i < 0) { ctRender(); return; }
-        const item = favs.splice(i, 1)[0];
+        const disp = ctFavoritasExibicao();
+        const item = disp.find(c => c.id === id), alvo = disp.find(c => c.id === alvoId);
+        if (!item || !alvo) { ctRender(); return; }
+        /* arrastar uma linha colorida leva o bloco da cor inteiro junto */
+        const bloco = ctBloco(item);
+        if (ctBloco(alvo) === bloco) { ctRender(); ctToast('Dentro da mesma cor a ordem é a do funil.'); return; }
+        const grupo = disp.filter(c => ctBloco(c) === bloco);
+        const favs = disp.filter(c => ctBloco(c) !== bloco);
         let j = favs.findIndex(c => c.id === alvoId); if (j < 0) { ctRender(); return; }
-        if (depois) j += 1;
-        favs.splice(j, 0, item);
+        if (depois) {
+            /* soltar "abaixo" de uma linha colorida = abaixo do bloco dela inteiro */
+            const bAlvo = ctBloco(alvo);
+            while (j + 1 < favs.length && ctBloco(favs[j + 1]) === bAlvo) j++;
+            j += 1;
+        } else {
+            const bAlvo = ctBloco(alvo);
+            while (j > 0 && ctBloco(favs[j - 1]) === bAlvo) j--;
+        }
+        favs.splice(j, 0, ...grupo);
         /* renumera todas (1, 2, 3...) e só grava as que mudaram */
         const mudou = favs.map((c, k) => ({ c: c, ordem: k + 1 })).filter(x => x.c.ordem !== x.ordem);
         for (const m of mudou) {
