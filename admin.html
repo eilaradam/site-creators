@@ -4232,6 +4232,14 @@
 #tabConteudos .ct-fav-ctl button { border:1px solid var(--border); background:var(--card); border-radius:6px; min-width:22px; height:22px; font-size:11px; line-height:1; cursor:pointer; color:var(--text-soft); padding:0 4px; }
 #tabConteudos .ct-fav-ctl button:hover { border-color:var(--accent); color:var(--accent); }
 #tabConteudos .ct-fav-ctl button:disabled { opacity:.25; cursor:default; }
+#tabConteudos .ct-drag { cursor:grab; color:var(--text-muted); font-size:17px; line-height:1; padding:0 5px; touch-action:none; user-select:none; -webkit-user-select:none; }
+#tabConteudos .ct-drag:hover { color:var(--accent); }
+#tabConteudos tr.ct-row.arrastando td { opacity:.4; }
+#tabConteudos tr.ct-row.alvo-cima td { box-shadow:inset 0 3px 0 var(--accent); }
+#tabConteudos tr.ct-row.alvo-baixo td { box-shadow:inset 0 -3px 0 var(--accent); }
+#tabConteudos tr.ct-row.alvo-cima td:first-child { box-shadow:inset 0 3px 0 var(--accent), inset 3px 0 0 var(--alerta); }
+#tabConteudos tr.ct-row.alvo-baixo td:first-child { box-shadow:inset 0 -3px 0 var(--accent), inset 3px 0 0 var(--alerta); }
+body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; }
 #tabConteudos .ct-pal { display:inline-flex; gap:5px; align-items:center; margin-left:6px; padding:3px 6px; background:var(--card); border:1px solid var(--border); border-radius:100px; vertical-align:middle; }
 #tabConteudos .ct-sw { width:18px; height:18px; border-radius:50%; border:2px solid #fff; box-shadow:0 0 0 1px var(--border); cursor:pointer; padding:0; }
 #tabConteudos .ct-sw.on { box-shadow:0 0 0 2px var(--accent); }
@@ -17320,7 +17328,7 @@
 
     function ctRender() {
         const box = document.getElementById('ctBox'); if (!box) return;
-        ctColsRender();
+        ctColsRender(); ctDragBind();
         /* Cards do topo: olham a base inteira, não o filtro. As canceladas contam no
            total de campanhas mas ficam fora das somas em dinheiro. */
         const valendo = ctLista.filter(c => c.status !== 'cancelado');
@@ -17372,12 +17380,11 @@
         const favs = c.destaque ? ctFavoritas() : null;
         const posFav = favs ? favs.findIndex(x => x.id === id) : -1;
         const ctl = c.destaque
-            ? '<span class="ct-fav-ctl"><button type="button" title="Subir uma posição"' + (posFav <= 0 ? ' disabled' : '') + ' onclick="event.stopPropagation();ctMoverFav(\'' + id + '\', -1)">▲</button>'
-              + '<button type="button" title="Descer uma posição"' + (posFav >= favs.length - 1 ? ' disabled' : '') + ' onclick="event.stopPropagation();ctMoverFav(\'' + id + '\', 1)">▼</button>'
+            ? '<span class="ct-fav-ctl">' + (favs.length > 1 ? '<span class="ct-drag" title="Segure e arraste pra mudar a posição">⠿</span>' : '')
               + '<button type="button" title="Cor de fundo" onclick="event.stopPropagation();ctPalToggle(\'' + id + '\')">🎨</button></span>'
               + (ctPalAberta === id ? ctPaletaHtml(c) : '')
             : '';
-        let html = '<tr class="ct-row' + (c.destaque ? ' destaque' : '') + (aberta ? ' aberta' : '') + (c.status === 'cancelado' ? ' cancelada' : '') + (CT_CORES[c.cor] ? ' cor-' + c.cor : '') + '" onclick="ctExpandir(\'' + id + '\')">'
+        let html = '<tr data-id="' + id + '" class="ct-row' + (c.destaque ? ' destaque' : '') + (aberta ? ' aberta' : '') + (c.status === 'cancelado' ? ' cancelada' : '') + (CT_CORES[c.cor] ? ' cor-' + c.cor : '') + '" onclick="ctExpandir(\'' + id + '\')">'
             + '<td class="ct-td-nome" data-l="Campanha"><div class="ct-nome">'
                 + '<button class="ct-star' + (c.destaque ? ' on' : '') + '" type="button" title="' + (c.destaque ? 'Tirar o destaque' : 'Marcar como destaque') + '" onclick="event.stopPropagation();ctToggleDestaque(\'' + id + '\')">' + (c.destaque ? '⭐' : '☆') + '</button>'
                 + '<span title="' + ctEsc(c.nome || '') + '">' + ctEsc(c.nome || 'Sem nome') + '</span>' + ctl + '</div>'
@@ -17460,11 +17467,51 @@
             return (oa - ob) || txt(b.created_at).localeCompare(txt(a.created_at));
         });
     }
-    async function ctMoverFav(id, dir) {
+    /* Arrastar pela alça ⠿: pointer events, então vale pro mouse e pro dedo. A lista é
+       montada por innerHTML, por isso o ouvinte fica no #ctBox e não em cada linha. */
+    let ctDrag = null;
+    function ctDragBind() {
+        const box = document.getElementById('ctBox'); if (!box || box.dataset.dragOk) return;
+        box.dataset.dragOk = '1';
+        box.addEventListener('pointerdown', e => {
+            const h = e.target.closest('.ct-drag'); if (!h) return;
+            const tr = h.closest('tr.ct-row'); if (!tr) return;
+            e.preventDefault(); e.stopPropagation();
+            ctDrag = { id: tr.dataset.id, alvoId: null, depois: false };
+            tr.classList.add('arrastando'); document.body.classList.add('ct-dragging');
+            const limpa = () => box.querySelectorAll('tr.ct-row.alvo-cima, tr.ct-row.alvo-baixo').forEach(t => t.classList.remove('alvo-cima', 'alvo-baixo'));
+            const move = ev => {
+                if (!ctDrag) return;
+                const el = document.elementFromPoint(ev.clientX, ev.clientY);
+                const alvo = el && el.closest ? el.closest('tr.ct-row.destaque') : null;
+                limpa();
+                if (!alvo || alvo.dataset.id === ctDrag.id) { ctDrag.alvoId = null; return; }
+                const r = alvo.getBoundingClientRect();
+                ctDrag.depois = ev.clientY > r.top + r.height / 2;
+                ctDrag.alvoId = alvo.dataset.id;
+                alvo.classList.add(ctDrag.depois ? 'alvo-baixo' : 'alvo-cima');
+            };
+            const solta = async () => {
+                document.removeEventListener('pointermove', move);
+                document.removeEventListener('pointerup', solta);
+                document.removeEventListener('pointercancel', solta);
+                document.body.classList.remove('ct-dragging');
+                const d = ctDrag; ctDrag = null; limpa();
+                tr.classList.remove('arrastando');
+                if (d && d.alvoId) await ctSoltarFav(d.id, d.alvoId, d.depois);
+            };
+            document.addEventListener('pointermove', move);
+            document.addEventListener('pointerup', solta);
+            document.addEventListener('pointercancel', solta);
+        });
+    }
+    async function ctSoltarFav(id, alvoId, depois) {
         const favs = ctFavoritas();
-        const i = favs.findIndex(c => c.id === id), j = i + dir;
-        if (i < 0 || j < 0 || j >= favs.length) return;
-        const tmp = favs[i]; favs[i] = favs[j]; favs[j] = tmp;
+        const i = favs.findIndex(c => c.id === id); if (i < 0) { ctRender(); return; }
+        const item = favs.splice(i, 1)[0];
+        let j = favs.findIndex(c => c.id === alvoId); if (j < 0) { ctRender(); return; }
+        if (depois) j += 1;
+        favs.splice(j, 0, item);
         /* renumera todas (1, 2, 3...) e só grava as que mudaram */
         const mudou = favs.map((c, k) => ({ c: c, ordem: k + 1 })).filter(x => x.c.ordem !== x.ordem);
         for (const m of mudou) {
@@ -17473,7 +17520,7 @@
             m.c.ordem = m.ordem;
         }
         ctRender();
-        ctToast(dir < 0 ? '⬆️ Subiu uma posição ✓' : '⬇️ Desceu uma posição ✓');
+        ctToast('↕️ Posição salva ✓');
     }
     function ctPalToggle(id) { ctPalAberta = ctPalAberta === id ? null : id; ctRender(); }
     function ctPaletaHtml(c) {
