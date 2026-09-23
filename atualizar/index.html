@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atualizar cadastro · Lara Dam</title>
+    <meta name="description" content="Atualize seu cadastro na base de creators UGC da Lara Dam.">
+    <meta name="robots" content="noindex, nofollow">
+    <meta property="og:title" content="Atualizar cadastro | Lara Dam">
+    <meta property="og:description" content="Confere se está tudo certo e atualiza o que mudou.">
+    <meta property="og:type" content="website">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.98.0" integrity="sha384-Sm2s7OXxsAMTyJ4iIyRBgVpeGUvMPk2lRQnnZhE78Wej7oggIoolKt+SCt0XJbUB" crossorigin="anonymous"></script>
+    <style>
+        :root {
+            --black: #0A0A0A;
+            --white: #FAFAF9;
+            --cream: #F5F3EF;
+            --warm: #E8E4DD;
+            --accent: #D4572A;
+            --accent-dark: #B8461F;
+            --accent-glow: rgba(212,87,42,0.12);
+            --text: #1A1816;
+            --text-soft: #6B645C;
+            --text-muted: #9C958C;
+            --border: #DDD8D0;
+            --card: #FFFFFF;
+            --success: #2D7A4F;
+            --error: #C4453C;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Outfit', sans-serif; background: var(--cream); color: var(--text); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        nav { position: fixed; top: 0; width: 100%; z-index: 100; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; transition: all 0.4s; }
+        nav.scrolled { background: rgba(250,250,249,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 12px 24px; }
+        .nav-logo { font-family: 'Fraunces', serif; font-weight: 700; font-size: 20px; color: var(--text); text-decoration: none; letter-spacing: -0.5px; transition: color 0.4s; }
+        .nav-logo span { color: var(--accent); }
+        .nav-cta { background: var(--black); color: var(--white); padding: 10px 24px; border-radius: 100px; font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.3s; letter-spacing: 0.3px; }
+        .nav-cta:hover { background: var(--accent); transform: translateY(-1px); }
+        nav.on-dark:not(.scrolled) .nav-logo { color: var(--white); }
+        nav.on-dark:not(.scrolled) .nav-cta { background: rgba(255,255,255,0.15); backdrop-filter: blur(4px); color: var(--white); border: 1px solid rgba(255,255,255,0.2); }
+        nav.on-dark:not(.scrolled) .nav-cta:hover { background: var(--accent); border-color: var(--accent); }
+        .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 120px 24px 80px; position: relative; }
+        .hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse 80% 60% at 20% 20%, rgba(212,87,42,0.06) 0%, transparent 60%), radial-gradient(ellipse 60% 80% at 80% 80%, rgba(212,87,42,0.04) 0%, transparent 60%); pointer-events: none; }
+        .hero-pill { display: inline-flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--border); padding: 8px 20px 8px 12px; border-radius: 100px; font-size: 13px; font-weight: 500; color: var(--text-soft); margin-bottom: 32px; animation: fadeDown 0.8s ease-out both; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+        .hero-pill .dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(0.8); } }
+        .hero h1 { font-family: 'Fraunces', serif; font-size: clamp(40px, 7vw, 80px); font-weight: 800; line-height: 1.05; letter-spacing: -2px; max-width: 800px; margin-bottom: 24px; animation: fadeUp 0.8s ease-out 0.1s both; }
+        .hero h1 em { font-style: italic; color: var(--accent); font-weight: 700; }
+        .hero-sub { font-size: clamp(16px, 2vw, 19px); color: var(--text-soft); max-width: 520px; line-height: 1.7; margin-bottom: 40px; animation: fadeUp 0.8s ease-out 0.2s both; font-weight: 400; }
+        .hero-cta-group { display: flex; flex-direction: column; align-items: center; gap: 12px; animation: fadeUp 0.8s ease-out 0.3s both; }
+        .btn-primary { display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: white; padding: 18px 40px; border-radius: 100px; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; text-decoration: none; border: none; cursor: pointer; transition: all 0.3s; }
+        .btn-primary:hover { background: var(--accent-dark); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(212,87,42,0.3); }
+        .hero-note { font-size: 13px; color: var(--text-muted); }
+        .hero-stats { display: flex; gap: 48px; margin-top: 64px; animation: fadeUp 0.8s ease-out 0.5s both; }
+        .hero-stat { text-align: center; }
+        .hero-stat strong { display: block; font-family: 'Fraunces', serif; font-size: 32px; font-weight: 700; color: var(--text); letter-spacing: -1px; }
+        .hero-stat span { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+        .section { padding: 100px 24px; }
+        .section-header { text-align: center; margin-bottom: 64px; }
+        .section-tag { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; display: block; }
+        .section-header h2 { font-family: 'Fraunces', serif; font-size: clamp(28px, 4vw, 44px); font-weight: 700; letter-spacing: -1px; line-height: 1.15; }
+        .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 960px; margin: 0 auto; }
+        .step-card { background: var(--card); border-radius: 20px; padding: 36px 28px; border: 1px solid var(--border); transition: all 0.3s; position: relative; overflow: hidden; }
+        .step-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 0.4s; }
+        .step-card:hover::before { transform: scaleX(1); }
+        .step-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.06); }
+        .step-number { font-family: 'Fraunces', serif; font-size: 48px; font-weight: 800; color: var(--warm); line-height: 1; margin-bottom: 16px; }
+        .step-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+        .step-card p { font-size: 14px; color: var(--text-soft); line-height: 1.6; }
+        .benefits { background: var(--black); color: var(--white); position: relative; }
+        .benefits .section-tag { color: var(--accent); }
+        .benefits h2 { color: var(--white); }
+        .benefits-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 760px; margin: 0 auto; }
+        .benefit-item { display: flex; align-items: flex-start; gap: 16px; padding: 24px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); transition: all 0.3s; }
+        .benefit-item:hover { background: rgba(255,255,255,0.06); border-color: rgba(212,87,42,0.3); }
+        .benefit-icon { width: 40px; height: 40px; border-radius: 10px; background: rgba(212,87,42,0.15); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+        .benefit-item h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+        .benefit-item p { font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.5; }
+        #cadastro { background: var(--cream); }
+        .form-wrapper { max-width: 540px; margin: 0 auto; }
+        .form-box { background: var(--card); border-radius: 24px; padding: 44px 36px; border: 1px solid var(--border); box-shadow: 0 4px 24px rgba(0,0,0,0.04); position: relative; overflow: hidden; }
+        .form-box::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent), #E8784A, var(--accent)); }
+        .form-title { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.5px; }
+        .form-subtitle { font-size: 14px; color: var(--text-soft); margin-bottom: 32px; line-height: 1.6; }
+        .field-group { margin-bottom: 20px; }
+        .field-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+        .field-group input, .field-group select { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 12px; font-family: 'Outfit', sans-serif; font-size: 15px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; }
+        .field-group input::placeholder { color: var(--text-muted); }
+        .field-group input:focus, .field-group select:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
+        .field-group select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239C958C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 40px; cursor: pointer; }
+        .field-group textarea { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 12px; font-family: 'Outfit', sans-serif; font-size: 15px; color: var(--text); background: var(--cream); outline: none; transition: all 0.25s; resize: vertical; min-height: 80px; line-height: 1.5; }
+        .field-group textarea::placeholder { color: var(--text-muted); }
+        .field-group textarea:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 4px var(--accent-glow); }
+        .char-counter { font-size: 12px; color: var(--text-muted); text-align: right; margin-top: 4px; }
+        .char-counter.limit { color: var(--error); font-weight: 600; }
+        .nicho-picker { border: 1.5px solid var(--border); border-radius: 12px; background: var(--cream); padding: 16px; max-height: 320px; overflow-y: auto; transition: border-color 0.25s; }
+        .nicho-picker:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
+        .nicho-category { margin-bottom: 14px; }
+        .nicho-category:last-child { margin-bottom: 0; }
+        .nicho-category-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 8px; }
+        .nicho-options { display: flex; flex-wrap: wrap; gap: 6px; }
+        .nicho-chip { display: inline-flex; align-items: center; padding: 6px 14px; border-radius: 100px; border: 1.5px solid var(--border); background: var(--card); font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; color: var(--text-soft); cursor: pointer; transition: all 0.2s; user-select: none; }
+        .nicho-chip:hover { border-color: var(--accent); color: var(--accent); }
+        .nicho-chip.selected { background: var(--accent); border-color: var(--accent); color: white; font-weight: 600; }
+        .nicho-chip.disabled { opacity: 0.4; cursor: not-allowed; }
+        .nicho-chip.disabled:hover { border-color: var(--border); color: var(--text-soft); }
+        .nicho-counter { font-size: 12px; color: var(--text-muted); margin-top: 8px; text-align: right; }
+        .nicho-counter.limit { color: var(--accent); font-weight: 600; }
+        .tipo-creator-group { display: flex; gap: 8px; flex-wrap: wrap; }
+        .tipo-creator-option { flex: 1; min-width: 140px; }
+        .tipo-creator-option input[type="radio"] { display: none; }
+        .tipo-creator-option label { display: block; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 12px; background: var(--cream); font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 500; color: var(--text-soft); text-align: center; cursor: pointer; transition: all 0.25s; }
+        .tipo-creator-option label:hover { border-color: var(--accent); color: var(--accent); }
+        .tipo-creator-option input[type="radio"]:checked + label { background: var(--accent); border-color: var(--accent); color: white; font-weight: 700; }
+        .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-submit { width: 100%; margin-top: 8px; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 14px; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .form-submit:hover { background: var(--accent-dark); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(212,87,42,0.3); }
+        .form-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+        .form-footer { text-align: center; margin-top: 16px; font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+        .photo-upload { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 24px; }
+        .photo-preview { width: 96px; height: 96px; border-radius: 50%; background: var(--warm); border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; transition: all 0.3s; }
+        .photo-preview:hover { border-color: var(--accent); background: var(--accent-glow); }
+        .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .photo-preview .photo-icon { font-size: 28px; color: var(--text-muted); line-height: 1; }
+        .photo-label { font-size: 13px; color: var(--accent); font-weight: 600; cursor: pointer; }
+        .photo-label:hover { text-decoration: underline; }
+        .form-error { background: rgba(196,69,60,0.08); border: 1px solid rgba(196,69,60,0.2); color: var(--error); padding: 12px 16px; border-radius: 10px; font-size: 13px; margin-bottom: 16px; display: none; }
+        .form-error.show { display: block; }
+        .form-error.duplicate { background: rgba(212,87,42,0.08); border: 1px solid rgba(212,87,42,0.25); color: var(--accent-dark); font-size: 14px; font-weight: 500; padding: 16px 20px; }
+        .terms-checkbox { display: flex; align-items: flex-start; gap: 10px; margin: 24px 0 8px; padding: 16px; background: rgba(212,87,42,0.04); border-radius: 10px; border: 1px solid var(--border); }
+        .terms-checkbox input[type="checkbox"] { accent-color: var(--accent); width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; cursor: pointer; }
+        .terms-checkbox label { font-size: 13px; color: var(--text-soft); line-height: 1.5; cursor: pointer; }
+        .terms-checkbox a { color: var(--accent); font-weight: 600; text-decoration: underline; }
+        .success-state { display: none; text-align: center; padding: 40px 20px; }
+        .success-state.show { display: block; animation: fadeUp 0.5s ease-out; }
+        @keyframes checkPop { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 1; } }
+        .success-check-animated { width: 80px; height: 80px; border-radius: 50%; background: rgba(45,122,79,0.1); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 36px; animation: checkPop 0.6s cubic-bezier(0.175,0.885,0.32,1.275) both; }
+        .success-title { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .success-subtitle { font-size: 14px; color: var(--text-soft); line-height: 1.7; max-width: 380px; margin: 0 auto 6px; }
+        .success-small { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+        .success-block { margin-bottom: 28px; }
+        .success-block:last-child { margin-bottom: 0; }
+        .share-section { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--border); }
+        .share-label { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+        .share-sublabel { font-size: 13px; color: var(--text-muted); margin-bottom: 14px; }
+        .share-buttons { display: flex; flex-direction: column; gap: 10px; }
+        .share-btn { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 20px; border-radius: 12px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; }
+        .share-btn:hover { transform: translateY(-1px); }
+        .share-btn-whatsapp { background: #25D366; color: white; }
+        .share-btn-whatsapp:hover { box-shadow: 0 6px 24px rgba(37,211,102,0.3); }
+        .ref-link-box { display: flex; gap: 8px; margin: 12px 0; }
+        .ref-link-input { flex: 1; padding: 10px 14px; font-size: 13px; font-family: 'Outfit', sans-serif; border: 1px solid var(--border); border-radius: 10px; background: var(--cream); color: var(--text); outline: none; }
+        .btn-copy-ref { padding: 10px 18px; font-size: 13px; font-weight: 600; font-family: 'Outfit', sans-serif; border: none; border-radius: 10px; background: var(--accent); color: white; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+        .btn-copy-ref:hover { background: #B8461F; }
+        .share-btn-copy { background: var(--cream); border: 1.5px solid var(--border); color: var(--text); }
+        .share-btn-copy:hover { border-color: var(--accent); color: var(--accent); }
+        .share-btn-twitter { background: var(--cream); border: 1.5px solid var(--border); color: var(--text); }
+        .share-btn-twitter:hover { border-color: #1DA1F2; color: #1DA1F2; }
+        .follow-section { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+        .follow-link { font-size: 13px; color: var(--text-muted); text-decoration: none; font-weight: 500; transition: color 0.2s; }
+        .follow-link:hover { color: var(--accent); }
+        .follow-link strong { font-weight: 700; color: var(--text-soft); }
+        .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 200; overflow: hidden; }
+        .confetti-piece { position: absolute; width: 10px; height: 10px; top: -10px; border-radius: 2px; animation: confettiFall linear forwards; }
+        @keyframes confettiFall { 0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+        .social-proof { background: var(--card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 48px 24px; text-align: center; }
+        .proof-numbers { display: flex; justify-content: center; gap: 64px; flex-wrap: wrap; }
+        .proof-item strong { display: block; font-family: 'Fraunces', serif; font-size: 36px; font-weight: 800; color: var(--accent); letter-spacing: -1px; }
+        .proof-item span { font-size: 13px; color: var(--text-soft); font-weight: 500; }
+        footer { padding: 48px 24px; text-align: center; }
+        .footer-brand { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+        .footer-brand span { color: var(--accent); }
+        footer p { font-size: 13px; color: var(--text-muted); }
+        footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
+        .field-group input[readonly] { background: var(--warm); color: var(--text-soft); cursor: not-allowed; }
+        .field-group input[readonly]:focus { border-color: var(--border); box-shadow: none; background: var(--warm); }
+        .state-box { text-align: center; padding: 32px 12px; }
+        .state-box .state-icon { width: 72px; height: 72px; border-radius: 50%; background: var(--warm); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 30px; }
+        .state-box .state-icon.spin { width: 44px; height: 44px; background: transparent; border: 3px solid var(--border); border-top-color: var(--accent); animation: spin 0.9s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .state-box h3 { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .state-box p { font-size: 14px; color: var(--text-soft); line-height: 1.7; max-width: 360px; margin: 0 auto 24px; }
+        .state-box .btn-primary { padding: 14px 32px; font-size: 15px; }
+        .form-footer a { color: var(--accent); font-weight: 600; text-decoration: none; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeDown { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.7s cubic-bezier(0.23, 1, 0.32, 1); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        @media (max-width: 768px) {
+            .steps-grid { grid-template-columns: 1fr; max-width: 400px; }
+            .benefits-grid { grid-template-columns: 1fr; max-width: 400px; }
+            .hero-stats { gap: 32px; flex-wrap: wrap; justify-content: center; }
+            .field-row { grid-template-columns: 1fr; }
+            .form-box { padding: 32px 24px; }
+            .proof-numbers { gap: 32px; }
+        }
+        noscript .reveal, .no-js .reveal { opacity: 1 !important; transform: none !important; }
+        /* ═══════════ Enhancements visuais + motion (jul/2026) — só decoração, conteúdo/ordem intactos ═══════════ */
+        .hero-orbs { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+        .orb-wrap { position: absolute; inset: 0; will-change: transform; transition: transform 0.6s cubic-bezier(0.23,1,0.32,1); }
+        .hero-orb { position: absolute; border-radius: 50%; filter: blur(64px); opacity: 0.55; will-change: transform; }
+        .hero-orb.o1 { width: 440px; height: 440px; top: -80px; left: -60px; background: radial-gradient(circle, rgba(212,87,42,0.30), transparent 70%); animation: floatOrb 15s ease-in-out infinite; }
+        .hero-orb.o2 { width: 380px; height: 380px; bottom: -60px; right: -40px; background: radial-gradient(circle, rgba(232,120,74,0.24), transparent 70%); animation: floatOrb 19s ease-in-out infinite 2s; }
+        .hero-orb.o3 { width: 300px; height: 300px; top: 44%; left: 58%; background: radial-gradient(circle, rgba(245,200,66,0.18), transparent 70%); animation: floatOrb 17s ease-in-out infinite 1s; }
+        @keyframes floatOrb { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(10px,-26px) scale(1.06); } }
+        .hero > *:not(.hero-orbs) { position: relative; z-index: 1; }
+        .hero .title-wrap { position: relative; display: inline-block; max-width: 820px; margin-bottom: 24px; }
+        .hero .title-wrap h1 { margin-bottom: 0; animation: fadeUpBlur 1s cubic-bezier(0.22,1,0.36,1) 0.1s both; }
+        .deco { position: absolute; pointer-events: none; z-index: 2; line-height: 1; background: linear-gradient(135deg, #F5C842, #E8784A 50%, #D4572A 90%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; filter: drop-shadow(0 1px 3px rgba(255,255,255,0.65)); animation: floatDeco 5s ease-in-out infinite; }
+        .deco.d1 { top: -30px; left: -34px; font-size: 40px; animation-duration: 5.5s; }
+        .deco.d2 { bottom: -22px; right: -18px; font-size: 30px; animation-delay: 0.8s; animation-duration: 4.6s; }
+        .deco.d3 { top: 4px; right: -46px; font-size: 22px; animation-delay: 1.4s; animation-duration: 6.2s; }
+        @keyframes floatDeco { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-12px) rotate(8deg); } }
+        .hero h1 em { background: linear-gradient(90deg, #D4572A, #E8784A, #F5A85A, #E8784A, #D4572A); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; animation: shimmer 7s linear infinite; }
+        @keyframes shimmer { to { background-position: 200% center; } }
+        .hero-sub { animation: fadeUpBlur 1s cubic-bezier(0.22,1,0.36,1) 0.28s both; }
+        @keyframes fadeUpBlur { from { opacity: 0; transform: translateY(28px); filter: blur(10px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
+        .section-tag { background: linear-gradient(90deg, #D4572A, #E8784A 60%, #F5A85A); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
+        .benefits .section-tag { background: linear-gradient(90deg, #F5A85A, #E8784A); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .step-card::after { content: ''; position: absolute; inset: 0; border-radius: 20px; background: radial-gradient(circle at 50% 0%, rgba(212,87,42,0.10), transparent 70%); opacity: 0; transition: opacity 0.4s; pointer-events: none; }
+        .step-card:hover::after { opacity: 1; }
+        @media (prefers-reduced-motion: reduce) {
+            .hero-orb, .deco, .hero h1 em { animation: none !important; }
+            .orb-wrap { transition: none !important; }
+            .hero h1 em { background-position: 0 center; }
+        }
+        @media (max-width: 768px) {
+            .hero-orb { filter: blur(48px); opacity: 0.45; }
+            .hero-orb.o1 { width: 300px; height: 300px; }
+            .hero-orb.o2 { width: 260px; height: 260px; }
+            .hero-orb.o3 { display: none; }
+            .deco.d1 { font-size: 28px; top: -20px; left: -18px; }
+            .deco.d2 { font-size: 22px; bottom: -14px; right: -8px; }
+            .deco.d3 { display: none; }
+        }
+    </style>
+    <noscript><style>.reveal{opacity:1!important;transform:none!important;}</style></noscript>
+</head>
+<body>
+<nav id="nav">
+    <a href="/" class="nav-logo">lara<span>.</span>dam</a>
+</nav>
+<section class="section" id="cadastro" style="padding-top:110px;">
+    <div class="section-header reveal"><span class="section-tag">Base de creators</span><h2>Atualize seu cadastro</h2></div>
+    <div class="form-wrapper reveal">
+        <div class="form-box">
+            <div class="state-box" id="loadingState">
+                <div class="state-icon spin"></div>
+                <h3>Carregando seu cadastro...</h3>
+                <p>Só um instante.</p>
+            </div>
+            <div class="state-box" id="invalidState" style="display:none;">
+                <div class="state-icon">🔗</div>
+                <h3 id="invalidTitle">Esse link não é válido</h3>
+                <p id="invalidText">O link de atualização é pessoal e chega no seu e-mail. Se você ainda não tem cadastro, é só entrar na base.</p>
+                <a href="/cadastro/" class="btn-primary" id="invalidBtn">Fazer meu cadastro</a>
+            </div>
+            <div id="formContent" style="display:none;">
+                <h3 class="form-title" id="formTitle">Oie!</h3>
+                <p class="form-subtitle">Confere se está tudo certo e atualiza o que mudou: seguidores, cidade, nichos e portfólio.</p>
+                <div class="form-error" id="formError"></div>
+                <form id="creatorForm">
+                    <div class="photo-upload">
+                        <div class="photo-preview" id="photoPreview" onclick="document.getElementById('fotoInput').click()"><span class="photo-icon">+</span></div>
+                        <label class="photo-label" onclick="document.getElementById('fotoInput').click()">Trocar foto de perfil (opcional)</label>
+                        <input type="file" id="fotoInput" accept="image/*" style="display:none">
+                    </div>
+                    <div class="field-row">
+                        <div class="field-group"><label>Nome completo</label><input type="text" name="nome" required placeholder="Seu nome" id="nome"></div>
+                        <div class="field-group"><label>WhatsApp (com DDD)</label><input type="tel" name="whatsapp" required placeholder="(00) 00000-0000" id="whatsapp"></div>
+                    </div>
+                    <div class="field-group"><label>E-mail <span style="color: var(--text-muted); font-weight: 400;">(não muda por aqui)</span></label><input type="email" name="email" id="email" readonly tabindex="-1"></div>
+                    <div class="field-row">
+                        <div class="field-group"><label>Data de nascimento</label><input type="date" name="nascimento" required id="nascimento" max="2015-12-31" min="1940-01-01"></div>
+                        <div class="field-group"><label>Gênero</label><select name="genero" required id="genero"><option value="" disabled selected>Selecione</option><option value="feminino">Feminino</option><option value="masculino">Masculino</option><option value="nao_binario">Não-binário</option><option value="prefiro_nao_dizer">Prefiro não dizer</option></select></div>
+                    </div>
+                    <div class="field-row">
+                        <div class="field-group"><label>@ do Instagram</label><input type="text" name="instagram" required placeholder="@seuperfil" id="instagram"></div>
+                        <div class="field-group"><label>@ do TikTok <span style="color: var(--text-muted); font-weight: 400;">(opcional)</span></label><input type="text" name="tiktok" placeholder="@seuperfil" id="tiktok"></div>
+                    </div>
+                    <div class="field-group"><label>Seguidores no Instagram</label><select name="seguidores" required id="seguidores"><option value="" disabled selected>Selecione</option><option value="ate_1k">Até 1.000</option><option value="1k_5k">1.000 a 5.000</option><option value="5k_10k">5.000 a 10.000</option><option value="10k_30k">10.000 a 30.000</option><option value="30k_mais">Acima de 30.000</option></select></div>
+                    <div class="field-row">
+                        <div class="field-group"><label>Estado</label><select name="estado" required id="estado"><option value="" disabled selected>Selecione o estado</option></select></div>
+                        <div class="field-group"><label>Cidade</label><select name="cidade" required id="cidade" disabled><option value="" disabled selected>Selecione o estado primeiro</option></select></div>
+                    </div>
+                    <div class="field-group">
+                        <label>Nichos do seu conteúdo <span style="color: var(--text-muted); font-weight: 400;">(selecione até 10)</span></label>
+                        <div class="nicho-picker" id="nichoPicker"></div>
+                        <div class="nicho-counter" id="nichoCounter">0 / 10 selecionados</div>
+                    </div>
+                    <div class="field-group">
+                        <label>Tipo de creator</label>
+                        <div class="tipo-creator-group">
+                            <div class="tipo-creator-option"><input type="radio" name="tipo_creator" id="tipo_ugc" value="ugc_creator"><label for="tipo_ugc">UGC Creator</label></div>
+                            <div class="tipo-creator-option"><input type="radio" name="tipo_creator" id="tipo_influenciadora" value="influenciadora"><label for="tipo_influenciadora">Influenciadora</label></div>
+                            <div class="tipo-creator-option"><input type="radio" name="tipo_creator" id="tipo_ambos" value="ugc_influenciadora"><label for="tipo_ambos">UGC + Influenciadora</label></div>
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <label>Sobre você <span style="color: var(--text-muted); font-weight: 400;">(opcional, máx 200 caracteres)</span></label>
+                        <textarea id="sobre" maxlength="200" placeholder="Conte um pouco sobre você, seu estilo de conteúdo e o que te diferencia..."></textarea>
+                        <div class="char-counter" id="sobreCounter">0 / 200</div>
+                    </div>
+                    <div class="field-group"><label>Já fez campanha paga para marcas?</label><select name="experiencia" id="experiencia"><option value="" disabled selected>Selecione</option><option value="sim">Sim, já fiz</option><option value="nao">Não, seria minha primeira</option><option value="permuta">Só permuta</option></select></div>
+                    <div class="field-group"><label>Link do portfólio <span style="color: var(--text-muted); font-weight: 400;">(Google Drive, Behance, site, etc.)</span></label><input type="text" name="portfolio" id="portfolio" placeholder="drive.google.com/..." required></div>
+                    <div class="field-group"><label>Link do seu melhor conteúdo <span style="color: var(--text-muted); font-weight: 400;">(Instagram, TikTok, YouTube, Drive...)</span></label><input type="text" name="melhor_conteudo" id="melhor_conteudo" placeholder="instagram.com/reel/..." required></div>
+                    <button type="submit" class="form-submit" id="submitBtn">Salvar minhas informações</button>
+                    <div class="form-error" id="formErrorBottom" style="margin-top:14px;"></div>
+                </form>
+                <p class="form-footer">Esse link é só seu, não compartilha com ninguém.<br>Seus dados continuam protegidos pelos <a href="/termos.html" target="_blank">Termos de Uso do Banco de Creators</a>.</p>
+            </div>
+            <div class="success-state" id="successState">
+                <div class="success-block">
+                    <div class="success-check-animated">✓</div>
+                    <h3 class="success-title">Cadastro atualizado ✓</h3>
+                    <p class="success-subtitle">Agora é só esperar as campanhas que combinam com você.</p>
+                </div>
+                <div class="success-block share-section">
+                    <div class="share-label">Tem amiga creator? Manda seu link de indicação:</div>
+                    <div class="share-sublabel">Quando ela se cadastrar pelo seu link, a gente sabe que foi você que indicou.</div>
+                    <div class="ref-link-box" id="refLinkBox" style="display:none;">
+                        <input type="text" id="refLinkInput" readonly class="ref-link-input">
+                        <button class="btn-copy-ref" id="btnCopyRef">Copiar</button>
+                    </div>
+                    <div class="share-buttons">
+                        <button class="share-btn share-btn-whatsapp" id="shareBtn">Enviar por WhatsApp</button>
+                    </div>
+                </div>
+                <div class="success-block follow-section">
+                    <a href="https://instagram.com/eilaradam" target="_blank" rel="noopener" class="follow-link">Acompanhe novidades: <strong>@eilaradam</strong> no Instagram</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<footer>
+    <div class="footer-brand">lara<span>.</span>dam</div>
+    <p>Gestão de Campanhas UGC · <a href="https://instagram.com/eilaradam" target="_blank">@eilaradam</a></p>
+</footer>
+<script>
+    /* ── UI: Nav, Reveal, Scroll, Máscara ── */
+    const nav = document.getElementById('nav');
+    const darkSections = document.querySelectorAll('.benefits');
+    function updateNav() {
+        const scrolled = window.scrollY > 60;
+        nav.classList.toggle('scrolled', scrolled);
+        let onDark = false;
+        darkSections.forEach(section => {
+            const rect = section.getBoundingClientRect();
+            if (rect.top <= 60 && rect.bottom >= 60) onDark = true;
+        });
+        nav.classList.toggle('on-dark', onDark);
+    }
+    window.addEventListener('scroll', updateNav);
+    updateNav();
+
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, i) => {
+            if (entry.isIntersecting) { setTimeout(() => entry.target.classList.add('visible'), i * 80); observer.unobserve(entry.target); }
+        });
+    }, { threshold: 0.15 });
+    reveals.forEach(el => observer.observe(el));
+
+    /* Fallback: se após 3s algum .reveal ainda não ficou visível, força */
+    setTimeout(() => {
+        document.querySelectorAll('.reveal:not(.visible)').forEach(el => el.classList.add('visible'));
+    }, 3000);
+
+    /* ── Foto de perfil: preview ── */
+    document.getElementById('fotoInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 15 * 1024 * 1024) { alert('A foto deve ter no máximo 15MB.'); e.target.value = ''; return; }
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            document.getElementById('photoPreview').innerHTML = `<img src="${ev.target.result}" alt="Preview">`;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    function mascaraWhatsapp(valor) {
+        let v = String(valor || '').replace(/\D/g, '');
+        if (v.length > 11) v = v.slice(0, 11);
+        if (v.length > 6) v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
+        else if (v.length > 2) v = `(${v.slice(0,2)}) ${v.slice(2)}`;
+        else if (v.length > 0) v = `(${v}`;
+        return v;
+    }
+    document.getElementById('whatsapp').addEventListener('input', function(e) {
+        e.target.value = mascaraWhatsapp(e.target.value);
+    });
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) { e.preventDefault(); const target = document.querySelector(this.getAttribute('href')); if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+    });
+
+    /* ── IBGE: Estados e Cidades ── */
+    const estadoSelect = document.getElementById('estado');
+    const cidadeSelect = document.getElementById('cidade');
+    async function carregarEstados() {
+        try {
+            const res = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome');
+            const estados = await res.json();
+            estados.forEach(estado => { const opt = document.createElement('option'); opt.value = estado.sigla; opt.textContent = `${estado.nome} (${estado.sigla})`; estadoSelect.appendChild(opt); });
+        } catch (err) {
+            const ufs = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
+            ufs.forEach(uf => { const opt = document.createElement('option'); opt.value = uf; opt.textContent = uf; estadoSelect.appendChild(opt); });
+        }
+    }
+    async function carregarCidades(uf) {
+        const sel = document.getElementById('cidade');
+        if (!sel || sel.tagName !== 'SELECT') return;
+        sel.innerHTML = '<option value="" disabled selected>Carregando cidades...</option>';
+        sel.disabled = true;
+        try {
+            const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios?orderBy=nome`);
+            const cidades = await res.json();
+            sel.innerHTML = '<option value="" disabled selected>Selecione a cidade</option>';
+            cidades.forEach(cidade => { const opt = document.createElement('option'); opt.value = cidade.nome; opt.textContent = cidade.nome; sel.appendChild(opt); });
+            sel.disabled = false;
+        } catch (err) {
+            sel.innerHTML = '';
+            const input = document.createElement('input');
+            input.type = 'text'; input.name = 'cidade'; input.id = 'cidade'; input.required = true; input.placeholder = 'Digite sua cidade';
+            sel.replaceWith(input);
+        }
+    }
+    estadoSelect.addEventListener('change', function() { carregarCidades(this.value); });
+    const estadosProntos = carregarEstados();
+
+    /* ── Nicho Multi-Select ── */
+    const NICHO_CATEGORIES = {
+        'Beleza & Cuidados Pessoais': ['Skincare','Maquiagem','Cabelos','Unhas','Perfumaria','Corpo & Banho'],
+        'Moda & Estilo': ['Roupas femininas','Roupas masculinas','Acessórios','Calçados','Moda sustentável','Moda plus size'],
+        'Saúde & Bem-estar': ['Fitness','Nutrição','Suplementos','Yoga/Meditação','Saúde mental','Saúde feminina'],
+        'Alimentação': ['Receitas saudáveis','Confeitaria','Drinks','Cozinha prática','Alimentação vegana/vegetariana'],
+        'Casa & Decoração': ['Decoração','Organização','DIY/Faça você mesma','Jardinagem','Smart home'],
+        'Tecnologia': ['Gadgets','Apps','Produtividade digital','Games'],
+        'Maternidade & Família': ['Gestação','Bebês','Crianças','Família'],
+        'Pets': ['Cachorros','Gatos','Pets exóticos'],
+        'Viagem & Turismo': ['Viagens nacionais','Viagens internacionais','Turismo gastronômico','Viagem econômica'],
+        'Educação & Carreira': ['Cursos/Mentorias','Empreendedorismo','Marketing digital','Finanças pessoais'],
+        'Entretenimento': ['Humor','Música','Livros/Leitura','Filmes & Séries'],
+        'Lifestyle': ['Dia a dia','Rotina','Minimalismo','Sustentabilidade'],
+        'Serviços & Locais': ['Restaurantes','Clínicas de estética','Salões de beleza','Academias','Hotéis/Pousadas'],
+        'Automotivo': ['Carros','Motos','Acessórios automotivos']
+    };
+    const MAX_NICHOS = 10;
+    let selectedNichos = [];
+
+    function renderNichoPicker(containerId, counterId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        let html = '';
+        for (const [category, options] of Object.entries(NICHO_CATEGORIES)) {
+            html += '<div class="nicho-category"><div class="nicho-category-title">' + category + '</div><div class="nicho-options">';
+            options.forEach(opt => {
+                const escaped = opt.replace(/'/g, "\\'");
+                html += '<span class="nicho-chip" data-value="' + opt + '" onclick="toggleNicho(this,\'' + counterId + '\')">' + opt + '</span>';
+            });
+            html += '</div></div>';
+        }
+        container.innerHTML = html;
+    }
+
+    function toggleNicho(chip, counterId) {
+        const value = chip.dataset.value;
+        const idx = selectedNichos.indexOf(value);
+        if (idx > -1) {
+            selectedNichos.splice(idx, 1);
+            chip.classList.remove('selected');
+        } else {
+            if (selectedNichos.length >= MAX_NICHOS) return;
+            selectedNichos.push(value);
+            chip.classList.add('selected');
+        }
+        updateNichoCounter(counterId);
+        updateNichoChipStates();
+    }
+
+    function updateNichoCounter(counterId) {
+        const counter = document.getElementById(counterId);
+        if (!counter) return;
+        counter.textContent = selectedNichos.length + ' / ' + MAX_NICHOS + ' selecionados';
+        counter.classList.toggle('limit', selectedNichos.length >= MAX_NICHOS);
+    }
+
+    function updateNichoChipStates() {
+        const atLimit = selectedNichos.length >= MAX_NICHOS;
+        document.querySelectorAll('.nicho-chip').forEach(chip => {
+            if (!chip.classList.contains('selected')) {
+                chip.classList.toggle('disabled', atLimit);
+            }
+        });
+    }
+
+    renderNichoPicker('nichoPicker', 'nichoCounter');
+
+    /* ── Sobre: contador de caracteres ── */
+    const sobreField = document.getElementById('sobre');
+    if (sobreField) {
+        sobreField.addEventListener('input', function() {
+            const counter = document.getElementById('sobreCounter');
+            const len = this.value.length;
+            counter.textContent = len + ' / 200';
+            counter.classList.toggle('limit', len >= 200);
+        });
+    }
+
+    function formatUrl(url) {
+        if (!url) return null;
+        const s = url.trim();
+        if (!s) return null;
+        if (/^https?:\/\//i.test(s)) return s;
+        return 'https://' + s;
+    }
+
+    /* ── Supabase (com retry automático) ── */
+    const SUPABASE_URL = 'https://mfrmnquvwwuxraqgemyh.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mcm1ucXV2d3d1eHJhcWdlbXloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNDI1NDIsImV4cCI6MjA4NzYxODU0Mn0.zmsi08dV5L1IlXJSr34vOii71w0g0OsD5_5DKio5g-o';
+    let sb = null;
+    function initSb() {
+        if (sb) return sb;
+        try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch (e) {}
+        return sb;
+    }
+    initSb();
+
+    /* ── Código pessoal do link (?c=CODIGO = codigo_indicacao da creator) ── */
+    const _params = new URLSearchParams(window.location.search);
+    const CODIGO = (_params.get('c') || '').trim().toUpperCase();
+    let creatorAtual = null;
+
+    function mostrarEstado(qual) {
+        document.getElementById('loadingState').style.display = qual === 'loading' ? 'block' : 'none';
+        document.getElementById('invalidState').style.display = qual === 'invalid' ? 'block' : 'none';
+        document.getElementById('formContent').style.display = qual === 'form' ? 'block' : 'none';
+    }
+
+    function mostrarErroCarregamento() {
+        document.getElementById('invalidTitle').textContent = 'Não deu pra carregar seu cadastro';
+        document.getElementById('invalidText').textContent = 'Pode ter sido uma falha de conexão. Recarrega a página e tenta de novo.';
+        const btn = document.getElementById('invalidBtn');
+        btn.textContent = 'Tentar de novo';
+        btn.href = window.location.href;
+        mostrarEstado('invalid');
+    }
+
+    function setValor(id, valor) {
+        const el = document.getElementById(id);
+        if (el && valor !== null && valor !== undefined) el.value = valor;
+    }
+
+    /* Seleciona a opção; se o valor gravado não existir no select, cria a opção pra não perder o dado */
+    function selecionarOpcao(id, valor) {
+        const sel = document.getElementById(id);
+        if (!sel || !valor) return;
+        if (![...sel.options].some(o => o.value === valor)) {
+            const opt = document.createElement('option');
+            opt.value = valor; opt.textContent = valor;
+            sel.appendChild(opt);
+        }
+        sel.value = valor;
+    }
+
+    function selecionarCidade(cidade) {
+        const el = document.getElementById('cidade');
+        if (!el || !cidade) return;
+        if (el.tagName === 'SELECT') { selecionarOpcao('cidade', cidade); el.disabled = false; }
+        else el.value = cidade;
+    }
+
+    /* Inverso do que o cadastro grava: nicho é um JSON array de nomes de chip */
+    function marcarNichos(nichoTexto) {
+        let lista = [];
+        if (Array.isArray(nichoTexto)) lista = nichoTexto;
+        else if (typeof nichoTexto === 'string' && nichoTexto.trim()) {
+            try { const parsed = JSON.parse(nichoTexto); lista = Array.isArray(parsed) ? parsed : [String(parsed)]; }
+            catch (e) { lista = nichoTexto.split(',').map(s => s.trim()).filter(Boolean); }
+        }
+        selectedNichos = [];
+        document.querySelectorAll('.nicho-chip').forEach(ch => ch.classList.remove('selected', 'disabled'));
+        const chips = [...document.querySelectorAll('.nicho-chip')];
+        /* cadastros antigos gravaram nomes sem acento ("Acessorios"): compara sem acento e usa o nome do chip */
+        const semAcento = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+        let extras = null;
+        lista.forEach(valorGravado => {
+            if (selectedNichos.length >= MAX_NICHOS) return;
+            let chip = chips.find(ch => ch.dataset.value === valorGravado) || chips.find(ch => semAcento(ch.dataset.value) === semAcento(valorGravado));
+            const valor = chip ? chip.dataset.value : valorGravado;
+            if (selectedNichos.includes(valor)) return;
+            if (!chip) {
+                /* nicho gravado que não está mais na lista: vira chip em "Outros" pra não sumir ao salvar */
+                if (!extras) {
+                    const cat = document.createElement('div');
+                    cat.className = 'nicho-category';
+                    cat.innerHTML = '<div class="nicho-category-title">Outros</div><div class="nicho-options"></div>';
+                    document.getElementById('nichoPicker').appendChild(cat);
+                    extras = cat.querySelector('.nicho-options');
+                }
+                chip = document.createElement('span');
+                chip.className = 'nicho-chip';
+                chip.dataset.value = valor;
+                chip.textContent = valor;
+                chip.addEventListener('click', function() { toggleNicho(this, 'nichoCounter'); });
+                extras.appendChild(chip);
+            }
+            selectedNichos.push(valor);
+            chip.classList.add('selected');
+        });
+        updateNichoCounter('nichoCounter');
+        updateNichoChipStates();
+    }
+
+    async function preencherFormulario(c) {
+        const primeiroNome = (c.nome || '').trim().split(/\s+/)[0];
+        document.getElementById('formTitle').textContent = primeiroNome ? 'Oie, ' + primeiroNome + '!' : 'Oie!';
+        setValor('nome', c.nome);
+        setValor('whatsapp', mascaraWhatsapp(c.whatsapp));
+        setValor('email', c.email);
+        setValor('nascimento', c.data_nascimento);
+        selecionarOpcao('genero', c.genero);
+        setValor('instagram', c.instagram);
+        setValor('tiktok', c.tiktok);
+        selecionarOpcao('seguidores', c.seguidores);
+        selecionarOpcao('experiencia', c.experiencia);
+        setValor('portfolio', c.portfolio);
+        setValor('melhor_conteudo', c.melhor_conteudo);
+        if (c.tipo_creator) {
+            const radio = document.querySelector('input[name="tipo_creator"][value="' + c.tipo_creator + '"]');
+            if (radio) radio.checked = true;
+        }
+        if (c.sobre) {
+            sobreField.value = c.sobre;
+            sobreField.dispatchEvent(new Event('input'));
+        }
+        if (c.foto_perfil) {
+            const preview = document.getElementById('photoPreview');
+            const img = document.createElement('img');
+            img.alt = 'Sua foto de perfil atual';
+            /* se a foto gravada não abrir (arquivo sumido/vazio), volta o círculo vazio pra ela mandar outra */
+            img.onerror = function() { preview.innerHTML = '<span class="photo-icon">+</span>'; };
+            img.src = c.foto_perfil;
+            preview.replaceChildren(img);
+        }
+        marcarNichos(c.nicho);
+        /* Estado antes da cidade: a lista de cidades depende do estado */
+        await estadosProntos;
+        if (c.estado) {
+            selecionarOpcao('estado', c.estado);
+            await carregarCidades(c.estado);
+            selecionarCidade(c.cidade);
+        }
+    }
+
+    async function carregarCadastro() {
+        if (!CODIGO) { mostrarEstado('invalid'); return; }
+        mostrarEstado('loading');
+        let c = null;
+        try {
+            if (!initSb()) throw new Error('Sem conexão com o Supabase.');
+            const { data, error } = await sb.rpc('creator_por_codigo', { p_codigo: CODIGO });
+            if (error) throw error;
+            c = Array.isArray(data) ? data[0] : data;
+        } catch (err) {
+            console.error('Erro ao carregar cadastro:', err);
+            mostrarErroCarregamento();
+            return;
+        }
+        if (!c) { mostrarEstado('invalid'); return; }
+        creatorAtual = c;
+        try { await preencherFormulario(c); }
+        catch (err) { console.error('Erro ao preencher formulário:', err); }
+        mostrarEstado('form');
+    }
+
+    document.getElementById('creatorForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        const errorEl = document.getElementById('formErrorBottom');
+        errorEl.classList.remove('show', 'duplicate');
+        document.getElementById('formError').classList.remove('show');
+        btn.textContent = 'Enviando...';
+        btn.disabled = true;
+
+        try {
+            if (!initSb()) throw new Error('Erro de conexão. Por favor, recarregue a página e tente novamente.');
+            if (selectedNichos.length === 0) throw new Error('Selecione pelo menos 1 nicho do seu conteúdo.');
+            if (!document.querySelector('input[name="tipo_creator"]:checked')) throw new Error('Selecione o tipo de creator.');
+
+            if (!CODIGO) throw new Error('Esse link não é válido. Abre de novo o link que chegou no seu e-mail.');
+
+            /* Upload foto de perfil (opcional: só se ela escolheu uma nova) */
+            const fotoField = document.getElementById('fotoInput');
+            let fotoUrl = null;
+
+            if (fotoField && fotoField.files && fotoField.files[0]) {
+                const arquivo = fotoField.files[0];
+                const compressedBlob = await new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = 400;
+                        canvas.height = 400;
+                        const ctx = canvas.getContext('2d');
+                        const size = Math.min(img.width, img.height);
+                        const sx = (img.width - size) / 2;
+                        const sy = (img.height - size) / 2;
+                        ctx.drawImage(img, sx, sy, size, size, 0, 0, 400, 400);
+                        canvas.toBlob(b => b ? resolve(b) : reject(new Error('Erro ao processar foto.')), 'image/jpeg', 0.85);
+                    };
+                    img.onerror = () => reject(new Error('Erro ao carregar foto. Tente outro arquivo.'));
+                    img.src = URL.createObjectURL(arquivo);
+                });
+                const nomeArquivo = Date.now() + '_' + Math.random().toString(36).slice(2, 8) + '.jpg';
+                const { error: uploadError } = await sb.storage.from('fotos-perfil').upload(nomeArquivo, compressedBlob, { cacheControl: '3600', upsert: true, contentType: 'image/jpeg' });
+                if (uploadError) throw new Error('Erro ao enviar foto: ' + uploadError.message);
+                const { data: urlData } = sb.storage.from('fotos-perfil').getPublicUrl(nomeArquivo);
+                fotoUrl = urlData.publicUrl;
+            }
+
+            /* Montar dados (mesmas chaves e formatos do cadastro; sem e-mail, que não muda) */
+            const cidadeEl = document.getElementById('cidade');
+            const cidadeValue = cidadeEl.tagName === 'SELECT' ? cidadeEl.value : cidadeEl.value.trim();
+            const dados = {
+                nome: document.getElementById('nome').value.trim(),
+                whatsapp: document.getElementById('whatsapp').value.trim(),
+                instagram: document.getElementById('instagram').value.trim().toLowerCase(),
+                tiktok: document.getElementById('tiktok').value.trim().toLowerCase() || null,
+                data_nascimento: document.getElementById('nascimento').value || null,
+                genero: document.getElementById('genero').value,
+                seguidores: document.getElementById('seguidores').value,
+                estado: document.getElementById('estado').value,
+                cidade: cidadeValue,
+                nicho: JSON.stringify(selectedNichos),
+                tipo_creator: document.querySelector('input[name="tipo_creator"]:checked')?.value || null,
+                sobre: (document.getElementById('sobre')?.value || '').trim().substring(0, 200) || null,
+                experiencia: document.getElementById('experiencia').value,
+                portfolio: formatUrl(document.getElementById('portfolio').value),
+                melhor_conteudo: formatUrl(document.getElementById('melhor_conteudo').value)
+            };
+            if (fotoUrl) dados.foto_perfil = fotoUrl;
+
+            /* Atualizar pelo código pessoal (campo vazio = a função mantém o que já tinha) */
+            const { data: ok, error } = await sb.rpc('atualizar_creator_por_codigo', { p_codigo: CODIGO, p_dados: dados });
+            if (error) throw error;
+            if (ok !== true) throw new Error('Não achamos seu cadastro. Abre de novo o link que chegou no seu e-mail.');
+            const codigoRef = (creatorAtual && creatorAtual.codigo_indicacao) || CODIGO;
+
+            document.getElementById('formContent').style.display = 'none';
+            const sucesso = document.getElementById('successState');
+            sucesso.classList.add('show');
+            sucesso.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setupShareButtons(codigoRef);
+            launchConfetti();
+        } catch (err) {
+            errorEl.textContent = err.message || 'Erro ao salvar. Tente novamente.';
+            errorEl.classList.remove('duplicate');
+            errorEl.classList.add('show');
+            errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            btn.textContent = 'Salvar minhas informações';
+            btn.disabled = false;
+        }
+    });
+
+    /* ── Confetti ── */
+    function launchConfetti() {
+        const container = document.createElement('div');
+        container.className = 'confetti-container';
+        document.body.appendChild(container);
+        const colors = ['#D4572A','#E8784A','#2D7A4F','#F5C842','#B8461F','#6B645C'];
+        for (let i = 0; i < 60; i++) {
+            const p = document.createElement('div');
+            p.className = 'confetti-piece';
+            p.style.left = Math.random() * 100 + '%';
+            p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            p.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            p.style.animationDelay = (Math.random() * 1.5) + 's';
+            p.style.width = (Math.random() * 8 + 6) + 'px';
+            p.style.height = (Math.random() * 8 + 6) + 'px';
+            container.appendChild(p);
+        }
+        setTimeout(() => container.remove(), 5000);
+    }
+
+    /* ── Share ── */
+    function setupShareButtons(codigoRef) {
+        const refUrl = codigoRef ? 'https://creators.laradam.com/cadastro/?ref=' + codigoRef : 'https://creators.laradam.com/cadastro/';
+        const shareText = 'Oi! Eu faço parte do Banco de Creators da Lara Dam. É gratuito e conecta creators com oportunidades de campanhas UGC. Se cadastra também pelo meu link: ' + refUrl;
+
+        /* Mostrar link de indicação */
+        const refBox = document.getElementById('refLinkBox');
+        const refInput = document.getElementById('refLinkInput');
+        if (refBox && refInput && codigoRef) {
+            refInput.value = refUrl;
+            refBox.style.display = 'flex';
+        }
+
+        /* Botão copiar link */
+        const btnCopy = document.getElementById('btnCopyRef');
+        if (btnCopy) {
+            btnCopy.addEventListener('click', async function() {
+                try {
+                    await navigator.clipboard.writeText(refUrl);
+                    this.textContent = 'Copiado!';
+                    setTimeout(() => { this.textContent = 'Copiar'; }, 2500);
+                } catch(e) {}
+            });
+        }
+
+        /* Botão WhatsApp */
+        const btn = document.getElementById('shareBtn');
+        if (!btn) return;
+        btn.addEventListener('click', function() {
+            const waUrl = 'https://wa.me/?text=' + encodeURIComponent(shareText);
+            window.open(waUrl, '_blank');
+        });
+    }
+
+    /* ── Parallax suave: os orbs do hero seguem o cursor de leve ── */
+    (function(){
+        if (window.matchMedia && (window.matchMedia('(prefers-reduced-motion: reduce)').matches || window.matchMedia('(hover: none)').matches)) return;
+        const heroEl = document.querySelector('.hero');
+        if (!heroEl) return;
+        const layers = heroEl.querySelectorAll('.orb-wrap[data-depth]');
+        if (!layers.length) return;
+        let raf = null;
+        heroEl.addEventListener('mousemove', function(e){
+            const r = heroEl.getBoundingClientRect();
+            const cx = (e.clientX - r.left) / r.width - 0.5;
+            const cy = (e.clientY - r.top) / r.height - 0.5;
+            if (raf) cancelAnimationFrame(raf);
+            raf = requestAnimationFrame(function(){
+                layers.forEach(function(l){
+                    const d = parseFloat(l.dataset.depth) || 0;
+                    l.style.transform = 'translate(' + (cx * d * 34).toFixed(1) + 'px,' + (cy * d * 34).toFixed(1) + 'px)';
+                });
+            });
+        });
+        heroEl.addEventListener('mouseleave', function(){
+            layers.forEach(function(l){ l.style.transform = ''; });
+        });
+    })();
+
+    carregarCadastro();
+</script>
+</body>
+</html>
