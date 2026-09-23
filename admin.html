@@ -5144,6 +5144,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                 <select id="dispTarget" onchange="loadDisparo()" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;background:var(--cream);color:var(--text);outline:none;">
                     <option value="todos">Todos os creators da base</option>
                     <option value="teste">🧪 Teste — só laradam.ugc@gmail.com</option>
+                    <option value="lista">📋 Lista avulsa: colar e-mails (um por linha)</option>
                     <option value="imersao">🎓 Imersão — todas as alunas (Turma 1 + 2)</option>
                     <option value="imersao_t1">🎓 Imersão — só a Turma 1</option>
                     <option value="imersao_t2">🎓 Imersão — só as alunas da Turma 2</option>
@@ -5156,6 +5157,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                     <option value="aprovado">Só status: Aprovado</option>
                     <option value="ativo">Só status: Ativo</option>
                 </select>
+                <textarea id="dispLista" rows="7" oninput="loadDisparo()" placeholder="Cole aqui os e-mails, um por linha (ou separados por vírgula). Quem já está descadastrada fica de fora sozinha." style="display:none;width:100%;margin-top:10px;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;background:var(--cream);color:var(--text);outline:none;resize:vertical;"></textarea>
                 <div id="dispCount" style="font-size:13px;color:var(--text-soft);margin-top:8px;"></div>
                 <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);margin-top:10px;cursor:pointer;">
                     <input id="dispPularJa" type="checkbox" checked style="width:16px;height:16px;">
@@ -6439,6 +6441,18 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
 
     async function disparoRecipients(target) {
         if (target === 'teste') return [{ nome: 'Lara', email: 'laradam.ugc@gmail.com' }];
+        // Lista avulsa: e-mails colados na mão (ex.: contatos que ainda não estão na base).
+        if (target === 'lista') {
+            const txt = (document.getElementById('dispLista') || {}).value || '';
+            const vistos = new Set(), saida = [];
+            txt.split(/[\s,;]+/).forEach(t => {
+                const e = t.trim().toLowerCase().replace(/^<|>$/g, '');
+                if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e) || vistos.has(e)) return;
+                vistos.add(e);
+                saida.push({ nome: '', email: e });
+            });
+            return saida;
+        }
         // Lista da Imersao: tabela propria (imersao_alunas), nao mistura com a base de creators.
         if (target === 'imersao' || target === 'imersao_t1' || target === 'imersao_t2') {
             let qa = sb.from('imersao_alunas').select('nome,email').eq('ativo', true);
@@ -6567,7 +6581,12 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const target = document.getElementById('dispTarget').value;
         const recs = await disparoRecipients(target);
         if (recs === null) { el.innerHTML = '<span style="color:var(--error);">Erro ao contar destinatários.</span>'; return; }
+        const dl = document.getElementById('dispLista');
+        if (dl) dl.style.display = target === 'lista' ? '' : 'none';
         if (target === 'teste') el.innerHTML = '🧪 Modo teste — vai só pra <b>laradam.ugc@gmail.com</b>.';
+        else if (target === 'lista') el.innerHTML = recs.length
+            ? '<b style="color:var(--accent);">' + recs.length + '</b> e-mails válidos na lista colada vão receber este e-mail. Como não tem nome, não use {{nome}} no texto.'
+            : 'Cole os e-mails na caixa acima, um por linha.';
         else if (target.indexOf('imersao') === 0) {
             const qualTurma = target === 'imersao_t1' ? ' da <b>Turma 1</b>' : target === 'imersao_t2' ? ' da <b>Turma 2</b>' : '';
             el.innerHTML = '<b style="color:var(--accent);">' + recs.length + '</b> alunas da <b>Imersão</b>' + qualTurma + ' vão receber este e-mail. (o filtro de estado não vale aqui)';
