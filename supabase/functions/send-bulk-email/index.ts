@@ -67,7 +67,16 @@ serve(async (req) => {
       if (!email || !email.includes("@")) { failed++; continue; }
       if (optout.has(email)) { skipped++; continue; }
       const nome = (String(r.nome || "").trim().split(/\s+/)[0]) || "creator";
-      const personalHtml = String(html).replace(/\{\{nome\}\}/g, nome);
+      // Links pessoais (23/09/2026): {{link_atualizar}} abre o cadastro dela pra editar e
+      // {{link_indicacao}} e o link de convidar amigas. Sem codigo (lista avulsa), caem no cadastro comum.
+      const codigo = String(r.codigo || "").trim().toUpperCase();
+      const linkIndicacao = codigo ? `https://creators.laradam.com/cadastro/?ref=${codigo}` : "https://creators.laradam.com/cadastro/";
+      const linkAtualizar = codigo ? `https://creators.laradam.com/atualizar/?c=${codigo}` : "https://creators.laradam.com/cadastro/";
+      const personalHtml = String(html)
+        .replace(/\{\{nome\}\}/g, nome)
+        .replace(/\{\{codigo\}\}/g, codigo)
+        .replace(/\{\{link_indicacao\}\}/g, linkIndicacao)
+        .replace(/\{\{link_atualizar\}\}/g, linkAtualizar);
       try {
         const res = await fetch("https://api.resend.com/emails", {
           method: "POST",

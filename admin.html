@@ -6496,7 +6496,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const all = [];
         const PAGE = 1000;
         for (let from = 0; from < 100000; from += PAGE) {
-            let q = sb.from('creators').select('nome,email').range(from, from + PAGE - 1);
+            let q = sb.from('creators').select('nome,email,codigo_indicacao').range(from, from + PAGE - 1);
             if (target && target !== 'todos') q = q.eq('status', target);
             if (uf) q = q.eq('estado', uf);
             if (cidade) q = q.eq('cidade', cidade);
@@ -6506,7 +6506,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             all.push(...data);
             if (data.length < PAGE) break;
         }
-        return all.filter(c => c.email && String(c.email).includes('@')).map(c => ({ nome: c.nome || '', email: String(c.email).trim() }));
+        return all.filter(c => c.email && String(c.email).includes('@')).map(c => ({ nome: c.nome || '', email: String(c.email).trim(), codigo: c.codigo_indicacao || '' }));
     }
     function dispPct(parte, total) { return total ? Math.round(parte * 1000 / total) / 10 : 0; }
 
