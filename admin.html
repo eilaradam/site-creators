@@ -6440,7 +6440,16 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     }
 
     async function disparoRecipients(target) {
-        if (target === 'teste') return [{ nome: 'Lara', email: 'laradam.ugc@gmail.com' }];
+        if (target === 'teste') {
+            /* no teste os links pessoais ({{link_atualizar}}, {{link_indicacao}}) usam o código
+               da própria Lara, se ela estiver na base; senão saem genéricos (/cadastro/). */
+            let codigo = '';
+            try {
+                const { data } = await sb.from('creators').select('codigo_indicacao').ilike('email', 'laradam.ugc@gmail.com').limit(1).maybeSingle();
+                codigo = (data && data.codigo_indicacao) || '';
+            } catch (e) { /* segue sem código */ }
+            return [{ nome: 'Lara', email: 'laradam.ugc@gmail.com', codigo: codigo }];
+        }
         // Lista avulsa: e-mails colados na mão (ex.: contatos que ainda não estão na base).
         if (target === 'lista') {
             const txt = (document.getElementById('dispLista') || {}).value || '';
