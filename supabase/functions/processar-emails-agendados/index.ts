@@ -70,7 +70,13 @@ Deno.serve(async (req) => {
       // destinatarios (dedup por email; pagina o cap de 1000 do PostgREST)
       const recs: { nome: string; email: string; codigo?: string }[] = [];
       if (job.destinatario === "teste") {
-        recs.push({ nome: "Lara", email: "laradam.ugc@gmail.com" });
+        // no teste os links pessoais usam o codigo da propria Lara (ela esta na base)
+        let codigo = "";
+        try {
+          const { data } = await admin.from("creators").select("codigo_indicacao").ilike("email", "laradam.ugc@gmail.com").limit(1).maybeSingle();
+          codigo = (data && data.codigo_indicacao) || "";
+        } catch (_) { /* segue sem codigo */ }
+        recs.push({ nome: "Lara", email: "laradam.ugc@gmail.com", codigo });
       } else if (job.destinatario === "lista") {
         // Lista avulsa colada no admin (coluna lista_emails). Quem ja entrou na base de
         // creators desde que a lista foi colada fica de fora: o convite nao faz mais sentido.
