@@ -138,6 +138,16 @@ Deno.serve(async (req) => {
         }
       }
 
+      // TRAVA (24/09/2026): alvo sem ninguem NAO pode virar "enviado". Foi assim que dois
+      // agendamentos de 23/09 sairam pra zero pessoas sem ninguem perceber.
+      if (!recs.length) {
+        await admin.from("emails_agendados").update({
+          status: "erro", total: 0, enviados: 0,
+          erro: `Nenhum destinatario encontrado pro alvo "${job.destinatario}". Nada foi enviado. Confira o alvo (ou a lista colada) e agende de novo.`,
+        }).eq("id", job.id);
+        return json({ ok: false, id: job.id, erro: "sem destinatarios" }, 200);
+      }
+
       // descadastros
       let optout = new Set<string>();
       try {
