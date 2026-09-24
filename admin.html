@@ -6792,9 +6792,12 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const ufAg = (target === 'teste' || target.indexOf('imersao') === 0) ? '' : ((document.getElementById('dispUF') || {}).value || '');
         const cidAg = ufAg ? ((document.getElementById('dispCidade') || {}).value || '') : '';
         const html = buildFinalHtml();
+        /* lista avulsa: os e-mails colados viajam com o agendamento (sem isso o cron mandava pra ninguém) */
+        const listaAg = target === 'lista' ? ((document.getElementById('dispLista') || {}).value || '').trim() : '';
+        if (target === 'lista' && !listaAg) { msg.style.color = 'var(--error)'; msg.textContent = 'Cole os e-mails da lista avulsa antes de agendar.'; return; }
         const orig = btn.textContent; btn.textContent = 'Agendando...'; btn.disabled = true;
         try {
-            const { error } = await sb.from('emails_agendados').insert([{ assunto: subject, html: html, destinatario: target, uf: ufAg || null, cidade: cidAg || null, agendado_para: when.toISOString(), status: 'pendente' }]);
+            const { error } = await sb.from('emails_agendados').insert([{ assunto: subject, html: html, destinatario: target, uf: ufAg || null, cidade: cidAg || null, lista_emails: listaAg || null, agendado_para: when.toISOString(), status: 'pendente' }]);
             if (error) throw error;
             const quando = when.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
             const ondeAg = cidAg ? ' · ' + cidAg + '/' + ufAg : (ufAg ? ' · ' + ufAg : '');

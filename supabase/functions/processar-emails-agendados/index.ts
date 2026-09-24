@@ -25,6 +25,21 @@ function emailValido(e: string): boolean {
   return !!v && v.length <= 254 && EMAIL_OK.test(v) && !v.includes("..") && !v.startsWith(".") && !v.includes(".@");
 }
 
+// Personaliza o HTML: {{nome}}, e os links pessoais {{codigo}}, {{link_indicacao}} e
+// {{link_atualizar}} (mesma regra do send-bulk-email). Sem codigo, caem no cadastro comum.
+// deno-lint-ignore no-explicit-any
+function personaliza(html: string, r: any): string {
+  const nome = (String(r.nome || "").trim().split(/\s+/)[0]) || "creator";
+  const codigo = String(r.codigo || "").trim().toUpperCase();
+  const linkIndicacao = codigo ? `https://creators.laradam.com/cadastro/?ref=${codigo}` : "https://creators.laradam.com/cadastro/";
+  const linkAtualizar = codigo ? `https://creators.laradam.com/atualizar/?c=${codigo}` : "https://creators.laradam.com/cadastro/";
+  return String(html)
+    .replace(/\{\{nome\}\}/g, nome)
+    .replace(/\{\{codigo\}\}/g, codigo)
+    .replace(/\{\{link_indicacao\}\}/g, linkIndicacao)
+    .replace(/\{\{link_atualizar\}\}/g, linkAtualizar);
+}
+
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...cors, "Content-Type": "application/json" } });
 
@@ -53,9 +68,28 @@ Deno.serve(async (req) => {
 
     try {
       // destinatarios (dedup por email; pagina o cap de 1000 do PostgREST)
-      const recs: { nome: string; email: string }[] = [];
+      const recs: { nome: string; email: string; codigo?: string }[] = [];
       if (job.destinatario === "teste") {
         recs.push({ nome: "Lara", email: "laradam.ugc@gmail.com" });
+      } else if (job.destinatario === "lista") {
+        // Lista avulsa colada no admin (coluna lista_emails). Quem ja entrou na base de
+        // creators desde que a lista foi colada fica de fora: o convite nao faz mais sentido.
+        // (23/09/2026: dois agendamentos sairam com 0 destinatarios porque esta opcao nao existia aqui.)
+        const seen = new Set<string>();
+        for (const t of String(job.lista_emails || "").split(/[\s,;]+/)) {
+          const email = t.trim().toLowerCase().replace(/^<|>$/g, "");
+          if (email && email.includes("@") && !seen.has(email)) { seen.add(email); recs.push({ nome: "", email }); }
+        }
+        const lista = Array.from(seen);
+        const jaNaBase = new Set<string>();
+        for (let i = 0; i < lista.length; i += 200) {
+          const { data } = await admin.from("creators").select("email").in("email", lista.slice(i, i + 200));
+          for (const c of (data || [])) jaNaBase.add(String(c.email || "").trim().toLowerCase());
+        }
+        if (jaNaBase.size) {
+          for (let i = recs.length - 1; i >= 0; i--) if (jaNaBase.has(recs[i].email)) recs.splice(i, 1);
+          console.log(`[email] lista avulsa: ${jaNaBase.size} ja estao na base, ficam de fora`);
+        }
       } else if (String(job.destinatario || "").startsWith("imersao")) {
         // Lista da Imersao: tabela propria, nao e a base de creators.
         // "imersao" = todas as turmas; "imersao_t1"/"imersao_t2" = so aquela turma.
@@ -88,7 +122,7 @@ Deno.serve(async (req) => {
         const seen = new Set<string>();
         const PAGE = 1000;
         for (let from = 0; from < 200000; from += PAGE) {
-          let q = admin.from("creators").select("nome,email").range(from, from + PAGE - 1);
+          let q = admin.from("creators").select("nome,email,codigo_indicacao").range(from, from + PAGE - 1);
           if (job.destinatario && job.destinatario !== "todos") q = q.eq("status", job.destinatario);
           // filtros de segmentacao geografica (gravados junto com o agendamento)
           if (job.uf) q = q.eq("estado", job.uf);
@@ -98,7 +132,7 @@ Deno.serve(async (req) => {
           if (!data || !data.length) break;
           for (const c of data) {
             const email = String(c.email || "").trim().toLowerCase();
-            if (email && email.includes("@") && !seen.has(email)) { seen.add(email); recs.push({ nome: c.nome || "", email }); }
+            if (email && email.includes("@") && !seen.has(email)) { seen.add(email); recs.push({ nome: c.nome || "", email, codigo: c.codigo_indicacao || "" }); }
           }
           if (data.length < PAGE) break;
         }
@@ -148,7 +182,7 @@ Deno.serve(async (req) => {
           reply_to: REPLY_TO,
           to: [r.email],
           subject: job.assunto,
-          html: String(job.html).replace(/\{\{nome\}\}/g, (String(r.nome).trim().split(/\s+/)[0] || "creator")),
+          html: personaliza(job.html, r),
           headers: { "List-Unsubscribe": `<mailto:${REPLY_TO}?subject=SAIR>` },
         }));
         try {
@@ -210,7 +244,7 @@ async function umAUm(chunk: any[], job: any, admin: any, motivoLote: string) {
           reply_to: REPLY_TO,
           to: [r.email],
           subject: job.assunto,
-          html: String(job.html).replace(/\{\{nome\}\}/g, (String(r.nome).trim().split(/\s+/)[0] || "creator")),
+          html: personaliza(job.html, r),
           headers: { "List-Unsubscribe": `<mailto:${REPLY_TO}?subject=SAIR>` },
         }),
       });
