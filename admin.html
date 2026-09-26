@@ -5132,6 +5132,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                 </div>
                 <button type="button" onclick="loadEmailStats()" style="padding:8px 14px;border:1px solid var(--border);background:var(--cream);color:var(--text);border-radius:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;">Atualizar</button>
             </div>
+            <div id="dispStatsAviso" style="display:none;"></div>
             <div class="ds-cards" id="dispStatsCards"></div>
             <div id="dispStatsCampanhas" style="padding:4px 18px 8px;"></div>
             <div id="dispStatsLinks" style="padding:0 18px 16px;"></div>
@@ -6537,6 +6538,24 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
 
         const capaNum = document.getElementById('dispCapaNum');
         if (capaNum) capaNum.textContent = enviados.toLocaleString('pt-BR');
+
+        // Zero eventos = o Resend ainda nao esta avisando a gente. Mostra o que falta fazer.
+        const aviso = document.getElementById('dispStatsAviso');
+        if (aviso) {
+            const totalEv = Number(data && data.total_eventos) || 0;
+            aviso.style.display = totalEv ? 'none' : '';
+            if (!totalEv) aviso.innerHTML =
+                '<div style="margin:14px 18px 0;padding:14px 16px;border:1px solid #E6C77A;background:#FFF7DF;border-radius:12px;font-size:12.5px;line-height:1.55;">' +
+                '<b>⚠️ O Resend ainda não está mandando as entregas, aberturas e cliques pra cá.</b> Sem isso os números ficam em zero. Pra ligar (uma vez só):' +
+                '<ol style="margin:8px 0 0 18px;padding:0;">' +
+                '<li>No Resend, em <b>Webhooks › Add Endpoint</b>, cole a URL <code style="background:#fff;padding:1px 5px;border-radius:5px;">https://mfrmnquvwwuxraqgemyh.supabase.co/functions/v1/resend-webhook</code> e marque os eventos <b>delivered, opened, clicked, bounced, complained</b>.</li>' +
+                '<li>No Resend, em <b>Domains › ugcmanager.com.br</b>, ligue <b>Open Tracking</b> e <b>Click Tracking</b> (sem isso nunca aparece "abriu" e "clicou").</li>' +
+                '<li>Pra recuperar o histórico do que já foi enviado: no Resend, em <b>API Keys</b>, crie uma chave <b>Full access</b> e salve no Supabase (Edge Functions › Secrets) com o nome <b>RESEND_READ_KEY</b>. Depois clique no botão abaixo.</li>' +
+                '</ol>' +
+                '<button type="button" onclick="recuperarHistoricoResend()" id="dispBtnHist" style="margin-top:10px;padding:8px 14px;border:1px solid var(--border);background:var(--cream);color:var(--text);border-radius:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;">Recuperar histórico do Resend</button>' +
+                '<span id="dispHistMsg" style="margin-left:10px;color:var(--text-muted);"></span>' +
+                '</div>';
+        }
         const cartao = (classe, valor, rotulo, pct) =>
             '<div class="ds-card ' + classe + '"><div class="v">' + valor + '</div><div class="l">' + rotulo + '</div>'
             + (pct !== undefined ? '<div class="p">' + pct + '% de quem recebeu</div>' : '') + '</div>';
@@ -6575,6 +6594,24 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                       '<b>' + l.pessoas + ' pessoas</b></div>';
               }).join('')
             : '';
+    }
+
+    // Le o last_event de cada e-mail no Resend e grava como evento (precisa da RESEND_READ_KEY).
+    async function recuperarHistoricoResend() {
+        const btn = document.getElementById('dispBtnHist');
+        const msg = document.getElementById('dispHistMsg');
+        if (btn) { btn.disabled = true; btn.textContent = 'Buscando no Resend...'; }
+        if (msg) msg.textContent = 'pode levar até 1 minuto';
+        try {
+            const { data, error } = await sb.functions.invoke('email-log', { body: { action: 'eventos', paginas: 45 } });
+            if (error) throw new Error(error.message || String(error));
+            if (data && data.erro) throw new Error(data.erro);
+            if (msg) msg.textContent = 'Pronto: ' + (data.eventos_gravados || 0) + ' eventos recuperados de ' + (data.lidos_no_resend || 0) + ' e-mails.';
+            loadEmailStats();
+        } catch (e) {
+            if (msg) { msg.style.color = 'var(--error)'; msg.textContent = 'Não deu: ' + (e && e.message ? e.message : e); }
+            if (btn) { btn.disabled = false; btn.textContent = 'Tentar de novo'; }
+        }
     }
 
     async function loadDisparo() {

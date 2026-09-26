@@ -209,9 +209,15 @@ Deno.serve(async (req) => {
           });
           if (res.ok) {
             sent += chunk.length;
+            // O Resend devolve { data: [{ id }, ...] } na mesma ordem do lote. Sem esse id
+            // os eventos do webhook (entregue/aberto/clicado) nao casam com o envio.
+            // deno-lint-ignore no-explicit-any
+            const devolvido: any = await res.json().catch(() => ({}));
+            const ids: string[] = Array.isArray(devolvido?.data) ? devolvido.data.map((x: any) => x?.id ?? null) : [];
             try {
-              await admin.from("email_envios").insert(chunk.map((r) => ({
+              await admin.from("email_envios").insert(chunk.map((r, idx) => ({
                 email: r.email, assunto: job.assunto, status: "ok", origem: "agendado",
+                resend_id: ids[idx] ?? null,
               })));
             } catch (e) { console.error("[log] email_envios falhou:", e); }
           } else {
@@ -264,7 +270,12 @@ async function umAUm(chunk: any[], job: any, admin: any, motivoLote: string) {
           headers: { "List-Unsubscribe": `<mailto:${REPLY_TO}?subject=SAIR>` },
         }),
       });
-      if (res.ok) { ok++; logs.push({ email: r.email, assunto: job.assunto, status: "ok", origem: "agendado" }); }
+      if (res.ok) {
+        ok++;
+        // deno-lint-ignore no-explicit-any
+        const d: any = await res.json().catch(() => ({}));
+        logs.push({ email: r.email, assunto: job.assunto, status: "ok", origem: "agendado", resend_id: d?.id ?? null });
+      }
       else {
         erro++;
         const c = await res.text();
