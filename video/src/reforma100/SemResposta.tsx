@@ -30,66 +30,53 @@ const Bolha: React.FC<{ texto: string; entrada: number }> = ({ texto, entrada })
   );
 };
 
-// "Digitando..." que aparece e some sem resposta nenhuma.
-const Digitando: React.FC<{ de: number; ate: number }> = ({ de, ate }) => {
-  const frame = useCurrentFrame();
-  const s = useEntrada(de);
-  const saida = interpolate(frame, [ate - 5, ate], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+const Separador: React.FC<{ texto: string; entrada: number }> = ({ texto, entrada }) => {
+  const s = useEntrada(entrada);
   return (
-    <div
-      style={{
-        alignSelf: "flex-start",
-        opacity: Math.min(1, s * 2) * saida,
-        transform: `scale(${s * saida})`,
-        transformOrigin: "left bottom",
-        background: cores.branco,
-        borderRadius: "56px 56px 56px 14px",
-        padding: "34px 40px",
-        display: "flex",
-        gap: 14,
-      }}
-    >
-      {[0, 1, 2].map((i) => (
-        <div
-          key={i}
-          style={{
-            width: 22,
-            height: 22,
-            borderRadius: 11,
-            background: cores.cinza,
-            transform: `translateY(${Math.sin((frame - i * 4) / 2.5) * 8}px)`,
-          }}
-        />
-      ))}
+    <div style={{ alignSelf: "center", opacity: s * 0.75, fontSize: 32, fontWeight: 700, color: cores.branco, letterSpacing: 2 }}>
+      {texto}
     </div>
   );
 };
 
-export const SemResposta: React.FC<{ mostrarGuia?: boolean }> = ({ mostrarGuia }) => {
+const Visto: React.FC<{ entrada: number }> = ({ entrada }) => {
   const frame = useCurrentFrame();
-  const visto = interpolate(frame, [18, 24], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-
+  const opacidade = interpolate(frame, [entrada, entrada + 5], [0, 0.7], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   return (
-    <Fundo mostrarGuia={mostrarGuia}>
-      <div
-        style={{
-          position: "absolute",
-          top: 760,
-          left: areaSegura.lateral,
-          right: areaSegura.lateral,
-          display: "flex",
-          flexDirection: "column",
-          gap: 24,
-          fontFamily: fontes.texto,
-        }}
-      >
-        <Bolha texto="Oi! Faz orçamento?" entrada={2} />
-        <div style={{ alignSelf: "flex-end", opacity: visto * 0.7, fontSize: 34, fontWeight: 600, color: cores.branco, marginTop: -8 }}>
-          Visto
-        </div>
-        <Digitando de={28} ate={58} />
-        <Bolha texto="Oi??" entrada={64} />
-      </div>
-    </Fundo>
+    <div style={{ alignSelf: "flex-end", opacity: opacidade, fontSize: 30, fontWeight: 600, color: cores.branco, marginTop: -10 }}>
+      Visto
+    </div>
   );
 };
+
+// Três dias chamando, todas visualizadas e nenhuma resposta.
+const MENSAGENS = [
+  { dia: "SEGUNDA", texto: "Oi! Faz orçamento?", entrada: 2 },
+  { dia: "QUARTA", texto: "Conseguiu ver?", entrada: 26 },
+  { dia: "SEXTA", texto: "Oi??", entrada: 50 },
+];
+
+export const SemResposta: React.FC<{ mostrarGuia?: boolean }> = ({ mostrarGuia }) => (
+  <Fundo mostrarGuia={mostrarGuia}>
+    <div
+      style={{
+        position: "absolute",
+        top: 620,
+        left: areaSegura.lateral,
+        right: areaSegura.lateral,
+        display: "flex",
+        flexDirection: "column",
+        gap: 22,
+        fontFamily: fontes.texto,
+      }}
+    >
+      {MENSAGENS.map((m) => (
+        <div key={m.dia} style={{ display: "flex", flexDirection: "column", gap: 22, marginBottom: 20 }}>
+          <Separador texto={m.dia} entrada={m.entrada} />
+          <Bolha texto={m.texto} entrada={m.entrada + 3} />
+          <Visto entrada={m.entrada + 14} />
+        </div>
+      ))}
+    </div>
+  </Fundo>
+);
