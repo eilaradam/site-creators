@@ -12,8 +12,8 @@ const DIAS = [
   { sigla: "TER", numero: 16 },
   { sigla: "QUA", numero: 17 },
 ];
-const LARGURA = 150;
-const ESPACO = 12;
+const LARGURA = 132;
+const ESPACO = 10;
 const INICIO_PASSOS = 62;
 const INTERVALO = 20;
 const CHEGADA = INICIO_PASSOS + INTERVALO * 5;
@@ -24,7 +24,7 @@ const Xis: React.FC<{ opacidade: number }> = ({ opacidade }) => (
   </svg>
 );
 
-export const OrcamentoAtrasado: React.FC = () => {
+export const OrcamentoAtrasado: React.FC<{ mostrarGuia?: boolean }> = ({ mostrarGuia }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const entrada = spring({ frame: frame - 20, fps, config: { damping: 14 } });
@@ -40,9 +40,9 @@ export const OrcamentoAtrasado: React.FC = () => {
   const cursorAtivo = interpolate(frame, [INICIO_PASSOS - 10, INICIO_PASSOS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
   return (
-    <Fundo>
+    <Fundo mostrarGuia={mostrarGuia}>
       <Titulo
-        tamanho={88}
+        tamanho={78}
         linhas={[
           [{ texto: "Orçamento prometido pra " }, { texto: "Sexta", destaque: true }],
           [{ texto: "que só chega na outra " }, { texto: "Quarta", destaque: true }],
@@ -66,8 +66,9 @@ export const OrcamentoAtrasado: React.FC = () => {
           style={{
             position: "absolute",
             top: -90,
-            left: LARGURA / 2,
-            transform: `translateX(-50%) scale(${prometido})`,
+            left: 0,
+            transform: `scale(${prometido})`,
+            transformOrigin: "left bottom",
             background: cores.branco,
             color: cores.azul,
             fontSize: 28,
@@ -119,8 +120,8 @@ export const OrcamentoAtrasado: React.FC = () => {
                 boxShadow: "0 20px 50px rgba(0,0,0,0.3)",
               }}
             >
-              <div style={{ fontSize: 30, fontWeight: 700 }}>{dia.sigla}</div>
-              <div style={{ fontFamily: fontes.titulo, fontSize: 96, fontWeight: 800, lineHeight: 1 }}>{dia.numero}</div>
+              <div style={{ fontSize: 28, fontWeight: 700 }}>{dia.sigla}</div>
+              <div style={{ fontFamily: fontes.titulo, fontSize: 88, fontWeight: 800, lineHeight: 1 }}>{dia.numero}</div>
               {i < 5 && (
                 <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <Xis opacidade={opacidadeXis} />
@@ -135,7 +136,7 @@ export const OrcamentoAtrasado: React.FC = () => {
       <div
         style={{
           position: "absolute",
-          top: 1150,
+          top: 1120,
           left: 0,
           right: 0,
           textAlign: "center",
@@ -150,7 +151,7 @@ export const OrcamentoAtrasado: React.FC = () => {
         </div>
       </div>
 
-      <Carimbo texto="5 DIAS DEPOIS" entrada={CHEGADA + 8} top={1210} />
+      <Carimbo texto="5 DIAS DEPOIS" entrada={CHEGADA + 8} top={1180} />
     </Fundo>
   );
 };

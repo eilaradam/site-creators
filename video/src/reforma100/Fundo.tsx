@@ -1,7 +1,7 @@
 import { AbsoluteFill } from "remotion";
-import { cores } from "./tema";
+import { areaSegura, cores } from "./tema";
 
-export const Fundo: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+export const Fundo: React.FC<{ children: React.ReactNode; mostrarGuia?: boolean }> = ({ children, mostrarGuia }) => (
   <AbsoluteFill
     style={{
       background: `radial-gradient(circle at 50% 20%, #3A3EA3 0%, ${cores.azul} 45%, ${cores.azulEscuro} 100%)`,
@@ -20,5 +20,17 @@ export const Fundo: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       }}
     />
     {children}
+    {mostrarGuia && (
+      <div
+        style={{
+          position: "absolute",
+          top: areaSegura.topo,
+          left: areaSegura.lateral,
+          right: areaSegura.lateral,
+          height: areaSegura.base - areaSegura.topo,
+          border: "4px dashed #00E5FF",
+        }}
+      />
+    )}
   </AbsoluteFill>
 );

@@ -19,6 +19,10 @@ export const cores = {
   vermelho: "#E5484D",
 };
 
+// Área livre da interface do Reels (legenda e perfil embaixo, botões à direita).
+// Margem conservadora, não é um número oficial do Instagram.
+export const areaSegura = { topo: 220, base: 1500, lateral: 110 };
+
 export const fontes = {
   titulo: "'Baloo 2', sans-serif",
   texto: "Montserrat, sans-serif",

@@ -2,7 +2,7 @@ import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { Carimbo } from "./Carimbo";
 import { Fundo } from "./Fundo";
 import { Titulo } from "./Titulo";
-import { cores, fontes } from "./tema";
+import { areaSegura, cores, fontes } from "./tema";
 
 const useEntrada = (entrada: number) => {
   const frame = useCurrentFrame();
@@ -13,7 +13,7 @@ const useEntrada = (entrada: number) => {
 const Separador: React.FC<{ texto: string; entrada: number }> = ({ texto, entrada }) => {
   const s = useEntrada(entrada);
   return (
-    <div style={{ alignSelf: "center", opacity: s, fontSize: 26, fontWeight: 600, color: cores.cinza, margin: "10px 0 2px" }}>
+    <div style={{ alignSelf: "center", opacity: s, fontSize: 24, fontWeight: 600, color: cores.cinza, margin: "4px 0 0" }}>
       {texto}
     </div>
   );
@@ -31,10 +31,10 @@ const Bolha: React.FC<{ texto: string; entrada: number }> = ({ texto, entrada })
         transformOrigin: "right bottom",
         background: cores.azul,
         color: cores.branco,
-        fontSize: 32,
+        fontSize: 30,
         fontWeight: 600,
         lineHeight: 1.3,
-        padding: "18px 28px",
+        padding: "16px 26px",
         borderRadius: "34px 34px 10px 34px",
       }}
     >
@@ -78,21 +78,21 @@ const Digitando: React.FC<{ de: number; ate: number }> = ({ de, ate }) => {
   );
 };
 
-export const SemResposta: React.FC = () => {
+export const SemResposta: React.FC<{ mostrarGuia?: boolean }> = ({ mostrarGuia }) => {
   const frame = useCurrentFrame();
   const card = useEntrada(8);
   const visto = interpolate(frame, [100, 108], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
   return (
-    <Fundo>
-      <Titulo linhas={[[{ texto: "Mensagem no Instagram" }], [{ texto: "sem resposta", destaque: true }]]} />
+    <Fundo mostrarGuia={mostrarGuia}>
+      <Titulo tamanho={74} linhas={[[{ texto: "Mensagem no Instagram" }], [{ texto: "sem resposta", destaque: true }]]} />
       <div
         style={{
           position: "absolute",
-          top: 580,
-          left: 90,
-          right: 90,
-          height: 940,
+          top: 450,
+          left: areaSegura.lateral,
+          right: areaSegura.lateral,
+          height: 860,
           background: cores.branco,
           borderRadius: 48,
           overflow: "hidden",
@@ -102,14 +102,14 @@ export const SemResposta: React.FC = () => {
           boxShadow: "0 40px 90px rgba(0,0,0,0.35)",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 22, padding: "30px 36px", borderBottom: `2px solid ${cores.cinzaClaro}` }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 22, padding: "24px 32px", borderBottom: `2px solid ${cores.cinzaClaro}` }}>
           <div style={{ width: 76, height: 76, borderRadius: 38, background: cores.cinzaClaro }} />
           <div>
             <div style={{ fontSize: 34, fontWeight: 700, color: "#1A1A2E" }}>Empreiteiro</div>
             <div style={{ fontSize: 24, fontWeight: 500, color: cores.cinza }}>Online há 3 dias</div>
           </div>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 14, padding: "20px 32px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "16px 28px" }}>
           <Separador texto="Segunda, 09:12" entrada={14} />
           <Bolha texto="Oi! Vocês fazem reforma de apartamento?" entrada={18} />
           <Bolha texto="Queria um orçamento pra cozinha" entrada={34} />
@@ -123,7 +123,7 @@ export const SemResposta: React.FC = () => {
           <Digitando de={112} ate={146} />
         </div>
       </div>
-      <Carimbo texto="SEM RESPOSTA" entrada={152} top={1590} />
+      <Carimbo texto="SEM RESPOSTA" entrada={152} top={1330} />
     </Fundo>
   );
 };

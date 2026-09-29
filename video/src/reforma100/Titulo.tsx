@@ -1,5 +1,5 @@
 import { spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { cores, fontes } from "./tema";
+import { areaSegura, cores, fontes } from "./tema";
 
 export type Parte = { texto: string; destaque?: boolean };
 
@@ -18,8 +18,8 @@ export const Titulo: React.FC<{ linhas: Parte[][]; inicio?: number; tamanho?: nu
       style={{
         position: "absolute",
         top: 250,
-        left: 70,
-        right: 70,
+        left: areaSegura.lateral,
+        right: areaSegura.lateral,
         textAlign: "center",
         fontFamily: fontes.titulo,
         fontWeight: 800,

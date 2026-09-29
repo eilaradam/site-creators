@@ -2,11 +2,11 @@ import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { Carimbo } from "./Carimbo";
 import { Fundo } from "./Fundo";
 import { Titulo } from "./Titulo";
-import { cores, fontes } from "./tema";
+import { areaSegura, cores, fontes } from "./tema";
 
 const CANCELA = 104;
 
-export const VisitaDesmarcada: React.FC = () => {
+export const VisitaDesmarcada: React.FC<{ mostrarGuia?: boolean }> = ({ mostrarGuia }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const card = spring({ frame: frame - 10, fps, config: { damping: 14 } });
@@ -22,16 +22,16 @@ export const VisitaDesmarcada: React.FC = () => {
     : { texto: "Confirmada", cor: cores.verde, escala: 0.7 + 0.3 * confirma };
 
   return (
-    <Fundo>
+    <Fundo mostrarGuia={mostrarGuia}>
       <Titulo linhas={[[{ texto: "Visita marcada" }], [{ texto: "e desmarcada", destaque: true }]]} />
 
       {/* Notificação do empreiteiro */}
       <div
         style={{
           position: "absolute",
-          top: 600,
-          left: 90,
-          right: 90,
+          top: 560,
+          left: areaSegura.lateral,
+          right: areaSegura.lateral,
           opacity: aviso,
           transform: `translateY(${(1 - aviso) * -60}px)`,
           background: "rgba(255,255,255,0.96)",
@@ -61,23 +61,23 @@ export const VisitaDesmarcada: React.FC = () => {
       <div
         style={{
           position: "absolute",
-          top: 880,
-          left: 90,
-          right: 90,
+          top: 830,
+          left: areaSegura.lateral,
+          right: areaSegura.lateral,
           opacity: card,
           transform: `translateY(${(1 - card) * 80}px) translateX(${Math.sin(frame * 2.2) * 18 * tremor * (cancelado ? 1 : 0)}px)`,
           background: cores.branco,
           borderRadius: 48,
-          padding: 40,
+          padding: 36,
           display: "flex",
-          gap: 36,
+          gap: 32,
           fontFamily: fontes.texto,
           boxShadow: "0 40px 90px rgba(0,0,0,0.35)",
         }}
       >
         <div
           style={{
-            width: 190,
+            width: 176,
             flexShrink: 0,
             borderRadius: 32,
             background: cores.laranja,
@@ -120,7 +120,7 @@ export const VisitaDesmarcada: React.FC = () => {
         </div>
       </div>
 
-      <Carimbo texto="DESMARCADA" entrada={132} top={1330} />
+      <Carimbo texto="DESMARCADA" entrada={132} top={1250} />
     </Fundo>
   );
 };
