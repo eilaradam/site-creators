@@ -1,84 +1,78 @@
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { Carimbo } from "./Carimbo";
 import { Fundo } from "./Fundo";
-import { Titulo } from "./Titulo";
 import { cores, fontes } from "./tema";
 
-const DIAS = [
-  { sigla: "SEX", numero: 12 },
-  { sigla: "SÁB", numero: 13 },
-  { sigla: "DOM", numero: 14 },
-  { sigla: "SEG", numero: 15 },
-  { sigla: "TER", numero: 16 },
-  { sigla: "QUA", numero: 17 },
-];
+const DIAS = ["SEX", "SÁB", "DOM", "SEG", "TER", "QUA"];
 const LARGURA = 132;
 const ESPACO = 10;
-const INICIO_PASSOS = 62;
-const INTERVALO = 20;
-const CHEGADA = INICIO_PASSOS + INTERVALO * 5;
+const TOTAL = LARGURA * 6 + ESPACO * 5;
+const INICIO_PASSOS = 18;
+const INTERVALO = 9;
+const CHEGADA = INICIO_PASSOS + INTERVALO * 5 + 4;
 
-const Xis: React.FC<{ opacidade: number }> = ({ opacidade }) => (
-  <svg width="70" height="70" viewBox="0 0 70 70" style={{ opacity: opacidade }}>
-    <path d="M14 14 L56 56 M56 14 L14 56" stroke={cores.vermelho} strokeWidth="9" strokeLinecap="round" />
+const Documento: React.FC<{ tracejado?: boolean }> = ({ tracejado }) => (
+  <svg width="110" height="136" viewBox="0 0 110 136">
+    <rect
+      x="6"
+      y="6"
+      width="98"
+      height="124"
+      rx="16"
+      fill={tracejado ? "none" : cores.branco}
+      stroke={tracejado ? cores.branco : "none"}
+      strokeWidth="6"
+      strokeDasharray={tracejado ? "14 10" : undefined}
+    />
+    {!tracejado &&
+      [38, 60, 82, 104].map((y, i) => (
+        <rect key={y} x="24" y={y - 6} width={i === 3 ? 38 : 62} height="10" rx="5" fill={i === 0 ? cores.laranja : cores.cinzaClaro} />
+      ))}
   </svg>
 );
 
 export const OrcamentoAtrasado: React.FC<{ mostrarGuia?: boolean }> = ({ mostrarGuia }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const entrada = spring({ frame: frame - 20, fps, config: { damping: 14 } });
-  const prometido = spring({ frame: frame - 40, fps, config: { damping: 10, stiffness: 200 } });
-  const chegou = spring({ frame: frame - CHEGADA, fps, config: { damping: 10, stiffness: 180 } });
+  const entrada = spring({ frame, fps, config: { damping: 14, stiffness: 170 } });
+  const chegou = spring({ frame: frame - CHEGADA, fps, config: { damping: 10, stiffness: 200 } });
 
   // Posição do cursor: soma de um spring por dia avançado.
-  const posicao = [1, 2, 3, 4, 5].reduce(
-    (soma, i) => soma + spring({ frame: frame - INICIO_PASSOS - (i - 1) * INTERVALO, fps, config: { damping: 16, stiffness: 180 } }),
+  const posicao = [0, 1, 2, 3, 4].reduce(
+    (soma, i) => soma + spring({ frame: frame - INICIO_PASSOS - i * INTERVALO, fps, config: { damping: 18, stiffness: 260 } }),
     0,
   );
-  const diasPassados = Math.round(posicao);
-  const cursorAtivo = interpolate(frame, [INICIO_PASSOS - 10, INICIO_PASSOS], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // Documento "prometido" pra sexta: contorno tracejado que some quando a sexta passa.
+  const promessa = interpolate(frame, [4, 10], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) *
+    interpolate(posicao, [0.3, 0.8], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
   return (
     <Fundo mostrarGuia={mostrarGuia}>
-      <Titulo
-        tamanho={78}
-        linhas={[
-          [{ texto: "Orçamento prometido pra " }, { texto: "Sexta", destaque: true }],
-          [{ texto: "que só chega na outra " }, { texto: "Quarta", destaque: true }],
-        ]}
-      />
-
       <div
         style={{
           position: "absolute",
-          top: 820,
-          left: (1080 - (LARGURA * 6 + ESPACO * 5)) / 2,
+          top: 880,
+          left: (1080 - TOTAL) / 2,
+          width: TOTAL,
           display: "flex",
           gap: ESPACO,
-          fontFamily: fontes.texto,
+          fontFamily: fontes.titulo,
           opacity: entrada,
-          transform: `translateY(${(1 - entrada) * 80}px)`,
+          transform: `translateY(${(1 - entrada) * 60}px)`,
         }}
       >
-        {/* Etiqueta "Prometido" sobre a sexta */}
+        <div style={{ position: "absolute", top: -170, left: (LARGURA - 110) / 2, opacity: promessa }}>
+          <Documento tracejado />
+        </div>
         <div
           style={{
             position: "absolute",
-            top: -90,
-            left: 0,
-            transform: `scale(${prometido})`,
-            transformOrigin: "left bottom",
-            background: cores.branco,
-            color: cores.azul,
-            fontSize: 28,
-            fontWeight: 800,
-            padding: "12px 24px",
-            borderRadius: 30,
-            whiteSpace: "nowrap",
+            top: -170,
+            left: 5 * (LARGURA + ESPACO) + (LARGURA - 110) / 2,
+            opacity: chegou,
+            transform: `translateY(${(1 - chegou) * -260}px)`,
           }}
         >
-          Prometido
+          <Documento />
         </div>
 
         {/* Cursor que percorre os dias */}
@@ -88,70 +82,49 @@ export const OrcamentoAtrasado: React.FC<{ mostrarGuia?: boolean }> = ({ mostrar
             top: -12,
             left: -12 + posicao * (LARGURA + ESPACO),
             width: LARGURA + 24,
-            height: 264,
+            height: 234,
             border: `8px solid ${cores.laranja}`,
             borderRadius: 36,
-            opacity: cursorAtivo * (1 - chegou),
+            opacity: 1 - chegou,
           }}
         />
 
         {DIAS.map((dia, i) => {
-          const passou = i < 5 && posicao > i + 0.6;
-          const opacidadeXis = interpolate(posicao, [i + 0.6, i + 0.9], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-          const final = i === 5;
-          const destaque = final ? chegou : 0;
+          const xis = i < 5 ? interpolate(posicao, [i + 0.5, i + 0.8], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) : 0;
+          const final = i === 5 && chegou > 0.01;
           return (
             <div
-              key={dia.sigla}
+              key={dia}
               style={{
                 width: LARGURA,
-                height: 240,
+                height: 210,
                 borderRadius: 28,
-                background: final && destaque > 0.01 ? cores.laranja : cores.branco,
-                color: final && destaque > 0.01 ? cores.branco : cores.azul,
+                background: final ? cores.laranja : cores.branco,
+                color: final ? cores.branco : cores.azul,
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                justifyContent: "center",
-                gap: 4,
+                justifyContent: "flex-start",
+                paddingTop: 34,
+                gap: 14,
                 position: "relative",
-                opacity: passou ? 0.55 + 0.45 * (1 - opacidadeXis) : 1,
-                transform: final ? `scale(${1 + 0.12 * destaque})` : undefined,
+                fontSize: 50,
+                fontWeight: 800,
+                opacity: 1 - xis * 0.45,
+                transform: i === 5 ? `scale(${1 + 0.14 * chegou})` : undefined,
                 boxShadow: "0 20px 50px rgba(0,0,0,0.3)",
               }}
             >
-              <div style={{ fontSize: 28, fontWeight: 700 }}>{dia.sigla}</div>
-              <div style={{ fontFamily: fontes.titulo, fontSize: 88, fontWeight: 800, lineHeight: 1 }}>{dia.numero}</div>
+              {dia}
               {i < 5 && (
-                <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <Xis opacidade={opacidadeXis} />
-                </div>
+                <svg width="70" height="70" viewBox="0 0 80 80" style={{ opacity: xis }}>
+                  <path d="M16 16 L64 64 M64 16 L16 64" stroke={cores.vermelho} strokeWidth="10" strokeLinecap="round" />
+                </svg>
               )}
             </div>
           );
         })}
       </div>
-
-      {/* Contador de atraso */}
-      <div
-        style={{
-          position: "absolute",
-          top: 1120,
-          left: 0,
-          right: 0,
-          textAlign: "center",
-          fontFamily: fontes.texto,
-          color: cores.branco,
-          opacity: cursorAtivo * (1 - chegou),
-        }}
-      >
-        <div style={{ fontSize: 34, fontWeight: 600, opacity: 0.8 }}>esperando o orçamento...</div>
-        <div style={{ fontFamily: fontes.titulo, fontSize: 150, fontWeight: 800, lineHeight: 1.1, color: cores.laranja }}>
-          +{diasPassados} {diasPassados === 1 ? "dia" : "dias"}
-        </div>
-      </div>
-
-      <Carimbo texto="5 DIAS DEPOIS" entrada={CHEGADA + 8} top={1180} />
     </Fundo>
   );
 };

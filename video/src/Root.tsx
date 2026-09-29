@@ -9,9 +9,9 @@ const formato = { fps: 30, width: 1080, height: 1920, defaultProps: { mostrarGui
 export const RemotionRoot: React.FC = () => {
   return (
     <>
-      <Composition id="SemResposta" component={SemResposta} durationInFrames={195} {...formato} />
-      <Composition id="VisitaDesmarcada" component={VisitaDesmarcada} durationInFrames={180} {...formato} />
-      <Composition id="OrcamentoAtrasado" component={OrcamentoAtrasado} durationInFrames={225} {...formato} />
+      <Composition id="SemResposta" component={SemResposta} durationInFrames={90} {...formato} />
+      <Composition id="VisitaDesmarcada" component={VisitaDesmarcada} durationInFrames={90} {...formato} />
+      <Composition id="OrcamentoAtrasado" component={OrcamentoAtrasado} durationInFrames={90} {...formato} />
     </>
   );
 };
