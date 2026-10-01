@@ -1,0 +1,32 @@
+{
+  "nome": "lara",
+  "descricao": "Identidade Lara Dam / MeuManager: vermelho #C8441A, grafite #1B1B1B, legenda branca com palavra ativa em vermelho.",
+  "alvo": { "largura": 1080, "altura": 1920, "fps": 30 },
+  "legenda": {
+    "fonte": "Be Vietnam Pro",
+    "fonteAlternativa": "DejaVu Sans",
+    "tamanho": 88,
+    "negrito": true,
+    "maiusculas": false,
+    "corTexto": "#FFFFFF",
+    "corDestaque": "#C8441A",
+    "corContorno": "#1B1B1B",
+    "espessuraContorno": 6,
+    "sombra": 2,
+    "palavrasPorBloco": 3,
+    "maxCaracteres": 24,
+    "pausaQuebraBloco": 0.5,
+    "posicaoVertical": 0.74,
+    "margemLateral": 90,
+    "popPalavraAtiva": 106
+  },
+  "corte": {
+    "ruido": "-32dB",
+    "duracaoMinimaSilencio": 0.35,
+    "padding": 0.12,
+    "gapMinimo": 0.22,
+    "duracaoMinimaFala": 0.35
+  },
+  "takes": { "limiar": 0.52, "criterio": "ultimo", "ordem": "roteiro" },
+  "render": { "crf": 18, "preset": "medium" }
+}

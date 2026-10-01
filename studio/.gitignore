@@ -1,0 +1,10 @@
+node_modules/
+projetos/*/bruto/
+projetos/*/cache/
+projetos/*/saida/
+musicas/*.mp3
+musicas/*.wav
+musicas/*.m4a
+musicas/*.aac
+remotion/node_modules/
+remotion/out/

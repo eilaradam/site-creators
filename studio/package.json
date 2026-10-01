@@ -1,0 +1,14 @@
+{
+  "name": "lara-studio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Linha de montagem local para os videos da Lara: corta silencio e take ruim, escolhe o melhor take pelo roteiro, gera legenda no estilo da conta e sugere musica no beat.",
+  "bin": { "studio": "./bin/studio.js" },
+  "scripts": {
+    "studio": "node bin/studio.js",
+    "painel": "node bin/studio.js painel",
+    "test": "node --test testes/"
+  },
+  "engines": { "node": ">=20" }
+}
