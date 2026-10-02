@@ -8,7 +8,7 @@
   "scripts": {
     "studio": "node bin/studio.js",
     "painel": "node bin/studio.js painel",
-    "test": "node --test testes/"
+    "test": "node --test testes/*.test.js"
   },
   "engines": { "node": ">=20" }
 }

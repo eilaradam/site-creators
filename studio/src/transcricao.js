@@ -51,6 +51,19 @@ export async function transcrever(arquivo, {
   }
 }
 
+// Le a transcricao do cache sem rodar nada. Devolve null se nao houver.
+export async function lerCache(arquivo, {
+  backend = process.env.STUDIO_BACKEND || 'fasterwhisper',
+  modelo = process.env.STUDIO_MODELO || 'medium',
+  idioma = 'pt',
+  pastaCache,
+} = {}) {
+  if (!pastaCache) return null;
+  const caminho = join(pastaCache, `transcricao-${await chave(arquivo, { backend, modelo, idioma })}.json`);
+  if (!existsSync(caminho)) return null;
+  return JSON.parse(await readFile(caminho, 'utf8'));
+}
+
 async function viaFasterWhisper(wav, { modelo, idioma }) {
   const python = process.env.STUDIO_PYTHON || 'python3';
   const { stdout } = await exec(python, [join(AQUI, 'py', 'transcrever.py'), wav, modelo, idioma]);
