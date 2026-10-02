@@ -45,11 +45,16 @@ node bin/studio.js musica sugerir gancho-cobrar-pouco
 node bin/studio.js render gancho-cobrar-pouco --musica=nome-da-faixa --beat --gancho=1
 ```
 
-Ou pelo painel, que faz tudo isso com o vídeo na tela:
+Ou pelo painel, que faz tudo isso com o vídeo na tela. Um comando sobe o
+servidor e já abre o navegador em `http://127.0.0.1:4321`:
 
 ```bash
-node bin/studio.js painel      # http://127.0.0.1:4321
+bash abrir.sh          # ou: node bin/studio.js painel
 ```
+
+O painel escuta só em `127.0.0.1`, de propósito: ele lê seus vídeos e a pasta de
+música, então não deve ficar acessível para a rede. É o localhost da sua máquina,
+não de um servidor. Para rodar noutra porta, `bash abrir.sh 4500`.
 
 ## Como ele decide o que cortar
 

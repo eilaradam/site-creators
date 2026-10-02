@@ -54,7 +54,8 @@ ${cor.forte('studio')} - linha de montagem dos videos
   studio status <slug>            mostra a EDL atual
   studio musica sync              analisa as faixas em musicas/
   studio musica sugerir <slug>    sugere faixa para a duracao do corte
-  studio painel [--porta=4321]    abre o painel local
+  studio painel [--porta=4321]    sobe o painel e abre no navegador
+      --sem-navegador     so sobe o servidor, nao abre nada
 `;
 
 async function principal() {
@@ -152,7 +153,10 @@ async function principal() {
 
     case 'painel': {
       const { iniciar } = await import('../src/servidor.js');
-      await iniciar({ porta: Number(opcoes.porta || 4321) });
+      await iniciar({
+        porta: Number(opcoes.porta || 4321),
+        abrir: !opcoes['sem-navegador'],
+      });
       break;
     }
 

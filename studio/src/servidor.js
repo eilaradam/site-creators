@@ -1,5 +1,6 @@
 // Painel local. So escuta em 127.0.0.1 e so serve arquivo de dentro do studio.
 import { createServer } from 'node:http';
+import { spawn as spawnNavegador } from 'node:child_process';
 import { createReadStream } from 'node:fs';
 import { readFile, writeFile, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
@@ -173,7 +174,22 @@ async function api(req, res, url) {
   return json(res, { erro: 'rota desconhecida' }, 404);
 }
 
-export function iniciar({ porta = 4321, host = '127.0.0.1' } = {}) {
+// Abre o navegador padrao da maquina. Falha em silencio: o painel ja esta de pe.
+export function abrirNavegador(url) {
+  const { platform } = process;
+  const comando = platform === 'darwin' ? 'open' : platform === 'win32' ? 'start' : 'xdg-open';
+  const args = platform === 'win32' ? ['', url] : [url];
+  try {
+    const proc = spawnNavegador(comando, args, { stdio: 'ignore', detached: true, shell: platform === 'win32' });
+    proc.on('error', () => {});
+    proc.unref();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function iniciar({ porta = 4321, host = '127.0.0.1', abrir = false } = {}) {
   const servidor = createServer(async (req, res) => {
     const url = new URL(req.url, `http://${host}:${porta}`);
     try {
@@ -198,7 +214,9 @@ export function iniciar({ porta = 4321, host = '127.0.0.1' } = {}) {
 
   return new Promise((resolvePromise) => {
     servidor.listen(porta, host, () => {
-      console.log(`painel em http://${host}:${porta}`);
+      const url = `http://${host}:${porta}`;
+      console.log(`painel em ${url}`);
+      if (abrir) abrirNavegador(url);
       resolvePromise(servidor);
     });
   });
