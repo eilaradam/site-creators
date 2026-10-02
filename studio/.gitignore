@@ -8,3 +8,4 @@ musicas/*.m4a
 musicas/*.aac
 remotion/node_modules/
 remotion/out/
+remotion/package-lock.json

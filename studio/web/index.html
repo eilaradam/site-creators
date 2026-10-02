@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/painel.css">
+</head>
+<body>
+<header class="topo">
+  <div class="marca">studio<span>.</span></div>
+  <div class="topo-acoes">
+    <button id="btn-novo" class="botao">novo projeto</button>
+    <button id="btn-musicas" class="botao fantasma">analisar músicas</button>
+  </div>
+</header>
+
+<main class="colunas">
+  <aside class="lateral">
+    <h2 class="rotulo">projetos</h2>
+    <ul id="lista-projetos" class="lista-projetos"></ul>
+  </aside>
+
+  <section id="area" class="area">
+    <div class="vazio">
+      <p>Nenhum projeto aberto.</p>
+      <p class="fraco">Crie um projeto, jogue os brutos em <code>projetos/&lt;slug&gt;/bruto/</code> e escreva o roteiro.</p>
+    </div>
+  </section>
+</main>
+
+<div id="log" class="log oculto"><strong id="log-titulo"></strong><pre id="log-linhas"></pre></div>
+
+<template id="tpl-projeto">
+  <div class="projeto">
+    <div class="cabecalho">
+      <div>
+        <h1 class="titulo"></h1>
+        <p class="meta fraco"></p>
+      </div>
+      <div class="duracao"><span class="numero">0.0</span><span class="unidade">s</span></div>
+    </div>
+
+    <nav class="abas">
+      <button data-aba="roteiro" class="aba ativa">roteiro</button>
+      <button data-aba="trechos" class="aba">trechos</button>
+      <button data-aba="musica" class="aba">música</button>
+      <button data-aba="saida" class="aba">saída</button>
+    </nav>
+
+    <div data-painel="roteiro" class="painel">
+      <p class="ajuda">Uma fala por linha. O studio usa isso para achar qual take é bom.</p>
+      <textarea class="roteiro" spellcheck="false"></textarea>
+      <div class="barra">
+        <button class="botao fantasma salvar-roteiro">salvar roteiro</button>
+        <label class="opcao"><input type="checkbox" class="sem-transcricao"> só cortar silêncio (sem whisper)</label>
+        <button class="botao analisar">analisar brutos</button>
+      </div>
+    </div>
+
+    <div data-painel="trechos" class="painel oculto">
+      <div class="barra">
+        <span class="contagem fraco"></span>
+        <button class="botao fantasma marcar-todos">marcar todos</button>
+        <button class="botao render">gerar corte</button>
+      </div>
+      <video class="preview-bruto" controls playsinline></video>
+      <ul class="trechos"></ul>
+    </div>
+
+    <div data-painel="musica" class="painel oculto">
+      <p class="ajuda">Faixas de <code>musicas/</code>, ranqueadas pela duração do corte, pelas tags e por quando o drop entra.</p>
+      <ul class="musicas"></ul>
+    </div>
+
+    <div data-painel="saida" class="painel oculto">
+      <div class="saida-arquivos"></div>
+      <video class="preview-saida" controls playsinline></video>
+    </div>
+  </div>
+</template>
+
+<script type="module" src="/painel.js"></script>
+</body>
+</html>

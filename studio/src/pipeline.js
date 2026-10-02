@@ -119,11 +119,13 @@ export async function renderizar(slug, {
     if (Object.keys(transcricoes).length) {
       const ass = join(cfg.caminhos.saida, 'legenda.ass');
       const srt = join(cfg.caminhos.saida, 'legenda.srt');
+      const jsonLegenda = join(cfg.caminhos.saida, 'legenda.json');
       const { total } = await legendaMod.escreverLegendas({
-        edl, transcricoes, perfil, caminhoAss: ass, caminhoSrt: srt,
+        edl, transcricoes, perfil, caminhoAss: ass, caminhoSrt: srt, caminhoJson: jsonLegenda,
       });
       saidas.ass = ass;
       saidas.srt = srt;
+      saidas.legendaJson = jsonLegenda;
       log(aviso, `${total} blocos de legenda`);
       if (legenda === 'queimada') {
         const legendado = join(cfg.caminhos.saida, 'corte-legendado.mp4');

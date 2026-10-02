@@ -1,7 +1,7 @@
 // Legenda no estilo da conta: blocos curtos, palavra ativa em vermelho.
 // Gera .ass (karaoke, para queimar com libass) e .srt (para importar em outro editor).
 import { writeFile } from 'node:fs/promises';
-import { mapaDeTempo } from './edl.js';
+import { mapaDeTempo, duracaoFinal } from './edl.js';
 import { palavras as todasPalavras } from './transcricao.js';
 
 // ASS usa &HAABBGGRR: alpha primeiro e os canais invertidos.
@@ -141,10 +141,15 @@ export function gerarSrt(blocos, { maiusculas = false } = {}) {
 }
 
 // Caminho curto: EDL + transcricoes -> arquivos de legenda em disco.
-export async function escreverLegendas({ edl, transcricoes, perfil, caminhoAss, caminhoSrt }) {
+export async function escreverLegendas({ edl, transcricoes, perfil, caminhoAss, caminhoSrt, caminhoJson }) {
   const estilo = perfil.legenda;
+  const alvo = edl.alvo || perfil.alvo;
   const blocos = montarBlocos(palavrasNoCorte({ edl, transcricoes }), estilo);
-  if (caminhoAss) await writeFile(caminhoAss, gerarAss({ blocos, estilo, alvo: edl.alvo || perfil.alvo }), 'utf8');
+  if (caminhoAss) await writeFile(caminhoAss, gerarAss({ blocos, estilo, alvo }), 'utf8');
   if (caminhoSrt) await writeFile(caminhoSrt, gerarSrt(blocos, estilo), 'utf8');
+  // O Remotion le este JSON para animar a legenda em cima do corte.
+  if (caminhoJson) {
+    await writeFile(caminhoJson, JSON.stringify({ alvo, estilo, duracao: duracaoFinal(edl), blocos }, null, 2), 'utf8');
+  }
   return { blocos, total: blocos.length };
 }
