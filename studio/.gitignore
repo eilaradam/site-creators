@@ -10,3 +10,4 @@ remotion/node_modules/
 remotion/out/
 remotion/package-lock.json
 .setup-ok
+.venv/

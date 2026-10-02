@@ -74,8 +74,19 @@ export async function lerCache(arquivo, {
   return JSON.parse(await readFile(caminho, 'utf8'));
 }
 
+// Prefere o venv do proprio studio; so cai no python do sistema se ele nao existir.
+export function pythonDoStudio() {
+  if (process.env.STUDIO_PYTHON) return process.env.STUDIO_PYTHON;
+  const raiz = join(AQUI, '..');
+  for (const relativo of ['.venv/bin/python', '.venv/Scripts/python.exe']) {
+    const candidato = join(raiz, relativo);
+    if (existsSync(candidato)) return candidato;
+  }
+  return 'python3';
+}
+
 async function viaFasterWhisper(wav, { modelo, idioma }) {
-  const python = process.env.STUDIO_PYTHON || 'python3';
+  const python = pythonDoStudio();
   const { stdout } = await exec(python, [join(AQUI, 'py', 'transcrever.py'), wav, modelo, idioma]);
   return JSON.parse(stdout);
 }

@@ -25,8 +25,10 @@ montado — o formato EDL deste repositório existe justamente para isso.
 ## O que você precisa instalar
 
 - **ffmpeg** (obrigatório). macOS: `brew install ffmpeg`. Windows: `winget install ffmpeg`.
-- **Python 3 + faster-whisper** (para transcrição e escolha de take):
-  `pip install faster-whisper`. Sem isso, o studio ainda corta silêncio.
+- **Python 3 + faster-whisper** (para transcrição e escolha de take). O
+  `setup.sh` instala num ambiente próprio em `studio/.venv`, sem tocar no Python
+  do sistema; é o que evita o bloqueio de `pip` do macOS e do Homebrew. Sem isso,
+  o studio ainda corta silêncio.
 - **Fonte Be Vietnam Pro** instalada no sistema, se quiser a legenda na fonte da
   marca. Sem ela, o ffmpeg cai numa fonte padrão e a legenda sai certa, só com
   outro desenho de letra.
