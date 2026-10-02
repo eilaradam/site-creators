@@ -22,7 +22,19 @@ o CapCut para o que ele é bom: efeito, trend, transição, capa, ajuste de ritm
 Se um dia você passar a editar no CapCut de desktop, dá para gerar o projeto já
 montado — o formato EDL deste repositório existe justamente para isso.
 
-## O que você precisa instalar
+## Instalação
+
+No macOS, um comando faz tudo: Homebrew (se faltar), node, ffmpeg, python, o
+ambiente da transcrição e o painel aberto no navegador.
+
+```bash
+cd ~/site-creators && git pull && bash studio/instalar-mac.sh
+```
+
+Ele anuncia cada passo e pede confirmação antes de instalar o Homebrew. Para
+conferir ou refazer só o ambiente depois, `bash setup.sh`.
+
+## O que ele instala
 
 - **ffmpeg** (obrigatório). macOS: `brew install ffmpeg`. Windows: `winget install ffmpeg`.
 - **Python 3 + faster-whisper** (para transcrição e escolha de take). O

@@ -3,6 +3,15 @@
 set -u
 cd "$(dirname "$0")"
 
+# --com-whisper / --sem-whisper pulam a pergunta (usado pelo instalar-mac.sh).
+WHISPER="${STUDIO_SETUP_WHISPER:-perguntar}"
+for arg in "$@"; do
+  case "$arg" in
+    --com-whisper) WHISPER=sim ;;
+    --sem-whisper) WHISPER=nao ;;
+  esac
+done
+
 ok()    { printf '  \033[32mok\033[0m    %s\n' "$1"; }
 falta() { printf '  \033[31mfalta\033[0m %s\n' "$1"; }
 nota()  { printf '        %s\n' "$1"; }
@@ -44,10 +53,13 @@ elif command -v python3 >/dev/null 2>&1; then
   ok "python $(python3 -V | cut -d' ' -f2)"
   falta "faster-whisper"
   nota "sem ele o studio so corta silencio (marque 'so cortar silencio' no painel)"
-  printf '        instalar num ambiente proprio agora? [s/N] '
-  read -r resposta
+  resposta="$WHISPER"
+  if [ "$WHISPER" = perguntar ]; then
+    printf '        instalar num ambiente proprio agora? [s/N] '
+    read -r resposta
+  fi
   case "$resposta" in
-    [sS]*)
+    sim|[sS]*)
       python3 -m venv .venv || { falta "nao consegui criar o .venv"; pendencias=1; }
       VENV_PY=".venv/bin/python"
       [ -f "$VENV_PY" ] || VENV_PY=".venv/Scripts/python.exe"
