@@ -51,6 +51,17 @@ export async function transcrever(arquivo, {
   }
 }
 
+// Onde a transcricao de um arquivo fica em cache.
+export async function caminhoDoCache(arquivo, {
+  backend = process.env.STUDIO_BACKEND || 'fasterwhisper',
+  modelo = process.env.STUDIO_MODELO || 'medium',
+  idioma = 'pt',
+  pastaCache,
+} = {}) {
+  if (!pastaCache) return null;
+  return join(pastaCache, `transcricao-${await chave(arquivo, { backend, modelo, idioma })}.json`);
+}
+
 // Le a transcricao do cache sem rodar nada. Devolve null se nao houver.
 export async function lerCache(arquivo, {
   backend = process.env.STUDIO_BACKEND || 'fasterwhisper',
@@ -58,9 +69,8 @@ export async function lerCache(arquivo, {
   idioma = 'pt',
   pastaCache,
 } = {}) {
-  if (!pastaCache) return null;
-  const caminho = join(pastaCache, `transcricao-${await chave(arquivo, { backend, modelo, idioma })}.json`);
-  if (!existsSync(caminho)) return null;
+  const caminho = await caminhoDoCache(arquivo, { backend, modelo, idioma, pastaCache });
+  if (!caminho || !existsSync(caminho)) return null;
   return JSON.parse(await readFile(caminho, 'utf8'));
 }
 
