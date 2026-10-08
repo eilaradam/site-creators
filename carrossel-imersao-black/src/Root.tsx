@@ -4,9 +4,9 @@ import { ChatCamila, ChatLara, slides } from "./slides";
 import { H, W, sans } from "./theme";
 
 // Só o chat, fundo transparente (para usar em outra arte)
-const Solo: React.FC<{ C: React.FC }> = ({ C }) => (
+const Solo: React.FC<{ C: React.FC<{ foto?: boolean }> }> = ({ C }) => (
   <AbsoluteFill style={{ fontFamily: sans, padding: 80, justifyContent: "center" }}>
-    <C />
+    <C foto={false} />
   </AbsoluteFill>
 );
 

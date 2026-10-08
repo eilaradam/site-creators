@@ -60,9 +60,9 @@ const PhotoBubble: React.FC<{ src: string | null; label: string; tone: "light" |
 );
 
 // 3 · Lado da Lara
-export const ChatLara: React.FC = () => (
+export const ChatLara: React.FC<{ foto?: boolean }> = ({ foto = true }) => (
     <Row side="left" avatar={L}>
-      <PhotoBubble src={f.fotoLara} label="FOTO DA LARA" tone="light" />
+      {foto ? <PhotoBubble src={f.fotoLara} label="FOTO DA LARA" tone="light" /> : null}
       <Bubble side="left" tail={false}>
         <Big size={68}>
           Pra mim, é o <Hl on="light">portfólio.</Hl>
@@ -81,9 +81,9 @@ export const S3: React.FC = () => (
 );
 
 // 4 · Lado da Camila
-export const ChatCamila: React.FC = () => (
+export const ChatCamila: React.FC<{ foto?: boolean }> = ({ foto = true }) => (
     <Row side="right" avatar={C}>
-      <PhotoBubble src={f.fotoCamila} label="FOTO DA CAMILA" tone="dark" />
+      {foto ? <PhotoBubble src={f.fotoCamila} label="FOTO DA CAMILA" tone="dark" /> : null}
       <Bubble side="right" tail={false}>
         <Big size={68}>
           Pra mim, é a <Hl on="dark">abordagem.</Hl>
