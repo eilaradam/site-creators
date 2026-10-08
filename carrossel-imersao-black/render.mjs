@@ -8,9 +8,9 @@ const filter = process.argv[2] ?? "";
 const browserExecutable = process.env.REMOTION_CHROME || undefined;
 const serveUrl = await bundle({ entryPoint: path.resolve("src/index.ts") });
 const comps = (await getCompositions(serveUrl, { browserExecutable })).filter((c) => c.durationInFrames === 1 && c.id.includes(filter));
-fs.mkdirSync("out", { recursive: true });
+fs.mkdirSync("out/pimentas", { recursive: true });
 for (const composition of comps) {
-  const output = `out/${composition.id}.png`;
+  const output = composition.id.startsWith("pimenta") ? `out/pimentas/${composition.id}.png` : `out/${composition.id}.png`;
   await renderStill({ composition, serveUrl, output, browserExecutable, imageFormat: "png" });
   console.log("ok", output);
 }

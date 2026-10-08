@@ -1,6 +1,6 @@
 import React from "react";
 import { AbsoluteFill, Composition, Still } from "remotion";
-import { TermoBlocos, TermoFerve, TermoSobe } from "./termometro";
+import { Chili, TermoBlocos, TermoFerve, TermoSobe, hot } from "./termometro";
 import { ChatCamila, ChatLara, slides } from "./slides";
 import { H, W, sans } from "./theme";
 
@@ -21,5 +21,8 @@ export const Root: React.FC = () => (
     <Composition id="termometro-1-sobe" component={TermoSobe} width={W} height={H} fps={30} durationInFrames={150} />
     <Composition id="termometro-2-ferve" component={TermoFerve} width={W} height={H} fps={30} durationInFrames={150} />
     <Composition id="termometro-3-blocos" component={TermoBlocos} width={W} height={H} fps={30} durationInFrames={150} />
+    {[...hot, "#E3D8CF"].map((cor, i) => (
+      <Still key={cor} id={`pimenta-${i < 5 ? i + 1 : "apagada"}`} component={() => <Chili size={1024} color={cor} />} width={1024} height={1024} />
+    ))}
   </>
 );

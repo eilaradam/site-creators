@@ -14,15 +14,15 @@ const BOT = 930; // base do tubo (início do bulbo)
 const TUBE_W = 120;
 const CX = 430;
 const BULB_R = 112;
-const hot = ["#FFC93C", "#FF9A1F", "#F0601E", "#C8441A", "#8E1B0B"];
+export const hot = ["#FFC93C", "#FF9A1F", "#F0601E", "#C8441A", "#8E1B0B"];
 const colorAt = (p: number) => interpolateColors(p, [0, 0.25, 0.5, 0.75, 1], hot);
 const levelY = (i: number) => BOT - ((i + 1) / 5) * (BOT - TOP); // i = 0..4
 
-const Chili: React.FC<{ size: number; color: string; style?: React.CSSProperties }> = ({ size, color, style }) => (
+export const Chili: React.FC<{ size: number; color: string; style?: React.CSSProperties }> = ({ size, color, style }) => (
   <svg width={size} height={size} viewBox="0 0 64 64" style={style}>
     <path d="M44 10c-4 0-6 3-6 6" fill="none" stroke="#3E7C2A" strokeWidth={5} strokeLinecap="round" />
     <path d="M30 18c6-4 18-2 20 6 2 10-8 26-26 34-6 3-12 2-10-4 2-5 8-8 12-16 3-7-2-15 4-20z" fill={color} />
-    <path d="M30 26c-2 6-4 10-8 15" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth={4} strokeLinecap="round" />
+    <path d="M41 25c1 6-1 11-5 16" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth={4} strokeLinecap="round" />
   </svg>
 );
 
