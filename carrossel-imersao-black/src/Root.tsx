@@ -1,5 +1,6 @@
 import React from "react";
-import { AbsoluteFill, Still } from "remotion";
+import { AbsoluteFill, Composition, Still } from "remotion";
+import { TermoBlocos, TermoFerve, TermoSobe } from "./termometro";
 import { ChatCamila, ChatLara, slides } from "./slides";
 import { H, W, sans } from "./theme";
 
@@ -17,5 +18,8 @@ export const Root: React.FC = () => (
     ))}
     <Still id="chat-lara" component={() => <Solo C={ChatLara} />} width={1016} height={H} />
     <Still id="chat-camila" component={() => <Solo C={ChatCamila} />} width={1016} height={H} />
+    <Composition id="termometro-1-sobe" component={TermoSobe} width={W} height={H} fps={30} durationInFrames={150} />
+    <Composition id="termometro-2-ferve" component={TermoFerve} width={W} height={H} fps={30} durationInFrames={150} />
+    <Composition id="termometro-3-blocos" component={TermoBlocos} width={W} height={H} fps={30} durationInFrames={150} />
   </>
 );
