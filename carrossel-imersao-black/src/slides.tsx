@@ -52,17 +52,25 @@ export const S2: React.FC = () => (
   </Frame>
 );
 
+// Foto enviada como mensagem de imagem no chat
+const PhotoBubble: React.FC<{ src: string | null; label: string; tone: "light" | "dark" }> = ({ src, label: l, tone }) => (
+  <div style={{ width: 340, height: 340, borderRadius: 52, overflow: "hidden", border: `6px solid ${tone === "light" ? c.bubbleLight : c.bubbleDark}`, boxShadow: "0 18px 40px rgba(74,22,6,0.28)", flexShrink: 0 }}>
+    <Photo src={src} label={l} dark />
+  </div>
+);
+
 // 3 · Lado da Lara
 export const S3: React.FC = () => (
   <Frame n={3}>
     <Name side="left">Lado da {t.lara}</Name>
     <Row side="left" avatar={L}>
+      <PhotoBubble src={f.fotoLara} label="FOTO DA LARA" tone="light" />
       <Bubble side="left" tail={false}>
-        <Big size={76}>
+        <Big size={68}>
           Pra mim, é o <Hl on="light">portfólio.</Hl>
         </Big>
       </Bubble>
-      <Bubble side="left">
+      <Bubble side="left" style={{ fontSize: 36, padding: "32px 44px" }}>
         A marca abre seu link e não encontra variedade, não encontra o nicho dela, não consegue se imaginar no seu vídeo. <b>Ela passa pra próxima.</b>
       </Bubble>
     </Row>
@@ -74,12 +82,13 @@ export const S4: React.FC = () => (
   <Frame n={4}>
     <Name side="right">Lado da {t.camila}</Name>
     <Row side="right" avatar={C}>
+      <PhotoBubble src={f.fotoCamila} label="FOTO DA CAMILA" tone="dark" />
       <Bubble side="right" tail={false}>
-        <Big size={76}>
+        <Big size={68}>
           Pra mim, é a <Hl on="dark">abordagem.</Hl>
         </Big>
       </Bubble>
-      <Bubble side="right">
+      <Bubble side="right" style={{ fontSize: 36, padding: "32px 44px" }}>
         Se a sua mensagem é igual à de todo mundo, <b>a marca nem chega a clicar no seu link.</b>
       </Bubble>
     </Row>

@@ -4,8 +4,10 @@
 
 export const fotos = {
   capa: null as string | null, // foto das duas com cara irônica
-  avatarLara: null as string | null,
-  avatarCamila: null as string | null,
+  fotoLara: "lara.jpg" as string | null, // slide 3
+  fotoCamila: "camila.jpg" as string | null, // slide 4
+  avatarLara: "lara.jpg" as string | null,
+  avatarCamila: "camila.jpg" as string | null,
   camilaRindo: null as string | null, // slide 6
   prints: [null, null, null] as (string | null)[], // prints dos stories/Threads (slide 2)
 };
