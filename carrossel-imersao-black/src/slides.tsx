@@ -60,9 +60,7 @@ const PhotoBubble: React.FC<{ src: string | null; label: string; tone: "light" |
 );
 
 // 3 · Lado da Lara
-export const S3: React.FC = () => (
-  <Frame n={3}>
-    <Name side="left">Lado da {t.lara}</Name>
+export const ChatLara: React.FC = () => (
     <Row side="left" avatar={L}>
       <PhotoBubble src={f.fotoLara} label="FOTO DA LARA" tone="light" />
       <Bubble side="left" tail={false}>
@@ -74,13 +72,16 @@ export const S3: React.FC = () => (
         A marca abre seu link e não encontra variedade, não encontra o nicho dela, não consegue se imaginar no seu vídeo. <b>Ela passa pra próxima.</b>
       </Bubble>
     </Row>
+);
+export const S3: React.FC = () => (
+  <Frame n={3}>
+    <Name side="left">Lado da {t.lara}</Name>
+    <ChatLara />
   </Frame>
 );
 
 // 4 · Lado da Camila
-export const S4: React.FC = () => (
-  <Frame n={4}>
-    <Name side="right">Lado da {t.camila}</Name>
+export const ChatCamila: React.FC = () => (
     <Row side="right" avatar={C}>
       <PhotoBubble src={f.fotoCamila} label="FOTO DA CAMILA" tone="dark" />
       <Bubble side="right" tail={false}>
@@ -92,6 +93,11 @@ export const S4: React.FC = () => (
         Se a sua mensagem é igual à de todo mundo, <b>a marca nem chega a clicar no seu link.</b>
       </Bubble>
     </Row>
+);
+export const S4: React.FC = () => (
+  <Frame n={4}>
+    <Name side="right">Lado da {t.camila}</Name>
+    <ChatCamila />
   </Frame>
 );
 
