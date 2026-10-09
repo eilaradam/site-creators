@@ -102,7 +102,7 @@ const Classico: React.FC<{ fundo?: string; variante: number }> = ({ fundo, varia
         <div style={{ fontSize: 92, fontWeight: 900, letterSpacing: -2, color: t.title, lineHeight: 1, textShadow: t.neon ? "0 0 24px rgba(255,90,26,.6)" : "none" }}>ARDÊNCIA</div>
       </div>
 
-      {quente && <Fogo frame={frame} fps={fps} intensidade={gTot} />}
+      {quente && <Fogo frame={frame} fps={fps} intensidade={gTot} baseYover={345} />}
 
       <svg width={1080} height={1920} style={{ position: "absolute", inset: 0 }}>
         <defs>
@@ -137,7 +137,7 @@ const Classico: React.FC<{ fundo?: string; variante: number }> = ({ fundo, varia
         <div style={{ marginTop: 10, fontSize: 32, fontWeight: 800, letterSpacing: 6, color: t.shuSub }}>SHU · HABANERO</div>
       </div>
 
-      <div style={{ position: "absolute", top: 300, left: CX, transform: `translate(-50%,0) rotate(${shake}deg) scale(${interpolate(pepPop, [0, 1], [0, 1])})`, filter: gTot > 0 ? `drop-shadow(0 0 ${30 * gTot}px rgba(255,90,20,${0.95 * gTot}))` : "none" }}>
+      <div style={{ position: "absolute", top: 250, left: CX, transformOrigin: "center bottom", transform: `translate(-50%,0) scale(${interpolate(pepPop, [0, 1], [0, 1]) * 0.82}) rotate(${shake}deg)`, filter: gTot > 0 ? `drop-shadow(0 0 ${30 * gTot}px rgba(255,90,20,${0.95 * gTot}))` : "none" }}>
         <Habanero />
       </div>
     </AbsoluteFill>
@@ -320,7 +320,7 @@ const Fogo: React.FC<{ frame: number; fps: number; intensidade: number; baseYove
     <svg width={1080} height={1920} style={{ position: "absolute", inset: 0 }}>
       {chamas.map((dx, i) => {
         const tt = frame / fps + i * 0.3;
-        const h = 90 + Math.sin(tt * 7) * 40;
+        const h = 48 + Math.sin(tt * 7) * 20;
         const x = CX + dx + Math.sin(tt * 4) * 8;
         const baseY = baseYover;
         const op = (0.5 + 0.5 * Math.sin(tt * 9)) * intensidade;
