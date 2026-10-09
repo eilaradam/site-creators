@@ -23,9 +23,9 @@ const FONTE = "'Arial Rounded MT Bold', 'Helvetica Rounded', Arial, sans-serif";
 const CX = 540;
 const TUBE_W = 92;
 const TOP_Y = 560;
-const BULB_CY = 1500;
-const BULB_R = 122;
-const FILL_BOTTOM = 1480;
+const BULB_CY = 1440;
+const BULB_R = 114;
+const FILL_BOTTOM = 1426;
 
 type Tema = {
   bg: string;
@@ -132,9 +132,9 @@ const Classico: React.FC<{ fundo?: string; variante: number }> = ({ fundo, varia
         );
       })}
 
-      <div style={{ position: "absolute", bottom: 80, left: 0, right: 0, textAlign: "center" }}>
-        <div style={{ fontSize: 80, fontWeight: 900, color: t.shu, letterSpacing: -2, textShadow: t.neon ? "0 0 20px rgba(255,160,60,.6)" : "none" }}>{shuFmt}</div>
-        <div style={{ fontSize: 32, fontWeight: 800, letterSpacing: 6, color: t.shuSub }}>SHU · HABANERO</div>
+      <div style={{ position: "absolute", bottom: 130, left: 0, right: 0, textAlign: "center" }}>
+        <div style={{ fontSize: 78, fontWeight: 900, color: t.shu, letterSpacing: -2, lineHeight: 1, textShadow: t.neon ? "0 0 20px rgba(255,160,60,.6)" : "none" }}>{shuFmt}</div>
+        <div style={{ marginTop: 10, fontSize: 32, fontWeight: 800, letterSpacing: 6, color: t.shuSub }}>SHU · HABANERO</div>
       </div>
 
       <div style={{ position: "absolute", top: 300, left: CX, transform: `translate(-50%,0) rotate(${shake}deg) scale(${interpolate(pepPop, [0, 1], [0, 1])})`, filter: gTot > 0 ? `drop-shadow(0 0 ${30 * gTot}px rgba(255,90,20,${0.95 * gTot}))` : "none" }}>
