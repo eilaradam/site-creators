@@ -278,14 +278,35 @@ function tuboPath(inset: number): string {
 }
 
 const Habanero: React.FC = () => (
-  <svg width={210} height={210} viewBox="0 0 120 120" fill="none" style={{ display: "block" }}>
-    <path d="M60 10 C 58 22, 66 26, 70 30" stroke="#3E8E3A" strokeWidth="7" strokeLinecap="round" fill="none" />
-    <path d="M52 16 C 60 18, 66 20, 72 18 C 70 26, 62 28, 55 26 Z" fill="#53A14B" />
-    <path d="M60 28 C 86 30, 100 50, 96 72 C 93 92, 78 104, 60 104 C 42 104, 27 92, 24 72 C 20 50, 34 30, 60 28 Z" fill="#F5841F" />
-    <path d="M60 30 C 55 55, 52 85, 58 104" stroke="#D9630F" strokeWidth="4" opacity="0.5" fill="none" />
-    <path d="M74 34 C 74 60, 72 88, 66 104" stroke="#D9630F" strokeWidth="4" opacity="0.4" fill="none" />
-    <path d="M44 36 C 44 62, 46 88, 52 103" stroke="#D9630F" strokeWidth="4" opacity="0.4" fill="none" />
-    <ellipse cx="46" cy="52" rx="10" ry="18" fill="#FFF" opacity="0.35" />
+  <svg width={250} height={280} viewBox="0 0 140 160" fill="none" style={{ display: "block" }}>
+    <defs>
+      <linearGradient id="hbody" x1="0.18" y1="0.08" x2="0.82" y2="1">
+        <stop offset="0" stopColor="#FBB24A" />
+        <stop offset="0.5" stopColor="#F2821E" />
+        <stop offset="1" stopColor="#D2560F" />
+      </linearGradient>
+    </defs>
+    {/* cabinho curvo */}
+    <path d="M66 42 C 60 28, 57 15, 70 6 C 83 10, 81 23, 76 36" fill="none" stroke="#5E7B32" strokeWidth="9" strokeLinecap="round" />
+    {/* calyx (cap verde) */}
+    <path d="M70 36 C 62 39, 53 40, 47 37 C 51 46, 60 48, 69 46 C 78 48, 86 45, 90 39 C 83 40, 76 38, 70 36 Z" fill="#6E9138" />
+    {/* corpo lanterna (lobado) */}
+    <path d="M70 42
+      C 47 42, 29 55, 27 79
+      C 25 97, 31 113, 41 125
+      C 47 133, 51 137, 58 131
+      C 62 137, 66 135, 70 137
+      C 74 135, 78 137, 84 131
+      C 91 137, 95 133, 101 125
+      C 111 113, 117 97, 115 79
+      C 113 55, 93 42, 70 42 Z" fill="url(#hbody)" />
+    {/* sombras dos lóbulos */}
+    <path d="M70 44 C 64 74, 62 106, 68 135" stroke="#C04A0E" strokeWidth="4" opacity="0.42" fill="none" />
+    <path d="M88 48 C 90 78, 88 110, 82 133" stroke="#C04A0E" strokeWidth="4" opacity="0.36" fill="none" />
+    <path d="M52 50 C 50 80, 52 110, 58 133" stroke="#C04A0E" strokeWidth="4" opacity="0.36" fill="none" />
+    {/* brilhos */}
+    <path d="M43 60 C 37 74, 37 94, 43 110" stroke="#FFFFFF" strokeWidth="8" opacity="0.28" strokeLinecap="round" fill="none" />
+    <ellipse cx="54" cy="64" rx="7" ry="15" fill="#FFFFFF" opacity="0.25" />
   </svg>
 );
 
