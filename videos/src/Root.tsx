@@ -7,6 +7,7 @@ import { CarrosselJulhoEstilos, julhoEstilosSchema } from "./CarrosselJulhoEstil
 import { LogoCreators, logoSchema } from "./LogoCreators";
 import { FraseConexao, fraseSchema } from "./FraseConexao";
 import { CarrosselAgosto, agostoSchema } from "./CarrosselAgosto";
+import { Termometro, termometroSchema } from "./Termometro";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -123,6 +124,18 @@ export const RemotionRoot: React.FC = () => {
         height={1350}
         schema={agostoSchema}
         defaultProps={{ indice: 0 }}
+      />
+
+      {/* Termômetro de ardência 🌶️ — 1080x1920, 5s */}
+      <Composition
+        id="Termometro"
+        component={Termometro}
+        durationInFrames={150}
+        fps={30}
+        width={1080}
+        height={1920}
+        schema={termometroSchema}
+        defaultProps={{ fundo: "warm" }}
       />
     </>
   );
