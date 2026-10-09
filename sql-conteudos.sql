@@ -12,7 +12,7 @@ create table if not exists public.conteudos (
   cliente text,
   cliente_instagram text,
   tipo text not null default 'publicidade' check (tipo in ('publicidade','ugc','permuta','outro')),
-  status text not null default 'briefing' check (status in ('negociando','briefing','roteiro','aprovacao_roteiro','gravacao','aprovacao_video','aprovado','postado','cancelado')),
+  status text not null default 'briefing' check (status in ('negociando','briefing','roteiro','aprovacao_roteiro','gravacao','edicao','aprovacao_video','aprovado','postado','cancelado')),
   quantidade_videos integer not null default 1,
   valor numeric(12,2) not null default 0,
   status_pagamento text not null default 'pendente' check (status_pagamento in ('pendente','pago')),

@@ -4283,6 +4283,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
 #tabConteudos .ct-badge.st-roteiro { background:#E5DBFF; color:#5B3AA8; }
 #tabConteudos .ct-badge.st-aprovacao_roteiro { background:#E0E7FF; color:#3730A3; }
 #tabConteudos .ct-badge.st-gravacao { background:#FCE7F3; color:#9D174D; }
+#tabConteudos .ct-badge.st-edicao { background:#FFE4D6; color:#B54708; }
 #tabConteudos .ct-badge.st-aprovacao_video { background:#CCFBF1; color:#0F766E; }
 #tabConteudos .ct-badge.st-aprovado { background:#DDF2E5; color:#22694A; }
 #tabConteudos .ct-badge.st-postado { background:var(--accent-tint); color:var(--accent); }
@@ -17306,7 +17307,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     const CT_TIPOS = { publicidade: { ic: '📣', nome: 'Publicidade' }, ugc: { ic: '🎥', nome: 'UGC' }, permuta: { ic: '🔄', nome: 'Permuta' }, outro: { ic: '✨', nome: 'Outro' } };
     const CT_STATUS = {
         negociando: { ic: '🤝', nome: 'Negociando' }, briefing: { ic: '📋', nome: 'Briefing' }, roteiro: { ic: '✍️', nome: 'Roteiro' },
-        aprovacao_roteiro: { ic: '👀', nome: 'Aprovação do roteiro' }, gravacao: { ic: '🎬', nome: 'Gravação' }, aprovacao_video: { ic: '🎞️', nome: 'Aprovação do vídeo' },
+        aprovacao_roteiro: { ic: '👀', nome: 'Aprovação do roteiro' }, gravacao: { ic: '🎬', nome: 'Gravação' }, edicao: { ic: '✂️', nome: 'Edição' }, aprovacao_video: { ic: '🎞️', nome: 'Aprovação do vídeo' },
         aprovado: { ic: '✅', nome: 'Aprovado' }, postado: { ic: '🚀', nome: 'Postado' }, cancelado: { ic: '❌', nome: 'Cancelado' }
     };
     const CT_FUNIL = Object.keys(CT_STATUS); // ordem do funil; cancelado fica por último
