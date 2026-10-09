@@ -1,4 +1,5 @@
 import { Composition } from "remotion";
+import { TermometroHabanero } from "./pimenta/TermometroHabanero";
 import { OrcamentoAtrasado } from "./reforma100/OrcamentoAtrasado";
 import { SemResposta } from "./reforma100/SemResposta";
 import { VisitaDesmarcada } from "./reforma100/VisitaDesmarcada";
@@ -12,6 +13,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="SemResposta" component={SemResposta} durationInFrames={90} {...formato} />
       <Composition id="VisitaDesmarcada" component={VisitaDesmarcada} durationInFrames={90} {...formato} />
       <Composition id="OrcamentoAtrasado" component={OrcamentoAtrasado} durationInFrames={90} {...formato} />
+      <Composition id="TermometroHabanero" component={TermometroHabanero} durationInFrames={90} fps={30} width={1080} height={1920} />
     </>
   );
 };
