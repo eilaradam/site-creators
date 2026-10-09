@@ -17466,7 +17466,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             ? '<span class="ct-fav-ctl">' + (favs.length > 1 ? '<span class="ct-drag" title="Segure e arraste pra mudar a posição">⠿</span>' : '')
               + '<button type="button" title="Cor de fundo" onclick="event.stopPropagation();ctPalToggle(\'' + id + '\')">🎨</button></span>'
               + (ctPalAberta === id ? ctPaletaHtml(c) : '')
-            : '';
+            : (CT_CORES[c.cor] ? '<span class="ct-fav-ctl"><button type="button" title="Tirar a cor desta linha" onclick="event.stopPropagation();ctSetCor(\'' + id + '\', null)">🎨✕</button></span>' : '');
         let html = '<tr data-id="' + id + '" class="ct-row' + (c.destaque ? ' destaque' : '') + (aberta ? ' aberta' : '') + (c.status === 'cancelado' ? ' cancelada' : '') + (CT_CORES[c.cor] ? ' cor-' + c.cor : '') + '" onclick="ctExpandir(\'' + id + '\')">'
             + '<td class="ct-td-nome" data-l="Campanha"><div class="ct-nome">'
                 + '<button class="ct-star' + (c.destaque ? ' on' : '') + '" type="button" title="' + (c.destaque ? 'Tirar o destaque' : 'Marcar como destaque') + '" onclick="event.stopPropagation();ctToggleDestaque(\'' + id + '\')">' + (c.destaque ? '⭐' : '☆') + '</button>'
@@ -17749,7 +17749,9 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     function ctToggleBool(id, campo) {
         const c = ctLista.find(x => x.id === id); if (!c || !CT_BOOL_MSG[campo]) return;
         const ligar = !c[campo];
-        ctPatch(id, { [campo]: ligar }, CT_BOOL_MSG[campo][ligar ? 0 : 1]);
+        const patch = { [campo]: ligar };
+        if (campo === 'destaque' && !ligar && c.cor) patch.cor = null; /* tirou a estrela: a cor vai junto */
+        ctPatch(id, patch, CT_BOOL_MSG[campo][ligar ? 0 : 1]);
     }
     function ctToggleDestaque(id) { ctToggleBool(id, 'destaque'); }
     /* menuzinho de status na própria linha (pedido dela: não abrir o painel inteiro) */
