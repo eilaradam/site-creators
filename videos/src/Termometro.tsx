@@ -278,35 +278,39 @@ function tuboPath(inset: number): string {
 }
 
 const Habanero: React.FC = () => (
-  <svg width={250} height={280} viewBox="0 0 140 160" fill="none" style={{ display: "block" }}>
+  <svg width={240} height={290} viewBox="0 0 140 170" fill="none" style={{ display: "block" }}>
     <defs>
-      <linearGradient id="hbody" x1="0.18" y1="0.08" x2="0.82" y2="1">
-        <stop offset="0" stopColor="#FBB24A" />
-        <stop offset="0.5" stopColor="#F2821E" />
-        <stop offset="1" stopColor="#D2560F" />
+      <linearGradient id="hbody" x1="0.2" y1="0.05" x2="0.78" y2="1">
+        <stop offset="0" stopColor="#FFC24E" />
+        <stop offset="0.45" stopColor="#F4841C" />
+        <stop offset="1" stopColor="#CC4E0C" />
       </linearGradient>
     </defs>
+
     {/* cabinho curvo */}
-    <path d="M66 42 C 60 28, 57 15, 70 6 C 83 10, 81 23, 76 36" fill="none" stroke="#5E7B32" strokeWidth="9" strokeLinecap="round" />
-    {/* calyx (cap verde) */}
-    <path d="M70 36 C 62 39, 53 40, 47 37 C 51 46, 60 48, 69 46 C 78 48, 86 45, 90 39 C 83 40, 76 38, 70 36 Z" fill="#6E9138" />
-    {/* corpo lanterna (lobado) */}
-    <path d="M70 42
-      C 47 42, 29 55, 27 79
-      C 25 97, 31 113, 41 125
-      C 47 133, 51 137, 58 131
-      C 62 137, 66 135, 70 137
-      C 74 135, 78 137, 84 131
-      C 91 137, 95 133, 101 125
-      C 111 113, 117 97, 115 79
-      C 113 55, 93 42, 70 42 Z" fill="url(#hbody)" />
+    <path d="M68 52 C 61 36, 59 19, 73 10 C 85 14, 83 28, 78 42" fill="none" stroke="#5C7A30" strokeWidth="9" strokeLinecap="round" />
+    <path d="M73 10 C 78 8, 83 9, 86 13" fill="none" stroke="#6E9138" strokeWidth="7" strokeLinecap="round" />
+
+    {/* calyx (cap verde com pontas) */}
+    <path d="M70 50 C 60 46, 50 47, 44 51 C 50 58, 60 60, 70 57 C 80 60, 90 58, 96 51 C 90 47, 80 46, 70 50 Z" fill="#6E9138" />
+
+    {/* corpo: lanterna/coração (ombros largos, ponta embaixo) */}
+    <path d="M70 52
+      C 57 44, 40 46, 32 59
+      C 23 72, 23 91, 30 110
+      C 37 131, 51 150, 70 160
+      C 89 150, 103 131, 110 110
+      C 117 91, 117 72, 108 59
+      C 100 46, 83 44, 70 52 Z" fill="url(#hbody)" />
+
     {/* sombras dos lóbulos */}
-    <path d="M70 44 C 64 74, 62 106, 68 135" stroke="#C04A0E" strokeWidth="4" opacity="0.42" fill="none" />
-    <path d="M88 48 C 90 78, 88 110, 82 133" stroke="#C04A0E" strokeWidth="4" opacity="0.36" fill="none" />
-    <path d="M52 50 C 50 80, 52 110, 58 133" stroke="#C04A0E" strokeWidth="4" opacity="0.36" fill="none" />
+    <path d="M70 56 C 64 92, 64 128, 70 158" stroke="#B8440C" strokeWidth="4.5" opacity="0.4" fill="none" />
+    <path d="M93 60 C 99 92, 95 128, 84 152" stroke="#B8440C" strokeWidth="4.5" opacity="0.34" fill="none" />
+    <path d="M47 60 C 41 92, 45 128, 56 152" stroke="#B8440C" strokeWidth="4.5" opacity="0.34" fill="none" />
+
     {/* brilhos */}
-    <path d="M43 60 C 37 74, 37 94, 43 110" stroke="#FFFFFF" strokeWidth="8" opacity="0.28" strokeLinecap="round" fill="none" />
-    <ellipse cx="54" cy="64" rx="7" ry="15" fill="#FFFFFF" opacity="0.25" />
+    <path d="M42 66 C 35 82, 35 104, 42 122" stroke="#FFFFFF" strokeWidth="9" opacity="0.3" strokeLinecap="round" fill="none" />
+    <ellipse cx="55" cy="70" rx="7" ry="16" fill="#FFFFFF" opacity="0.28" transform="rotate(-10 55 70)" />
   </svg>
 );
 
