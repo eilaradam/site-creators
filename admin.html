@@ -14626,7 +14626,15 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     function retroMsgPadrao(a) {
         const f = a.flow && a.flow.steps ? a.flow.steps : [];
         const ultimo = f.length ? f[f.length - 1] : null;
-        const btn = ultimo && (ultimo.buttons || []).find(function (b) { return b.url; });
+        /* Resposta privada é texto puro, sem botão. Quem não tocou em nada não passou pelo passo
+           da pergunta, então vai só a entrega (último passo) com TODOS os links em linhas. */
+        const links = ultimo ? (ultimo.buttons || []).filter(function (b) { return b.url; }) : [];
+        if (f.length > 1 && ultimo) {
+            const corpo = String(ultimo.message || '').trim();
+            const linhas = links.map(function (b) { return (b.title ? b.title + ': ' : '') + b.url; }).join('\n');
+            return { msg: [corpo, linhas].filter(Boolean).join('\n\n'), link: '' };
+        }
+        const btn = links[0];
         const corpo = f.map(function (s) { return String(s.message || '').trim(); }).filter(Boolean).join('\n\n');
         return { msg: corpo || String(a.link_message || '').trim(), link: (btn && btn.url) || a.link_url || '' };
     }
@@ -14642,21 +14650,23 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const info = document.getElementById('retroInfo');
         if (!mid) { info.textContent = 'Essa automação não está ligada a nenhum post, então não há comentários pra varrer.'; return; }
         info.textContent = 'Lendo os comentários do post…';
-        const palavra = String(a.keyword || '').split(',')[0].trim() || 'aula';
+        const palavra = String(a.keyword || '').split(',')[0].trim();
+        /* automação sem palavra responde a qualquer comentário: o retroativo tem que varrer todos */
+        const todos = !palavra;
         try {
-            const r = await sb.functions.invoke('ig-retro', { body: { action: 'scan', media_id: mid, keyword: palavra } });
+            const r = await sb.functions.invoke('ig-retro', { body: { action: 'scan', media_id: mid, keyword: palavra, all: todos } });
             if (r && r.error) throw new Error(await retroErro(r.error));
             const d = r && r.data;
             if (!d || d.error || typeof d.total_comments !== 'number') {
                 throw new Error((d && d.error && (d.error.message || d.error)) || 'a função não devolveu os comentários');
             }
             const s = await sb.functions.invoke('ig-retro', {
-                body: { action: 'send', dry: true, media_id: mid, keyword: palavra, automation_id: a.id },
+                body: { action: 'send', dry: true, media_id: mid, keyword: palavra, all: todos, automation_id: a.id },
             });
-            retroDados = { scan: d, seco: (s && s.data) || {}, media_id: mid, palavra: palavra };
+            retroDados = { scan: d, seco: (s && s.data) || {}, media_id: mid, palavra: palavra, todos: todos };
             const faltam = retroDados.seco.faltam_receber;
             info.innerHTML = '<b>' + d.total_comments + '</b> comentários no post · <b>' + d.pessoas_que_casam
-                + '</b> escreveram "' + escapeHtml(palavra) + '"<br>'
+                + '</b> ' + (todos ? 'comentaram (qualquer texto)' : 'escreveram "' + escapeHtml(palavra) + '"') + '<br>'
                 + '<b style="color:var(--success);">' + (faltam == null ? '?' : faltam) + '</b> ainda dá pra alcançar'
                 + (retroDados.seco.ja_receberam ? ' · ' + retroDados.seco.ja_receberam + ' já receberam' : '')
                 + (d.fora_da_janela ? ' · <b style="color:var(--alerta);">' + d.fora_da_janela + ' passaram dos 7 dias</b>' : '')
@@ -15030,7 +15040,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const variantes = [msg, msg.replace(/^Oie!?/i, 'Oi!'), msg.replace(/^Oie!?/i, 'Oiee')];
         try {
             const r = await sb.functions.invoke('ig-retro', {
-                body: { action: 'send', media_id: retroDados.media_id, keyword: retroDados.palavra,
+                body: { action: 'send', media_id: retroDados.media_id, keyword: retroDados.palavra, all: !!retroDados.todos,
                         automation_id: retroAuto.id, message_variants: [...new Set(variantes)],
                         link: link, max: max, delayMs: 2500 },
             });
