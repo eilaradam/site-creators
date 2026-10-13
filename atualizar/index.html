@@ -684,15 +684,23 @@
         const errorEl = document.getElementById('verifyError');
         errorEl.classList.remove('show');
         const email = document.getElementById('verifyEmail').value.trim().toLowerCase();
-        const whatsapp = document.getElementById('verifyWhatsapp').value.trim();
+        let whatsapp = document.getElementById('verifyWhatsapp').value.trim();
         if (!email || !whatsapp) { errorEl.textContent = 'Preencha o e-mail e o WhatsApp.'; errorEl.classList.add('show'); return; }
         btn.textContent = 'Verificando...';
         btn.disabled = true;
         try {
             if (!initSb()) throw new Error('Erro de conexão. Recarregue a página.');
-            const { data: result, error } = await sb.rpc('creator_verify_identity', { p_email: email, p_whatsapp: whatsapp });
-            if (error) throw error;
-            if (!result || !result.encontrado) throw new Error((result && result.erro) || 'Cadastro não encontrado. Confere o e-mail e o WhatsApp.');
+            /* Tenta o número como digitado, sem o 55 e com o 55 (o cadastro pode estar de qualquer jeito) */
+            const dig = whatsapp.replace(/\D/g, '');
+            const nac = dig.length > 11 && dig.startsWith('55') ? dig.slice(2) : dig;
+            const tentativas = [whatsapp, nac, '55' + nac].filter((v, i, a) => v && a.indexOf(v) === i);
+            let result = null;
+            for (const w of tentativas) {
+                const { data, error } = await sb.rpc('creator_verify_identity', { p_email: email, p_whatsapp: w });
+                if (error) throw error;
+                if (data && data.encontrado) { result = data; whatsapp = w; break; }
+            }
+            if (!result) throw new Error('E-mail ou WhatsApp não conferem. Use o mesmo e-mail e o mesmo WhatsApp do seu cadastro.');
             let codigo = (result.dados && result.dados.codigo_indicacao) || '';
             if (!codigo) {
                 codigo = gerarCodigoIndicacao();
