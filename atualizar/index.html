@@ -783,8 +783,8 @@
             const dados = {
                 nome: document.getElementById('nome').value.trim(),
                 whatsapp: document.getElementById('whatsapp').value.trim(),
-                instagram: document.getElementById('instagram').value.trim().toLowerCase(),
-                tiktok: document.getElementById('tiktok').value.trim().toLowerCase() || null,
+                instagram: normalizarArroba(document.getElementById('instagram').value),
+                tiktok: normalizarArroba(document.getElementById('tiktok').value) || null,
                 data_nascimento: document.getElementById('nascimento').value || null,
                 genero: document.getElementById('genero').value,
                 seguidores: document.getElementById('seguidores').value,
@@ -812,7 +812,10 @@
             setupShareButtons(codigoRef);
             launchConfetti();
         } catch (err) {
-            errorEl.textContent = err.message || 'Erro ao salvar. Tente novamente.';
+            const msg = String((err && err.message) || '');
+            errorEl.textContent = /creators_instagram_key|duplicate key/i.test(msg)
+                ? 'Esse @ do Instagram já está em outro cadastro. Confere se digitou o seu @ certinho. Se é o seu mesmo, me chama no @eilaradam que eu resolvo.'
+                : (msg || 'Erro ao salvar. Tente novamente.');
             errorEl.classList.remove('duplicate');
             errorEl.classList.add('show');
             errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -839,6 +842,12 @@
             container.appendChild(p);
         }
         setTimeout(() => container.remove(), 5000);
+    }
+
+    /* @ padronizado: aceita link, com ou sem @, e sempre salva como @usuario em minúsculas */
+    function normalizarArroba(v) {
+        v = String(v || '').trim().toLowerCase().replace(/^https?:\/\/(www\.)?(instagram|tiktok)\.com\//, '').split(/[/?#]/)[0].replace(/^@+/, '');
+        return v ? '@' + v : '';
     }
 
     /* ── Share ── */
