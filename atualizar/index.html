@@ -254,6 +254,16 @@
                 <h3>Carregando seu cadastro...</h3>
                 <p>Só um instante.</p>
             </div>
+            <div class="state-box" id="verifyState" style="display:none;">
+                <div class="state-icon">✏️</div>
+                <h3>Editar meu cadastro</h3>
+                <p>Informe o e-mail e o WhatsApp que você usou no cadastro pra confirmar que é você.</p>
+                <div class="form-error" id="verifyError"></div>
+                <div class="field-group" style="text-align:left;"><label>E-mail do cadastro</label><input type="email" id="verifyEmail" placeholder="seuemail@exemplo.com" autocomplete="email"></div>
+                <div class="field-group" style="text-align:left;"><label>WhatsApp do cadastro (com DDD)</label><input type="tel" id="verifyWhatsapp" placeholder="(00) 00000-0000"></div>
+                <button type="button" class="btn-primary" id="btnVerificar" style="width:100%; justify-content:center;">Continuar</button>
+                <p style="margin-top:14px;"><a href="/cadastro/" style="font-size:13px; color:var(--text-muted); text-decoration:underline;">Ainda não tenho cadastro</a></p>
+            </div>
             <div class="state-box" id="invalidState" style="display:none;">
                 <div class="state-icon">🔗</div>
                 <h3 id="invalidTitle">Esse link não é válido</h3>
@@ -534,12 +544,13 @@
 
     /* ── Código pessoal do link (?c=CODIGO = codigo_indicacao da creator) ── */
     const _params = new URLSearchParams(window.location.search);
-    const CODIGO = (_params.get('c') || '').trim().toUpperCase();
+    let CODIGO = (_params.get('c') || '').trim().toUpperCase();
     let creatorAtual = null;
 
     function mostrarEstado(qual) {
         document.getElementById('loadingState').style.display = qual === 'loading' ? 'block' : 'none';
         document.getElementById('invalidState').style.display = qual === 'invalid' ? 'block' : 'none';
+        document.getElementById('verifyState').style.display = qual === 'verify' ? 'block' : 'none';
         document.getElementById('formContent').style.display = qual === 'form' ? 'block' : 'none';
     }
 
@@ -659,8 +670,49 @@
         }
     }
 
+
+    /* ── Sem link pessoal: ela se identifica com e-mail + WhatsApp do cadastro ── */
+    function gerarCodigoIndicacao() {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let code = '';
+        for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+        return code;
+    }
+    document.getElementById('verifyWhatsapp').addEventListener('input', function(e) { e.target.value = mascaraWhatsapp(e.target.value); });
+    document.getElementById('btnVerificar').addEventListener('click', async function() {
+        const btn = this;
+        const errorEl = document.getElementById('verifyError');
+        errorEl.classList.remove('show');
+        const email = document.getElementById('verifyEmail').value.trim().toLowerCase();
+        const whatsapp = document.getElementById('verifyWhatsapp').value.trim();
+        if (!email || !whatsapp) { errorEl.textContent = 'Preencha o e-mail e o WhatsApp.'; errorEl.classList.add('show'); return; }
+        btn.textContent = 'Verificando...';
+        btn.disabled = true;
+        try {
+            if (!initSb()) throw new Error('Erro de conexão. Recarregue a página.');
+            const { data: result, error } = await sb.rpc('creator_verify_identity', { p_email: email, p_whatsapp: whatsapp });
+            if (error) throw error;
+            if (!result || !result.encontrado) throw new Error((result && result.erro) || 'Cadastro não encontrado. Confere o e-mail e o WhatsApp.');
+            let codigo = (result.dados && result.dados.codigo_indicacao) || '';
+            if (!codigo) {
+                codigo = gerarCodigoIndicacao();
+                const { error: e2 } = await sb.rpc('creator_update_self', { p_email: email, p_whatsapp: whatsapp, p_data: { codigo_indicacao: codigo } });
+                if (e2) throw e2;
+            }
+            CODIGO = String(codigo).toUpperCase();
+            await carregarCadastro();
+        } catch (err) {
+            errorEl.textContent = err.message || 'Erro ao verificar. Tente novamente.';
+            errorEl.classList.add('show');
+            mostrarEstado('verify');
+        } finally {
+            btn.textContent = 'Continuar';
+            btn.disabled = false;
+        }
+    });
+
     async function carregarCadastro() {
-        if (!CODIGO) { mostrarEstado('invalid'); return; }
+        if (!CODIGO) { mostrarEstado('verify'); return; }
         mostrarEstado('loading');
         let c = null;
         try {
