@@ -153,10 +153,12 @@ function sortear(){
 $('sortear').onclick=sortear; $('sOutra').onclick=sortear; $('sFechar').onclick=()=>$('sorteio').classList.remove('on');
 
 function csvCel(v){v=String(v==null?'':v); if(/^[=+\-@]/.test(v)) v="'"+v; return '"'+v.replace(/"/g,'""')+'"';}
+function csvTxt(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"';}
+function csvZap(v){v=String(v||''); return /^\+\d{8,15}$/.test(v)?'"=""'+v+'"""':csvCel(v);}
 $('csv').onclick=()=>{
   const cab=['Nome','WhatsApp','E-mail','Instagram','Portfólio','Autoriza mostrar','Aceita contato','Status','Responsável','Comprou','Enviado em','Atualizado em'];
   const nomes={boa:'Boa pra análise',avancado:'Muito avançado',descartar:'Descartar'};
-  const linhas=dados.map(r=>[r.nome,r.whatsapp,r.email,r.instagram,r.portfolio,r.autoriza_mostrar?'sim':'não',r.aceita_contato?'sim':'não',nomes[r.status]||'',r.responsavel||'',r.comprou==='sim'?'sim':(r.comprou==='nao'?'não':''),r.criado_em,r.atualizado_em].map(csvCel).join(','));
+  const linhas=dados.map(r=>[r.nome,r.whatsapp,r.email,r.instagram,r.portfolio,r.autoriza_mostrar?'sim':'não',r.aceita_contato?'sim':'não',nomes[r.status]||'',r.responsavel||'',r.comprou==='sim'?'sim':(r.comprou==='nao'?'não':''),r.criado_em,r.atualizado_em].map((v,i)=>i===1?csvZap(v):(i===3?csvTxt(v):csvCel(v))).join(','));
   const blob=new Blob(['﻿'+[cab.map(csvCel).join(',')].concat(linhas).join('\n')],{type:'text/csv;charset=utf-8'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='portfolios-aula.csv'; a.click();
 };
