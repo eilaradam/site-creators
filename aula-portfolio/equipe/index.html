@@ -109,7 +109,7 @@ function card(r){
   const btn=(v,t)=>'<button class="'+v+(st===v?' on':'')+'" onclick="marcar(\''+r.id+'\',\'status\',\''+(st===v?'':v)+'\')">'+t+'</button>';
   const zapNum=String(r.whatsapp||'').replace(/\D/g,'');
   return '<div class="card '+st+'"><div class="nome">'+esc(r.nome)+'</div>'
-   +'<div class="meta">'+(podeMostrar(r)?'<span class="tag ok">pode mostrar</span>':'<span class="tag">sem link</span>')+' '+hora(r.atualizado_em)+'</div>'
+   +'<div class="meta">'+(podeMostrar(r)?'<span class="tag ok">pode mostrar</span>':(!r.autoriza_mostrar?'<span class="tag">não autorizou</span>':'<span class="tag">sem link</span>'))+' '+hora(r.atualizado_em)+'</div>'
    +'<div class="meta">'+esc(r.instagram)+' · <a href="https://wa.me/'+zapNum+'" target="_blank" rel="noopener">'+esc(r.whatsapp)+'</a> · '+esc(r.email)+'</div>'
    +(r.portfolio?'<div class="meta"><a href="'+esc(r.portfolio)+'" target="_blank" rel="noopener">'+esc(r.portfolio)+'</a></div>':'')
    +'<div class="acoes">'+btn('boa','Boa pra análise')+btn('avancado','Muito avançado')+btn('descartar','Descartar')+'</div>'

@@ -115,12 +115,12 @@ $('f').addEventListener('submit',async e=>{
   if(!insta){falhas.push('o @ do Instagram');bad('instagram');}
   const link=normLink($('portfolio').value);
   if(link===null){falhas.push('o link do portfólio (ou deixe em branco)');bad('portfolio');}
-  if(!$('c1').checked||!$('c2').checked) falhas.push('as duas caixinhas de autorização');
+  if(!$('c2').checked) falhas.push('a caixinha de contato sobre a imersão');
   if(falhas.length){erro.textContent='Confere: '+falhas.join(', ')+'.';erro.classList.add('on');erro.scrollIntoView({behavior:'smooth',block:'center'});return;}
   const btn=$('btn'); btn.disabled=true; btn.textContent='Enviando...';
   try{
     if(!sb) throw new Error('sem conexão');
-    const {error}=await sb.rpc('aula_portfolio_enviar',{p_dados:{nome,whatsapp:zap,email,instagram:insta,portfolio:link,autoriza_mostrar:true,aceita_contato:true}});
+    const {error}=await sb.rpc('aula_portfolio_enviar',{p_dados:{nome,whatsapp:zap,email,instagram:insta,portfolio:link,autoriza_mostrar:$('c1').checked,aceita_contato:true}});
     if(error) throw error;
     $('formArea').style.display='none'; $('ok').style.display='block'; window.scrollTo(0,0);
   }catch(err){
