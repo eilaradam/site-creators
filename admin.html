@@ -85,6 +85,7 @@
         #tabImersao .subnav-btn[data-tab="imersao"],
         #tabDirect .subnav-btn[data-tab="direct"],
         #tabAulaBonus .subnav-btn[data-tab="aulabonus"],
+        #tabImersaoBlack .subnav-btn[data-tab="imersaoblack"],
         #tabTurmaVivo .subnav-btn[data-tab="turmavivo"] { color: var(--accent); border-bottom-color: var(--accent); }
         #tabVibeTurma .subnav-btn[data-tab="vibeturma"] { color: var(--accent); border-bottom-color: var(--accent); }
         @media (max-width: 860px) { .subnav-btn { padding: 10px 12px; font-size: 12.5px; } }
@@ -2275,6 +2276,7 @@
         <button class="tab subnav-btn" data-tab="aulabonus" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg><span>Aula ao vivo</span></button>
         <button class="tab subnav-btn" data-tab="turmavivo" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Turma ao vivo</span></button>
         <button class="tab subnav-btn" data-tab="vibeturma" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.6 1.1-1a5.5 5.5 0 0 0 0-7.8z"/></svg><span>Vibe da turma</span></button>
+        <button class="tab subnav-btn" data-tab="imersaoblack" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><line x1="2" y1="20" x2="22" y2="20"/></svg><span>Imersão Black</span></button>
     </div>
     </div>
 <div class="iv-topo">
@@ -2284,8 +2286,7 @@
         </div>
         <div class="iv-acoes" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
             <div class="iv-dias">
-                <button class="iv-dia on" data-ivdia="3" type="button">Black · 18/10</button>
-                <button class="iv-dia" data-ivdia="1" type="button">Dia 1 · Construir</button>
+                <button class="iv-dia on" data-ivdia="1" type="button">Dia 1 · Construir</button>
                 <button class="iv-dia" data-ivdia="2" type="button">Dia 2 · Prospectar</button>
             </div>
             <button id="ivRecarregar">Atualizar agora</button>
@@ -2301,6 +2302,47 @@
         </table>
     </div>
     <div class="iv-vazio" id="ivVazio">Carregando...</div>
+</div>
+
+<div class="dashboard" id="tabImersaoBlack">
+    <div class="capa">
+        <div class="capa-topo">
+            <div class="capa-id">
+                <span class="capa-mark">🎓</span>
+                <div>
+                    <h2>Aulas</h2>
+                    <p class="sub">As duas páginas de venda: quem visitou, quem clicou em comprar.</p>
+                </div>
+            </div>
+        </div>
+    <div class="capa-abas">
+        <button class="tab subnav-btn" data-tab="imersao" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Imersão</span></button>
+        <button class="tab subnav-btn" data-tab="direct" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l2-5.2A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg><span>Direct no Automático</span></button>
+        <button class="tab subnav-btn" data-tab="aulabonus" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg><span>Aula ao vivo</span></button>
+        <button class="tab subnav-btn" data-tab="turmavivo" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Turma ao vivo</span></button>
+        <button class="tab subnav-btn" data-tab="vibeturma" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.6 1.1-1a5.5 5.5 0 0 0 0-7.8z"/></svg><span>Vibe da turma</span></button>
+        <button class="tab subnav-btn" data-tab="imersaoblack" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><line x1="2" y1="20" x2="22" y2="20"/></svg><span>Imersão Black</span></button>
+    </div>
+    </div>
+<div class="iv-topo">
+        <div>
+            <h2>Imersão de Black · 18/10</h2>
+            <p>Só a turma da Imersão de Black (não são as mesmas alunas das outras turmas): quem entrou na apostila, em que etapa parou e como está o Mapa da Black. Atualiza sozinho a cada 30 segundos enquanto esta aba estiver aberta.</p>
+        </div>
+        <div class="iv-acoes" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <button id="bkRecarregar">Atualizar agora</button>
+        </div>
+    </div>
+    <div class="iv-resumo" id="bkResumo"></div>
+    <div class="iv-wrap">
+        <table class="iv-table">
+            <thead><tr>
+                <th>Aluna</th><th>Progresso</th><th>Etapa em que está</th><th>Marcados</th><th>Vista</th>
+            </tr></thead>
+            <tbody id="bkCorpo"></tbody>
+        </table>
+    </div>
+    <div class="iv-vazio" id="bkVazio">Carregando...</div>
 </div>
 
 <div class="dashboard" id="tabVibeTurma">
@@ -2320,6 +2362,7 @@
         <button class="tab subnav-btn" data-tab="aulabonus" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg><span>Aula ao vivo</span></button>
         <button class="tab subnav-btn" data-tab="turmavivo" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Turma ao vivo</span></button>
         <button class="tab subnav-btn" data-tab="vibeturma" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.6 1.1-1a5.5 5.5 0 0 0 0-7.8z"/></svg><span>Vibe da turma</span></button>
+        <button class="tab subnav-btn" data-tab="imersaoblack" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><line x1="2" y1="20" x2="22" y2="20"/></svg><span>Imersão Black</span></button>
     </div>
     </div>
 <div class="vt-topo">
@@ -2355,6 +2398,7 @@
         <button class="tab subnav-btn" data-tab="aulabonus" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg><span>Aula ao vivo</span></button>
         <button class="tab subnav-btn" data-tab="turmavivo" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Turma ao vivo</span></button>
         <button class="tab subnav-btn" data-tab="vibeturma" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.6 1.1-1a5.5 5.5 0 0 0 0-7.8z"/></svg><span>Vibe da turma</span></button>
+        <button class="tab subnav-btn" data-tab="imersaoblack" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><line x1="2" y1="20" x2="22" y2="20"/></svg><span>Imersão Black</span></button>
     </div>
     </div>
     <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
@@ -2442,6 +2486,7 @@
         <button class="tab subnav-btn" data-tab="aulabonus" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg><span>Aula ao vivo</span></button>
         <button class="tab subnav-btn" data-tab="turmavivo" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Turma ao vivo</span></button>
         <button class="tab subnav-btn" data-tab="vibeturma" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.6 1.1-1a5.5 5.5 0 0 0 0-7.8z"/></svg><span>Vibe da turma</span></button>
+        <button class="tab subnav-btn" data-tab="imersaoblack" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><line x1="2" y1="20" x2="22" y2="20"/></svg><span>Imersão Black</span></button>
     </div>
     </div>
     <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
@@ -2517,6 +2562,7 @@
         <button class="tab subnav-btn" data-tab="aulabonus" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg><span>Aula ao vivo</span></button>
         <button class="tab subnav-btn" data-tab="turmavivo" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Turma ao vivo</span></button>
         <button class="tab subnav-btn" data-tab="vibeturma" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.6 1.1-1a5.5 5.5 0 0 0 0-7.8z"/></svg><span>Vibe da turma</span></button>
+        <button class="tab subnav-btn" data-tab="imersaoblack" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><line x1="2" y1="20" x2="22" y2="20"/></svg><span>Imersão Black</span></button>
     </div>
     </div>
 
@@ -3270,6 +3316,7 @@
     #tabDirect .capa .subnav-btn[data-tab="direct"],
     #tabAulaBonus .capa .subnav-btn[data-tab="aulabonus"],
     #tabVibeTurma .capa .subnav-btn[data-tab="vibeturma"],
+    #tabImersaoBlack .capa .subnav-btn[data-tab="imersaoblack"],
     #tabTurmaVivo .capa .subnav-btn[data-tab="turmavivo"]{
         background:#fff;color:var(--accent);border-color:#fff;box-shadow:0 3px 10px rgba(0,0,0,.16);}
     .capa .subnav-btn svg{width:15px;height:15px;}
@@ -5988,7 +6035,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
 
     /* ── Tabs ── */
-    const PAGE_TITLES = { objetivos: 'Objetivos', carrossel: 'Carrossel', painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', turmavivo: 'Turma ao vivo', vibeturma: 'Vibe da turma', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', marcas: 'Marcas', conteudos: 'Conteúdos', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', aulabonus: 'Aula ao vivo', instagram: 'Instagram', bio: 'Link na Bio' };
+    const PAGE_TITLES = { objetivos: 'Objetivos', carrossel: 'Carrossel', painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', turmavivo: 'Turma ao vivo', imersaoblack: 'Imersão Black', vibeturma: 'Vibe da turma', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', marcas: 'Marcas', conteudos: 'Conteúdos', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', aulabonus: 'Aula ao vivo', instagram: 'Instagram', bio: 'Link na Bio' };
     function setPageTitle(target) {
         const el = document.getElementById('pageTitle');
         if (el && PAGE_TITLES[target]) el.textContent = PAGE_TITLES[target];
@@ -6001,7 +6048,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             /* Campanhas e Base de creators dividem o mesmo botao da barra lateral:
                ele precisa continuar aceso nas duas, inclusive quando a troca vem do
                menuzinho de cima (que tambem e um .tab e por isso limpou o active). */
-            const DONO_NA_BARRA = { candidaturas: 'creators', creators: 'creators', direct: 'imersao', imersao: 'imersao', aulabonus: 'imersao', turmavivo: 'imersao', vibeturma: 'imersao' };
+            const DONO_NA_BARRA = { candidaturas: 'creators', creators: 'creators', direct: 'imersao', imersao: 'imersao', aulabonus: 'imersao', turmavivo: 'imersao', vibeturma: 'imersao', imersaoblack: 'imersao' };
             if (DONO_NA_BARRA[target]) {
                 const navBtn = document.querySelector('.sidebar-nav .nav-item[data-tab="' + DONO_NA_BARRA[target] + '"]');
                 if (navBtn) navBtn.classList.add('active');
@@ -6028,6 +6075,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             document.getElementById('tabAulaBonus').classList.toggle('show', target === 'aulabonus');
             document.getElementById('tabTurmaVivo').classList.toggle('show', target === 'turmavivo');
             document.getElementById('tabVibeTurma').classList.toggle('show', target === 'vibeturma');
+            document.getElementById('tabImersaoBlack').classList.toggle('show', target === 'imersaoblack');
             document.getElementById('tabInstagram').classList.toggle('show', target === 'instagram');
             document.getElementById('tabBio').classList.toggle('show', target === 'bio');
             document.getElementById('tabObjetivos').classList.toggle('show', target === 'objetivos');
@@ -6038,6 +6086,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             const _ta = document.getElementById('topbarActions');
             if (_ta && target !== 'planejamento') _ta.innerHTML = '';
             if (target === 'turmavivo') ligarImersaoVivo(); else pararImersaoVivo();
+            if (target === 'imersaoblack') ligarBlack(); else pararBlack();
             if (target === 'vibeturma') loadVibeTurma();
             if (target === 'agenda') loadAgenda();
             if (target === 'dashboard') loadDashboard();
@@ -10819,7 +10868,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         e17:['Desafio Black em 10','Constância'],        e18:['Escolha seu portfólio','Extra'],
         e19:['Mapa da Black','Extra'],                   e20:['Todos os prompts','Prompts']
     };
-    let ivDia = 3;
+    let ivDia = 1;
     let ivTimer = null;
 
     /* o que a aluna digita entra como texto, nunca como html */
@@ -10855,13 +10904,70 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const vazio = document.getElementById('ivVazio');
         const resumo = document.getElementById('ivResumo');
         try {
-            const mapaEtapas = ivDia === 3 ? IV_ETAPAS_BLACK : (ivDia === 2 ? IV_ETAPAS_D2 : IV_ETAPAS);
-            const { data, error } = await sb.rpc(ivDia === 3 ? 'admin_black_progresso' : (ivDia === 2 ? 'admin_imersao_progresso_d2' : 'admin_imersao_progresso'));
+            const mapaEtapas = ivDia === 2 ? IV_ETAPAS_D2 : IV_ETAPAS;
+            const { data, error } = await sb.rpc(ivDia === 2 ? 'admin_imersao_progresso_d2' : 'admin_imersao_progresso');
             if (error) throw error;
             const linhas = data || [];
             if (!linhas.length) {
                 corpo.innerHTML = '';
-                vazio.textContent = ivDia === 3 ? 'Ninguém entrou na apostila da Black ainda.' : 'Ninguém entrou na apostila do dia ' + ivDia + ' ainda.';
+                vazio.textContent = 'Ninguém entrou na apostila do dia ' + ivDia + ' ainda.';
+                vazio.style.display = '';
+                resumo.innerHTML = '';
+                return;
+            }
+            vazio.style.display = 'none';
+
+            const agora = Date.now();
+            const ativas = linhas.filter(l => agora - new Date(l.visto_em).getTime() < 15 * 60000).length;
+            const media = Math.round(linhas.reduce((s, l) => s + (l.total ? l.marcados / l.total : 0), 0) / linhas.length * 100);
+            const prontas = linhas.filter(l => l.total && l.marcados >= l.total).length;
+            const contagem = {};
+            linhas.forEach(l => { const e = l.etapa || 'e1'; contagem[e] = (contagem[e] || 0) + 1; });
+            const gargalo = Object.keys(contagem).sort((x, y) => contagem[y] - contagem[x])[0];
+
+            resumo.innerHTML =
+                '<div class="iv-bloco"><b>' + linhas.length + '</b><span>entraram</span></div>' +
+                '<div class="iv-bloco"><b>' + ativas + '</b><span>ativas agora</span></div>' +
+                '<div class="iv-bloco"><b>' + media + '%</b><span>progresso médio</span></div>' +
+                '<div class="iv-bloco"><b>' + prontas + '</b><span>terminaram tudo</span></div>' +
+                '<div class="iv-bloco"><b>' + contagem[gargalo] + '</b><span>paradas em ' + ((mapaEtapas[gargalo] || ['?'])[0]) + '</span></div>';
+
+            corpo.innerHTML = linhas.map(l => {
+                const pct = l.total ? Math.round(l.marcados / l.total * 100) : 0;
+                const info = mapaEtapas[l.etapa] || ['—', ''];
+                const idade = agora - new Date(l.visto_em).getTime();
+                const cls = idade < 5 * 60000 ? 'iv-quente' : (idade > 30 * 60000 ? 'iv-frio' : '');
+                return '<tr class="' + cls + '">' +
+                    '<td><div class="iv-nome">' + ivEsc(l.nome || '(sem nome)') + '</div>' +
+                        '<div class="iv-arroba">@' + ivEsc(l.arroba) +
+                            (l.whatsapp ? ' · <a class="iv-zap" href="https://wa.me/55' + ivEsc(String(l.whatsapp).replace(/\D/g,'')) + '" target="_blank" rel="noopener">' + ivZap(l.whatsapp) + '</a>' : '') +
+                        '</div>' +
+                        (l.email ? '<div class="iv-arroba">' + ivEsc(l.email) + '</div>' : '') +
+                    '</td>' +
+                    '<td><span class="iv-barra"><i style="width:' + pct + '%"></i></span><span class="iv-pct">' + pct + '%</span></td>' +
+                    '<td><span class="iv-parte">' + info[1] + '</span>' + info[0] + '</td>' +
+                    '<td>' + l.marcados + ' de ' + l.total + '</td>' +
+                    '<td class="iv-visto">' + ivHaQuanto(l.visto_em) + '</td>' +
+                    '</tr>';
+            }).join('');
+        } catch (err) {
+            vazio.style.display = '';
+            vazio.textContent = 'Não consegui carregar: ' + err.message;
+        }
+    }
+
+    async function loadBlack() {
+        const corpo = document.getElementById('bkCorpo');
+        const vazio = document.getElementById('bkVazio');
+        const resumo = document.getElementById('bkResumo');
+        try {
+            const mapaEtapas = IV_ETAPAS_BLACK;
+            const { data, error } = await sb.rpc('admin_black_progresso');
+            if (error) throw error;
+            const linhas = data || [];
+            if (!linhas.length) {
+                corpo.innerHTML = '';
+                vazio.textContent = 'Ninguém entrou na apostila da Black ainda.';
                 vazio.style.display = '';
                 resumo.innerHTML = '';
                 return;
@@ -10882,11 +10988,11 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                 '<div class="iv-bloco"><b>' + media + '%</b><span>progresso médio</span></div>' +
                 '<div class="iv-bloco"><b>' + prontas + '</b><span>terminaram tudo</span></div>' +
                 '<div class="iv-bloco"><b>' + contagem[gargalo] + '</b><span>paradas em ' + ((mapaEtapas[gargalo] || ['?'])[0]) + '</span></div>' +
-                (ivDia === 3 ? (() => {
+                ((() => {
                     const soma = k => linhas.reduce((t, l) => t + ((l.mapa && l.mapa[k]) || 0), 0);
                     return '<div class="iv-bloco"><b>' + soma('s') + '</b><span>abordagens enviadas (Mapa)</span></div>' +
                            '<div class="iv-bloco"><b>' + soma('c') + '</b><span>contratos fechados (Mapa)</span></div>';
-                })() : '');
+                })());
 
             corpo.innerHTML = linhas.map(l => {
                 const pct = l.total ? Math.round(l.marcados / l.total * 100) : 0;
@@ -10934,6 +11040,18 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         });
     });
 
+
+    function ligarBlack() {
+        loadBlack();
+        pararBlack();
+        bkTimer = setInterval(loadBlack, 30000);
+    }
+    function pararBlack() { if (bkTimer) { clearInterval(bkTimer); bkTimer = null; } }
+    let bkTimer = null;
+    document.addEventListener('DOMContentLoaded', () => {
+        const b = document.getElementById('bkRecarregar');
+        if (b) b.addEventListener('click', loadBlack);
+    });
 
     /* ================= Vibe da turma: as respostas do formulário ================= */
     const VT_DIFS = ['Não sei onde encontrar marcas','Não sei quanto cobrar','Não tenho portfólio bom pra mandar',
