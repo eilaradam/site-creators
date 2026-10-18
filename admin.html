@@ -2284,7 +2284,8 @@
         </div>
         <div class="iv-acoes" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
             <div class="iv-dias">
-                <button class="iv-dia on" data-ivdia="1" type="button">Dia 1 · Construir</button>
+                <button class="iv-dia on" data-ivdia="3" type="button">Black · 18/10</button>
+                <button class="iv-dia" data-ivdia="1" type="button">Dia 1 · Construir</button>
                 <button class="iv-dia" data-ivdia="2" type="button">Dia 2 · Prospectar</button>
             </div>
             <button id="ivRecarregar">Atualizar agora</button>
@@ -10806,7 +10807,19 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         e13:['A aba Prospecção e o disparo','Escrever'], e14:['Depois que o e-mail sai','Depois'],
         e15:['Quando trava','Depois'],                e16:['Todos os prompts','Depois']
     };
-    let ivDia = 1;
+    const IV_ETAPAS_BLACK = {
+        e1:['Como usar este guia','Comece aqui'],        e2:['Agenda e combinados','Comece aqui'],
+        e3:['Sua frase de Black','Posicionamento'],      e4:['Perfil pra Black','Posicionamento'],
+        e5:['Perfil em plataforma','Posicionamento'],    e6:['O que a marca olha','Portfólio'],
+        e7:['Ganchos e formatos','Portfólio'],           e8:['Organize e dê nota','Portfólio'],
+        e9:['Almoço com tarefa','Portfólio'],            e10:['Portfólio com o Claude','Portfólio'],
+        e11:['Revisão ao vivo e o que gravar','Portfólio'], e12:['Marca quente ou fria','Abordagem'],
+        e13:['A mensagem em dois tempos','Abordagem'],   e14:['Pacotes de Black','Abordagem'],
+        e15:['Follow-up','Abordagem'],                   e16:['Entrega que gera recontratação','Entrega'],
+        e17:['Desafio Black em 10','Constância'],        e18:['Escolha seu portfólio','Extra'],
+        e19:['Mapa da Black','Extra'],                   e20:['Todos os prompts','Prompts']
+    };
+    let ivDia = 3;
     let ivTimer = null;
 
     /* o que a aluna digita entra como texto, nunca como html */
@@ -10829,18 +10842,26 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         return Math.floor(h / 24) + 'd';
     }
 
+    /* Mapa da Black: missões feitas e placar de cada aluna (só existe na apostila da Black) */
+    function ivMapa(l) {
+        const m = l.mapa;
+        if (!m) return '';
+        return '<div class="iv-arroba">🗺️ Mapa: ' + (m.m || 0) + ' de ' + (m.t || 0) + ' missões · ' + (m.s || 0) + ' env · ' +
+            (m.r || 0) + ' resp · ' + (m.p || 0) + ' prop · ' + (m.c || 0) + ' contr</div>';
+    }
+
     async function loadImersaoVivo() {
         const corpo = document.getElementById('ivCorpo');
         const vazio = document.getElementById('ivVazio');
         const resumo = document.getElementById('ivResumo');
         try {
-            const mapaEtapas = ivDia === 2 ? IV_ETAPAS_D2 : IV_ETAPAS;
-            const { data, error } = await sb.rpc(ivDia === 2 ? 'admin_imersao_progresso_d2' : 'admin_imersao_progresso');
+            const mapaEtapas = ivDia === 3 ? IV_ETAPAS_BLACK : (ivDia === 2 ? IV_ETAPAS_D2 : IV_ETAPAS);
+            const { data, error } = await sb.rpc(ivDia === 3 ? 'admin_black_progresso' : (ivDia === 2 ? 'admin_imersao_progresso_d2' : 'admin_imersao_progresso'));
             if (error) throw error;
             const linhas = data || [];
             if (!linhas.length) {
                 corpo.innerHTML = '';
-                vazio.textContent = 'Ninguém entrou na apostila do dia ' + ivDia + ' ainda.';
+                vazio.textContent = ivDia === 3 ? 'Ninguém entrou na apostila da Black ainda.' : 'Ninguém entrou na apostila do dia ' + ivDia + ' ainda.';
                 vazio.style.display = '';
                 resumo.innerHTML = '';
                 return;
@@ -10860,7 +10881,12 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                 '<div class="iv-bloco"><b>' + ativas + '</b><span>ativas agora</span></div>' +
                 '<div class="iv-bloco"><b>' + media + '%</b><span>progresso médio</span></div>' +
                 '<div class="iv-bloco"><b>' + prontas + '</b><span>terminaram tudo</span></div>' +
-                '<div class="iv-bloco"><b>' + contagem[gargalo] + '</b><span>paradas em ' + ((mapaEtapas[gargalo] || ['?'])[0]) + '</span></div>';
+                '<div class="iv-bloco"><b>' + contagem[gargalo] + '</b><span>paradas em ' + ((mapaEtapas[gargalo] || ['?'])[0]) + '</span></div>' +
+                (ivDia === 3 ? (() => {
+                    const soma = k => linhas.reduce((t, l) => t + ((l.mapa && l.mapa[k]) || 0), 0);
+                    return '<div class="iv-bloco"><b>' + soma('s') + '</b><span>abordagens enviadas (Mapa)</span></div>' +
+                           '<div class="iv-bloco"><b>' + soma('c') + '</b><span>contratos fechados (Mapa)</span></div>';
+                })() : '');
 
             corpo.innerHTML = linhas.map(l => {
                 const pct = l.total ? Math.round(l.marcados / l.total * 100) : 0;
@@ -10876,7 +10902,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                     '</td>' +
                     '<td><span class="iv-barra"><i style="width:' + pct + '%"></i></span><span class="iv-pct">' + pct + '%</span></td>' +
                     '<td><span class="iv-parte">' + info[1] + '</span>' + info[0] + '</td>' +
-                    '<td>' + l.marcados + ' de ' + l.total + '</td>' +
+                    '<td>' + l.marcados + ' de ' + l.total + ivMapa(l) + '</td>' +
                     '<td class="iv-visto">' + ivHaQuanto(l.visto_em) + '</td>' +
                     '</tr>';
             }).join('');
