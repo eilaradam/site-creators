@@ -17534,7 +17534,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const { data, error } = await sb.from('edicao_referencias').select('*').eq('pedido_id', id).order('created_at');
         if (error) return edErro('Não carreguei as referências', error);
         edPedidoAberto = id; edPedidoRefs = data || [];
-        edNovoForm({ id, conteudo_id: ped.conteudo_id || '', marca: ped.marca || '', titulo: ped.titulo || '', drive_pasta_link: ped.drive_pasta_link || '', roteiro: ped.roteiro || '',
+        edNovoForm({ id, conteudo_id: ped.conteudo_id || '', marca: ped.pasta_nome || ped.marca || '', titulo: ped.titulo || '', drive_pasta_link: ped.drive_pasta_link || '', roteiro: ped.roteiro || '',
             formato: ped.formato || '9:16', duracao_alvo_s: ped.duracao_alvo_s || '', observacoes: ped.observacoes || '',
             refs: edPedidoRefs.length ? edPedidoRefs.map(r => ({ id: r.id, tipo: r.tipo, link: r.link, nota: r.nota || '', salvar: false, nome: '' })) : [{ tipo: 'geral', link: '', nota: '', salvar: false, nome: '' }] });
         edRender();
@@ -17579,24 +17579,26 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     async function edSalvarPedido() {
         edLerForm(); const f = edForm; if (!f) return;
         if (!f.marca.trim()) return edToast('Preencha a marca', true);
-        if (!f.titulo.trim()) return edToast('Dê um nome ao pedido', true);
+        if (edPastaOcupada(f.marca, f.id)) { edChecarPasta(); return edToast('Já existe uma pasta com esse nome. Coloque um número para diferenciar.', true); }
         /* link é opcional: sem link, o robô cria a pasta Edição/<marca>/#<numero> <nome> e escreve o link no pedido */
         const pid = f.drive_pasta_link.trim() ? edPastaId(f.drive_pasta_link) : null;
         if (f.drive_pasta_link.trim() && !pid) return edToast('Esse link não é de uma PASTA do Drive (drive.google.com/drive/folders/...)', true);
         const refs = f.refs.filter(r => r.link.trim());
         const linha = {
-            marca: f.marca.trim(), titulo: f.titulo.trim(), conteudo_id: f.conteudo_id || null, drive_pasta_link: f.drive_pasta_link.trim() || null, drive_pasta_id: pid,
+            pasta_nome: f.marca.trim().replace(/\s+/g, ' '), marca: f.marca.trim().replace(/\s+\d+$/, ''), titulo: f.marca.trim(), conteudo_id: f.conteudo_id || null, drive_pasta_link: f.drive_pasta_link.trim() || null, drive_pasta_id: pid,
             roteiro: f.roteiro.trim() || null, formato: f.formato, duracao_alvo_s: f.duracao_alvo_s ? parseInt(f.duracao_alvo_s, 10) || null : null,
             observacoes: f.observacoes.trim() || null, updated_at: new Date().toISOString(),
         };
         let pedidoId = f.id;
         if (pedidoId) {
             const { error } = await sb.from('edicao_pedidos').update(linha).eq('id', pedidoId);
+            if (error && error.code === '23505') return edToast('Já existe uma pasta com esse nome. Coloque um número para diferenciar.', true);
             if (error) return edErro('Não salvei o pedido', error);
             const del = await sb.from('edicao_referencias').delete().eq('pedido_id', pedidoId);
             if (del.error) return edErro('Não atualizei as referências', del.error);
         } else {
             const { data, error } = await sb.from('edicao_pedidos').insert(Object.assign({ status: 'na_fila' }, linha)).select().single();
+            if (error && error.code === '23505') { await edCarregarPedidos(); edRender(); return edToast('Já existe uma pasta com esse nome. Coloque um número para diferenciar.', true); }
             if (error) return edErro('Não criei o pedido', error);
             pedidoId = data.id;
         }
@@ -17630,7 +17632,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const cards = edPedidos.map(p => {
             const camp = edCampanhas.find(c => c.id === p.conteudo_id);
             return '<div class="ed-ped" onclick="edAbrirPedido(\'' + p.id + '\')">' +
-                '<div style="flex:1;min-width:0;"><div class="tx"><span class="ed-muted">#' + edEsc(p.numero || '') + '</span> ' + edEsc(p.marca ? p.marca + ' · ' : '') + edEsc(p.titulo) + '</div>' +
+                '<div style="flex:1;min-width:0;"><div class="tx">' + edEsc(p.pasta_nome || p.titulo) + '</div>' +
                 '<div class="mt">' + (camp ? edEsc(camp.nome) + ' · ' : '') + edEsc(p.formato) + (p.duracao_alvo_s ? ' · ' + p.duracao_alvo_s + 's' : '') + ' · ' + (p.created_at ? new Date(p.created_at).toLocaleDateString('pt-BR') : 'agora') +
                 (p.status_msg ? ' · <i>' + edEsc(p.status_msg) + '</i>' : '') + '</div></div>' +
                 edStatusTag(p.status) + '</div>';
@@ -17673,13 +17675,13 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             '<div class="ed-card">' +
               '<h4>O vídeo</h4>' +
               '<label class="ed-lb">Campanha (aba Conteúdos, opcional)</label><select class="ed-input" id="edP_conteudo_id"' + dis + ' onchange="edCampanhaNoForm(this.value)">' + camps + '</select>' +
-              '<label class="ed-lb">Marca</label><input class="ed-input" id="edP_marca" list="edMarcasLista" placeholder="ex.: InfinitePay"' + dis + ' value="' + edEsc(f.marca) + '">' +
+              '<label class="ed-lb">Marca (vira o nome da pasta no Drive)</label><input class="ed-input" id="edP_marca" list="edMarcasLista" placeholder="ex.: InfinitePay"' + dis + ' value="' + edEsc(f.marca) + '" oninput="edChecarPasta()">' +
               '<datalist id="edMarcasLista">' + edMarcasConhecidas().map(m => '<option value="' + edEsc(m) + '">').join('') + '</datalist>' +
-              '<label class="ed-lb">Nome do pedido</label><input class="ed-input" id="edP_titulo" placeholder="ex.: pipoca"' + dis + ' value="' + edEsc(f.titulo) + '">' +
+              '<div id="edPastaAviso" class="ed-muted" style="margin-top:5px;"></div>' +
               '<label class="ed-lb">Pasta do Drive com o bruto (opcional)</label><input class="ed-input" id="edP_drive_pasta_link" placeholder="https://drive.google.com/drive/folders/..."' + dis + ' value="' + edEsc(f.drive_pasta_link) + '">' +
               '<div class="ed-muted" style="margin-top:4px;">' + (ped && ped.drive_pasta_link && !f.drive_pasta_link
                 ? '' : (f.drive_pasta_link.trim() ? 'O robô usa a pasta desse link.' :
-                  'Deixe vazio: o robô cria a pasta <b>Edição/' + edEsc(f.marca.trim() || '<marca>') + '/#' + edEsc(ped && ped.numero ? ped.numero : 'nº') + ' ' + edEsc(f.titulo.trim() || '<nome>') + '</b> no seu Drive e o link aparece aqui. Aí é só jogar o bruto e as cenas extras dentro.')) +
+                  'Deixe vazio: o robô cria a pasta <b>Edição/' + edEsc(f.marca.trim() || '<marca>') + '</b> no seu Drive e o link aparece aqui. Aí é só jogar o bruto e as cenas extras dentro (dá para subir direto do celular pelo app do Drive).')) +
                 ' O final volta para a mesma pasta.</div>' +
               '<label class="ed-lb">Formato</label><div class="ed-row">' + formatos + '</div>' +
               '<label class="ed-lb">Duração desejada (segundos, opcional)</label><input class="ed-input" id="edP_duracao_alvo_s" type="number" min="5" max="600" style="max-width:160px;"' + dis + ' value="' + edEsc(f.duracao_alvo_s) + '">' +
@@ -17701,7 +17703,27 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             '</div>') +
           '</div>' +
           (travado ? '' : '<div class="ed-row" style="margin-top:14px;justify-content:flex-end;"><button class="ed-btn" type="button" onclick="edSalvarPedido()">' + (f.id ? 'Salvar pedido' : 'Mandar para a fila') + '</button></div>');
+        if (!travado) edChecarPasta();
     }
+    /* Nome da pasta não pode repetir: avisa na hora e sugere o próximo número ("InfinitePay 2") */
+    const edNorm = s => String(s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+    function edPastaOcupada(nome, ignorarId) { const n = edNorm(nome); return !!n && edPedidos.some(p => p.id !== ignorarId && edNorm(p.pasta_nome) === n); }
+    function edSugerirPasta(nome, ignorarId) {
+        const base = String(nome || '').trim().replace(/\s+\d+$/, '');
+        for (let i = 2; i < 1000; i++) { const c = base + ' ' + i; if (!edPastaOcupada(c, ignorarId)) return c; }
+        return base + ' ' + Date.now();
+    }
+    function edChecarPasta() {
+        const el = document.getElementById('edP_marca'), av = document.getElementById('edPastaAviso'); if (!el || !av || !edForm) return;
+        const nome = el.value.trim();
+        if (!nome) { av.innerHTML = ''; return; }
+        if (edPastaOcupada(nome, edForm.id)) {
+            const sug = edSugerirPasta(nome, edForm.id);
+            av.innerHTML = '<span style="color:#B3261E;font-weight:700;">Já existe uma pasta "' + edEsc(nome) + '".</span> Coloque um número para diferenciar. ' +
+                '<button class="ed-btn ghost mini" type="button" onclick="edUsarSugestao(\'' + edEsc(sug).replace(/'/g, "\\'") + '\')">Usar "' + edEsc(sug) + '"</button>';
+        } else av.innerHTML = 'Pasta: <b>Edição/' + edEsc(nome) + '</b>';
+    }
+    function edUsarSugestao(s) { const el = document.getElementById('edP_marca'); if (el) { el.value = s; edChecarPasta(); } }
 
     /* ── Biblioteca de referências ── */
     function edRenderBiblioteca() {

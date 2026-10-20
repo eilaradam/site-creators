@@ -113,10 +113,11 @@ create table if not exists public.edicao_pedidos (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   conteudo_id uuid references public.conteudos(id) on delete set null,
-  numero bigint generated always as identity,   -- #1, #2... nunca repete: a pasta é Edição/<marca>/#<numero> <titulo>
+  numero bigint generated always as identity,
   marca text,
+  pasta_nome text not null,    -- nome da pasta no Drive: Edição/<pasta_nome>. Não repete (ex.: "InfinitePay", "InfinitePay 2")
   titulo text not null,
-  drive_pasta_link text,       -- o robô cria a pasta e escreve o link aqui (ou você cola um link de pasta que já existe)
+  drive_pasta_link text,       -- o robô cria a pasta Edição/<pasta_nome> e escreve o link aqui (ou você cola um link de pasta que já existe)
   drive_pasta_id text,
   roteiro text,
   formato text not null default '9:16' check (formato in ('9:16','4:5','1:1','16:9')),
@@ -129,6 +130,7 @@ create table if not exists public.edicao_pedidos (
   final_link text
 );
 create index if not exists edicao_pedidos_status_idx on public.edicao_pedidos (status, created_at);
+create unique index if not exists edicao_pedidos_pasta_unica on public.edicao_pedidos (lower(trim(pasta_nome)));
 
 -- Referências: com pedido_id = do pedido; sem pedido_id = biblioteca para reaproveitar
 create table if not exists public.edicao_referencias (
