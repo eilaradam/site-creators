@@ -101,3 +101,49 @@ select * from (values
   (null, 'brefin', 'briefing')
 ) as v(cliente, errado, certo)
 where not exists (select 1 from public.edicao_dicionario);
+
+-- ============================================================
+--  Fase 1: pedidos de edição automática + referências por tipo
+-- ============================================================
+
+-- Pedido: o bruto fica numa pasta do Drive (link); o robô do Mac baixa pelo ID da pasta,
+-- edita e devolve a prévia e o final na mesma pasta.
+create table if not exists public.edicao_pedidos (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  conteudo_id uuid references public.conteudos(id) on delete set null,
+  titulo text not null,
+  drive_pasta_link text,       -- opcional: sem link, o robô usa a pasta "Edição/<titulo>" do Drive
+  drive_pasta_id text,
+  roteiro text,
+  formato text not null default '9:16' check (formato in ('9:16','4:5','1:1','16:9')),
+  duracao_alvo_s integer,
+  observacoes text,
+  status text not null default 'na_fila' check (status in ('na_fila','baixando','analisando','editando','previa_pronta','em_revisao','renderizando','final_pronto','erro','cancelado')),
+  status_msg text,             -- o robô escreve aqui o que está fazendo ou o erro
+  projeto jsonb,               -- o projeto em camadas (timeline) que o robô devolve
+  previa_link text,
+  final_link text
+);
+create index if not exists edicao_pedidos_status_idx on public.edicao_pedidos (status, created_at);
+
+-- Referências: com pedido_id = do pedido; sem pedido_id = biblioteca para reaproveitar
+create table if not exists public.edicao_referencias (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  pedido_id uuid references public.edicao_pedidos(id) on delete cascade,
+  nome text,                   -- nome na biblioteca ("minha legenda padrão")
+  tipo text not null default 'geral' check (tipo in ('geral','legenda','animacao','cortes_zoom','som','cor')),
+  link text not null,
+  nota text,
+  analise jsonb                -- o que o robô mediu na referência (ritmo, zoom, legenda...)
+);
+create index if not exists edicao_referencias_pedido_idx on public.edicao_referencias (pedido_id);
+
+alter table public.edicao_pedidos enable row level security;
+alter table public.edicao_referencias enable row level security;
+drop policy if exists "edicao_pedidos admin" on public.edicao_pedidos;
+drop policy if exists "edicao_referencias admin" on public.edicao_referencias;
+create policy "edicao_pedidos admin" on public.edicao_pedidos for all to authenticated using (exists (select 1 from public.usuarios where id = auth.uid() and role = 'admin')) with check (exists (select 1 from public.usuarios where id = auth.uid() and role = 'admin'));
+create policy "edicao_referencias admin" on public.edicao_referencias for all to authenticated using (exists (select 1 from public.usuarios where id = auth.uid() and role = 'admin')) with check (exists (select 1 from public.usuarios where id = auth.uid() and role = 'admin'));
