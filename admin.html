@@ -17678,7 +17678,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         edPedidos = p.data || []; edRefsBib = b.data || [];
     }
     function edNovoForm(base) {
-        edForm = Object.assign({ id: null, conteudo_id: '', marca: '', titulo: '', drive_pasta_link: '', roteiro: '', formato: '9:16', duracao_alvo_s: '', observacoes: '',
+        edForm = Object.assign({ id: null, conteudo_id: '', marca: '', titulo: '', drive_pasta_link: '', roteiro: '', formato: '9:16', duracao_alvo_s: '', observacoes: '', marca_site: '', marca_redes: '', rec_gravar: false, rec_passos: '',
             refs: [{ tipo: 'geral', link: '', nota: '', salvar: false, nome: '' }] }, base || {});
     }
     function edAbrirNovoPedido() { edPedidoAberto = 'novo'; edNovoForm(); edRender(); }
@@ -17689,6 +17689,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         edPedidoAberto = id; edPedidoRefs = data || [];
         edNovoForm({ id, conteudo_id: ped.conteudo_id || '', marca: ped.pasta_nome || ped.marca || '', titulo: ped.titulo || '', drive_pasta_link: ped.drive_pasta_link || '', roteiro: ped.roteiro || '',
             formato: ped.formato || '9:16', duracao_alvo_s: ped.duracao_alvo_s || '', observacoes: ped.observacoes || '',
+            marca_site: ped.marca_site || '', marca_redes: ped.marca_redes || '', rec_gravar: !!ped.rec_gravar, rec_passos: ped.rec_passos || '',
             refs: edPedidoRefs.length ? edPedidoRefs.map(r => ({ id: r.id, tipo: r.tipo, link: r.link, nota: r.nota || '', salvar: false, nome: '' })) : [{ tipo: 'geral', link: '', nota: '', salvar: false, nome: '' }] });
         edRender();
     }
@@ -17697,12 +17698,13 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     function edLerForm() {
         if (!edForm) return;
         const v = id => { const el = document.getElementById(id); return el ? el.value : undefined; };
-        ['marca', 'titulo', 'drive_pasta_link', 'roteiro', 'duracao_alvo_s', 'observacoes', 'conteudo_id'].forEach(k => { const x = v('edP_' + k); if (x !== undefined) edForm[k] = x; });
+        ['marca', 'titulo', 'drive_pasta_link', 'roteiro', 'duracao_alvo_s', 'observacoes', 'conteudo_id', 'marca_site', 'marca_redes', 'rec_passos'].forEach(k => { const x = v('edP_' + k); if (x !== undefined) edForm[k] = x; });
         edForm.refs.forEach((r, i) => {
             const t = v('edR_tipo_' + i), l = v('edR_link_' + i), n = v('edR_nota_' + i), nm = v('edR_nome_' + i);
             if (t !== undefined) r.tipo = t; if (l !== undefined) r.link = l; if (n !== undefined) r.nota = n; if (nm !== undefined) r.nome = nm;
             const ck = document.getElementById('edR_salvar_' + i); if (ck) r.salvar = ck.checked;
         });
+        const rec = document.getElementById('edP_rec_gravar'); if (rec) edForm.rec_gravar = rec.checked;
     }
     function edCampanhaNoForm(id) {
         edLerForm(); edForm.conteudo_id = id;
@@ -17741,6 +17743,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             pasta_nome: f.marca.trim().replace(/\s+/g, ' '), marca: f.marca.trim().replace(/\s+\d+$/, ''), titulo: f.marca.trim(), conteudo_id: f.conteudo_id || null, drive_pasta_link: f.drive_pasta_link.trim() || null, drive_pasta_id: pid,
             roteiro: f.roteiro.trim() || null, formato: f.formato, duracao_alvo_s: f.duracao_alvo_s ? parseInt(f.duracao_alvo_s, 10) || null : null,
             observacoes: f.observacoes.trim() || null, updated_at: new Date().toISOString(),
+            marca_site: f.marca_site.trim() || null, marca_redes: f.marca_redes.trim() || null, rec_gravar: !!f.rec_gravar, rec_passos: f.rec_passos.trim() || null,
         };
         let pedidoId = f.id;
         if (pedidoId) {
@@ -17828,7 +17831,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             '<div class="ed-card">' +
               '<h4>O vídeo</h4>' +
               '<label class="ed-lb">Campanha (aba Conteúdos, opcional)</label><select class="ed-input" id="edP_conteudo_id"' + dis + ' onchange="edCampanhaNoForm(this.value)">' + camps + '</select>' +
-              '<label class="ed-lb">Marca (vira o nome da pasta no Drive)</label><input class="ed-input" id="edP_marca" list="edMarcasLista" placeholder="ex.: InfinitePay"' + dis + ' value="' + edEsc(f.marca) + '" oninput="edChecarPasta()">' +
+              '<label class="ed-lb">Marca (vira o nome da pasta no Drive)</label><input class="ed-input" id="edP_marca" list="edMarcasLista" placeholder="ex.: InfinitePay"' + dis + ' value="' + edEsc(f.marca) + '" oninput="edChecarPasta()" onchange="edPuxarMarca()">' +
               '<datalist id="edMarcasLista">' + edMarcasConhecidas().map(m => '<option value="' + edEsc(m) + '">').join('') + '</datalist>' +
               '<div id="edPastaAviso" class="ed-muted" style="margin-top:5px;"></div>' +
               '<label class="ed-lb">Pasta do Drive com o bruto (opcional)</label><input class="ed-input" id="edP_drive_pasta_link" placeholder="https://drive.google.com/drive/folders/..."' + dis + ' value="' + edEsc(f.drive_pasta_link) + '">' +
@@ -17844,6 +17847,18 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
               '<h4>Roteiro</h4>' +
               '<div class="ed-muted" style="margin-bottom:6px;">Com o roteiro o robô sabe qual tomada é a certa e acerta os nomes na legenda.</div>' +
               '<textarea class="ed-input" id="edP_roteiro" rows="14" placeholder="Cole o roteiro aqui"' + dis + '>' + edEsc(f.roteiro) + '</textarea>' +
+            '</div>' +
+          '</div>' +
+          '<div class="ed-card" style="margin-top:14px;">' +
+            '<h4>A marca</h4>' +
+            '<div class="ed-muted" style="margin-bottom:6px;">O robô lê o site e as redes para acertar nome, cores e o que a marca faz. Se a marca já está na aba Marcas, o site e o @ vêm sozinhos.</div>' +
+            '<div class="ed-grid">' +
+              '<div><label class="ed-lb">Site</label><input class="ed-input" id="edP_marca_site" placeholder="https://..."' + dis + ' value="' + edEsc(f.marca_site) + '">' +
+              '<label class="ed-lb">Redes (uma por linha)</label><textarea class="ed-input" id="edP_marca_redes" rows="3" placeholder="@marca no Instagram&#10;link do TikTok&#10;link do YouTube"' + dis + '>' + edEsc(f.marca_redes) + '</textarea></div>' +
+              '<div><label class="ed-lb" style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:13.5px;color:var(--text);"><input type="checkbox" id="edP_rec_gravar"' + dis + (f.rec_gravar ? ' checked' : '') + ' onchange="edLerForm();edRender()"> Gravar a tela do site simulando o uso</label>' +
+              (f.rec_gravar ? '<label class="ed-lb">O que mostrar na gravação</label><textarea class="ed-input" id="edP_rec_passos" rows="4" placeholder="ex.: abrir o site, rolar até Taxas, clicar em Simular, digitar 1000 e mostrar o resultado"' + dis + '>' + edEsc(f.rec_passos) + '</textarea>' +
+                '<div class="ed-muted" style="margin-top:4px;">Grava no tamanho do celular e cai na pasta do pedido. Só funciona em site aberto: app de celular e área com login você mesma grava.</div>'
+                : '<textarea id="edP_rec_passos" style="display:none;">' + edEsc(f.rec_passos) + '</textarea>') + '</div>' +
             '</div>' +
           '</div>' +
           '<div class="ed-card" style="margin-top:14px;">' +
@@ -17876,7 +17891,18 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                 '<button class="ed-btn ghost mini" type="button" onclick="edUsarSugestao(\'' + edEsc(sug).replace(/'/g, "\\'") + '\')">Usar "' + edEsc(sug) + '"</button>';
         } else av.innerHTML = 'Pasta: <b>Edição/' + edEsc(nome) + '</b>';
     }
-    function edUsarSugestao(s) { const el = document.getElementById('edP_marca'); if (el) { el.value = s; edChecarPasta(); } }
+    /* Busca site e @ da marca na aba Marcas, só preenche o que está vazio */
+    async function edPuxarMarca() {
+        edLerForm(); const f = edForm; if (!f) return;
+        const nome = f.marca.trim().replace(/\s+\d+$/, ''); if (!nome || (f.marca_site.trim() && f.marca_redes.trim())) return;
+        const { data } = await sb.from('marcas').select('nome,site,instagram').ilike('nome', nome).limit(1);
+        const m = data && data[0]; if (!m || edForm !== f) return;
+        let mudou = false;
+        if (!f.marca_site.trim() && m.site) { f.marca_site = m.site; mudou = true; }
+        if (!f.marca_redes.trim() && m.instagram) { f.marca_redes = '@' + m.instagram; mudou = true; }
+        if (mudou) { edRender(); edToast('Site e @ puxados da aba Marcas'); }
+    }
+    function edUsarSugestao(s) { const el = document.getElementById('edP_marca'); if (el) { el.value = s; edChecarPasta(); edPuxarMarca(); } }
 
     /* ── Biblioteca de referências ── */
     let edBibFiltro = '';

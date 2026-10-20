@@ -151,3 +151,9 @@ drop policy if exists "edicao_pedidos admin" on public.edicao_pedidos;
 drop policy if exists "edicao_referencias admin" on public.edicao_referencias;
 create policy "edicao_pedidos admin" on public.edicao_pedidos for all to authenticated using (exists (select 1 from public.usuarios where id = auth.uid() and role = 'admin')) with check (exists (select 1 from public.usuarios where id = auth.uid() and role = 'admin'));
 create policy "edicao_referencias admin" on public.edicao_referencias for all to authenticated using (exists (select 1 from public.usuarios where id = auth.uid() and role = 'admin')) with check (exists (select 1 from public.usuarios where id = auth.uid() and role = 'admin'));
+
+-- Marca no pedido: site e redes para o robô pesquisar, e gravação de tela simulando o uso
+alter table public.edicao_pedidos add column if not exists marca_site text;
+alter table public.edicao_pedidos add column if not exists marca_redes text;
+alter table public.edicao_pedidos add column if not exists rec_gravar boolean not null default false;
+alter table public.edicao_pedidos add column if not exists rec_passos text;
