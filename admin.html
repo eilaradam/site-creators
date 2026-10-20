@@ -1322,6 +1322,10 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M3 9l2-5h14l2 5"/><path d="M8 4l2 5"/><path d="M13 4l2 5"/><path d="M10 13v5l4-2.5z"/></svg>
                         <span>Conteúdos</span>
                     </button>
+                    <button class="tab nav-item" data-tab="edicao" type="button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
+                        <span>Edição</span>
+                    </button>
                     <button class="tab nav-item" data-tab="disparo" type="button">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9z"/></svg>
                         <span>Disparo de e-mail</span>
@@ -5154,6 +5158,78 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         </div>
     </div>
 </div>
+<div class="dashboard" id="tabEdicao">
+<style>
+/* ---- Edição: revisão de vídeo, regras do estilo e dicionário ---- */
+#tabEdicao .ed-wrap { max-width:1240px; margin:0 auto; }
+#tabEdicao .ed-btn { background:var(--accent); color:#fff; border:none; border-radius:10px; padding:9px 16px; font-weight:700; font-size:13px; cursor:pointer; font-family:inherit; white-space:nowrap; }
+#tabEdicao .ed-btn:hover { filter:brightness(1.08); }
+#tabEdicao .ed-btn:disabled { opacity:.6; cursor:default; }
+#tabEdicao .ed-btn.ghost { background:transparent; color:var(--text); border:1px solid var(--border); }
+#tabEdicao .ed-btn.mini { padding:5px 10px; font-size:12px; border-radius:8px; }
+#tabEdicao .ed-input { width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:10px; background:#fff; color:var(--text); font-size:14px; font-family:inherit; box-sizing:border-box; }
+#tabEdicao .ed-input:focus { outline:none; border-color:var(--accent); }
+#tabEdicao .ed-sub { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:16px; }
+#tabEdicao .ed-chip { background:var(--card); border:1px solid var(--border); color:var(--text-soft); border-radius:100px; padding:7px 13px; font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit; }
+#tabEdicao .ed-chip:hover { border-color:var(--accent); color:var(--accent); }
+#tabEdicao .ed-chip.on { background:var(--accent); border-color:var(--accent); color:#fff; }
+#tabEdicao .ed-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; box-shadow:0 1px 2px rgba(33,29,26,.04), 0 2px 6px rgba(33,29,26,.05); min-width:0; }
+#tabEdicao .ed-card h4 { margin:0 0 10px; font-size:14px; font-weight:800; }
+#tabEdicao .ed-grid { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:14px; align-items:start; }
+#tabEdicao .ed-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+#tabEdicao .ed-muted { color:var(--text-muted); font-size:12.5px; }
+#tabEdicao .ed-player { width:100%; max-height:62vh; background:#111; border-radius:12px; display:block; }
+#tabEdicao .ed-vers { display:flex; gap:6px; flex-wrap:wrap; margin:10px 0; }
+#tabEdicao .ed-com { display:flex; gap:10px; align-items:flex-start; padding:10px 0; border-bottom:1px solid var(--border); }
+#tabEdicao .ed-com:last-child { border-bottom:none; }
+#tabEdicao .ed-com.ok .ed-com-tx { text-decoration:line-through; color:var(--text-muted); }
+#tabEdicao .ed-tempo { font-variant-numeric:tabular-nums; font-weight:800; color:var(--accent); background:var(--accent-glow); border:none; border-radius:8px; padding:4px 8px; cursor:pointer; font-family:inherit; font-size:12.5px; }
+#tabEdicao .ed-tag { font-size:10.5px; font-weight:800; letter-spacing:.6px; text-transform:uppercase; color:var(--text-soft); background:#F4F2EF; border-radius:6px; padding:2px 6px; }
+#tabEdicao .ed-com-tx { flex:1; font-size:13.5px; line-height:1.4; }
+#tabEdicao .ed-acoes { display:flex; gap:4px; }
+#tabEdicao .ed-x { background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:13px; padding:3px 5px; border-radius:6px; font-family:inherit; }
+#tabEdicao .ed-x:hover { background:#F4F2EF; color:var(--text); }
+#tabEdicao .ed-regra { padding:12px 0; border-bottom:1px solid var(--border); }
+#tabEdicao .ed-regra:last-child { border-bottom:none; }
+#tabEdicao .ed-regra .tx { font-size:14px; font-weight:600; }
+#tabEdicao .ed-regra .mt { font-size:12.5px; color:var(--text-soft); margin-top:3px; }
+#tabEdicao .ed-st { font-size:10.5px; font-weight:800; letter-spacing:.6px; text-transform:uppercase; border-radius:6px; padding:2px 6px; }
+#tabEdicao .ed-st.proposta { background:#FFF3D6; color:#8A5A00; }
+#tabEdicao .ed-st.aprovada { background:#DDF5E6; color:#1D6B3A; }
+#tabEdicao .ed-st.descartada { background:#F4F2EF; color:var(--text-muted); }
+#tabEdicao .ed-empty { padding:30px; text-align:center; color:var(--text-muted); }
+#tabEdicao .ed-ped { display:flex; gap:12px; align-items:center; padding:13px 4px; border-bottom:1px solid var(--border); cursor:pointer; }
+#tabEdicao .ed-ped:last-child { border-bottom:none; }
+#tabEdicao .ed-ped:hover .tx { color:var(--accent); }
+#tabEdicao .ed-ped .tx { font-size:14.5px; font-weight:700; }
+#tabEdicao .ed-ped .mt { font-size:12.5px; color:var(--text-soft); margin-top:3px; }
+#tabEdicao .ed-lb { display:block; font-size:11px; font-weight:800; letter-spacing:.6px; text-transform:uppercase; color:var(--text-muted); margin:12px 0 5px; }
+#tabEdicao .ed-refrow { display:grid; grid-template-columns:200px 1.3fr 1fr auto; gap:8px; align-items:center; padding:8px 0; border-bottom:1px dashed var(--border); }
+#tabEdicao .ed-refrow .ed-bibck { grid-column:1 / -1; display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+#tabEdicao textarea.ed-input { resize:vertical; line-height:1.45; }
+#tabEdicao .ed-form { display:grid; grid-template-columns:2fr 1fr 1fr auto; gap:8px; align-items:center; }
+#tabEdicao .ed-toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px); background:#1F1B18; color:#fff; padding:10px 16px; border-radius:10px; font-size:13.5px; font-weight:600; opacity:0; pointer-events:none; transition:all .2s; z-index:9999; }
+#tabEdicao .ed-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+#tabEdicao .ed-toast.erro { background:#B3261E; }
+@media (max-width: 900px) {
+  #tabEdicao .ed-grid { grid-template-columns:1fr; }
+  #tabEdicao .ed-form { grid-template-columns:1fr; }
+  #tabEdicao .ed-refrow { grid-template-columns:1fr; }
+}
+</style>
+<div class="ed-wrap">
+  <div class="ed-sub">
+    <button class="ed-chip on" type="button" data-ed-aba="pedidos" onclick="edSetAba('pedidos')">Pedidos de edição</button>
+    <button class="ed-chip" type="button" data-ed-aba="revisao" onclick="edSetAba('revisao')">Revisão de vídeo</button>
+    <button class="ed-chip" type="button" data-ed-aba="biblioteca" onclick="edSetAba('biblioteca')">Biblioteca de referências</button>
+    <button class="ed-chip" type="button" data-ed-aba="regras" onclick="edSetAba('regras')">Regras do estilo</button>
+    <button class="ed-chip" type="button" data-ed-aba="dicionario" onclick="edSetAba('dicionario')">Dicionário de correções</button>
+  </div>
+  <div id="edBox"><div class="ed-empty">Carregando…</div></div>
+</div>
+<div class="ed-toast" id="edToast"></div>
+</div>
+
 <div class="dashboard" id="tabDisparo">
     <div style="max-width:1140px;margin:0 auto;">
         <div class="ds-capa">
@@ -6035,7 +6111,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
 
     /* ── Tabs ── */
-    const PAGE_TITLES = { objetivos: 'Objetivos', carrossel: 'Carrossel', painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', turmavivo: 'Turma ao vivo', imersaoblack: 'Imersão Black', vibeturma: 'Vibe da turma', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', marcas: 'Marcas', conteudos: 'Conteúdos', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', aulabonus: 'Aula ao vivo', instagram: 'Instagram', bio: 'Link na Bio' };
+    const PAGE_TITLES = { objetivos: 'Objetivos', carrossel: 'Carrossel', painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', turmavivo: 'Turma ao vivo', imersaoblack: 'Imersão Black', vibeturma: 'Vibe da turma', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', marcas: 'Marcas', conteudos: 'Conteúdos', edicao: 'Edição de vídeo', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', aulabonus: 'Aula ao vivo', instagram: 'Instagram', bio: 'Link na Bio' };
     function setPageTitle(target) {
         const el = document.getElementById('pageTitle');
         if (el && PAGE_TITLES[target]) el.textContent = PAGE_TITLES[target];
@@ -6069,6 +6145,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             document.getElementById('tabCandidaturas').classList.toggle('show', target === 'candidaturas');
             document.getElementById('tabMarcas').classList.toggle('show', target === 'marcas');
             document.getElementById('tabConteudos').classList.toggle('show', target === 'conteudos');
+            document.getElementById('tabEdicao').classList.toggle('show', target === 'edicao');
             document.getElementById('tabDisparo').classList.toggle('show', target === 'disparo');
             document.getElementById('tabImersao').classList.toggle('show', target === 'imersao');
             document.getElementById('tabDirect').classList.toggle('show', target === 'direct');
@@ -6096,6 +6173,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             if (target === 'candidaturas') loadCandidaturas();
             if (target === 'marcas') { if (!marcasCarregado) loadMarcas(); if (!igPropsLoaded) { igPropsLoaded = true; igLoadProps(); } if (!igMarcasLoaded) { igMarcasLoaded = true; igLoadMarcas(); } }
             if (target === 'conteudos') ctLoad();
+            if (target === 'edicao') edLoad();
             if (target === 'disparo') loadDisparo();
             if (target === 'imersao') { loadImersao(); loadAlunas(); }
             if (target === 'direct') loadDirect();
@@ -17502,6 +17580,636 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         clearTimeout(ctToastTimer); ctToastTimer = setTimeout(() => { el.className = 'ct-toast'; }, erro ? 4500 : 2200);
     }
     function ctErro(prefixo, error) { ctToast(prefixo + ': ' + ((error && error.message) || 'deu um erro que não entendi'), true); }
+
+    /* ══════════════ Aba Edição ══════════════
+       Central de revisão do sistema de edição automática. A edição pesada roda no Mac
+       (Claude Code + FFmpeg/Remotion); aqui ficam as versões do vídeo, os comentários no
+       segundo exato, as regras do estilo e o dicionário de correções de transcrição.
+       O botão "Copiar para o Claude" junta tudo num texto para colar no Claude Code.
+       Tabelas e bucket privado "edicao": sql-edicao.sql */
+    const ED_TIPOS = [['corte','Corte'],['zoom','Zoom'],['som','Som'],['musica','Música'],['legenda','Legenda'],['animacao','Animação'],['cor','Cor'],['ritmo','Ritmo'],['outro','Outro']];
+    const ED_STATUS_VIDEO = ['gravacao','edicao','aprovacao_video','aprovado'];
+    const ED_LIMITE_MB = 50;
+    let edAba = 'pedidos', edCarregado = false, edToastTimer = null;
+    let edCampanhas = [], edCampanhaId = null, edVersoes = [], edVersaoId = null, edComentarios = [];
+    let edRegras = [], edDic = [], edRegrasFiltro = 'todas', edVideoUrl = null;
+    const edEsc = s => escapeHtml(s == null ? '' : String(s));
+    const edTipoNome = k => (ED_TIPOS.find(t => t[0] === k) || [k, k])[1];
+    function edFmt(s) { s = Math.max(0, Number(s) || 0); const m = Math.floor(s / 60); return m + ':' + (s - m * 60).toFixed(1).padStart(4, '0'); }
+    function edToast(msg, erro) {
+        const el = document.getElementById('edToast'); if (!el) return;
+        el.textContent = msg; el.className = 'ed-toast show' + (erro ? ' erro' : '');
+        clearTimeout(edToastTimer); edToastTimer = setTimeout(() => { el.className = 'ed-toast'; }, erro ? 4500 : 2200);
+    }
+    function edErro(prefixo, error) { edToast(prefixo + ': ' + ((error && error.message) || 'deu um erro que não entendi'), true); }
+    function edCampanha() { return edCampanhas.find(c => c.id === edCampanhaId) || null; }
+    function edVersao() { return edVersoes.find(v => v.id === edVersaoId) || null; }
+
+    async function edLoad() {
+        const box = document.getElementById('edBox'); if (!box) return;
+        const [c, r, d] = await Promise.all([
+            sb.from('conteudos').select('id,nome,cliente,status,updated_at').in('status', ED_STATUS_VIDEO).order('updated_at', { ascending: false }).limit(200),
+            sb.from('edicao_regras').select('*').order('created_at', { ascending: false }),
+            sb.from('edicao_dicionario').select('*').order('cliente', { ascending: true }),
+        ]);
+        const err = c.error || r.error || d.error;
+        if (err) {
+            box.innerHTML = '<div class="ed-card ed-empty"><h4>Não consegui carregar a aba Edição</h4><p>' + edEsc(err.message) +
+                '</p><p class="ed-muted">Se for a primeira vez, rode o arquivo sql-edicao.sql no SQL Editor do Supabase.</p><button class="ed-btn ghost" type="button" onclick="edLoad()">Tentar de novo</button></div>';
+            return;
+        }
+        edCampanhas = c.data || []; edRegras = r.data || []; edDic = d.data || [];
+        await edCarregarPedidos();
+        if (!edCampanhaId && edCampanhas.length) edCampanhaId = edCampanhas[0].id;
+        edCarregado = true;
+        if (edCampanhaId) await edCarregarVersoes(); else edRender();
+    }
+    function edSetAba(k) {
+        edAba = k;
+        document.querySelectorAll('#tabEdicao [data-ed-aba]').forEach(b => b.classList.toggle('on', b.dataset.edAba === k));
+        edRender();
+    }
+    function edRender() {
+        if (edAba === 'pedidos') return edRenderPedidos();
+        if (edAba === 'biblioteca') return edRenderBiblioteca();
+        if (edAba === 'regras') return edRenderRegras();
+        if (edAba === 'dicionario') return edRenderDic();
+        edRenderRevisao();
+    }
+
+    /* ── Pedidos de edição automática ──
+       O bruto fica numa pasta do Drive; o robô do Mac pega os pedidos "na_fila", baixa
+       pelo ID da pasta, analisa as referências, edita e devolve prévia + projeto em camadas. */
+    const ED_REF_TIPOS = [['geral','Geral (a vibe do vídeo)'],['legenda','Fonte e legenda'],['animacao','Animação e gráficos'],['cortes_zoom','Cortes e zoom'],['som','Som e música'],['cor','Cor']];
+    const ED_PED_STATUS = {
+        na_fila: ['Na fila', '#FFF3D6', '#8A5A00'], aguardando_bruto: ['Esperando o bruto na pasta', '#FFF3D6', '#8A5A00'], baixando: ['Baixando o bruto', '#E3EEFF', '#1F4E9A'],
+        analisando: ['Analisando referências', '#E3EEFF', '#1F4E9A'], editando: ['Editando', '#E3EEFF', '#1F4E9A'],
+        previa_pronta: ['Prévia pronta', '#DDF5E6', '#1D6B3A'], em_revisao: ['Em revisão', '#F3E8FF', '#6B2FA3'],
+        renderizando: ['Renderizando final', '#E3EEFF', '#1F4E9A'], final_pronto: ['Final no Drive', '#DDF5E6', '#1D6B3A'],
+        erro: ['Erro', '#FDE4E1', '#B3261E'], cancelado: ['Cancelado', '#F4F2EF', '#8A817A'],
+    };
+    let edPedidos = [], edRefsBib = [], edPedidoAberto = null, edPedidoRefs = [], edForm = null;
+    const edRefTipoNome = k => (ED_REF_TIPOS.find(t => t[0] === k) || [k, k])[1];
+    function edPastaId(link) {
+        const s = String(link || '').trim();
+        const m = s.match(/\/folders\/([A-Za-z0-9_-]{10,})/) || s.match(/[?&]id=([A-Za-z0-9_-]{10,})/);
+        return m ? m[1] : null;
+    }
+    function edStatusTag(st) {
+        const s = ED_PED_STATUS[st] || [st, '#F4F2EF', '#8A817A'];
+        return '<span class="ed-st" style="background:' + s[1] + ';color:' + s[2] + ';">' + edEsc(s[0]) + '</span>';
+    }
+    async function edCarregarPedidos() {
+        const [p, b] = await Promise.all([
+            sb.from('edicao_pedidos').select('*').order('created_at', { ascending: false }).limit(200),
+            sb.from('edicao_referencias').select('*').is('pedido_id', null).order('created_at', { ascending: false }),
+        ]);
+        if (p.error) return edErro('Não carreguei os pedidos', p.error);
+        if (b.error) return edErro('Não carreguei a biblioteca', b.error);
+        edPedidos = p.data || []; edRefsBib = b.data || [];
+    }
+    function edNovoForm(base) {
+        edForm = Object.assign({ id: null, conteudo_id: '', marca: '', titulo: '', drive_pasta_link: '', roteiro: '', formato: '9:16', duracao_alvo_s: '', observacoes: '',
+            refs: [{ tipo: 'geral', link: '', nota: '', salvar: false, nome: '' }] }, base || {});
+    }
+    function edAbrirNovoPedido() { edPedidoAberto = 'novo'; edNovoForm(); edRender(); }
+    async function edAbrirPedido(id) {
+        const ped = edPedidos.find(p => p.id === id); if (!ped) return;
+        const { data, error } = await sb.from('edicao_referencias').select('*').eq('pedido_id', id).order('created_at');
+        if (error) return edErro('Não carreguei as referências', error);
+        edPedidoAberto = id; edPedidoRefs = data || [];
+        edNovoForm({ id, conteudo_id: ped.conteudo_id || '', marca: ped.pasta_nome || ped.marca || '', titulo: ped.titulo || '', drive_pasta_link: ped.drive_pasta_link || '', roteiro: ped.roteiro || '',
+            formato: ped.formato || '9:16', duracao_alvo_s: ped.duracao_alvo_s || '', observacoes: ped.observacoes || '',
+            refs: edPedidoRefs.length ? edPedidoRefs.map(r => ({ id: r.id, tipo: r.tipo, link: r.link, nota: r.nota || '', salvar: false, nome: '' })) : [{ tipo: 'geral', link: '', nota: '', salvar: false, nome: '' }] });
+        edRender();
+    }
+    function edFecharPedido() { edPedidoAberto = null; edForm = null; edRender(); }
+    /* guarda o que está digitado antes de re-renderizar o formulário */
+    function edLerForm() {
+        if (!edForm) return;
+        const v = id => { const el = document.getElementById(id); return el ? el.value : undefined; };
+        ['marca', 'titulo', 'drive_pasta_link', 'roteiro', 'duracao_alvo_s', 'observacoes', 'conteudo_id'].forEach(k => { const x = v('edP_' + k); if (x !== undefined) edForm[k] = x; });
+        edForm.refs.forEach((r, i) => {
+            const t = v('edR_tipo_' + i), l = v('edR_link_' + i), n = v('edR_nota_' + i), nm = v('edR_nome_' + i);
+            if (t !== undefined) r.tipo = t; if (l !== undefined) r.link = l; if (n !== undefined) r.nota = n; if (nm !== undefined) r.nome = nm;
+            const ck = document.getElementById('edR_salvar_' + i); if (ck) r.salvar = ck.checked;
+        });
+    }
+    function edCampanhaNoForm(id) {
+        edLerForm(); edForm.conteudo_id = id;
+        const c = edCampanhas.find(x => x.id === id);
+        if (c && c.cliente && !edForm.marca.trim()) edForm.marca = c.cliente;
+        edRender();
+    }
+    function edMarcasConhecidas() {
+        const s = new Set();
+        edCampanhas.forEach(c => c.cliente && s.add(c.cliente.trim()));
+        edPedidos.forEach(p => p.marca && s.add(p.marca.trim()));
+        edRegras.forEach(r => r.cliente && s.add(r.cliente.trim()));
+        edDic.forEach(d => d.cliente && s.add(d.cliente.trim()));
+        return [...s].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+    }
+    function edFormato(f) { edLerForm(); edForm.formato = f; edRender(); }
+    function edAddRef(tipo) { edLerForm(); edForm.refs.push({ tipo: tipo || 'geral', link: '', nota: '', salvar: false, nome: '' }); edRender(); }
+    function edRemRef(i) { edLerForm(); edForm.refs.splice(i, 1); if (!edForm.refs.length) edForm.refs.push({ tipo: 'geral', link: '', nota: '', salvar: false, nome: '' }); edRender(); }
+    function edUsarDaBiblioteca(id) {
+        if (!id) return; edLerForm();
+        const r = edRefsBib.find(x => x.id === id); if (!r) return;
+        const vazio = edForm.refs.findIndex(x => !x.link.trim());
+        const nova = { tipo: r.tipo, link: r.link, nota: r.nota || (r.nome ? 'Da biblioteca: ' + r.nome : ''), salvar: false, nome: '' };
+        if (vazio >= 0) edForm.refs[vazio] = nova; else edForm.refs.push(nova);
+        edRender();
+    }
+    async function edSalvarPedido() {
+        edLerForm(); const f = edForm; if (!f) return;
+        if (!f.marca.trim()) return edToast('Preencha a marca', true);
+        if (edPastaOcupada(f.marca, f.id)) { edChecarPasta(); return edToast('Já existe uma pasta com esse nome. Coloque um número para diferenciar.', true); }
+        /* link é opcional: sem link, o robô cria a pasta Edição/<marca>/#<numero> <nome> e escreve o link no pedido */
+        const pid = f.drive_pasta_link.trim() ? edPastaId(f.drive_pasta_link) : null;
+        if (f.drive_pasta_link.trim() && !pid) return edToast('Esse link não é de uma PASTA do Drive (drive.google.com/drive/folders/...)', true);
+        const refs = f.refs.filter(r => r.link.trim());
+        const linha = {
+            pasta_nome: f.marca.trim().replace(/\s+/g, ' '), marca: f.marca.trim().replace(/\s+\d+$/, ''), titulo: f.marca.trim(), conteudo_id: f.conteudo_id || null, drive_pasta_link: f.drive_pasta_link.trim() || null, drive_pasta_id: pid,
+            roteiro: f.roteiro.trim() || null, formato: f.formato, duracao_alvo_s: f.duracao_alvo_s ? parseInt(f.duracao_alvo_s, 10) || null : null,
+            observacoes: f.observacoes.trim() || null, updated_at: new Date().toISOString(),
+        };
+        let pedidoId = f.id;
+        if (pedidoId) {
+            const { error } = await sb.from('edicao_pedidos').update(linha).eq('id', pedidoId);
+            if (error && error.code === '23505') return edToast('Já existe uma pasta com esse nome. Coloque um número para diferenciar.', true);
+            if (error) return edErro('Não salvei o pedido', error);
+            const del = await sb.from('edicao_referencias').delete().eq('pedido_id', pedidoId);
+            if (del.error) return edErro('Não atualizei as referências', del.error);
+        } else {
+            const { data, error } = await sb.from('edicao_pedidos').insert(Object.assign({ status: 'na_fila' }, linha)).select().single();
+            if (error && error.code === '23505') { await edCarregarPedidos(); edRender(); return edToast('Já existe uma pasta com esse nome. Coloque um número para diferenciar.', true); }
+            if (error) return edErro('Não criei o pedido', error);
+            pedidoId = data.id;
+        }
+        if (refs.length) {
+            const { error } = await sb.from('edicao_referencias').insert(refs.map(r => ({ pedido_id: pedidoId, tipo: r.tipo, link: r.link.trim(), nota: r.nota.trim() || null })));
+            if (error) return edErro('O pedido foi salvo, mas as referências não', error);
+            const bib = refs.filter(r => r.salvar);
+            if (bib.length) {
+                const b = await sb.from('edicao_referencias').insert(bib.map(r => ({ pedido_id: null, nome: (r.nome || '').trim() || edRefTipoNome(r.tipo), tipo: r.tipo, link: r.link.trim(), nota: r.nota.trim() || null })));
+                if (b.error) edErro('Não salvei na biblioteca', b.error);
+            }
+        }
+        edToast(f.id ? 'Pedido atualizado' : 'Pedido na fila. O robô do Mac pega na próxima rodada.');
+        await edCarregarPedidos(); edPedidoAberto = null; edForm = null; edRender();
+    }
+    async function edMudarStatusPedido(id, status, msg) {
+        const { error } = await sb.from('edicao_pedidos').update({ status, status_msg: msg || null, updated_at: new Date().toISOString() }).eq('id', id);
+        if (error) return edErro('Não mudei o status', error);
+        await edCarregarPedidos(); if (edPedidoAberto === id) await edAbrirPedido(id); else edRender();
+    }
+    async function edApagarPedido(id) {
+        if (!confirm('Apagar esse pedido? O bruto no Drive não é apagado.')) return;
+        const { error } = await sb.from('edicao_pedidos').delete().eq('id', id);
+        if (error) return edErro('Não apaguei', error);
+        await edCarregarPedidos(); edFecharPedido();
+    }
+
+    function edRenderPedidos() {
+        const box = document.getElementById('edBox'); if (!box) return;
+        if (edPedidoAberto) return edRenderFormPedido();
+        const cards = edPedidos.map(p => {
+            const camp = edCampanhas.find(c => c.id === p.conteudo_id);
+            return '<div class="ed-ped" onclick="edAbrirPedido(\'' + p.id + '\')">' +
+                '<div style="flex:1;min-width:0;"><div class="tx">' + edEsc(p.pasta_nome || p.titulo) + '</div>' +
+                '<div class="mt">' + (camp ? edEsc(camp.nome) + ' · ' : '') + edEsc(p.formato) + (p.duracao_alvo_s ? ' · ' + p.duracao_alvo_s + 's' : '') + ' · ' + (p.created_at ? new Date(p.created_at).toLocaleDateString('pt-BR') : 'agora') +
+                (p.status_msg ? ' · <i>' + edEsc(p.status_msg) + '</i>' : '') + '</div></div>' +
+                edStatusTag(p.status) + '</div>';
+        }).join('');
+        box.innerHTML =
+          '<div class="ed-row" style="margin-bottom:12px;"><span class="ed-muted">' + edPedidos.length + ' pedido(s)</span><span style="flex:1"></span>' +
+          '<button class="ed-btn" type="button" onclick="edAbrirNovoPedido()">+ Novo pedido de edição</button></div>' +
+          '<div class="ed-card">' + (cards || '<div class="ed-empty"><h4>Nenhum pedido ainda</h4><p>Suba o bruto numa pasta do Drive, crie o pedido com o link da pasta, o roteiro e as referências. O robô do seu Mac edita e devolve a prévia aqui.</p></div>') + '</div>';
+    }
+    function edRenderFormPedido() {
+        const box = document.getElementById('edBox'); const f = edForm; if (!box || !f) return;
+        const ped = f.id ? edPedidos.find(p => p.id === f.id) : null;
+        const travado = ped && !['na_fila', 'erro', 'cancelado'].includes(ped.status);
+        const dis = travado ? ' disabled' : '';
+        const camps = '<option value="">(sem campanha)</option>' + edCampanhas.map(c => '<option value="' + c.id + '"' + (c.id === f.conteudo_id ? ' selected' : '') + '>' + edEsc(c.nome) + (c.cliente ? ' · ' + edEsc(c.cliente) : '') + '</option>').join('');
+        const formatos = [['9:16','Reels / TikTok'],['4:5','Feed 4:5'],['1:1','Quadrado'],['16:9','Horizontal']].map(([k, n]) =>
+            '<button class="ed-chip' + (f.formato === k ? ' on' : '') + '" type="button"' + dis + ' onclick="edFormato(\'' + k + '\')">' + n + ' <b>' + k + '</b></button>').join('');
+        const tipoOpts = sel => ED_REF_TIPOS.map(t => '<option value="' + t[0] + '"' + (t[0] === sel ? ' selected' : '') + '>' + t[1] + '</option>').join('');
+        const refs = f.refs.map((r, i) =>
+            '<div class="ed-refrow">' +
+              '<select class="ed-input" id="edR_tipo_' + i + '"' + dis + '>' + tipoOpts(r.tipo) + '</select>' +
+              '<input class="ed-input" id="edR_link_' + i + '" placeholder="Link do Reels, TikTok ou YouTube"' + dis + ' value="' + edEsc(r.link) + '">' +
+              '<input class="ed-input" id="edR_nota_' + i + '" placeholder="O que copiar dessa referência"' + dis + ' value="' + edEsc(r.nota) + '">' +
+              (travado ? '' : '<button class="ed-x" type="button" title="Tirar" onclick="edRemRef(' + i + ')">✕</button>') +
+              (travado || r.id ? '' : '<label class="ed-muted ed-bibck"><input type="checkbox" id="edR_salvar_' + i + '"' + (r.salvar ? ' checked' : '') + '> salvar na biblioteca como <input class="ed-input" id="edR_nome_' + i + '" style="display:inline-block;width:200px;padding:5px 8px;font-size:12.5px;" placeholder="ex.: minha legenda padrão" value="' + edEsc(r.nome) + '"></label>') +
+            '</div>').join('');
+        const bibOpts = '<option value="">+ Usar da biblioteca…</option>' + edRefsBib.map(r => '<option value="' + r.id + '">' + edEsc(edRefTipoNome(r.tipo)) + ': ' + edEsc(r.nome || r.link) + '</option>').join('');
+        box.innerHTML =
+          '<div class="ed-row" style="margin-bottom:12px;"><button class="ed-btn ghost mini" type="button" onclick="edFecharPedido()">← Pedidos</button>' +
+            (ped ? edStatusTag(ped.status) + (ped.status_msg ? '<span class="ed-muted">' + edEsc(ped.status_msg) + '</span>' : '') : '<b>Novo pedido de edição</b>') +
+            '<span style="flex:1"></span>' +
+            (ped && (ped.status === 'erro' || ped.status === 'cancelado') ? '<button class="ed-btn ghost mini" type="button" onclick="edMudarStatusPedido(\'' + ped.id + '\',\'na_fila\')">Voltar para a fila</button>' : '') +
+            (ped && !['final_pronto', 'cancelado'].includes(ped.status) ? '<button class="ed-btn ghost mini" type="button" onclick="edMudarStatusPedido(\'' + ped.id + '\',\'cancelado\')">Cancelar</button>' : '') +
+            (ped ? '<button class="ed-btn ghost mini" type="button" onclick="edApagarPedido(\'' + ped.id + '\')">Apagar</button>' : '') +
+          '</div>' +
+          (travado ? '<div class="ed-card" style="margin-bottom:12px;background:#FFFBF2;">O robô já está trabalhando nesse pedido, então ele fica só para leitura. ' +
+            (ped.previa_link ? '<a href="' + edEsc(ped.previa_link) + '" target="_blank" rel="noopener">Ver prévia</a> · ' : '') +
+            (ped.final_link ? '<a href="' + edEsc(ped.final_link) + '" target="_blank" rel="noopener">Ver final no Drive</a>' : '') + '</div>' : '') +
+          '<div class="ed-grid">' +
+            '<div class="ed-card">' +
+              '<h4>O vídeo</h4>' +
+              '<label class="ed-lb">Campanha (aba Conteúdos, opcional)</label><select class="ed-input" id="edP_conteudo_id"' + dis + ' onchange="edCampanhaNoForm(this.value)">' + camps + '</select>' +
+              '<label class="ed-lb">Marca (vira o nome da pasta no Drive)</label><input class="ed-input" id="edP_marca" list="edMarcasLista" placeholder="ex.: InfinitePay"' + dis + ' value="' + edEsc(f.marca) + '" oninput="edChecarPasta()">' +
+              '<datalist id="edMarcasLista">' + edMarcasConhecidas().map(m => '<option value="' + edEsc(m) + '">').join('') + '</datalist>' +
+              '<div id="edPastaAviso" class="ed-muted" style="margin-top:5px;"></div>' +
+              '<label class="ed-lb">Pasta do Drive com o bruto (opcional)</label><input class="ed-input" id="edP_drive_pasta_link" placeholder="https://drive.google.com/drive/folders/..."' + dis + ' value="' + edEsc(f.drive_pasta_link) + '">' +
+              '<div class="ed-muted" style="margin-top:4px;">' + (ped && ped.drive_pasta_link && !f.drive_pasta_link
+                ? '' : (f.drive_pasta_link.trim() ? 'O robô usa a pasta desse link.' :
+                  'Deixe vazio: o robô cria a pasta <b>Edição/' + edEsc(f.marca.trim() || '<marca>') + '</b> no seu Drive e o link aparece aqui. Aí é só jogar o bruto e as cenas extras dentro (dá para subir direto do celular pelo app do Drive).')) +
+                ' O final volta para a mesma pasta.</div>' +
+              '<label class="ed-lb">Formato</label><div class="ed-row">' + formatos + '</div>' +
+              '<label class="ed-lb">Duração desejada (segundos, opcional)</label><input class="ed-input" id="edP_duracao_alvo_s" type="number" min="5" max="600" style="max-width:160px;"' + dis + ' value="' + edEsc(f.duracao_alvo_s) + '">' +
+              '<label class="ed-lb">Observações</label><textarea class="ed-input" id="edP_observacoes" rows="3" placeholder="ex.: tirar a parte em que eu tropeço; destacar o preço"' + dis + '>' + edEsc(f.observacoes) + '</textarea>' +
+            '</div>' +
+            '<div class="ed-card">' +
+              '<h4>Roteiro</h4>' +
+              '<div class="ed-muted" style="margin-bottom:6px;">Com o roteiro o robô sabe qual tomada é a certa e acerta os nomes na legenda.</div>' +
+              '<textarea class="ed-input" id="edP_roteiro" rows="14" placeholder="Cole o roteiro aqui"' + dis + '>' + edEsc(f.roteiro) + '</textarea>' +
+            '</div>' +
+          '</div>' +
+          '<div class="ed-card" style="margin-top:14px;">' +
+            '<h4>Referências</h4>' +
+            '<div class="ed-muted" style="margin-bottom:8px;">Uma ou mais por tipo. Diga na nota o que copiar de cada uma.</div>' +
+            refs +
+            (travado ? '' : '<div class="ed-row" style="margin-top:10px;">' +
+              '<button class="ed-btn ghost mini" type="button" onclick="edAddRef()">+ Referência</button>' +
+              (edRefsBib.length ? '<select class="ed-input" style="width:auto;max-width:360px;" onchange="edUsarDaBiblioteca(this.value)">' + bibOpts + '</select>' : '') +
+            '</div>') +
+          '</div>' +
+          (travado ? '' : '<div class="ed-row" style="margin-top:14px;justify-content:flex-end;"><button class="ed-btn" type="button" onclick="edSalvarPedido()">' + (f.id ? 'Salvar pedido' : 'Mandar para a fila') + '</button></div>');
+        if (!travado) edChecarPasta();
+    }
+    /* Nome da pasta não pode repetir: avisa na hora e sugere o próximo número ("InfinitePay 2") */
+    const edNorm = s => String(s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+    function edPastaOcupada(nome, ignorarId) { const n = edNorm(nome); return !!n && edPedidos.some(p => p.id !== ignorarId && edNorm(p.pasta_nome) === n); }
+    function edSugerirPasta(nome, ignorarId) {
+        const base = String(nome || '').trim().replace(/\s+\d+$/, '');
+        for (let i = 2; i < 1000; i++) { const c = base + ' ' + i; if (!edPastaOcupada(c, ignorarId)) return c; }
+        return base + ' ' + Date.now();
+    }
+    function edChecarPasta() {
+        const el = document.getElementById('edP_marca'), av = document.getElementById('edPastaAviso'); if (!el || !av || !edForm) return;
+        const nome = el.value.trim();
+        if (!nome) { av.innerHTML = ''; return; }
+        if (edPastaOcupada(nome, edForm.id)) {
+            const sug = edSugerirPasta(nome, edForm.id);
+            av.innerHTML = '<span style="color:#B3261E;font-weight:700;">Já existe uma pasta "' + edEsc(nome) + '".</span> Coloque um número para diferenciar. ' +
+                '<button class="ed-btn ghost mini" type="button" onclick="edUsarSugestao(\'' + edEsc(sug).replace(/'/g, "\\'") + '\')">Usar "' + edEsc(sug) + '"</button>';
+        } else av.innerHTML = 'Pasta: <b>Edição/' + edEsc(nome) + '</b>';
+    }
+    function edUsarSugestao(s) { const el = document.getElementById('edP_marca'); if (el) { el.value = s; edChecarPasta(); } }
+
+    /* ── Biblioteca de referências ── */
+    function edRenderBiblioteca() {
+        const box = document.getElementById('edBox'); if (!box) return;
+        const tipoOpts = ED_REF_TIPOS.map(t => '<option value="' + t[0] + '">' + t[1] + '</option>').join('');
+        const grupos = ED_REF_TIPOS.map(([k, n]) => {
+            const rs = edRefsBib.filter(r => r.tipo === k); if (!rs.length) return '';
+            return '<div class="ed-card" style="margin-bottom:12px;"><h4>' + edEsc(n) + '</h4>' + rs.map(r =>
+                '<div class="ed-com"><div class="ed-com-tx"><b>' + edEsc(r.nome || 'sem nome') + '</b> · <a href="' + edEsc(r.link) + '" target="_blank" rel="noopener">abrir</a>' +
+                (r.nota ? '<div class="ed-muted">' + edEsc(r.nota) + '</div>' : '') + '</div>' +
+                '<div class="ed-acoes"><button class="ed-x" type="button" title="Apagar" onclick="edApagarRefBib(\'' + r.id + '\')">✕</button></div></div>').join('') + '</div>';
+        }).join('');
+        box.innerHTML =
+          '<div class="ed-card" style="margin-bottom:14px;">' +
+            '<h4>Nova referência na biblioteca</h4>' +
+            '<div class="ed-form">' +
+              '<input class="ed-input" id="edB_nome" placeholder="Nome (ex.: legenda amarela pop)">' +
+              '<select class="ed-input" id="edB_tipo">' + tipoOpts + '</select>' +
+              '<input class="ed-input" id="edB_link" placeholder="Link">' +
+              '<button class="ed-btn" type="button" onclick="edNovaRefBib()">Salvar</button>' +
+            '</div>' +
+            '<input class="ed-input" id="edB_nota" style="margin-top:8px;" placeholder="O que copiar dela">' +
+          '</div>' + (grupos || '<div class="ed-card ed-empty">A biblioteca está vazia. Salve aqui as referências que você usa sempre.</div>');
+    }
+    async function edNovaRefBib() {
+        const link = document.getElementById('edB_link').value.trim(); if (!link) return edToast('Cole o link', true);
+        const { error } = await sb.from('edicao_referencias').insert({ pedido_id: null, nome: document.getElementById('edB_nome').value.trim() || null,
+            tipo: document.getElementById('edB_tipo').value, link, nota: document.getElementById('edB_nota').value.trim() || null });
+        if (error) return edErro('Não salvei', error);
+        await edCarregarPedidos(); edRender(); edToast('Salvo na biblioteca');
+    }
+    async function edApagarRefBib(id) {
+        if (!confirm('Tirar da biblioteca?')) return;
+        const { error } = await sb.from('edicao_referencias').delete().eq('id', id);
+        if (error) return edErro('Não apaguei', error);
+        await edCarregarPedidos(); edRender();
+    }
+
+    /* ── Revisão ── */
+    async function edEscolherCampanha(id) { edCampanhaId = id; edVersaoId = null; await edCarregarVersoes(); }
+    async function edCarregarVersoes() {
+        const { data, error } = await sb.from('edicao_versoes').select('*').eq('conteudo_id', edCampanhaId).order('numero', { ascending: false });
+        if (error) return edErro('Não carreguei as versões', error);
+        edVersoes = data || [];
+        if (!edVersoes.find(v => v.id === edVersaoId)) edVersaoId = edVersoes.length ? edVersoes[0].id : null;
+        await edCarregarVersao();
+    }
+    async function edEscolherVersao(id) { edVersaoId = id; await edCarregarVersao(); }
+    async function edCarregarVersao() {
+        edComentarios = []; edVideoUrl = null;
+        const v = edVersao();
+        if (v) {
+            const { data, error } = await sb.from('edicao_comentarios').select('*').eq('versao_id', v.id).order('tempo_s', { ascending: true });
+            if (error) edErro('Não carreguei os comentários', error); else edComentarios = data || [];
+            if (v.arquivo_path) {
+                const s = await sb.storage.from('edicao').createSignedUrl(v.arquivo_path, 60 * 60 * 3);
+                if (s.error) edErro('Não consegui abrir o vídeo', s.error); else edVideoUrl = s.data.signedUrl;
+            } else if (v.link && /\.(mp4|mov|webm|m4v)(\?|$)/i.test(v.link)) {
+                edVideoUrl = v.link;
+            }
+        }
+        edRender();
+    }
+    function edRenderRevisao() {
+        const box = document.getElementById('edBox'); if (!box) return;
+        if (!edCampanhas.length) {
+            box.innerHTML = '<div class="ed-card ed-empty"><h4>Nenhuma campanha em gravação, edição ou aprovação</h4><p>Na aba Conteúdos, mude o status da campanha para Gravação ou Edição e ela aparece aqui.</p></div>';
+            return;
+        }
+        const camp = edCampanha(), v = edVersao();
+        const opts = edCampanhas.map(c => '<option value="' + c.id + '"' + (c.id === edCampanhaId ? ' selected' : '') + '>' + edEsc(c.nome) + (c.cliente ? ' · ' + edEsc(c.cliente) : '') + '</option>').join('');
+        const vers = edVersoes.map(x => '<button class="ed-chip' + (x.id === edVersaoId ? ' on' : '') + '" type="button" onclick="edEscolherVersao(\'' + x.id + '\')">V' + x.numero + (x.titulo ? ' · ' + edEsc(x.titulo) : '') + '</button>').join('');
+        let player = '<div class="ed-empty">Suba a primeira versão do vídeo para começar a revisar.</div>';
+        if (v && edVideoUrl) player = '<video id="edPlayer" class="ed-player" src="' + edEsc(edVideoUrl) + '" controls playsinline preload="metadata"></video>';
+        else if (v && v.link) player = '<div class="ed-empty">Essa versão é um link externo que não toca aqui dentro.<br><a href="' + edEsc(v.link) + '" target="_blank" rel="noopener">Abrir o vídeo</a><br><span class="ed-muted">Para comentar no segundo exato, suba o arquivo da prévia (até ' + ED_LIMITE_MB + ' MB).</span></div>';
+        const abertos = edComentarios.filter(c => !c.resolvido).length;
+        const coms = edComentarios.length ? edComentarios.map(c =>
+            '<div class="ed-com' + (c.resolvido ? ' ok' : '') + '">' +
+              '<button class="ed-tempo" type="button" title="Ir para esse momento" onclick="edIrPara(' + Number(c.tempo_s) + ')">' + edFmt(c.tempo_s) + '</button>' +
+              '<div class="ed-com-tx"><span class="ed-tag">' + edEsc(edTipoNome(c.tipo)) + '</span> ' + edEsc(c.texto) + '</div>' +
+              '<div class="ed-acoes">' +
+                '<button class="ed-x" type="button" title="' + (c.resolvido ? 'Reabrir' : 'Marcar como resolvido') + '" onclick="edResolver(\'' + c.id + '\',' + !c.resolvido + ')">' + (c.resolvido ? '↺' : '✓') + '</button>' +
+                '<button class="ed-x" type="button" title="Virar regra do estilo" onclick="edVirarRegra(\'' + c.id + '\')">★</button>' +
+                '<button class="ed-x" type="button" title="Apagar" onclick="edApagarComentario(\'' + c.id + '\')">✕</button>' +
+              '</div></div>').join('') : '<div class="ed-muted">Pause o vídeo no ponto que quer mudar e escreva o comentário.</div>';
+        const tipos = ED_TIPOS.filter(t => t[0] !== 'ritmo').map(t => '<option value="' + t[0] + '"' + (t[0] === 'outro' ? ' selected' : '') + '>' + t[1] + '</option>').join('');
+        box.innerHTML =
+          '<div class="ed-row" style="margin-bottom:12px;">' +
+            '<select class="ed-input" style="max-width:420px;" onchange="edEscolherCampanha(this.value)">' + opts + '</select>' +
+            (camp ? '<span class="ed-muted">status: ' + edEsc(camp.status) + '</span>' : '') +
+            '<span style="flex:1"></span>' +
+            '<button class="ed-btn" type="button" onclick="edCopiarPacote()"' + (v ? '' : ' disabled') + '>Copiar para o Claude</button>' +
+          '</div>' +
+          '<div class="ed-grid">' +
+            '<div class="ed-card">' +
+              player +
+              '<div class="ed-vers">' + vers + '</div>' +
+              '<div class="ed-row">' +
+                '<input type="file" id="edArquivo" accept="video/*" style="display:none" onchange="edSubirVersao(this.files[0])">' +
+                '<button class="ed-btn ghost mini" type="button" onclick="document.getElementById(\'edArquivo\').click()">+ Subir nova versão</button>' +
+                '<button class="ed-btn ghost mini" type="button" onclick="edVersaoPorLink()">+ Versão por link</button>' +
+                (v ? '<button class="ed-btn ghost mini" type="button" onclick="edApagarVersao()">Apagar V' + v.numero + '</button>' : '') +
+              '</div>' +
+              '<div class="ed-muted" style="margin-top:8px;">Prévia de até ' + ED_LIMITE_MB + ' MB. O vídeo fica privado: só quem está logada como admin vê.</div>' +
+            '</div>' +
+            '<div class="ed-card">' +
+              '<h4>Comentários ' + (edComentarios.length ? '<span class="ed-muted">(' + abertos + ' em aberto)</span>' : '') + '</h4>' +
+              (v ? '<div class="ed-row" style="margin-bottom:8px;">' +
+                '<button class="ed-tempo" type="button" id="edAgora" title="Momento atual do vídeo">0:00.0</button>' +
+                '<select class="ed-input" id="edTipo" style="width:auto;">' + tipos + '</select>' +
+              '</div>' +
+              '<textarea class="ed-input" id="edTexto" rows="2" placeholder="Ex.: zoom mais devagar aqui; o whoosh está alto; legenda errada" onkeydown="if(event.key===\'Enter\'&&(event.metaKey||event.ctrlKey))edComentar()"></textarea>' +
+              '<div class="ed-row" style="margin:8px 0 6px;"><button class="ed-btn mini" type="button" onclick="edComentar()">Comentar neste momento</button><span class="ed-muted">Ctrl/Cmd + Enter</span></div>' : '') +
+              '<div>' + coms + '</div>' +
+            '</div>' +
+          '</div>';
+        const p = document.getElementById('edPlayer');
+        if (p) {
+            const agora = document.getElementById('edAgora');
+            const atualiza = () => { if (agora) agora.textContent = edFmt(p.currentTime); };
+            p.addEventListener('timeupdate', atualiza); p.addEventListener('seeked', atualiza);
+        }
+    }
+    function edIrPara(t) { const p = document.getElementById('edPlayer'); if (!p) return; p.currentTime = t; p.pause(); }
+    async function edComentar() {
+        const v = edVersao(); const el = document.getElementById('edTexto'); if (!v || !el) return;
+        const texto = el.value.trim(); if (!texto) return edToast('Escreva o comentário primeiro', true);
+        const p = document.getElementById('edPlayer');
+        const tempo = p ? Math.round(p.currentTime * 100) / 100 : 0;
+        const tipo = (document.getElementById('edTipo') || {}).value || 'outro';
+        const { error } = await sb.from('edicao_comentarios').insert({ versao_id: v.id, conteudo_id: v.conteudo_id, tempo_s: tempo, tipo, texto });
+        if (error) return edErro('Não salvei o comentário', error);
+        el.value = '';
+        await edCarregarVersaoSemPlayer();
+        edToast('Comentário salvo em ' + edFmt(tempo));
+    }
+    /* recarrega só a lista de comentários, sem recriar o player (não perde o ponto do vídeo) */
+    async function edCarregarVersaoSemPlayer() {
+        const v = edVersao(); if (!v) return;
+        const p = document.getElementById('edPlayer'); const t = p ? p.currentTime : 0;
+        const { data, error } = await sb.from('edicao_comentarios').select('*').eq('versao_id', v.id).order('tempo_s', { ascending: true });
+        if (error) return edErro('Não carreguei os comentários', error);
+        edComentarios = data || [];
+        edRenderRevisao();
+        const np = document.getElementById('edPlayer');
+        if (np) {
+            const volta = () => { np.currentTime = t; const a = document.getElementById('edAgora'); if (a) a.textContent = edFmt(t); };
+            if (np.readyState >= 1) volta(); else np.addEventListener('loadedmetadata', volta, { once: true });
+        }
+    }
+    async function edResolver(id, valor) {
+        const { error } = await sb.from('edicao_comentarios').update({ resolvido: valor }).eq('id', id);
+        if (error) return edErro('Não atualizei', error);
+        await edCarregarVersaoSemPlayer();
+    }
+    async function edApagarComentario(id) {
+        if (!confirm('Apagar esse comentário?')) return;
+        const { error } = await sb.from('edicao_comentarios').delete().eq('id', id);
+        if (error) return edErro('Não apaguei', error);
+        await edCarregarVersaoSemPlayer();
+    }
+    async function edVirarRegra(id) {
+        const c = edComentarios.find(x => x.id === id); if (!c) return;
+        const texto = prompt('Escreva a regra para valer nos próximos vídeos (não só neste):', c.texto);
+        if (!texto || !texto.trim()) return;
+        const camp = edCampanha();
+        const soCliente = camp && camp.cliente ? confirm('Essa regra vale só para ' + camp.cliente + '?\nOK = só esse cliente · Cancelar = todos os vídeos') : false;
+        const cat = ED_TIPOS.find(t => t[0] === c.tipo) ? c.tipo : 'outro';
+        const { error } = await sb.from('edicao_regras').insert({ texto: texto.trim(), categoria: cat, cliente: soCliente ? camp.cliente : null, status: 'aprovada', origem_comentario_id: c.id, motivo: 'Comentário em ' + (camp ? camp.nome : '') + ' (' + edFmt(c.tempo_s) + ')' });
+        if (error) return edErro('Não criei a regra', error);
+        const r = await sb.from('edicao_regras').select('*').order('created_at', { ascending: false }); if (!r.error) edRegras = r.data || [];
+        edToast('Regra criada e aprovada');
+    }
+    async function edProximoNumero() { return (edVersoes.reduce((m, v) => Math.max(m, v.numero || 0), 0)) + 1; }
+    async function edSubirVersao(file) {
+        if (!file || !edCampanhaId) return;
+        if (file.size > ED_LIMITE_MB * 1024 * 1024) return edToast('O arquivo tem ' + Math.round(file.size / 1048576) + ' MB. Exporte uma prévia de até ' + ED_LIMITE_MB + ' MB.', true);
+        const numero = await edProximoNumero();
+        const nomeSeguro = file.name.normalize('NFD').replace(/[^\w.\-]+/g, '_');
+        const path = edCampanhaId + '/v' + numero + '-' + Date.now() + '-' + nomeSeguro;
+        edToast('Subindo a V' + numero + '…');
+        const up = await sb.storage.from('edicao').upload(path, file, { contentType: file.type || 'video/mp4', upsert: false });
+        if (up.error) return edErro('Não subi o vídeo', up.error);
+        const titulo = prompt('Nome curto para essa versão (opcional):', '') || null;
+        const { data, error } = await sb.from('edicao_versoes').insert({ conteudo_id: edCampanhaId, numero, titulo, arquivo_path: path }).select().single();
+        if (error) { sb.storage.from('edicao').remove([path]).catch(() => {}); return edErro('Não registrei a versão', error); }
+        edVersaoId = data.id; await edCarregarVersoes();
+        edToast('V' + numero + ' pronta para revisar');
+    }
+    async function edVersaoPorLink() {
+        if (!edCampanhaId) return;
+        const link = prompt('Cole o link do vídeo (link direto .mp4 toca aqui; Drive abre em outra aba):', ''); if (!link || !link.trim()) return;
+        const numero = await edProximoNumero();
+        const titulo = prompt('Nome curto para essa versão (opcional):', '') || null;
+        const { data, error } = await sb.from('edicao_versoes').insert({ conteudo_id: edCampanhaId, numero, titulo, link: link.trim() }).select().single();
+        if (error) return edErro('Não registrei a versão', error);
+        edVersaoId = data.id; await edCarregarVersoes();
+    }
+    async function edApagarVersao() {
+        const v = edVersao(); if (!v || !confirm('Apagar a V' + v.numero + ' e os comentários dela?')) return;
+        const { error } = await sb.from('edicao_versoes').delete().eq('id', v.id);
+        if (error) return edErro('Não apaguei a versão', error);
+        if (v.arquivo_path) sb.storage.from('edicao').remove([v.arquivo_path]).catch(() => {});
+        edVersaoId = null; await edCarregarVersoes();
+    }
+
+    /* Texto para colar no Claude Code: regras aprovadas, dicionário e os comentários em aberto */
+    function edMontarPacote() {
+        const camp = edCampanha(), v = edVersao();
+        const cli = camp && camp.cliente ? camp.cliente.trim().toLowerCase() : null;
+        const vale = x => !x.cliente || (cli && x.cliente.trim().toLowerCase() === cli);
+        const regras = edRegras.filter(r => r.status === 'aprovada' && vale(r));
+        const dic = edDic.filter(vale);
+        const abertos = edComentarios.filter(c => !c.resolvido);
+        const L = [];
+        L.push('# Revisão de edição: ' + (camp ? camp.nome : '') + (camp && camp.cliente ? ' (' + camp.cliente + ')' : '') + (v ? ' · V' + v.numero : ''));
+        L.push('');
+        L.push('Aplique os comentários abaixo na próxima versão. Siga as regras do estilo. Antes de renderizar, me mostre o plano de mudanças e espere meu ok.');
+        L.push('');
+        L.push('## Comentários em aberto (' + abertos.length + ')');
+        if (!abertos.length) L.push('- nenhum');
+        abertos.forEach(c => L.push('- [' + edFmt(c.tempo_s) + '] (' + edTipoNome(c.tipo) + ') ' + c.texto));
+        L.push('');
+        L.push('## Regras do estilo (' + regras.length + ')');
+        ED_TIPOS.forEach(t => {
+            const rs = regras.filter(r => r.categoria === t[0]); if (!rs.length) return;
+            L.push('### ' + t[1]);
+            rs.forEach(r => L.push('- ' + r.texto + (r.cliente ? ' [só ' + r.cliente + ']' : '') + (r.motivo ? ' (motivo: ' + r.motivo + ')' : '')));
+        });
+        L.push('');
+        L.push('## Dicionário de correções da transcrição');
+        if (!dic.length) L.push('- nenhum');
+        dic.forEach(d => L.push('- "' + d.errado + '" → "' + d.certo + '"' + (d.cliente ? ' [' + d.cliente + ']' : '')));
+        return L.join('\n');
+    }
+    async function edCopiarPacote() {
+        const txt = edMontarPacote();
+        try { await navigator.clipboard.writeText(txt); edToast('Copiado. Cole no Claude Code do Mac.'); }
+        catch { prompt('Copie o texto abaixo:', txt); }
+    }
+
+    /* ── Regras do estilo ── */
+    function edRenderRegras() {
+        const box = document.getElementById('edBox'); if (!box) return;
+        const conta = s => edRegras.filter(r => s === 'todas' || r.status === s).length;
+        const chips = [['todas','Todas'],['aprovada','Aprovadas'],['proposta','Propostas'],['descartada','Descartadas']].map(([k, n]) =>
+            '<button class="ed-chip' + (edRegrasFiltro === k ? ' on' : '') + '" type="button" onclick="edFiltrarRegras(\'' + k + '\')">' + n + ' <b>' + conta(k) + '</b></button>').join('');
+        const lista = edRegras.filter(r => edRegrasFiltro === 'todas' || r.status === edRegrasFiltro);
+        const tipos = ED_TIPOS.map(t => '<option value="' + t[0] + '">' + t[1] + '</option>').join('');
+        box.innerHTML =
+          '<div class="ed-card" style="margin-bottom:14px;">' +
+            '<h4>Nova regra</h4>' +
+            '<div class="ed-form">' +
+              '<input class="ed-input" id="edRegraTx" placeholder="Ex.: whoosh em toda troca de cena, nunca em cima da fala">' +
+              '<select class="ed-input" id="edRegraCat">' + tipos + '</select>' +
+              '<input class="ed-input" id="edRegraCli" placeholder="Cliente (vazio = todos)">' +
+              '<button class="ed-btn" type="button" onclick="edNovaRegra()">Adicionar</button>' +
+            '</div>' +
+            '<input class="ed-input" id="edRegraMot" style="margin-top:8px;" placeholder="Motivo (opcional, ajuda o Claude a entender o porquê)">' +
+          '</div>' +
+          '<div class="ed-sub">' + chips + '</div>' +
+          '<div class="ed-card">' + (lista.length ? lista.map(r =>
+            '<div class="ed-regra"><div class="ed-row" style="justify-content:space-between;align-items:flex-start;">' +
+              '<div style="flex:1;min-width:0;"><div class="tx">' + edEsc(r.texto) + '</div>' +
+              '<div class="mt"><span class="ed-tag">' + edEsc(edTipoNome(r.categoria)) + '</span> ' + (r.cliente ? 'só ' + edEsc(r.cliente) : 'todos os vídeos') + (r.motivo ? ' · ' + edEsc(r.motivo) : '') + '</div></div>' +
+              '<div class="ed-row"><span class="ed-st ' + r.status + '">' + r.status + '</span>' +
+                (r.status !== 'aprovada' ? '<button class="ed-x" type="button" title="Aprovar" onclick="edStatusRegra(\'' + r.id + '\',\'aprovada\')">✓</button>' : '') +
+                (r.status !== 'descartada' ? '<button class="ed-x" type="button" title="Descartar" onclick="edStatusRegra(\'' + r.id + '\',\'descartada\')">⊘</button>' : '') +
+                '<button class="ed-x" type="button" title="Editar" onclick="edEditarRegra(\'' + r.id + '\')">✎</button>' +
+                '<button class="ed-x" type="button" title="Apagar" onclick="edApagarRegra(\'' + r.id + '\')">✕</button>' +
+              '</div></div></div>').join('') : '<div class="ed-empty">Nenhuma regra aqui ainda.</div>') + '</div>';
+    }
+    function edFiltrarRegras(k) { edRegrasFiltro = k; edRenderRegras(); }
+    async function edRecarregarRegras() {
+        const { data, error } = await sb.from('edicao_regras').select('*').order('created_at', { ascending: false });
+        if (error) return edErro('Não carreguei as regras', error);
+        edRegras = data || []; edRender();
+    }
+    async function edNovaRegra() {
+        const tx = document.getElementById('edRegraTx').value.trim(); if (!tx) return edToast('Escreva a regra', true);
+        const { error } = await sb.from('edicao_regras').insert({
+            texto: tx, categoria: document.getElementById('edRegraCat').value,
+            cliente: document.getElementById('edRegraCli').value.trim() || null,
+            motivo: document.getElementById('edRegraMot').value.trim() || null, status: 'aprovada' });
+        if (error) return edErro('Não salvei a regra', error);
+        edToast('Regra adicionada'); edRecarregarRegras();
+    }
+    async function edStatusRegra(id, status) {
+        const { error } = await sb.from('edicao_regras').update({ status, updated_at: new Date().toISOString() }).eq('id', id);
+        if (error) return edErro('Não atualizei a regra', error);
+        edRecarregarRegras();
+    }
+    async function edEditarRegra(id) {
+        const r = edRegras.find(x => x.id === id); if (!r) return;
+        const tx = prompt('Regra:', r.texto); if (tx == null || !tx.trim()) return;
+        const { error } = await sb.from('edicao_regras').update({ texto: tx.trim(), updated_at: new Date().toISOString() }).eq('id', id);
+        if (error) return edErro('Não salvei', error);
+        edRecarregarRegras();
+    }
+    async function edApagarRegra(id) {
+        if (!confirm('Apagar essa regra de vez? (Descartar guarda o histórico.)')) return;
+        const { error } = await sb.from('edicao_regras').delete().eq('id', id);
+        if (error) return edErro('Não apaguei', error);
+        edRecarregarRegras();
+    }
+
+    /* ── Dicionário de correções da transcrição ── */
+    function edRenderDic() {
+        const box = document.getElementById('edBox'); if (!box) return;
+        box.innerHTML =
+          '<div class="ed-card" style="margin-bottom:14px;">' +
+            '<h4>Nova correção</h4>' +
+            '<div class="ed-muted" style="margin-bottom:8px;">O que a transcrição costuma errar (nome de marca, termos em inglês) e como deve ficar na legenda.</div>' +
+            '<div class="ed-form">' +
+              '<input class="ed-input" id="edDicErr" placeholder="A transcrição escreve (ex.: Infinity Pay)">' +
+              '<input class="ed-input" id="edDicCer" placeholder="O certo (ex.: InfinitePay)">' +
+              '<input class="ed-input" id="edDicCli" placeholder="Cliente (vazio = todos)">' +
+              '<button class="ed-btn" type="button" onclick="edNovaCorrecao()">Adicionar</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="ed-card">' + (edDic.length ? edDic.map(d =>
+            '<div class="ed-com"><div class="ed-com-tx"><b>' + edEsc(d.errado) + '</b> → ' + edEsc(d.certo) + ' <span class="ed-muted">' + (d.cliente ? edEsc(d.cliente) : 'todos') + '</span></div>' +
+            '<div class="ed-acoes"><button class="ed-x" type="button" title="Apagar" onclick="edApagarCorrecao(\'' + d.id + '\')">✕</button></div></div>').join('')
+            : '<div class="ed-empty">Nenhuma correção cadastrada.</div>') + '</div>';
+    }
+    async function edRecarregarDic() {
+        const { data, error } = await sb.from('edicao_dicionario').select('*').order('cliente', { ascending: true });
+        if (error) return edErro('Não carreguei o dicionário', error);
+        edDic = data || []; edRender();
+    }
+    async function edNovaCorrecao() {
+        const errado = document.getElementById('edDicErr').value.trim(), certo = document.getElementById('edDicCer').value.trim();
+        if (!errado || !certo) return edToast('Preencha os dois campos', true);
+        const { error } = await sb.from('edicao_dicionario').insert({ errado, certo, cliente: document.getElementById('edDicCli').value.trim() || null });
+        if (error) return edErro('Não salvei', error);
+        edToast('Correção adicionada'); edRecarregarDic();
+    }
+    async function edApagarCorrecao(id) {
+        const { error } = await sb.from('edicao_dicionario').delete().eq('id', id);
+        if (error) return edErro('Não apaguei', error);
+        edRecarregarDic();
+    }
 
     async function ctLoad() {
         const box = document.getElementById('ctBox'); if (!box) return;
