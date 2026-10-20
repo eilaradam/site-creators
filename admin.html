@@ -17498,7 +17498,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
        pelo ID da pasta, analisa as referências, edita e devolve prévia + projeto em camadas. */
     const ED_REF_TIPOS = [['geral','Geral (a vibe do vídeo)'],['legenda','Fonte e legenda'],['animacao','Animação e gráficos'],['cortes_zoom','Cortes e zoom'],['som','Som e música'],['cor','Cor']];
     const ED_PED_STATUS = {
-        na_fila: ['Na fila', '#FFF3D6', '#8A5A00'], baixando: ['Baixando o bruto', '#E3EEFF', '#1F4E9A'],
+        na_fila: ['Na fila', '#FFF3D6', '#8A5A00'], aguardando_bruto: ['Esperando o bruto na pasta', '#FFF3D6', '#8A5A00'], baixando: ['Baixando o bruto', '#E3EEFF', '#1F4E9A'],
         analisando: ['Analisando referências', '#E3EEFF', '#1F4E9A'], editando: ['Editando', '#E3EEFF', '#1F4E9A'],
         previa_pronta: ['Prévia pronta', '#DDF5E6', '#1D6B3A'], em_revisao: ['Em revisão', '#F3E8FF', '#6B2FA3'],
         renderizando: ['Renderizando final', '#E3EEFF', '#1F4E9A'], final_pronto: ['Final no Drive', '#DDF5E6', '#1D6B3A'],
@@ -17525,7 +17525,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         edPedidos = p.data || []; edRefsBib = b.data || [];
     }
     function edNovoForm(base) {
-        edForm = Object.assign({ id: null, conteudo_id: '', titulo: '', drive_pasta_link: '', roteiro: '', formato: '9:16', duracao_alvo_s: '', observacoes: '',
+        edForm = Object.assign({ id: null, conteudo_id: '', marca: '', titulo: '', drive_pasta_link: '', roteiro: '', formato: '9:16', duracao_alvo_s: '', observacoes: '',
             refs: [{ tipo: 'geral', link: '', nota: '', salvar: false, nome: '' }] }, base || {});
     }
     function edAbrirNovoPedido() { edPedidoAberto = 'novo'; edNovoForm(); edRender(); }
@@ -17534,7 +17534,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const { data, error } = await sb.from('edicao_referencias').select('*').eq('pedido_id', id).order('created_at');
         if (error) return edErro('Não carreguei as referências', error);
         edPedidoAberto = id; edPedidoRefs = data || [];
-        edNovoForm({ id, conteudo_id: ped.conteudo_id || '', titulo: ped.titulo || '', drive_pasta_link: ped.drive_pasta_link || '', roteiro: ped.roteiro || '',
+        edNovoForm({ id, conteudo_id: ped.conteudo_id || '', marca: ped.marca || '', titulo: ped.titulo || '', drive_pasta_link: ped.drive_pasta_link || '', roteiro: ped.roteiro || '',
             formato: ped.formato || '9:16', duracao_alvo_s: ped.duracao_alvo_s || '', observacoes: ped.observacoes || '',
             refs: edPedidoRefs.length ? edPedidoRefs.map(r => ({ id: r.id, tipo: r.tipo, link: r.link, nota: r.nota || '', salvar: false, nome: '' })) : [{ tipo: 'geral', link: '', nota: '', salvar: false, nome: '' }] });
         edRender();
@@ -17544,12 +17544,26 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     function edLerForm() {
         if (!edForm) return;
         const v = id => { const el = document.getElementById(id); return el ? el.value : undefined; };
-        ['titulo', 'drive_pasta_link', 'roteiro', 'duracao_alvo_s', 'observacoes', 'conteudo_id'].forEach(k => { const x = v('edP_' + k); if (x !== undefined) edForm[k] = x; });
+        ['marca', 'titulo', 'drive_pasta_link', 'roteiro', 'duracao_alvo_s', 'observacoes', 'conteudo_id'].forEach(k => { const x = v('edP_' + k); if (x !== undefined) edForm[k] = x; });
         edForm.refs.forEach((r, i) => {
             const t = v('edR_tipo_' + i), l = v('edR_link_' + i), n = v('edR_nota_' + i), nm = v('edR_nome_' + i);
             if (t !== undefined) r.tipo = t; if (l !== undefined) r.link = l; if (n !== undefined) r.nota = n; if (nm !== undefined) r.nome = nm;
             const ck = document.getElementById('edR_salvar_' + i); if (ck) r.salvar = ck.checked;
         });
+    }
+    function edCampanhaNoForm(id) {
+        edLerForm(); edForm.conteudo_id = id;
+        const c = edCampanhas.find(x => x.id === id);
+        if (c && c.cliente && !edForm.marca.trim()) edForm.marca = c.cliente;
+        edRender();
+    }
+    function edMarcasConhecidas() {
+        const s = new Set();
+        edCampanhas.forEach(c => c.cliente && s.add(c.cliente.trim()));
+        edPedidos.forEach(p => p.marca && s.add(p.marca.trim()));
+        edRegras.forEach(r => r.cliente && s.add(r.cliente.trim()));
+        edDic.forEach(d => d.cliente && s.add(d.cliente.trim()));
+        return [...s].sort((a, b) => a.localeCompare(b, 'pt-BR'));
     }
     function edFormato(f) { edLerForm(); edForm.formato = f; edRender(); }
     function edAddRef(tipo) { edLerForm(); edForm.refs.push({ tipo: tipo || 'geral', link: '', nota: '', salvar: false, nome: '' }); edRender(); }
@@ -17564,13 +17578,14 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     }
     async function edSalvarPedido() {
         edLerForm(); const f = edForm; if (!f) return;
+        if (!f.marca.trim()) return edToast('Preencha a marca', true);
         if (!f.titulo.trim()) return edToast('Dê um nome ao pedido', true);
-        /* link é opcional: sem link, o robô procura a pasta "Edição/<nome do pedido>" no Drive */
+        /* link é opcional: sem link, o robô cria a pasta Edição/<marca>/#<numero> <nome> e escreve o link no pedido */
         const pid = f.drive_pasta_link.trim() ? edPastaId(f.drive_pasta_link) : null;
         if (f.drive_pasta_link.trim() && !pid) return edToast('Esse link não é de uma PASTA do Drive (drive.google.com/drive/folders/...)', true);
         const refs = f.refs.filter(r => r.link.trim());
         const linha = {
-            titulo: f.titulo.trim(), conteudo_id: f.conteudo_id || null, drive_pasta_link: f.drive_pasta_link.trim() || null, drive_pasta_id: pid,
+            marca: f.marca.trim(), titulo: f.titulo.trim(), conteudo_id: f.conteudo_id || null, drive_pasta_link: f.drive_pasta_link.trim() || null, drive_pasta_id: pid,
             roteiro: f.roteiro.trim() || null, formato: f.formato, duracao_alvo_s: f.duracao_alvo_s ? parseInt(f.duracao_alvo_s, 10) || null : null,
             observacoes: f.observacoes.trim() || null, updated_at: new Date().toISOString(),
         };
@@ -17615,7 +17630,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const cards = edPedidos.map(p => {
             const camp = edCampanhas.find(c => c.id === p.conteudo_id);
             return '<div class="ed-ped" onclick="edAbrirPedido(\'' + p.id + '\')">' +
-                '<div style="flex:1;min-width:0;"><div class="tx">' + edEsc(p.titulo) + '</div>' +
+                '<div style="flex:1;min-width:0;"><div class="tx"><span class="ed-muted">#' + edEsc(p.numero || '') + '</span> ' + edEsc(p.marca ? p.marca + ' · ' : '') + edEsc(p.titulo) + '</div>' +
                 '<div class="mt">' + (camp ? edEsc(camp.nome) + ' · ' : '') + edEsc(p.formato) + (p.duracao_alvo_s ? ' · ' + p.duracao_alvo_s + 's' : '') + ' · ' + (p.created_at ? new Date(p.created_at).toLocaleDateString('pt-BR') : 'agora') +
                 (p.status_msg ? ' · <i>' + edEsc(p.status_msg) + '</i>' : '') + '</div></div>' +
                 edStatusTag(p.status) + '</div>';
@@ -17657,10 +17672,15 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
           '<div class="ed-grid">' +
             '<div class="ed-card">' +
               '<h4>O vídeo</h4>' +
-              '<label class="ed-lb">Nome do pedido</label><input class="ed-input" id="edP_titulo" placeholder="ex.: InfinitePay pipoca V1"' + dis + ' value="' + edEsc(f.titulo) + '">' +
-              '<label class="ed-lb">Campanha (aba Conteúdos)</label><select class="ed-input" id="edP_conteudo_id"' + dis + '>' + camps + '</select>' +
+              '<label class="ed-lb">Campanha (aba Conteúdos, opcional)</label><select class="ed-input" id="edP_conteudo_id"' + dis + ' onchange="edCampanhaNoForm(this.value)">' + camps + '</select>' +
+              '<label class="ed-lb">Marca</label><input class="ed-input" id="edP_marca" list="edMarcasLista" placeholder="ex.: InfinitePay"' + dis + ' value="' + edEsc(f.marca) + '">' +
+              '<datalist id="edMarcasLista">' + edMarcasConhecidas().map(m => '<option value="' + edEsc(m) + '">').join('') + '</datalist>' +
+              '<label class="ed-lb">Nome do pedido</label><input class="ed-input" id="edP_titulo" placeholder="ex.: pipoca"' + dis + ' value="' + edEsc(f.titulo) + '">' +
               '<label class="ed-lb">Pasta do Drive com o bruto (opcional)</label><input class="ed-input" id="edP_drive_pasta_link" placeholder="https://drive.google.com/drive/folders/..."' + dis + ' value="' + edEsc(f.drive_pasta_link) + '">' +
-              '<div class="ed-muted" style="margin-top:4px;">Sem link: coloque o bruto e as cenas extras na pasta <b>Edição/' + edEsc(f.titulo || '<nome do pedido>') + '</b> do seu Drive. Com link: o robô usa a pasta do link. O final volta para a mesma pasta.</div>' +
+              '<div class="ed-muted" style="margin-top:4px;">' + (ped && ped.drive_pasta_link && !f.drive_pasta_link
+                ? '' : (f.drive_pasta_link.trim() ? 'O robô usa a pasta desse link.' :
+                  'Deixe vazio: o robô cria a pasta <b>Edição/' + edEsc(f.marca.trim() || '<marca>') + '/#' + edEsc(ped && ped.numero ? ped.numero : 'nº') + ' ' + edEsc(f.titulo.trim() || '<nome>') + '</b> no seu Drive e o link aparece aqui. Aí é só jogar o bruto e as cenas extras dentro.')) +
+                ' O final volta para a mesma pasta.</div>' +
               '<label class="ed-lb">Formato</label><div class="ed-row">' + formatos + '</div>' +
               '<label class="ed-lb">Duração desejada (segundos, opcional)</label><input class="ed-input" id="edP_duracao_alvo_s" type="number" min="5" max="600" style="max-width:160px;"' + dis + ' value="' + edEsc(f.duracao_alvo_s) + '">' +
               '<label class="ed-lb">Observações</label><textarea class="ed-input" id="edP_observacoes" rows="3" placeholder="ex.: tirar a parte em que eu tropeço; destacar o preço"' + dis + '>' + edEsc(f.observacoes) + '</textarea>' +

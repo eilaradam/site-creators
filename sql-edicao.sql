@@ -113,14 +113,16 @@ create table if not exists public.edicao_pedidos (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   conteudo_id uuid references public.conteudos(id) on delete set null,
+  numero bigint generated always as identity,   -- #1, #2... nunca repete: a pasta é Edição/<marca>/#<numero> <titulo>
+  marca text,
   titulo text not null,
-  drive_pasta_link text,       -- opcional: sem link, o robô usa a pasta "Edição/<titulo>" do Drive
+  drive_pasta_link text,       -- o robô cria a pasta e escreve o link aqui (ou você cola um link de pasta que já existe)
   drive_pasta_id text,
   roteiro text,
   formato text not null default '9:16' check (formato in ('9:16','4:5','1:1','16:9')),
   duracao_alvo_s integer,
   observacoes text,
-  status text not null default 'na_fila' check (status in ('na_fila','baixando','analisando','editando','previa_pronta','em_revisao','renderizando','final_pronto','erro','cancelado')),
+  status text not null default 'na_fila' check (status in ('na_fila','aguardando_bruto','baixando','analisando','editando','previa_pronta','em_revisao','renderizando','final_pronto','erro','cancelado')),
   status_msg text,             -- o robô escreve aqui o que está fazendo ou o erro
   projeto jsonb,               -- o projeto em camadas (timeline) que o robô devolve
   previa_link text,
