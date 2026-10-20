@@ -5208,12 +5208,21 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
 #tabEdicao .ed-refrow .ed-bibck { grid-column:1 / -1; display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
 #tabEdicao textarea.ed-input { resize:vertical; line-height:1.45; }
 #tabEdicao .ed-form { display:grid; grid-template-columns:2fr 1fr 1fr auto; gap:8px; align-items:center; }
+#tabEdicao .ed-feed { display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:14px; }
+#tabEdicao .ed-feed-item { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; display:flex; flex-direction:column; }
+#tabEdicao .ed-feed-midia { position:relative; aspect-ratio:9/16; background:#111; overflow:hidden; }
+#tabEdicao .ed-feed-ifr { position:absolute; left:0; top:0; width:100%; height:100%; border:0; background:#fff; }
+#tabEdicao .ed-feed-ifr.ig { top:-56px; height:calc(100% + 56px); }
+#tabEdicao .ed-feed-sem { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; text-align:center; color:#ddd; font-size:13px; line-height:1.6; text-decoration:none; }
+#tabEdicao .ed-feed-info { padding:10px 12px 12px; }
+#tabEdicao .ed-feed-nome { font-weight:700; font-size:13.5px; margin:6px 0 2px; }
 #tabEdicao .ed-toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px); background:#1F1B18; color:#fff; padding:10px 16px; border-radius:10px; font-size:13.5px; font-weight:600; opacity:0; pointer-events:none; transition:all .2s; z-index:9999; }
 #tabEdicao .ed-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 #tabEdicao .ed-toast.erro { background:#B3261E; }
 @media (max-width: 900px) {
   #tabEdicao .ed-grid { grid-template-columns:1fr; }
   #tabEdicao .ed-form { grid-template-columns:1fr; }
+  #tabEdicao .ed-feed { grid-template-columns:repeat(2, minmax(0, 1fr)); gap:8px; }
   #tabEdicao .ed-refrow { grid-template-columns:1fr; }
 }
 </style>
@@ -17669,7 +17678,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         edPedidos = p.data || []; edRefsBib = b.data || [];
     }
     function edNovoForm(base) {
-        edForm = Object.assign({ id: null, conteudo_id: '', marca: '', titulo: '', drive_pasta_link: '', roteiro: '', formato: '9:16', duracao_alvo_s: '', observacoes: '',
+        edForm = Object.assign({ id: null, conteudo_id: '', marca: '', titulo: '', drive_pasta_link: '', roteiro: '', formato: '9:16', duracao_alvo_s: '', observacoes: '', marca_site: '', marca_redes: '', rec_gravar: false, rec_passos: '',
             refs: [{ tipo: 'geral', link: '', nota: '', salvar: false, nome: '' }] }, base || {});
     }
     function edAbrirNovoPedido() { edPedidoAberto = 'novo'; edNovoForm(); edRender(); }
@@ -17680,6 +17689,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         edPedidoAberto = id; edPedidoRefs = data || [];
         edNovoForm({ id, conteudo_id: ped.conteudo_id || '', marca: ped.pasta_nome || ped.marca || '', titulo: ped.titulo || '', drive_pasta_link: ped.drive_pasta_link || '', roteiro: ped.roteiro || '',
             formato: ped.formato || '9:16', duracao_alvo_s: ped.duracao_alvo_s || '', observacoes: ped.observacoes || '',
+            marca_site: ped.marca_site || '', marca_redes: ped.marca_redes || '', rec_gravar: !!ped.rec_gravar, rec_passos: ped.rec_passos || '',
             refs: edPedidoRefs.length ? edPedidoRefs.map(r => ({ id: r.id, tipo: r.tipo, link: r.link, nota: r.nota || '', salvar: false, nome: '' })) : [{ tipo: 'geral', link: '', nota: '', salvar: false, nome: '' }] });
         edRender();
     }
@@ -17688,12 +17698,13 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     function edLerForm() {
         if (!edForm) return;
         const v = id => { const el = document.getElementById(id); return el ? el.value : undefined; };
-        ['marca', 'titulo', 'drive_pasta_link', 'roteiro', 'duracao_alvo_s', 'observacoes', 'conteudo_id'].forEach(k => { const x = v('edP_' + k); if (x !== undefined) edForm[k] = x; });
+        ['marca', 'titulo', 'drive_pasta_link', 'roteiro', 'duracao_alvo_s', 'observacoes', 'conteudo_id', 'marca_site', 'marca_redes', 'rec_passos'].forEach(k => { const x = v('edP_' + k); if (x !== undefined) edForm[k] = x; });
         edForm.refs.forEach((r, i) => {
             const t = v('edR_tipo_' + i), l = v('edR_link_' + i), n = v('edR_nota_' + i), nm = v('edR_nome_' + i);
             if (t !== undefined) r.tipo = t; if (l !== undefined) r.link = l; if (n !== undefined) r.nota = n; if (nm !== undefined) r.nome = nm;
             const ck = document.getElementById('edR_salvar_' + i); if (ck) r.salvar = ck.checked;
         });
+        const rec = document.getElementById('edP_rec_gravar'); if (rec) edForm.rec_gravar = rec.checked;
     }
     function edCampanhaNoForm(id) {
         edLerForm(); edForm.conteudo_id = id;
@@ -17732,6 +17743,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             pasta_nome: f.marca.trim().replace(/\s+/g, ' '), marca: f.marca.trim().replace(/\s+\d+$/, ''), titulo: f.marca.trim(), conteudo_id: f.conteudo_id || null, drive_pasta_link: f.drive_pasta_link.trim() || null, drive_pasta_id: pid,
             roteiro: f.roteiro.trim() || null, formato: f.formato, duracao_alvo_s: f.duracao_alvo_s ? parseInt(f.duracao_alvo_s, 10) || null : null,
             observacoes: f.observacoes.trim() || null, updated_at: new Date().toISOString(),
+            marca_site: f.marca_site.trim() || null, marca_redes: f.marca_redes.trim() || null, rec_gravar: !!f.rec_gravar, rec_passos: f.rec_passos.trim() || null,
         };
         let pedidoId = f.id;
         if (pedidoId) {
@@ -17819,7 +17831,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             '<div class="ed-card">' +
               '<h4>O vídeo</h4>' +
               '<label class="ed-lb">Campanha (aba Conteúdos, opcional)</label><select class="ed-input" id="edP_conteudo_id"' + dis + ' onchange="edCampanhaNoForm(this.value)">' + camps + '</select>' +
-              '<label class="ed-lb">Marca (vira o nome da pasta no Drive)</label><input class="ed-input" id="edP_marca" list="edMarcasLista" placeholder="ex.: InfinitePay"' + dis + ' value="' + edEsc(f.marca) + '" oninput="edChecarPasta()">' +
+              '<label class="ed-lb">Marca (vira o nome da pasta no Drive)</label><input class="ed-input" id="edP_marca" list="edMarcasLista" placeholder="ex.: InfinitePay"' + dis + ' value="' + edEsc(f.marca) + '" oninput="edChecarPasta()" onchange="edPuxarMarca()">' +
               '<datalist id="edMarcasLista">' + edMarcasConhecidas().map(m => '<option value="' + edEsc(m) + '">').join('') + '</datalist>' +
               '<div id="edPastaAviso" class="ed-muted" style="margin-top:5px;"></div>' +
               '<label class="ed-lb">Pasta do Drive com o bruto (opcional)</label><input class="ed-input" id="edP_drive_pasta_link" placeholder="https://drive.google.com/drive/folders/..."' + dis + ' value="' + edEsc(f.drive_pasta_link) + '">' +
@@ -17835,6 +17847,18 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
               '<h4>Roteiro</h4>' +
               '<div class="ed-muted" style="margin-bottom:6px;">Com o roteiro o robô sabe qual tomada é a certa e acerta os nomes na legenda.</div>' +
               '<textarea class="ed-input" id="edP_roteiro" rows="14" placeholder="Cole o roteiro aqui"' + dis + '>' + edEsc(f.roteiro) + '</textarea>' +
+            '</div>' +
+          '</div>' +
+          '<div class="ed-card" style="margin-top:14px;">' +
+            '<h4>A marca</h4>' +
+            '<div class="ed-muted" style="margin-bottom:6px;">O robô lê o site e as redes para acertar nome, cores e o que a marca faz. Se a marca já está na aba Marcas, o site e o @ vêm sozinhos.</div>' +
+            '<div class="ed-grid">' +
+              '<div><label class="ed-lb">Site</label><input class="ed-input" id="edP_marca_site" placeholder="https://..."' + dis + ' value="' + edEsc(f.marca_site) + '">' +
+              '<label class="ed-lb">Redes (uma por linha)</label><textarea class="ed-input" id="edP_marca_redes" rows="3" placeholder="@marca no Instagram&#10;link do TikTok&#10;link do YouTube"' + dis + '>' + edEsc(f.marca_redes) + '</textarea></div>' +
+              '<div><label class="ed-lb" style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:13.5px;color:var(--text);"><input type="checkbox" id="edP_rec_gravar"' + dis + (f.rec_gravar ? ' checked' : '') + ' onchange="edLerForm();edRender()"> Gravar a tela do site simulando o uso</label>' +
+              (f.rec_gravar ? '<label class="ed-lb">O que mostrar na gravação</label><textarea class="ed-input" id="edP_rec_passos" rows="4" placeholder="ex.: abrir o site, rolar até Taxas, clicar em Simular, digitar 1000 e mostrar o resultado"' + dis + '>' + edEsc(f.rec_passos) + '</textarea>' +
+                '<div class="ed-muted" style="margin-top:4px;">Grava no tamanho do celular e cai na pasta do pedido. Só funciona em site aberto: app de celular e área com login você mesma grava.</div>'
+                : '<textarea id="edP_rec_passos" style="display:none;">' + edEsc(f.rec_passos) + '</textarea>') + '</div>' +
             '</div>' +
           '</div>' +
           '<div class="ed-card" style="margin-top:14px;">' +
@@ -17867,18 +17891,51 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                 '<button class="ed-btn ghost mini" type="button" onclick="edUsarSugestao(\'' + edEsc(sug).replace(/'/g, "\\'") + '\')">Usar "' + edEsc(sug) + '"</button>';
         } else av.innerHTML = 'Pasta: <b>Edição/' + edEsc(nome) + '</b>';
     }
-    function edUsarSugestao(s) { const el = document.getElementById('edP_marca'); if (el) { el.value = s; edChecarPasta(); } }
+    /* Busca site e @ da marca na aba Marcas, só preenche o que está vazio */
+    async function edPuxarMarca() {
+        edLerForm(); const f = edForm; if (!f) return;
+        const nome = f.marca.trim().replace(/\s+\d+$/, ''); if (!nome || (f.marca_site.trim() && f.marca_redes.trim())) return;
+        const { data } = await sb.from('marcas').select('nome,site,instagram').ilike('nome', nome).limit(1);
+        const m = data && data[0]; if (!m || edForm !== f) return;
+        let mudou = false;
+        if (!f.marca_site.trim() && m.site) { f.marca_site = m.site; mudou = true; }
+        if (!f.marca_redes.trim() && m.instagram) { f.marca_redes = '@' + m.instagram; mudou = true; }
+        if (mudou) { edRender(); edToast('Site e @ puxados da aba Marcas'); }
+    }
+    function edUsarSugestao(s) { const el = document.getElementById('edP_marca'); if (el) { el.value = s; edChecarPasta(); edPuxarMarca(); } }
 
     /* ── Biblioteca de referências ── */
+    let edBibFiltro = '';
+    // Link de Reels/TikTok/YouTube/Drive -> endereço que dá para mostrar dentro da página
+    function edEmbed(link) {
+        const u = String(link || ''); let m;
+        if ((m = u.match(/instagram\.com\/(?:[\w.]+\/)?(?:reels?|p|tv)\/([\w-]+)/))) return { tipo: 'ig', src: 'https://www.instagram.com/p/' + m[1] + '/embed/' };
+        if ((m = u.match(/tiktok\.com\/.*\/video\/(\d+)/))) return { tipo: 'tt', src: 'https://www.tiktok.com/embed/v2/' + m[1] };
+        if ((m = u.match(/(?:youtube\.com\/(?:shorts\/|embed\/|watch\?(?:.*&)?v=)|youtu\.be\/)([\w-]{6,})/))) return { tipo: 'yt', src: 'https://www.youtube.com/embed/' + m[1] };
+        if ((m = u.match(/drive\.google\.com\/file\/d\/([\w-]+)/))) return { tipo: 'dr', src: 'https://drive.google.com/file/d/' + m[1] + '/preview' };
+        return null;
+    }
+    function edBibFiltrar(k) { edBibFiltro = k; edRenderBiblioteca(); }
     function edRenderBiblioteca() {
         const box = document.getElementById('edBox'); if (!box) return;
         const tipoOpts = ED_REF_TIPOS.map(t => '<option value="' + t[0] + '">' + t[1] + '</option>').join('');
-        const grupos = ED_REF_TIPOS.map(([k, n]) => {
-            const rs = edRefsBib.filter(r => r.tipo === k); if (!rs.length) return '';
-            return '<div class="ed-card" style="margin-bottom:12px;"><h4>' + edEsc(n) + '</h4>' + rs.map(r =>
-                '<div class="ed-com"><div class="ed-com-tx"><b>' + edEsc(r.nome || 'sem nome') + '</b> · <a href="' + edEsc(r.link) + '" target="_blank" rel="noopener">abrir</a>' +
-                (r.nota ? '<div class="ed-muted">' + edEsc(r.nota) + '</div>' : '') + '</div>' +
-                '<div class="ed-acoes"><button class="ed-x" type="button" title="Apagar" onclick="edApagarRefBib(\'' + r.id + '\')">✕</button></div></div>').join('') + '</div>';
+        const conta = k => edRefsBib.filter(r => !k || r.tipo === k).length;
+        const chips = [['', 'Todas']].concat(ED_REF_TIPOS).filter(([k]) => !k || conta(k)).map(([k, n]) =>
+            '<button class="ed-chip' + (edBibFiltro === k ? ' on' : '') + '" type="button" onclick="edBibFiltrar(\'' + k + '\')">' + edEsc(n) + ' · ' + conta(k) + '</button>').join('');
+        const lista = edRefsBib.filter(r => !edBibFiltro || r.tipo === edBibFiltro);
+        const tiles = lista.map(r => {
+            const e = edEmbed(r.link);
+            let host = ''; try { host = new URL(r.link).hostname.replace(/^www\./, ''); } catch (_) { host = 'link'; }
+            const midia = e
+                ? '<iframe class="ed-feed-ifr ' + e.tipo + '" src="' + edEsc(e.src) + '" loading="lazy" scrolling="no" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>'
+                : '<a class="ed-feed-sem" href="' + edEsc(r.link) + '" target="_blank" rel="noopener"><span>Sem prévia<br><b>' + edEsc(host) + '</b><br>abrir ↗</span></a>';
+            return '<div class="ed-feed-item"><div class="ed-feed-midia">' + midia + '</div>' +
+                '<div class="ed-feed-info"><div class="ed-row" style="justify-content:space-between;flex-wrap:nowrap;">' +
+                  '<span class="ed-tag">' + edEsc(edRefTipoNome(r.tipo)) + '</span>' +
+                  '<span class="ed-acoes"><a class="ed-x" href="' + edEsc(r.link) + '" target="_blank" rel="noopener" title="Abrir no app">↗</a>' +
+                  '<button class="ed-x" type="button" title="Apagar" onclick="edApagarRefBib(\'' + r.id + '\')">✕</button></span></div>' +
+                '<div class="ed-feed-nome">' + edEsc(r.nome || 'sem nome') + '</div>' +
+                (r.nota ? '<div class="ed-muted">' + edEsc(r.nota) + '</div>' : '') + '</div></div>';
         }).join('');
         box.innerHTML =
           '<div class="ed-card" style="margin-bottom:14px;">' +
@@ -17886,11 +17943,14 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             '<div class="ed-form">' +
               '<input class="ed-input" id="edB_nome" placeholder="Nome (ex.: legenda amarela pop)">' +
               '<select class="ed-input" id="edB_tipo">' + tipoOpts + '</select>' +
-              '<input class="ed-input" id="edB_link" placeholder="Link">' +
+              '<input class="ed-input" id="edB_link" placeholder="Link do Reels, TikTok, YouTube ou Drive">' +
               '<button class="ed-btn" type="button" onclick="edNovaRefBib()">Salvar</button>' +
             '</div>' +
             '<input class="ed-input" id="edB_nota" style="margin-top:8px;" placeholder="O que copiar dela">' +
-          '</div>' + (grupos || '<div class="ed-card ed-empty">A biblioteca está vazia. Salve aqui as referências que você usa sempre.</div>');
+          '</div>' +
+          (edRefsBib.length
+            ? '<div class="ed-sub">' + chips + '</div><div class="ed-feed">' + tiles + '</div>'
+            : '<div class="ed-card ed-empty">A biblioteca está vazia. Salve aqui as referências que você usa sempre.</div>');
     }
     async function edNovaRefBib() {
         const link = document.getElementById('edB_link').value.trim(); if (!link) return edToast('Cole o link', true);
