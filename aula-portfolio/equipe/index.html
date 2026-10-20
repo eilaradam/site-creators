@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Equipe · Portfólios da aula</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.98.0" crossorigin="anonymous"></script>
+<style>
+:root{--rosa:#FF5C9E;--preto:#141217;--fundo:#F6F1F3;--rosa-escuro:#C2185B;--borda:#E3D6DC}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--fundo);color:var(--preto);line-height:1.45;-webkit-font-smoothing:antialiased}
+.wrap{max-width:900px;margin:0 auto;padding:16px 16px 60px}
+h1{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:28px;letter-spacing:.02em}
+.login{max-width:380px;margin:18vh auto 0;text-align:center}
+.login input{width:100%;font:inherit;font-size:17px;padding:14px;border:2px solid var(--borda);border-radius:12px;margin:16px 0 10px;background:#fff}
+.btn{font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:.05em;font-weight:700;font-size:16px;padding:12px 18px;border:0;border-radius:10px;background:var(--rosa);color:var(--preto);cursor:pointer}
+.btn.escuro{background:var(--preto);color:#fff}
+.btn.grande{width:100%;font-size:20px;padding:15px}
+.barra{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+.barra .sp{flex:1}
+.chip{border:2px solid var(--borda);background:#fff;border-radius:999px;padding:8px 14px;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.chip.on{background:var(--preto);color:#fff;border-color:var(--preto)}
+.info{font-size:13px;color:#6b6270}
+.card{background:#fff;border:2px solid var(--borda);border-radius:14px;padding:14px;margin-bottom:12px}
+.card.boa{border-color:var(--rosa)} .card.avancado{border-color:var(--preto)} .card.descartar{opacity:.55}
+.card .nome{font-weight:700;font-size:18px}
+.card .meta{font-size:14px;color:#4b4350;margin-top:2px;word-break:break-word}
+.card a{color:var(--rosa-escuro);font-weight:700;word-break:break-all}
+.tag{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:3px 8px;border-radius:6px;background:var(--fundo);margin-right:4px}
+.tag.ok{background:var(--rosa);color:var(--preto)}
+.acoes{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.acoes button{border:2px solid var(--borda);background:#fff;border-radius:10px;padding:9px 12px;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.acoes button.on.boa{background:var(--rosa);border-color:var(--rosa)}
+.acoes button.on.avancado{background:var(--preto);color:#fff;border-color:var(--preto)}
+.acoes button.on.descartar{background:#8a8190;color:#fff;border-color:#8a8190}
+.linha2{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;font-size:14px;align-items:center}
+select{font:inherit;padding:8px;border:2px solid var(--borda);border-radius:8px;background:#fff}
+#sorteio{position:fixed;inset:0;background:var(--preto);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;z-index:10}
+#sorteio.on{display:flex}
+#sorteio .lbl{font-family:'Oswald',sans-serif;text-transform:uppercase;color:var(--rosa);letter-spacing:.1em;font-size:20px}
+#sorteio .n{font-family:'Oswald',sans-serif;font-size:clamp(34px,8vw,64px);text-transform:uppercase;margin:10px 0}
+#sorteio a{color:var(--rosa);font-weight:700;font-size:clamp(22px,5vw,40px);word-break:break-all;display:block;margin:10px 0 24px}
+#sorteio .vazio{font-size:20px;max-width:420px}
+.err{color:var(--rosa-escuro);font-weight:700;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="login" id="login">
+    <h1>Equipe</h1>
+    <p class="info" style="margin-top:6px">Portfólios da aula</p>
+    <input type="password" id="senha" placeholder="Senha" autocomplete="current-password">
+    <button class="btn grande" id="entrar">Entrar</button>
+    <div class="err" id="loginErr"></div>
+  </div>
+  <div id="painel" style="display:none">
+    <h1>Portfólios da aula</h1>
+    <div class="info" id="status">Carregando...</div>
+    <div class="barra">
+      <button class="chip" id="fMostrar">Pode mostrar ao vivo</button>
+      <button class="chip" id="fBoa">Só "Boa pra análise"</button>
+      <span class="sp"></span>
+      <button class="btn" id="sortear">Sortear</button>
+      <button class="btn escuro" id="csv">Exportar CSV</button>
+    </div>
+    <div id="lista"></div>
+  </div>
+</div>
+<div id="sorteio">
+  <div class="lbl">Portfólio sorteado</div>
+  <div class="n" id="sNome"></div>
+  <a id="sLink" target="_blank" rel="noopener"></a>
+  <div class="vazio" id="sVazio"></div>
+  <button class="btn" id="sOutra">Sortear de novo</button>
+  <button class="btn escuro" id="sFechar" style="margin-top:10px">Fechar</button>
+</div>
+<script>
+const SB_URL='https://mfrmnquvwwuxraqgemyh.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mcm1ucXV2d3d1eHJhcWdlbXloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNDI1NDIsImV4cCI6MjA4NzYxODU0Mn0.zmsi08dV5L1IlXJSr34vOii71w0g0OsD5_5DKio5g-o';
+const sb=window.supabase.createClient(SB_URL,SB_KEY);
+const $=id=>document.getElementById(id);
+let senha=''; try{senha=sessionStorage.getItem('eqsenha')||'';}catch(e){}
+let dados=[], fMostrar=false, fBoa=false, timer=null, ocupado=0;
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function podeMostrar(r){return r.autoriza_mostrar&&r.portfolio;}
+function hora(t){return new Date(t).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}
+
+async function carregar(){
+  if(ocupado>0) return;
+  const {data,error}=await sb.rpc('aula_portfolio_listar',{p_senha:senha});
+  if(error){ if(/senha/i.test(error.message)){sair('Senha incorreta.');} else {$('status').textContent='Sem conexão, tentando de novo...';} return false; }
+  dados=data||[]; render(); $('status').textContent=dados.length+' respostas · atualiza sozinha';
+  return true;
+}
+function render(){
+  let l=dados.slice();
+  if(fMostrar) l=l.filter(podeMostrar);
+  if(fBoa) l=l.filter(r=>r.status==='boa');
+  $('lista').innerHTML=l.length?l.map(card).join(''):'<p class="info">Nada por aqui ainda.</p>';
+}
+function card(r){
+  const st=r.status||'';
+  const btn=(v,t)=>'<button class="'+v+(st===v?' on':'')+'" onclick="marcar(\''+r.id+'\',\'status\',\''+(st===v?'':v)+'\')">'+t+'</button>';
+  const zapNum=String(r.whatsapp||'').replace(/\D/g,'');
+  return '<div class="card '+st+'"><div class="nome">'+esc(r.nome)+'</div>'
+   +'<div class="meta">'+(podeMostrar(r)?'<span class="tag ok">pode mostrar</span>':(!r.autoriza_mostrar?'<span class="tag">não autorizou</span>':'<span class="tag">sem link</span>'))+' '+hora(r.atualizado_em)+'</div>'
+   +'<div class="meta">'+esc(r.instagram)+' · <a href="https://wa.me/'+zapNum+'" target="_blank" rel="noopener">'+esc(r.whatsapp)+'</a> · '+esc(r.email)+'</div>'
+   +(r.portfolio?'<div class="meta"><a href="'+esc(r.portfolio)+'" target="_blank" rel="noopener">'+esc(r.portfolio)+'</a></div>':'')
+   +'<div class="acoes">'+btn('boa','Boa pra análise')+btn('avancado','Muito avançado')+btn('descartar','Descartar')+'</div>'
+   +'<div class="linha2"><label>Responsável <select onchange="marcar(\''+r.id+'\',\'responsavel\',this.value)"><option value="">-</option><option'+(r.responsavel==='Lara'?' selected':'')+'>Lara</option><option'+(r.responsavel==='Camila'?' selected':'')+'>Camila</option></select></label>'
+   +'<label>Comprou? <select onchange="marcar(\''+r.id+'\',\'comprou\',this.value)"><option value="">-</option><option value="sim"'+(r.comprou==='sim'?' selected':'')+'>Sim</option><option value="nao"'+(r.comprou==='nao'?' selected':'')+'>Não</option></select></label></div></div>';
+}
+async function marcar(id,campo,valor){
+  ocupado++;
+  const r=dados.find(x=>x.id===id); if(r){r[campo]=valor||null; render();}
+  const {error}=await sb.rpc('aula_portfolio_atualizar',{p_senha:senha,p_id:id,p_campos:{[campo]:valor}});
+  ocupado--;
+  if(error) alert('Não salvou. Tenta de novo.');
+}
+window.marcar=marcar;
+
+function sair(msg){
+  clearInterval(timer); senha=''; try{sessionStorage.removeItem('eqsenha');}catch(e){}
+  $('painel').style.display='none'; $('login').style.display='block'; $('loginErr').textContent=msg||'';
+}
+async function entrar(){
+  senha=$('senha').value||senha; $('loginErr').textContent='';
+  const {error}=await sb.rpc('aula_portfolio_listar',{p_senha:senha});
+  if(error){$('loginErr').textContent=/senha/i.test(error.message)?'Senha incorreta.':'Sem conexão, tenta de novo.';return;}
+  try{sessionStorage.setItem('eqsenha',senha);}catch(e){}
+  $('login').style.display='none'; $('painel').style.display='block';
+  await carregar(); clearInterval(timer); timer=setInterval(carregar,5000);
+}
+$('entrar').onclick=entrar;
+$('senha').addEventListener('keydown',e=>{if(e.key==='Enter')entrar();});
+$('fMostrar').onclick=function(){fMostrar=!fMostrar;this.classList.toggle('on',fMostrar);render();};
+$('fBoa').onclick=function(){fBoa=!fBoa;this.classList.toggle('on',fBoa);render();};
+
+function sortear(){
+  const pool=dados.filter(r=>r.status==='boa'&&podeMostrar(r));
+  $('sorteio').classList.add('on');
+  if(!pool.length){$('sNome').textContent='';$('sLink').style.display='none';$('sVazio').textContent='Nenhuma resposta marcada como "Boa pra análise" com link de portfólio e autorização.';return;}
+  const r=pool[Math.floor(Math.random()*pool.length)];
+  $('sVazio').textContent=''; $('sNome').textContent=r.nome+' · '+r.instagram;
+  const a=$('sLink'); a.style.display='block'; a.href=r.portfolio; a.textContent=r.portfolio;
+}
+$('sortear').onclick=sortear; $('sOutra').onclick=sortear; $('sFechar').onclick=()=>$('sorteio').classList.remove('on');
+
+function csvCel(v){v=String(v==null?'':v); if(/^[=+\-@]/.test(v)) v="'"+v; return '"'+v.replace(/"/g,'""')+'"';}
+function csvTxt(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"';}
+function csvZap(v){v=String(v||''); return /^\+\d{8,15}$/.test(v)?'"=""'+v+'"""':csvCel(v);}
+$('csv').onclick=()=>{
+  const cab=['Nome','WhatsApp','E-mail','Instagram','Portfólio','Autoriza mostrar','Aceita contato','Status','Responsável','Comprou','Enviado em','Atualizado em'];
+  const nomes={boa:'Boa pra análise',avancado:'Muito avançado',descartar:'Descartar'};
+  const linhas=dados.map(r=>[r.nome,r.whatsapp,r.email,r.instagram,r.portfolio,r.autoriza_mostrar?'sim':'não',r.aceita_contato?'sim':'não',nomes[r.status]||'',r.responsavel||'',r.comprou==='sim'?'sim':(r.comprou==='nao'?'não':''),r.criado_em,r.atualizado_em].map((v,i)=>i===1?csvZap(v):(i===3?csvTxt(v):csvCel(v))).join(','));
+  const blob=new Blob(['﻿'+[cab.map(csvCel).join(',')].concat(linhas).join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='portfolios-aula.csv'; a.click();
+};
+if(senha){$('senha').value=senha; entrar();}
+</script>
+</body>
+</html>

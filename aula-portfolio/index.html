@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deixa o seu portfólio com a gente</title>
+<meta name="description" content="Aula gratuita com Camila Bertolin e Lara Dam. Hoje a gente escolhe um portfólio pra analisar ao vivo.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.98.0" crossorigin="anonymous"></script>
+<style>
+:root{--rosa:#FF5C9E;--preto:#141217;--fundo:#F6F1F3;--rosa-escuro:#C2185B;--borda:#E3D6DC}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--fundo);color:var(--preto);line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:520px;margin:0 auto;padding:20px 20px 48px}
+.topo{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--rosa-escuro);text-align:center;padding:6px 0 18px}
+h1{font-family:'Oswald',sans-serif;font-weight:700;text-transform:uppercase;font-size:clamp(34px,10vw,48px);line-height:1.05;letter-spacing:.01em}
+h1 span{color:var(--rosa)}
+.sub{font-size:17px;margin:12px 0 24px;color:#4b4350}
+label.campo{display:block;font-weight:700;font-size:14px;margin:16px 0 6px}
+input[type=text],input[type=email],input[type=tel],input[type=url]{width:100%;font:inherit;font-size:17px;padding:15px 14px;border:2px solid var(--borda);border-radius:12px;background:#fff;color:var(--preto);outline:none;-webkit-appearance:none}
+input:focus{border-color:var(--rosa)}
+.dica{font-size:13px;color:#6b6270;margin-top:6px}
+.check{display:flex;gap:12px;align-items:flex-start;margin-top:16px;font-size:15px;cursor:pointer}
+.check input{width:26px;height:26px;flex:none;accent-color:var(--rosa-escuro);margin-top:1px}
+button{width:100%;margin-top:26px;font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:.06em;font-weight:700;font-size:22px;padding:17px;border:0;border-radius:12px;background:var(--rosa);color:var(--preto);cursor:pointer}
+button:active{background:var(--rosa-escuro);color:#fff}
+button:disabled{opacity:.6}
+.erro{display:none;margin-top:16px;background:#fff;border:2px solid var(--rosa-escuro);color:var(--rosa-escuro);border-radius:12px;padding:12px 14px;font-weight:500}
+.erro.on{display:block}
+input.bad{border-color:var(--rosa-escuro)}
+.mini{font-size:12.5px;color:#6b6270;text-align:center;margin-top:16px}
+.ok{display:none;text-align:center;padding:40px 0}
+.ok .big{font-family:'Oswald',sans-serif;font-size:40px;text-transform:uppercase;color:var(--rosa-escuro)}
+.ok p{font-size:18px;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topo">Aula gratuita · Camila Bertolin e Lara Dam</div>
+  <div id="formArea">
+    <h1>Deixa o seu portfólio <span>com a gente</span></h1>
+    <p class="sub">Hoje a gente escolhe um portfólio pra analisar ao vivo na aula.</p>
+    <form id="f" novalidate>
+      <label class="campo" for="nome">Nome</label>
+      <input type="text" id="nome" autocomplete="name" required>
+      <label class="campo" for="whatsapp">WhatsApp com DDD</label>
+      <input type="tel" id="whatsapp" autocomplete="tel" inputmode="tel" placeholder="(11) 91234-5678" required>
+      <div class="dica">De fora do Brasil? Coloque o código do país, ex: +351 912 345 678</div>
+      <label class="campo" for="email">E-mail</label>
+      <input type="email" id="email" autocomplete="email" inputmode="email" autocapitalize="none" required>
+      <label class="campo" for="instagram">@ do Instagram</label>
+      <input type="text" id="instagram" autocapitalize="none" autocorrect="off" placeholder="@seuperfil" required>
+      <label class="campo" for="portfolio">Link do portfólio <span style="font-weight:400;color:#6b6270">(opcional)</span></label>
+      <input type="text" id="portfolio" inputmode="url" autocapitalize="none" autocorrect="off" placeholder="seusite.com ou link do Drive">
+      <div class="dica">Ainda não tem portfólio? Pode enviar só com o seu @.</div>
+      <label class="check"><input type="checkbox" id="c1"><span>Autorizo a Lara e a Camila a mostrarem meu portfólio ao vivo na aula.</span></label>
+      <label class="check"><input type="checkbox" id="c2"><span>Aceito receber contato da Lara e da Camila por WhatsApp e e-mail sobre a Imersão de Black.</span></label>
+      <div class="erro" id="erro"></div>
+      <button type="submit" id="btn">Enviar</button>
+      <p class="mini">Seus dados são usados só pra esta aula e pra falar com você sobre a imersão.</p>
+    </form>
+  </div>
+  <div class="ok" id="ok">
+    <div class="big">Recebido!</div>
+    <p>Se o seu portfólio for escolhido, a gente analisa ao vivo daqui a pouco. Volta pra aula.</p>
+  </div>
+</div>
+<script>
+const SB_URL='https://mfrmnquvwwuxraqgemyh.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mcm1ucXV2d3d1eHJhcWdlbXloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNDI1NDIsImV4cCI6MjA4NzYxODU0Mn0.zmsi08dV5L1IlXJSr34vOii71w0g0OsD5_5DKio5g-o';
+let sb=null; try{sb=window.supabase.createClient(SB_URL,SB_KEY);}catch(e){}
+const $=id=>document.getElementById(id);
+
+function normZap(v){
+  v=String(v||'').trim();
+  const plus=v.startsWith('+')||v.startsWith('00');
+  let d=v.replace(/\D/g,'');
+  if(v.startsWith('00')) d=d.slice(2);
+  if(plus){
+    if(d.startsWith('55')){const n=d.slice(2);return (n.length===10||n.length===11)?'+55'+n:null;}
+    return (d.length>=8&&d.length<=15)?'+'+d:null;
+  }
+  if(d.length===10||d.length===11) return '+55'+d;
+  if((d.length===12||d.length===13)&&d.startsWith('55')) return '+'+d;
+  if(d.length>=12&&d.length<=15) return '+'+d;
+  return null;
+}
+function normInsta(v){
+  v=String(v||'').trim().toLowerCase().replace(/^https?:\/\/(www\.)?instagram\.com\//,'').split(/[\/?#\s]/)[0].replace(/^@+/,'');
+  return /^[a-z0-9._]{1,30}$/.test(v)?'@'+v:null;
+}
+function normLink(v){
+  v=String(v||'').trim();
+  if(!v) return '';
+  if(!/^https?:\/\//i.test(v)) v='https://'+v;
+  try{const u=new URL(v); if(!/\.[a-z]{2,}$/i.test(u.hostname)) return null; return u.href;}catch(e){return null;}
+}
+function bad(id){$(id).classList.add('bad');}
+$('f').addEventListener('submit',async e=>{
+  e.preventDefault();
+  document.querySelectorAll('input.bad').forEach(x=>x.classList.remove('bad'));
+  const erro=$('erro'); erro.classList.remove('on');
+  const falhas=[];
+  const nome=$('nome').value.trim();
+  if(nome.length<2){falhas.push('o nome');bad('nome');}
+  const zap=normZap($('whatsapp').value);
+  if(!zap){falhas.push('o WhatsApp com DDD (de fora do Brasil, com o código do país)');bad('whatsapp');}
+  const email=$('email').value.trim().toLowerCase();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email)){falhas.push('o e-mail');bad('email');}
+  const insta=normInsta($('instagram').value);
+  if(!insta){falhas.push('o @ do Instagram');bad('instagram');}
+  const link=normLink($('portfolio').value);
+  if(link===null){falhas.push('o link do portfólio (ou deixe em branco)');bad('portfolio');}
+  if(!$('c2').checked) falhas.push('a caixinha de contato sobre a imersão');
+  if(falhas.length){erro.textContent='Confere: '+falhas.join(', ')+'.';erro.classList.add('on');erro.scrollIntoView({behavior:'smooth',block:'center'});return;}
+  const btn=$('btn'); btn.disabled=true; btn.textContent='Enviando...';
+  try{
+    if(!sb) throw new Error('sem conexão');
+    const {error}=await sb.rpc('aula_portfolio_enviar',{p_dados:{nome,whatsapp:zap,email,instagram:insta,portfolio:link,autoriza_mostrar:$('c1').checked,aceita_contato:true}});
+    if(error) throw error;
+    $('formArea').style.display='none'; $('ok').style.display='block'; window.scrollTo(0,0);
+  }catch(err){
+    erro.textContent='Não consegui enviar. Confere sua internet e tenta de novo.';erro.classList.add('on');
+    btn.disabled=false; btn.textContent='Enviar';
+  }
+});
+</script>
+</body>
+</html>
