@@ -27,7 +27,17 @@ Os arquivos do bruto estão em `entrada/`.
   ```
   Tempos sempre no vídeo final (depois dos cortes).
 - `saida/resumo.md`: primeira linha = uma frase curta do que foi feito (aparece no admin).
-  Depois: cortes feitos, decisões que você tomou sozinho, o que ficou de fora e por quê, dúvidas para a Lara.
+  Depois: cortes feitos, decisões que você tomou sozinho, o que ficou de fora e por quê, dúvidas para a Lara,
+  e **3 sugestões de melhoria** que ela pode aprovar numa próxima versão.
+- `saida/legendas.srt`: as legendas finais separadas (a Lara usa para subir legenda no Instagram/TikTok).
+
+## Progresso ao vivo (a Lara vê no admin)
+
+Mantenha `saida/progresso.json` atualizado a cada etapa:
+`{ "atual": "cortes", "feitas": ["transcricao", "tomadas"] }`
+Etapas, nesta ordem: `transcricao`, `tomadas`, `cortes`, `legendas`, `zoom`, `som`, `render`.
+Assim que decidir os cortes, já escreva `saida/projeto.json` com as camadas `corte`; ao terminar a legenda,
+acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a linha do tempo com o que estiver lá.
 
 ## Como editar
 
@@ -39,19 +49,35 @@ Os arquivos do bruto estão em `entrada/`.
    - tire erros, frases abandonadas, silêncios maiores que ~0,4 s e vícios ("é...", "tipo", "né" soltos);
    - corte sempre na fronteira entre palavras, com fade de áudio de 30 ms em cada emenda;
    - a transcrição pode pular palavras: confira o áudio (silencedetect / volume) antes de decidir um corte;
-   - esquete com duas ou mais personagens: diálogo não é repetição, só tire pausas mortas.
+   - esquete com duas ou mais personagens: diálogo não é repetição, só tire pausas mortas;
+   - deixe 0,08 s de folga nas pontas de cada trecho (não engolir a sílaba);
+   - **gancho**: os 3 primeiros segundos precisam prender. Se a frase mais forte do roteiro não é a primeira e
+     o roteiro não proíbe, considere abrir com ela e anote a decisão no resumo.
 3. **Detectar cenas** (`ffmpeg ... select='gt(scene,0.3)'`) antes de zoom e gráficos: o bruto muitas vezes já vem
    com inserções (tela de site, relatório, logo). Nunca ponha zoom nem gráfico em cima delas.
 4. **Zoom de ritmo**: alternar 100% e 112% nas viradas de frase, centro um pouco acima do meio (rosto).
+   Punch-in com easing (ease-out cúbico, ~0,25 s), nunca linear; nunca dois planos seguidos no mesmo tamanho.
+   Use os picos de energia do áudio (ênfase na fala) como candidatos a zoom e efeito sonoro.
+   Efeito só entra se serve à fala: nada de glitch, shake ou flash a não ser que o pedido peça estilo "hype".
 5. **Legenda**: caixa alta, 2 a 3 palavras por vez, pop curto na entrada, na área segura (fora dos 15% de baixo
    no 9:16). Esconda a legenda em cima de inserções com muito texto.
+   Fonte pesada (Montserrat ExtraBold/Black ou a bold disponível), contorno escuro de 6 a 8 px e sombra suave
+   para ler em tela pequena; nada a menos de 10% das bordas. Destaque (cor da marca) em números, valores,
+   nome da marca e palavras de peso ("nunca", "grátis", "ninguém").
 6. **Animações e textos na tela** para números, preços, nomes de produto e chamadas do roteiro.
    Se existir o projeto Remotion `~/Desktop/editor-lara`, pode usar (copie para dentro deste pedido, não altere o original).
    Senão, faça com FFmpeg (drawtext/ASS) ou HTML + Playwright.
 7. **Música e efeitos sonoros**: só do banco `~/Desktop/sons`, e só itens com `liberado_para_cliente: true`
    no `catalogo.json`. Música de fundo por baixo da voz (sidechain, voz sempre clara, música ~ -20 dB),
-   efeitos nas trocas de cena e na entrada de textos. Se o banco não existir ou estiver vazio, faça sem som
-   e escreva isso no resumo. Nunca baixe música da internet.
+   efeitos nas trocas de cena e na entrada de textos. Nunca baixe música nem efeito da internet.
+   - **Sem banco de efeitos**: gere os efeitos com numpy (são seus, sem problema de licença) e salve em `work/sfx/`:
+     whoosh (ruído com passa-banda subindo de 200 Hz a 6 kHz, 250 ms, envelope exponencial),
+     pop (seno 900 Hz com decaimento de 60 ms), impacto (seno 45 Hz descendo + ruído, 700 ms),
+     riser (varredura 120 Hz a 3 kHz, 1,5 s, crescendo antes de um corte forte).
+   - **Sem banco de músicas**: entregue sem música e diga no resumo; não invente trilha.
+   - Cadeia de áudio: passa-alta 80 Hz na voz, compressor suave (3:1, limiar -18 dB), música ~ -22 dB com
+     abaixamento automático (~ -8 dB) quando há fala, efeitos ~ -12 dB sem competir com a voz,
+     fade de 0,3 s no início e no fim, voz final em -14 LUFS (loudnorm).
 8. **Gravação de tela do site** (só se o PEDIDO.md pedir): use Playwright em `~/robo-edicao`
    (`cd ~/robo-edicao && npm i playwright && npx playwright install chromium` se ainda não tiver).
    Janela de celular 390x844, `recordVideo`, siga o passo a passo com pausas naturais (rolagem suave, clique visível).
@@ -63,6 +89,13 @@ Os arquivos do bruto estão em `entrada/`.
 10. **Conferir antes de entregar**: assista em pedaços (extraia frames a cada 2 s e olhe), confira que nenhuma
     legenda tem nome errado, que não sobrou repetição, que o áudio não estoura (loudnorm -14 LUFS) e que a duração
     respeita o pedido.
+
+## Render
+
+- Prévia: H.264 `-preset veryfast -crf 23`, AAC 192 kbps (sai rápido; é para a Lara aprovar).
+- Sempre `-pix_fmt yuv420p -movflags +faststart`, 30 fps (ou o fps original se for constante), áudio 48 kHz.
+- Trabalhe numa cópia leve do bruto (proxy 720p) para análise e testes; o render final usa o original.
+- Prefira FFmpeg puro (filter_complex) a MoviePy: é mais rápido e não trava com arquivo grande.
 
 ## Limites
 

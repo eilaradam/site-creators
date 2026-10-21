@@ -5216,6 +5216,58 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
 #tabEdicao .ed-feed-sem { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; text-align:center; color:#ddd; font-size:13px; line-height:1.6; text-decoration:none; }
 #tabEdicao .ed-feed-info { padding:10px 12px 12px; }
 #tabEdicao .ed-feed-nome { font-weight:700; font-size:13.5px; margin:6px 0 2px; }
+#tabEdicao .ia-box { background:#1B1B1B; color:#FFF8F2; border-radius:22px; padding:18px; margin-bottom:14px; border:1px solid #2E2925; font-family:'DM Sans', inherit; }
+#tabEdicao .ia-top { display:flex; align-items:center; gap:12px; }
+#tabEdicao .ia-logo { width:44px; height:44px; display:flex; align-items:center; justify-content:center; }
+#tabEdicao .ia-tit { font-size:24px; font-weight:700; letter-spacing:-.3px; }
+#tabEdicao .ia-tit b { color:#E8A27E; }
+#tabEdicao .ia-status { margin:14px 0 12px; border-radius:100px; padding:10px 16px; display:flex; align-items:center; gap:10px; font-weight:700; font-size:14px; background:#1F2A22; border:1px solid #2F6B47; color:#9BE3B8; }
+#tabEdicao .ia-status.vivo { background:#2A1E18; border-color:#7B3E1B; color:#F4D9C8; }
+#tabEdicao .ia-status.erro { background:#3A1B1B; border-color:#8A2B2B; color:#FFB4B4; }
+#tabEdicao .ia-dot { width:10px; height:10px; border-radius:50%; background:currentColor; flex:none; }
+#tabEdicao .ia-status.vivo .ia-dot { background:#C8441A; animation:iaPulso 1.2s infinite; }
+@keyframes iaPulso { 50% { opacity:.25; } }
+#tabEdicao .ia-voce { background:#242120; border:1px solid #34302C; border-radius:14px; padding:10px 14px; font-size:14px; display:flex; gap:12px; align-items:center; }
+#tabEdicao .ia-voce span { background:#7B3E1B; color:#FFF8F2; border-radius:8px; padding:3px 8px; font-size:11px; font-weight:800; letter-spacing:1px; flex:none; }
+#tabEdicao .ia-meio { display:grid; grid-template-columns:150px 1fr; gap:12px; margin:12px 0; }
+#tabEdicao .ia-prev { aspect-ratio:9/16; border-radius:14px; overflow:hidden; border:2px solid #C8441A; background:#111; }
+#tabEdicao .ia-prev iframe { width:100%; height:100%; border:0; }
+#tabEdicao .ia-prev-vazio { height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; text-align:center; padding:8px; color:#A69D93; font-size:12px; }
+#tabEdicao .ia-prev-vazio b { color:#FFF8F2; font-size:14px; }
+#tabEdicao .ia-etapas { display:flex; flex-direction:column; gap:6px; }
+#tabEdicao .ia-etapa { display:flex; align-items:center; gap:10px; border-radius:12px; padding:8px 12px; font-weight:700; font-size:13.5px; background:#211E1C; border:1px solid #2E2925; color:#7D746B; }
+#tabEdicao .ia-etapa.feito { color:#FFF8F2; border-color:#3D3530; background:#26211E; }
+#tabEdicao .ia-etapa.fazendo { color:#FFF8F2; border-color:#C8441A; background:#3A2016; }
+#tabEdicao .ia-ck { width:22px; height:22px; border-radius:50%; border:2px solid currentColor; display:flex; align-items:center; justify-content:center; font-size:12px; flex:none; }
+#tabEdicao .ia-etapa.feito .ia-ck { color:#5FCB8C; }
+#tabEdicao .ia-etapa.fazendo .ia-ck { border-color:#C8441A; border-top-color:transparent; animation:iaGira .9s linear infinite; }
+@keyframes iaGira { to { transform:rotate(360deg); } }
+#tabEdicao .ia-tl { position:relative; background:#141312; border:1px solid #2E2925; border-radius:16px; padding:12px 14px 14px; }
+#tabEdicao .ia-tl.vazio { color:#A69D93; font-size:13px; text-align:center; padding:22px; }
+#tabEdicao .ia-regua { display:flex; justify-content:space-between; color:#A69D93; font-size:12px; font-family:'DM Mono', ui-monospace, monospace; margin-left:78px; margin-bottom:6px; }
+#tabEdicao .ia-tr { display:flex; align-items:center; gap:8px; margin-top:8px; }
+#tabEdicao .ia-tr-n { width:70px; flex:none; font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:#A69D93; }
+#tabEdicao .ia-tr-l { position:relative; flex:1; height:34px; background:#211E1C; border-radius:9px; overflow:hidden; }
+#tabEdicao .ia-bl { position:absolute; top:3px; bottom:3px; border-radius:7px; overflow:hidden; display:flex; align-items:center; min-width:3px; }
+#tabEdicao .ia-bl span { font-size:11px; font-weight:800; padding:0 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#tabEdicao .ia-bl.vid { background:repeating-linear-gradient(90deg,#C8441A 0 26px,#A9391A 26px 28px); border:1px solid #E06A42; }
+#tabEdicao .ia-bl.rec { background:#7B3E1B; border:1px solid #A75525; color:#FFF8F2; }
+#tabEdicao .ia-bl.leg { background:#FFF8F2; color:#1B1B1B; }
+#tabEdicao .ia-bl.zoom { background:#3A2A20; border:1px solid #A75525; color:#F4D9C8; }
+#tabEdicao .ia-bl.anim { background:#A75525; color:#FFF8F2; }
+#tabEdicao .ia-bl.mus { background:repeating-linear-gradient(90deg,#2A231E 0 3px,#D9C3AE 3px 5px); border:1px solid #D9C3AE; }
+#tabEdicao .ia-bl.sfx { background:#F0E7DD; }
+#tabEdicao .ia-play { position:absolute; top:30px; bottom:10px; left:92px; width:2px; background:#FFF8F2; box-shadow:0 0 8px #FFF8F2; display:none; }
+#tabEdicao .ia-tl.vivo .ia-play { display:block; animation:iaVarre 4s linear infinite; }
+@keyframes iaVarre { from { left:92px; } to { left:calc(100% - 16px); } }
+#tabEdicao .ia-rodape { display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-top:10px; font-size:12.5px; color:#A69D93; }
+#tabEdicao .ia-rodape a { color:#E8A27E; }
+@media (max-width: 600px) {
+  #tabEdicao .ia-meio { grid-template-columns:110px 1fr; }
+  #tabEdicao .ia-etapa { font-size:12px; padding:6px 8px; }
+  #tabEdicao .ia-tr-n { width:56px; font-size:10px; }
+  #tabEdicao .ia-regua { margin-left:64px; }
+}
 #tabEdicao .ed-toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px); background:#1F1B18; color:#fff; padding:10px 16px; border-radius:10px; font-size:13.5px; font-weight:600; opacity:0; pointer-events:none; transition:all .2s; z-index:9999; }
 #tabEdicao .ed-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 #tabEdicao .ed-toast.erro { background:#B3261E; }
@@ -17683,9 +17735,9 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const aba = document.getElementById('tabEdicao');
         if (!aba || !aba.classList.contains('show') || edAba !== 'pedidos' || !edPedidos.some(p => ED_EM_ANDAMENTO.includes(p.status))) return;
         if (edForm && (!edForm.id || ED_EM_ANDAMENTO.slice(0, 1).concat('erro', 'cancelado').includes((edPedidos.find(p => p.id === edForm.id) || {}).status))) return;  // formulário editável aberto: não atrapalha a digitação
-        const antes = JSON.stringify(edPedidos.map(p => [p.id, p.status, p.status_msg, p.previa_link]));
+        const antes = JSON.stringify(edPedidos.map(p => [p.id, p.status, p.status_msg, p.previa_link, p.projeto]));
         await edCarregarPedidos();
-        if (JSON.stringify(edPedidos.map(p => [p.id, p.status, p.status_msg, p.previa_link])) !== antes) edRender();
+        if (JSON.stringify(edPedidos.map(p => [p.id, p.status, p.status_msg, p.previa_link, p.projeto])) !== antes) edRender();
     }, 15000);
     function edNovoForm(base) {
         edForm = Object.assign({ id: null, conteudo_id: '', marca: '', titulo: '', drive_pasta_link: '', roteiro: '', formato: '9:16', duracao_alvo_s: '', observacoes: '', marca_site: '', marca_redes: '', rec_gravar: false, rec_passos: '',
@@ -17835,10 +17887,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             (ped && !['final_pronto', 'cancelado'].includes(ped.status) ? '<button class="ed-btn ghost mini" type="button" onclick="edMudarStatusPedido(\'' + ped.id + '\',\'cancelado\')">Cancelar</button>' : '') +
             (ped ? '<button class="ed-btn ghost mini" type="button" onclick="edApagarPedido(\'' + ped.id + '\')">Apagar</button>' : '') +
           '</div>' +
-          (travado ? '<div class="ed-card" style="margin-bottom:12px;background:#FFFBF2;">O robô já está trabalhando nesse pedido, então ele fica só para leitura. ' +
-            (ED_EM_ANDAMENTO.includes(ped.status) && ped.status_msg ? '<div style="margin:8px 0 2px;font-size:15px;font-weight:700;">Agora: ' + edEsc(ped.status_msg) + '</div><div class="ed-muted">Atualiza sozinho a cada 15 s.</div>' : '') +
-            (ped.previa_link ? '<a href="' + edEsc(ped.previa_link) + '" target="_blank" rel="noopener">Ver prévia</a> · ' : '') +
-            (ped.final_link ? '<a href="' + edEsc(ped.final_link) + '" target="_blank" rel="noopener">Ver final no Drive</a>' : '') + '</div>' : '') +
+          (travado ? edPainelIA(ped) : '') +
           '<div class="ed-grid">' +
             '<div class="ed-card">' +
               '<h4>O vídeo</h4>' +
@@ -17884,6 +17933,54 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
           '</div>' +
           (travado ? '' : '<div class="ed-row" style="margin-top:14px;justify-content:flex-end;"><button class="ed-btn" type="button" onclick="edSalvarPedido()">' + (f.id ? 'Salvar pedido' : 'Mandar para a fila') + '</button></div>');
         if (!travado) edChecarPasta();
+    }
+    /* ── Editor IA: o que o robô está fazendo, ao vivo, com a linha do tempo real do projeto ── */
+    const ED_ETAPAS = [['transcricao', 'Transcreve a fala'], ['tomadas', 'Escolhe as melhores tomadas'], ['cortes', 'Corta pausas e repetições'],
+        ['legendas', 'Coloca as legendas'], ['zoom', 'Zoom e animações'], ['som', 'Música e efeitos'], ['render', 'Renderiza e confere']];
+    const edMMSS = t => { t = Math.max(0, Math.round(t || 0)); return String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'); };
+    function edEtapasDoPedido(ped) {
+        const pj = ped.projeto || {}, e = pj.etapas || {};
+        const feitas = new Set(e.feitas || []);
+        let atual = e.atual || null;
+        if (['previa_pronta', 'em_revisao', 'final_pronto'].includes(ped.status)) { ED_ETAPAS.forEach(([k]) => feitas.add(k)); atual = null; }
+        else if (ped.status === 'editando' && !atual && !feitas.size) atual = 'transcricao';
+        else if (ped.status === 'renderizando') { ED_ETAPAS.slice(0, -1).forEach(([k]) => feitas.add(k)); atual = 'render'; }
+        return ED_ETAPAS.map(([k, n]) => ({ k, n, st: feitas.has(k) ? 'feito' : (k === atual ? 'fazendo' : 'falta') }));
+    }
+    function edPainelIA(ped) {
+        const pj = ped.projeto || {}, cam = Array.isArray(pj.camadas) ? pj.camadas : [];
+        const andando = ED_EM_ANDAMENTO.includes(ped.status), pronto = ['previa_pronta', 'em_revisao', 'final_pronto'].includes(ped.status);
+        const dur = Number(pj.duracao_s) || Math.max(0, ...cam.map(c => Number(c.fim_s) || 0)) || 0;
+        const status = pronto ? 'Pronto: vídeo editado' : ped.status === 'erro' ? 'Parou: ' + (ped.status_msg || 'erro') : (ped.status_msg || 'Na fila do robô');
+        const pedido = (ped.observacoes || '').trim() || 'Edita seguindo o roteiro' + (ped.marca ? ' da ' + ped.marca : '') + ', com legenda, cortes e zoom.';
+        const m = String(ped.previa_link || '').match(/\/file\/d\/([\w-]+)/);
+        const previa = m ? '<iframe src="https://drive.google.com/file/d/' + m[1] + '/preview" allow="autoplay" allowfullscreen></iframe>'
+            : '<div class="ia-prev-vazio"><b>' + edEsc(ped.pasta_nome || ped.marca || '') + '</b><span>' + (andando ? 'editando…' : '') + '</span></div>';
+        const etapas = edEtapasDoPedido(ped).map(e => '<div class="ia-etapa ' + e.st + '"><span class="ia-ck">' + (e.st === 'feito' ? '✓' : '') + '</span>' + edEsc(e.n) + '</div>').join('');
+        const bloco = (c, cls, txt) => {
+            const i = Math.max(0, Number(c.inicio_s) || 0), f = Math.max(i + 0.05, Number(c.fim_s) || i);
+            return '<div class="ia-bl ' + cls + '" style="left:' + (i / dur * 100).toFixed(3) + '%;width:' + ((f - i) / dur * 100).toFixed(3) + '%;" title="' + edEsc(edMMSS(i) + ' a ' + edMMSS(f) + (txt ? ' · ' + txt : '')) + '">' + (txt ? '<span>' + edEsc(txt) + '</span>' : '') + '</div>';
+        };
+        const trilha = (nome, cls, itens) => '<div class="ia-tr"><div class="ia-tr-n">' + nome + '</div><div class="ia-tr-l">' + itens + '</div></div>';
+        const linha = dur ? '<div class="ia-tl' + (andando ? ' vivo' : '') + '">' +
+            '<div class="ia-regua"><span>00:00</span><span>' + edMMSS(dur / 2) + '</span><span>' + edMMSS(dur) + '</span></div>' +
+            trilha('Vídeo', 'v', cam.filter(c => c.tipo === 'corte' || c.tipo === 'rec').map(c => bloco(c, c.tipo === 'rec' ? 'rec' : 'vid', c.tipo === 'rec' ? 'tela do site' : '')).join('')) +
+            trilha('Legendas', 'l', cam.filter(c => c.tipo === 'legenda').map(c => bloco(c, 'leg', c.texto || '')).join('')) +
+            trilha('Efeitos', 'z', cam.filter(c => c.tipo === 'zoom' || c.tipo === 'animacao').map(c => bloco(c, c.tipo === 'zoom' ? 'zoom' : 'anim', c.tipo === 'zoom' ? 'zoom' : (c.texto || ''))).join('')) +
+            trilha('Áudio', 'a', cam.filter(c => c.tipo === 'musica' || c.tipo === 'sfx').map(c => bloco(c, c.tipo === 'musica' ? 'mus' : 'sfx', '')).join('')) +
+            '<div class="ia-play"></div></div>'
+            : '<div class="ia-tl vazio">' + (andando ? 'A linha do tempo aparece aqui conforme o robô corta e legenda.' : 'Sem linha do tempo neste pedido.') + '</div>';
+        const links = (ped.previa_link ? '<a href="' + edEsc(ped.previa_link) + '" target="_blank" rel="noopener">Abrir prévia no Drive</a>' : '') +
+            (ped.final_link ? ' · <a href="' + edEsc(ped.final_link) + '" target="_blank" rel="noopener">Final no Drive</a>' : '') +
+            (ped.drive_pasta_link ? (ped.previa_link || ped.final_link ? ' · ' : '') + '<a href="' + edEsc(ped.drive_pasta_link) + '" target="_blank" rel="noopener">Pasta</a>' : '');
+        return '<div class="ia-box">' +
+            '<div class="ia-top"><div class="ia-logo"><svg viewBox="0 0 32 32" width="34" height="34" aria-hidden="true"><g stroke="#D97757" stroke-width="3.2" stroke-linecap="round"><line x1="16" y1="16" x2="16.0" y2="5.0"/><line x1="16" y1="16" x2="20.5" y2="8.2"/><line x1="16" y1="16" x2="26.4" y2="10.0"/><line x1="16" y1="16" x2="24.5" y2="16.0"/><line x1="16" y1="16" x2="26.0" y2="21.8"/><line x1="16" y1="16" x2="20.8" y2="24.2"/><line x1="16" y1="16" x2="16.0" y2="28.0"/><line x1="16" y1="16" x2="12.0" y2="22.9"/><line x1="16" y1="16" x2="6.5" y2="21.5"/><line x1="16" y1="16" x2="6.0" y2="16.0"/><line x1="16" y1="16" x2="5.6" y2="10.0"/><line x1="16" y1="16" x2="11.5" y2="8.2"/></g></svg></div><div class="ia-tit">Editor</div></div>' +
+            '<div class="ia-status ' + (pronto ? 'ok' : ped.status === 'erro' ? 'erro' : 'vivo') + '"><span class="ia-dot"></span>' + edEsc(status) + '</div>' +
+            '<div class="ia-voce"><span>VOCÊ</span>“' + edEsc(pedido) + '”</div>' +
+            '<div class="ia-meio"><div class="ia-prev">' + previa + '</div><div class="ia-etapas">' + etapas + '</div></div>' +
+            linha +
+            '<div class="ia-rodape">' + links + (andando ? '<span>Atualiza sozinho a cada 15 s</span>' : '') + '</div>' +
+          '</div>';
     }
     /* Nome da pasta não pode repetir: avisa na hora e sugere o próximo número ("InfinitePay 2") */
     const ED_PREFIXO_PASTA = /^\s*(edi[cç][aã]o\s*\/\s*)+/i;
