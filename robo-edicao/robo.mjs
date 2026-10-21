@@ -231,6 +231,11 @@ async function main() {
         return log('Login ok. O robô está ligado ao admin.');
     }
     log('Robô de edição ligado. Olhando a fila a cada ' + INTERVALO_S + ' s. Deixe esta janela aberta.');
+    // Se o robô foi fechado no meio de uma edição, o pedido ficou preso em "editando": volta para recomeçar
+    try {
+        for (const p of await db('edicao_pedidos?status=in.(baixando,analisando,editando,renderizando)&select=*'))
+            await mudar(p, { status: 'aguardando_bruto', status_msg: 'O robô foi reiniciado no meio da edição. Recomeçando.' });
+    } catch (e) { log('Não consegui conferir pedidos interrompidos:', e.message); }
     do {
         try { await rodada(); } catch (e) { log('Não consegui olhar a fila:', e.message); }
         if (process.argv.includes('--uma-vez')) break;
