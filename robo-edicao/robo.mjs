@@ -178,14 +178,18 @@ function passoDoEvento(ev) {
     }).map(t => t.replace(/^#+\s*/, '').slice(0, 160)).filter(Boolean);
 }
 
+const MCP_VAZIO = path.join(DIR, 'mcp-vazio.json');
 function rodarClaude(job, p) {
+    fs.writeFileSync(MCP_VAZIO, '{"mcpServers":{}}');
     const prompt = 'Leia CLAUDE.md e PEDIDO.md e faça a edição completa deste pedido sozinho, sem perguntar nada. ' +
         'Antes de cada etapa, escreva uma frase curta em português dizendo o que vai fazer (a Lara acompanha ao vivo). ' +
         'No fim precisa existir saida/previa.mp4, saida/projeto.json e saida/resumo.md.';
     return new Promise(resolve => {
         const logArq = path.join(job, 'claude.log');
-        const c = spawn(CLAUDE, ['-p', prompt, '--permission-mode', 'bypassPermissions', '--output-format', 'stream-json', '--verbose'],
-            { cwd: job, stdio: ['ignore', 'pipe', 'pipe'] });
+        // Só as ferramentas básicas: nenhum MCP/conector da Lara (Gmail, Metricool, Higgsfield...) roda sem ela ver
+        const c = spawn(CLAUDE, ['-p', prompt, '--permission-mode', 'bypassPermissions', '--output-format', 'stream-json', '--verbose',
+            '--strict-mcp-config', '--mcp-config', MCP_VAZIO],
+            { cwd: job, stdio: ['ignore', 'pipe', 'pipe'], env: Object.assign({}, process.env, { ENABLE_CLAUDEAI_MCP_SERVERS: 'false' }) });
         let resto = '', ultimoEnvio = 0, ultimaFrase = '';
         const enviar = frase => {
             ultimaFrase = frase;
