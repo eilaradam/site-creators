@@ -17699,6 +17699,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         if (!edForm) return;
         const v = id => { const el = document.getElementById(id); return el ? el.value : undefined; };
         ['marca', 'titulo', 'drive_pasta_link', 'roteiro', 'duracao_alvo_s', 'observacoes', 'conteudo_id', 'marca_site', 'marca_redes', 'rec_passos'].forEach(k => { const x = v('edP_' + k); if (x !== undefined) edForm[k] = x; });
+        edForm.marca = String(edForm.marca || '').replace(ED_PREFIXO_PASTA, '');
         edForm.refs.forEach((r, i) => {
             const t = v('edR_tipo_' + i), l = v('edR_link_' + i), n = v('edR_nota_' + i), nm = v('edR_nome_' + i);
             if (t !== undefined) r.tipo = t; if (l !== undefined) r.link = l; if (n !== undefined) r.nota = n; if (nm !== undefined) r.nome = nm;
@@ -17874,6 +17875,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         if (!travado) edChecarPasta();
     }
     /* Nome da pasta não pode repetir: avisa na hora e sugere o próximo número ("InfinitePay 2") */
+    const ED_PREFIXO_PASTA = /^\s*(edi[cç][aã]o\s*\/\s*)+/i;
     const edNorm = s => String(s || '').trim().toLowerCase().replace(/\s+/g, ' ');
     function edPastaOcupada(nome, ignorarId) { const n = edNorm(nome); return !!n && edPedidos.some(p => p.id !== ignorarId && edNorm(p.pasta_nome) === n); }
     function edSugerirPasta(nome, ignorarId) {
@@ -17883,6 +17885,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     }
     function edChecarPasta() {
         const el = document.getElementById('edP_marca'), av = document.getElementById('edPastaAviso'); if (!el || !av || !edForm) return;
+        if (ED_PREFIXO_PASTA.test(el.value)) el.value = el.value.replace(ED_PREFIXO_PASTA, '');  /* "Edição/Milha.IA" -> "Milha.IA" */
         const nome = el.value.trim();
         if (!nome) { av.innerHTML = ''; return; }
         if (edPastaOcupada(nome, edForm.id)) {
