@@ -29,6 +29,14 @@ Os arquivos do bruto estão em `entrada/`.
 - `saida/resumo.md`: primeira linha = uma frase curta do que foi feito (aparece no admin).
   Depois: cortes feitos, decisões que você tomou sozinho, o que ficou de fora e por quê, dúvidas para a Lara.
 
+## Progresso ao vivo (a Lara vê no admin)
+
+Mantenha `saida/progresso.json` atualizado a cada etapa:
+`{ "atual": "cortes", "feitas": ["transcricao", "tomadas"] }`
+Etapas, nesta ordem: `transcricao`, `tomadas`, `cortes`, `legendas`, `zoom`, `som`, `render`.
+Assim que decidir os cortes, já escreva `saida/projeto.json` com as camadas `corte`; ao terminar a legenda,
+acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a linha do tempo com o que estiver lá.
+
 ## Como editar
 
 1. **Transcrever** o áudio com tempo por palavra. Use o Python do robô:

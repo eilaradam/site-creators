@@ -137,6 +137,7 @@ async function editar(p, arquivos) {
     let projeto = null, resumo = '';
     try { projeto = JSON.parse(fs.readFileSync(path.join(saida, 'projeto.json'), 'utf8')); } catch (_) {}
     try { resumo = fs.readFileSync(path.join(saida, 'resumo.md'), 'utf8').trim(); } catch (_) {}
+    if (projeto) projeto.etapas = { feitas: ['transcricao', 'tomadas', 'cortes', 'legendas', 'zoom', 'som', 'render'] };
     await mudar(p, { status: 'previa_pronta', previa_link: link, projeto,
         status_msg: (resumo.split('\n').find(l => l.trim()) || 'Prévia v' + versao + ' no Drive').replace(/^#+\s*/, '').slice(0, 280) });
 }
@@ -206,6 +207,18 @@ function rodarClaude(job, p) {
             }
         });
         c.stderr.on('data', buf => fs.appendFileSync(logArq, buf));
+        // Etapas e linha do tempo parcial (saida/progresso.json + saida/projeto.json) vão para o painel Editor IA do admin
+        let ultimoProjeto = '';
+        const vigia = setInterval(() => {
+            const ler = n => { try { return JSON.parse(fs.readFileSync(path.join(job, 'saida', n), 'utf8')); } catch (_) { return null; } };
+            const prog = ler('progresso.json'), proj = ler('projeto.json');
+            if (!prog && !proj) return;
+            const novo = JSON.stringify(Object.assign({}, proj || {}, { etapas: prog || {} }));
+            if (novo === ultimoProjeto) return;
+            ultimoProjeto = novo;
+            db('edicao_pedidos?id=eq.' + p.id, { metodo: 'PATCH', corpo: { projeto: JSON.parse(novo), updated_at: new Date().toISOString() } }).catch(() => {});
+        }, 15000);
+        c.on('exit', () => clearInterval(vigia));
         const t = setTimeout(() => { c.kill('SIGTERM'); resolve(false); }, LIMITE_EDICAO_MIN * 60000);
         c.on('error', e => { fs.appendFileSync(logArq, '\n[robô] ' + e.message + '\n'); clearTimeout(t); resolve(false); });
         c.on('exit', code => { clearTimeout(t); resolve(code === 0); });
