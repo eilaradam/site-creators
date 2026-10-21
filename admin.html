@@ -17677,6 +17677,16 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         if (b.error) return edErro('Não carreguei a biblioteca', b.error);
         edPedidos = p.data || []; edRefsBib = b.data || [];
     }
+    /* Enquanto o robô trabalha, a lista e o pedido aberto se atualizam sozinhos (o robô escreve o passo atual em status_msg) */
+    const ED_EM_ANDAMENTO = ['na_fila', 'aguardando_bruto', 'baixando', 'analisando', 'editando', 'renderizando'];
+    setInterval(async () => {
+        const aba = document.getElementById('tabEdicao');
+        if (!aba || !aba.classList.contains('show') || edAba !== 'pedidos' || !edPedidos.some(p => ED_EM_ANDAMENTO.includes(p.status))) return;
+        if (edForm && (!edForm.id || ED_EM_ANDAMENTO.slice(0, 1).concat('erro', 'cancelado').includes((edPedidos.find(p => p.id === edForm.id) || {}).status))) return;  // formulário editável aberto: não atrapalha a digitação
+        const antes = JSON.stringify(edPedidos.map(p => [p.id, p.status, p.status_msg, p.previa_link]));
+        await edCarregarPedidos();
+        if (JSON.stringify(edPedidos.map(p => [p.id, p.status, p.status_msg, p.previa_link])) !== antes) edRender();
+    }, 15000);
     function edNovoForm(base) {
         edForm = Object.assign({ id: null, conteudo_id: '', marca: '', titulo: '', drive_pasta_link: '', roteiro: '', formato: '9:16', duracao_alvo_s: '', observacoes: '', marca_site: '', marca_redes: '', rec_gravar: false, rec_passos: '',
             refs: [{ tipo: 'geral', link: '', nota: '', salvar: false, nome: '' }] }, base || {});
@@ -17826,6 +17836,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             (ped ? '<button class="ed-btn ghost mini" type="button" onclick="edApagarPedido(\'' + ped.id + '\')">Apagar</button>' : '') +
           '</div>' +
           (travado ? '<div class="ed-card" style="margin-bottom:12px;background:#FFFBF2;">O robô já está trabalhando nesse pedido, então ele fica só para leitura. ' +
+            (ED_EM_ANDAMENTO.includes(ped.status) && ped.status_msg ? '<div style="margin:8px 0 2px;font-size:15px;font-weight:700;">Agora: ' + edEsc(ped.status_msg) + '</div><div class="ed-muted">Atualiza sozinho a cada 15 s.</div>' : '') +
             (ped.previa_link ? '<a href="' + edEsc(ped.previa_link) + '" target="_blank" rel="noopener">Ver prévia</a> · ' : '') +
             (ped.final_link ? '<a href="' + edEsc(ped.final_link) + '" target="_blank" rel="noopener">Ver final no Drive</a>' : '') + '</div>' : '') +
           '<div class="ed-grid">' +

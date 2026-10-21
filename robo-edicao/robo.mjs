@@ -123,7 +123,7 @@ async function editar(p, arquivos) {
     fs.copyFileSync(path.join(DIR, 'INSTRUCOES_EDICAO.md'), path.join(job, 'CLAUDE.md'));
 
     await mudar(p, { status: 'editando', status_msg: 'Claude editando (pode levar uns 20 a 40 min)' });
-    const ok = await rodarClaude(job);
+    const ok = await rodarClaude(job, p);
     const previa = path.join(saida, 'previa.mp4');
     if (!fs.existsSync(previa)) throw new Error(ok ? 'O Claude terminou sem gerar a prévia. Veja ' + path.join(job, 'claude.log') : 'A edição passou de ' + LIMITE_EDICAO_MIN + ' min ou deu erro. Veja ' + path.join(job, 'claude.log'));
 
@@ -162,14 +162,48 @@ function pedidoMd(p, refs, regras, dic, arquivos) {
     return L.join('\n') + '\n';
 }
 
-function rodarClaude(job) {
+/* Mostra o que o Claude está fazendo: na janela do robô e no admin (status_msg, no máximo a cada 15 s) */
+function passoDoEvento(ev) {
+    if (ev.type !== 'assistant' || !ev.message || !Array.isArray(ev.message.content)) return [];
+    return ev.message.content.map(c => {
+        if (c.type === 'text') return (c.text || '').trim().split('\n').find(l => l.trim()) || '';
+        if (c.type === 'tool_use') {
+            const i = c.input || {};
+            if (c.name === 'Bash') return '› ' + (i.description || String(i.command || '').split('\n')[0]);
+            if (['Write', 'Edit'].includes(c.name)) return '› escrevendo ' + path.basename(i.file_path || '');
+            if (c.name === 'Read') return '› lendo ' + path.basename(i.file_path || '');
+            return '› ' + c.name;
+        }
+        return '';
+    }).map(t => t.replace(/^#+\s*/, '').slice(0, 160)).filter(Boolean);
+}
+
+function rodarClaude(job, p) {
     const prompt = 'Leia CLAUDE.md e PEDIDO.md e faça a edição completa deste pedido sozinho, sem perguntar nada. ' +
+        'Antes de cada etapa, escreva uma frase curta em português dizendo o que vai fazer (a Lara acompanha ao vivo). ' +
         'No fim precisa existir saida/previa.mp4, saida/projeto.json e saida/resumo.md.';
     return new Promise(resolve => {
-        const out = fs.openSync(path.join(job, 'claude.log'), 'a');
-        const c = spawn(CLAUDE, ['-p', prompt, '--permission-mode', 'bypassPermissions'], { cwd: job, stdio: ['ignore', out, out] });
+        const logArq = path.join(job, 'claude.log');
+        const c = spawn(CLAUDE, ['-p', prompt, '--permission-mode', 'bypassPermissions', '--output-format', 'stream-json', '--verbose'],
+            { cwd: job, stdio: ['ignore', 'pipe', 'pipe'] });
+        let resto = '', ultimoEnvio = 0, ultimaFrase = '';
+        const enviar = frase => {
+            ultimaFrase = frase;
+            if (Date.now() - ultimoEnvio < 15000) return;
+            ultimoEnvio = Date.now();
+            db('edicao_pedidos?id=eq.' + p.id, { metodo: 'PATCH', corpo: { status_msg: frase.slice(0, 280), updated_at: new Date().toISOString() } }).catch(() => {});
+        };
+        c.stdout.on('data', buf => {
+            fs.appendFileSync(logArq, buf);
+            const linhas = (resto + buf.toString()).split('\n'); resto = linhas.pop();
+            for (const l of linhas) {
+                let ev; try { ev = JSON.parse(l); } catch (_) { continue; }
+                for (const passo of passoDoEvento(ev)) { log('#' + p.numero, passo); if (!passo.startsWith('›')) enviar(passo); }
+            }
+        });
+        c.stderr.on('data', buf => fs.appendFileSync(logArq, buf));
         const t = setTimeout(() => { c.kill('SIGTERM'); resolve(false); }, LIMITE_EDICAO_MIN * 60000);
-        c.on('error', e => { fs.appendFileSync(path.join(job, 'claude.log'), '\n[robô] ' + e.message + '\n'); clearTimeout(t); resolve(false); });
+        c.on('error', e => { fs.appendFileSync(logArq, '\n[robô] ' + e.message + '\n'); clearTimeout(t); resolve(false); });
         c.on('exit', code => { clearTimeout(t); resolve(code === 0); });
     });
 }
@@ -197,6 +231,11 @@ async function main() {
         return log('Login ok. O robô está ligado ao admin.');
     }
     log('Robô de edição ligado. Olhando a fila a cada ' + INTERVALO_S + ' s. Deixe esta janela aberta.');
+    // Se o robô foi fechado no meio de uma edição, o pedido ficou preso em "editando": volta para recomeçar
+    try {
+        for (const p of await db('edicao_pedidos?status=in.(baixando,analisando,editando,renderizando)&select=*'))
+            await mudar(p, { status: 'aguardando_bruto', status_msg: 'O robô foi reiniciado no meio da edição. Recomeçando.' });
+    } catch (e) { log('Não consegui conferir pedidos interrompidos:', e.message); }
     do {
         try { await rodada(); } catch (e) { log('Não consegui olhar a fila:', e.message); }
         if (process.argv.includes('--uma-vez')) break;

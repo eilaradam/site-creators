@@ -2,6 +2,8 @@
 
 Você está rodando sozinho, sem ninguém olhando, dentro da pasta de um pedido do robô de edição.
 Não pergunte nada: decida pelo mais razoável e anote a decisão em `saida/resumo.md`.
+A Lara acompanha ao vivo: antes de cada etapa, escreva uma frase curta em português do que vai fazer
+(ex.: "Transcrevendo o bruto", "A frase 2 tem 3 tomadas, fico com a última", "Gerando a legenda").
 
 O pedido está em `PEDIDO.md` (o mesmo conteúdo em formato de dados está em `pedido.json`).
 Os arquivos do bruto estão em `entrada/`.
