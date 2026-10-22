@@ -5302,6 +5302,21 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
 #tabEdicao .fn-peso { background:#F4F2EF; border:1px solid var(--border); border-radius:7px; padding:3px 8px; font-size:13px; cursor:pointer; color:var(--text); }
 #tabEdicao .fn-peso:hover { border-color:var(--accent); color:var(--accent); }
 @media (max-width: 600px) { #tabEdicao .ia-meio { grid-template-columns:130px 1fr; } #tabEdicao .ia-prev iframe.ia-prev-drive { transform:scale(.3611); } }
+#tabEdicao .ia-prev-video { width:100%; height:100%; object-fit:contain; background:#000; display:block; }
+#tabEdicao .ia-tr-l { cursor:pointer; }
+#tabEdicao .ia-bl { cursor:pointer; }
+#tabEdicao .ia-bl.sel { outline:2px solid #FFF8F2; outline-offset:1px; z-index:2; }
+#tabEdicao .ia-bl.fora { opacity:.25; background:repeating-linear-gradient(45deg,#555 0 4px,#333 4px 8px) !important; }
+#tabEdicao .ia-bl.editado { box-shadow:inset 0 -3px 0 #E8A27E; }
+#tabEdicao .ia-marca { position:absolute; top:-3px; bottom:-3px; width:3px; margin-left:-1px; background:#E8A27E; border-radius:2px; z-index:3; }
+#tabEdicao .ia-editar { margin-top:12px; background:#141312; border:1px solid #2E2925; border-radius:16px; padding:12px 14px; }
+#tabEdicao .ia-editar .ed-input { background:#211E1C; color:#FFF8F2; border-color:#3D3530; }
+#tabEdicao .ia-editar .ed-btn.ghost { color:#FFF8F2; border-color:#3D3530; }
+#tabEdicao .ia-sel { background:#211E1C; border-radius:10px; padding:10px 12px; font-size:13.5px; margin-top:6px; }
+#tabEdicao .ia-tempo { font-family:'DM Mono', ui-monospace, monospace; color:#E8A27E; font-weight:700; }
+#tabEdicao .ia-ajs { margin-top:10px; border-top:1px solid #2E2925; }
+#tabEdicao .ia-aj { display:flex; justify-content:space-between; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid #2E2925; font-size:13px; }
+#tabEdicao .ia-aj .ed-x { color:#A69D93; }
 #tabEdicao .ed-toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px); background:#1F1B18; color:#fff; padding:10px 16px; border-radius:10px; font-size:13.5px; font-weight:600; opacity:0; pointer-events:none; transition:all .2s; z-index:9999; }
 #tabEdicao .ed-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 #tabEdicao .ed-toast.erro { background:#B3261E; }
@@ -17743,7 +17758,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     const ED_PED_STATUS = {
         na_fila: ['Na fila', '#FFF3D6', '#8A5A00'], aguardando_bruto: ['Esperando o bruto na pasta', '#FFF3D6', '#8A5A00'], baixando: ['Baixando o bruto', '#E3EEFF', '#1F4E9A'],
         analisando: ['Analisando referências', '#E3EEFF', '#1F4E9A'], editando: ['Editando', '#E3EEFF', '#1F4E9A'],
-        aguardando_cenas: ['Esperando as cenas', '#FFF3D6', '#8A5A00'], previa_pronta: ['Prévia pronta', '#DDF5E6', '#1D6B3A'], em_revisao: ['Em revisão', '#F3E8FF', '#6B2FA3'],
+        aguardando_cenas: ['Esperando as cenas', '#FFF3D6', '#8A5A00'], ajustes_na_fila: ['Na fila para a nova versão', '#E3EEFF', '#1F4E9A'], previa_pronta: ['Prévia pronta', '#DDF5E6', '#1D6B3A'], em_revisao: ['Em revisão', '#F3E8FF', '#6B2FA3'],
         renderizando: ['Renderizando final', '#E3EEFF', '#1F4E9A'], final_pronto: ['Final no Drive', '#DDF5E6', '#1D6B3A'],
         erro: ['Erro', '#FDE4E1', '#B3261E'], cancelado: ['Cancelado', '#F4F2EF', '#8A817A'],
     };
@@ -17768,7 +17783,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         edPedidos = p.data || []; edRefsBib = b.data || [];
     }
     /* Enquanto o robô trabalha, a lista e o pedido aberto se atualizam sozinhos (o robô escreve o passo atual em status_msg) */
-    const ED_EM_ANDAMENTO = ['na_fila', 'aguardando_bruto', 'baixando', 'analisando', 'editando', 'renderizando', 'aguardando_cenas'];
+    const ED_EM_ANDAMENTO = ['na_fila', 'aguardando_bruto', 'baixando', 'analisando', 'editando', 'renderizando', 'aguardando_cenas', 'ajustes_na_fila'];
     setInterval(async () => {
         const aba = document.getElementById('tabEdicao');
         if (!aba || !aba.classList.contains('show') || edAba !== 'pedidos' || !edPedidos.some(p => ED_EM_ANDAMENTO.includes(p.status))) return;
@@ -17783,6 +17798,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     }
     function edAbrirNovoPedido() { edPedidoAberto = 'novo'; edNovoForm(); edRender(); }
     async function edAbrirPedido(id) {
+        edIaSel = null;
         const ped = edPedidos.find(p => p.id === id); if (!ped) return;
         const { data, error } = await sb.from('edicao_referencias').select('*').eq('pedido_id', id).order('created_at');
         if (error) return edErro('Não carreguei as referências', error);
@@ -17992,7 +18008,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             '</div>') +
           '</div>' +
           (travado ? '' : '<div class="ed-row" style="margin-top:14px;justify-content:flex-end;"><button class="ed-btn" type="button" onclick="edSalvarPedido()">' + (f.id ? 'Salvar pedido' : 'Mandar para a fila') + '</button></div>');
-        if (!travado) edChecarPasta();
+        if (!travado) edChecarPasta(); else if (ped) edIaMontar(ped);
     }
     /* ── Biblioteca de fontes: robo-edicao/fontes.json (as mesmas que o robô instala no Mac) ── */
     let edFontes = [], edFonteCat = '', edFonteTexto = 'Você sabe quanto valem as suas milhas?';
@@ -18116,6 +18132,132 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                 '</div>').join('') + '</div>';
         edLegAnimar();
     }
+    /* ── Ajustar depois de pronto: clicar na linha do tempo, tirar/trocar itens, comentar no segundo exato e pedir a V2.
+       Cada ajuste fica salvo no pedido; o robô aplica na V2 e propõe regras do estilo a partir deles. ── */
+    let edIaSel = null, edIaRaf = null;
+    const edIaAjustes = ped => Array.isArray(ped.ajustes) ? ped.ajustes : [];
+    function edIaLinhaHtml(ped) {
+        const pj = ped.projeto || {}, cam = Array.isArray(pj.camadas) ? pj.camadas : [];
+        const andando = ED_EM_ANDAMENTO.includes(ped.status);
+        const dur = Number(pj.duracao_s) || Math.max(0, ...cam.map(c => Number(c.fim_s) || 0)) || 0;
+        if (!dur) return '<div class="ia-tl vazio">' + (ped.tipo === 'cenas' ? 'A linha do tempo aparece quando o robô montar as cenas com a locução.' : andando ? 'A linha do tempo aparece aqui conforme o robô corta e legenda.' : 'Sem linha do tempo neste pedido.') + '</div>';
+        const aj = edIaAjustes(ped);
+        const fora = new Set(aj.filter(a => a.tipo === 'remover').map(a => a.i));
+        const novoTexto = {}; aj.filter(a => a.tipo === 'texto').forEach(a => { novoTexto[a.i] = a.para; });
+        const bloco = (c, i, cls, txt) => {
+            const ini = Math.max(0, Number(c.inicio_s) || 0), fim = Math.max(ini + 0.05, Number(c.fim_s) || ini);
+            const largura = (fim - ini) / dur, t = novoTexto[i] !== undefined ? novoTexto[i] : txt;
+            return '<div class="ia-bl ' + cls + (fora.has(i) ? ' fora' : '') + (novoTexto[i] !== undefined ? ' editado' : '') + (edIaSel === i ? ' sel' : '') + '" data-i="' + i + '" style="left:' + (ini / dur * 100).toFixed(3) + '%;width:' + (largura * 100).toFixed(3) + '%;" title="' + edEsc(edMMSS(ini) + ' a ' + edMMSS(fim) + (t ? ' · ' + t : '')) + '">' + (t && largura >= 0.06 ? '<span>' + edEsc(t) + '</span>' : '') + '</div>';
+        };
+        const lista = filtro => cam.map((c, i) => ({ c, i })).filter(x => filtro(x.c));
+        const trilha = (nome, itens) => '<div class="ia-tr"><div class="ia-tr-n">' + nome + '</div><div class="ia-tr-l">' + itens + '</div></div>';
+        const marcas = aj.filter(a => a.tipo === 'comentario').map(a => '<div class="ia-marca" style="left:' + (a.tempo_s / dur * 100).toFixed(3) + '%;" title="' + edEsc(edMMSS(a.tempo_s) + ' · ' + a.texto) + '"></div>').join('');
+        return '<div class="ia-tl' + (andando ? ' vivo' : '') + '" data-dur="' + dur + '">' +
+            '<div class="ia-regua"><span>00:00</span><span>' + edMMSS(dur / 2) + '</span><span>' + edMMSS(dur) + '</span></div>' +
+            trilha('Vídeo', lista(c => c.tipo === 'corte' || c.tipo === 'rec').map(x => bloco(x.c, x.i, x.c.tipo === 'rec' ? 'rec' : 'vid', x.c.tipo === 'rec' ? 'tela do site' : '')).join('') + marcas) +
+            trilha('Legendas', lista(c => c.tipo === 'legenda').map(x => bloco(x.c, x.i, 'leg', x.c.texto || '')).join('')) +
+            trilha('Efeitos', lista(c => c.tipo === 'zoom' || c.tipo === 'animacao').map(x => bloco(x.c, x.i, x.c.tipo === 'zoom' ? 'zoom' : 'anim', x.c.tipo === 'zoom' ? 'zoom' : (x.c.texto || ''))).join('')) +
+            trilha('Áudio', lista(c => c.tipo === 'musica' || c.tipo === 'sfx' || c.tipo === 'voz').map(x => bloco(x.c, x.i, x.c.tipo === 'sfx' ? 'sfx' : 'mus', '')).join('')) +
+            '<div class="ia-play"></div></div>';
+    }
+    const ED_IA_NOMES = { corte: 'Trecho do vídeo', rec: 'Gravação de tela', legenda: 'Legenda', zoom: 'Zoom', animacao: 'Animação', musica: 'Música', sfx: 'Efeito sonoro', voz: 'Locução' };
+    function edIaEditorHtml(ped) {
+        const cam = (ped.projeto && ped.projeto.camadas) || [], aj = edIaAjustes(ped);
+        const c = edIaSel !== null ? cam[edIaSel] : null;
+        const ajSel = aj.find(a => a.i === edIaSel && a.tipo === 'remover');
+        const txtSel = aj.find(a => a.i === edIaSel && a.tipo === 'texto');
+        const sel = c ? '<div class="ia-sel"><div><b>' + edEsc(ED_IA_NOMES[c.tipo] || c.tipo) + '</b> · ' + edMMSS(c.inicio_s) + ' a ' + edMMSS(c.fim_s) + (c.texto ? ' · “' + edEsc(c.texto) + '”' : '') + '</div>' +
+            '<div class="ed-row" style="margin-top:8px;">' +
+              (ajSel ? '<button class="ed-btn mini ghost" type="button" onclick="edIaDesfazer(' + edIaSel + ',\'remover\')">Manter</button>'
+                     : '<button class="ed-btn mini" type="button" onclick="edIaRemover(' + edIaSel + ')">' + (c.tipo === 'corte' ? 'Tirar este trecho' : 'Tirar') + '</button>') +
+              (c.tipo === 'legenda' || c.tipo === 'animacao' ? '<input class="ed-input" id="iaNovoTexto" style="max-width:320px;" value="' + edEsc(txtSel ? txtSel.para : (c.texto || '')) + '"><button class="ed-btn mini ghost" type="button" onclick="edIaTrocarTexto(' + edIaSel + ')">Trocar texto</button>' : '') +
+            '</div></div>' : '<div class="ia-cenas-dica">Clique num item da linha do tempo para tirar ou trocar. Clique na faixa para ir até aquele ponto do vídeo.</div>';
+        const lista = aj.map((a, k) => '<div class="ia-aj"><span>' + (a.tipo === 'comentario' ? edMMSS(a.tempo_s) + ' · ' + edEsc(edTipoNome(a.categoria)) + ': ' + edEsc(a.texto)
+                : a.tipo === 'remover' ? 'Tirar ' + edEsc((ED_IA_NOMES[a.camada.tipo] || a.camada.tipo).toLowerCase()) + ' em ' + edMMSS(a.camada.inicio_s) + (a.camada.texto ? ' (“' + edEsc(a.camada.texto) + '”)' : '')
+                : 'Trocar “' + edEsc(a.de) + '” por “' + edEsc(a.para) + '” em ' + edMMSS(a.camada.inicio_s)) +
+            '</span><button class="ed-x" type="button" title="Desfazer" onclick="edIaApagar(' + k + ')">✕</button></div>').join('');
+        const tipos = ED_TIPOS.map(t => '<option value="' + t[0] + '"' + (t[0] === 'outro' ? ' selected' : '') + '>' + t[1] + '</option>').join('');
+        return '<div class="ia-editar"><div class="ia-cenas-tit">Ajustar</div>' + sel +
+            '<div class="ed-row" style="margin-top:10px;"><span class="ia-tempo" id="iaTempo">00:00</span>' +
+              '<select class="ed-input" id="iaComCat" style="width:auto;">' + tipos + '</select>' +
+              '<input class="ed-input" id="iaComTx" style="flex:1;min-width:180px;" placeholder="Comentário neste ponto (ex.: zoom aqui, música mais baixa)" onkeydown="if(event.key===\'Enter\')edIaComentar()">' +
+              '<button class="ed-btn mini" type="button" onclick="edIaComentar()">Comentar</button></div>' +
+            (aj.length ? '<div class="ia-ajs">' + lista + '</div>' +
+              '<div class="ed-row" style="margin-top:10px;justify-content:space-between;"><span class="ia-cenas-dica" style="margin:0;">O robô aplica na V2 e aprende: os ajustes viram regras propostas em Regras do estilo.</span>' +
+              '<button class="ed-btn" type="button" onclick="edIaPedirV2()">Gerar V2 com ' + aj.length + ' ajuste' + (aj.length > 1 ? 's' : '') + '</button></div>' : '') +
+          '</div>';
+    }
+    function edIaPed() { return edForm && edForm.id ? edPedidos.find(p => p.id === edForm.id) : null; }
+    function edIaRedesenhar() {
+        const ped = edIaPed(); if (!ped) return;
+        const l = document.getElementById('iaLinha'), e = document.getElementById('iaEditar');
+        if (l) l.innerHTML = edIaLinhaHtml(ped);
+        if (e) e.innerHTML = edIaEditorHtml(ped);
+        edIaLigar(ped);
+    }
+    async function edIaSalvar(ped, ajustes) {
+        ped.ajustes = ajustes; edIaRedesenhar();
+        const { error } = await sb.from('edicao_pedidos').update({ ajustes, updated_at: new Date().toISOString() }).eq('id', ped.id);
+        if (error) edErro('Não salvei o ajuste', error);
+    }
+    function edIaCamada(c) { return { tipo: c.tipo, inicio_s: c.inicio_s, fim_s: c.fim_s, texto: c.texto || null }; }
+    function edIaRemover(i) {
+        const ped = edIaPed(); if (!ped) return; const c = ped.projeto.camadas[i];
+        edIaSalvar(ped, edIaAjustes(ped).filter(a => !(a.i === i)).concat([{ tipo: 'remover', i, camada: edIaCamada(c) }]));
+    }
+    function edIaDesfazer(i, tipo) { const ped = edIaPed(); if (ped) edIaSalvar(ped, edIaAjustes(ped).filter(a => !(a.i === i && a.tipo === tipo))); }
+    function edIaTrocarTexto(i) {
+        const ped = edIaPed(); if (!ped) return; const c = ped.projeto.camadas[i];
+        const para = (document.getElementById('iaNovoTexto') || {}).value || '';
+        if (!para.trim() || para.trim() === (c.texto || '')) return edToast('Escreva o texto novo', true);
+        edIaSalvar(ped, edIaAjustes(ped).filter(a => !(a.i === i && a.tipo === 'texto')).concat([{ tipo: 'texto', i, de: c.texto || '', para: para.trim(), camada: edIaCamada(c) }]));
+    }
+    function edIaComentar() {
+        const ped = edIaPed(); if (!ped) return;
+        const tx = (document.getElementById('iaComTx') || {}).value || ''; if (!tx.trim()) return edToast('Escreva o comentário', true);
+        const v = document.getElementById('iaVideo');
+        const t = v && !isNaN(v.currentTime) ? v.currentTime : (edIaSel !== null ? ped.projeto.camadas[edIaSel].inicio_s : 0);
+        edIaSalvar(ped, edIaAjustes(ped).concat([{ tipo: 'comentario', tempo_s: Math.round(t * 100) / 100, categoria: document.getElementById('iaComCat').value, texto: tx.trim() }]));
+    }
+    function edIaApagar(k) { const ped = edIaPed(); if (!ped) return; const a = edIaAjustes(ped).slice(); a.splice(k, 1); edIaSalvar(ped, a); }
+    async function edIaPedirV2() {
+        const ped = edIaPed(); if (!ped) return; const n = edIaAjustes(ped).length;
+        if (!confirm('Mandar ' + n + ' ajuste(s) para o robô fazer a V2?')) return;
+        await edMudarStatusPedido(ped.id, 'ajustes_na_fila', 'Na fila para a nova versão com ' + n + ' ajuste(s)');
+    }
+    /* liga vídeo, cabeça de leitura e cliques na linha do tempo (sem recriar o vídeo) */
+    function edIaLigar(ped) {
+        const tl = document.querySelector('#iaLinha .ia-tl'); if (!tl) return;
+        const dur = Number(tl.dataset.dur) || 0, v = document.getElementById('iaVideo');
+        tl.querySelectorAll('.ia-bl').forEach(b => b.addEventListener('click', ev => {
+            ev.stopPropagation(); edIaSel = Number(b.dataset.i);
+            const c = ped.projeto.camadas[edIaSel]; if (v && c) { v.currentTime = Number(c.inicio_s) || 0; }
+            edIaRedesenhar();
+        }));
+        tl.querySelectorAll('.ia-tr-l').forEach(l => l.addEventListener('click', ev => {
+            const r = l.getBoundingClientRect(); if (v && dur) v.currentTime = Math.max(0, Math.min(dur, (ev.clientX - r.left) / r.width * dur));
+        }));
+        cancelAnimationFrame(edIaRaf);
+        if (!v || ED_EM_ANDAMENTO.includes(ped.status)) return;
+        const play = tl.querySelector('.ia-play'), faixa = tl.querySelector('.ia-tr-l');
+        play.style.display = 'block'; play.style.animation = 'none';
+        const passo = () => {
+            if (!document.body.contains(v)) return;
+            const t = v.currentTime || 0, lt = document.getElementById('iaTempo');
+            if (faixa && dur) play.style.left = (faixa.offsetLeft + faixa.offsetWidth * Math.min(1, t / dur)) + 'px';
+            if (lt) lt.textContent = edMMSS(t);
+            edIaRaf = requestAnimationFrame(passo);
+        };
+        passo();
+    }
+    async function edIaMontar(ped) {
+        const v = document.getElementById('iaVideo');
+        if (v && ped.previa_path) {
+            const { data, error } = await sb.storage.from('edicao').createSignedUrl(ped.previa_path, 3 * 3600);
+            if (!error && data) v.src = data.signedUrl;
+        }
+        edIaLigar(ped);
+    }
     /* Locução + cenas: imagem-chave e um prompt por cena, com botão de copiar */
     function edCopiar(id) {
         const el = document.getElementById(id); if (!el) return;
@@ -18174,24 +18316,13 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             ? 'Vídeo de locução + cenas: ' + String(ped.roteiro || ped.pasta_nome || '').trim().replace(/\s+/g, ' ').slice(0, 110)
             : 'Edita seguindo o roteiro' + (ped.marca ? ' da ' + ped.marca : '') + ', com legenda, cortes e zoom.');
         const m = String(ped.previa_link || '').match(/\/file\/d\/([\w-]+)/);
-        const previa = m ? '<iframe class="ia-prev-drive" src="https://drive.google.com/file/d/' + m[1] + '/preview" allow="autoplay" allowfullscreen></iframe>' +
+        const previa = ped.previa_path && pronto ? '<video id="iaVideo" class="ia-prev-video" playsinline controls preload="metadata"></video>'
+            : m ? '<iframe class="ia-prev-drive" src="https://drive.google.com/file/d/' + m[1] + '/preview" allow="autoplay" allowfullscreen></iframe>' +
                 '<a class="ia-prev-abrir" href="' + edEsc(ped.previa_link) + '" target="_blank" rel="noopener">Assistir maior ↗</a>'
             : '<div class="ia-prev-vazio"><b>' + edEsc(ped.pasta_nome || ped.marca || '') + '</b><span>' + (andando ? 'editando…' : '') + '</span></div>';
         const etapas = edEtapasDoPedido(ped).map(e => '<div class="ia-etapa ' + e.st + '"><span class="ia-ck">' + (e.st === 'feito' ? '✓' : '') + '</span>' + edEsc(e.n) + '</div>').join('');
-        const bloco = (c, cls, txt) => {
-            const i = Math.max(0, Number(c.inicio_s) || 0), f = Math.max(i + 0.05, Number(c.fim_s) || i);
-            const largura = (f - i) / dur;
-            return '<div class="ia-bl ' + cls + '" style="left:' + (i / dur * 100).toFixed(3) + '%;width:' + (largura * 100).toFixed(3) + '%;" title="' + edEsc(edMMSS(i) + ' a ' + edMMSS(f) + (txt ? ' · ' + txt : '')) + '">' + (txt && largura >= 0.06 ? '<span>' + edEsc(txt) + '</span>' : '') + '</div>';
-        };
-        const trilha = (nome, cls, itens) => '<div class="ia-tr"><div class="ia-tr-n">' + nome + '</div><div class="ia-tr-l">' + itens + '</div></div>';
-        const linha = dur ? '<div class="ia-tl' + (andando ? ' vivo' : '') + '">' +
-            '<div class="ia-regua"><span>00:00</span><span>' + edMMSS(dur / 2) + '</span><span>' + edMMSS(dur) + '</span></div>' +
-            trilha('Vídeo', 'v', cam.filter(c => c.tipo === 'corte' || c.tipo === 'rec').map(c => bloco(c, c.tipo === 'rec' ? 'rec' : 'vid', c.tipo === 'rec' ? 'tela do site' : '')).join('')) +
-            trilha('Legendas', 'l', cam.filter(c => c.tipo === 'legenda').map(c => bloco(c, 'leg', c.texto || '')).join('')) +
-            trilha('Efeitos', 'z', cam.filter(c => c.tipo === 'zoom' || c.tipo === 'animacao').map(c => bloco(c, c.tipo === 'zoom' ? 'zoom' : 'anim', c.tipo === 'zoom' ? 'zoom' : (c.texto || ''))).join('')) +
-            trilha('Áudio', 'a', cam.filter(c => c.tipo === 'musica' || c.tipo === 'sfx' || c.tipo === 'voz').map(c => bloco(c, c.tipo === 'sfx' ? 'sfx' : 'mus', '')).join('')) +
-            '<div class="ia-play"></div></div>'
-            : '<div class="ia-tl vazio">' + (ped.tipo === 'cenas' ? 'A linha do tempo aparece quando o robô montar as cenas com a locução.' : andando ? 'A linha do tempo aparece aqui conforme o robô corta e legenda.' : 'Sem linha do tempo neste pedido.') + '</div>';
+        const podeAjustar = pronto && cam.length > 0;
+        const linha = '<div id="iaLinha">' + edIaLinhaHtml(ped) + '</div>' + (podeAjustar ? '<div id="iaEditar">' + edIaEditorHtml(ped) + '</div>' : '');
         const links = (ped.previa_link ? '<a href="' + edEsc(ped.previa_link) + '" target="_blank" rel="noopener">Abrir prévia no Drive</a>' : '') +
             (ped.final_link ? ' · <a href="' + edEsc(ped.final_link) + '" target="_blank" rel="noopener">Final no Drive</a>' : '') +
             (ped.drive_pasta_link ? (ped.previa_link || ped.final_link ? ' · ' : '') + '<a href="' + edEsc(ped.drive_pasta_link) + '" target="_blank" rel="noopener">Pasta</a>' : '');

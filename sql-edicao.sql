@@ -170,3 +170,9 @@ alter table public.edicao_pedidos add constraint edicao_pedidos_status_check che
 
 -- Modelo de legenda escolhido no pedido (lista em robo-edicao/legendas.json)
 alter table public.edicao_pedidos add column if not exists legenda_modelo text;
+
+-- Ajustar depois de pronto: ajustes da Lara na linha do tempo, prévia leve para o player do admin e status da V2
+alter table public.edicao_pedidos add column if not exists ajustes jsonb;
+alter table public.edicao_pedidos add column if not exists previa_path text;
+alter table public.edicao_pedidos drop constraint if exists edicao_pedidos_status_check;
+alter table public.edicao_pedidos add constraint edicao_pedidos_status_check check (status in ('na_fila','aguardando_bruto','aguardando_cenas','ajustes_na_fila','baixando','analisando','editando','previa_pronta','em_revisao','renderizando','final_pronto','erro','cancelado'));

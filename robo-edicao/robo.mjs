@@ -160,11 +160,21 @@ async function entregar(p, job, etapas) {
     for (const n of fs.readdirSync(saida).filter(n => /^rec.*\.mp4$/i.test(n)))
         subir(p.drive_pasta_id, path.join(saida, n), 'REC - ' + n);
 
+    let previa_path = p.previa_path || null;
+    try {
+        const leve = path.join(job, 'previa_leve.mp4');
+        ffmpeg(['-i', previa, '-vf', "scale='if(gt(iw,ih),-2,720)':'if(gt(iw,ih),720,-2)'", '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '28', '-c:a', 'aac', '-b:a', '96k', '-movflags', '+faststart', leve]);
+        const caminho = 'pedidos/' + p.id + '/previa_v' + versao + '.mp4';
+        const r = await fetch(SUPA + '/storage/v1/object/edicao/' + caminho, { method: 'POST', body: fs.readFileSync(leve),
+            headers: { apikey: ANON, Authorization: 'Bearer ' + await acesso(), 'Content-Type': 'video/mp4', 'x-upsert': 'true' } });
+        if (r.ok) previa_path = caminho; else log('prévia leve não subiu:', r.status, (await r.text()).slice(0, 200));
+    } catch (e) { log('prévia leve não subiu:', e.message); }
     let projeto = null, resumo = '';
     try { projeto = JSON.parse(fs.readFileSync(path.join(saida, 'projeto.json'), 'utf8')); } catch (_) {}
     try { resumo = fs.readFileSync(path.join(saida, 'resumo.md'), 'utf8').trim(); } catch (_) {}
     if (projeto) projeto.etapas = { feitas: etapas };
-    await mudar(p, { status: 'previa_pronta', previa_link: link, projeto,
+    await proporRegras(p, job);
+    await mudar(p, { status: 'previa_pronta', previa_link: link, projeto, previa_path, ajustes: null,
         status_msg: (resumo.split('\n').find(l => l.trim()) || 'Prévia v' + versao + ' no Drive').replace(/^#+\s*/, '').slice(0, 280) });
 }
 
@@ -353,6 +363,55 @@ async function montarCenas(p, arqs, audio) {
     await entregar(p, job, ['roteiro', 'estilo', 'prompts', 'locucao', 'cenas', 'montagem']);
 }
 
+/* V2: a Lara ajustou na linha do tempo do admin (tirar, trocar texto, comentários no segundo exato) */
+function ajustesMd(p) {
+    const cam = (p.projeto && p.projeto.camadas) || [];
+    const L = ['# Ajustes da Lara para a próxima versão', '',
+        'Aplique SÓ estes ajustes em cima da versão anterior (saida/projeto.json e a pasta work/), reaproveitando o que já foi feito.',
+        'Tempos são da versão anterior. Depois de aplicar, gere de novo saida/previa.mp4, saida/projeto.json e saida/resumo.md.', ''];
+    (p.ajustes || []).forEach((a, k) => {
+        const c = a.camada || cam[a.i] || {};
+        const onde = (x => Math.floor(x / 60) + ':' + String(Math.round(x % 60)).padStart(2, '0'));
+        if (a.tipo === 'remover') L.push((k + 1) + '. TIRAR ' + c.tipo + ' de ' + onde(c.inicio_s) + ' a ' + onde(c.fim_s) + (c.texto ? ' ("' + c.texto + '")' : '') + (c.tipo === 'corte' ? ' (tire este trecho do vídeo e emende sem engolir sílaba)' : ''));
+        else if (a.tipo === 'texto') L.push((k + 1) + '. TROCAR o texto do ' + c.tipo + ' em ' + onde(c.inicio_s) + ': "' + a.de + '" vira "' + a.para + '"');
+        else L.push((k + 1) + '. COMENTÁRIO em ' + onde(a.tempo_s) + ' [' + a.categoria + ']: ' + a.texto);
+    });
+    L.push('', '## Aprender com os ajustes',
+        'Escreva também `saida/regras_propostas.json`: uma lista de regras GERAIS do estilo da Lara que esses ajustes revelam',
+        '(o que vale para os próximos vídeos, não a correção pontual). Formato: [{"texto": "...", "motivo": "...", "categoria": "corte|zoom|som|musica|legenda|animacao|cor|ritmo|outro", "so_desta_marca": false}].',
+        'Se um ajuste for só um erro deste vídeo (nome errado, palavra trocada), não vire regra. Lista vazia é melhor que regra inventada.');
+    return L.join('\n') + '\n';
+}
+
+async function aplicarAjustes(p) {
+    const job = jobDe(p);
+    if (!fs.existsSync(job)) throw new Error('Não achei a pasta da versão anterior neste Mac (' + job + ')');
+    fs.writeFileSync(path.join(job, 'AJUSTES.md'), ajustesMd(p));
+    fs.appendFileSync(path.join(job, 'ajustes_historico.json'), JSON.stringify({ quando: new Date().toISOString(), ajustes: p.ajustes }) + '\n');
+    // a V2 é sempre uma edição em cima do que já existe (também no modo cenas), então valem as instruções de edição
+    fs.copyFileSync(path.join(DIR, 'INSTRUCOES_EDICAO.md'), path.join(job, 'CLAUDE.md'));
+    atualizarBancoDeSons();
+    await mudar(p, { status: 'editando', status_msg: 'Aplicando ' + (p.ajustes || []).length + ' ajuste(s) da Lara' });
+    const previa = path.join(job, 'saida', 'previa.mp4');
+    fs.rmSync(previa, { force: true });
+    const ok = await rodarClaude(job, p, 'Leia CLAUDE.md, PEDIDO.md e AJUSTES.md. Aplique só os ajustes da Lara na versão anterior, sem refazer o resto, ' +
+        'e gere de novo saida/previa.mp4, saida/projeto.json, saida/resumo.md e saida/regras_propostas.json. Não pergunte nada.');
+    if (!fs.existsSync(previa)) throw new Error(ok ? 'O Claude terminou sem gerar a nova prévia. Veja ' + path.join(job, 'claude.log') : 'A nova versão passou do tempo ou deu erro. Veja ' + path.join(job, 'claude.log'));
+    await entregar(p, job, p.tipo === 'cenas' ? ['roteiro', 'estilo', 'prompts', 'locucao', 'cenas', 'montagem'] : ['transcricao', 'tomadas', 'cortes', 'legendas', 'zoom', 'som', 'render']);
+}
+
+/* O que a Lara corrigiu vira regra PROPOSTA em "Regras do estilo"; ela aprova ou descarta no admin */
+async function proporRegras(p, job) {
+    const arq = path.join(job, 'saida', 'regras_propostas.json');
+    let regras; try { regras = JSON.parse(fs.readFileSync(arq, 'utf8')); } catch (_) { return; }
+    fs.renameSync(arq, arq.replace(/\.json$/, '_' + Date.now() + '.json'));
+    const CATS = ['corte', 'zoom', 'som', 'musica', 'legenda', 'animacao', 'cor', 'ritmo', 'outro'];
+    const linhas = (Array.isArray(regras) ? regras : []).filter(r => r && String(r.texto || '').trim()).slice(0, 8).map(r => ({
+        texto: String(r.texto).trim().slice(0, 400), motivo: ('Dos seus ajustes no pedido #' + p.numero + (r.motivo ? ': ' + r.motivo : '')).slice(0, 400),
+        categoria: CATS.includes(r.categoria) ? r.categoria : 'outro', cliente: r.so_desta_marca ? (p.marca || null) : null, status: 'proposta' }));
+    if (linhas.length) await db('edicao_regras', { metodo: 'POST', corpo: linhas }).then(() => log('#' + p.numero, linhas.length + ' regra(s) proposta(s) para a Lara aprovar')).catch(e => log('regras não salvas:', e.message));
+}
+
 function pedidoMd(p, refs, regras, dic, arquivos) {
     const L = [];
     L.push('# Pedido #' + p.numero + ': ' + p.pasta_nome, '');
@@ -440,12 +499,13 @@ function rodarClaude(job, p, pedidoTexto) {
 
 /* ── Fila ── */
 async function rodada() {
-    const pedidos = await db('edicao_pedidos?status=in.(na_fila,aguardando_bruto,aguardando_cenas)&select=*&order=created_at');
+    const pedidos = await db('edicao_pedidos?status=in.(na_fila,aguardando_bruto,aguardando_cenas,ajustes_na_fila)&select=*&order=created_at');
     for (const p of pedidos) {
         try {
             if (p.status === 'na_fila') await prepararPasta(p);
             if (p.status === 'aguardando_bruto') await olharBruto(p);
             if (p.status === 'aguardando_cenas') await olharCenas(p);
+            if (p.status === 'ajustes_na_fila') await aplicarAjustes(p);
         } catch (e) {
             log('#' + p.numero, 'ERRO', e.message);
             await mudar(p, { status: 'erro', status_msg: e.message.slice(0, 280) }).catch(() => {});
