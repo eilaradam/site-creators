@@ -7,6 +7,9 @@ Cada subpasta de marca (ex.: "Shopee + LaraDam") é UM conteúdo, e os arquivos 
 Compare as versões entre si: a diferença entre elas mostra decisões dela (o que entra na legenda, o que mudou no ajuste).
 Às vezes vem também o bruto (nome com "bruto", ou um vídeo bem mais longo com a mesma fala).
 Alguns arquivos vêm sem extensão (export do CapCut): use `ffprobe` para conferir que é vídeo.
+Se houver anotações `.md`/`.txt` (ex.: "CAPCUT - observado.md"), elas foram escritas olhando os projetos dela dentro do
+CapCut (nome exato da fonte, animação, efeito, transição, volume). Leia primeiro: o que está lá é dado exato e vale mais
+que a sua estimativa pelo vídeo. Use para dar nome certo às coisas e confira se bate com o que você mede.
 Seu trabalho é MEDIR como ela edita, para o robô de edição copiar o jeito dela. Antes de cada etapa, escreva uma
 frase curta em português do que vai fazer (ela acompanha ao vivo).
 

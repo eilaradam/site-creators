@@ -532,7 +532,8 @@ async function olharAprender() {
     aprenderUltimaOlhada = Date.now();
     rclone(['mkdir', APRENDER_DRIVE], { silencioso: true });
     // o CapCut às vezes exporta sem extensão: vale qualquer arquivo de vídeo pelo tipo informado pelo Drive
-    const ehVideo = f => VIDEO.test(f.Path) || /^video\//.test(f.MimeType || '');
+    // vídeos e anotações (ex.: "CAPCUT - observado.md", escritas olhando o CapCut do celular espelhado no Mac)
+    const ehVideo = f => VIDEO.test(f.Path) || /^video\//.test(f.MimeType || '') || /\.(md|txt)$/i.test(f.Path);
     const arqs = pastasAprender().flatMap(pasta => JSON.parse(rclone(['lsjson', pasta, '-R', '--files-only', ...FORA_DO_ESTUDO], { silencioso: true }) || '[]')
         .filter(ehVideo).map(f => Object.assign(f, { Path: pasta + '/' + f.Path })));
     if (!arqs.length) return;
