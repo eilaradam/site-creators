@@ -401,13 +401,13 @@ async function aplicarAjustes(p) {
 }
 
 /* O que a Lara corrigiu vira regra PROPOSTA em "Regras do estilo"; ela aprova ou descarta no admin */
-async function proporRegras(p, job) {
+async function proporRegras(p, job, origem) {
     const arq = path.join(job, 'saida', 'regras_propostas.json');
     let regras; try { regras = JSON.parse(fs.readFileSync(arq, 'utf8')); } catch (_) { return; }
     fs.renameSync(arq, arq.replace(/\.json$/, '_' + Date.now() + '.json'));
     const CATS = ['corte', 'zoom', 'som', 'musica', 'legenda', 'animacao', 'cor', 'ritmo', 'outro'];
     const linhas = (Array.isArray(regras) ? regras : []).filter(r => r && String(r.texto || '').trim()).slice(0, 8).map(r => ({
-        texto: String(r.texto).trim().slice(0, 400), motivo: ('Dos seus ajustes no pedido #' + p.numero + (r.motivo ? ': ' + r.motivo : '')).slice(0, 400),
+        texto: String(r.texto).trim().slice(0, 400), motivo: ((origem || 'Dos seus ajustes no pedido #' + p.numero) + (r.motivo ? ': ' + r.motivo : '')).slice(0, 400),
         categoria: CATS.includes(r.categoria) ? r.categoria : 'outro', cliente: r.so_desta_marca ? (p.marca || null) : null, status: 'proposta' }));
     if (linhas.length) await db('edicao_regras', { metodo: 'POST', corpo: linhas }).then(() => log('#' + p.numero, linhas.length + ' regra(s) proposta(s) para a Lara aprovar')).catch(e => log('regras não salvas:', e.message));
 }
@@ -468,6 +468,7 @@ function rodarClaude(job, p, pedidoTexto) {
             ultimaFrase = frase;
             if (Date.now() - ultimoEnvio < 15000) return;
             ultimoEnvio = Date.now();
+            if (!p.id) return;
             db('edicao_pedidos?id=eq.' + p.id, { metodo: 'PATCH', corpo: { status_msg: frase.slice(0, 280), updated_at: new Date().toISOString() } }).catch(() => {});
         };
         c.stdout.on('data', buf => {
@@ -482,6 +483,7 @@ function rodarClaude(job, p, pedidoTexto) {
         // Etapas e linha do tempo parcial (saida/progresso.json + saida/projeto.json) vão para o painel Editor IA do admin
         let ultimoProjeto = '';
         const vigia = setInterval(() => {
+            if (!p.id) return;
             const ler = n => { try { return JSON.parse(fs.readFileSync(path.join(job, 'saida', n), 'utf8')); } catch (_) { return null; } };
             const prog = ler('progresso.json'), proj = ler('projeto.json');
             if (!prog && !proj) return;
@@ -513,6 +515,40 @@ async function rodada() {
     }
 }
 
+/* ── Aprender com os vídeos da Lara: ela joga vídeos prontos (e, se tiver, o bruto) em Edição/_Aprender no Drive.
+   O robô olha a pasta a cada 10 min; quando chega coisa nova, o Claude mede o estilo e propõe regras. ── */
+const APRENDER_DRIVE = 'drive:' + PASTA_RAIZ + '/_Aprender';
+const APRENDER = path.join(DIR, 'aprender');
+let aprenderUltimaOlhada = 0, aprenderAssinatura = null;
+async function olharAprender() {
+    if (Date.now() - aprenderUltimaOlhada < 10 * 60000) return;
+    aprenderUltimaOlhada = Date.now();
+    rclone(['mkdir', APRENDER_DRIVE], { silencioso: true });
+    const arqs = JSON.parse(rclone(['lsjson', APRENDER_DRIVE, '-R', '--files-only'], { silencioso: true }) || '[]')
+        .filter(f => VIDEO.test(f.Path) && !/^ESTILO/i.test(path.basename(f.Path)));
+    if (!arqs.length) return;
+    const assinatura = arqs.map(f => f.Path + ':' + f.Size).sort().join('|');
+    const estadoArq = path.join(APRENDER, 'estado.json');
+    let feito = null; try { feito = JSON.parse(fs.readFileSync(estadoArq, 'utf8')).assinatura; } catch (_) {}
+    if (assinatura === feito) return;
+    if (aprenderAssinatura !== assinatura) { aprenderAssinatura = assinatura; aprenderUltimaOlhada = Date.now() - 9 * 60000; log('aprender: vídeos novos em _Aprender, conferindo se terminaram de subir…'); return; }
+    const job = path.join(APRENDER, 'rodada-' + new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-'));
+    fs.mkdirSync(path.join(job, 'saida'), { recursive: true });
+    log('aprender: baixando ' + arqs.length + ' vídeo(s) para estudar o seu estilo');
+    rclone(['sync', APRENDER_DRIVE, path.join(APRENDER, 'videos'), '--exclude', 'ESTILO*']);
+    fs.symlinkSync(path.join(APRENDER, 'videos'), path.join(job, 'videos'));
+    fs.copyFileSync(path.join(DIR, 'INSTRUCOES_APRENDER.md'), path.join(job, 'CLAUDE.md'));
+    const regras = await db('edicao_regras?select=texto,categoria,status,cliente&status=in.(aprovada,proposta)');
+    fs.writeFileSync(path.join(job, 'REGRAS_ATUAIS.md'), '# Regras que já existem (não repita)\n\n' + regras.map(r => '- [' + r.categoria + '] ' + r.texto + ' (' + r.status + ')').join('\n') + '\n');
+    const ok = await rodarClaude(job, {}, 'Leia CLAUDE.md e REGRAS_ATUAIS.md e estude os vídeos da pasta videos/ sozinho, sem perguntar nada. ' +
+        'No fim precisa existir saida/relatorio.md e saida/regras_propostas.json.');
+    if (!fs.existsSync(path.join(job, 'saida', 'relatorio.md'))) { log('aprender: o Claude não entregou o relatório (' + (ok ? 'terminou' : 'parou') + '). Veja ' + path.join(job, 'claude.log')); return; }
+    await proporRegras({ marca: null }, job, 'Aprendido com os seus vídeos em _Aprender');
+    rclone(['copyto', path.join(job, 'saida', 'relatorio.md'), APRENDER_DRIVE + '/ESTILO - o que aprendi ' + new Date().toISOString().slice(0, 10) + '.md']);
+    fs.writeFileSync(estadoArq, JSON.stringify({ assinatura, quando: new Date().toISOString() }));
+    log('aprender: pronto. Relatório na pasta _Aprender do Drive e regras propostas em Regras do estilo.');
+}
+
 async function main() {
     fs.mkdirSync(TRABALHOS, { recursive: true });
     if (process.argv.includes('--login')) {
@@ -530,6 +566,7 @@ async function main() {
     } catch (e) { log('Não consegui conferir pedidos interrompidos:', e.message); }
     do {
         try { await rodada(); } catch (e) { log('Não consegui olhar a fila:', e.message); }
+        try { await olharAprender(); } catch (e) { log('aprender:', e.message); }
         if (process.argv.includes('--uma-vez')) break;
         await new Promise(r => setTimeout(r, INTERVALO_S * 1000));
     } while (true);

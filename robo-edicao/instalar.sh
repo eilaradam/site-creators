@@ -8,7 +8,7 @@ mkdir -p "$D/bin" "$D/trabalhos"
 cd "$D"
 
 echo "1/5 Baixando o robô…"
-for f in robo.mjs INSTRUCOES_EDICAO.md INSTRUCOES_CENAS.md transcrever.py legendas.json legendas_ass.py catalogar_sons.py encaixar_musica.py baixar_fontes.py fontes.json; do curl -fsSL "$BASE/$f" -o "$D/$f"; done
+for f in robo.mjs INSTRUCOES_EDICAO.md INSTRUCOES_CENAS.md transcrever.py legendas.json legendas_ass.py catalogar_sons.py encaixar_musica.py baixar_fontes.py fontes.json INSTRUCOES_APRENDER.md; do curl -fsSL "$BASE/$f" -o "$D/$f"; done
 
 echo "2/5 Instalando o rclone (conversa com o Google Drive)…"
 if [ -x "$D/bin/rclone" ] || command -v rclone >/dev/null; then
