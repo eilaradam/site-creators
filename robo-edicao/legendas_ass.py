@@ -60,8 +60,10 @@ if atual:
 
 entrada = {"pop": r"{\fscx80\fscy80\t(0,90,\fscx106\fscy106)\t(90,160,\fscx100\fscy100)}",
            "fade": r"{\fad(120,0)}", "nenhuma": ""}[m["animacao"]]
-alta = m["caixa"] == "alta"
-txt = (lambda w: limpo(w).upper()) if alta else limpo
+# caixa alta, minúsculas (como a Lara faz no CapCut) ou como foi falado; opcionalmente sem pontuação
+caixa = {"alta": str.upper, "baixa": str.lower}.get(m["caixa"], lambda w: w)
+sem_pont = (lambda w: re.sub(r"[.,!?;:…]+$", "", w)) if m.get("sem_pontuacao") else (lambda w: w)
+txt = lambda w: caixa(sem_pont(limpo(w)))
 linhas = []
 for gi, g in enumerate(grupos):
     fim_g = g[-1]["e"] + 0.15

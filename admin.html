@@ -5159,7 +5159,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     </div>
 </div>
 <div class="dashboard" id="tabEdicao">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;800;900&family=Anton&family=Bebas+Neue&family=Archivo+Black&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Poppins:wght@600;800;900&family=Anton&family=Bebas+Neue&family=Archivo+Black&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <style>
 /* ---- Edição: revisão de vídeo, regras do estilo e dicionário ---- */
 #tabEdicao .ed-wrap { max-width:1240px; margin:0 auto; }
@@ -18081,7 +18081,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const gi = grupos.findIndex((g, i) => t >= g[0].s && t < (grupos[i + 1] ? grupos[i + 1][0].s : g[g.length - 1].e + 0.4));
         if (gi < 0) return { html: '', chave: '' };
         const g = grupos[gi], k = Math.max(0, g.findIndex((p, j) => t >= p.s && (!g[j + 1] || t < g[j + 1].s)));
-        const cx = w => m.caixa === 'alta' ? w.toUpperCase() : w;
+        const cx = w => { w = m.sem_pontuacao ? w.replace(/[.,!?;:…]+$/, '') : w; return m.caixa === 'alta' ? w.toUpperCase() : m.caixa === 'baixa' ? w.toLowerCase() : w; };
         const html = g.map((p, j) => {
             const ativo = m.modo === 'karaoke' ? j === k : ED_LEG_FORTES.test(p.w);
             return '<span class="lg-w' + (m.modo === 'karaoke' && j === k ? ' on' : '') + '" style="color:' + (ativo ? m.destaque : m.cor) + '">' + edEsc(cx(p.w)) + '</span>';
