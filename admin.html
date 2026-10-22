@@ -5309,6 +5309,11 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
 #tabEdicao .ia-bl.fora { opacity:.25; background:repeating-linear-gradient(45deg,#555 0 4px,#333 4px 8px) !important; }
 #tabEdicao .ia-bl.editado { box-shadow:inset 0 -3px 0 #E8A27E; }
 #tabEdicao .ia-marca { position:absolute; top:-3px; bottom:-3px; width:3px; margin-left:-1px; background:#E8A27E; border-radius:2px; z-index:3; }
+#tabEdicao .ed-lb-mic { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+#tabEdicao .ed-mic { display:inline-flex; align-items:center; gap:5px; border:1px solid #C8441A; background:#FFF8F2; color:#C8441A; border-radius:999px; padding:4px 11px; font:600 12px 'DM Sans', inherit; cursor:pointer; margin-top:6px; }
+#tabEdicao .ia-box .ed-mic { margin-top:0; background:transparent; color:#E8A27E; border-color:#5A514A; }
+#tabEdicao .ed-mic.on { background:#C8441A; color:#fff; border-color:#C8441A; animation:edMicPulso 1.2s ease-in-out infinite; }
+@keyframes edMicPulso { 50% { box-shadow:0 0 0 6px rgba(200,68,26,.18); } }
 #tabEdicao .ed-mont { display:grid; grid-template-columns:minmax(220px,330px) 1fr; gap:14px; margin:12px 0; align-items:start; }
 #tabEdicao .ed-mont .ia-editar { margin-top:0; }
 #tabEdicao .ed-palco-box { position:relative; border-radius:14px; overflow:hidden; border:2px solid #C8441A; background:#000; container-type:inline-size; }
@@ -17999,12 +18004,13 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                 ED_TITULOS.map(([id, n]) => '<button class="ed-chip' + (String(f.titulos_modelos || '').split(',').includes(id) ? ' on' : '') + '" type="button"' + dis + ' onclick="edTituloNoPedido(\'' + id + '\')">' + edEsc(n) + '</button>').join('') +
                 '<button class="ed-btn ghost mini" type="button" onclick="edSetAba(\'titulos\')">Ver os títulos</button></div>' +
               '<label class="ed-lb">' + (f.tipo === 'cenas' ? 'Duração (segundos; cada 10 s é uma cena)' : 'Duração desejada (segundos, opcional)') + '</label><input class="ed-input" id="edP_duracao_alvo_s" type="number" min="5" max="600" style="max-width:160px;"' + dis + ' value="' + edEsc(f.duracao_alvo_s) + '">' +
-              '<label class="ed-lb">Observações</label><textarea class="ed-input" id="edP_observacoes" rows="3" placeholder="ex.: tirar a parte em que eu tropeço; destacar o preço"' + dis + '>' + edEsc(f.observacoes) + '</textarea>' +
+              '<div class="ed-lb-mic"><label class="ed-lb">Observações</label>' + (dis ? '' : edMicBtn('edP_observacoes')) + '</div><textarea class="ed-input" id="edP_observacoes" rows="3" placeholder="ex.: tirar a parte em que eu tropeço; destacar o preço"' + dis + '>' + edEsc(f.observacoes) + '</textarea>' +
             '</div>' +
             '<div class="ed-card">' +
               (f.tipo === 'cenas'
                 ? '<h4>Texto da locução ou ideia</h4><div class="ed-muted" style="margin-bottom:6px;">Cole o texto pronto ou só a ideia. O robô escreve (ou ajusta) a locução com umas 24 palavras por cena de 10 s.</div>'
                 : '<h4>Roteiro</h4><div class="ed-muted" style="margin-bottom:6px;">Com o roteiro o robô sabe qual tomada é a certa e acerta os nomes na legenda.</div>') +
+              (dis ? '' : '<div class="ed-lb-mic" style="justify-content:flex-end;margin-bottom:6px;">' + edMicBtn('edP_roteiro') + '</div>') +
               '<textarea class="ed-input" id="edP_roteiro" rows="14" placeholder="' + (f.tipo === 'cenas' ? 'ex.: por que milha vale dinheiro e quase ninguém usa' : 'Cole o roteiro aqui') + '"' + dis + '>' + edEsc(f.roteiro) + '</textarea>' +
             '</div>' +
           '</div>' +
@@ -18335,6 +18341,34 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         edEdChave = '';
         edIaLigar(ped);
         if (montavel) v && v.addEventListener('loadeddata', () => { edEdChave = ''; edEdPalco(ped, v.currentTime || 0); }, { once: true });
+    }
+    /* Ditado: falar em vez de digitar (reconhecimento de voz do próprio navegador, Chrome e Safari; o texto cai no campo) */
+    const ED_VOZ = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let edMicRec = null, edMicAlvo = null;
+    function edMicBtn(id) {
+        return ED_VOZ ? '<button class="ed-mic" type="button" id="mic_' + id + '" title="Falar em vez de digitar" onclick="edMic(\'' + id + '\')">' +
+            '<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2Z"/></svg>' +
+            '<span>Falar</span></button>' : '';
+    }
+    function edMic(id) {
+        if (edMicRec) { const era = edMicAlvo; edMicRec.stop(); if (era === id) return; }
+        const el = document.getElementById(id); if (!el) return;
+        const r = new ED_VOZ(); r.lang = 'pt-BR'; r.continuous = true; r.interimResults = true;
+        const base = el.value.trim() ? el.value.replace(/\s*$/, ' ') : '';
+        let final = '';
+        const botao = on => { const b = document.getElementById('mic_' + id); if (b) { b.classList.toggle('on', on); b.querySelector('span').textContent = on ? 'Ouvindo… toque para parar' : 'Falar'; } };
+        r.onresult = ev => {
+            let prov = '';
+            for (let i = ev.resultIndex; i < ev.results.length; i++) {
+                const t = ev.results[i][0].transcript;
+                if (ev.results[i].isFinal) final += t.trim() + ' '; else prov += t;
+            }
+            el.value = base + final + prov;
+        };
+        r.onerror = ev => { if (/not-allowed/.test(ev.error)) edToast('Libere o microfone para este site no navegador', true); else if (ev.error !== 'no-speech' && ev.error !== 'aborted') edToast('O ditado parou (' + ev.error + ')', true); };
+        r.onend = () => { if (edMicRec === r) { edMicRec = null; edMicAlvo = null; } el.value = (base + final).trim(); botao(false); el.focus(); };
+        try { r.start(); } catch (_) { return edToast('Não consegui ligar o microfone', true); }
+        edMicRec = r; edMicAlvo = id; botao(true);
     }
     /* ── Reeditar o que o robô fez. O projeto em camadas (o mesmo que o robô monta) é editado aqui:
        o vídeo de base (sem legenda e sem títulos) toca e a legenda e os títulos são desenhados por cima, ao vivo,
@@ -18683,7 +18717,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             '<details class="ed-ed-pedir"' + (aj.length ? ' open' : '') + '><summary>Pedir ao robô o que não dá para fazer aqui</summary>' +
               '<div class="ed-row" style="margin-top:8px;"><select class="ed-input" id="iaComCat" style="width:auto;">' + tipos + '</select>' +
               '<input class="ed-input" id="iaComTx" style="flex:1;min-width:180px;" placeholder="Neste ponto: ex. troca a música, põe b-roll do app aqui" onkeydown="if(event.key===\'Enter\')edIaComentar()">' +
-              btn('Comentar', 'edIaComentar()') + '</div>' +
+              edMicBtn('iaComTx') + btn('Comentar', 'edIaComentar()') + '</div>' +
               (aj.length ? '<div class="ia-ajs">' + aj.map((a, k) => '<div class="ia-aj"><span>' + edMMSS(a.tempo_s) + ' · ' + edEsc(a.texto || a.para || '') + '</span><button class="ed-x" type="button" onclick="edIaApagar(' + k + ')">✕</button></div>').join('') + '</div>' +
                 '<div class="ed-row" style="margin-top:8px;justify-content:flex-end;">' + btn('Mandar para o robô (V2 com o Claude)', 'edIaPedirV2()', 'ghost') + '</div>' : '') +
             '</details></div>';
