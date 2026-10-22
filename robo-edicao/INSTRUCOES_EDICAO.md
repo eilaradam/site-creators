@@ -76,13 +76,22 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
    - Crie uma composição por animação, no tamanho do vídeo, com fundo transparente, nas cores da marca
      (tire do site da marca) e com movimento de entrada e saída (spring, escala, deslize). Use as composições
      que já existem lá (Overlays.tsx, InfinitePay.tsx) como referência de qualidade.
-   - Renderize com fundo transparente: `npx remotion render <id> work/anim_<n>.mov --codec=prores --prores-profile=4444 --pixel-format=yuva444p10le`
+   - Renderize com fundo transparente: `npx remotion render <id> work/anim_<n>.mov --image-format=png --codec=prores --prores-profile=4444 --pixel-format=yuva444p10le`
      e sobreponha no vídeo com FFmpeg (`overlay=enable='between(t,ini,fim)'`).
    - **Fontes**: títulos e animações só com fontes da biblioteca `~/robo-edicao/fontes.json` (arquivos em
      `~/robo-edicao/fontes`, todas com licença livre para uso comercial). Escolha pelo jeito da marca
      (categorias: impacto, moderna, serifa, manuscrita, divertida, tech), no máximo 2 famílias por vídeo.
      No Remotion, carregue com `@font-face` apontando para uma cópia do .ttf em `public/`. Na legenda .ass,
      use o nome exato da lista `nomes` (ex.: "Montserrat ExtraBold").
+   - **Títulos animados (gancho, frase-chave, número, lista, chamada)**: use a biblioteca pronta em
+     `~/robo-edicao/titulos` (modelos: caixa-pop, palavra-por-palavra, maquina-escrever, marcador, empilhado,
+     contador, etiqueta, lista-check), só os que o PEDIDO.md liberar. Render de cada título:
+     `cd ~/robo-edicao/titulos && npx remotion render src/index.ts <modelo> <pedido>/work/titulo_<n>.mov --props='{"texto":"...","destaque":"...","corDestaque":"#...","arquivoFonte":"Montserrat-ExtraBold.ttf","posicao":0.3,"duracao_s":2.5}' --image-format=png --codec=prores --prores-profile=4444 --pixel-format=yuva444p10le`
+     (`texto` com "|" quebra linhas/itens em empilhado e lista-check; contador usa `numero` e `prefixo`).
+     Cores da marca (do site) em `corDestaque`; `arquivoFonte` da biblioteca de fontes. Posição longe do rosto
+     (normalmente 0,25 a 0,35 se o rosto está no meio). Um título a cada 4 a 8 s nos momentos fortes, nunca em cima de
+     outro título nem da legenda. Toda entrada de título leva um efeito sonoro curto (é o jeito da Lara).
+     No projeto.json, cada título é uma camada `animacao` com `texto` e `modelo`.
 7. **Logo da marca**: procure primeiro um arquivo `logo*` (png/svg) em `entrada/`. Se não tiver, baixe do site da marca
    (`<link rel="icon">`, `og:image` ou uma imagem com "logo" no nome) para `work/logo.png`. Use o logo na abertura ou
    no fechamento (chamada final animada no Remotion) e, se fizer sentido, discreto num canto. Sem logo de boa

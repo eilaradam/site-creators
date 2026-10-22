@@ -418,6 +418,7 @@ function pedidoMd(p, refs, regras, dic, arquivos) {
     L.push('- Marca: ' + (p.marca || p.pasta_nome));
     L.push('- Formato: ' + p.formato + (p.duracao_alvo_s ? ' · duração desejada: ' + p.duracao_alvo_s + ' s' : ''));
     if (p.tipo === 'cenas') L.push('- Tipo: locução + cenas animadas · ' + Math.max(1, Math.round((p.duracao_alvo_s || 60) / 10)) + ' cenas de 10 s · visual: ' + (p.estilo_visual || 'marca') + ' · voz: ' + (p.voz || 'pt-BR-FranciscaNeural'));
+    L.push('- Títulos animados: ' + (p.titulos_modelos ? 'use estes modelos: ' + p.titulos_modelos.split(',').map(s => '`' + s.trim() + '`').join(', ') + ' (veja "Títulos" no CLAUDE.md)' : 'escolha entre os modelos da biblioteca (veja "Títulos" no CLAUDE.md)'));
     L.push('- Legenda: ' + (p.legenda_modelo ? 'modelo `' + p.legenda_modelo + '` (veja "Legenda" no CLAUDE.md)' : 'SEM legenda (a Lara escolheu não legendar)'));
     if (p.marca_site) L.push('- Site da marca: ' + p.marca_site);
     if (p.marca_redes) L.push('- Redes da marca: ' + p.marca_redes.split('\n').map(s => s.trim()).filter(Boolean).join(' · '));
@@ -564,7 +565,8 @@ async function olharAprender() {
    (O instalador só é necessário quando entra uma ferramenta nova, tipo uma biblioteca do Python.) */
 const ATUALIZAR_DE = process.env.ROBO_ATUALIZAR_DE || 'https://raw.githubusercontent.com/eilaradam/site-creators/main/robo-edicao/';
 const ARQUIVOS_DO_ROBO = ['robo.mjs', 'INSTRUCOES_EDICAO.md', 'INSTRUCOES_CENAS.md', 'INSTRUCOES_APRENDER.md', 'transcrever.py', 'legendas.json',
-    'legendas_ass.py', 'catalogar_sons.py', 'encaixar_musica.py', 'baixar_fontes.py', 'fontes.json'];
+    'legendas_ass.py', 'catalogar_sons.py', 'encaixar_musica.py', 'baixar_fontes.py', 'fontes.json',
+    'titulos/package.json', 'titulos/src/index.ts', 'titulos/src/Raiz.tsx', 'titulos/src/Titulos.tsx'];
 let ultimaAtualizacao = 0;
 async function atualizarRobo() {
     if (process.env.ROBO_SEM_ATUALIZAR || Date.now() - ultimaAtualizacao < 30 * 60000) return false;
@@ -576,6 +578,7 @@ async function atualizarRobo() {
             if (!r.ok) continue;
             const novo = Buffer.from(await r.arrayBuffer()), arq = path.join(DIR, nome);
             if (!novo.length || (fs.existsSync(arq) && fs.readFileSync(arq).equals(novo))) continue;
+            fs.mkdirSync(path.dirname(arq), { recursive: true });
             fs.writeFileSync(arq + '.novo', novo); fs.renameSync(arq + '.novo', arq);
             mudou++; if (nome === 'robo.mjs') mudouCodigo = true;
         } catch (_) { /* sem internet agora: tenta na próxima */ }

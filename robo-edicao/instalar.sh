@@ -8,7 +8,9 @@ mkdir -p "$D/bin" "$D/trabalhos"
 cd "$D"
 
 echo "1/5 Baixando o robô…"
-for f in robo.mjs INSTRUCOES_EDICAO.md INSTRUCOES_CENAS.md transcrever.py legendas.json legendas_ass.py catalogar_sons.py encaixar_musica.py baixar_fontes.py fontes.json INSTRUCOES_APRENDER.md; do curl -fsSL "$BASE/$f" -o "$D/$f"; done
+for f in robo.mjs INSTRUCOES_EDICAO.md INSTRUCOES_CENAS.md transcrever.py legendas.json legendas_ass.py catalogar_sons.py encaixar_musica.py baixar_fontes.py fontes.json INSTRUCOES_APRENDER.md titulos/package.json titulos/src/index.ts titulos/src/Raiz.tsx titulos/src/Titulos.tsx; do
+  mkdir -p "$(dirname "$D/$f")"; curl -fsSL "$BASE/$f" -o "$D/$f"
+done
 
 echo "2/5 Instalando o rclone (conversa com o Google Drive)…"
 if [ -x "$D/bin/rclone" ] || command -v rclone >/dev/null; then
@@ -30,6 +32,9 @@ echo "3/5 Preparando o Python da edição (transcrição e download de referênc
 echo "   Biblioteca de fontes (44 famílias do Google Fonts, licença livre)… na primeira vez demora uns minutos"
 "$D/venv/bin/pip" install -q fonttools
 "$D/venv/bin/python" "$D/baixar_fontes.py" "$D/fontes.json" "$D/fontes"
+echo "   Modelos de título animado (Remotion)… na primeira vez demora uns minutos"
+mkdir -p "$D/titulos/public"; ln -sfn "$D/fontes" "$D/titulos/public/fontes"
+(cd "$D/titulos" && npm install --silent --no-audit --no-fund >/dev/null && npx --yes remotion browser ensure >/dev/null 2>&1 || true)
 
 echo "4/5 Conectando o seu Google Drive…"
 if "$RC" listremotes | grep -q '^drive:$'; then

@@ -5317,6 +5317,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
 #tabEdicao .ia-ajs { margin-top:10px; border-top:1px solid #2E2925; }
 #tabEdicao .ia-aj { display:flex; justify-content:space-between; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid #2E2925; font-size:13px; }
 #tabEdicao .ia-aj .ed-x { color:#A69D93; }
+#tabEdicao .tt-video { width:100%; aspect-ratio:9/16; display:block; background:#2a1d16; object-fit:cover; }
 #tabEdicao .ed-toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px); background:#1F1B18; color:#fff; padding:10px 16px; border-radius:10px; font-size:13.5px; font-weight:600; opacity:0; pointer-events:none; transition:all .2s; z-index:9999; }
 #tabEdicao .ed-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 #tabEdicao .ed-toast.erro { background:#B3261E; }
@@ -5335,6 +5336,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     <button class="ed-chip" type="button" data-ed-aba="regras" onclick="edSetAba('regras')">Regras do estilo</button>
     <button class="ed-chip" type="button" data-ed-aba="dicionario" onclick="edSetAba('dicionario')">Dicionário de correções</button>
     <button class="ed-chip" type="button" data-ed-aba="legendas" onclick="edSetAba('legendas')">Modelos de legenda</button>
+    <button class="ed-chip" type="button" data-ed-aba="titulos" onclick="edSetAba('titulos')">Modelos de título</button>
     <button class="ed-chip" type="button" data-ed-aba="fontes" onclick="edSetAba('fontes')">Biblioteca de fontes</button>
   </div>
   <div id="edBox"><div class="ed-empty">Carregando…</div></div>
@@ -17747,6 +17749,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         if (edAba === 'regras') return edRenderRegras();
         if (edAba === 'dicionario') return edRenderDic();
         if (edAba === 'legendas') return edRenderLegendas();
+        if (edAba === 'titulos') return edRenderTitulos();
         if (edAba === 'fontes') return edRenderFontes();
         edRenderRevisao();
     }
@@ -17793,7 +17796,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         if (JSON.stringify(edPedidos.map(p => [p.id, p.status, p.status_msg, p.previa_link, p.projeto, p.cenas])) !== antes) edRender();
     }, 15000);
     function edNovoForm(base) {
-        edForm = Object.assign({ id: null, conteudo_id: '', marca: '', titulo: '', drive_pasta_link: '', roteiro: '', formato: '9:16', duracao_alvo_s: '', observacoes: '', marca_site: '', marca_redes: '', rec_gravar: false, rec_passos: '', tipo: 'edicao', voz: 'minha', estilo_visual: 'marca', legenda_modelo: edLegendaPadrao(),
+        edForm = Object.assign({ id: null, conteudo_id: '', marca: '', titulo: '', drive_pasta_link: '', roteiro: '', formato: '9:16', duracao_alvo_s: '', observacoes: '', marca_site: '', marca_redes: '', rec_gravar: false, rec_passos: '', tipo: 'edicao', voz: 'minha', estilo_visual: 'marca', legenda_modelo: edLegendaPadrao(), titulos_modelos: edTitulosFavoritos().join(','),
             refs: [{ tipo: 'geral', link: '', nota: '', salvar: false, nome: '' }] }, base || {});
     }
     function edAbrirNovoPedido() { edPedidoAberto = 'novo'; edNovoForm(); edRender(); }
@@ -17806,7 +17809,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         edNovoForm({ id, conteudo_id: ped.conteudo_id || '', marca: ped.pasta_nome || ped.marca || '', titulo: ped.titulo || '', drive_pasta_link: ped.drive_pasta_link || '', roteiro: ped.roteiro || '',
             formato: ped.formato || '9:16', duracao_alvo_s: ped.duracao_alvo_s || '', observacoes: ped.observacoes || '',
             marca_site: ped.marca_site || '', marca_redes: ped.marca_redes || '', rec_gravar: !!ped.rec_gravar, rec_passos: ped.rec_passos || '',
-            tipo: ped.tipo || 'edicao', voz: ped.voz || 'minha', legenda_modelo: ped.legenda_modelo || edLegendaPadrao(), estilo_visual: ped.estilo_visual || 'marca',
+            tipo: ped.tipo || 'edicao', voz: ped.voz || 'minha', legenda_modelo: ped.legenda_modelo || edLegendaPadrao(), titulos_modelos: ped.titulos_modelos || '', estilo_visual: ped.estilo_visual || 'marca',
             refs: edPedidoRefs.length ? edPedidoRefs.map(r => ({ id: r.id, tipo: r.tipo, link: r.link, nota: r.nota || '', salvar: false, nome: '' })) : [{ tipo: 'geral', link: '', nota: '', salvar: false, nome: '' }] });
         edRender();
     }
@@ -17866,7 +17869,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             roteiro: f.roteiro.trim() || null, formato: f.formato, duracao_alvo_s: f.duracao_alvo_s ? parseInt(f.duracao_alvo_s, 10) || null : null,
             observacoes: f.observacoes.trim() || null, updated_at: new Date().toISOString(),
             marca_site: f.marca_site.trim() || null, marca_redes: f.marca_redes.trim() || null, rec_gravar: !!f.rec_gravar, rec_passos: f.rec_passos.trim() || null,
-            tipo: f.tipo, legenda_modelo: f.legenda_modelo || null, voz: f.tipo === 'cenas' ? f.voz : null, estilo_visual: f.tipo === 'cenas' ? f.estilo_visual : null,
+            tipo: f.tipo, legenda_modelo: f.legenda_modelo || null, titulos_modelos: f.titulos_modelos || null, voz: f.tipo === 'cenas' ? f.voz : null, estilo_visual: f.tipo === 'cenas' ? f.estilo_visual : null,
         };
         let pedidoId = f.id;
         if (pedidoId) {
@@ -17968,6 +17971,9 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
               '<label class="ed-lb">Modelo de legenda</label><div class="ed-row"><select class="ed-input" id="edP_legenda_modelo" style="max-width:280px;"' + dis + '>' +
                 '<option value="">Sem legenda</option>' + edLegendas.map(m => '<option value="' + m.id + '"' + (f.legenda_modelo === m.id ? ' selected' : '') + '>' + edEsc(m.nome) + '</option>').join('') +
                 '</select><button class="ed-btn ghost mini" type="button" onclick="edSetAba(\'legendas\')">Ver os modelos</button></div>' +
+              '<label class="ed-lb">Títulos animados (vazio = o robô escolhe)</label><div class="ed-row">' +
+                ED_TITULOS.map(([id, n]) => '<button class="ed-chip' + (String(f.titulos_modelos || '').split(',').includes(id) ? ' on' : '') + '" type="button"' + dis + ' onclick="edTituloNoPedido(\'' + id + '\')">' + edEsc(n) + '</button>').join('') +
+                '<button class="ed-btn ghost mini" type="button" onclick="edSetAba(\'titulos\')">Ver os títulos</button></div>' +
               '<label class="ed-lb">' + (f.tipo === 'cenas' ? 'Duração (segundos; cada 10 s é uma cena)' : 'Duração desejada (segundos, opcional)') + '</label><input class="ed-input" id="edP_duracao_alvo_s" type="number" min="5" max="600" style="max-width:160px;"' + dis + ' value="' + edEsc(f.duracao_alvo_s) + '">' +
               '<label class="ed-lb">Observações</label><textarea class="ed-input" id="edP_observacoes" rows="3" placeholder="ex.: tirar a parte em que eu tropeço; destacar o preço"' + dis + '>' + edEsc(f.observacoes) + '</textarea>' +
             '</div>' +
@@ -18052,6 +18058,41 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                 '<div class="fn-pesos">' + nomes.map(n => '<button type="button" class="fn-peso" title="Copiar o nome que o robô usa" style="font-family:\'' + edEsc(f.familia) + '\';font-weight:' + peso(n) + ';" onclick="edCopiarNome(\'' + edEsc(n).replace(/'/g, "\\'") + '\')">' + edEsc(n.replace(f.familia, '').trim() || 'Regular') + '</button>').join('') + '</div>' +
                 '<div class="ed-muted" style="font-size:11.5px;">Licença ' + edEsc(f.licenca) + ' · ' + edEsc(f.origem) + '</div></div></div>';
           }).join('') + '</div>';
+    }
+    /* ── Modelos de título animado: os mesmos que o robô renderiza no Remotion (robo-edicao/titulos). As prévias são vídeos curtos. ── */
+    const ED_TITULOS = [
+        ['caixa-pop', 'Caixa pop', 'Frase numa caixa de cor que entra com pulinho. Bom para o gancho.'],
+        ['palavra-por-palavra', 'Palavra por palavra', 'Cada palavra sobe na hora dela; a palavra forte muda de cor.'],
+        ['maquina-escrever', 'Máquina de escrever', 'Letra por letra com cursor. Bom para pergunta ou busca.'],
+        ['marcador', 'Marca-texto', 'Uma faixa de marca-texto passa atrás da palavra forte.'],
+        ['empilhado', 'Empilhado', 'Linhas alternando tamanho, entrando de lados opostos. Bom para comparar.'],
+        ['contador', 'Contador', 'Número subindo até o valor (preço, economia, resultado).'],
+        ['etiqueta', 'Etiqueta', 'Adesivo inclinado que quica, igual sticker do CapCut. Bom para benefício.'],
+        ['lista-check', 'Lista com check', 'Itens aparecendo um por um com ✓. Bom para passo a passo.'],
+    ];
+    function edTitulosFavoritos() { try { return (localStorage.getItem('edTitulosFav') || '').split(',').filter(Boolean); } catch (_) { return []; } }
+    function edTituloFav(id) {
+        const fav = edTitulosFavoritos(), i = fav.indexOf(id);
+        if (i >= 0) fav.splice(i, 1); else fav.push(id);
+        try { localStorage.setItem('edTitulosFav', fav.join(',')); } catch (_) {}
+        edRenderTitulos();
+    }
+    function edRenderTitulos() {
+        const box = document.getElementById('edBox'); if (!box) return;
+        const fav = edTitulosFavoritos();
+        box.innerHTML = '<div class="ed-muted" style="margin-bottom:12px;">Títulos animados que o robô coloca nos momentos fortes do vídeo (gancho, número, lista, chamada), nas cores da marca. ' +
+            'Marque os seus favoritos: eles já vêm escolhidos nos próximos pedidos. Se nenhum for marcado, o robô escolhe.</div>' +
+            '<div class="lg-grade">' + ED_TITULOS.map(([id, n, d]) =>
+                '<div class="lg-card' + (fav.includes(id) ? ' padrao' : '') + '">' +
+                  '<video class="tt-video" src="robo-edicao/titulos/previas/' + id + '.mp4" autoplay loop muted playsinline preload="metadata"></video>' +
+                  '<div class="lg-info"><b>' + edEsc(n) + (fav.includes(id) ? ' · favorito' : '') + '</b><div class="ed-muted">' + edEsc(d) + '</div>' +
+                  '<button class="ed-btn mini' + (fav.includes(id) ? ' ghost' : '') + '" type="button" style="margin-top:8px;" onclick="edTituloFav(\'' + id + '\')">' + (fav.includes(id) ? 'Tirar dos favoritos' : '★ Favorito') + '</button></div>' +
+                '</div>').join('') + '</div>';
+    }
+    function edTituloNoPedido(id) {
+        edLerForm(); const sel = String(edForm.titulos_modelos || '').split(',').filter(Boolean), i = sel.indexOf(id);
+        if (i >= 0) sel.splice(i, 1); else sel.push(id);
+        edForm.titulos_modelos = sel.join(','); edRender();
     }
     /* ── Modelos de legenda: a mesma lista (robo-edicao/legendas.json) que o robô usa para queimar a legenda ── */
     let edLegendas = [], edLegTimer = null;
