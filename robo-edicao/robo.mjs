@@ -519,13 +519,23 @@ async function rodada() {
    O robô olha a pasta a cada 10 min; quando chega coisa nova, o Claude mede o estilo e propõe regras. ── */
 const APRENDER_DRIVE = 'drive:' + PASTA_RAIZ + '/_Aprender';
 const APRENDER = path.join(DIR, 'aprender');
+// Outras pastas do Drive para estudar, uma por linha (ex.: "2026/LARADAM UGC"); as pastas de pedido do robô ficam de fora
+const APRENDER_PASTAS = path.join(DIR, 'aprender_pastas.txt');
+function pastasAprender() {
+    let extra = []; try { extra = fs.readFileSync(APRENDER_PASTAS, 'utf8').split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#')); } catch (_) {}
+    return [APRENDER_DRIVE, ...extra.map(l => 'drive:' + l.replace(/^drive:/, ''))];
+}
+const FORA_DO_ESTUDO = ['--exclude', 'ESTILO*', '--exclude', '{PREVIA,PRÉVIA,REC,LOCUCAO}*', '--exclude', 'Edição*/**', '--exclude', 'cena[0-9]*'];
 let aprenderUltimaOlhada = 0, aprenderAssinatura = null;
 async function olharAprender() {
     if (Date.now() - aprenderUltimaOlhada < 10 * 60000) return;
     aprenderUltimaOlhada = Date.now();
     rclone(['mkdir', APRENDER_DRIVE], { silencioso: true });
-    const arqs = JSON.parse(rclone(['lsjson', APRENDER_DRIVE, '-R', '--files-only'], { silencioso: true }) || '[]')
-        .filter(f => VIDEO.test(f.Path) && !/^ESTILO/i.test(path.basename(f.Path)));
+    // o CapCut às vezes exporta sem extensão: vale qualquer arquivo de vídeo pelo tipo informado pelo Drive
+    // vídeos e anotações (ex.: "CAPCUT - observado.md", escritas olhando o CapCut do celular espelhado no Mac)
+    const ehVideo = f => VIDEO.test(f.Path) || /^video\//.test(f.MimeType || '') || /\.(md|txt)$/i.test(f.Path);
+    const arqs = pastasAprender().flatMap(pasta => JSON.parse(rclone(['lsjson', pasta, '-R', '--files-only', ...FORA_DO_ESTUDO], { silencioso: true }) || '[]')
+        .filter(ehVideo).map(f => Object.assign(f, { Path: pasta + '/' + f.Path })));
     if (!arqs.length) return;
     const assinatura = arqs.map(f => f.Path + ':' + f.Size).sort().join('|');
     const estadoArq = path.join(APRENDER, 'estado.json');
@@ -535,7 +545,8 @@ async function olharAprender() {
     const job = path.join(APRENDER, 'rodada-' + new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-'));
     fs.mkdirSync(path.join(job, 'saida'), { recursive: true });
     log('aprender: baixando ' + arqs.length + ' vídeo(s) para estudar o seu estilo');
-    rclone(['sync', APRENDER_DRIVE, path.join(APRENDER, 'videos'), '--exclude', 'ESTILO*']);
+    for (const pasta of pastasAprender())
+        rclone(['sync', pasta, path.join(APRENDER, 'videos', slug(pasta.replace(/^drive:/, '')) || 'aprender'), ...FORA_DO_ESTUDO]);
     fs.symlinkSync(path.join(APRENDER, 'videos'), path.join(job, 'videos'));
     fs.copyFileSync(path.join(DIR, 'INSTRUCOES_APRENDER.md'), path.join(job, 'CLAUDE.md'));
     const regras = await db('edicao_regras?select=texto,categoria,status,cliente&status=in.(aprovada,proposta)');
@@ -549,6 +560,34 @@ async function olharAprender() {
     log('aprender: pronto. Relatório na pasta _Aprender do Drive e regras propostas em Regras do estilo.');
 }
 
+/* Atualiza sozinho: baixa do GitHub os arquivos do robô; se o robo.mjs mudou, reinicia com a versão nova.
+   (O instalador só é necessário quando entra uma ferramenta nova, tipo uma biblioteca do Python.) */
+const ATUALIZAR_DE = process.env.ROBO_ATUALIZAR_DE || 'https://raw.githubusercontent.com/eilaradam/site-creators/main/robo-edicao/';
+const ARQUIVOS_DO_ROBO = ['robo.mjs', 'INSTRUCOES_EDICAO.md', 'INSTRUCOES_CENAS.md', 'INSTRUCOES_APRENDER.md', 'transcrever.py', 'legendas.json',
+    'legendas_ass.py', 'catalogar_sons.py', 'encaixar_musica.py', 'baixar_fontes.py', 'fontes.json'];
+let ultimaAtualizacao = 0;
+async function atualizarRobo() {
+    if (process.env.ROBO_SEM_ATUALIZAR || Date.now() - ultimaAtualizacao < 30 * 60000) return false;
+    ultimaAtualizacao = Date.now();
+    let mudouCodigo = false, mudou = 0;
+    for (const nome of ARQUIVOS_DO_ROBO) {
+        try {
+            const r = await fetch(ATUALIZAR_DE + nome + '?t=' + Date.now(), { cache: 'no-store' });
+            if (!r.ok) continue;
+            const novo = Buffer.from(await r.arrayBuffer()), arq = path.join(DIR, nome);
+            if (!novo.length || (fs.existsSync(arq) && fs.readFileSync(arq).equals(novo))) continue;
+            fs.writeFileSync(arq + '.novo', novo); fs.renameSync(arq + '.novo', arq);
+            mudou++; if (nome === 'robo.mjs') mudouCodigo = true;
+        } catch (_) { /* sem internet agora: tenta na próxima */ }
+    }
+    if (mudou) log('Robô atualizado (' + mudou + ' arquivo(s)).' + (mudouCodigo ? ' Reiniciando com a versão nova…' : ''));
+    return mudouCodigo;
+}
+function reiniciar() {
+    const filho = spawn(process.execPath, process.argv.slice(1), { stdio: 'inherit' });
+    filho.on('exit', code => process.exit(code || 0));
+}
+
 async function main() {
     fs.mkdirSync(TRABALHOS, { recursive: true });
     if (process.argv.includes('--login')) {
@@ -557,6 +596,7 @@ async function main() {
         if (!eu.length || eu[0].role !== 'admin') throw new Error('Esse login não é admin do site.');
         return log('Login ok. O robô está ligado ao admin.');
     }
+    if (await atualizarRobo()) return reiniciar();
     log('Robô de edição ligado. Olhando a fila a cada ' + INTERVALO_S + ' s. Deixe esta janela aberta.');
     // Se o robô foi fechado no meio de uma edição, o pedido ficou preso em "editando": volta para recomeçar
     try {
@@ -567,6 +607,7 @@ async function main() {
     do {
         try { await rodada(); } catch (e) { log('Não consegui olhar a fila:', e.message); }
         try { await olharAprender(); } catch (e) { log('aprender:', e.message); }
+        if (!process.argv.includes('--uma-vez') && await atualizarRobo()) return reiniciar();   // só entre uma rodada e outra, nunca no meio de uma edição
         if (process.argv.includes('--uma-vez')) break;
         await new Promise(r => setTimeout(r, INTERVALO_S * 1000));
     } while (true);
