@@ -151,6 +151,13 @@ async function editar(p, arquivos) {
     await entregar(p, job, ['transcricao', 'tomadas', 'cortes', 'legendas', 'zoom', 'som', 'render']);
 }
 
+async function subirStorage(arq, caminho) {
+    const r = await fetch(SUPA + '/storage/v1/object/edicao/' + caminho, { method: 'POST', body: fs.readFileSync(arq),
+        headers: { apikey: ANON, Authorization: 'Bearer ' + await acesso(), 'Content-Type': 'video/mp4', 'x-upsert': 'true' } });
+    if (!r.ok) throw new Error(r.status + ' ' + (await r.text()).slice(0, 200));
+    return caminho;
+}
+
 async function entregar(p, job, etapas) {
     const saida = path.join(job, 'saida'), previa = path.join(saida, 'previa.mp4');
     await mudar(p, { status: 'renderizando', status_msg: 'Subindo a prévia para o Drive' });
@@ -164,15 +171,22 @@ async function entregar(p, job, etapas) {
     try {
         const leve = path.join(job, 'previa_leve.mp4');
         ffmpeg(['-i', previa, '-vf', "scale='if(gt(iw,ih),-2,720)':'if(gt(iw,ih),720,-2)'", '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '28', '-c:a', 'aac', '-b:a', '96k', '-movflags', '+faststart', leve]);
-        const caminho = 'pedidos/' + p.id + '/previa_v' + versao + '.mp4';
-        const r = await fetch(SUPA + '/storage/v1/object/edicao/' + caminho, { method: 'POST', body: fs.readFileSync(leve),
-            headers: { apikey: ANON, Authorization: 'Bearer ' + await acesso(), 'Content-Type': 'video/mp4', 'x-upsert': 'true' } });
-        if (r.ok) previa_path = caminho; else log('prévia leve não subiu:', r.status, (await r.text()).slice(0, 200));
+        previa_path = await subirStorage(leve, 'pedidos/' + p.id + '/previa_v' + versao + '.mp4');
     } catch (e) { log('prévia leve não subiu:', e.message); }
+    // base sem legenda e sem títulos (feita pelo montar.py): é nela que a Lara reedita no admin
+    let base_path = null;
+    const base = path.join(saida, 'base.mp4');
+    if (fs.existsSync(base)) {
+        try { base_path = await subirStorage(base, 'pedidos/' + p.id + '/base_v' + versao + '.mp4'); } catch (e) { log('base do editor não subiu:', e.message); }
+    }
     let projeto = null, resumo = '';
     try { projeto = JSON.parse(fs.readFileSync(path.join(saida, 'projeto.json'), 'utf8')); } catch (_) {}
     try { resumo = fs.readFileSync(path.join(saida, 'resumo.md'), 'utf8').trim(); } catch (_) {}
-    if (projeto) projeto.etapas = { feitas: etapas };
+    if (projeto) {
+        ['mudancas', 'editado_em', 'base_path'].forEach(k => delete projeto[k]);
+        if (base_path) projeto.base_path = base_path;
+        projeto.etapas = { feitas: etapas };
+    }
     await proporRegras(p, job);
     await mudar(p, { status: 'previa_pronta', previa_link: link, projeto, previa_path, ajustes: null,
         status_msg: (resumo.split('\n').find(l => l.trim()) || 'Prévia v' + versao + ' no Drive').replace(/^#+\s*/, '').slice(0, 280) });
@@ -387,6 +401,12 @@ async function aplicarAjustes(p) {
     const job = jobDe(p);
     if (!fs.existsSync(job)) throw new Error('Não achei a pasta da versão anterior neste Mac (' + job + ')');
     fs.writeFileSync(path.join(job, 'AJUSTES.md'), ajustesMd(p));
+    if (p.projeto && p.projeto.editado_em) {   // ela também mexeu à mão no admin: a V2 parte da versão dela
+        const proj = Object.assign({}, p.projeto); ['etapas', 'base_path', 'mudancas', 'editado_em'].forEach(k => delete proj[k]);
+        fs.mkdirSync(path.join(job, 'saida'), { recursive: true });
+        fs.writeFileSync(path.join(job, 'saida', 'projeto.json'), JSON.stringify(proj, null, 1));
+    }
+    fs.rmSync(path.join(job, 'saida', 'base.mp4'), { force: true });
     fs.appendFileSync(path.join(job, 'ajustes_historico.json'), JSON.stringify({ quando: new Date().toISOString(), ajustes: p.ajustes }) + '\n');
     // a V2 é sempre uma edição em cima do que já existe (também no modo cenas), então valem as instruções de edição
     fs.copyFileSync(path.join(DIR, 'INSTRUCOES_EDICAO.md'), path.join(job, 'CLAUDE.md'));
@@ -398,6 +418,52 @@ async function aplicarAjustes(p) {
         'e gere de novo saida/previa.mp4, saida/projeto.json, saida/resumo.md e saida/regras_propostas.json. Não pergunte nada.');
     if (!fs.existsSync(previa)) throw new Error(ok ? 'O Claude terminou sem gerar a nova prévia. Veja ' + path.join(job, 'claude.log') : 'A nova versão passou do tempo ou deu erro. Veja ' + path.join(job, 'claude.log'));
     await entregar(p, job, p.tipo === 'cenas' ? ['roteiro', 'estilo', 'prompts', 'locucao', 'cenas', 'montagem'] : ['transcricao', 'tomadas', 'cortes', 'legendas', 'zoom', 'som', 'render']);
+}
+
+/* Reedição feita no admin (tirou trecho, moveu título, trocou legenda...): o robô só remonta o projeto com o
+   montar.py, sem o Claude, e depois aprende com as mudanças dela */
+const ETAPAS_EDICAO = ['transcricao', 'tomadas', 'cortes', 'legendas', 'zoom', 'som', 'render'];
+function montarProjeto(job, extra = []) {
+    const py = fs.existsSync(path.join(VENV_BIN, 'python')) ? path.join(VENV_BIN, 'python') : 'python3';
+    return new Promise(resolve => {
+        const c = spawn(py, ['-I', path.join(DIR, 'montar.py'), job, ...extra], { stdio: ['ignore', 'pipe', 'pipe'] });
+        let ultima = '';
+        const ler = b => { const l = b.toString().trim().split('\n').pop(); if (l) { ultima = l; log(path.basename(job), l); } };
+        c.stdout.on('data', ler); c.stderr.on('data', ler);
+        c.on('error', e => resolve(e.message));
+        c.on('exit', () => resolve(ultima));
+    });
+}
+async function remontar(p) {
+    const job = jobDe(p), saida = path.join(job, 'saida'), entrada = path.join(job, 'entrada');
+    const pj = p.projeto;
+    if (!pj || !Array.isArray(pj.camadas) || !pj.camadas.some(c => c.tipo === 'corte')) throw new Error('Este pedido não tem projeto para remontar');
+    fs.mkdirSync(saida, { recursive: true });
+    if (!fs.existsSync(entrada)) {   // outro Mac ou pasta apagada: baixa o bruto de novo
+        await mudar(p, { status: 'baixando', status_msg: 'Remontando: baixando o bruto do Drive' });
+        rclone(['sync', 'drive:', entrada, ...naPasta(p.drive_pasta_id), '--exclude', '{PREVIA,PRÉVIA,FINAL,REC,LOCUCAO}*', '--max-depth', '3']);
+    }
+    const mudancas = Array.isArray(pj.mudancas) ? pj.mudancas : [];
+    await mudar(p, { status: 'renderizando', status_msg: 'Remontando com as suas ' + mudancas.length + ' mudança(s)' });
+    const proj = Object.assign({}, pj); ['etapas', 'base_path', 'mudancas', 'editado_em'].forEach(k => delete proj[k]);
+    fs.writeFileSync(path.join(saida, 'projeto.json'), JSON.stringify(proj, null, 1));
+    for (const n of ['previa.mp4', 'base.mp4']) fs.rmSync(path.join(saida, n), { force: true });
+    const fim = await montarProjeto(job);
+    if (!fs.existsSync(path.join(saida, 'previa.mp4'))) throw new Error('O montador parou: ' + fim);
+    fs.writeFileSync(path.join(saida, 'resumo.md'), 'Nova versão com as suas ' + mudancas.length + ' mudança(s)\n');
+    await entregar(p, job, ETAPAS_EDICAO);
+    if (mudancas.length) aprenderComReedicao(p, job, mudancas).catch(e => log('#' + p.numero, 'aprender com a reedição:', e.message));
+}
+// roda depois da entrega, sem segurar a fila: o Claude lê o que ela mudou e propõe regras do estilo
+async function aprenderComReedicao(p, job, mudancas) {
+    fs.writeFileSync(path.join(job, 'MUDANCAS.md'), '# O que a Lara mudou à mão na edição do robô (pedido #' + p.numero + ', ' + (p.marca || '') + ')\n\n' +
+        mudancas.map(m => '- ' + m).join('\n') + '\n\nO projeto como ela deixou está em saida/projeto.json (camadas com tempos no vídeo final).\n');
+    log('#' + p.numero, 'aprendendo com as ' + mudancas.length + ' mudança(s) da Lara');
+    await rodarClaude(job, { numero: p.numero }, 'Leia MUDANCAS.md e saida/projeto.json. NÃO edite, NÃO monte e NÃO renderize nada: a nova versão já foi entregue. ' +
+        'Só escreva saida/regras_propostas.json com as regras GERAIS do estilo da Lara que essas mudanças revelam (o que vale para os próximos vídeos), ' +
+        'no formato [{"texto": "...", "motivo": "...", "categoria": "corte|zoom|som|musica|legenda|animacao|cor|ritmo|outro", "so_desta_marca": false}]. ' +
+        'Use números quando der (ex.: "título no terço de cima, y ~ 0,25"). Correção pontual (nome errado, uma palavra) não vira regra. Lista vazia é melhor que regra inventada.');
+    await proporRegras(p, job, 'Das suas reedições no pedido #' + p.numero);
 }
 
 /* O que a Lara corrigiu vira regra PROPOSTA em "Regras do estilo"; ela aprova ou descarta no admin */
@@ -502,13 +568,14 @@ function rodarClaude(job, p, pedidoTexto) {
 
 /* ── Fila ── */
 async function rodada() {
-    const pedidos = await db('edicao_pedidos?status=in.(na_fila,aguardando_bruto,aguardando_cenas,ajustes_na_fila)&select=*&order=created_at');
+    const pedidos = await db('edicao_pedidos?status=in.(na_fila,aguardando_bruto,aguardando_cenas,ajustes_na_fila,remontar_na_fila)&select=*&order=created_at');
     for (const p of pedidos) {
         try {
             if (p.status === 'na_fila') await prepararPasta(p);
             if (p.status === 'aguardando_bruto') await olharBruto(p);
             if (p.status === 'aguardando_cenas') await olharCenas(p);
             if (p.status === 'ajustes_na_fila') await aplicarAjustes(p);
+            if (p.status === 'remontar_na_fila') await remontar(p);
         } catch (e) {
             log('#' + p.numero, 'ERRO', e.message);
             await mudar(p, { status: 'erro', status_msg: e.message.slice(0, 280) }).catch(() => {});
@@ -565,7 +632,7 @@ async function olharAprender() {
    (O instalador só é necessário quando entra uma ferramenta nova, tipo uma biblioteca do Python.) */
 const ATUALIZAR_DE = process.env.ROBO_ATUALIZAR_DE || 'https://raw.githubusercontent.com/eilaradam/site-creators/main/robo-edicao/';
 const ARQUIVOS_DO_ROBO = ['robo.mjs', 'INSTRUCOES_EDICAO.md', 'INSTRUCOES_CENAS.md', 'INSTRUCOES_APRENDER.md', 'transcrever.py', 'legendas.json',
-    'legendas_ass.py', 'catalogar_sons.py', 'encaixar_musica.py', 'baixar_fontes.py', 'fontes.json',
+    'legendas_ass.py', 'montar.py', 'catalogar_sons.py', 'encaixar_musica.py', 'baixar_fontes.py', 'fontes.json',
     'titulos/package.json', 'titulos/src/index.ts', 'titulos/src/Raiz.tsx', 'titulos/src/Titulos.tsx'];
 let ultimaAtualizacao = 0;
 async function atualizarRobo() {
@@ -604,7 +671,7 @@ async function main() {
     // Se o robô foi fechado no meio de uma edição, o pedido ficou preso em "editando": volta para recomeçar
     try {
         for (const p of await db('edicao_pedidos?status=in.(baixando,analisando,editando,renderizando)&select=*'))
-            await mudar(p, { status: p.tipo !== 'cenas' ? 'aguardando_bruto' : (p.cenas ? 'aguardando_cenas' : 'na_fila'),
+            await mudar(p, { status: /^Remontando/.test(p.status_msg || '') || (p.projeto && p.projeto.editado_em && !(p.ajustes || []).length) ? 'remontar_na_fila' : p.tipo !== 'cenas' ? 'aguardando_bruto' : (p.cenas ? 'aguardando_cenas' : 'na_fila'),
                 status_msg: 'O robô foi reiniciado no meio da edição. Recomeçando.' });
     } catch (e) { log('Não consegui conferir pedidos interrompidos:', e.message); }
     do {

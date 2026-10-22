@@ -10,26 +10,44 @@ Os arquivos do bruto estão em `entrada/`.
 
 ## O que entregar (obrigatório)
 
-- `saida/previa.mp4`: o vídeo editado. H.264 + AAC, `-movflags +faststart`, 30 fps.
-  Tamanho pelo formato do pedido: 9:16 = 1080x1920, 4:5 = 1080x1350, 1:1 = 1080x1080, 16:9 = 1920x1080.
-- `saida/projeto.json`: a edição em camadas, para a linha do tempo do admin:
+A edição é um **projeto em camadas** (`saida/projeto.json`) e quem renderiza é o montador do robô:
+`python3 -I ~/robo-edicao/montar.py .` (rodando na pasta do pedido). Ele gera `saida/previa.mp4` (com tudo),
+`saida/base.mp4` (sem legenda e sem títulos, para o editor do admin) e `saida/legendas.srt`.
+A Lara reedita esse mesmo projeto no admin (move título, troca texto, tira trecho) e o robô remonta em minutos,
+sem você. Por isso **tudo que aparece no vídeo precisa estar numa camada**: nada de efeito queimado por fora.
+
+- `saida/projeto.json`:
   ```json
-  { "duracao_s": 42.3, "formato": "9:16",
+  { "formato": "9:16", "marca": "Milha.IA",
+    "legenda": { "modelo": "lara" },
     "camadas": [
-      { "tipo": "corte",    "inicio_s": 0, "fim_s": 5.07, "origem": "entrada/bruto.mov", "origem_inicio_s": 0 },
-      { "tipo": "legenda",  "inicio_s": 0.2, "fim_s": 0.9, "texto": "VOCÊ SABE" },
-      { "tipo": "zoom",     "inicio_s": 3.68, "fim_s": 6.24, "escala": 1.12 },
-      { "tipo": "animacao", "inicio_s": 8, "fim_s": 10, "texto": "R$ 36,00" },
-      { "tipo": "musica",   "inicio_s": 0, "fim_s": 42.3, "arquivo": "nome.mp3", "volume_db": -20 },
-      { "tipo": "sfx",      "inicio_s": 8, "fim_s": 8.4, "arquivo": "pop.wav" },
-      { "tipo": "rec",      "inicio_s": 12, "fim_s": 15, "arquivo": "saida/rec_site.mp4" }
+      { "tipo": "corte",    "inicio_s": 0, "fim_s": 5.07, "origem": "entrada/bruto.mov", "origem_inicio_s": 12.4 },
+      { "tipo": "zoom",     "inicio_s": 3.68, "fim_s": 6.24, "escala": 1.12, "cy": 0.42 },
+      { "tipo": "legenda",  "inicio_s": 0.2, "fim_s": 0.9, "texto": "você sabe", "palavras": [{"w": "você", "s": 0.2, "e": 0.5}, {"w": "sabe", "s": 0.5, "e": 0.9}] },
+      { "tipo": "animacao", "inicio_s": 8, "fim_s": 10.5, "modelo": "caixa-pop", "texto": "Milhas que viram viagem", "destaque": "viagem",
+        "corDestaque": "#FF5A1F", "arquivoFonte": "Montserrat-ExtraBold.ttf", "x": 0.5, "y": 0.3, "escala": 1 },
+      { "tipo": "animacao", "inicio_s": 40, "fim_s": 43, "arquivo": "work/anim_final.mov" },
+      { "tipo": "broll",    "inicio_s": 12, "fim_s": 13.5, "arquivo": "entrada/cena_app.mov", "origem_inicio_s": 2 },
+      { "tipo": "rec",      "inicio_s": 15, "fim_s": 19, "arquivo": "saida/rec_site.mp4", "origem_inicio_s": 0, "escala": 0.8, "x": 0.5, "y": 0.45 },
+      { "tipo": "imagem",   "inicio_s": 0, "fim_s": 2, "arquivo": "work/logo.png", "x": 0.5, "y": 0.12, "escala": 0.25 },
+      { "tipo": "musica",   "inicio_s": 0, "fim_s": 42.3, "arquivo": "nome.mp3", "origem_inicio_s": 0.52, "volume_db": -20 },
+      { "tipo": "sfx",      "inicio_s": 8, "fim_s": 8.4, "arquivo": "pop.wav", "volume_db": -12 }
     ] }
   ```
-  Tempos sempre no vídeo final (depois dos cortes).
+  - Tempos sempre no vídeo final. As camadas `corte` são emendadas na ordem, uma colada na outra
+    (`inicio_s` de uma = `fim_s` da anterior); `origem_inicio_s` é onde o trecho começa no bruto.
+  - `zoom`: punch-in com easing de 0,25 s (`entrada_s: 0` para zoom seco); `cx`/`cy` = ponto que fica no centro.
+  - `broll`/`rec`: vídeo por cima (escala 1 = tela cheia; menor que 1 = janela centrada em `x`, `y`).
+    `imagem`: png/jpg, `escala` = fração da largura.
+  - `animacao` com `modelo`: título da biblioteca, o montador renderiza no Remotion. `x`, `y` = centro do título
+    (0 a 1). Com `arquivo`: um .mov com fundo transparente que você mesmo fez no Remotion.
+  - `legenda`: uma camada por tela. Não escreva na mão: gere com o montador (passo 5).
+  - Arquivos de música e efeito: pelo nome do banco (`~/Desktop/sons`) ou caminho dentro da pasta do pedido.
+  - O montador faz a cadeia de áudio sozinho (passa-alta e compressor na voz, música abaixando na fala,
+    fades, -14 LUFS). Não trate o áudio por fora.
 - `saida/resumo.md`: primeira linha = uma frase curta do que foi feito (aparece no admin).
   Depois: cortes feitos, decisões que você tomou sozinho, o que ficou de fora e por quê, dúvidas para a Lara,
   e **3 sugestões de melhoria** que ela pode aprovar numa próxima versão.
-- `saida/legendas.srt`: as legendas finais separadas (a Lara usa para subir legenda no Instagram/TikTok).
 
 ## Progresso ao vivo (a Lara vê no admin)
 
@@ -64,11 +82,11 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
    Use os picos de energia do áudio (ênfase na fala) como candidatos a zoom e efeito sonoro.
    Efeito só entra se serve à fala: nada de glitch, shake ou flash a não ser que o pedido peça estilo "hype".
 5. **Legenda**: use o modelo escolhido no PEDIDO.md, sem inventar estilo. Monte um JSON com as palavras no tempo
-   do vídeo FINAL (`[{"w": "palavra", "s": 1.20, "e": 1.48}, ...]`, já com o dicionário aplicado) e gere a legenda:
-   `python3 -I ~/robo-edicao/legendas_ass.py palavras_finais.json ~/robo-edicao/legendas.json <modelo> <largura> <altura> work/legenda.ass "<marca>"`
-   Queime no render com `-vf "ass=work/legenda.ass:fontsdir=$HOME/robo-edicao/fontes"`. Se o PEDIDO.md disser
-   SEM legenda, não legende (mas entregue o .srt mesmo assim). Esconda a legenda em cima de inserções com muito texto
-   (tire essas palavras do JSON).
+   do vídeo FINAL (`[{"w": "palavra", "s": 1.20, "e": 1.48}, ...]`, já com o dicionário aplicado), ponha
+   `"legenda": {"modelo": "<modelo>"}` no projeto.json e crie as telas de legenda:
+   `python3 -I ~/robo-edicao/montar.py . --legendas work/palavras_finais.json`
+   Se o PEDIDO.md disser SEM legenda, use `"legenda": {"ativa": false}` (o .srt sai do mesmo jeito se você
+   criar as telas). Esconda a legenda em cima de inserções com muito texto (apague essas telas do projeto.json).
 6. **Animações com Remotion (obrigatório)** para números, preços, nomes de produto, listas e chamadas do roteiro.
    Nada de texto chapado de FFmpeg: a Lara achou o resultado básico demais.
    - Copie `~/Desktop/editor-lara` para `work/remotion` sem a pasta `node_modules` e crie um link para a original
@@ -77,7 +95,7 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
      (tire do site da marca) e com movimento de entrada e saída (spring, escala, deslize). Use as composições
      que já existem lá (Overlays.tsx, InfinitePay.tsx) como referência de qualidade.
    - Renderize com fundo transparente: `npx remotion render <id> work/anim_<n>.mov --image-format=png --codec=prores --prores-profile=4444 --pixel-format=yuva444p10le`
-     e sobreponha no vídeo com FFmpeg (`overlay=enable='between(t,ini,fim)'`).
+     e ponha no projeto como camada `animacao` com `arquivo` (o montador sobrepõe).
    - **Fontes**: títulos e animações só com fontes da biblioteca `~/robo-edicao/fontes.json` (arquivos em
      `~/robo-edicao/fontes`, todas com licença livre para uso comercial). Escolha pelo jeito da marca
      (categorias: impacto, moderna, serifa, manuscrita, divertida, tech), no máximo 2 famílias por vídeo.
@@ -85,35 +103,32 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
      use o nome exato da lista `nomes` (ex.: "Montserrat ExtraBold").
    - **Títulos animados (gancho, frase-chave, número, lista, chamada)**: use a biblioteca pronta em
      `~/robo-edicao/titulos` (modelos: caixa-pop, palavra-por-palavra, maquina-escrever, marcador, empilhado,
-     contador, etiqueta, lista-check), só os que o PEDIDO.md liberar. Render de cada título:
-     `cd ~/robo-edicao/titulos && npx remotion render src/index.ts <modelo> <pedido>/work/titulo_<n>.mov --props='{"texto":"...","destaque":"...","corDestaque":"#...","arquivoFonte":"Montserrat-ExtraBold.ttf","posicao":0.3,"duracao_s":2.5}' --image-format=png --codec=prores --prores-profile=4444 --pixel-format=yuva444p10le`
-     (`texto` com "|" quebra linhas/itens em empilhado e lista-check; contador usa `numero` e `prefixo`).
+     contador, etiqueta, lista-check), só os que o PEDIDO.md liberar. Não renderize: cada título é uma camada
+     `animacao` com `modelo` e as props (`texto`, `destaque`, `numero`, `prefixo`, `cor`, `corDestaque`, `corFundo`,
+     `arquivoFonte`), mais `x`, `y` e `escala`; o montador renderiza e guarda. `texto` com "|" quebra linhas/itens
+     em empilhado e lista-check; contador usa `numero` e `prefixo`.
      Cores da marca (do site) em `corDestaque`; `arquivoFonte` da biblioteca de fontes. Posição longe do rosto
-     (normalmente 0,25 a 0,35 se o rosto está no meio). Um título a cada 4 a 8 s nos momentos fortes, nunca em cima de
-     outro título nem da legenda. Toda entrada de título leva um efeito sonoro curto (é o jeito da Lara).
-     No projeto.json, cada título é uma camada `animacao` com `texto` e `modelo`.
+     (`y` normalmente 0,25 a 0,35 se o rosto está no meio). Um título a cada 4 a 8 s nos momentos fortes, nunca em cima de
+     outro título nem da legenda. Toda entrada de título leva um efeito sonoro curto (camada `sfx`, é o jeito da Lara).
 7. **Logo da marca**: procure primeiro um arquivo `logo*` (png/svg) em `entrada/`. Se não tiver, baixe do site da marca
-   (`<link rel="icon">`, `og:image` ou uma imagem com "logo" no nome) para `work/logo.png`. Use o logo na abertura ou
+   (`<link rel="icon">`, `og:image` ou uma imagem com "logo" no nome) para `work/logo.png` (camada `imagem`). Use o logo na abertura ou
    no fechamento (chamada final animada no Remotion) e, se fizer sentido, discreto num canto. Sem logo de boa
    qualidade, escreva no resumo em vez de usar um borrado.
 8. **Música e efeitos sonoros**: só do banco `~/Desktop/sons`, e só itens com `liberado_para_cliente: true`
    no `catalogo.json` (o robô atualiza o catálogo antes de você começar; ele tem bpm, batidas, clima e etiquetas).
-   Para a música de fundo existe `~/robo-edicao/encaixar_musica.py` (entra numa batida, abaixa quando há fala,
-   fade no fim). Música de fundo por baixo da voz (sidechain, voz sempre clara, música ~ -20 dB),
-   efeitos nas trocas de cena e na entrada de textos. Nunca baixe música nem efeito da internet.
+   Música de fundo = camada `musica`: comece numa batida (as `batidas` do catálogo; use a primeira depois de 0,5 s
+   como `origem_inicio_s`) e termine junto com o vídeo. O montador abaixa a música quando há fala (~ -20 dB);
+   efeitos (`sfx`) nas trocas de cena e na entrada de textos. Nunca baixe música nem efeito da internet.
    - **Sem banco de efeitos**: gere os efeitos com numpy (são seus, sem problema de licença) e salve em `work/sfx/`:
      whoosh (ruído com passa-banda subindo de 200 Hz a 6 kHz, 250 ms, envelope exponencial),
      pop (seno 900 Hz com decaimento de 60 ms), impacto (seno 45 Hz descendo + ruído, 700 ms),
      riser (varredura 120 Hz a 3 kHz, 1,5 s, crescendo antes de um corte forte).
    - **Sem banco de músicas**: entregue sem música e diga no resumo; não invente trilha.
-   - Cadeia de áudio: passa-alta 80 Hz na voz, compressor suave (3:1, limiar -18 dB), música ~ -22 dB com
-     abaixamento automático (~ -8 dB) quando há fala, efeitos ~ -12 dB sem competir com a voz,
-     fade de 0,3 s no início e no fim, voz final em -14 LUFS (loudnorm).
 9. **Gravação de tela do site** (só se o PEDIDO.md pedir): use Playwright em `~/robo-edicao`
    (`cd ~/robo-edicao && npm i playwright && npx playwright install chromium` se ainda não tiver).
    Janela de celular 390x844, `recordVideo`, siga o passo a passo com pausas naturais (rolagem suave, clique visível).
    Salve em `saida/rec_site.mp4` (H.264). Só site aberto: não faça login nem preencha dados pessoais.
-   Use trechos da gravação na edição onde o roteiro fala do site/produto.
+   Use trechos da gravação na edição onde o roteiro fala do site/produto (camadas `rec`).
 10. **Referências**: tente baixar com `~/robo-edicao/venv/bin/yt-dlp` para uma pasta `refs/` e meça ritmo
    (cortes por minuto), frequência de zoom, estilo de legenda. Se não baixar, siga a nota escrita da Lara.
    As regras do estilo aprovadas valem mais que a referência quando as duas brigam.
@@ -123,10 +138,12 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
 
 ## Render
 
-- Prévia: H.264 `-preset veryfast -crf 23`, AAC 192 kbps (sai rápido; é para a Lara aprovar).
-- Sempre `-pix_fmt yuv420p -movflags +faststart`, 30 fps (ou o fps original se for constante), áudio 48 kHz.
-- Trabalhe numa cópia leve do bruto (proxy 720p) para análise e testes; o render final usa o original.
-- Prefira FFmpeg puro (filter_complex) a MoviePy: é mais rápido e não trava com arquivo grande.
+- Sempre pelo montador: `python3 -I ~/robo-edicao/montar.py .` Ele corta, aplica zoom, sobrepõe, queima a
+  legenda, renderiza os títulos e mixa o som. Trechos e títulos ficam guardados em `work/montar/`, então rodar
+  de novo depois de mudar uma camada é rápido: monte cedo, olhe, ajuste o projeto.json e monte de novo.
+- Se o montador der erro, leia a mensagem e corrija o projeto.json (arquivo que não existe, camada sem tempo).
+  Não renderize por fora: o que não está no projeto a Lara não consegue reeditar.
+- Trabalhe numa cópia leve do bruto (proxy 720p) só para análise; o projeto aponta sempre para o original em `entrada/`.
 
 ## Limites
 

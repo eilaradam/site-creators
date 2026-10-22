@@ -8,7 +8,7 @@ mkdir -p "$D/bin" "$D/trabalhos"
 cd "$D"
 
 echo "1/5 Baixando o robô…"
-for f in robo.mjs INSTRUCOES_EDICAO.md INSTRUCOES_CENAS.md transcrever.py legendas.json legendas_ass.py catalogar_sons.py encaixar_musica.py baixar_fontes.py fontes.json INSTRUCOES_APRENDER.md titulos/package.json titulos/src/index.ts titulos/src/Raiz.tsx titulos/src/Titulos.tsx; do
+for f in robo.mjs INSTRUCOES_EDICAO.md INSTRUCOES_CENAS.md transcrever.py legendas.json legendas_ass.py montar.py catalogar_sons.py encaixar_musica.py baixar_fontes.py fontes.json INSTRUCOES_APRENDER.md titulos/package.json titulos/src/index.ts titulos/src/Raiz.tsx titulos/src/Titulos.tsx; do
   mkdir -p "$(dirname "$D/$f")"; curl -fsSL "$BASE/$f" -o "$D/$f"
 done
 
