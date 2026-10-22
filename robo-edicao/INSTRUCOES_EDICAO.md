@@ -59,11 +59,12 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
    Punch-in com easing (ease-out cúbico, ~0,25 s), nunca linear; nunca dois planos seguidos no mesmo tamanho.
    Use os picos de energia do áudio (ênfase na fala) como candidatos a zoom e efeito sonoro.
    Efeito só entra se serve à fala: nada de glitch, shake ou flash a não ser que o pedido peça estilo "hype".
-5. **Legenda**: caixa alta, 2 a 3 palavras por vez, pop curto na entrada, na área segura (fora dos 15% de baixo
-   no 9:16). Esconda a legenda em cima de inserções com muito texto.
-   Fonte pesada (Montserrat ExtraBold/Black ou a bold disponível), contorno escuro de 6 a 8 px e sombra suave
-   para ler em tela pequena; nada a menos de 10% das bordas. Destaque (cor da marca) em números, valores,
-   nome da marca e palavras de peso ("nunca", "grátis", "ninguém").
+5. **Legenda**: use o modelo escolhido no PEDIDO.md, sem inventar estilo. Monte um JSON com as palavras no tempo
+   do vídeo FINAL (`[{"w": "palavra", "s": 1.20, "e": 1.48}, ...]`, já com o dicionário aplicado) e gere a legenda:
+   `python3 -I ~/robo-edicao/legendas_ass.py palavras_finais.json ~/robo-edicao/legendas.json <modelo> <largura> <altura> work/legenda.ass "<marca>"`
+   Queime no render com `-vf "ass=work/legenda.ass:fontsdir=$HOME/robo-edicao/fontes"`. Se o PEDIDO.md disser
+   SEM legenda, não legende (mas entregue o .srt mesmo assim). Esconda a legenda em cima de inserções com muito texto
+   (tire essas palavras do JSON).
 6. **Animações e textos na tela** para números, preços, nomes de produto e chamadas do roteiro.
    Se existir o projeto Remotion `~/Desktop/editor-lara`, pode usar (copie para dentro deste pedido, não altere o original).
    Senão, faça com FFmpeg (drawtext/ASS) ou HTML + Playwright.
