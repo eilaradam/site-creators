@@ -5159,7 +5159,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     </div>
 </div>
 <div class="dashboard" id="tabEdicao">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;800;900&family=Anton&family=Bebas+Neue&family=Archivo+Black&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Poppins:wght@600;800;900&family=Anton&family=Bebas+Neue&family=Archivo+Black&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <style>
 /* ---- Edição: revisão de vídeo, regras do estilo e dicionário ---- */
 #tabEdicao .ed-wrap { max-width:1240px; margin:0 auto; }
@@ -5309,6 +5309,30 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
 #tabEdicao .ia-bl.fora { opacity:.25; background:repeating-linear-gradient(45deg,#555 0 4px,#333 4px 8px) !important; }
 #tabEdicao .ia-bl.editado { box-shadow:inset 0 -3px 0 #E8A27E; }
 #tabEdicao .ia-marca { position:absolute; top:-3px; bottom:-3px; width:3px; margin-left:-1px; background:#E8A27E; border-radius:2px; z-index:3; }
+#tabEdicao .ed-mont { display:grid; grid-template-columns:minmax(220px,330px) 1fr; gap:14px; margin:12px 0; align-items:start; }
+#tabEdicao .ed-mont .ia-editar { margin-top:0; }
+#tabEdicao .ed-palco-box { position:relative; border-radius:14px; overflow:hidden; border:2px solid #C8441A; background:#000; container-type:inline-size; }
+#tabEdicao .ed-palco-box video { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; display:block; }
+#tabEdicao .ed-palco { position:absolute; inset:0; pointer-events:none; overflow:hidden; display:flex; justify-content:center; }
+#tabEdicao .ed-palco.off { display:none; }
+#tabEdicao .ed-palco .ed-leg, #tabEdicao .ed-palco .ed-tit { pointer-events:auto; cursor:grab; touch-action:none; user-select:none; -webkit-user-select:none; }
+#tabEdicao .ed-palco .ed-tit { position:absolute; transform:translate(-50%,-50%); text-align:center; display:flex; flex-direction:column; align-items:center; line-height:1.1; white-space:pre-line; }
+#tabEdicao .ed-palco .sel { outline:2px dashed #E8A27E; outline-offset:4px; }
+#tabEdicao .ed-ed-modos { display:flex; gap:6px; margin-bottom:8px; }
+#tabEdicao .ed-ed-modos .ed-btn.ghost { background:transparent; color:#FFF8F2; border:1px solid #5A514A; }
+#tabEdicao .ed-ed-topo { display:flex; align-items:center; gap:10px; justify-content:space-between; margin-bottom:10px; }
+#tabEdicao .ed-ed-topo .ia-tempo { margin-left:auto; }
+#tabEdicao .ed-ed-tit { font-weight:700; margin:2px 0 8px; color:#FFF8F2; }
+#tabEdicao .ed-ed-l { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:7px 0; font-size:13px; color:#CFC6BC; }
+#tabEdicao .ed-ed-l > span { min-width:44px; }
+#tabEdicao .ed-ed-l input[type=color] { width:34px; height:30px; border:0; background:none; padding:0; cursor:pointer; }
+#tabEdicao .ed-ed-ck { display:flex; gap:5px; align-items:center; font-size:12.5px; color:#CFC6BC; }
+#tabEdicao .ia-editar textarea.ed-input { width:100%; box-sizing:border-box; resize:vertical; }
+#tabEdicao .ed-ed-mud { margin-top:12px; font-size:12.5px; color:#CFC6BC; border-top:1px solid #2E2925; padding-top:8px; }
+#tabEdicao .ed-ed-mud div { margin-top:3px; }
+#tabEdicao .ed-ed-pedir { margin-top:12px; font-size:13px; color:#CFC6BC; }
+#tabEdicao .ed-ed-pedir summary { cursor:pointer; font-weight:600; }
+@media (max-width: 760px) { #tabEdicao .ed-mont { grid-template-columns:1fr; } #tabEdicao .ed-mont > div:first-child { max-width:330px; width:100%; margin:0 auto; } }
 #tabEdicao .ia-editar { margin-top:12px; background:#141312; border:1px solid #2E2925; border-radius:16px; padding:12px 14px; }
 #tabEdicao .ia-editar .ed-input { background:#211E1C; color:#FFF8F2; border-color:#3D3530; }
 #tabEdicao .ia-editar .ed-btn.ghost { color:#FFF8F2; border-color:#3D3530; }
@@ -5317,6 +5341,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
 #tabEdicao .ia-ajs { margin-top:10px; border-top:1px solid #2E2925; }
 #tabEdicao .ia-aj { display:flex; justify-content:space-between; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid #2E2925; font-size:13px; }
 #tabEdicao .ia-aj .ed-x { color:#A69D93; }
+#tabEdicao .tt-video { width:100%; aspect-ratio:9/16; display:block; background:#2a1d16; object-fit:cover; }
 #tabEdicao .ed-toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px); background:#1F1B18; color:#fff; padding:10px 16px; border-radius:10px; font-size:13.5px; font-weight:600; opacity:0; pointer-events:none; transition:all .2s; z-index:9999; }
 #tabEdicao .ed-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 #tabEdicao .ed-toast.erro { background:#B3261E; }
@@ -5335,6 +5360,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     <button class="ed-chip" type="button" data-ed-aba="regras" onclick="edSetAba('regras')">Regras do estilo</button>
     <button class="ed-chip" type="button" data-ed-aba="dicionario" onclick="edSetAba('dicionario')">Dicionário de correções</button>
     <button class="ed-chip" type="button" data-ed-aba="legendas" onclick="edSetAba('legendas')">Modelos de legenda</button>
+    <button class="ed-chip" type="button" data-ed-aba="titulos" onclick="edSetAba('titulos')">Modelos de título</button>
     <button class="ed-chip" type="button" data-ed-aba="fontes" onclick="edSetAba('fontes')">Biblioteca de fontes</button>
   </div>
   <div id="edBox"><div class="ed-empty">Carregando…</div></div>
@@ -17747,6 +17773,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         if (edAba === 'regras') return edRenderRegras();
         if (edAba === 'dicionario') return edRenderDic();
         if (edAba === 'legendas') return edRenderLegendas();
+        if (edAba === 'titulos') return edRenderTitulos();
         if (edAba === 'fontes') return edRenderFontes();
         edRenderRevisao();
     }
@@ -17758,7 +17785,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     const ED_PED_STATUS = {
         na_fila: ['Na fila', '#FFF3D6', '#8A5A00'], aguardando_bruto: ['Esperando o bruto na pasta', '#FFF3D6', '#8A5A00'], baixando: ['Baixando o bruto', '#E3EEFF', '#1F4E9A'],
         analisando: ['Analisando referências', '#E3EEFF', '#1F4E9A'], editando: ['Editando', '#E3EEFF', '#1F4E9A'],
-        aguardando_cenas: ['Esperando as cenas', '#FFF3D6', '#8A5A00'], ajustes_na_fila: ['Na fila para a nova versão', '#E3EEFF', '#1F4E9A'], previa_pronta: ['Prévia pronta', '#DDF5E6', '#1D6B3A'], em_revisao: ['Em revisão', '#F3E8FF', '#6B2FA3'],
+        aguardando_cenas: ['Esperando as cenas', '#FFF3D6', '#8A5A00'], ajustes_na_fila: ['Na fila para a nova versão', '#E3EEFF', '#1F4E9A'], remontar_na_fila: ['Na fila para remontar', '#E3EEFF', '#1F4E9A'], previa_pronta: ['Prévia pronta', '#DDF5E6', '#1D6B3A'], em_revisao: ['Em revisão', '#F3E8FF', '#6B2FA3'],
         renderizando: ['Renderizando final', '#E3EEFF', '#1F4E9A'], final_pronto: ['Final no Drive', '#DDF5E6', '#1D6B3A'],
         erro: ['Erro', '#FDE4E1', '#B3261E'], cancelado: ['Cancelado', '#F4F2EF', '#8A817A'],
     };
@@ -17783,7 +17810,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         edPedidos = p.data || []; edRefsBib = b.data || [];
     }
     /* Enquanto o robô trabalha, a lista e o pedido aberto se atualizam sozinhos (o robô escreve o passo atual em status_msg) */
-    const ED_EM_ANDAMENTO = ['na_fila', 'aguardando_bruto', 'baixando', 'analisando', 'editando', 'renderizando', 'aguardando_cenas', 'ajustes_na_fila'];
+    const ED_EM_ANDAMENTO = ['na_fila', 'aguardando_bruto', 'baixando', 'analisando', 'editando', 'renderizando', 'aguardando_cenas', 'ajustes_na_fila', 'remontar_na_fila'];
     setInterval(async () => {
         const aba = document.getElementById('tabEdicao');
         if (!aba || !aba.classList.contains('show') || edAba !== 'pedidos' || !edPedidos.some(p => ED_EM_ANDAMENTO.includes(p.status))) return;
@@ -17793,7 +17820,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         if (JSON.stringify(edPedidos.map(p => [p.id, p.status, p.status_msg, p.previa_link, p.projeto, p.cenas])) !== antes) edRender();
     }, 15000);
     function edNovoForm(base) {
-        edForm = Object.assign({ id: null, conteudo_id: '', marca: '', titulo: '', drive_pasta_link: '', roteiro: '', formato: '9:16', duracao_alvo_s: '', observacoes: '', marca_site: '', marca_redes: '', rec_gravar: false, rec_passos: '', tipo: 'edicao', voz: 'minha', estilo_visual: 'marca', legenda_modelo: edLegendaPadrao(),
+        edForm = Object.assign({ id: null, conteudo_id: '', marca: '', titulo: '', drive_pasta_link: '', roteiro: '', formato: '9:16', duracao_alvo_s: '', observacoes: '', marca_site: '', marca_redes: '', rec_gravar: false, rec_passos: '', tipo: 'edicao', voz: 'minha', estilo_visual: 'marca', legenda_modelo: edLegendaPadrao(), titulos_modelos: edTitulosFavoritos().join(','),
             refs: [{ tipo: 'geral', link: '', nota: '', salvar: false, nome: '' }] }, base || {});
     }
     function edAbrirNovoPedido() { edPedidoAberto = 'novo'; edNovoForm(); edRender(); }
@@ -17806,7 +17833,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         edNovoForm({ id, conteudo_id: ped.conteudo_id || '', marca: ped.pasta_nome || ped.marca || '', titulo: ped.titulo || '', drive_pasta_link: ped.drive_pasta_link || '', roteiro: ped.roteiro || '',
             formato: ped.formato || '9:16', duracao_alvo_s: ped.duracao_alvo_s || '', observacoes: ped.observacoes || '',
             marca_site: ped.marca_site || '', marca_redes: ped.marca_redes || '', rec_gravar: !!ped.rec_gravar, rec_passos: ped.rec_passos || '',
-            tipo: ped.tipo || 'edicao', voz: ped.voz || 'minha', legenda_modelo: ped.legenda_modelo || edLegendaPadrao(), estilo_visual: ped.estilo_visual || 'marca',
+            tipo: ped.tipo || 'edicao', voz: ped.voz || 'minha', legenda_modelo: ped.legenda_modelo || edLegendaPadrao(), titulos_modelos: ped.titulos_modelos || '', estilo_visual: ped.estilo_visual || 'marca',
             refs: edPedidoRefs.length ? edPedidoRefs.map(r => ({ id: r.id, tipo: r.tipo, link: r.link, nota: r.nota || '', salvar: false, nome: '' })) : [{ tipo: 'geral', link: '', nota: '', salvar: false, nome: '' }] });
         edRender();
     }
@@ -17866,7 +17893,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             roteiro: f.roteiro.trim() || null, formato: f.formato, duracao_alvo_s: f.duracao_alvo_s ? parseInt(f.duracao_alvo_s, 10) || null : null,
             observacoes: f.observacoes.trim() || null, updated_at: new Date().toISOString(),
             marca_site: f.marca_site.trim() || null, marca_redes: f.marca_redes.trim() || null, rec_gravar: !!f.rec_gravar, rec_passos: f.rec_passos.trim() || null,
-            tipo: f.tipo, legenda_modelo: f.legenda_modelo || null, voz: f.tipo === 'cenas' ? f.voz : null, estilo_visual: f.tipo === 'cenas' ? f.estilo_visual : null,
+            tipo: f.tipo, legenda_modelo: f.legenda_modelo || null, titulos_modelos: f.titulos_modelos || null, voz: f.tipo === 'cenas' ? f.voz : null, estilo_visual: f.tipo === 'cenas' ? f.estilo_visual : null,
         };
         let pedidoId = f.id;
         if (pedidoId) {
@@ -17968,6 +17995,9 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
               '<label class="ed-lb">Modelo de legenda</label><div class="ed-row"><select class="ed-input" id="edP_legenda_modelo" style="max-width:280px;"' + dis + '>' +
                 '<option value="">Sem legenda</option>' + edLegendas.map(m => '<option value="' + m.id + '"' + (f.legenda_modelo === m.id ? ' selected' : '') + '>' + edEsc(m.nome) + '</option>').join('') +
                 '</select><button class="ed-btn ghost mini" type="button" onclick="edSetAba(\'legendas\')">Ver os modelos</button></div>' +
+              '<label class="ed-lb">Títulos animados (vazio = o robô escolhe)</label><div class="ed-row">' +
+                ED_TITULOS.map(([id, n]) => '<button class="ed-chip' + (String(f.titulos_modelos || '').split(',').includes(id) ? ' on' : '') + '" type="button"' + dis + ' onclick="edTituloNoPedido(\'' + id + '\')">' + edEsc(n) + '</button>').join('') +
+                '<button class="ed-btn ghost mini" type="button" onclick="edSetAba(\'titulos\')">Ver os títulos</button></div>' +
               '<label class="ed-lb">' + (f.tipo === 'cenas' ? 'Duração (segundos; cada 10 s é uma cena)' : 'Duração desejada (segundos, opcional)') + '</label><input class="ed-input" id="edP_duracao_alvo_s" type="number" min="5" max="600" style="max-width:160px;"' + dis + ' value="' + edEsc(f.duracao_alvo_s) + '">' +
               '<label class="ed-lb">Observações</label><textarea class="ed-input" id="edP_observacoes" rows="3" placeholder="ex.: tirar a parte em que eu tropeço; destacar o preço"' + dis + '>' + edEsc(f.observacoes) + '</textarea>' +
             '</div>' +
@@ -18053,6 +18083,41 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                 '<div class="ed-muted" style="font-size:11.5px;">Licença ' + edEsc(f.licenca) + ' · ' + edEsc(f.origem) + '</div></div></div>';
           }).join('') + '</div>';
     }
+    /* ── Modelos de título animado: os mesmos que o robô renderiza no Remotion (robo-edicao/titulos). As prévias são vídeos curtos. ── */
+    const ED_TITULOS = [
+        ['caixa-pop', 'Caixa pop', 'Frase numa caixa de cor que entra com pulinho. Bom para o gancho.'],
+        ['palavra-por-palavra', 'Palavra por palavra', 'Cada palavra sobe na hora dela; a palavra forte muda de cor.'],
+        ['maquina-escrever', 'Máquina de escrever', 'Letra por letra com cursor. Bom para pergunta ou busca.'],
+        ['marcador', 'Marca-texto', 'Uma faixa de marca-texto passa atrás da palavra forte.'],
+        ['empilhado', 'Empilhado', 'Linhas alternando tamanho, entrando de lados opostos. Bom para comparar.'],
+        ['contador', 'Contador', 'Número subindo até o valor (preço, economia, resultado).'],
+        ['etiqueta', 'Etiqueta', 'Adesivo inclinado que quica, igual sticker do CapCut. Bom para benefício.'],
+        ['lista-check', 'Lista com check', 'Itens aparecendo um por um com ✓. Bom para passo a passo.'],
+    ];
+    function edTitulosFavoritos() { try { return (localStorage.getItem('edTitulosFav') || '').split(',').filter(Boolean); } catch (_) { return []; } }
+    function edTituloFav(id) {
+        const fav = edTitulosFavoritos(), i = fav.indexOf(id);
+        if (i >= 0) fav.splice(i, 1); else fav.push(id);
+        try { localStorage.setItem('edTitulosFav', fav.join(',')); } catch (_) {}
+        edRenderTitulos();
+    }
+    function edRenderTitulos() {
+        const box = document.getElementById('edBox'); if (!box) return;
+        const fav = edTitulosFavoritos();
+        box.innerHTML = '<div class="ed-muted" style="margin-bottom:12px;">Títulos animados que o robô coloca nos momentos fortes do vídeo (gancho, número, lista, chamada), nas cores da marca. ' +
+            'Marque os seus favoritos: eles já vêm escolhidos nos próximos pedidos. Se nenhum for marcado, o robô escolhe.</div>' +
+            '<div class="lg-grade">' + ED_TITULOS.map(([id, n, d]) =>
+                '<div class="lg-card' + (fav.includes(id) ? ' padrao' : '') + '">' +
+                  '<video class="tt-video" src="robo-edicao/titulos/previas/' + id + '.mp4" autoplay loop muted playsinline preload="metadata"></video>' +
+                  '<div class="lg-info"><b>' + edEsc(n) + (fav.includes(id) ? ' · favorito' : '') + '</b><div class="ed-muted">' + edEsc(d) + '</div>' +
+                  '<button class="ed-btn mini' + (fav.includes(id) ? ' ghost' : '') + '" type="button" style="margin-top:8px;" onclick="edTituloFav(\'' + id + '\')">' + (fav.includes(id) ? 'Tirar dos favoritos' : '★ Favorito') + '</button></div>' +
+                '</div>').join('') + '</div>';
+    }
+    function edTituloNoPedido(id) {
+        edLerForm(); const sel = String(edForm.titulos_modelos || '').split(',').filter(Boolean), i = sel.indexOf(id);
+        if (i >= 0) sel.splice(i, 1); else sel.push(id);
+        edForm.titulos_modelos = sel.join(','); edRender();
+    }
     /* ── Modelos de legenda: a mesma lista (robo-edicao/legendas.json) que o robô usa para queimar a legenda ── */
     let edLegendas = [], edLegTimer = null;
     function edLegendaPadrao() { try { return localStorage.getItem('edLegendaPadrao') || 'pop_amarelo'; } catch (_) { return 'pop_amarelo'; } }
@@ -18081,7 +18146,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const gi = grupos.findIndex((g, i) => t >= g[0].s && t < (grupos[i + 1] ? grupos[i + 1][0].s : g[g.length - 1].e + 0.4));
         if (gi < 0) return { html: '', chave: '' };
         const g = grupos[gi], k = Math.max(0, g.findIndex((p, j) => t >= p.s && (!g[j + 1] || t < g[j + 1].s)));
-        const cx = w => m.caixa === 'alta' ? w.toUpperCase() : w;
+        const cx = w => { w = m.sem_pontuacao ? w.replace(/[.,!?;:…]+$/, '') : w; return m.caixa === 'alta' ? w.toUpperCase() : m.caixa === 'baixa' ? w.toLowerCase() : w; };
         const html = g.map((p, j) => {
             const ativo = m.modo === 'karaoke' ? j === k : ED_LEG_FORTES.test(p.w);
             return '<span class="lg-w' + (m.modo === 'karaoke' && j === k ? ' on' : '') + '" style="color:' + (ativo ? m.destaque : m.cor) + '">' + edEsc(cx(p.w)) + '</span>';
@@ -18154,14 +18219,15 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const marcas = aj.filter(a => a.tipo === 'comentario').map(a => '<div class="ia-marca" style="left:' + (a.tempo_s / dur * 100).toFixed(3) + '%;" title="' + edEsc(edMMSS(a.tempo_s) + ' · ' + a.texto) + '"></div>').join('');
         return '<div class="ia-tl' + (andando ? ' vivo' : '') + '" data-dur="' + dur + '">' +
             '<div class="ia-regua"><span>00:00</span><span>' + edMMSS(dur / 2) + '</span><span>' + edMMSS(dur) + '</span></div>' +
-            trilha('Vídeo', lista(c => c.tipo === 'corte' || c.tipo === 'rec').map(x => bloco(x.c, x.i, x.c.tipo === 'rec' ? 'rec' : 'vid', x.c.tipo === 'rec' ? 'tela do site' : '')).join('') + marcas) +
+            trilha('Vídeo', lista(c => ['corte', 'rec', 'broll', 'imagem'].includes(c.tipo)).map(x => bloco(x.c, x.i, x.c.tipo === 'corte' ? 'vid' : 'rec', { rec: 'tela do site', broll: 'b-roll', imagem: 'imagem' }[x.c.tipo] || '')).join('') + marcas) +
             trilha('Legendas', lista(c => c.tipo === 'legenda').map(x => bloco(x.c, x.i, 'leg', x.c.texto || '')).join('')) +
             trilha('Efeitos', lista(c => c.tipo === 'zoom' || c.tipo === 'animacao').map(x => bloco(x.c, x.i, x.c.tipo === 'zoom' ? 'zoom' : 'anim', x.c.tipo === 'zoom' ? 'zoom' : (x.c.texto || ''))).join('')) +
             trilha('Áudio', lista(c => c.tipo === 'musica' || c.tipo === 'sfx' || c.tipo === 'voz').map(x => bloco(x.c, x.i, x.c.tipo === 'sfx' ? 'sfx' : 'mus', '')).join('')) +
             '<div class="ia-play"></div></div>';
     }
-    const ED_IA_NOMES = { corte: 'Trecho do vídeo', rec: 'Gravação de tela', legenda: 'Legenda', zoom: 'Zoom', animacao: 'Animação', musica: 'Música', sfx: 'Efeito sonoro', voz: 'Locução' };
+    const ED_IA_NOMES = { corte: 'Trecho do vídeo', rec: 'Gravação de tela', broll: 'B-roll', imagem: 'Imagem', legenda: 'Legenda', zoom: 'Zoom', animacao: 'Animação', musica: 'Música', sfx: 'Efeito sonoro', voz: 'Locução' };
     function edIaEditorHtml(ped) {
+        if (edEdMontavel(ped)) return edEdEditorHtml(ped);
         const cam = (ped.projeto && ped.projeto.camadas) || [], aj = edIaAjustes(ped);
         const c = edIaSel !== null ? cam[edIaSel] : null;
         const ajSel = aj.find(a => a.i === edIaSel && a.tipo === 'remover');
@@ -18193,6 +18259,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const l = document.getElementById('iaLinha'), e = document.getElementById('iaEditar');
         if (l) l.innerHTML = edIaLinhaHtml(ped);
         if (e) e.innerHTML = edIaEditorHtml(ped);
+        if (edEdMontavel(ped)) { edEdLigarEditor(); edEdChave = ''; edEdPalco(ped, edEdTempo()); }
         edIaLigar(ped);
     }
     async function edIaSalvar(ped, ajustes) {
@@ -18240,23 +18307,386 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         cancelAnimationFrame(edIaRaf);
         if (!v || ED_EM_ANDAMENTO.includes(ped.status)) return;
         const play = tl.querySelector('.ia-play'), faixa = tl.querySelector('.ia-tr-l');
+        const montavel = edEdMontavel(ped);
         play.style.display = 'block'; play.style.animation = 'none';
         const passo = () => {
             if (!document.body.contains(v)) return;
             const t = v.currentTime || 0, lt = document.getElementById('iaTempo');
             if (faixa && dur) play.style.left = (faixa.offsetLeft + faixa.offsetWidth * Math.min(1, t / dur)) + 'px';
             if (lt) lt.textContent = edMMSS(t);
+            if (montavel) edEdPalco(ped, t);
             edIaRaf = requestAnimationFrame(passo);
         };
         passo();
     }
     async function edIaMontar(ped) {
         const v = document.getElementById('iaVideo');
-        if (v && ped.previa_path) {
-            const { data, error } = await sb.storage.from('edicao').createSignedUrl(ped.previa_path, 3 * 3600);
+        const montavel = edEdMontavel(ped);
+        if (montavel) {
+            if (edEdPedId !== ped.id) { edEdPedId = ped.id; edEdHist = []; edIaSel = null; }
+            await Promise.all([edCarregarLegendas(), edCarregarFontes()]);
+            const e = document.getElementById('iaEditar'); if (e) { e.innerHTML = edIaEditorHtml(ped); edEdLigarEditor(); }
+        }
+        const arq = montavel && edEdModo === 'editar' ? ped.projeto.base_path : ped.previa_path;
+        if (v && arq) {
+            const { data, error } = await sb.storage.from('edicao').createSignedUrl(arq, 3 * 3600);
             if (!error && data) v.src = data.signedUrl;
         }
+        edEdChave = '';
         edIaLigar(ped);
+        if (montavel) v && v.addEventListener('loadeddata', () => { edEdChave = ''; edEdPalco(ped, v.currentTime || 0); }, { once: true });
+    }
+    /* ── Reeditar o que o robô fez. O projeto em camadas (o mesmo que o robô monta) é editado aqui:
+       o vídeo de base (sem legenda e sem títulos) toca e a legenda e os títulos são desenhados por cima, ao vivo,
+       para arrastar e trocar. "Renderizar" manda o robô remontar só com o montador, sem refazer a edição.
+       Cada mudança vira uma frase em projeto.mudancas: o robô aprende com elas e propõe regras do estilo. ── */
+    const edEdMontavel = ped => !!(ped && ped.projeto && ped.projeto.base_path && Array.isArray(ped.projeto.camadas) && ['previa_pronta', 'em_revisao', 'final_pronto'].includes(ped.status));
+    const ED_TAM = { '9:16': [1080, 1920], '4:5': [1080, 1350], '1:1': [1080, 1080], '16:9': [1920, 1080] };
+    const edR = x => Math.round(x * 1000) / 1000;
+    const edS = x => (Math.round(x * 10) / 10).toFixed(1).replace('.', ',') + ' s';
+    const edMMSSd = t => { t = Math.max(0, +t || 0); const d = Math.round(t * 10); return String(Math.floor(d / 600)).padStart(2, '0') + ':' + String(Math.floor(d / 10) % 60).padStart(2, '0') + ',' + (d % 10); };
+    const ED_PESO_NOME = { 100: 'Thin', 200: 'ExtraLight', 300: 'Light', 400: 'Regular', 500: 'Medium', 600: 'SemiBold', 700: 'Bold', 800: 'ExtraBold', 900: 'Black' };
+    let edEdModo = 'editar', edEdHist = [], edEdPedId = null, edEdSalvarT = null, edEdArr = null, edEdChave = '';
+    function edEdTempo() { const v = document.getElementById('iaVideo'); return v && !isNaN(v.currentTime) ? v.currentTime : 0; }
+    function edEdMudar(ped, frase, fn) {
+        edEdHist.push(JSON.stringify(ped.projeto)); if (edEdHist.length > 80) edEdHist.shift();
+        fn(ped.projeto);
+        const pj = ped.projeto;
+        pj.camadas = pj.camadas.filter(Boolean);
+        if (frase) pj.mudancas = (pj.mudancas || []).concat([frase]);
+        pj.editado_em = new Date().toISOString();
+        edEdChave = ''; edIaRedesenhar(); edEdSalvar(ped);
+    }
+    function edEdDesfazer() {
+        const ped = edIaPed(); if (!ped || !edEdHist.length) return;
+        ped.projeto = JSON.parse(edEdHist.pop()); edIaSel = null; edEdChave = ''; edIaRedesenhar(); edEdSalvar(ped);
+    }
+    function edEdSalvar(ped) {
+        clearTimeout(edEdSalvarT);
+        edEdSalvarT = setTimeout(async () => {
+            const { error } = await sb.from('edicao_pedidos').update({ projeto: ped.projeto, updated_at: new Date().toISOString() }).eq('id', ped.id);
+            if (error) edErro('Não salvei a mudança', error);
+        }, 600);
+    }
+    // tira o intervalo [a, b] do vídeo final: trechos encurtam ou somem e tudo que vem depois anda para trás
+    function edEdTirar(pj, a, b) {
+        const d = b - a; if (d <= 0.001) return;
+        const mapa = t => t <= a ? t : t >= b ? t - d : a;
+        const novas = [];
+        for (const c of pj.camadas) {
+            const i = +c.inicio_s || 0, f = c.fim_s != null ? +c.fim_s : i;
+            if (c.tipo === 'corte') {
+                if (i >= a - 0.001 && f <= b + 0.001) continue;
+                if (i < a && f > b) {
+                    novas.push(Object.assign({}, c, { fim_s: edR(a) }));
+                    novas.push(Object.assign({}, c, { inicio_s: edR(a), fim_s: edR(f - d), origem_inicio_s: edR((+c.origem_inicio_s || 0) + (b - i)) }));
+                    continue;
+                }
+                if (i < b && f > b) c.origem_inicio_s = edR((+c.origem_inicio_s || 0) + (b - Math.max(i, a)));
+                c.inicio_s = edR(mapa(i)); c.fim_s = edR(mapa(f));
+                novas.push(c); continue;
+            }
+            if (c.tipo === 'sfx' ? (i >= a && i < b) : (i >= a - 0.001 && f <= b + 0.001)) continue;
+            if (i >= a && i < b && f > b && c.origem_inicio_s != null) c.origem_inicio_s = edR(+c.origem_inicio_s + (b - i));
+            if (Array.isArray(c.palavras)) {
+                const bate = c.palavras.map(p => p.w).join(' ') === String(c.texto || '').trim().split(/\s+/).join(' ');
+                c.palavras = c.palavras.filter(p => !(p.s >= a - 0.001 && p.e <= b + 0.001)).map(p => ({ w: p.w, s: edR(mapa(p.s)), e: edR(mapa(p.e)) }));
+                if (bate) c.texto = c.palavras.map(p => p.w).join(' ');
+                if (c.tipo === 'legenda' && !c.palavras.length) continue;
+            }
+            c.inicio_s = edR(mapa(i)); if (c.fim_s != null) c.fim_s = edR(mapa(f));
+            if (c.fim_s != null && c.tipo !== 'sfx' && c.fim_s - c.inicio_s < 0.1) continue;
+            novas.push(c);
+        }
+        pj.camadas = novas;
+        pj.duracao_s = edR(Math.max(0, (+pj.duracao_s || 0) - d));
+    }
+    // abre d segundos a partir de t (o que começa em t ou depois anda para frente)
+    function edEdAbrir(pj, t, d, menos) {
+        for (const c of pj.camadas) {
+            if (c === menos) continue;
+            const i = +c.inicio_s || 0;
+            if (i >= t - 0.001) {
+                c.inicio_s = edR(i + d); if (c.fim_s != null) c.fim_s = edR(+c.fim_s + d);
+                if (Array.isArray(c.palavras)) c.palavras = c.palavras.map(p => ({ w: p.w, s: edR(p.s + d), e: edR(p.e + d) }));
+            } else if (c.tipo === 'musica' && +c.fim_s >= t - 0.001) c.fim_s = edR(+c.fim_s + d);
+        }
+        pj.duracao_s = edR((+pj.duracao_s || 0) + d);
+    }
+    function edEdSelC() { const ped = edIaPed(); return ped && edIaSel !== null ? ped.projeto.camadas[edIaSel] : null; }
+    function edEdNome(c) {
+        if (!c) return '';
+        if (c.tipo === 'corte') return 'o trecho ' + edMMSSd(c.inicio_s) + '–' + edMMSSd(c.fim_s);
+        if (c.tipo === 'legenda') return 'a legenda “' + (c.texto || '') + '”';
+        if (c.tipo === 'animacao') return c.modelo ? 'o título “' + (c.texto || c.numero || '') + '”' : 'a animação em ' + edMMSS(c.inicio_s);
+        return (ED_IA_NOMES[c.tipo] || c.tipo).toLowerCase() + ' em ' + edMMSS(c.inicio_s);
+    }
+    function edEdCorte(acao) {
+        const ped = edIaPed(), c = edEdSelC(); if (!ped || !c || c.tipo !== 'corte') return;
+        const P = 0.1, i = +c.inicio_s, f = +c.fim_s;
+        if (acao === 'antes' && (+c.origem_inicio_s || 0) < P) return edToast('Esse trecho já começa no início do bruto', true);
+        if ((acao === 'depois' || acao === 'fimAntes') && f - i <= 0.3) return edToast('Trecho curto demais', true);
+        const frases = { antes: 'Começou o trecho de ' + edMMSSd(i) + ' 0,1 s antes (devolveu um pedaço cortado)', depois: 'Cortou 0,1 s do começo do trecho em ' + edMMSSd(i),
+            fimDepois: 'Deixou o trecho de ' + edMMSSd(i) + ' terminar 0,1 s depois', fimAntes: 'Cortou 0,1 s do fim do trecho em ' + edMMSSd(i),
+            tirar: 'Tirou ' + edEdNome(c) + ' (' + edS(f - i) + ')' };
+        edEdMudar(ped, frases[acao], pj => {
+            if (acao === 'antes') { edEdAbrir(pj, i, P, c); c.origem_inicio_s = edR(+c.origem_inicio_s - P); c.fim_s = edR(f + P); }
+            else if (acao === 'depois') edEdTirar(pj, i, i + P);
+            else if (acao === 'fimDepois') { edEdAbrir(pj, f, P, c); c.fim_s = edR(f + P); }
+            else if (acao === 'fimAntes') edEdTirar(pj, f - P, f);
+            else if (acao === 'tirar') edEdTirar(pj, i, f);
+        });
+        if (acao === 'tirar') edIaSel = null;
+    }
+    function edEdDividir() {
+        const ped = edIaPed(); if (!ped) return; const t = edEdTempo();
+        const k = ped.projeto.camadas.findIndex(c => c.tipo === 'corte' && t > +c.inicio_s + 0.15 && t < +c.fim_s - 0.15);
+        if (k < 0) return edToast('Pare o vídeo no meio de um trecho para dividir', true);
+        edEdMudar(ped, 'Dividiu o trecho em ' + edMMSSd(t), pj => {
+            const c = pj.camadas[k];
+            pj.camadas.splice(k + 1, 0, Object.assign({}, c, { inicio_s: edR(t), origem_inicio_s: edR((+c.origem_inicio_s || 0) + (t - c.inicio_s)) }));
+            c.fim_s = edR(t);
+        });
+        edIaSel = k + 1; edIaRedesenhar();
+    }
+    function edEdTirarCamada() {
+        const ped = edIaPed(), c = edEdSelC(); if (!ped || !c) return;
+        if (c.tipo === 'corte') return edEdCorte('tirar');
+        edEdMudar(ped, 'Tirou ' + edEdNome(c), pj => { pj.camadas.splice(edIaSel, 1); });
+        edIaSel = null; edIaRedesenhar();
+    }
+    function edEdTempoCamada(qual, d) {
+        const ped = edIaPed(), c = edEdSelC(); if (!ped || !c) return;
+        const dur = +ped.projeto.duracao_s || 9999;
+        let i = +c.inicio_s, f = c.fim_s != null ? +c.fim_s : i;
+        if (qual === 'aqui') { const t = edEdTempo(), len = f - i; i = t; f = t + len; }
+        else if (qual === 'mover') { i += d; f += d; }
+        else if (qual === 'inicio') i += d; else f += d;
+        if (i < 0 || f > dur + 0.01 || (c.fim_s != null && f - i < 0.2)) return edToast('Não dá para ir além daí', true);
+        const desl = i - +c.inicio_s;
+        edEdMudar(ped, (qual === 'fim' ? 'Mudou quando sai ' + edEdNome(c) + ' (' + edMMSSd(f) + ')' : 'Mudou quando entra ' + edEdNome(c) + ' (' + edMMSSd(i) + ')'), () => {
+            c.inicio_s = edR(i); if (c.fim_s != null) c.fim_s = edR(f);
+            if (Array.isArray(c.palavras) && (qual === 'mover' || qual === 'aqui')) c.palavras = c.palavras.map(p => ({ w: p.w, s: edR(p.s + desl), e: edR(p.e + desl) }));
+            else if (Array.isArray(c.palavras)) c.palavras = [];   // tempo mudou na mão: a fala é redistribuída na tela
+        });
+    }
+    const ED_ED_CAMPO = { modelo: 'o modelo', destaque: 'a palavra em destaque', corDestaque: 'a cor de destaque', cor: 'a cor do texto', numero: 'o número', prefixo: 'o texto antes do número',
+        arquivoFonte: 'a fonte', escala: 'o tamanho', volume_db: 'o volume', entrada_s: 'a entrada do zoom' };
+    function edEdCampo(campo, valor) {
+        const ped = edIaPed(), c = edEdSelC(); if (!ped || !c) return;
+        if (String(c[campo] ?? '') === String(valor)) return;
+        edEdMudar(ped, 'Mudou ' + (ED_ED_CAMPO[campo] || campo) + ' (' + edEdNome(c) + '): ' + valor, () => {
+            if (valor === '' || valor === null) delete c[campo]; else c[campo] = valor;
+        });
+    }
+    async function edEdTexto() {
+        const ped = edIaPed(), c = edEdSelC(); if (!ped || !c) return;
+        const el = document.getElementById('edEdTx'), novo = el ? el.value.trim() : '';
+        if (!novo || novo === String(c.texto || '').trim()) return;
+        const antes = String(c.texto || '').trim();
+        edEdMudar(ped, 'Trocou ' + (c.tipo === 'legenda' ? 'a legenda' : 'o texto do título') + ' “' + antes + '” por “' + novo + '”', () => { c.texto = novo; });
+        // palavra corrigida na legenda: vai para o dicionário, para o robô já acertar nos próximos vídeos
+        const dic = document.getElementById('edEdDic');
+        if (c.tipo === 'legenda' && dic && dic.checked) {
+            const a = antes.split(/\s+/), b = novo.split(/\s+/);
+            const pares = a.length === b.length ? a.map((w, k) => [w.replace(/[.,!?;:…]+$/, ''), b[k].replace(/[.,!?;:…]+$/, '')]).filter(([x, y]) => x.toLowerCase() !== y.toLowerCase()) : [];
+            if (pares.length && pares.length <= 2) {
+                const { error } = await sb.from('edicao_dicionario').insert(pares.map(([errado, certo]) => ({ errado, certo, cliente: ped.marca || null })));
+                if (!error) edToast('No dicionário: ' + pares.map(([x, y]) => x + ' → ' + y).join(', '));
+            }
+        }
+    }
+    function edEdNovoTitulo() {
+        const ped = edIaPed(); if (!ped) return; const t = edEdTempo();
+        const fav = (typeof edTitulosFavoritos === 'function' ? edTitulosFavoritos() : [])[0] || (ped.titulos_modelos || '').split(',')[0] || ED_TITULOS[0][0];
+        const dur = +ped.projeto.duracao_s || 0;
+        edEdMudar(ped, 'Pôs um título novo em ' + edMMSS(t), pj => {
+            pj.camadas.push({ tipo: 'animacao', modelo: fav, texto: 'Seu título aqui', inicio_s: edR(t), fim_s: edR(Math.min(dur || t + 2.5, t + 2.5)), x: 0.5, y: 0.3, escala: 1 });
+        });
+        edIaSel = ped.projeto.camadas.length - 1; edIaRedesenhar();
+        setTimeout(() => { const el = document.getElementById('edEdTx'); if (el) { el.focus(); el.select(); } }, 50);
+    }
+    function edEdNovoZoom() {
+        const ped = edIaPed(); if (!ped) return; const t = edEdTempo(), dur = +ped.projeto.duracao_s || 0;
+        edEdMudar(ped, 'Pôs um zoom em ' + edMMSS(t), pj => { pj.camadas.push({ tipo: 'zoom', inicio_s: edR(t), fim_s: edR(Math.min(dur || t + 2, t + 2)), escala: 1.12 }); });
+        edIaSel = ped.projeto.camadas.length - 1; edIaRedesenhar();
+    }
+    function edEdLegenda(campo, valor) {
+        const ped = edIaPed(); if (!ped) return;
+        const leg = ped.projeto.legenda || {};
+        const frase = campo === 'modelo' ? 'Trocou o modelo de legenda para ' + valor : campo === 'ativa' ? (valor ? 'Voltou a legenda' : 'Tirou a legenda do vídeo') : 'Mudou a altura da legenda';
+        edEdMudar(ped, frase, pj => { pj.legenda = Object.assign({}, leg, { [campo]: valor }); });
+    }
+    async function edEdRenderizar() {
+        const ped = edIaPed(); if (!ped) return;
+        clearTimeout(edEdSalvarT);
+        const n = (ped.projeto.mudancas || []).length;
+        const { error } = await sb.from('edicao_pedidos').update({ projeto: ped.projeto, status: 'remontar_na_fila', status_msg: 'Na fila para remontar com ' + n + ' mudança(s)', updated_at: new Date().toISOString() }).eq('id', ped.id);
+        if (error) return edErro('Não mandei para o robô', error);
+        edEdHist = []; edToast('O robô vai remontar em alguns minutos');
+        await edCarregarPedidos(); if (edPedidoAberto === ped.id) await edAbrirPedido(ped.id); else edRender();
+    }
+    function edEdModoTrocar(m) { edEdModo = m; edEdChave = ''; const ped = edIaPed(); if (ped) { edRender(); } }
+    function edEdFonteOpcoes(atual) {
+        const ops = [];
+        edFontes.forEach(f => {
+            const pesos = f.pesos_fixos && f.pesos_fixos.length ? f.pesos_fixos.map(p => [p, f.familia.replace(/ /g, '') + '-' + ED_PESO_NOME[p] + '.ttf'])
+                : f.arquivos.filter(a => !a.includes('[')).map(a => [(Object.entries(ED_PESO_NOME).find(([, n]) => a.replace(/\.ttf$/, '').endsWith('-' + n)) || [400])[0], a]);
+            pesos.forEach(([p, arq]) => ops.push('<option value="' + edEsc(arq) + '"' + (arq === atual ? ' selected' : '') + '>' + edEsc(f.familia + ' ' + (ED_PESO_NOME[p] || '')) + '</option>'));
+        });
+        return ops.join('');
+    }
+    function edEdFonteCss(arq) {
+        const m = String(arq || 'Montserrat-ExtraBold.ttf').replace(/\.ttf$/, '').match(/^(.+?)-(\w+?)(Italic)?$/);
+        const f = m && edFontes.find(x => x.familia.replace(/ /g, '') === m[1]);
+        const peso = m ? (Object.entries(ED_PESO_NOME).find(([, n]) => n === m[2]) || [400])[0] : 800;
+        return 'font-family:\'' + (f ? f.familia : 'Montserrat') + '\';font-weight:' + peso + ';' + (m && m[3] ? 'font-style:italic;' : '');
+    }
+    // aparência aproximada do título no palco (a animação de verdade aparece na prévia renderizada)
+    function edEdTituloHtml(c, k, Wp) {
+        const esc = Wp / 1080 * (+c.escala || 1), cor = c.cor || '#FFFFFF', dest = c.corDestaque || '#C8441A', fundo = c.corFundo || '#1B1B1B';
+        const tx = String(c.texto || '');
+        const comDestaque = s => { const d = String(c.destaque || '').trim(); const e = edEsc(s); return d ? e.split(edEsc(d)).join('<span style="color:' + dest + '">' + edEsc(d) + '</span>') : e; };
+        const fs = n => 'font-size:' + (n * esc).toFixed(1) + 'px;';
+        let corpo;
+        switch (c.modelo) {
+            case 'caixa-pop': corpo = '<div style="' + fs(84) + 'background:' + dest + ';padding:' + (22 * esc) + 'px ' + (40 * esc) + 'px;border-radius:' + (18 * esc) + 'px;transform:rotate(-1.5deg);line-height:1.05;">' + edEsc(tx) + '</div>'; break;
+            case 'etiqueta': corpo = '<div style="' + fs(74) + 'background:' + dest + ';border:' + (8 * esc) + 'px solid #fff;padding:' + (16 * esc) + 'px ' + (34 * esc) + 'px;border-radius:' + (26 * esc) + 'px;transform:rotate(-6deg);">' + edEsc(tx) + '</div>'; break;
+            case 'maquina-escrever': corpo = '<div style="' + fs(80) + 'background:' + fundo + ';padding:' + (18 * esc) + 'px ' + (30 * esc) + 'px;border-radius:' + (14 * esc) + 'px;">' + edEsc(tx) + '▍</div>'; break;
+            case 'contador': corpo = '<div style="' + fs(170) + 'color:' + dest + ';line-height:1;">' + edEsc((c.prefixo || '') + (c.numero || '0')) + '</div><div style="' + fs(58) + '">' + edEsc(tx) + '</div>'; break;
+            case 'empilhado': corpo = tx.split('|').map((l, i) => '<div style="' + fs(i % 2 ? 120 : 64) + 'line-height:1.02;' + (i % 2 ? 'color:' + dest + ';' : '') + '">' + edEsc(l.trim()) + '</div>').join(''); break;
+            case 'lista-check': corpo = tx.split('|').map(l => '<div style="' + fs(64) + 'background:' + fundo + ';padding:' + (8 * esc) + 'px ' + (20 * esc) + 'px;border-radius:' + (16 * esc) + 'px;margin:' + (6 * esc) + 'px 0;text-align:left;"><span style="color:' + dest + '">✓</span> ' + edEsc(l.trim()) + '</div>').join(''); break;
+            case 'marcador': corpo = '<div style="' + fs(92) + '">' + (c.destaque ? edEsc(tx).split(edEsc(c.destaque)).join('<span style="background:' + dest + ';padding:0 ' + (8 * esc) + 'px;border-radius:' + (8 * esc) + 'px;">' + edEsc(c.destaque) + '</span>') : edEsc(tx)) + '</div>'; break;
+            default: corpo = '<div style="' + fs(96) + 'line-height:1.08;text-shadow:0 2px 10px rgba(0,0,0,.45);">' + comDestaque(tx) + '</div>';
+        }
+        return '<div class="ed-tit' + (edIaSel === k ? ' sel' : '') + '" data-k="' + k + '" style="left:' + ((+c.x || 0.5) * 100) + '%;top:' + ((c.y != null ? +c.y : 0.32) * 100) + '%;color:' + cor + ';' + edEdFonteCss(c.arquivoFonte) + 'max-width:' + (Wp * 0.87 * (+c.escala || 1)).toFixed(0) + 'px;">' + corpo + '</div>';
+    }
+    // desenha legenda e títulos do instante t por cima do vídeo de base
+    function edEdPalco(ped, t) {
+        const palco = document.getElementById('edPalco'); if (!palco || edEdModo !== 'editar') return;
+        if (edEdArr) return;
+        const pj = ped.projeto, cam = pj.camadas, leg = pj.legenda || {};
+        const ativas = cam.map((c, k) => ({ c, k })).filter(x => (x.c.tipo === 'legenda' || (x.c.tipo === 'animacao' && x.c.modelo)) && t >= +x.c.inicio_s && t < +x.c.fim_s);
+        const chave = ativas.map(x => x.k).join(',') + '|' + edIaSel + '|' + palco.clientWidth;
+        if (chave === edEdChave) return;
+        edEdChave = chave;
+        const Wp = palco.clientWidth, Hp = palco.clientHeight;
+        const m = edLegendas.find(x => x.id === (leg.modelo || 'lara')) || edLegendas[0];
+        let html = '';
+        if (m && leg.ativa !== false) {
+            ativas.filter(x => x.c.tipo === 'legenda').forEach(x => {
+                const cx = w => { w = m.sem_pontuacao ? w.replace(/[.,!?;:…]+$/, '') : w; return m.caixa === 'alta' ? w.toUpperCase() : m.caixa === 'baixa' ? w.toLowerCase() : w; };
+                const pal = String(x.c.texto || '').split(/\s+/).filter(Boolean);
+                const estilo = edLegEstilo(Object.assign({}, m, { posicao: leg.posicao != null ? +leg.posicao : m.posicao }), Hp);
+                html += '<div class="lg-txt ed-leg' + (edIaSel === x.k ? ' sel' : '') + '" data-k="' + x.k + '" style="' + estilo + '">' + pal.map(w => '<span class="lg-w" style="color:' + (ED_LEG_FORTES.test(w) && m.modo !== 'karaoke' ? m.destaque : m.cor) + '">' + edEsc(cx(w)) + '</span>').join(' ') + '</div>';
+            });
+        }
+        ativas.filter(x => x.c.tipo === 'animacao').forEach(x => { html += edEdTituloHtml(x.c, x.k, Wp); });
+        palco.innerHTML = html;
+        palco.querySelectorAll('.ed-tit, .ed-leg').forEach(el => el.addEventListener('pointerdown', ev => edEdPegar(ev, el)));
+    }
+    function edEdPegar(ev, el) {
+        ev.preventDefault(); ev.stopPropagation();
+        const ped = edIaPed(); if (!ped) return;
+        const k = Number(el.dataset.k), palco = document.getElementById('edPalco'), r = palco.getBoundingClientRect();
+        const leg = el.classList.contains('ed-leg');
+        if (edIaSel !== k) { edIaSel = k; edEdChave = ''; const e = document.getElementById('iaEditar'); if (e) e.innerHTML = edIaEditorHtml(ped); edEdLigarEditor(); }
+        const v = document.getElementById('iaVideo'); if (v && !v.paused) v.pause();
+        edEdArr = { k, leg, r, x0: ev.clientX, y0: ev.clientY, left: el.offsetLeft, top: el.offsetTop, el, moveu: false };
+        el.setPointerCapture(ev.pointerId);
+        el.addEventListener('pointermove', edEdArrastar);
+        el.addEventListener('pointerup', edEdSoltar, { once: true });
+    }
+    function edEdArrastar(ev) {
+        const a = edEdArr; if (!a) return;
+        const dx = ev.clientX - a.x0, dy = ev.clientY - a.y0;
+        if (Math.abs(dx) + Math.abs(dy) > 3) a.moveu = true;
+        if (!a.leg) a.el.style.left = (a.left + dx) + 'px';
+        a.el.style.top = (a.top + dy) + 'px';
+    }
+    function edEdSoltar() {
+        const a = edEdArr; edEdArr = null; if (!a) return;
+        a.el.removeEventListener('pointermove', edEdArrastar);
+        const ped = edIaPed(); if (!ped || !a.moveu) { edEdChave = ''; return; }
+        const nx = Math.max(0.05, Math.min(0.95, a.el.offsetLeft / a.r.width)), ny = Math.max(0.05, Math.min(0.95, a.el.offsetTop / a.r.height));
+        if (a.leg) return edEdLegenda('posicao', edR(ny));
+        const c = ped.projeto.camadas[a.k];
+        edEdMudar(ped, 'Mudou ' + edEdNome(c) + ' de lugar na tela', () => { c.x = edR(nx); c.y = edR(ny); });
+    }
+    function edEdLigarEditor() {
+        document.querySelectorAll('#iaEditar [data-ed]').forEach(el => {
+            const [campo, tipo] = el.dataset.ed.split(':');
+            el.addEventListener('change', () => {
+                let v = el.type === 'checkbox' ? el.checked : el.value;
+                if (tipo === 'n') v = edR(parseFloat(v));
+                if (campo.startsWith('leg.')) return edEdLegenda(campo.slice(4), v);
+                edEdCampo(campo, v);
+            });
+        });
+    }
+    function edEdEditorHtml(ped) {
+        const pj = ped.projeto, c = edIaSel !== null ? pj.camadas[edIaSel] : null, leg = pj.legenda || {};
+        const btn = (txt, fn, cls) => '<button class="ed-btn mini' + (cls ? ' ' + cls : '') + '" type="button" onclick="' + fn + '">' + txt + '</button>';
+        const tempos = c && c.tipo !== 'corte' ? '<div class="ed-ed-l"><span>Entra ' + edMMSS(c.inicio_s) + '</span>' + btn('◀', "edEdTempoCamada('inicio',-0.2)", 'ghost') + btn('▶', "edEdTempoCamada('inicio',0.2)", 'ghost') +
+            (c.fim_s != null ? '<span>Sai ' + edMMSS(c.fim_s) + '</span>' + btn('◀', "edEdTempoCamada('fim',-0.2)", 'ghost') + btn('▶', "edEdTempoCamada('fim',0.2)", 'ghost') : '') +
+            btn('Começar aqui', "edEdTempoCamada('aqui')", 'ghost') + '</div>' : '';
+        let sel = '';
+        if (!c) {
+            const mods = edLegendas.map(m => '<option value="' + m.id + '"' + (m.id === (leg.modelo || 'lara') ? ' selected' : '') + '>' + edEsc(m.nome) + '</option>').join('');
+            sel = '<div class="ia-cenas-dica" style="margin:0 0 10px;">Clique num item da linha do tempo ou arraste a legenda e os títulos no vídeo. Pare o vídeo onde quer mexer.</div>' +
+                '<div class="ed-ed-l">' + btn('+ Título aqui', 'edEdNovoTitulo()') + btn('+ Zoom aqui', 'edEdNovoZoom()', 'ghost') + btn('Dividir trecho aqui', 'edEdDividir()', 'ghost') + '</div>' +
+                '<div class="ed-ed-l"><span>Legenda</span><select class="ed-input" data-ed="leg.modelo" style="width:auto;">' + mods + '</select>' +
+                '<label class="ed-ed-ck"><input type="checkbox" data-ed="leg.ativa"' + (leg.ativa === false ? '' : ' checked') + '> no vídeo</label></div>';
+        } else if (c.tipo === 'corte') {
+            sel = '<div class="ed-ed-tit">Trecho do vídeo · ' + edMMSS(c.inicio_s) + ' a ' + edMMSS(c.fim_s) + ' · ' + edS(c.fim_s - c.inicio_s) + '</div>' +
+                '<div class="ed-ed-l"><span>Começo</span>' + btn('0,1 s antes', "edEdCorte('antes')", 'ghost') + btn('0,1 s depois', "edEdCorte('depois')", 'ghost') + '</div>' +
+                '<div class="ed-ed-l"><span>Fim</span>' + btn('0,1 s antes', "edEdCorte('fimAntes')", 'ghost') + btn('0,1 s depois', "edEdCorte('fimDepois')", 'ghost') + '</div>' +
+                '<div class="ed-ed-l">' + btn('Dividir aqui', 'edEdDividir()', 'ghost') + btn('Tirar este trecho', "edEdCorte('tirar')") + '</div>' +
+                '<div class="ia-cenas-dica" style="margin:6px 0 0;">Para tirar só um pedaço (um “é…”, uma tomada errada): pare no começo, Dividir, pare no fim, Dividir e tire o pedaço do meio.</div>';
+        } else if (c.tipo === 'legenda') {
+            sel = '<div class="ed-ed-tit">Legenda</div><textarea class="ed-input" id="edEdTx" rows="2">' + edEsc(c.texto || '') + '</textarea>' +
+                '<div class="ed-ed-l">' + btn('Trocar texto', 'edEdTexto()') + '<label class="ed-ed-ck"><input type="checkbox" id="edEdDic" checked> palavra corrigida vai para o dicionário</label></div>' + tempos +
+                '<div class="ed-ed-l">' + btn('Tirar esta legenda', 'edEdTirarCamada()', 'ghost') + '</div>';
+        } else if (c.tipo === 'animacao' && c.modelo) {
+            const mods = ED_TITULOS.map(([id, n]) => '<option value="' + id + '"' + (id === c.modelo ? ' selected' : '') + '>' + edEsc(n) + '</option>').join('');
+            sel = '<div class="ed-ed-tit">Título</div><textarea class="ed-input" id="edEdTx" rows="2" placeholder="| quebra a linha">' + edEsc(c.texto || '') + '</textarea>' +
+                '<div class="ed-ed-l">' + btn('Trocar texto', 'edEdTexto()') + '<span>Modelo</span><select class="ed-input" data-ed="modelo" style="width:auto;">' + mods + '</select></div>' +
+                '<div class="ed-ed-l"><span>Destaque</span><input class="ed-input" data-ed="destaque" style="width:130px;" value="' + edEsc(c.destaque || '') + '" placeholder="palavra">' +
+                  '<input type="color" data-ed="corDestaque" value="' + edEsc(c.corDestaque || '#C8441A') + '" title="Cor de destaque">' +
+                  '<input type="color" data-ed="cor" value="' + edEsc(c.cor || '#FFFFFF') + '" title="Cor do texto"></div>' +
+                (c.modelo === 'contador' ? '<div class="ed-ed-l"><span>Número</span><input class="ed-input" data-ed="numero" style="width:90px;" value="' + edEsc(c.numero || '') + '"><span>antes</span><input class="ed-input" data-ed="prefixo" style="width:70px;" value="' + edEsc(c.prefixo || '') + '"></div>' : '') +
+                '<div class="ed-ed-l"><span>Fonte</span><select class="ed-input" data-ed="arquivoFonte" style="width:auto;max-width:220px;">' + edEdFonteOpcoes(c.arquivoFonte || 'Montserrat-ExtraBold.ttf') + '</select></div>' +
+                '<div class="ed-ed-l"><span>Tamanho</span><input type="range" min="0.5" max="1.6" step="0.05" data-ed="escala:n" value="' + (+c.escala || 1) + '"></div>' + tempos +
+                '<div class="ed-ed-l">' + btn('Tirar este título', 'edEdTirarCamada()', 'ghost') + '</div>';
+        } else if (c.tipo === 'zoom') {
+            sel = '<div class="ed-ed-tit">Zoom</div><div class="ed-ed-l"><span>Quanto</span><select class="ed-input" data-ed="escala:n" style="width:auto;">' +
+                [[1.06, 'leve (106%)'], [1.12, 'normal (112%)'], [1.2, 'forte (120%)'], [1.35, 'bem perto (135%)']].map(([v, n]) => '<option value="' + v + '"' + (Math.abs((+c.escala || 1.12) - v) < 0.005 ? ' selected' : '') + '>' + n + '</option>').join('') + '</select>' +
+                '<span>Entrada</span><select class="ed-input" data-ed="entrada_s:n" style="width:auto;"><option value="0.25">suave</option><option value="0"' + (+c.entrada_s === 0 && c.entrada_s != null ? ' selected' : '') + '>seca</option></select></div>' + tempos +
+                '<div class="ed-ed-l">' + btn('Tirar este zoom', 'edEdTirarCamada()', 'ghost') + '</div>';
+        } else if (c.tipo === 'musica' || c.tipo === 'sfx') {
+            const vol = c.volume_db != null ? +c.volume_db : (c.tipo === 'musica' ? -20 : -12);
+            sel = '<div class="ed-ed-tit">' + (c.tipo === 'musica' ? 'Música' : 'Efeito sonoro') + ' · ' + edEsc(c.arquivo || '') + '</div>' +
+                '<div class="ed-ed-l"><span>Volume</span><input type="range" min="-36" max="-4" step="1" data-ed="volume_db:n" value="' + vol + '"><span>' + vol + ' dB</span></div>' + tempos +
+                '<div class="ed-ed-l">' + btn('Tirar', 'edEdTirarCamada()', 'ghost') + '</div>';
+        } else {
+            sel = '<div class="ed-ed-tit">' + edEsc(ED_IA_NOMES[c.tipo] || c.tipo) + (c.arquivo ? ' · ' + edEsc(String(c.arquivo).split('/').pop()) : '') + '</div>' + tempos +
+                '<div class="ed-ed-l">' + btn('Tirar', 'edEdTirarCamada()', 'ghost') + '</div>';
+        }
+        if (c) sel += '<div class="ed-ed-l" style="margin-top:4px;">' + btn('← voltar', 'edIaSel=null;edIaRedesenhar()', 'ghost') + '</div>';
+        const mud = pj.mudancas || [], aj = edIaAjustes(ped);
+        const tipos = ED_TIPOS.map(t => '<option value="' + t[0] + '"' + (t[0] === 'outro' ? ' selected' : '') + '>' + t[1] + '</option>').join('');
+        return '<div class="ia-editar"><div class="ed-ed-topo"><div class="ia-cenas-tit" style="margin:0;">Reeditar</div>' +
+              '<span class="ia-tempo" id="iaTempo">00:00</span>' + (edEdHist.length ? btn('↶ Desfazer', 'edEdDesfazer()', 'ghost') : '') + '</div>' + sel +
+            (mud.length ? '<div class="ed-ed-mud"><b>' + mud.length + ' mudança' + (mud.length > 1 ? 's' : '') + '</b>' + mud.slice(-4).reverse().map(x => '<div>' + edEsc(x) + '</div>').join('') + '</div>' +
+              '<div class="ed-row" style="margin-top:10px;justify-content:space-between;"><span class="ia-cenas-dica" style="margin:0;">O robô remonta em poucos minutos, sem refazer a edição, e aprende com o que você mudou.</span>' +
+              btn('Renderizar nova versão', 'edEdRenderizar()') + '</div>' : '') +
+            '<details class="ed-ed-pedir"' + (aj.length ? ' open' : '') + '><summary>Pedir ao robô o que não dá para fazer aqui</summary>' +
+              '<div class="ed-row" style="margin-top:8px;"><select class="ed-input" id="iaComCat" style="width:auto;">' + tipos + '</select>' +
+              '<input class="ed-input" id="iaComTx" style="flex:1;min-width:180px;" placeholder="Neste ponto: ex. troca a música, põe b-roll do app aqui" onkeydown="if(event.key===\'Enter\')edIaComentar()">' +
+              btn('Comentar', 'edIaComentar()') + '</div>' +
+              (aj.length ? '<div class="ia-ajs">' + aj.map((a, k) => '<div class="ia-aj"><span>' + edMMSS(a.tempo_s) + ' · ' + edEsc(a.texto || a.para || '') + '</span><button class="ed-x" type="button" onclick="edIaApagar(' + k + ')">✕</button></div>').join('') + '</div>' +
+                '<div class="ed-row" style="margin-top:8px;justify-content:flex-end;">' + btn('Mandar para o robô (V2 com o Claude)', 'edIaPedirV2()', 'ghost') + '</div>' : '') +
+            '</details></div>';
     }
     /* Locução + cenas: imagem-chave e um prompt por cena, com botão de copiar */
     function edCopiar(id) {
@@ -18322,7 +18752,16 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             : '<div class="ia-prev-vazio"><b>' + edEsc(ped.pasta_nome || ped.marca || '') + '</b><span>' + (andando ? 'editando…' : '') + '</span></div>';
         const etapas = edEtapasDoPedido(ped).map(e => '<div class="ia-etapa ' + e.st + '"><span class="ia-ck">' + (e.st === 'feito' ? '✓' : '') + '</span>' + edEsc(e.n) + '</div>').join('');
         const podeAjustar = pronto && cam.length > 0;
-        const linha = '<div id="iaLinha">' + edIaLinhaHtml(ped) + '</div>' + (podeAjustar ? '<div id="iaEditar">' + edIaEditorHtml(ped) + '</div>' : '');
+        const montavel = edEdMontavel(ped);
+        const linha = '<div id="iaLinha">' + edIaLinhaHtml(ped) + '</div>' + (podeAjustar && !montavel ? '<div id="iaEditar">' + edIaEditorHtml(ped) + '</div>' : '');
+        const [TW, TH] = ED_TAM[pj.formato] || ED_TAM['9:16'];
+        const modo = (m, n) => '<button class="ed-btn mini' + (edEdModo === m ? '' : ' ghost') + '" type="button" onclick="edEdModoTrocar(\'' + m + '\')">' + n + '</button>';
+        const meio = montavel
+            ? '<div class="ed-mont"><div><div class="ed-ed-modos">' + modo('editar', 'Editar') + modo('previa', 'Prévia renderizada') + '</div>' +
+                '<div class="ed-palco-box" style="aspect-ratio:' + TW + '/' + TH + ';"><video id="iaVideo" playsinline controls preload="metadata"></video>' +
+                '<div id="edPalco" class="ed-palco' + (edEdModo === 'editar' ? '' : ' off') + '"></div></div></div>' +
+                '<div id="iaEditar"></div></div>'
+            : '<div class="ia-meio"><div class="ia-prev">' + previa + '</div><div class="ia-etapas">' + etapas + '</div></div>';
         const links = (ped.previa_link ? '<a href="' + edEsc(ped.previa_link) + '" target="_blank" rel="noopener">Abrir prévia no Drive</a>' : '') +
             (ped.final_link ? ' · <a href="' + edEsc(ped.final_link) + '" target="_blank" rel="noopener">Final no Drive</a>' : '') +
             (ped.drive_pasta_link ? (ped.previa_link || ped.final_link ? ' · ' : '') + '<a href="' + edEsc(ped.drive_pasta_link) + '" target="_blank" rel="noopener">Pasta</a>' : '');
@@ -18330,8 +18769,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             '<div class="ia-top"><div class="ia-logo"><svg viewBox="0 0 32 32" width="34" height="34" aria-hidden="true"><g stroke="#D97757" stroke-width="3.2" stroke-linecap="round"><line x1="16" y1="16" x2="16.0" y2="5.0"/><line x1="16" y1="16" x2="20.5" y2="8.2"/><line x1="16" y1="16" x2="26.4" y2="10.0"/><line x1="16" y1="16" x2="24.5" y2="16.0"/><line x1="16" y1="16" x2="26.0" y2="21.8"/><line x1="16" y1="16" x2="20.8" y2="24.2"/><line x1="16" y1="16" x2="16.0" y2="28.0"/><line x1="16" y1="16" x2="12.0" y2="22.9"/><line x1="16" y1="16" x2="6.5" y2="21.5"/><line x1="16" y1="16" x2="6.0" y2="16.0"/><line x1="16" y1="16" x2="5.6" y2="10.0"/><line x1="16" y1="16" x2="11.5" y2="8.2"/></g></svg></div><div class="ia-tit">Editor</div></div>' +
             '<div class="ia-status ' + (pronto ? 'ok' : ped.status === 'erro' ? 'erro' : 'vivo') + '"><span class="ia-dot"></span>' + edEsc(status) + '</div>' +
             '<div class="ia-voce"><span>VOCÊ</span>“' + edEsc(pedido) + '”</div>' +
-            '<div class="ia-meio"><div class="ia-prev">' + previa + '</div><div class="ia-etapas">' + etapas + '</div></div>' +
-            linha + edPainelCenas(ped) +
+            meio + linha + edPainelCenas(ped) +
             '<div class="ia-rodape">' + links + (andando ? '<span>Atualiza sozinho a cada 15 s</span>' : '') + '</div>' +
           '</div>';
     }
