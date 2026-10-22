@@ -157,3 +157,13 @@ alter table public.edicao_pedidos add column if not exists marca_site text;
 alter table public.edicao_pedidos add column if not exists marca_redes text;
 alter table public.edicao_pedidos add column if not exists rec_gravar boolean not null default false;
 alter table public.edicao_pedidos add column if not exists rec_passos text;
+
+-- Tipo "Locução + cenas animadas": voz, visual, prompts das cenas e o status "esperando as cenas"
+alter table public.edicao_pedidos add column if not exists tipo text not null default 'edicao';
+alter table public.edicao_pedidos add column if not exists voz text;
+alter table public.edicao_pedidos add column if not exists estilo_visual text;
+alter table public.edicao_pedidos add column if not exists cenas jsonb;
+alter table public.edicao_pedidos drop constraint if exists edicao_pedidos_tipo_check;
+alter table public.edicao_pedidos add constraint edicao_pedidos_tipo_check check (tipo in ('edicao','cenas'));
+alter table public.edicao_pedidos drop constraint if exists edicao_pedidos_status_check;
+alter table public.edicao_pedidos add constraint edicao_pedidos_status_check check (status in ('na_fila','aguardando_bruto','aguardando_cenas','baixando','analisando','editando','previa_pronta','em_revisao','renderizando','final_pronto','erro','cancelado'));

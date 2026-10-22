@@ -42,7 +42,13 @@ async function acesso() {
     await entrar({ refresh_token: JSON.parse(fs.readFileSync(SESSAO, 'utf8')).refresh_token }, 'refresh_token');
     return token;
 }
-async function db(caminho, { metodo = 'GET', corpo } = {}) {
+async function db(caminho, opcoes = {}, tentativa = 1) {
+    // depois de uma etapa longa (render, Claude) a conexão guardada pode ter caído: tenta de novo
+    try { return await db1(caminho, opcoes); }
+    catch (e) { if (tentativa >= 3 || !/fetch failed|ECONNRESET|socket|other side closed/i.test(e.message + ' ' + (e.cause && e.cause.message))) throw e;
+        await new Promise(r => setTimeout(r, 1000 * tentativa)); return db(caminho, opcoes, tentativa + 1); }
+}
+async function db1(caminho, { metodo = 'GET', corpo } = {}) {
     const r = await fetch(SUPA + '/rest/v1/' + caminho, {
         method: metodo,
         headers: { apikey: ANON, Authorization: 'Bearer ' + await acesso(), 'Content-Type': 'application/json', Prefer: 'return=representation' },
@@ -89,6 +95,10 @@ const tamanhos = new Map();   // pedido -> "arquivo:tamanho" da última olhada (
 async function prepararPasta(p) {
     let id = p.drive_pasta_id || idDaPasta(p.drive_pasta_link);
     if (!id) id = criarPasta(p.pasta_nome);
+    if (p.tipo === 'cenas') {
+        await mudar(p, { drive_pasta_id: id, drive_pasta_link: p.drive_pasta_link || linkPasta(id) });
+        return criarCenas(p);
+    }
     await mudar(p, { drive_pasta_id: id, drive_pasta_link: p.drive_pasta_link || linkPasta(id), status: 'aguardando_bruto',
         status_msg: 'Pasta pronta no Drive. Jogue o bruto lá dentro.' });
 }
@@ -127,6 +137,11 @@ async function editar(p, arquivos) {
     const previa = path.join(saida, 'previa.mp4');
     if (!fs.existsSync(previa)) throw new Error(ok ? 'O Claude terminou sem gerar a prévia. Veja ' + path.join(job, 'claude.log') : 'A edição passou de ' + LIMITE_EDICAO_MIN + ' min ou deu erro. Veja ' + path.join(job, 'claude.log'));
 
+    await entregar(p, job, ['transcricao', 'tomadas', 'cortes', 'legendas', 'zoom', 'som', 'render']);
+}
+
+async function entregar(p, job, etapas) {
+    const saida = path.join(job, 'saida'), previa = path.join(saida, 'previa.mp4');
     await mudar(p, { status: 'renderizando', status_msg: 'Subindo a prévia para o Drive' });
     const versao = 1 + fs.readdirSync(job).filter(n => /^previa_v\d+\.mp4$/.test(n)).length;
     fs.copyFileSync(previa, path.join(job, 'previa_v' + versao + '.mp4'));
@@ -137,9 +152,172 @@ async function editar(p, arquivos) {
     let projeto = null, resumo = '';
     try { projeto = JSON.parse(fs.readFileSync(path.join(saida, 'projeto.json'), 'utf8')); } catch (_) {}
     try { resumo = fs.readFileSync(path.join(saida, 'resumo.md'), 'utf8').trim(); } catch (_) {}
-    if (projeto) projeto.etapas = { feitas: ['transcricao', 'tomadas', 'cortes', 'legendas', 'zoom', 'som', 'render'] };
+    if (projeto) projeto.etapas = { feitas: etapas };
     await mudar(p, { status: 'previa_pronta', previa_link: link, projeto,
         status_msg: (resumo.split('\n').find(l => l.trim()) || 'Prévia v' + versao + ' no Drive').replace(/^#+\s*/, '').slice(0, 280) });
+}
+
+/* ── Locução + cenas: Claude escreve locução e prompts, o robô grava a voz, a Lara gera as cenas, o robô monta ── */
+const VENV_BIN = path.join(DIR, 'venv', 'bin');
+const AUDIO = /\.(m4a|mp3|wav|ogg|opus|aac|caf|amr|flac)$/i;
+const ARQ_CENA = /^(?:cena|block|scene)[\s_-]*0*(\d+)\.(mp4|mov|m4v|webm)$/i;
+const TAMANHO = { '9:16': [1080, 1920], '4:5': [1080, 1350], '1:1': [1080, 1080], '16:9': [1920, 1080] };
+const pasta2 = n => String(n).padStart(2, '0');
+const jobDe = p => path.join(TRABALHOS, p.numero + '-' + slug(p.pasta_nome));
+function duracao(arq) {
+    const r = spawnSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', arq], { encoding: 'utf8' });
+    return parseFloat(r.stdout) || 0;
+}
+function ffmpeg(args) {
+    const r = spawnSync('ffmpeg', ['-v', 'error', '-y', ...args], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+    if (r.status !== 0) throw new Error('ffmpeg: ' + (r.stderr || '').trim().split('\n').pop());
+}
+
+async function criarCenas(p) {
+    const job = jobDe(p), saida = path.join(job, 'saida'), voz = path.join(job, 'voz');
+    fs.rmSync(saida, { recursive: true, force: true }); fs.mkdirSync(saida, { recursive: true }); fs.mkdirSync(voz, { recursive: true });
+    const [refs, regras] = await Promise.all([
+        db('edicao_referencias?pedido_id=eq.' + p.id + '&select=tipo,link,nota&order=created_at'),
+        db('edicao_regras?status=eq.aprovada&select=texto,motivo,categoria,cliente&order=categoria'),
+    ]);
+    const daMarca = c => !c || String(c).trim().toLowerCase() === String(p.marca || '').trim().toLowerCase();
+    fs.writeFileSync(path.join(job, 'PEDIDO.md'), pedidoMd(p, refs, regras.filter(r => daMarca(r.cliente)), [], []));
+    fs.copyFileSync(path.join(DIR, 'INSTRUCOES_CENAS.md'), path.join(job, 'CLAUDE.md'));
+
+    await mudar(p, { status: 'editando', status_msg: 'Escrevendo a locução e os prompts das cenas' });
+    const ok = await rodarClaude(job, p, 'Leia CLAUDE.md e PEDIDO.md e prepare este pedido de locução + cenas sozinho, sem perguntar nada. ' +
+        'No fim precisa existir saida/cenas.json no formato do CLAUDE.md.');
+    let c; try { c = JSON.parse(fs.readFileSync(path.join(saida, 'cenas.json'), 'utf8')); } catch (_) {}
+    if (!c || !Array.isArray(c.cenas) || !c.cenas.length) throw new Error(ok ? 'O Claude terminou sem gerar saida/cenas.json' : 'O Claude parou ou passou do tempo. Veja ' + path.join(job, 'claude.log'));
+
+    const propria = !p.voz || p.voz === 'minha';
+    c.voz_propria = propria;
+    if (!propria) await mudar(p, { status_msg: 'Gravando a narração (' + c.cenas.length + ' cenas)' });
+    const edgeTts = fs.existsSync(path.join(VENV_BIN, 'edge-tts')) ? path.join(VENV_BIN, 'edge-tts') : 'edge-tts';
+    for (const x of c.cenas) {
+        x.arquivo = 'cena' + pasta2(x.n) + '.mp4';
+        if (propria) continue;
+        const mp3 = path.join(voz, 'cena' + pasta2(x.n) + '.mp3');
+        const r = spawnSync(edgeTts, ['--voice', p.voz || 'pt-BR-FranciscaNeural', '--text', x.texto, '--write-media', mp3], { encoding: 'utf8' });
+        if (r.status !== 0 || !fs.existsSync(mp3)) throw new Error('Não consegui gerar a voz da cena ' + x.n + ': ' + ((r.stderr || r.error && r.error.message || '').trim().split('\n').pop()));
+        x.voz_s = Math.round(duracao(mp3) * 100) / 100;
+        subir(p.drive_pasta_id, mp3, 'LOCUCAO - cena' + pasta2(x.n) + '.mp3');
+    }
+    const longas = c.cenas.filter(x => x.voz_s > 12).map(x => x.n);
+    c.recebidas = [];
+    c.instrucoes = c.instrucoes || 'Gere a imagem-chave uma vez. Depois gere cada cena de 10 s no Dreamina (Seedance) anexando a imagem-chave e salve na pasta do pedido como cena01.mp4, cena02.mp4…';
+    await db('edicao_pedidos?id=eq.' + p.id, { metodo: 'PATCH', corpo: { cenas: c, updated_at: new Date().toISOString() } });
+    p.cenas = c;
+    await mudar(p, { status: 'aguardando_cenas', status_msg: (propria ? 'Texto e prompts prontos. Grave o texto, gere as ' + c.cenas.length + ' cenas e jogue o áudio e as cenas na pasta' : 'Prompts prontos. Gere as ' + c.cenas.length + ' cenas e jogue na pasta como cena01.mp4…') +
+        (longas.length ? ' (atenção: a fala da cena ' + longas.join(', ') + ' passou de 12 s)' : '') });
+}
+
+async function olharCenas(p) {
+    const c = p.cenas || {}; const total = (c.cenas || []).length; if (!total || !p.drive_pasta_id) return;
+    const todos = listar(p.drive_pasta_id);
+    const arqs = todos.filter(f => ARQ_CENA.test(path.basename(f.Path)));
+    // a locução da Lara pode vir como áudio (gravador, WhatsApp) ou como vídeo gravado (um bruto qualquer que não seja cenaNN)
+    const recente = l => l.sort((a, b) => String(b.ModTime).localeCompare(String(a.ModTime)))[0];
+    const livre = f => !/^LOCUCAO/i.test(path.basename(f.Path)) && !DO_ROBO.test(path.basename(f.Path)) && !ARQ_CENA.test(path.basename(f.Path));
+    const audio = c.voz_propria ? (recente(todos.filter(f => AUDIO.test(f.Path) && livre(f))) || recente(todos.filter(f => VIDEO.test(f.Path) && livre(f)))) : null;
+    const porN = new Map(); arqs.forEach(f => porN.set(Number(path.basename(f.Path).match(ARQ_CENA)[1]), f));
+    const recebidas = [...porN.keys()].filter(n => n >= 1 && n <= total).sort((a, b) => a - b);
+    const audioNome = audio ? path.basename(audio.Path) : null;
+    if (JSON.stringify(recebidas) !== JSON.stringify(c.recebidas || []) || audioNome !== (c.audio || null)) {
+        c.recebidas = recebidas; c.audio = audioNome;
+        await db('edicao_pedidos?id=eq.' + p.id, { metodo: 'PATCH', corpo: { cenas: c, updated_at: new Date().toISOString(),
+            status_msg: recebidas.length + ' de ' + total + ' cenas na pasta' + (c.voz_propria ? (audioNome ? ' · áudio recebido' : ' · falta o seu áudio') : '') } });
+    }
+    if (recebidas.length < total || (c.voz_propria && !audio)) { tamanhos.delete(p.id); return; }
+    const assinatura = recebidas.map(n => porN.get(n).Path + ':' + porN.get(n).Size).join('|') + (audio ? '|' + audio.Path + ':' + audio.Size : '');
+    if (tamanhos.get(p.id) !== assinatura) { tamanhos.set(p.id, assinatura); log('#' + p.numero, 'todas as cenas chegaram, conferindo se terminaram de subir…'); return; }
+    tamanhos.delete(p.id);
+    await montarCenas(p, recebidas.map(n => porN.get(n)), audio);
+}
+
+/* Acha na fala da Lara onde começa cada cena: transcreve com tempo por palavra e casa com o texto de cada cena */
+const norm = w => String(w).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+function fatiarFala(palavras, cenas) {
+    const M = palavras.length; if (!M) throw new Error('Não ouvi fala nenhuma no seu áudio');
+    const qtd = cenas.map(x => String(x.texto || '').split(/\s+/).filter(Boolean).length || 1);
+    const N = qtd.reduce((a, b) => a + b, 0);
+    const cortes = [];   // índice da primeira palavra de cada cena (a partir da 2ª)
+    let acum = 0;
+    for (let k = 0; k < cenas.length - 1; k++) {
+        acum += qtd[k];
+        let i = Math.min(M - 1, Math.max(1, Math.round(acum / N * M)));
+        const primeira = norm(String(cenas[k + 1].texto || '').split(/\s+/)[0] || '');
+        let melhor = -1;
+        for (let d = 0; d <= 8 && melhor < 0; d++)
+            for (const j of [i - d, i + d]) if (j > (cortes[k - 1] || 0) && j < M && norm(palavras[j].w) === primeira) { melhor = j; break; }
+        cortes.push(melhor >= 0 ? melhor : Math.max(i, (cortes[k - 1] || 0) + 1));
+    }
+    const ini = [0, ...cortes], fim = [...cortes.map(c => c - 1), M - 1];
+    return cenas.map((_, k) => {
+        const a = palavras[ini[k]], b = palavras[Math.max(ini[k], fim[k])];
+        const antes = ini[k] > 0 ? palavras[ini[k] - 1].e : Math.max(0, a.s - 0.15);
+        const depois = fim[k] < M - 1 ? palavras[fim[k] + 1].s : b.e + 0.3;
+        return { s: Math.max(antes, a.s - 0.12), e: Math.min(depois, b.e + 0.15), texto: palavras.slice(ini[k], fim[k] + 1).map(x => x.w).join(' ') };
+    });
+}
+
+async function montarCenas(p, arqs, audio) {
+    const job = jobDe(p), cenasDir = path.join(job, 'cenas'), work = path.join(job, 'work'), saida = path.join(job, 'saida');
+    for (const d of [cenasDir, work, saida]) fs.mkdirSync(d, { recursive: true });
+    await mudar(p, { status: 'baixando', status_msg: 'Baixando as ' + arqs.length + ' cenas do Drive' });
+    for (const f of arqs) rclone(['copyto', 'drive:' + f.Path, path.join(cenasDir, path.basename(f.Path)), ...naPasta(p.drive_pasta_id)]);
+
+    const cenas = (p.cenas && p.cenas.cenas) || [];
+    const vozDir = path.join(job, 'voz'); fs.mkdirSync(vozDir, { recursive: true });
+    let fatias = null;
+    if (audio) {
+        await mudar(p, { status: 'editando', status_msg: 'Ouvindo o seu áudio para achar o começo de cada cena' });
+        const orig = path.join(vozDir, 'minha' + path.extname(audio.Path).toLowerCase());
+        rclone(['copyto', 'drive:' + audio.Path, orig, ...naPasta(p.drive_pasta_id)]);
+        const wav = path.join(vozDir, 'minha.wav');
+        ffmpeg(['-i', orig, '-vn', '-ac', '1', '-ar', '48000', '-af', 'highpass=f=80', wav]);
+        const py = fs.existsSync(path.join(VENV_BIN, 'python')) ? path.join(VENV_BIN, 'python') : 'python3';
+        const pj = path.join(vozDir, 'palavras.json');
+        const r = spawnSync(process.env.ROBO_TRANSCREVER || py, [path.join(DIR, 'transcrever.py'), wav, pj], { encoding: 'utf8' });
+        if (r.status !== 0 || !fs.existsSync(pj)) throw new Error('Não consegui transcrever o seu áudio: ' + ((r.stderr || '').trim().split('\n').pop() || 'erro'));
+        fatias = fatiarFala(JSON.parse(fs.readFileSync(pj, 'utf8')), cenas.slice(0, arqs.length));
+        fatias.forEach((f, i) => ffmpeg(['-i', wav, '-ss', f.s.toFixed(3), '-to', f.e.toFixed(3), '-af', 'afade=t=in:d=0.03,areverse,afade=t=in:d=0.03,areverse',
+            path.join(vozDir, 'cena' + pasta2(i + 1) + '.wav')]));
+    }
+    await mudar(p, { status: 'editando', status_msg: 'Montando cenas + locução' });
+    const [W, H] = TAMANHO[p.formato] || TAMANHO['9:16'];
+    const lista = [], camadas = [];
+    let t0 = 0;
+    arqs.forEach((f, i) => {
+        const n = i + 1, clip = path.join(cenasDir, path.basename(f.Path));
+        const mp3 = path.join(vozDir, 'cena' + pasta2(n) + (fatias ? '.wav' : '.mp3'));
+        if (!fs.existsSync(mp3)) throw new Error('Falta a locução da cena ' + n + ' (' + mp3 + ')');
+        const vd = duracao(mp3);
+        // voz gerada: blocos de 10 s; voz da Lara: a cena dura o tempo da fala dela
+        const dur = fatias ? Math.max(1.5, vd + 0.35) : 10;
+        const tempo = !fatias && vd > 9.7 ? Math.min(vd / 9.7, 1.25) : 1;
+        const atraso = fatias ? 150 : 250;
+        const af = (tempo > 1 ? 'atempo=' + tempo.toFixed(3) + ',' : '') + 'adelay=' + atraso + '|' + atraso + ',apad';
+        const temAudio = spawnSync('ffprobe', ['-v', 'error', '-select_streams', 'a', '-show_entries', 'stream=index', '-of', 'csv=p=0', clip], { encoding: 'utf8' }).stdout.trim();
+        const v = '[0:v]scale=' + W + ':' + H + ':force_original_aspect_ratio=increase,crop=' + W + ':' + H + ',fps=30,setsar=1,tpad=stop_mode=clone:stop_duration=' + Math.ceil(dur) + '[v]';
+        const a = temAudio ? '[0:a]volume=0.22[amb];[1:a]' + af + '[vo];[amb][vo]amix=inputs=2:duration=longest:normalize=0[a]' : '[1:a]' + af + '[a]';
+        const seg = path.join(work, 'seg' + pasta2(n) + '.mp4');
+        ffmpeg(['-i', clip, '-i', mp3, '-filter_complex', v + ';' + a, '-map', '[v]', '-map', '[a]', '-t', dur.toFixed(3),
+            '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-ar', '48000', '-ac', '2', seg]);
+        lista.push("file '" + seg.replace(/'/g, "'\\''") + "'");
+        camadas.push({ tipo: 'corte', inicio_s: t0, fim_s: t0 + dur, origem: path.basename(f.Path) });
+        camadas.push({ tipo: 'voz', inicio_s: t0 + atraso / 1000, fim_s: t0 + Math.min(atraso / 1000 + vd / tempo, dur) });
+        const txt = fatias ? fatias[i].texto : cenas[i] && cenas[i].texto;
+        if (txt) camadas.push({ tipo: 'legenda', inicio_s: t0 + atraso / 1000, fim_s: t0 + dur - 0.1, texto: txt });
+        t0 += dur;
+    });
+    fs.writeFileSync(path.join(work, 'lista.txt'), lista.join('\n') + '\n');
+    const junto = path.join(work, 'junto.mp4');
+    ffmpeg(['-f', 'concat', '-safe', '0', '-i', path.join(work, 'lista.txt'), '-c', 'copy', junto]);
+    ffmpeg(['-i', junto, '-c:v', 'copy', '-af', 'loudnorm=I=-14:TP=-1:LRA=11', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-movflags', '+faststart', path.join(saida, 'previa.mp4')]);
+    fs.writeFileSync(path.join(saida, 'projeto.json'), JSON.stringify({ duracao_s: Math.round(t0 * 100) / 100, formato: p.formato, camadas }));
+    fs.writeFileSync(path.join(saida, 'resumo.md'), 'Vídeo montado: ' + arqs.length + ' cenas + ' + (fatias ? 'a sua locução' : 'locução gerada (' + p.voz + ')') + ', ' + Math.round(t0) + ' s.\n');
+    await entregar(p, job, ['roteiro', 'estilo', 'prompts', 'locucao', 'cenas', 'montagem']);
 }
 
 function pedidoMd(p, refs, regras, dic, arquivos) {
@@ -147,10 +325,11 @@ function pedidoMd(p, refs, regras, dic, arquivos) {
     L.push('# Pedido #' + p.numero + ': ' + p.pasta_nome, '');
     L.push('- Marca: ' + (p.marca || p.pasta_nome));
     L.push('- Formato: ' + p.formato + (p.duracao_alvo_s ? ' · duração desejada: ' + p.duracao_alvo_s + ' s' : ''));
+    if (p.tipo === 'cenas') L.push('- Tipo: locução + cenas animadas · ' + Math.max(1, Math.round((p.duracao_alvo_s || 60) / 10)) + ' cenas de 10 s · visual: ' + (p.estilo_visual || 'marca') + ' · voz: ' + (p.voz || 'pt-BR-FranciscaNeural'));
     if (p.marca_site) L.push('- Site da marca: ' + p.marca_site);
     if (p.marca_redes) L.push('- Redes da marca: ' + p.marca_redes.split('\n').map(s => s.trim()).filter(Boolean).join(' · '));
-    L.push('', '## Arquivos (pasta entrada/)', ...arquivos.map(f => '- ' + f.Path + ' (' + (f.Size / 1048576).toFixed(1) + ' MB)'));
-    L.push('', '## Roteiro', p.roteiro || '(sem roteiro: siga a fala do bruto)');
+    if (arquivos.length) L.push('', '## Arquivos (pasta entrada/)', ...arquivos.map(f => '- ' + f.Path + ' (' + (f.Size / 1048576).toFixed(1) + ' MB)'));
+    L.push('', p.tipo === 'cenas' ? '## Texto da locução ou ideia' : '## Roteiro', p.roteiro || (p.tipo === 'cenas' ? '(sem texto: use as observações)' : '(sem roteiro: siga a fala do bruto)'));
     if (p.observacoes) L.push('', '## Observações da Lara', p.observacoes);
     if (p.rec_gravar) L.push('', '## Gravação de tela do site (pedida)', 'Site: ' + (p.marca_site || '(não informado)'), p.rec_passos || '(sem passo a passo: mostre a página principal e o que o roteiro cita)');
     L.push('', '## Referências');
@@ -180,11 +359,11 @@ function passoDoEvento(ev) {
 }
 
 const MCP_VAZIO = path.join(DIR, 'mcp-vazio.json');
-function rodarClaude(job, p) {
+function rodarClaude(job, p, pedidoTexto) {
     fs.writeFileSync(MCP_VAZIO, '{"mcpServers":{}}');
-    const prompt = 'Leia CLAUDE.md e PEDIDO.md e faça a edição completa deste pedido sozinho, sem perguntar nada. ' +
-        'Antes de cada etapa, escreva uma frase curta em português dizendo o que vai fazer (a Lara acompanha ao vivo). ' +
-        'No fim precisa existir saida/previa.mp4, saida/projeto.json e saida/resumo.md.';
+    const prompt = (pedidoTexto || 'Leia CLAUDE.md e PEDIDO.md e faça a edição completa deste pedido sozinho, sem perguntar nada. ' +
+        'No fim precisa existir saida/previa.mp4, saida/projeto.json e saida/resumo.md.') +
+        ' Antes de cada etapa, escreva uma frase curta em português dizendo o que vai fazer (a Lara acompanha ao vivo).';
     return new Promise(resolve => {
         const logArq = path.join(job, 'claude.log');
         // Só as ferramentas básicas: nenhum MCP/conector da Lara (Gmail, Metricool, Higgsfield...) roda sem ela ver
@@ -227,11 +406,12 @@ function rodarClaude(job, p) {
 
 /* ── Fila ── */
 async function rodada() {
-    const pedidos = await db('edicao_pedidos?status=in.(na_fila,aguardando_bruto)&select=*&order=created_at');
+    const pedidos = await db('edicao_pedidos?status=in.(na_fila,aguardando_bruto,aguardando_cenas)&select=*&order=created_at');
     for (const p of pedidos) {
         try {
             if (p.status === 'na_fila') await prepararPasta(p);
             if (p.status === 'aguardando_bruto') await olharBruto(p);
+            if (p.status === 'aguardando_cenas') await olharCenas(p);
         } catch (e) {
             log('#' + p.numero, 'ERRO', e.message);
             await mudar(p, { status: 'erro', status_msg: e.message.slice(0, 280) }).catch(() => {});
@@ -251,7 +431,8 @@ async function main() {
     // Se o robô foi fechado no meio de uma edição, o pedido ficou preso em "editando": volta para recomeçar
     try {
         for (const p of await db('edicao_pedidos?status=in.(baixando,analisando,editando,renderizando)&select=*'))
-            await mudar(p, { status: 'aguardando_bruto', status_msg: 'O robô foi reiniciado no meio da edição. Recomeçando.' });
+            await mudar(p, { status: p.tipo !== 'cenas' ? 'aguardando_bruto' : (p.cenas ? 'aguardando_cenas' : 'na_fila'),
+                status_msg: 'O robô foi reiniciado no meio da edição. Recomeçando.' });
     } catch (e) { log('Não consegui conferir pedidos interrompidos:', e.message); }
     do {
         try { await rodada(); } catch (e) { log('Não consegui olhar a fila:', e.message); }
