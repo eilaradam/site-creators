@@ -1,0 +1,1304 @@
+[
+ {
+  "familia": "Anton",
+  "categoria": "impacto",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/anton",
+  "arquivos": [
+   "Anton-Regular.ttf"
+  ],
+  "pesos": [
+   400
+  ],
+  "pesos_fixos": [],
+  "italico": false,
+  "nomes": [
+   "Anton"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "Bebas Neue",
+  "categoria": "impacto",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/bebasneue",
+  "arquivos": [
+   "BebasNeue-Regular.ttf"
+  ],
+  "pesos": [
+   400
+  ],
+  "pesos_fixos": [],
+  "italico": false,
+  "nomes": [
+   "Bebas Neue"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "Oswald",
+  "categoria": "impacto",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/oswald",
+  "arquivos": [
+   "Oswald[wght].ttf"
+  ],
+  "pesos": [
+   200,
+   300,
+   400,
+   500,
+   600,
+   700
+  ],
+  "pesos_fixos": [
+   600,
+   700
+  ],
+  "italico": false,
+  "nomes": [
+   "Oswald Bold",
+   "Oswald SemiBold"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "League Gothic",
+  "categoria": "impacto",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/leaguegothic",
+  "arquivos": [
+   "LeagueGothic[wdth].ttf"
+  ],
+  "pesos": [
+   400
+  ],
+  "pesos_fixos": [
+   400
+  ],
+  "italico": false,
+  "nomes": [
+   "League Gothic"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "Archivo Black",
+  "categoria": "impacto",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/archivoblack",
+  "arquivos": [
+   "ArchivoBlack-Regular.ttf"
+  ],
+  "pesos": [
+   400
+  ],
+  "pesos_fixos": [],
+  "italico": false,
+  "nomes": [
+   "Archivo Black"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "Big Shoulders Display",
+  "categoria": "impacto",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/bigshouldersdisplay",
+  "arquivos": [
+   "BigShouldersDisplay[wght].ttf"
+  ],
+  "pesos": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "pesos_fixos": [
+   600,
+   700,
+   800,
+   900
+  ],
+  "italico": false,
+  "nomes": [
+   "Big Shoulders Display Black",
+   "Big Shoulders Display Bold",
+   "Big Shoulders Display ExtraBold",
+   "Big Shoulders Display SemiBold"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "Barlow Condensed",
+  "categoria": "impacto",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/barlowcondensed",
+  "arquivos": [
+   "BarlowCondensed-Black.ttf",
+   "BarlowCondensed-BlackItalic.ttf",
+   "BarlowCondensed-Bold.ttf",
+   "BarlowCondensed-BoldItalic.ttf",
+   "BarlowCondensed-ExtraBold.ttf",
+   "BarlowCondensed-ExtraBoldItalic.ttf",
+   "BarlowCondensed-ExtraLight.ttf",
+   "BarlowCondensed-ExtraLightItalic.ttf",
+   "BarlowCondensed-Italic.ttf",
+   "BarlowCondensed-Light.ttf",
+   "BarlowCondensed-LightItalic.ttf",
+   "BarlowCondensed-Medium.ttf",
+   "BarlowCondensed-MediumItalic.ttf",
+   "BarlowCondensed-Regular.ttf",
+   "BarlowCondensed-SemiBold.ttf",
+   "BarlowCondensed-SemiBoldItalic.ttf",
+   "BarlowCondensed-Thin.ttf",
+   "BarlowCondensed-ThinItalic.ttf"
+  ],
+  "pesos": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "pesos_fixos": [],
+  "italico": true,
+  "nomes": [
+   "Barlow Condensed",
+   "Barlow Condensed Black",
+   "Barlow Condensed ExtraBold",
+   "Barlow Condensed ExtraLight",
+   "Barlow Condensed Light",
+   "Barlow Condensed Medium",
+   "Barlow Condensed SemiBold",
+   "Barlow Condensed Thin"
+  ],
+  "nomes_italico": [
+   "Barlow Condensed",
+   "Barlow Condensed Black",
+   "Barlow Condensed ExtraBold",
+   "Barlow Condensed ExtraLight",
+   "Barlow Condensed Light",
+   "Barlow Condensed Medium",
+   "Barlow Condensed SemiBold",
+   "Barlow Condensed Thin"
+  ]
+ },
+ {
+  "familia": "Antonio",
+  "categoria": "impacto",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/antonio",
+  "arquivos": [
+   "Antonio[wght].ttf"
+  ],
+  "pesos": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700
+  ],
+  "pesos_fixos": [
+   600,
+   700
+  ],
+  "italico": false,
+  "nomes": [
+   "Antonio Bold",
+   "Antonio SemiBold"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "Teko",
+  "categoria": "impacto",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/teko",
+  "arquivos": [
+   "Teko[wght].ttf"
+  ],
+  "pesos": [
+   300,
+   400,
+   500,
+   600,
+   700
+  ],
+  "pesos_fixos": [
+   600,
+   700
+  ],
+  "italico": false,
+  "nomes": [
+   "Teko Bold",
+   "Teko SemiBold"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "Montserrat",
+  "categoria": "moderna",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/montserrat",
+  "arquivos": [
+   "Montserrat-Italic[wght].ttf",
+   "Montserrat[wght].ttf"
+  ],
+  "pesos": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "pesos_fixos": [
+   400,
+   600,
+   700,
+   800,
+   900
+  ],
+  "italico": true,
+  "nomes": [
+   "Montserrat",
+   "Montserrat Black",
+   "Montserrat Bold",
+   "Montserrat ExtraBold",
+   "Montserrat SemiBold"
+  ],
+  "nomes_italico": [
+   "Montserrat",
+   "Montserrat Black",
+   "Montserrat Bold",
+   "Montserrat ExtraBold",
+   "Montserrat SemiBold"
+  ]
+ },
+ {
+  "familia": "Poppins",
+  "categoria": "moderna",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/poppins",
+  "arquivos": [
+   "Poppins-Black.ttf",
+   "Poppins-BlackItalic.ttf",
+   "Poppins-Bold.ttf",
+   "Poppins-BoldItalic.ttf",
+   "Poppins-ExtraBold.ttf",
+   "Poppins-ExtraBoldItalic.ttf",
+   "Poppins-ExtraLight.ttf",
+   "Poppins-ExtraLightItalic.ttf",
+   "Poppins-Italic.ttf",
+   "Poppins-Light.ttf",
+   "Poppins-LightItalic.ttf",
+   "Poppins-Medium.ttf",
+   "Poppins-MediumItalic.ttf",
+   "Poppins-Regular.ttf",
+   "Poppins-SemiBold.ttf",
+   "Poppins-SemiBoldItalic.ttf",
+   "Poppins-Thin.ttf",
+   "Poppins-ThinItalic.ttf"
+  ],
+  "pesos": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "pesos_fixos": [],
+  "italico": true,
+  "nomes": [
+   "Poppins",
+   "Poppins Black",
+   "Poppins ExtraBold",
+   "Poppins ExtraLight",
+   "Poppins Light",
+   "Poppins Medium",
+   "Poppins SemiBold",
+   "Poppins Thin"
+  ],
+  "nomes_italico": [
+   "Poppins",
+   "Poppins Black",
+   "Poppins ExtraBold",
+   "Poppins ExtraLight",
+   "Poppins Light",
+   "Poppins Medium",
+   "Poppins SemiBold",
+   "Poppins Thin"
+  ]
+ },
+ {
+  "familia": "Inter",
+  "categoria": "moderna",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/inter",
+  "arquivos": [
+   "Inter-Italic[opsz,wght].ttf",
+   "Inter[opsz,wght].ttf"
+  ],
+  "pesos": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "pesos_fixos": [
+   400,
+   600,
+   700,
+   800,
+   900
+  ],
+  "italico": true,
+  "nomes": [
+   "Inter",
+   "Inter Black",
+   "Inter Bold",
+   "Inter ExtraBold",
+   "Inter SemiBold"
+  ],
+  "nomes_italico": [
+   "Inter",
+   "Inter Black",
+   "Inter Bold",
+   "Inter ExtraBold",
+   "Inter SemiBold"
+  ]
+ },
+ {
+  "familia": "Plus Jakarta Sans",
+  "categoria": "moderna",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/plusjakartasans",
+  "arquivos": [
+   "PlusJakartaSans-Italic[wght].ttf",
+   "PlusJakartaSans[wght].ttf"
+  ],
+  "pesos": [
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800
+  ],
+  "pesos_fixos": [
+   400,
+   600,
+   700,
+   800
+  ],
+  "italico": true,
+  "nomes": [
+   "Plus Jakarta Sans",
+   "Plus Jakarta Sans Bold",
+   "Plus Jakarta Sans ExtraBold",
+   "Plus Jakarta Sans SemiBold"
+  ],
+  "nomes_italico": [
+   "Plus Jakarta Sans",
+   "Plus Jakarta Sans Bold",
+   "Plus Jakarta Sans ExtraBold",
+   "Plus Jakarta Sans SemiBold"
+  ]
+ },
+ {
+  "familia": "Outfit",
+  "categoria": "moderna",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/outfit",
+  "arquivos": [
+   "Outfit[wght].ttf"
+  ],
+  "pesos": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "pesos_fixos": [
+   400,
+   600,
+   700,
+   800,
+   900
+  ],
+  "italico": false,
+  "nomes": [
+   "Outfit",
+   "Outfit Black",
+   "Outfit Bold",
+   "Outfit ExtraBold",
+   "Outfit SemiBold"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "Sora",
+  "categoria": "moderna",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/sora",
+  "arquivos": [
+   "Sora[wght].ttf"
+  ],
+  "pesos": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800
+  ],
+  "pesos_fixos": [
+   400,
+   600,
+   700,
+   800
+  ],
+  "italico": false,
+  "nomes": [
+   "Sora",
+   "Sora Bold",
+   "Sora ExtraBold",
+   "Sora SemiBold"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "Manrope",
+  "categoria": "moderna",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/manrope",
+  "arquivos": [
+   "Manrope[wght].ttf"
+  ],
+  "pesos": [
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800
+  ],
+  "pesos_fixos": [
+   400,
+   600,
+   700,
+   800
+  ],
+  "italico": false,
+  "nomes": [
+   "Manrope",
+   "Manrope Bold",
+   "Manrope ExtraBold",
+   "Manrope SemiBold"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "DM Sans",
+  "categoria": "moderna",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/dmsans",
+  "arquivos": [
+   "DMSans-Italic[opsz,wght].ttf",
+   "DMSans[opsz,wght].ttf"
+  ],
+  "pesos": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "pesos_fixos": [
+   400,
+   600,
+   700,
+   800,
+   900
+  ],
+  "italico": true,
+  "nomes": [
+   "DM Sans",
+   "DM Sans Black",
+   "DM Sans Bold",
+   "DM Sans ExtraBold",
+   "DM Sans SemiBold"
+  ],
+  "nomes_italico": [
+   "DM Sans",
+   "DM Sans Black",
+   "DM Sans Bold",
+   "DM Sans ExtraBold",
+   "DM Sans SemiBold"
+  ]
+ },
+ {
+  "familia": "Space Grotesk",
+  "categoria": "moderna",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/spacegrotesk",
+  "arquivos": [
+   "SpaceGrotesk[wght].ttf"
+  ],
+  "pesos": [
+   300,
+   400,
+   500,
+   600,
+   700
+  ],
+  "pesos_fixos": [
+   400,
+   600,
+   700
+  ],
+  "italico": false,
+  "nomes": [
+   "Space Grotesk",
+   "Space Grotesk Bold",
+   "Space Grotesk SemiBold"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "Syne",
+  "categoria": "moderna",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/syne",
+  "arquivos": [
+   "Syne[wght].ttf"
+  ],
+  "pesos": [
+   400,
+   500,
+   600,
+   700,
+   800
+  ],
+  "pesos_fixos": [
+   400,
+   600,
+   700,
+   800
+  ],
+  "italico": false,
+  "nomes": [
+   "Syne",
+   "Syne Bold",
+   "Syne ExtraBold",
+   "Syne SemiBold"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "Unbounded",
+  "categoria": "moderna",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/unbounded",
+  "arquivos": [
+   "Unbounded[wght].ttf"
+  ],
+  "pesos": [
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "pesos_fixos": [
+   400,
+   600,
+   700,
+   800,
+   900
+  ],
+  "italico": false,
+  "nomes": [
+   "Unbounded",
+   "Unbounded Black",
+   "Unbounded Bold",
+   "Unbounded ExtraBold",
+   "Unbounded SemiBold"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "Lexend",
+  "categoria": "moderna",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/lexend",
+  "arquivos": [
+   "Lexend[wght].ttf"
+  ],
+  "pesos": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "pesos_fixos": [
+   400,
+   600,
+   700,
+   800,
+   900
+  ],
+  "italico": false,
+  "nomes": [
+   "Lexend",
+   "Lexend Black",
+   "Lexend Bold",
+   "Lexend ExtraBold",
+   "Lexend SemiBold"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "DM Serif Display",
+  "categoria": "serifa",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/dmserifdisplay",
+  "arquivos": [
+   "DMSerifDisplay-Italic.ttf",
+   "DMSerifDisplay-Regular.ttf"
+  ],
+  "pesos": [
+   400
+  ],
+  "pesos_fixos": [],
+  "italico": true,
+  "nomes": [
+   "DM Serif Display"
+  ],
+  "nomes_italico": [
+   "DM Serif Display"
+  ]
+ },
+ {
+  "familia": "Playfair Display",
+  "categoria": "serifa",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/playfairdisplay",
+  "arquivos": [
+   "PlayfairDisplay-Italic[wght].ttf",
+   "PlayfairDisplay[wght].ttf"
+  ],
+  "pesos": [
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "pesos_fixos": [
+   400,
+   600,
+   700,
+   800,
+   900
+  ],
+  "italico": true,
+  "nomes": [
+   "Playfair Display",
+   "Playfair Display Black",
+   "Playfair Display Bold",
+   "Playfair Display ExtraBold",
+   "Playfair Display SemiBold"
+  ],
+  "nomes_italico": [
+   "Playfair Display",
+   "Playfair Display Black",
+   "Playfair Display Bold",
+   "Playfair Display ExtraBold",
+   "Playfair Display SemiBold"
+  ]
+ },
+ {
+  "familia": "Fraunces",
+  "categoria": "serifa",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/fraunces",
+  "arquivos": [
+   "Fraunces-Italic[SOFT,WONK,opsz,wght].ttf",
+   "Fraunces[SOFT,WONK,opsz,wght].ttf"
+  ],
+  "pesos": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "pesos_fixos": [
+   400,
+   600,
+   700,
+   800,
+   900
+  ],
+  "italico": true,
+  "nomes": [
+   "Fraunces",
+   "Fraunces Black",
+   "Fraunces Bold",
+   "Fraunces ExtraBold",
+   "Fraunces SemiBold"
+  ],
+  "nomes_italico": [
+   "Fraunces",
+   "Fraunces Black",
+   "Fraunces Bold",
+   "Fraunces ExtraBold",
+   "Fraunces SemiBold"
+  ]
+ },
+ {
+  "familia": "Instrument Serif",
+  "categoria": "serifa",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/instrumentserif",
+  "arquivos": [
+   "InstrumentSerif-Italic.ttf",
+   "InstrumentSerif-Regular.ttf"
+  ],
+  "pesos": [
+   400
+  ],
+  "pesos_fixos": [],
+  "italico": true,
+  "nomes": [
+   "Instrument Serif"
+  ],
+  "nomes_italico": [
+   "Instrument Serif"
+  ]
+ },
+ {
+  "familia": "Bodoni Moda",
+  "categoria": "serifa",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/bodonimoda",
+  "arquivos": [
+   "BodoniModa-Italic[opsz,wght].ttf",
+   "BodoniModa[opsz,wght].ttf"
+  ],
+  "pesos": [
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "pesos_fixos": [
+   400,
+   600,
+   700,
+   800,
+   900
+  ],
+  "italico": true,
+  "nomes": [
+   "Bodoni Moda",
+   "Bodoni Moda Black",
+   "Bodoni Moda Bold",
+   "Bodoni Moda ExtraBold",
+   "Bodoni Moda SemiBold"
+  ],
+  "nomes_italico": [
+   "Bodoni Moda",
+   "Bodoni Moda Black",
+   "Bodoni Moda Bold",
+   "Bodoni Moda ExtraBold",
+   "Bodoni Moda SemiBold"
+  ]
+ },
+ {
+  "familia": "Cormorant Garamond",
+  "categoria": "serifa",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/cormorantgaramond",
+  "arquivos": [
+   "CormorantGaramond-Italic[wght].ttf",
+   "CormorantGaramond[wght].ttf"
+  ],
+  "pesos": [
+   300,
+   400,
+   500,
+   600,
+   700
+  ],
+  "pesos_fixos": [
+   400,
+   600,
+   700
+  ],
+  "italico": true,
+  "nomes": [
+   "Cormorant Garamond",
+   "Cormorant Garamond Bold",
+   "Cormorant Garamond SemiBold"
+  ],
+  "nomes_italico": [
+   "Cormorant Garamond",
+   "Cormorant Garamond Bold",
+   "Cormorant Garamond SemiBold"
+  ]
+ },
+ {
+  "familia": "Abril Fatface",
+  "categoria": "serifa",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/abrilfatface",
+  "arquivos": [
+   "AbrilFatface-Regular.ttf"
+  ],
+  "pesos": [
+   400
+  ],
+  "pesos_fixos": [],
+  "italico": false,
+  "nomes": [
+   "Abril Fatface"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "Young Serif",
+  "categoria": "serifa",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/youngserif",
+  "arquivos": [
+   "YoungSerif-Regular.ttf"
+  ],
+  "pesos": [
+   400
+  ],
+  "pesos_fixos": [],
+  "italico": false,
+  "nomes": [
+   "Young Serif"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "Caveat",
+  "categoria": "manuscrita",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/caveat",
+  "arquivos": [
+   "Caveat[wght].ttf"
+  ],
+  "pesos": [
+   400,
+   500,
+   600,
+   700
+  ],
+  "pesos_fixos": [
+   400,
+   600,
+   700
+  ],
+  "italico": false,
+  "nomes": [
+   "Caveat",
+   "Caveat Bold",
+   "Caveat SemiBold"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "Permanent Marker",
+  "categoria": "manuscrita",
+  "origem": "Google Fonts",
+  "licenca": "APACHE2",
+  "pasta": "apache/permanentmarker",
+  "arquivos": [
+   "PermanentMarker-Regular.ttf"
+  ],
+  "pesos": [
+   400
+  ],
+  "pesos_fixos": [],
+  "italico": false,
+  "nomes": [
+   "Permanent Marker"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "Kalam",
+  "categoria": "manuscrita",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/kalam",
+  "arquivos": [
+   "Kalam-Bold.ttf",
+   "Kalam-Light.ttf",
+   "Kalam-Regular.ttf"
+  ],
+  "pesos": [
+   300,
+   400,
+   700
+  ],
+  "pesos_fixos": [],
+  "italico": false,
+  "nomes": [
+   "Kalam",
+   "Kalam Light"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "Pacifico",
+  "categoria": "manuscrita",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/pacifico",
+  "arquivos": [
+   "Pacifico-Regular.ttf"
+  ],
+  "pesos": [
+   400
+  ],
+  "pesos_fixos": [],
+  "italico": false,
+  "nomes": [
+   "Pacifico"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "Shadows Into Light",
+  "categoria": "manuscrita",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/shadowsintolight",
+  "arquivos": [
+   "ShadowsIntoLight.ttf"
+  ],
+  "pesos": [
+   400
+  ],
+  "pesos_fixos": [],
+  "italico": false,
+  "nomes": [
+   "Shadows Into Light"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "Dancing Script",
+  "categoria": "manuscrita",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/dancingscript",
+  "arquivos": [
+   "DancingScript[wght].ttf"
+  ],
+  "pesos": [
+   400,
+   500,
+   600,
+   700
+  ],
+  "pesos_fixos": [
+   400,
+   600,
+   700
+  ],
+  "italico": false,
+  "nomes": [
+   "Dancing Script",
+   "Dancing Script Bold",
+   "Dancing Script SemiBold"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "Bungee",
+  "categoria": "divertida",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/bungee",
+  "arquivos": [
+   "Bungee-Regular.ttf"
+  ],
+  "pesos": [
+   400
+  ],
+  "pesos_fixos": [],
+  "italico": false,
+  "nomes": [
+   "Bungee"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "Luckiest Guy",
+  "categoria": "divertida",
+  "origem": "Google Fonts",
+  "licenca": "APACHE2",
+  "pasta": "apache/luckiestguy",
+  "arquivos": [
+   "LuckiestGuy-Regular.ttf"
+  ],
+  "pesos": [
+   400
+  ],
+  "pesos_fixos": [],
+  "italico": false,
+  "nomes": [
+   "Luckiest Guy"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "Rubik Mono One",
+  "categoria": "divertida",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/rubikmonoone",
+  "arquivos": [
+   "RubikMonoOne-Regular.ttf"
+  ],
+  "pesos": [
+   400
+  ],
+  "pesos_fixos": [],
+  "italico": false,
+  "nomes": [
+   "Rubik Mono One"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "Lilita One",
+  "categoria": "divertida",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/lilitaone",
+  "arquivos": [
+   "LilitaOne-Regular.ttf"
+  ],
+  "pesos": [
+   400
+  ],
+  "pesos_fixos": [],
+  "italico": false,
+  "nomes": [
+   "Lilita One"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "Titan One",
+  "categoria": "divertida",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/titanone",
+  "arquivos": [
+   "TitanOne-Regular.ttf"
+  ],
+  "pesos": [
+   400
+  ],
+  "pesos_fixos": [],
+  "italico": false,
+  "nomes": [
+   "Titan One"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "Bowlby One",
+  "categoria": "divertida",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/bowlbyone",
+  "arquivos": [
+   "BowlbyOne-Regular.ttf"
+  ],
+  "pesos": [
+   400
+  ],
+  "pesos_fixos": [],
+  "italico": false,
+  "nomes": [
+   "Bowlby One"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "Chewy",
+  "categoria": "divertida",
+  "origem": "Google Fonts",
+  "licenca": "APACHE2",
+  "pasta": "apache/chewy",
+  "arquivos": [
+   "Chewy-Regular.ttf"
+  ],
+  "pesos": [
+   400
+  ],
+  "pesos_fixos": [],
+  "italico": false,
+  "nomes": [
+   "Chewy"
+  ],
+  "nomes_italico": []
+ },
+ {
+  "familia": "Space Mono",
+  "categoria": "tech",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/spacemono",
+  "arquivos": [
+   "SpaceMono-Bold.ttf",
+   "SpaceMono-BoldItalic.ttf",
+   "SpaceMono-Italic.ttf",
+   "SpaceMono-Regular.ttf"
+  ],
+  "pesos": [
+   400,
+   700
+  ],
+  "pesos_fixos": [],
+  "italico": true,
+  "nomes": [
+   "Space Mono"
+  ],
+  "nomes_italico": [
+   "Space Mono"
+  ]
+ },
+ {
+  "familia": "JetBrains Mono",
+  "categoria": "tech",
+  "origem": "Google Fonts",
+  "licenca": "OFL",
+  "pasta": "ofl/jetbrainsmono",
+  "arquivos": [
+   "JetBrainsMono-Italic[wght].ttf",
+   "JetBrainsMono[wght].ttf"
+  ],
+  "pesos": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800
+  ],
+  "pesos_fixos": [
+   400,
+   600,
+   700,
+   800
+  ],
+  "italico": true,
+  "nomes": [
+   "JetBrains Mono",
+   "JetBrains Mono Bold",
+   "JetBrains Mono ExtraBold",
+   "JetBrains Mono SemiBold"
+  ],
+  "nomes_italico": [
+   "JetBrains Mono",
+   "JetBrains Mono Bold",
+   "JetBrains Mono ExtraBold",
+   "JetBrains Mono SemiBold"
+  ]
+ }
+]

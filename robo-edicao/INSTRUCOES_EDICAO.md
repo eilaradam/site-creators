@@ -41,6 +41,10 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
 
 ## Como editar
 
+0. **Qual arquivo é o bruto**: a base é sempre o bruto original, o vídeo mais longo e sem cortes. Se na pasta houver
+   uma versão já cortada ou decupada (mais curta, com emendas), NÃO use como base; os demais vídeos são cenas extras.
+   Diga no resumo qual arquivo usou como bruto.
+
 1. **Transcrever** o áudio com tempo por palavra. Use o Python do robô:
    `~/robo-edicao/venv/bin/python` com `faster_whisper` (modelo `small` ou `medium`, `language="pt"`, `word_timestamps=True`).
    Aplique o dicionário de correções do PEDIDO.md e compare com o roteiro: o roteiro manda na grafia de nomes e marcas.
@@ -65,11 +69,28 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
    Queime no render com `-vf "ass=work/legenda.ass:fontsdir=$HOME/robo-edicao/fontes"`. Se o PEDIDO.md disser
    SEM legenda, não legende (mas entregue o .srt mesmo assim). Esconda a legenda em cima de inserções com muito texto
    (tire essas palavras do JSON).
-6. **Animações e textos na tela** para números, preços, nomes de produto e chamadas do roteiro.
-   Se existir o projeto Remotion `~/Desktop/editor-lara`, pode usar (copie para dentro deste pedido, não altere o original).
-   Senão, faça com FFmpeg (drawtext/ASS) ou HTML + Playwright.
-7. **Música e efeitos sonoros**: só do banco `~/Desktop/sons`, e só itens com `liberado_para_cliente: true`
-   no `catalogo.json`. Música de fundo por baixo da voz (sidechain, voz sempre clara, música ~ -20 dB),
+6. **Animações com Remotion (obrigatório)** para números, preços, nomes de produto, listas e chamadas do roteiro.
+   Nada de texto chapado de FFmpeg: a Lara achou o resultado básico demais.
+   - Copie `~/Desktop/editor-lara` para `work/remotion` sem a pasta `node_modules` e crie um link para a original
+     (`ln -s ~/Desktop/editor-lara/node_modules work/remotion/node_modules`). Nunca altere o projeto original.
+   - Crie uma composição por animação, no tamanho do vídeo, com fundo transparente, nas cores da marca
+     (tire do site da marca) e com movimento de entrada e saída (spring, escala, deslize). Use as composições
+     que já existem lá (Overlays.tsx, InfinitePay.tsx) como referência de qualidade.
+   - Renderize com fundo transparente: `npx remotion render <id> work/anim_<n>.mov --codec=prores --prores-profile=4444 --pixel-format=yuva444p10le`
+     e sobreponha no vídeo com FFmpeg (`overlay=enable='between(t,ini,fim)'`).
+   - **Fontes**: títulos e animações só com fontes da biblioteca `~/robo-edicao/fontes.json` (arquivos em
+     `~/robo-edicao/fontes`, todas com licença livre para uso comercial). Escolha pelo jeito da marca
+     (categorias: impacto, moderna, serifa, manuscrita, divertida, tech), no máximo 2 famílias por vídeo.
+     No Remotion, carregue com `@font-face` apontando para uma cópia do .ttf em `public/`. Na legenda .ass,
+     use o nome exato da lista `nomes` (ex.: "Montserrat ExtraBold").
+7. **Logo da marca**: procure primeiro um arquivo `logo*` (png/svg) em `entrada/`. Se não tiver, baixe do site da marca
+   (`<link rel="icon">`, `og:image` ou uma imagem com "logo" no nome) para `work/logo.png`. Use o logo na abertura ou
+   no fechamento (chamada final animada no Remotion) e, se fizer sentido, discreto num canto. Sem logo de boa
+   qualidade, escreva no resumo em vez de usar um borrado.
+8. **Música e efeitos sonoros**: só do banco `~/Desktop/sons`, e só itens com `liberado_para_cliente: true`
+   no `catalogo.json` (o robô atualiza o catálogo antes de você começar; ele tem bpm, batidas, clima e etiquetas).
+   Para a música de fundo existe `~/robo-edicao/encaixar_musica.py` (entra numa batida, abaixa quando há fala,
+   fade no fim). Música de fundo por baixo da voz (sidechain, voz sempre clara, música ~ -20 dB),
    efeitos nas trocas de cena e na entrada de textos. Nunca baixe música nem efeito da internet.
    - **Sem banco de efeitos**: gere os efeitos com numpy (são seus, sem problema de licença) e salve em `work/sfx/`:
      whoosh (ruído com passa-banda subindo de 200 Hz a 6 kHz, 250 ms, envelope exponencial),
@@ -79,15 +100,15 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
    - Cadeia de áudio: passa-alta 80 Hz na voz, compressor suave (3:1, limiar -18 dB), música ~ -22 dB com
      abaixamento automático (~ -8 dB) quando há fala, efeitos ~ -12 dB sem competir com a voz,
      fade de 0,3 s no início e no fim, voz final em -14 LUFS (loudnorm).
-8. **Gravação de tela do site** (só se o PEDIDO.md pedir): use Playwright em `~/robo-edicao`
+9. **Gravação de tela do site** (só se o PEDIDO.md pedir): use Playwright em `~/robo-edicao`
    (`cd ~/robo-edicao && npm i playwright && npx playwright install chromium` se ainda não tiver).
    Janela de celular 390x844, `recordVideo`, siga o passo a passo com pausas naturais (rolagem suave, clique visível).
    Salve em `saida/rec_site.mp4` (H.264). Só site aberto: não faça login nem preencha dados pessoais.
    Use trechos da gravação na edição onde o roteiro fala do site/produto.
-9. **Referências**: tente baixar com `~/robo-edicao/venv/bin/yt-dlp` para uma pasta `refs/` e meça ritmo
+10. **Referências**: tente baixar com `~/robo-edicao/venv/bin/yt-dlp` para uma pasta `refs/` e meça ritmo
    (cortes por minuto), frequência de zoom, estilo de legenda. Se não baixar, siga a nota escrita da Lara.
    As regras do estilo aprovadas valem mais que a referência quando as duas brigam.
-10. **Conferir antes de entregar**: assista em pedaços (extraia frames a cada 2 s e olhe), confira que nenhuma
+11. **Conferir antes de entregar**: assista em pedaços (extraia frames a cada 2 s e olhe), confira que nenhuma
     legenda tem nome errado, que não sobrou repetição, que o áudio não estoura (loudnorm -14 LUFS) e que a duração
     respeita o pedido.
 
