@@ -261,6 +261,19 @@ function fatiarFala(palavras, cenas) {
     });
 }
 
+function legendaAss(palavras, modelo, W, H, saida, marca) {
+    const pj = saida.replace(/\.ass$/, '.palavras.json');
+    fs.writeFileSync(pj, JSON.stringify(palavras));
+    const r = spawnSync('python3', ['-I', path.join(DIR, 'legendas_ass.py'), pj, path.join(DIR, 'legendas.json'), modelo, String(W), String(H), saida, marca || ''], { encoding: 'utf8' });
+    if (r.status !== 0) { log('legenda não gerada:', (r.stderr || '').trim().split('\n').pop()); return false; }
+    return true;
+}
+function srt(palavras) {
+    const t = x => { const ms = Math.round(x * 1000); return new Date(ms).toISOString().slice(11, 19) + ',' + String(ms % 1000).padStart(3, '0'); };
+    const blocos = []; for (let i = 0; i < palavras.length; i += 6) blocos.push(palavras.slice(i, i + 6));
+    return blocos.map((b, i) => (i + 1) + '\n' + t(b[0].s) + ' --> ' + t(b[b.length - 1].e) + '\n' + b.map(w => w.w).join(' ') + '\n').join('\n');
+}
+
 async function montarCenas(p, arqs, audio) {
     const job = jobDe(p), cenasDir = path.join(job, 'cenas'), work = path.join(job, 'work'), saida = path.join(job, 'saida');
     for (const d of [cenasDir, work, saida]) fs.mkdirSync(d, { recursive: true });
@@ -288,6 +301,8 @@ async function montarCenas(p, arqs, audio) {
     const [W, H] = TAMANHO[p.formato] || TAMANHO['9:16'];
     const lista = [], camadas = [];
     let t0 = 0;
+    const palavrasFinais = [];
+    const palavrasLara = fatias ? JSON.parse(fs.readFileSync(path.join(vozDir, 'palavras.json'), 'utf8')) : [];
     arqs.forEach((f, i) => {
         const n = i + 1, clip = path.join(cenasDir, path.basename(f.Path));
         const mp3 = path.join(vozDir, 'cena' + pasta2(n) + (fatias ? '.wav' : '.mp3'));
@@ -307,6 +322,8 @@ async function montarCenas(p, arqs, audio) {
         lista.push("file '" + seg.replace(/'/g, "'\\''") + "'");
         camadas.push({ tipo: 'corte', inicio_s: t0, fim_s: t0 + dur, origem: path.basename(f.Path) });
         camadas.push({ tipo: 'voz', inicio_s: t0 + atraso / 1000, fim_s: t0 + Math.min(atraso / 1000 + vd / tempo, dur) });
+        if (fatias) palavrasLara.filter(w => w.s >= fatias[i].s - 0.01 && w.e <= fatias[i].e + 0.01)
+            .forEach(w => palavrasFinais.push({ w: w.w, s: +(t0 + atraso / 1000 + w.s - fatias[i].s).toFixed(3), e: +(t0 + atraso / 1000 + w.e - fatias[i].s).toFixed(3) }));
         const txt = fatias ? fatias[i].texto : cenas[i] && cenas[i].texto;
         if (txt) camadas.push({ tipo: 'legenda', inicio_s: t0 + atraso / 1000, fim_s: t0 + dur - 0.1, texto: txt });
         t0 += dur;
@@ -314,7 +331,12 @@ async function montarCenas(p, arqs, audio) {
     fs.writeFileSync(path.join(work, 'lista.txt'), lista.join('\n') + '\n');
     const junto = path.join(work, 'junto.mp4');
     ffmpeg(['-f', 'concat', '-safe', '0', '-i', path.join(work, 'lista.txt'), '-c', 'copy', junto]);
-    ffmpeg(['-i', junto, '-c:v', 'copy', '-af', 'loudnorm=I=-14:TP=-1:LRA=11', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-movflags', '+faststart', path.join(saida, 'previa.mp4')]);
+    // legenda do modelo escolhido (só quando temos o tempo de cada palavra, ou seja, com a voz da Lara)
+    const ass = path.join(work, 'legenda.ass');
+    const comLegenda = p.legenda_modelo && palavrasFinais.length && legendaAss(palavrasFinais, p.legenda_modelo, W, H, ass, p.marca);
+    ffmpeg(['-i', junto, ...(comLegenda ? ['-vf', 'ass=' + ass + ':fontsdir=' + path.join(DIR, 'fontes'), '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-pix_fmt', 'yuv420p'] : ['-c:v', 'copy']),
+        '-af', 'loudnorm=I=-14:TP=-1:LRA=11', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-movflags', '+faststart', path.join(saida, 'previa.mp4')]);
+    if (palavrasFinais.length) fs.writeFileSync(path.join(saida, 'legendas.srt'), srt(palavrasFinais));
     fs.writeFileSync(path.join(saida, 'projeto.json'), JSON.stringify({ duracao_s: Math.round(t0 * 100) / 100, formato: p.formato, camadas }));
     fs.writeFileSync(path.join(saida, 'resumo.md'), 'Vídeo montado: ' + arqs.length + ' cenas + ' + (fatias ? 'a sua locução' : 'locução gerada (' + p.voz + ')') + ', ' + Math.round(t0) + ' s.\n');
     await entregar(p, job, ['roteiro', 'estilo', 'prompts', 'locucao', 'cenas', 'montagem']);
@@ -326,6 +348,7 @@ function pedidoMd(p, refs, regras, dic, arquivos) {
     L.push('- Marca: ' + (p.marca || p.pasta_nome));
     L.push('- Formato: ' + p.formato + (p.duracao_alvo_s ? ' · duração desejada: ' + p.duracao_alvo_s + ' s' : ''));
     if (p.tipo === 'cenas') L.push('- Tipo: locução + cenas animadas · ' + Math.max(1, Math.round((p.duracao_alvo_s || 60) / 10)) + ' cenas de 10 s · visual: ' + (p.estilo_visual || 'marca') + ' · voz: ' + (p.voz || 'pt-BR-FranciscaNeural'));
+    L.push('- Legenda: ' + (p.legenda_modelo ? 'modelo `' + p.legenda_modelo + '` (veja "Legenda" no CLAUDE.md)' : 'SEM legenda (a Lara escolheu não legendar)'));
     if (p.marca_site) L.push('- Site da marca: ' + p.marca_site);
     if (p.marca_redes) L.push('- Redes da marca: ' + p.marca_redes.split('\n').map(s => s.trim()).filter(Boolean).join(' · '));
     if (arquivos.length) L.push('', '## Arquivos (pasta entrada/)', ...arquivos.map(f => '- ' + f.Path + ' (' + (f.Size / 1048576).toFixed(1) + ' MB)'));

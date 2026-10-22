@@ -8,7 +8,12 @@ mkdir -p "$D/bin" "$D/trabalhos"
 cd "$D"
 
 echo "1/5 Baixando o robô…"
-for f in robo.mjs INSTRUCOES_EDICAO.md INSTRUCOES_CENAS.md transcrever.py; do curl -fsSL "$BASE/$f" -o "$D/$f"; done
+for f in robo.mjs INSTRUCOES_EDICAO.md INSTRUCOES_CENAS.md transcrever.py legendas.json legendas_ass.py; do curl -fsSL "$BASE/$f" -o "$D/$f"; done
+# fontes dos modelos de legenda (Google Fonts, licença livre)
+mkdir -p "$D/fontes"
+for p in poppins/Poppins-Black.ttf poppins/Poppins-ExtraBold.ttf poppins/Poppins-SemiBold.ttf anton/Anton-Regular.ttf bebasneue/BebasNeue-Regular.ttf archivoblack/ArchivoBlack-Regular.ttf dmserifdisplay/DMSerifDisplay-Italic.ttf; do
+  [ -f "$D/fontes/$(basename $p)" ] || curl -fsSL "https://raw.githubusercontent.com/google/fonts/main/ofl/$p" -o "$D/fontes/$(basename $p)"
+done
 
 echo "2/5 Instalando o rclone (conversa com o Google Drive)…"
 if [ -x "$D/bin/rclone" ] || command -v rclone >/dev/null; then

@@ -5159,6 +5159,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     </div>
 </div>
 <div class="dashboard" id="tabEdicao">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;800;900&family=Anton&family=Bebas+Neue&family=Archivo+Black&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <style>
 /* ---- Edição: revisão de vídeo, regras do estilo e dicionário ---- */
 #tabEdicao .ed-wrap { max-width:1240px; margin:0 auto; }
@@ -5275,6 +5276,19 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
 #tabEdicao .ia-cena-top { display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:13.5px; }
 #tabEdicao .ia-cena-fala { color:#F4D9C8; font-size:13px; margin:6px 0; font-style:italic; }
 #tabEdicao .ia-prompt { white-space:pre-wrap; background:#211E1C; color:#EDE6DE; border-radius:10px; padding:10px; font-size:12px; line-height:1.45; margin:6px 0 0; max-height:180px; overflow:auto; font-family:'DM Mono', ui-monospace, monospace; }
+#tabEdicao .lg-grade { display:grid; grid-template-columns:repeat(auto-fill, minmax(225px, 1fr)); gap:14px; }
+#tabEdicao .lg-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+#tabEdicao .lg-card.padrao { border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-tint); }
+#tabEdicao .lg-tela { position:relative; background:linear-gradient(160deg,#8a6a50,#3a2a20 60%,#1f1712); overflow:hidden; display:flex; justify-content:center; }
+#tabEdicao .lg-txt { position:absolute; max-width:84%; transform:translateY(-50%); text-align:center; line-height:1.15; color:#fff; }
+#tabEdicao .lg-txt .lg-w { display:inline-block; }
+#tabEdicao .lg-txt .lg-w.on { animation:lgPalavra .16s ease-out; }
+#tabEdicao .lg-txt.pop { animation:lgPop .18s ease-out; }
+#tabEdicao .lg-txt.fade { animation:lgFade .15s ease-out; }
+@keyframes lgPop { from { transform:translateY(-50%) scale(.8); } 60% { transform:translateY(-50%) scale(1.06); } to { transform:translateY(-50%) scale(1); } }
+@keyframes lgFade { from { opacity:0; } to { opacity:1; } }
+@keyframes lgPalavra { from { transform:scale(1.12); } to { transform:scale(1); } }
+#tabEdicao .lg-info { padding:10px 12px 12px; font-size:13.5px; }
 #tabEdicao .ed-toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px); background:#1F1B18; color:#fff; padding:10px 16px; border-radius:10px; font-size:13.5px; font-weight:600; opacity:0; pointer-events:none; transition:all .2s; z-index:9999; }
 #tabEdicao .ed-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 #tabEdicao .ed-toast.erro { background:#B3261E; }
@@ -5292,6 +5306,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     <button class="ed-chip" type="button" data-ed-aba="biblioteca" onclick="edSetAba('biblioteca')">Biblioteca de referências</button>
     <button class="ed-chip" type="button" data-ed-aba="regras" onclick="edSetAba('regras')">Regras do estilo</button>
     <button class="ed-chip" type="button" data-ed-aba="dicionario" onclick="edSetAba('dicionario')">Dicionário de correções</button>
+    <button class="ed-chip" type="button" data-ed-aba="legendas" onclick="edSetAba('legendas')">Modelos de legenda</button>
   </div>
   <div id="edBox"><div class="ed-empty">Carregando…</div></div>
 </div>
@@ -17687,7 +17702,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             return;
         }
         edCampanhas = c.data || []; edRegras = r.data || []; edDic = d.data || [];
-        await edCarregarPedidos();
+        await Promise.all([edCarregarPedidos(), edCarregarLegendas()]);
         if (!edCampanhaId && edCampanhas.length) edCampanhaId = edCampanhas[0].id;
         edCarregado = true;
         if (edCampanhaId) await edCarregarVersoes(); else edRender();
@@ -17702,6 +17717,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         if (edAba === 'biblioteca') return edRenderBiblioteca();
         if (edAba === 'regras') return edRenderRegras();
         if (edAba === 'dicionario') return edRenderDic();
+        if (edAba === 'legendas') return edRenderLegendas();
         edRenderRevisao();
     }
 
@@ -17747,7 +17763,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         if (JSON.stringify(edPedidos.map(p => [p.id, p.status, p.status_msg, p.previa_link, p.projeto, p.cenas])) !== antes) edRender();
     }, 15000);
     function edNovoForm(base) {
-        edForm = Object.assign({ id: null, conteudo_id: '', marca: '', titulo: '', drive_pasta_link: '', roteiro: '', formato: '9:16', duracao_alvo_s: '', observacoes: '', marca_site: '', marca_redes: '', rec_gravar: false, rec_passos: '', tipo: 'edicao', voz: 'minha', estilo_visual: 'marca',
+        edForm = Object.assign({ id: null, conteudo_id: '', marca: '', titulo: '', drive_pasta_link: '', roteiro: '', formato: '9:16', duracao_alvo_s: '', observacoes: '', marca_site: '', marca_redes: '', rec_gravar: false, rec_passos: '', tipo: 'edicao', voz: 'minha', estilo_visual: 'marca', legenda_modelo: edLegendaPadrao(),
             refs: [{ tipo: 'geral', link: '', nota: '', salvar: false, nome: '' }] }, base || {});
     }
     function edAbrirNovoPedido() { edPedidoAberto = 'novo'; edNovoForm(); edRender(); }
@@ -17759,7 +17775,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         edNovoForm({ id, conteudo_id: ped.conteudo_id || '', marca: ped.pasta_nome || ped.marca || '', titulo: ped.titulo || '', drive_pasta_link: ped.drive_pasta_link || '', roteiro: ped.roteiro || '',
             formato: ped.formato || '9:16', duracao_alvo_s: ped.duracao_alvo_s || '', observacoes: ped.observacoes || '',
             marca_site: ped.marca_site || '', marca_redes: ped.marca_redes || '', rec_gravar: !!ped.rec_gravar, rec_passos: ped.rec_passos || '',
-            tipo: ped.tipo || 'edicao', voz: ped.voz || 'minha', estilo_visual: ped.estilo_visual || 'marca',
+            tipo: ped.tipo || 'edicao', voz: ped.voz || 'minha', legenda_modelo: ped.legenda_modelo || edLegendaPadrao(), estilo_visual: ped.estilo_visual || 'marca',
             refs: edPedidoRefs.length ? edPedidoRefs.map(r => ({ id: r.id, tipo: r.tipo, link: r.link, nota: r.nota || '', salvar: false, nome: '' })) : [{ tipo: 'geral', link: '', nota: '', salvar: false, nome: '' }] });
         edRender();
     }
@@ -17768,7 +17784,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     function edLerForm() {
         if (!edForm) return;
         const v = id => { const el = document.getElementById(id); return el ? el.value : undefined; };
-        ['marca', 'titulo', 'drive_pasta_link', 'roteiro', 'duracao_alvo_s', 'observacoes', 'conteudo_id', 'marca_site', 'marca_redes', 'rec_passos', 'voz'].forEach(k => { const x = v('edP_' + k); if (x !== undefined) edForm[k] = x; });
+        ['marca', 'titulo', 'drive_pasta_link', 'roteiro', 'duracao_alvo_s', 'observacoes', 'conteudo_id', 'marca_site', 'marca_redes', 'rec_passos', 'voz', 'legenda_modelo'].forEach(k => { const x = v('edP_' + k); if (x !== undefined) edForm[k] = x; });
         edForm.marca = String(edForm.marca || '').replace(ED_PREFIXO_PASTA, '');
         edForm.refs.forEach((r, i) => {
             const t = v('edR_tipo_' + i), l = v('edR_link_' + i), n = v('edR_nota_' + i), nm = v('edR_nome_' + i);
@@ -17819,7 +17835,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             roteiro: f.roteiro.trim() || null, formato: f.formato, duracao_alvo_s: f.duracao_alvo_s ? parseInt(f.duracao_alvo_s, 10) || null : null,
             observacoes: f.observacoes.trim() || null, updated_at: new Date().toISOString(),
             marca_site: f.marca_site.trim() || null, marca_redes: f.marca_redes.trim() || null, rec_gravar: !!f.rec_gravar, rec_passos: f.rec_passos.trim() || null,
-            tipo: f.tipo, voz: f.tipo === 'cenas' ? f.voz : null, estilo_visual: f.tipo === 'cenas' ? f.estilo_visual : null,
+            tipo: f.tipo, legenda_modelo: f.legenda_modelo || null, voz: f.tipo === 'cenas' ? f.voz : null, estilo_visual: f.tipo === 'cenas' ? f.estilo_visual : null,
         };
         let pedidoId = f.id;
         if (pedidoId) {
@@ -17918,6 +17934,9 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                   (f.tipo === 'cenas' ? 'Lá você joga as cenas que gerar (cena01.mp4, cena02.mp4…).' : 'Aí é só jogar o bruto e as cenas extras dentro (dá para subir direto do celular pelo app do Drive).'))) +
                 ' O final volta para a mesma pasta.</div>' +
               '<label class="ed-lb">Formato</label><div class="ed-row">' + formatos + '</div>' +
+              '<label class="ed-lb">Modelo de legenda</label><div class="ed-row"><select class="ed-input" id="edP_legenda_modelo" style="max-width:280px;"' + dis + '>' +
+                '<option value="">Sem legenda</option>' + edLegendas.map(m => '<option value="' + m.id + '"' + (f.legenda_modelo === m.id ? ' selected' : '') + '>' + edEsc(m.nome) + '</option>').join('') +
+                '</select><button class="ed-btn ghost mini" type="button" onclick="edSetAba(\'legendas\')">Ver os modelos</button></div>' +
               '<label class="ed-lb">' + (f.tipo === 'cenas' ? 'Duração (segundos; cada 10 s é uma cena)' : 'Duração desejada (segundos, opcional)') + '</label><input class="ed-input" id="edP_duracao_alvo_s" type="number" min="5" max="600" style="max-width:160px;"' + dis + ' value="' + edEsc(f.duracao_alvo_s) + '">' +
               '<label class="ed-lb">Observações</label><textarea class="ed-input" id="edP_observacoes" rows="3" placeholder="ex.: tirar a parte em que eu tropeço; destacar o preço"' + dis + '>' + edEsc(f.observacoes) + '</textarea>' +
             '</div>' +
@@ -17959,6 +17978,85 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
           '</div>' +
           (travado ? '' : '<div class="ed-row" style="margin-top:14px;justify-content:flex-end;"><button class="ed-btn" type="button" onclick="edSalvarPedido()">' + (f.id ? 'Salvar pedido' : 'Mandar para a fila') + '</button></div>');
         if (!travado) edChecarPasta();
+    }
+    /* ── Modelos de legenda: a mesma lista (robo-edicao/legendas.json) que o robô usa para queimar a legenda ── */
+    let edLegendas = [], edLegTimer = null;
+    function edLegendaPadrao() { try { return localStorage.getItem('edLegendaPadrao') || 'pop_amarelo'; } catch (_) { return 'pop_amarelo'; } }
+    async function edCarregarLegendas() {
+        if (edLegendas.length) return;
+        try { const r = await fetch('robo-edicao/legendas.json', { cache: 'no-cache' }); edLegendas = await r.json(); } catch (_) { edLegendas = []; }
+    }
+    const ED_LEG_AMOSTRA = (() => {
+        const t = 'Você sabe quanto valem os pontos parados no seu cartão? Eu quase paguei R$ 2.400 numa passagem que dava pra emitir com milha.';
+        let x = 0.3; return t.split(' ').map(w => { const o = { w, s: x, e: x + 0.3 }; x += /[?.]$/.test(w) ? 0.9 : 0.36; return o; });
+    })();
+    function edLegGrupos(m, pal) {
+        const g = [], fim = /[.!?…]$/; let a = [];
+        pal.forEach((p, i) => {
+            a.push(p);
+            const prox = pal[i + 1], pausa = prox && prox.s - p.e > 0.5;
+            const orfa = m.palavras > 1 && prox && fim.test(prox.w) && a.length === m.palavras;
+            if ((a.length >= m.palavras && !orfa) || a.length > m.palavras || fim.test(p.w) || pausa) { g.push(a); a = []; }
+        });
+        if (a.length) g.push(a);
+        return g;
+    }
+    const ED_LEG_FORTES = /\d|r\$|%|^(nunca|ninguém|grátis|segredo|agora|sempre|zero|dinheiro|nada|milha)[.,!?]*$/i;
+    function edLegQuadro(m, t) {
+        const grupos = edLegGrupos(m, ED_LEG_AMOSTRA);
+        const gi = grupos.findIndex((g, i) => t >= g[0].s && t < (grupos[i + 1] ? grupos[i + 1][0].s : g[g.length - 1].e + 0.4));
+        if (gi < 0) return { html: '', chave: '' };
+        const g = grupos[gi], k = Math.max(0, g.findIndex((p, j) => t >= p.s && (!g[j + 1] || t < g[j + 1].s)));
+        const cx = w => m.caixa === 'alta' ? w.toUpperCase() : w;
+        const html = g.map((p, j) => {
+            const ativo = m.modo === 'karaoke' ? j === k : ED_LEG_FORTES.test(p.w);
+            return '<span class="lg-w' + (m.modo === 'karaoke' && j === k ? ' on' : '') + '" style="color:' + (ativo ? m.destaque : m.cor) + '">' + edEsc(cx(p.w)) + '</span>';
+        }).join(' ');
+        return { html, chave: gi + (m.modo === 'karaoke' ? '-' + k : '') };
+    }
+    function edLegEstilo(m, H) {
+        const esc = H / 1920;
+        const borda = m.fundo === 'caixa' || !m.contorno ? '' : '-webkit-text-stroke:' + (m.contorno * esc * 2).toFixed(1) + 'px ' + m.contorno_cor + ';paint-order:stroke fill;';
+        const caixa = m.fundo === 'caixa' ? 'background:' + m.contorno_cor + ';padding:' + (m.contorno * esc).toFixed(1) + 'px ' + (m.contorno * esc * 1.4).toFixed(1) + 'px;border-radius:3px;left:auto;right:auto;' : '';
+        return 'font-family:\'' + m.fonte_css + '\';font-weight:' + m.peso_css + ';' + (m.italico ? 'font-style:italic;' : '') + 'font-size:' + (m.tamanho * H).toFixed(1) + 'px;top:' + (m.posicao * 100) + '%;' +
+            borda + caixa + (m.sombra ? 'text-shadow:0 ' + (m.sombra * esc * 2).toFixed(1) + 'px ' + (m.sombra * esc * 4).toFixed(1) + 'px rgba(0,0,0,.55);' : '');
+    }
+    function edLegAnimar() {
+        clearInterval(edLegTimer);
+        const t0 = performance.now();
+        edLegTimer = setInterval(() => {
+            const telas = document.querySelectorAll('#tabEdicao .lg-tela');
+            if (!telas.length || edAba !== 'legendas') { clearInterval(edLegTimer); return; }
+            const t = ((performance.now() - t0) / 1000) % 9.5;
+            telas.forEach(el => {
+                const m = edLegendas.find(x => x.id === el.dataset.id); if (!m) return;
+                const q = edLegQuadro(m, t), txt = el.querySelector('.lg-txt');
+                if (txt.dataset.chave === q.chave) return;
+                const novaTela = String(txt.dataset.chave || '').split('-')[0] !== q.chave.split('-')[0];
+                txt.dataset.chave = q.chave; txt.innerHTML = q.html; txt.style.visibility = q.html ? 'visible' : 'hidden';
+                txt.classList.remove('pop', 'fade'); void txt.offsetWidth;
+                if (novaTela && m.animacao !== 'nenhuma') txt.classList.add(m.animacao === 'pop' ? 'pop' : 'fade');
+            });
+        }, 50);
+    }
+    function edUsarLegenda(id) {
+        try { localStorage.setItem('edLegendaPadrao', id); } catch (_) {}
+        if (edForm && !edForm.id) edForm.legenda_modelo = id;
+        edToast('Modelo padrão dos próximos pedidos'); edRenderLegendas();
+    }
+    async function edRenderLegendas() {
+        const box = document.getElementById('edBox'); if (!box) return;
+        await edCarregarLegendas();
+        if (!edLegendas.length) { box.innerHTML = '<div class="ed-card ed-empty">Não consegui carregar os modelos (robo-edicao/legendas.json).</div>'; return; }
+        const padrao = edLegendaPadrao(), H = 400;
+        box.innerHTML = '<div class="ed-muted" style="margin-bottom:12px;">São os mesmos modelos que o robô usa para queimar a legenda no vídeo. Escolha um como padrão ou troque em cada pedido.</div>' +
+            '<div class="lg-grade">' + edLegendas.map(m =>
+                '<div class="lg-card' + (m.id === padrao ? ' padrao' : '') + '">' +
+                  '<div class="lg-tela" data-id="' + m.id + '" style="height:' + H + 'px;"><div class="lg-txt" style="' + edLegEstilo(m, H) + '"></div></div>' +
+                  '<div class="lg-info"><b>' + edEsc(m.nome) + (m.id === padrao ? ' · padrão' : '') + '</b><div class="ed-muted">' + edEsc(m.descricao) + '</div>' +
+                  (m.id === padrao ? '' : '<button class="ed-btn mini" type="button" style="margin-top:8px;" onclick="edUsarLegenda(\'' + m.id + '\')">Usar como padrão</button>') + '</div>' +
+                '</div>').join('') + '</div>';
+        edLegAnimar();
     }
     /* Locução + cenas: imagem-chave e um prompt por cena, com botão de copiar */
     function edCopiar(id) {

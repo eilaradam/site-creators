@@ -167,3 +167,6 @@ alter table public.edicao_pedidos drop constraint if exists edicao_pedidos_tipo_
 alter table public.edicao_pedidos add constraint edicao_pedidos_tipo_check check (tipo in ('edicao','cenas'));
 alter table public.edicao_pedidos drop constraint if exists edicao_pedidos_status_check;
 alter table public.edicao_pedidos add constraint edicao_pedidos_status_check check (status in ('na_fila','aguardando_bruto','aguardando_cenas','baixando','analisando','editando','previa_pronta','em_revisao','renderizando','final_pronto','erro','cancelado'));
+
+-- Modelo de legenda escolhido no pedido (lista em robo-edicao/legendas.json)
+alter table public.edicao_pedidos add column if not exists legenda_modelo text;
