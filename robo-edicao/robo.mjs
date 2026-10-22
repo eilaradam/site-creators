@@ -628,6 +628,49 @@ async function olharAprender() {
     log('aprender: pronto. Relatório na pasta _Aprender do Drive e regras propostas em Regras do estilo.');
 }
 
+/* Biblioteca de referências: o robô baixa cada Reels/TikTok novo da biblioteca (yt-dlp), guarda o vídeo aqui
+   e sobe uma folha de quadros (2 por segundo) para Edição/_Referencias no Drive. Assim dá para estudar
+   título, legenda e ritmo quadro a quadro sem baixar nada à mão. */
+const REFS = path.join(DIR, 'biblioteca');
+let bibUltimaOlhada = 0;
+async function olharBiblioteca() {
+    if (Date.now() - bibUltimaOlhada < 10 * 60000) return;
+    bibUltimaOlhada = Date.now();
+    const lista = await db('edicao_referencias?pedido_id=is.null&analise=is.null&select=id,nome,tipo,link&order=created_at');
+    if (!lista.length) return;
+    fs.mkdirSync(REFS, { recursive: true });
+    const ytdlp = fs.existsSync(path.join(VENV_BIN, 'yt-dlp')) ? path.join(VENV_BIN, 'yt-dlp') : 'yt-dlp';
+    rclone(['mkdir', 'drive:' + PASTA_RAIZ + '/_Referencias'], { silencioso: true });
+    for (const r of lista.slice(0, 5)) {
+        const nome = slug(r.nome || r.tipo).slice(0, 40) + '-' + r.id.slice(0, 6), video = path.join(REFS, nome + '.mp4');
+        let analise;
+        try {
+            if (!fs.existsSync(video)) {
+                const d = spawnSync(ytdlp, ['-q', '--no-playlist', '-f', 'mp4/bestvideo*+bestaudio/best', '--merge-output-format', 'mp4', '-o', video, r.link], { encoding: 'utf8', timeout: 5 * 60000 });
+                if (!fs.existsSync(video)) throw new Error((d.stderr || d.error && d.error.message || 'não baixou').trim().split('\n').pop().slice(0, 200));
+            }
+            const dur = duracao(video);
+            // até 48 quadros (24 s) por folha; vídeo mais longo ganha mais folhas
+            const folhas = [];
+            for (let ini = 0, k = 1; ini < Math.min(dur, 96); ini += 24, k++) {
+                const jpg = path.join(REFS, nome + '-quadros' + k + '.jpg');
+                const folha = vf => ffmpeg(['-ss', String(ini), '-t', '24', '-i', video, '-vf', vf, '-frames:v', '1', '-q:v', '6', jpg]);
+                // com o tempo escrito em cada quadro; se o ffmpeg não tiver drawtext, sem o tempo
+                try { folha("fps=2,scale=160:-2,drawtext=text='%{pts\\:hms}':x=4:y=4:fontsize=13:fontcolor=white:box=1:boxcolor=black@0.6,tile=8x6:padding=2"); }
+                catch (_) { folha('fps=2,scale=160:-2,tile=8x6:padding=2'); }
+                rclone(['copyto', jpg, 'drive:' + PASTA_RAIZ + '/_Referencias/' + nome + ' - quadros ' + k + '.jpg']);
+                folhas.push(PASTA_RAIZ + '/_Referencias/' + nome + ' - quadros ' + k + '.jpg');
+            }
+            analise = { video: video, quadros: folhas, duracao_s: Math.round(dur * 10) / 10, baixado_em: new Date().toISOString() };
+            log('biblioteca: ' + (r.nome || r.link) + ' baixada (' + folhas.length + ' folha(s) de quadros no Drive)');
+        } catch (e) {
+            analise = { erro: e.message, tentado_em: new Date().toISOString() };
+            log('biblioteca: não consegui baixar ' + r.link + ': ' + e.message);
+        }
+        await db('edicao_referencias?id=eq.' + r.id, { metodo: 'PATCH', corpo: { analise } }).catch(e => log('biblioteca:', e.message));
+    }
+}
+
 /* Atualiza sozinho: baixa do GitHub os arquivos do robô; se o robo.mjs mudou, reinicia com a versão nova.
    (O instalador só é necessário quando entra uma ferramenta nova, tipo uma biblioteca do Python.) */
 const ATUALIZAR_DE = process.env.ROBO_ATUALIZAR_DE || 'https://raw.githubusercontent.com/eilaradam/site-creators/main/robo-edicao/';
@@ -677,6 +720,7 @@ async function main() {
     do {
         try { await rodada(); } catch (e) { log('Não consegui olhar a fila:', e.message); }
         try { await olharAprender(); } catch (e) { log('aprender:', e.message); }
+        try { await olharBiblioteca(); } catch (e) { log('biblioteca:', e.message); }
         if (!process.argv.includes('--uma-vez') && await atualizarRobo()) return reiniciar();   // só entre uma rodada e outra, nunca no meio de uma edição
         if (process.argv.includes('--uma-vez')) break;
         await new Promise(r => setTimeout(r, INTERVALO_S * 1000));
