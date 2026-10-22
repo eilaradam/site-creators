@@ -5309,6 +5309,26 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
 #tabEdicao .ia-bl.fora { opacity:.25; background:repeating-linear-gradient(45deg,#555 0 4px,#333 4px 8px) !important; }
 #tabEdicao .ia-bl.editado { box-shadow:inset 0 -3px 0 #E8A27E; }
 #tabEdicao .ia-marca { position:absolute; top:-3px; bottom:-3px; width:3px; margin-left:-1px; background:#E8A27E; border-radius:2px; z-index:3; }
+#tabEdicao .ed-pick { display:flex; gap:10px; overflow-x:auto; padding:2px 2px 8px; scroll-snap-type:x proximity; }
+#tabEdicao .ed-pk { flex:0 0 auto; width:112px; display:flex; flex-direction:column; gap:5px; padding:0; border:0; background:none; cursor:pointer; text-align:center; scroll-snap-align:start; font:inherit; color:var(--text); }
+#tabEdicao .ed-pk:disabled { cursor:default; }
+#tabEdicao .ed-pk .ed-pk-tela { position:relative; width:112px; height:200px; border-radius:12px; overflow:hidden; border:2px solid transparent; box-sizing:border-box; display:flex; justify-content:center; object-fit:cover; }
+#tabEdicao video.ed-pk-tela { background:#2a1d16; }
+#tabEdicao .ed-pk.on .ed-pk-tela { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-tint); }
+#tabEdicao .ed-pk.on .ed-pk-tela::after { content:'✓'; position:absolute; top:6px; right:6px; width:22px; height:22px; border-radius:11px; background:var(--accent); color:#fff; font-size:13px; font-weight:800; display:flex; align-items:center; justify-content:center; z-index:3; }
+#tabEdicao .ed-pk-n { font-size:12px; font-weight:600; line-height:1.25; }
+#tabEdicao .ed-pk.on .ed-pk-n { color:var(--accent); }
+#tabEdicao .ed-pk-vazia { align-items:center; color:#A69D93; font-size:12px; background:#F4F2EF !important; }
+#tabEdicao .ed-pk-hit { position:absolute; inset:0; border:0; background:transparent; cursor:pointer; z-index:2; }
+#tabEdicao .ed-mini, #tabEdicao .ed-ref-mini { background:#111; }
+#tabEdicao .ed-mini-ifr { position:absolute; left:0; top:0; width:326px; height:600px; border:0; background:#fff; transform:scale(.3436); transform-origin:0 0; pointer-events:none; }
+#tabEdicao .ed-mini-ifr.ig { top:-20px; }
+#tabEdicao .ed-mini-sem { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#bbb; font-size:11.5px; text-align:center; padding:6px; }
+#tabEdicao .ed-refrow-v { grid-template-columns:72px 180px 1.3fr 1fr auto; }
+#tabEdicao .ed-ref-mini { position:relative; width:72px; height:128px; border-radius:10px; overflow:hidden; grid-row:span 2; }
+#tabEdicao .ed-ref-mini .ed-mini-ifr { transform:scale(.2209); }
+#tabEdicao .ed-refrow-v .ed-bibck { grid-column:2 / -1; }
+@media (max-width: 700px) { #tabEdicao .ed-refrow-v { grid-template-columns:72px 1fr; } #tabEdicao .ed-refrow-v > :not(.ed-ref-mini) { grid-column:2; } }
 #tabEdicao .ed-lb-mic { display:flex; align-items:center; justify-content:space-between; gap:8px; }
 #tabEdicao .ed-mic { display:inline-flex; align-items:center; gap:5px; border:1px solid #C8441A; background:#FFF8F2; color:#C8441A; border-radius:999px; padding:4px 11px; font:600 12px 'DM Sans', inherit; cursor:pointer; margin-top:6px; }
 #tabEdicao .ia-box .ed-mic { margin-top:0; background:transparent; color:#E8A27E; border-color:#5A514A; }
@@ -17963,14 +17983,14 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             '<button class="ed-chip' + (f.formato === k ? ' on' : '') + '" type="button"' + dis + ' onclick="edFormato(\'' + k + '\')">' + n + ' <b>' + k + '</b></button>').join('');
         const tipoOpts = sel => ED_REF_TIPOS.map(t => '<option value="' + t[0] + '"' + (t[0] === sel ? ' selected' : '') + '>' + t[1] + '</option>').join('');
         const refs = f.refs.map((r, i) =>
-            '<div class="ed-refrow">' +
+            '<div class="ed-refrow ed-refrow-v">' +
+              '<div class="ed-ref-mini">' + edMini(r.link) + '</div>' +
               '<select class="ed-input" id="edR_tipo_' + i + '"' + dis + '>' + tipoOpts(r.tipo) + '</select>' +
-              '<input class="ed-input" id="edR_link_' + i + '" placeholder="Link do Reels, TikTok ou YouTube"' + dis + ' value="' + edEsc(r.link) + '">' +
+              '<input class="ed-input" id="edR_link_' + i + '" placeholder="Link do Reels, TikTok ou YouTube"' + dis + ' value="' + edEsc(r.link) + '" onchange="edLerForm();edRender()">' +
               '<input class="ed-input" id="edR_nota_' + i + '" placeholder="O que copiar dessa referência"' + dis + ' value="' + edEsc(r.nota) + '">' +
               (travado ? '' : '<button class="ed-x" type="button" title="Tirar" onclick="edRemRef(' + i + ')">✕</button>') +
               (travado || r.id ? '' : '<label class="ed-muted ed-bibck"><input type="checkbox" id="edR_salvar_' + i + '"' + (r.salvar ? ' checked' : '') + '> salvar na biblioteca como <input class="ed-input" id="edR_nome_' + i + '" style="display:inline-block;width:200px;padding:5px 8px;font-size:12.5px;" placeholder="ex.: minha legenda padrão" value="' + edEsc(r.nome) + '"></label>') +
             '</div>').join('');
-        const bibOpts = '<option value="">+ Usar da biblioteca…</option>' + edRefsBib.map(r => '<option value="' + r.id + '">' + edEsc(edRefTipoNome(r.tipo)) + ': ' + edEsc(r.nome || r.link) + '</option>').join('');
         box.innerHTML =
           '<div class="ed-row" style="margin-bottom:12px;"><button class="ed-btn ghost mini" type="button" onclick="edFecharPedido()">← Pedidos</button>' +
             (ped ? edStatusTag(ped.status) + (ped.status_msg ? '<span class="ed-muted">' + edEsc(ped.status_msg) + '</span>' : '') : '<b>Novo pedido de edição</b>') +
@@ -17997,12 +18017,8 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                   (f.tipo === 'cenas' ? 'Lá você joga as cenas que gerar (cena01.mp4, cena02.mp4…).' : 'Aí é só jogar o bruto e as cenas extras dentro (dá para subir direto do celular pelo app do Drive).'))) +
                 ' O final volta para a mesma pasta.</div>' +
               '<label class="ed-lb">Formato</label><div class="ed-row">' + formatos + '</div>' +
-              '<label class="ed-lb">Modelo de legenda</label><div class="ed-row"><select class="ed-input" id="edP_legenda_modelo" style="max-width:280px;"' + dis + '>' +
-                '<option value="">Sem legenda</option>' + edLegendas.map(m => '<option value="' + m.id + '"' + (f.legenda_modelo === m.id ? ' selected' : '') + '>' + edEsc(m.nome) + '</option>').join('') +
-                '</select><button class="ed-btn ghost mini" type="button" onclick="edSetAba(\'legendas\')">Ver os modelos</button></div>' +
-              '<label class="ed-lb">Títulos animados (vazio = o robô escolhe)</label><div class="ed-row">' +
-                ED_TITULOS.map(([id, n]) => '<button class="ed-chip' + (String(f.titulos_modelos || '').split(',').includes(id) ? ' on' : '') + '" type="button"' + dis + ' onclick="edTituloNoPedido(\'' + id + '\')">' + edEsc(n) + '</button>').join('') +
-                '<button class="ed-btn ghost mini" type="button" onclick="edSetAba(\'titulos\')">Ver os títulos</button></div>' +
+              '<label class="ed-lb">Legenda · ' + edEsc((edLegendas.find(m => m.id === f.legenda_modelo) || { nome: 'sem legenda' }).nome) + '</label>' + edPickLegendas(f, travado) +
+              '<label class="ed-lb">Títulos animados · ' + (f.titulos_modelos ? String(f.titulos_modelos).split(',').filter(Boolean).length + ' escolhido(s)' : 'nenhum escolhido = o robô escolhe') + '</label>' + edPickTitulos(f, travado) +
               '<label class="ed-lb">' + (f.tipo === 'cenas' ? 'Duração (segundos; cada 10 s é uma cena)' : 'Duração desejada (segundos, opcional)') + '</label><input class="ed-input" id="edP_duracao_alvo_s" type="number" min="5" max="600" style="max-width:160px;"' + dis + ' value="' + edEsc(f.duracao_alvo_s) + '">' +
               '<div class="ed-lb-mic"><label class="ed-lb">Observações</label>' + (dis ? '' : edMicBtn('edP_observacoes')) + '</div><textarea class="ed-input" id="edP_observacoes" rows="3" placeholder="ex.: tirar a parte em que eu tropeço; destacar o preço"' + dis + '>' + edEsc(f.observacoes) + '</textarea>' +
             '</div>' +
@@ -18036,15 +18052,52 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
           '</div>' +
           '<div class="ed-card" style="margin-top:14px;">' +
             '<h4>Referências</h4>' +
-            '<div class="ed-muted" style="margin-bottom:8px;">Uma ou mais por tipo. Diga na nota o que copiar de cada uma.</div>' +
+            '<div class="ed-muted" style="margin-bottom:8px;">' + (travado ? 'As referências deste pedido.' : 'Toque nas da sua biblioteca para usar neste vídeo, ou cole um link novo. Diga na nota o que copiar de cada uma.') + '</div>' +
+            (travado || !edRefsBib.length ? '' : edPickRefs(f)) +
             refs +
             (travado ? '' : '<div class="ed-row" style="margin-top:10px;">' +
-              '<button class="ed-btn ghost mini" type="button" onclick="edAddRef()">+ Referência</button>' +
-              (edRefsBib.length ? '<select class="ed-input" style="width:auto;max-width:360px;" onchange="edUsarDaBiblioteca(this.value)">' + bibOpts + '</select>' : '') +
+              '<button class="ed-btn ghost mini" type="button" onclick="edAddRef()">+ Link novo</button>' +
             '</div>') +
           '</div>' +
           (travado ? '' : '<div class="ed-row" style="margin-top:14px;justify-content:flex-end;"><button class="ed-btn" type="button" onclick="edSalvarPedido()">' + (f.id ? 'Salvar pedido' : 'Mandar para a fila') + '</button></div>');
         if (!travado) edChecarPasta(); else if (ped) edIaMontar(ped);
+        edLegAnimar();
+    }
+    /* ── Escolher vendo: legenda animada, títulos em vídeo e referências com a prévia do Reels ── */
+    function edMini(link) {
+        const e = edEmbed(link);
+        if (!e) return '<div class="ed-mini-sem">' + (String(link || '').trim() ? 'sem prévia' : 'cole o link') + '</div>';
+        return '<iframe class="ed-mini-ifr ' + e.tipo + '" src="' + edEsc(e.src) + '" loading="lazy" scrolling="no" tabindex="-1"></iframe>';
+    }
+    function edPickLegendas(f, travado) {
+        const card = (id, nome, tela) => '<button class="ed-pk' + ((f.legenda_modelo || '') === id ? ' on' : '') + '" type="button"' + (travado ? ' disabled' : '') + ' onclick="edEscolherLegenda(\'' + id + '\')">' +
+            tela + '<span class="ed-pk-n">' + edEsc(nome) + '</span></button>';
+        return '<div class="ed-pick">' + edLegendas.map(m => card(m.id, m.nome, '<div class="lg-tela ed-pk-tela" data-id="' + m.id + '"><div class="lg-txt" style="' + edLegEstilo(m, 200) + '"></div></div>')).join('') +
+            card('', 'Sem legenda', '<div class="lg-tela ed-pk-tela ed-pk-vazia">sem legenda</div>') + '</div>';
+    }
+    function edEscolherLegenda(id) { edLerForm(); edForm.legenda_modelo = id; edRender(); }
+    function edPickTitulos(f, travado) {
+        const sel = String(f.titulos_modelos || '').split(',');
+        return '<div class="ed-pick">' + ED_TITULOS.map(([id, n, d]) => '<button class="ed-pk' + (sel.includes(id) ? ' on' : '') + '" type="button" title="' + edEsc(d) + '"' + (travado ? ' disabled' : '') + ' onclick="edTituloNoPedido(\'' + id + '\')">' +
+            '<video class="ed-pk-tela" src="robo-edicao/titulos/previas/' + id + '.mp4" autoplay loop muted playsinline preload="metadata"></video><span class="ed-pk-n">' + edEsc(n) + '</span></button>').join('') + '</div>';
+    }
+    let edPickRefFiltro = '';
+    function edPickRefs(f) {
+        const usados = new Set(f.refs.map(r => r.link.trim()).filter(Boolean));
+        const tipos = ED_REF_TIPOS.filter(([k]) => edRefsBib.some(r => r.tipo === k));
+        const chips = tipos.length > 1 ? '<div class="ed-row" style="margin-bottom:8px;">' + [['', 'Todas']].concat(tipos).map(([k, n]) =>
+            '<button class="ed-chip' + (edPickRefFiltro === k ? ' on' : '') + '" type="button" onclick="edLerForm();edPickRefFiltro=\'' + k + '\';edRender()">' + edEsc(n) + '</button>').join('') + '</div>' : '';
+        return chips + '<div class="ed-pick ed-pick-refs">' + edRefsBib.filter(r => !edPickRefFiltro || r.tipo === edPickRefFiltro).map(r =>
+            '<div class="ed-pk ed-pk-ref' + (usados.has(r.link.trim()) ? ' on' : '') + '">' +
+              '<div class="ed-pk-tela ed-mini">' + edMini(r.link) + '<button class="ed-pk-hit" type="button" aria-label="Usar esta referência" onclick="edAlternarRefBib(\'' + r.id + '\')"></button></div>' +
+              '<span class="ed-pk-n">' + edEsc(r.nome || edRefTipoNome(r.tipo)) + '</span></div>').join('') + '</div>';
+    }
+    function edAlternarRefBib(id) {
+        edLerForm();
+        const r = edRefsBib.find(x => x.id === id); if (!r) return;
+        const k = edForm.refs.findIndex(x => x.link.trim() === r.link.trim());
+        if (k >= 0) { edForm.refs.splice(k, 1); edRender(); return; }
+        edUsarDaBiblioteca(id);
     }
     /* ── Biblioteca de fontes: robo-edicao/fontes.json (as mesmas que o robô instala no Mac) ── */
     let edFontes = [], edFonteCat = '', edFonteTexto = 'Você sabe quanto valem as suas milhas?';
@@ -18171,7 +18224,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const t0 = performance.now();
         edLegTimer = setInterval(() => {
             const telas = document.querySelectorAll('#tabEdicao .lg-tela');
-            if (!telas.length || edAba !== 'legendas') { clearInterval(edLegTimer); return; }
+            if (!telas.length) { clearInterval(edLegTimer); return; }
             const t = ((performance.now() - t0) / 1000) % 9.5;
             telas.forEach(el => {
                 const m = edLegendas.find(x => x.id === el.dataset.id); if (!m) return;
