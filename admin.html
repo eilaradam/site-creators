@@ -17747,7 +17747,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         if (JSON.stringify(edPedidos.map(p => [p.id, p.status, p.status_msg, p.previa_link, p.projeto, p.cenas])) !== antes) edRender();
     }, 15000);
     function edNovoForm(base) {
-        edForm = Object.assign({ id: null, conteudo_id: '', marca: '', titulo: '', drive_pasta_link: '', roteiro: '', formato: '9:16', duracao_alvo_s: '', observacoes: '', marca_site: '', marca_redes: '', rec_gravar: false, rec_passos: '', tipo: 'edicao', voz: 'pt-BR-FranciscaNeural', estilo_visual: 'marca',
+        edForm = Object.assign({ id: null, conteudo_id: '', marca: '', titulo: '', drive_pasta_link: '', roteiro: '', formato: '9:16', duracao_alvo_s: '', observacoes: '', marca_site: '', marca_redes: '', rec_gravar: false, rec_passos: '', tipo: 'edicao', voz: 'minha', estilo_visual: 'marca',
             refs: [{ tipo: 'geral', link: '', nota: '', salvar: false, nome: '' }] }, base || {});
     }
     function edAbrirNovoPedido() { edPedidoAberto = 'novo'; edNovoForm(); edRender(); }
@@ -17759,7 +17759,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         edNovoForm({ id, conteudo_id: ped.conteudo_id || '', marca: ped.pasta_nome || ped.marca || '', titulo: ped.titulo || '', drive_pasta_link: ped.drive_pasta_link || '', roteiro: ped.roteiro || '',
             formato: ped.formato || '9:16', duracao_alvo_s: ped.duracao_alvo_s || '', observacoes: ped.observacoes || '',
             marca_site: ped.marca_site || '', marca_redes: ped.marca_redes || '', rec_gravar: !!ped.rec_gravar, rec_passos: ped.rec_passos || '',
-            tipo: ped.tipo || 'edicao', voz: ped.voz || 'pt-BR-FranciscaNeural', estilo_visual: ped.estilo_visual || 'marca',
+            tipo: ped.tipo || 'edicao', voz: ped.voz || 'minha', estilo_visual: ped.estilo_visual || 'marca',
             refs: edPedidoRefs.length ? edPedidoRefs.map(r => ({ id: r.id, tipo: r.tipo, link: r.link, nota: r.nota || '', salvar: false, nome: '' })) : [{ tipo: 'geral', link: '', nota: '', salvar: false, nome: '' }] });
         edRender();
     }
@@ -17794,7 +17794,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     function edFormato(f) { edLerForm(); edForm.formato = f; edRender(); }
     function edTipoPedido(t) { edLerForm(); edForm.tipo = t; if (t === 'cenas' && !edForm.duracao_alvo_s) edForm.duracao_alvo_s = 60; edRender(); }
     function edEstiloVisual(e) { edLerForm(); edForm.estilo_visual = e; edRender(); }
-    const ED_VOZES = [['pt-BR-FranciscaNeural', 'Francisca · feminina, calorosa'], ['pt-BR-ThalitaNeural', 'Thalita · feminina, jovem'], ['pt-BR-AntonioNeural', 'Antonio · masculina, firme']];
+    const ED_VOZES = [['minha', 'Minha voz (eu gravo e subo o áudio)'], ['pt-BR-FranciscaNeural', 'Voz gerada: Francisca · feminina, calorosa'], ['pt-BR-ThalitaNeural', 'Voz gerada: Thalita · feminina, jovem'], ['pt-BR-AntonioNeural', 'Voz gerada: Antonio · masculina, firme']];
     const ED_ESTILOS = [['marca', 'Cores da marca', 'motion design limpo com as cores e o jeito da marca'], ['colagem', 'Colagem editorial', 'recortes de foto, cores chapadas e rabiscos de marcador (estilo explicativo)'], ['diorama', 'Diorama de papel', 'miniaturas de jornal em sépia, um laranja de destaque, câmera passeando']];
     function edAddRef(tipo) { edLerForm(); edForm.refs.push({ tipo: tipo || 'geral', link: '', nota: '', salvar: false, nome: '' }); edRender(); }
     function edRemRef(i) { edLerForm(); edForm.refs.splice(i, 1); if (!edForm.refs.length) edForm.refs.push({ tipo: 'geral', link: '', nota: '', salvar: false, nome: '' }); edRender(); }
@@ -17929,11 +17929,12 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             '</div>' +
           '</div>' +
           (f.tipo === 'cenas' ? '<div class="ed-card" style="margin-top:14px;"><h4>Locução e visual</h4>' +
-            '<label class="ed-lb">Voz da locução (grátis, gerada no seu Mac)</label><select class="ed-input" id="edP_voz" style="max-width:360px;"' + dis + '>' +
+            '<label class="ed-lb">Locução</label><select class="ed-input" id="edP_voz" style="max-width:360px;"' + dis + '>' +
               ED_VOZES.map(([k, n]) => '<option value="' + k + '"' + (f.voz === k ? ' selected' : '') + '>' + n + '</option>').join('') + '</select>' +
             '<label class="ed-lb">Visual das cenas</label><div class="ed-row">' +
               ED_ESTILOS.map(([k, n, d]) => '<button class="ed-chip' + (f.estilo_visual === k ? ' on' : '') + '" type="button"' + dis + ' title="' + edEsc(d) + '" onclick="edEstiloVisual(\'' + k + '\')">' + n + '</button>').join('') + '</div>' +
-            '<div class="ed-muted" style="margin-top:6px;">' + edEsc((ED_ESTILOS.find(e => e[0] === f.estilo_visual) || ED_ESTILOS[0])[2]) + '. O robô te entrega uma imagem-chave e um prompt por cena para rodar no Dreamina (créditos grátis); você joga as cenas na pasta e ele monta o vídeo com a locução.</div>' +
+            '<div class="ed-muted" style="margin-top:6px;">' + edEsc((ED_ESTILOS.find(e => e[0] === f.estilo_visual) || ED_ESTILOS[0])[2]) + '. O robô te entrega o texto dividido em cenas, uma imagem-chave e um prompt por cena para rodar no Dreamina (créditos grátis). ' +
+              (f.voz === 'minha' ? 'Você grava o texto inteiro de uma vez (em vídeo, como um bruto, ou só o áudio) e joga na pasta junto com as cenas: o robô acha onde começa cada cena na sua fala e ajusta os vídeos.' : 'A voz gerada serve de rascunho para testar o ritmo.') + '</div>' +
           '</div>' : '') +
           '<div class="ed-card" style="margin-top:14px;">' +
             '<h4>A marca</h4>' +
@@ -17972,9 +17973,15 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const recebidas = new Set(c.recebidas || []);
         const bloco = (id, titulo, texto, extra) => '<div class="ia-cena"><div class="ia-cena-top"><b>' + titulo + '</b><button class="ed-btn mini" type="button" onclick="edCopiar(\'' + id + '\')">Copiar prompt</button></div>' +
             (extra || '') + '<pre class="ia-prompt" id="' + id + '">' + edEsc(texto || '') + '</pre></div>';
-        return '<div class="ia-cenas"><div class="ia-cenas-tit">Seus prompts</div>' +
+        const proprio = ped.voz === 'minha' || c.voz_propria;
+        const textoTodo = c.cenas.map(x => x.texto || '').join('\n\n');
+        const gravar = proprio ? '<div class="ia-cena"><div class="ia-cena-top"><b>Texto para você gravar' + (c.audio ? ' · ✓ áudio recebido (' + edEsc(c.audio) + ')' : '') + '</b>' +
+            '<button class="ed-btn mini" type="button" onclick="edCopiar(\'edTxt\')">Copiar texto</button></div>' +
+            '<div class="ia-cenas-dica">Grave tudo de uma vez, no seu ritmo, e jogue na pasta do pedido como faz com o bruto: pode ser vídeo, gravador do celular ou áudio do WhatsApp (compartilhar para o Drive).</div>' +
+            '<pre class="ia-prompt" id="edTxt" style="font-family:inherit;font-size:13.5px;">' + edEsc(textoTodo) + '</pre></div>' : '';
+        return '<div class="ia-cenas"><div class="ia-cenas-tit">' + (proprio ? 'Seu texto e seus prompts' : 'Seus prompts') + '</div>' +
             '<div class="ia-cenas-dica">' + edEsc(c.instrucoes || 'Gere a imagem-chave primeiro. Depois gere cada cena no Dreamina (Seedance), anexando a imagem-chave, e salve como cena01.mp4, cena02.mp4… na pasta do pedido.') + '</div>' +
-            bloco('edCk', 'Imagem-chave (gere 1 vez)', c.estilo_prompt) +
+            gravar + bloco('edCk', 'Imagem-chave (gere 1 vez)', c.estilo_prompt) +
             c.cenas.map(x => bloco('edCn' + x.n, 'Cena ' + x.n + ' · salve como ' + edEsc(x.arquivo || ('cena' + String(x.n).padStart(2, '0') + '.mp4')) + (recebidas.has(x.n) ? ' ✓ recebida' : ''), x.prompt,
                 '<div class="ia-cena-fala">“' + edEsc(x.texto || '') + '”</div>')).join('') +
           '</div>';
