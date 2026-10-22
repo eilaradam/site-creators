@@ -5289,6 +5289,19 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
 @keyframes lgFade { from { opacity:0; } to { opacity:1; } }
 @keyframes lgPalavra { from { transform:scale(1.12); } to { transform:scale(1); } }
 #tabEdicao .lg-info { padding:10px 12px 12px; font-size:13.5px; }
+#tabEdicao .ia-meio { grid-template-columns:200px 1fr; }
+#tabEdicao .ia-prev { position:relative; }
+#tabEdicao .ia-prev iframe.ia-prev-drive { position:absolute; top:0; left:0; width:360px; height:640px; transform:scale(.5455); transform-origin:0 0; border:0; }
+#tabEdicao .ia-prev-abrir { position:absolute; left:6px; right:6px; bottom:6px; text-align:center; background:rgba(27,27,27,.85); color:#FFF8F2; border-radius:8px; padding:5px; font-size:12px; font-weight:700; text-decoration:none; }
+#tabEdicao .ia-bl.leg { border-right:1px solid #1B1B1B; }
+#tabEdicao .fn-grade { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:12px; }
+#tabEdicao .fn-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+#tabEdicao .fn-amostra { background:#1B1B1B; color:#FFF8F2; padding:22px 16px; font-size:28px; line-height:1.15; min-height:110px; display:flex; align-items:center; }
+#tabEdicao .fn-info { padding:10px 12px 12px; font-size:13.5px; }
+#tabEdicao .fn-pesos { display:flex; flex-wrap:wrap; gap:5px; margin:8px 0 6px; }
+#tabEdicao .fn-peso { background:#F4F2EF; border:1px solid var(--border); border-radius:7px; padding:3px 8px; font-size:13px; cursor:pointer; color:var(--text); }
+#tabEdicao .fn-peso:hover { border-color:var(--accent); color:var(--accent); }
+@media (max-width: 600px) { #tabEdicao .ia-meio { grid-template-columns:130px 1fr; } #tabEdicao .ia-prev iframe.ia-prev-drive { transform:scale(.3611); } }
 #tabEdicao .ed-toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px); background:#1F1B18; color:#fff; padding:10px 16px; border-radius:10px; font-size:13.5px; font-weight:600; opacity:0; pointer-events:none; transition:all .2s; z-index:9999; }
 #tabEdicao .ed-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 #tabEdicao .ed-toast.erro { background:#B3261E; }
@@ -5307,6 +5320,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     <button class="ed-chip" type="button" data-ed-aba="regras" onclick="edSetAba('regras')">Regras do estilo</button>
     <button class="ed-chip" type="button" data-ed-aba="dicionario" onclick="edSetAba('dicionario')">Dicionário de correções</button>
     <button class="ed-chip" type="button" data-ed-aba="legendas" onclick="edSetAba('legendas')">Modelos de legenda</button>
+    <button class="ed-chip" type="button" data-ed-aba="fontes" onclick="edSetAba('fontes')">Biblioteca de fontes</button>
   </div>
   <div id="edBox"><div class="ed-empty">Carregando…</div></div>
 </div>
@@ -17718,6 +17732,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         if (edAba === 'regras') return edRenderRegras();
         if (edAba === 'dicionario') return edRenderDic();
         if (edAba === 'legendas') return edRenderLegendas();
+        if (edAba === 'fontes') return edRenderFontes();
         edRenderRevisao();
     }
 
@@ -17979,6 +17994,49 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
           (travado ? '' : '<div class="ed-row" style="margin-top:14px;justify-content:flex-end;"><button class="ed-btn" type="button" onclick="edSalvarPedido()">' + (f.id ? 'Salvar pedido' : 'Mandar para a fila') + '</button></div>');
         if (!travado) edChecarPasta();
     }
+    /* ── Biblioteca de fontes: robo-edicao/fontes.json (as mesmas que o robô instala no Mac) ── */
+    let edFontes = [], edFonteCat = '', edFonteTexto = 'Você sabe quanto valem as suas milhas?';
+    const ED_FONTE_CATS = [['', 'Todas'], ['impacto', 'Impacto'], ['moderna', 'Moderna'], ['serifa', 'Serifa'], ['manuscrita', 'Manuscrita'], ['divertida', 'Divertida'], ['tech', 'Tech']];
+    async function edCarregarFontes() {
+        if (edFontes.length) return;
+        try { const r = await fetch('robo-edicao/fontes.json', { cache: 'no-cache' }); edFontes = await r.json(); } catch (_) { edFontes = []; }
+        if (!edFontes.length || document.getElementById('edFontesCss')) return;
+        // pede ao Google Fonts só os pesos que o robô tem de cada família (mesmo visual do vídeo)
+        const fam = edFontes.map(f => {
+            const pesos = [...new Set((f.pesos_fixos && f.pesos_fixos.length ? f.pesos_fixos : f.pesos).filter(p => p >= 100))].sort((a, b) => a - b);
+            return 'family=' + encodeURIComponent(f.familia).replace(/%20/g, '+') + (pesos.length > 1 ? ':wght@' + pesos.join(';') : '');
+        });
+        for (let i = 0; i < fam.length; i += 15) {
+            const l = document.createElement('link'); l.rel = 'stylesheet'; l.id = i ? '' : 'edFontesCss';
+            l.href = 'https://fonts.googleapis.com/css2?' + fam.slice(i, i + 15).join('&') + '&display=swap';
+            document.head.appendChild(l);
+        }
+    }
+    function edFonteFiltro(c) { edFonteCat = c; edRenderFontes(); }
+    function edFonteAmostra(v) { edFonteTexto = v || 'Você sabe quanto valem as suas milhas?'; document.querySelectorAll('#tabEdicao .fn-amostra').forEach(el => { el.textContent = edFonteTexto; }); }
+    function edCopiarNome(nome) {
+        (navigator.clipboard ? navigator.clipboard.writeText(nome) : Promise.reject()).then(() => edToast('Copiado: ' + nome), () => edToast(nome));
+    }
+    async function edRenderFontes() {
+        const box = document.getElementById('edBox'); if (!box) return;
+        await edCarregarFontes();
+        if (!edFontes.length) { box.innerHTML = '<div class="ed-card ed-empty">Não consegui carregar a biblioteca (robo-edicao/fontes.json).</div>'; return; }
+        const lista = edFontes.filter(f => !edFonteCat || f.categoria === edFonteCat);
+        const conta = c => edFontes.filter(f => !c || f.categoria === c).length;
+        const peso = n => /Black/.test(n) ? 900 : /ExtraBold/.test(n) ? 800 : /SemiBold/.test(n) ? 600 : /ExtraLight/.test(n) ? 200 : /Light/.test(n) ? 300 : /Medium/.test(n) ? 500 : /Thin/.test(n) ? 100 : /Bold/.test(n) ? 700 : 400;
+        box.innerHTML =
+          '<div class="ed-muted" style="margin-bottom:10px;">' + edFontes.length + ' famílias do Google Fonts, todas com licença livre para uso comercial (inclusive vídeo de cliente). O robô instala essas no Mac e usa nos títulos, animações e legendas.</div>' +
+          '<div class="ed-row" style="margin-bottom:10px;"><input class="ed-input" style="max-width:420px;" placeholder="Escreva um texto para testar" oninput="edFonteAmostra(this.value)" value="' + edEsc(edFonteTexto) + '"></div>' +
+          '<div class="ed-sub">' + ED_FONTE_CATS.map(([k, n]) => '<button class="ed-chip' + (edFonteCat === k ? ' on' : '') + '" type="button" onclick="edFonteFiltro(\'' + k + '\')">' + n + ' · ' + conta(k) + '</button>').join('') + '</div>' +
+          '<div class="fn-grade">' + lista.map(f => {
+              const nomes = (f.nomes || []).slice().sort((a, b) => peso(a) - peso(b));
+              const forte = nomes.length ? peso(nomes[nomes.length - 1]) : 400;
+              return '<div class="fn-card"><div class="fn-amostra" style="font-family:\'' + edEsc(f.familia) + '\';font-weight:' + forte + ';">' + edEsc(edFonteTexto) + '</div>' +
+                '<div class="fn-info"><b>' + edEsc(f.familia) + '</b> <span class="ed-tag">' + edEsc(f.categoria) + '</span>' + (f.nomes_italico && f.nomes_italico.length ? ' <span class="ed-tag">itálico</span>' : '') +
+                '<div class="fn-pesos">' + nomes.map(n => '<button type="button" class="fn-peso" title="Copiar o nome que o robô usa" style="font-family:\'' + edEsc(f.familia) + '\';font-weight:' + peso(n) + ';" onclick="edCopiarNome(\'' + edEsc(n).replace(/'/g, "\\'") + '\')">' + edEsc(n.replace(f.familia, '').trim() || 'Regular') + '</button>').join('') + '</div>' +
+                '<div class="ed-muted" style="font-size:11.5px;">Licença ' + edEsc(f.licenca) + ' · ' + edEsc(f.origem) + '</div></div></div>';
+          }).join('') + '</div>';
+    }
     /* ── Modelos de legenda: a mesma lista (robo-edicao/legendas.json) que o robô usa para queimar a legenda ── */
     let edLegendas = [], edLegTimer = null;
     function edLegendaPadrao() { try { return localStorage.getItem('edLegendaPadrao') || 'pop_amarelo'; } catch (_) { return 'pop_amarelo'; } }
@@ -18116,12 +18174,14 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             ? 'Vídeo de locução + cenas: ' + String(ped.roteiro || ped.pasta_nome || '').trim().replace(/\s+/g, ' ').slice(0, 110)
             : 'Edita seguindo o roteiro' + (ped.marca ? ' da ' + ped.marca : '') + ', com legenda, cortes e zoom.');
         const m = String(ped.previa_link || '').match(/\/file\/d\/([\w-]+)/);
-        const previa = m ? '<iframe src="https://drive.google.com/file/d/' + m[1] + '/preview" allow="autoplay" allowfullscreen></iframe>'
+        const previa = m ? '<iframe class="ia-prev-drive" src="https://drive.google.com/file/d/' + m[1] + '/preview" allow="autoplay" allowfullscreen></iframe>' +
+                '<a class="ia-prev-abrir" href="' + edEsc(ped.previa_link) + '" target="_blank" rel="noopener">Assistir maior ↗</a>'
             : '<div class="ia-prev-vazio"><b>' + edEsc(ped.pasta_nome || ped.marca || '') + '</b><span>' + (andando ? 'editando…' : '') + '</span></div>';
         const etapas = edEtapasDoPedido(ped).map(e => '<div class="ia-etapa ' + e.st + '"><span class="ia-ck">' + (e.st === 'feito' ? '✓' : '') + '</span>' + edEsc(e.n) + '</div>').join('');
         const bloco = (c, cls, txt) => {
             const i = Math.max(0, Number(c.inicio_s) || 0), f = Math.max(i + 0.05, Number(c.fim_s) || i);
-            return '<div class="ia-bl ' + cls + '" style="left:' + (i / dur * 100).toFixed(3) + '%;width:' + ((f - i) / dur * 100).toFixed(3) + '%;" title="' + edEsc(edMMSS(i) + ' a ' + edMMSS(f) + (txt ? ' · ' + txt : '')) + '">' + (txt ? '<span>' + edEsc(txt) + '</span>' : '') + '</div>';
+            const largura = (f - i) / dur;
+            return '<div class="ia-bl ' + cls + '" style="left:' + (i / dur * 100).toFixed(3) + '%;width:' + (largura * 100).toFixed(3) + '%;" title="' + edEsc(edMMSS(i) + ' a ' + edMMSS(f) + (txt ? ' · ' + txt : '')) + '">' + (txt && largura >= 0.06 ? '<span>' + edEsc(txt) + '</span>' : '') + '</div>';
         };
         const trilha = (nome, cls, itens) => '<div class="ia-tr"><div class="ia-tr-n">' + nome + '</div><div class="ia-tr-l">' + itens + '</div></div>';
         const linha = dur ? '<div class="ia-tl' + (andando ? ' vivo' : '') + '">' +

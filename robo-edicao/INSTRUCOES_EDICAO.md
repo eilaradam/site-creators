@@ -78,6 +78,11 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
      que já existem lá (Overlays.tsx, InfinitePay.tsx) como referência de qualidade.
    - Renderize com fundo transparente: `npx remotion render <id> work/anim_<n>.mov --codec=prores --prores-profile=4444 --pixel-format=yuva444p10le`
      e sobreponha no vídeo com FFmpeg (`overlay=enable='between(t,ini,fim)'`).
+   - **Fontes**: títulos e animações só com fontes da biblioteca `~/robo-edicao/fontes.json` (arquivos em
+     `~/robo-edicao/fontes`, todas com licença livre para uso comercial). Escolha pelo jeito da marca
+     (categorias: impacto, moderna, serifa, manuscrita, divertida, tech), no máximo 2 famílias por vídeo.
+     No Remotion, carregue com `@font-face` apontando para uma cópia do .ttf em `public/`. Na legenda .ass,
+     use o nome exato da lista `nomes` (ex.: "Montserrat ExtraBold").
 7. **Logo da marca**: procure primeiro um arquivo `logo*` (png/svg) em `entrada/`. Se não tiver, baixe do site da marca
    (`<link rel="icon">`, `og:image` ou uma imagem com "logo" no nome) para `work/logo.png`. Use o logo na abertura ou
    no fechamento (chamada final animada no Remotion) e, se fizer sentido, discreto num canto. Sem logo de boa
