@@ -8,7 +8,7 @@ mkdir -p "$D/bin" "$D/trabalhos"
 cd "$D"
 
 echo "1/5 Baixando o robô…"
-for f in robo.mjs INSTRUCOES_EDICAO.md INSTRUCOES_CENAS.md transcrever.py legendas.json legendas_ass.py; do curl -fsSL "$BASE/$f" -o "$D/$f"; done
+for f in robo.mjs INSTRUCOES_EDICAO.md INSTRUCOES_CENAS.md transcrever.py legendas.json legendas_ass.py catalogar_sons.py encaixar_musica.py; do curl -fsSL "$BASE/$f" -o "$D/$f"; done
 # fontes dos modelos de legenda (Google Fonts, licença livre)
 mkdir -p "$D/fontes"
 for p in poppins/Poppins-Black.ttf poppins/Poppins-ExtraBold.ttf poppins/Poppins-SemiBold.ttf anton/Anton-Regular.ttf bebasneue/BebasNeue-Regular.ttf archivoblack/ArchivoBlack-Regular.ttf dmserifdisplay/DMSerifDisplay-Italic.ttf; do
@@ -31,7 +31,7 @@ RC="$D/bin/rclone"; [ -x "$RC" ] || RC=rclone
 echo "3/5 Preparando o Python da edição (transcrição e download de referências)… pode levar uns minutos"
 [ -x "$D/venv/bin/python" ] || python3 -m venv "$D/venv"
 "$D/venv/bin/pip" install -q --upgrade pip
-"$D/venv/bin/pip" install -q faster-whisper yt-dlp edge-tts
+"$D/venv/bin/pip" install -q faster-whisper yt-dlp edge-tts librosa
 
 echo "4/5 Conectando o seu Google Drive…"
 if "$RC" listremotes | grep -q '^drive:$'; then

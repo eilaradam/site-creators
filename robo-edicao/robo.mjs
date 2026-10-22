@@ -114,13 +114,23 @@ async function olharBruto(p) {
 
 function slug(s) { return String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\w]+/g, '-').replace(/^-|-$/g, '').toLowerCase(); }
 
+/* Banco de sons (~/Desktop/sons): atualiza o catalogo.json antes de editar, só analisando o que mudou */
+const SONS = process.env.ROBO_SONS || path.join(os.homedir(), 'Desktop', 'sons');
+function atualizarBancoDeSons() {
+    if (!fs.existsSync(SONS)) return;
+    const py = fs.existsSync(path.join(VENV_BIN, 'python')) ? path.join(VENV_BIN, 'python') : 'python3';
+    const r = spawnSync(py, ['-I', path.join(DIR, 'catalogar_sons.py'), SONS], { encoding: 'utf8', timeout: 20 * 60000 });
+    log(r.status === 0 ? 'banco de sons: ' + (r.stdout || '').trim().split('\n')[0] : 'banco de sons não atualizado: ' + (r.stderr || '').trim().split('\n').pop());
+}
+
 async function editar(p, arquivos) {
     const job = path.join(TRABALHOS, p.numero + '-' + slug(p.pasta_nome));
     const entrada = path.join(job, 'entrada'), saida = path.join(job, 'saida');
     fs.mkdirSync(entrada, { recursive: true }); fs.rmSync(saida, { recursive: true, force: true }); fs.mkdirSync(saida, { recursive: true });
 
     await mudar(p, { status: 'baixando', status_msg: 'Baixando ' + arquivos.length + ' arquivo(s) do Drive' });
-    rclone(['copy', 'drive:', entrada, ...naPasta(p.drive_pasta_id), '--exclude', '{PREVIA,PRÉVIA,FINAL,REC}*', '--max-depth', '3']);
+    // sync (não copy): o que a Lara apagou da pasta também some daqui, para o Claude não usar arquivo velho
+    rclone(['sync', 'drive:', entrada, ...naPasta(p.drive_pasta_id), '--exclude', '{PREVIA,PRÉVIA,FINAL,REC,LOCUCAO}*', '--max-depth', '3']);
 
     const [refs, regras, dic] = await Promise.all([
         db('edicao_referencias?pedido_id=eq.' + p.id + '&select=tipo,link,nota,analise&order=created_at'),
@@ -131,6 +141,7 @@ async function editar(p, arquivos) {
     fs.writeFileSync(path.join(job, 'pedido.json'), JSON.stringify({ pedido: p, referencias: refs, regras: regras.filter(r => daMarca(r.cliente)), dicionario: dic.filter(d => daMarca(d.cliente)) }, null, 2));
     fs.writeFileSync(path.join(job, 'PEDIDO.md'), pedidoMd(p, refs, regras.filter(r => daMarca(r.cliente)), dic.filter(d => daMarca(d.cliente)), arquivos));
     fs.copyFileSync(path.join(DIR, 'INSTRUCOES_EDICAO.md'), path.join(job, 'CLAUDE.md'));
+    atualizarBancoDeSons();
 
     await mudar(p, { status: 'editando', status_msg: 'Claude editando (pode levar uns 20 a 40 min)' });
     const ok = await rodarClaude(job, p);
