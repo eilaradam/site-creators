@@ -1322,6 +1322,10 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M3 9l2-5h14l2 5"/><path d="M8 4l2 5"/><path d="M13 4l2 5"/><path d="M10 13v5l4-2.5z"/></svg>
                         <span>Conteúdos</span>
                     </button>
+                    <button class="tab nav-item" data-tab="robo" type="button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 8V4"/><circle cx="12" cy="3" r="1"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/><path d="M2 14h2M20 14h2"/></svg>
+                        <span>Robô de inscrições</span>
+                    </button>
                     <button class="tab nav-item" data-tab="edicao" type="button">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
                         <span>Edição</span>
@@ -4232,6 +4236,60 @@
      As campanhas de publi e UGC (vieram do MeuManager pra tabela `conteudos`):
      da negociação ao pagamento, com funil de status, valor, pagamento e datas.
      Tudo com prefixo ct- (CSS) e ct* (JS). -->
+<!-- ============ Aba Robô de inscrições ============
+     Campanhas do Seu Influencer em que o robô (Mac da Lara) se inscreveu. Dados: tabela robo_inscricoes
+     (gravada pela edge function robo-registrar). Prefixo rb- (CSS) e robo* (JS). -->
+<div class="dashboard" id="tabRobo">
+<style>
+#tabRobo .rb-wrap { max-width:1180px; margin:0 auto; }
+#tabRobo .rb-hero { background:linear-gradient(135deg,#7B3E1B,#A75525); color:#fff; border-radius:20px; padding:22px 24px; display:flex; gap:18px; align-items:center; flex-wrap:wrap; margin-bottom:18px; }
+#tabRobo .rb-hero .em { font-size:44px; line-height:1; }
+#tabRobo .rb-hero h2 { margin:0; font-size:22px; font-weight:800; }
+#tabRobo .rb-hero p { margin:4px 0 0; opacity:.88; font-size:14px; }
+#tabRobo .rb-hero .rb-att { margin-left:auto; }
+#tabRobo .rb-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:18px; }
+#tabRobo .rb-stat { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:14px 16px; }
+#tabRobo .rb-stat .n { font-size:28px; font-weight:800; color:var(--text); line-height:1.1; }
+#tabRobo .rb-stat .l { font-size:12px; color:var(--text-soft); margin-top:4px; font-weight:600; }
+#tabRobo .rb-stat.ok { background:#ECFDF5; border-color:#A7F3D0; } #tabRobo .rb-stat.ok .n { color:#047857; }
+#tabRobo .rb-stat.wait { background:#FFF7E6; border-color:#FCE3AE; } #tabRobo .rb-stat.wait .n { color:#A86A00; }
+#tabRobo .rb-stat.no { background:#FEF2F2; border-color:#FECACA; } #tabRobo .rb-stat.no .n { color:#B91C1C; }
+#tabRobo .rb-filtros { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+#tabRobo .rb-f { border:1px solid var(--border-strong); background:var(--card); color:var(--text-soft); padding:8px 14px; border-radius:999px; font-size:13px; font-weight:700; cursor:pointer; }
+#tabRobo .rb-f.on { background:var(--accent); border-color:var(--accent); color:#fff; }
+#tabRobo .rb-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:14px; }
+#tabRobo .rb-card { background:var(--card); border:1px solid var(--border); border-left:6px solid var(--border-strong); border-radius:16px; padding:16px 18px; position:relative; }
+#tabRobo .rb-card.aprovada { border-left-color:#10B981; } #tabRobo .rb-card.aguardando { border-left-color:#F59E0B; } #tabRobo .rb-card.nao_aprovada { border-left-color:#EF4444; }
+#tabRobo .rb-top { display:flex; gap:12px; align-items:flex-start; }
+#tabRobo .rb-ico { font-size:30px; line-height:1; flex:none; }
+#tabRobo .rb-tit { font-size:15px; font-weight:800; color:var(--text); line-height:1.3; flex:1; min-width:0; word-break:break-word; }
+#tabRobo .rb-sub { font-size:12px; color:var(--text-muted); margin-top:3px; font-weight:600; }
+#tabRobo .rb-badge { display:inline-block; font-size:11px; font-weight:800; padding:3px 9px; border-radius:999px; margin-right:6px; }
+#tabRobo .rb-badge.nova { background:#EDE9FE; color:#5B21B6; } #tabRobo .rb-badge.antiga { background:#E0F2FE; color:#075985; } #tabRobo .rb-badge.manual { background:#F3F4F6; color:#374151; }
+#tabRobo .rb-chips { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:14px; }
+#tabRobo .rb-chip { background:var(--cream); border-radius:12px; padding:9px 11px; }
+#tabRobo .rb-chip .v { font-size:17px; font-weight:800; color:var(--text); }
+#tabRobo .rb-chip .k { font-size:11px; color:var(--text-soft); font-weight:700; margin-top:1px; }
+#tabRobo .rb-chip .s { font-size:11px; color:var(--text-muted); margin-top:2px; }
+#tabRobo .rb-barra { height:7px; background:var(--warm); border-radius:99px; overflow:hidden; margin-top:6px; }
+#tabRobo .rb-barra i { display:block; height:100%; border-radius:99px; }
+#tabRobo .rb-et { margin-top:12px; font-size:12.5px; font-weight:700; color:#047857; background:#ECFDF5; border-radius:10px; padding:7px 10px; }
+#tabRobo .rb-pe { display:flex; gap:10px; align-items:center; margin-top:12px; font-size:12px; color:var(--text-muted); flex-wrap:wrap; }
+#tabRobo .rb-pe a { color:var(--accent); font-weight:800; text-decoration:none; margin-left:auto; }
+#tabRobo .rb-vazio { text-align:center; padding:50px 20px; color:var(--text-soft); background:var(--card); border:1px dashed var(--border-strong); border-radius:18px; }
+#tabRobo .rb-vazio .em { font-size:44px; }
+#tabRobo .rb-nota { font-size:12px; color:var(--text-muted); margin-top:16px; line-height:1.5; }
+</style>
+<div class="rb-wrap">
+  <div class="rb-hero">
+    <div class="em">🤖</div>
+    <div><h2>Robô de inscrições</h2><p>As campanhas do Seu Influencer em que o robô se inscreveu por você, com a concorrência e a chance de passar.</p></div>
+    <button class="rb-att btn" id="roboAtualizar" type="button" style="background:#fff;color:#7B3E1B;border:0;font-weight:800;padding:10px 16px;border-radius:12px;cursor:pointer;">↻ Atualizar</button>
+  </div>
+  <div id="roboBox"><div class="rb-vazio">Carregando…</div></div>
+</div>
+</div>
+
 <div class="dashboard" id="tabConteudos">
 <style>
 /* ---- Conteúdos: campanhas ---- */
@@ -6254,7 +6312,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
 
     /* ── Tabs ── */
-    const PAGE_TITLES = { objetivos: 'Objetivos', carrossel: 'Carrossel', painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', turmavivo: 'Turma ao vivo', imersaoblack: 'Imersão Black', vibeturma: 'Vibe da turma', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', marcas: 'Marcas', conteudos: 'Conteúdos', edicao: 'Edição de vídeo', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', aulabonus: 'Aula ao vivo', instagram: 'Instagram', bio: 'Link na Bio' };
+    const PAGE_TITLES = { objetivos: 'Objetivos', carrossel: 'Carrossel', painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', turmavivo: 'Turma ao vivo', imersaoblack: 'Imersão Black', vibeturma: 'Vibe da turma', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', marcas: 'Marcas', conteudos: 'Conteúdos', robo: 'Robô de inscrições', edicao: 'Edição de vídeo', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', aulabonus: 'Aula ao vivo', instagram: 'Instagram', bio: 'Link na Bio' };
     function setPageTitle(target) {
         const el = document.getElementById('pageTitle');
         if (el && PAGE_TITLES[target]) el.textContent = PAGE_TITLES[target];
@@ -6288,6 +6346,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             document.getElementById('tabCandidaturas').classList.toggle('show', target === 'candidaturas');
             document.getElementById('tabMarcas').classList.toggle('show', target === 'marcas');
             document.getElementById('tabConteudos').classList.toggle('show', target === 'conteudos');
+            document.getElementById('tabRobo').classList.toggle('show', target === 'robo');
             document.getElementById('tabEdicao').classList.toggle('show', target === 'edicao');
             document.getElementById('tabDisparo').classList.toggle('show', target === 'disparo');
             document.getElementById('tabImersao').classList.toggle('show', target === 'imersao');
@@ -6316,6 +6375,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             if (target === 'candidaturas') loadCandidaturas();
             if (target === 'marcas') { if (!marcasCarregado) loadMarcas(); if (!igPropsLoaded) { igPropsLoaded = true; igLoadProps(); } if (!igMarcasLoaded) { igMarcasLoaded = true; igLoadMarcas(); } }
             if (target === 'conteudos') ctLoad();
+            if (target === 'robo') roboLoad();
             if (target === 'edicao') edLoad();
             if (target === 'disparo') loadDisparo();
             if (target === 'imersao') { loadImersao(); loadAlunas(); }
@@ -20390,6 +20450,72 @@ input[type="email"], input[type="date"], input[type="datetime-local"], select, t
   if(document.readyState!=='loading') igaControlsInit();
   else document.addEventListener('DOMContentLoaded',igaControlsInit);
 })();
+</script>
+<script>
+/* ---- Aba Robô de inscrições ---- */
+var roboLinhas = [], roboFiltro = 'todas';
+function roboEsc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function roboMoeda(v) { return v == null ? '-' : 'R$ ' + Number(v).toLocaleString('pt-BR', { maximumFractionDigits: 0 }); }
+function roboTempo(seg) { if (seg == null) return null; seg = Math.round(seg); if (seg < 90) return seg + ' segundos'; if (seg < 5400) return Math.round(seg / 60) + ' min'; if (seg < 172800) return Math.round(seg / 3600) + ' h'; return Math.round(seg / 86400) + ' dias'; }
+function roboQuando(iso) { var d = new Date(iso); return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' às ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); }
+async function roboLoad() {
+  var box = document.getElementById('roboBox'); if (!box) return;
+  var bt = document.getElementById('roboAtualizar'); if (bt && !bt._ok) { bt._ok = 1; bt.addEventListener('click', roboLoad); }
+  var r = await sb.from('robo_inscricoes').select('*').order('inscrita_em', { ascending: false }).limit(500);
+  if (r.error) { box.innerHTML = '<div class="rb-vazio"><div class="em">😕</div><h4>Não consegui carregar</h4><p>' + roboEsc(r.error.message) + '</p></div>'; return; }
+  roboLinhas = r.data || []; roboRender();
+}
+function roboSetFiltro(f) { roboFiltro = f; roboRender(); }
+function roboRender() {
+  var box = document.getElementById('roboBox'); if (!box) return;
+  var L = roboLinhas;
+  if (!L.length) { box.innerHTML = '<div class="rb-vazio"><div class="em">😴</div><h3>Nenhuma inscrição ainda</h3><p>Assim que o robô se inscrever numa campanha, ela aparece aqui.</p></div>'; return; }
+  var ap = L.filter(function (x) { return x.status === 'aprovada'; }), es = L.filter(function (x) { return x.status === 'aguardando'; }), na = L.filter(function (x) { return x.status === 'nao_aprovada'; });
+  var decididas = ap.length + na.length, taxa = decididas ? Math.round(ap.length / decididas * 100) : null;
+  var reac = L.filter(function (x) { return x.reacao_seg != null; }).map(function (x) { return Number(x.reacao_seg); });
+  var medR = reac.length ? reac.reduce(function (a, b) { return a + b; }, 0) / reac.length : null;
+  var hoje = new Date().toDateString(), nHoje = L.filter(function (x) { return new Date(x.inscrita_em).toDateString() === hoje; }).length;
+  var potencial = es.reduce(function (a, x) { return a + (Number(x.valor) || 0) * ((x.chance_pct || 0) / 100); }, 0);
+  var stats = '<div class="rb-stats">'
+    + '<div class="rb-stat"><div class="n">' + L.length + '</div><div class="l">🧾 inscrições feitas</div></div>'
+    + '<div class="rb-stat"><div class="n">' + nHoje + '</div><div class="l">📅 hoje</div></div>'
+    + '<div class="rb-stat ok"><div class="n">' + ap.length + '</div><div class="l">✅ aprovadas</div></div>'
+    + '<div class="rb-stat wait"><div class="n">' + es.length + '</div><div class="l">⏳ aguardando</div></div>'
+    + '<div class="rb-stat no"><div class="n">' + na.length + '</div><div class="l">❌ não aprovadas</div></div>'
+    + '<div class="rb-stat"><div class="n">' + (taxa == null ? '-' : taxa + '%') + '</div><div class="l">🎯 taxa de aprovação</div></div>'
+    + '<div class="rb-stat"><div class="n">' + (medR == null ? '-' : roboTempo(medR)) + '</div><div class="l">⚡ rapidez média (campanhas novas)</div></div>'
+    + '<div class="rb-stat"><div class="n">' + roboMoeda(potencial) + '</div><div class="l">💰 ganho esperado (aguardando)</div></div>'
+    + '</div>';
+  var F = [['todas', 'Todas (' + L.length + ')'], ['aguardando', '⏳ Aguardando'], ['aprovada', '✅ Aprovadas'], ['nao_aprovada', '❌ Não aprovadas'], ['nova', '⚡ Novas'], ['antiga', '🧹 Antigas']];
+  var filtros = '<div class="rb-filtros">' + F.map(function (f) { return '<button class="rb-f' + (roboFiltro === f[0] ? ' on' : '') + '" type="button" onclick="roboSetFiltro(\'' + f[0] + '\')">' + f[1] + '</button>'; }).join('') + '</div>';
+  var vis = L.filter(function (x) { return roboFiltro === 'todas' || x.status === roboFiltro || x.origem === roboFiltro; });
+  var cards = vis.map(roboCard).join('');
+  box.innerHTML = stats + filtros + (cards ? '<div class="rb-grid">' + cards + '</div>' : '<div class="rb-vazio">Nada nesse filtro.</div>')
+    + '<div class="rb-nota">A chance é uma estimativa: a marca vê as inscrições por ordem de chegada, então ela considera a sua posição na fila e as vagas que ainda sobravam quando o robô entrou. "Aprovada" aparece quando a campanha entra na sua lista de inscrições aprovadas no Seu Influencer. O placar é atualizado a cada 30 minutos.</div>';
+}
+function roboCard(x) {
+  var ico = x.status === 'aprovada' ? '✅' : x.status === 'nao_aprovada' ? '❌' : '⏳';
+  var rotulo = x.status === 'aprovada' ? 'Aprovada' : x.status === 'nao_aprovada' ? 'Não aprovada' : 'Aguardando resposta';
+  var org = x.origem === 'nova' ? '<span class="rb-badge nova">⚡ Nova</span>' : x.origem === 'antiga' ? '<span class="rb-badge antiga">🧹 Antiga</span>' : '<span class="rb-badge manual">✋ Na mão</span>';
+  var ins = x.inscritos_agora != null ? x.inscritos_agora : x.inscritos_ao_entrar;
+  var sobram = (x.vagas != null && x.aprovados_agora != null) ? Math.max(0, x.vagas - x.aprovados_agora) : null;
+  var conc = (ins != null && x.vagas) ? (ins / x.vagas) : null;
+  var corCh = x.chance_pct == null ? '#A69D93' : x.chance_pct >= 60 ? '#10B981' : x.chance_pct >= 25 ? '#F59E0B' : '#EF4444';
+  var cheia = (x.vagas && x.aprovados_agora != null) ? Math.min(100, Math.round(x.aprovados_agora / x.vagas * 100)) : null;
+  var chips = ''
+    + '<div class="rb-chip"><div class="v">👥 ' + (ins == null ? '-' : ins) + '</div><div class="k">inscritos agora</div>' + (x.inscritos_ao_entrar != null ? '<div class="s">eram ' + x.inscritos_ao_entrar + ' quando entrei</div>' : '') + '</div>'
+    + '<div class="rb-chip"><div class="v">🎯 ' + (x.vagas == null ? '-' : x.vagas) + '</div><div class="k">vagas</div>' + (sobram != null ? '<div class="s">' + sobram + ' ainda livres' + (cheia != null ? '' : '') + '</div>' : '') + '</div>'
+    + '<div class="rb-chip"><div class="v" style="color:' + corCh + '">🍀 ' + (x.chance_pct == null ? '-' : x.chance_pct + '%') + '</div><div class="k">chance de passar</div>' + (x.chance_pct != null ? '<div class="rb-barra"><i style="width:' + x.chance_pct + '%;background:' + corCh + '"></i></div>' : '') + '</div>'
+    + '<div class="rb-chip"><div class="v">📍 ' + (x.posicao == null ? '-' : '#' + x.posicao) + '</div><div class="k">minha posição na fila</div>' + (conc != null ? '<div class="s">' + conc.toFixed(1).replace('.', ',') + ' inscritos por vaga</div>' : '') + '</div>'
+    + '<div class="rb-chip"><div class="v">💰 ' + roboMoeda(x.valor) + '</div><div class="k">por creator</div>' + (x.precisa_nf ? '<div class="s">🧾 pede nota fiscal</div>' : '') + '</div>'
+    + '<div class="rb-chip"><div class="v">⏱ ' + (x.reacao_seg != null ? roboTempo(x.reacao_seg) : '-') + '</div><div class="k">depois da campanha abrir</div>' + (x.data_fim ? '<div class="s">termina em ' + new Date(x.data_fim).toLocaleDateString('pt-BR') + '</div>' : '') + '</div>';
+  return '<div class="rb-card ' + roboEsc(x.status) + '">'
+    + '<div class="rb-top"><div class="rb-ico" title="' + rotulo + '">' + ico + '</div><div style="flex:1;min-width:0"><div class="rb-tit">' + roboEsc(x.titulo) + '</div><div class="rb-sub">' + org + rotulo + '</div></div></div>'
+    + '<div class="rb-chips">' + chips + '</div>'
+    + (x.etapa ? '<div class="rb-et">📌 Etapa: ' + roboEsc(x.etapa) + '</div>' : '')
+    + '<div class="rb-pe"><span>🕒 Inscrita ' + roboQuando(x.inscrita_em) + '</span>' + (x.link ? '<a href="' + roboEsc(x.link) + '" target="_blank" rel="noopener">Abrir no Seu Influencer ↗</a>' : '') + '</div>'
+    + '</div>';
+}
 </script>
 <script src="/pw-eye.js"></script>
 </body>
