@@ -129,7 +129,7 @@ class Projeto:
         if not nome:
             raise SystemExit("camada sem arquivo")
         for c in [nome, os.path.join(self.job, nome), os.path.join(self.job, "entrada", nome), os.path.join(self.job, "work", nome),
-                  os.path.join(self.job, "work", "sfx", nome), os.path.join(self.job, "saida", nome)]:
+                  os.path.join(self.job, "work", "sfx", nome), os.path.join(self.job, "work", "musica", nome), os.path.join(self.job, "saida", nome)]:
             if os.path.isfile(c):
                 return os.path.abspath(c)
         if self._sons is None:

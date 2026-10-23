@@ -4,7 +4,8 @@
 
    node robo.mjs            roda sem parar (checa a fila a cada minuto)
    node robo.mjs --uma-vez  checa a fila uma vez e sai
-   node robo.mjs --login    guarda o acesso ao admin (usa ROBO_EMAIL e ROBO_SENHA) */
+   node robo.mjs --login    guarda o acesso ao admin (usa ROBO_EMAIL e ROBO_SENHA)
+   node robo.mjs --epidemic guarda a chave do Epidemic Sound (MCP Server API key, conta Pro da Lara) */
 import { spawn, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -524,17 +525,35 @@ function passoDoEvento(ev) {
 }
 
 const MCP_VAZIO = path.join(DIR, 'mcp-vazio.json');
-function rodarClaude(job, p, pedidoTexto) {
+const MCP_EPIDEMIC = path.join(DIR, 'mcp-epidemic.json');
+const EPIDEMIC_CHAVE = path.join(DIR, 'epidemic.json');      // só a chave, permissão 600, nunca vai pro GitHub nem pro log
+function chaveEpidemic() {
+    if (process.env.EPIDEMIC_SOUND_MCP_API_KEY) return process.env.EPIDEMIC_SOUND_MCP_API_KEY.trim();
+    try { return String(JSON.parse(fs.readFileSync(EPIDEMIC_CHAVE, 'utf8')).chave || '').trim(); } catch (_) { return ''; }
+}
+/* Único MCP liberado para o robô: o Epidemic Sound (música e efeitos com a licença Pro da Lara).
+   A configuração fica na pasta do robô (fora da pasta do pedido), só com permissão de leitura para o dono. */
+function configMcp() {
     fs.writeFileSync(MCP_VAZIO, '{"mcpServers":{}}');
+    const chave = chaveEpidemic();
+    if (!chave) return { arquivo: MCP_VAZIO, env: {} };
+    fs.writeFileSync(MCP_EPIDEMIC, JSON.stringify({ mcpServers: { 'epidemic-sound': {
+        type: 'http', url: 'https://www.epidemicsound.com/a/mcp-service/mcp',
+        headers: { Authorization: 'Bearer ' + chave } } } }, null, 1), { mode: 0o600 });
+    fs.chmodSync(MCP_EPIDEMIC, 0o600);
+    return { arquivo: MCP_EPIDEMIC, env: {} };
+}
+function rodarClaude(job, p, pedidoTexto) {
+    const mcp = configMcp();
     const prompt = (pedidoTexto || 'Leia CLAUDE.md e PEDIDO.md e faça a edição completa deste pedido sozinho, sem perguntar nada. ' +
         'No fim precisa existir saida/previa.mp4, saida/projeto.json e saida/resumo.md.') +
         ' Antes de cada etapa, escreva uma frase curta em português dizendo o que vai fazer (a Lara acompanha ao vivo).';
     return new Promise(resolve => {
         const logArq = path.join(job, 'claude.log');
-        // Só as ferramentas básicas: nenhum MCP/conector da Lara (Gmail, Metricool, Higgsfield...) roda sem ela ver
+        // Só as ferramentas básicas + Epidemic Sound: nenhum outro MCP/conector da Lara (Gmail, Metricool, Higgsfield...) roda sem ela ver
         const c = spawn(CLAUDE, ['-p', prompt, '--permission-mode', 'bypassPermissions', '--output-format', 'stream-json', '--verbose',
-            '--strict-mcp-config', '--mcp-config', MCP_VAZIO],
-            { cwd: job, stdio: ['ignore', 'pipe', 'pipe'], env: Object.assign({}, process.env, { ENABLE_CLAUDEAI_MCP_SERVERS: 'false' }) });
+            '--strict-mcp-config', '--mcp-config', mcp.arquivo],
+            { cwd: job, stdio: ['ignore', 'pipe', 'pipe'], env: Object.assign({}, process.env, { ENABLE_CLAUDEAI_MCP_SERVERS: 'false' }, mcp.env) });
         let resto = '', ultimoEnvio = 0, ultimaFrase = '';
         const enviar = frase => {
             ultimaFrase = frase;
@@ -671,7 +690,20 @@ async function main() {
         if (!eu.length || eu[0].role !== 'admin') throw new Error('Esse login não é admin do site.');
         return log('Login ok. O robô está ligado ao admin.');
     }
+    if (process.argv.includes('--epidemic')) {
+        const rl = (await import('node:readline')).createInterface({ input: process.stdin, output: process.stdout });
+        const chave = (await new Promise(r => rl.question('Cole a chave do Epidemic Sound (Account > API keys > MCP Server) e aperte Enter: ', r))).trim();
+        rl.close();
+        if (!chave) return log('Nenhuma chave colada. Nada mudou.');
+        fs.writeFileSync(EPIDEMIC_CHAVE, JSON.stringify({ chave, salva_em: new Date().toISOString() }), { mode: 0o600 });
+        const r = await fetch('https://www.epidemicsound.com/a/mcp-service/mcp', { method: 'POST',
+            headers: { Authorization: 'Bearer ' + chave, 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream' },
+            body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-03-26', capabilities: {}, clientInfo: { name: 'robo-edicao', version: '1' } } }) }).catch(e => ({ ok: false, status: e.message }));
+        return log(r.ok ? 'Epidemic Sound ligado: o robô já escolhe música e efeitos sozinho nas próximas edições.'
+            : 'Chave salva, mas o Epidemic não aceitou (' + r.status + '). Confira se copiou a chave do "MCP Server" inteira.');
+    }
     if (await atualizarRobo()) return reiniciar();
+    log('Epidemic Sound: ' + (chaveEpidemic() ? 'ligado (música e efeitos com a licença Pro)' : 'desligado. Para ligar: node robo.mjs --epidemic'));
     log('Robô de edição ligado. Olhando a fila a cada ' + INTERVALO_S + ' s. Deixe esta janela aberta.');
     // Se o robô foi fechado no meio de uma edição, o pedido ficou preso em "editando": volta para recomeçar
     try {
