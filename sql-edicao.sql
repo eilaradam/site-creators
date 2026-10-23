@@ -183,3 +183,6 @@ alter table public.edicao_pedidos add column if not exists titulos_modelos text;
 -- Reeditar no admin: a Lara mexe no projeto (cortes, legenda, títulos) e o robô só remonta, sem refazer a edição
 alter table public.edicao_pedidos drop constraint if exists edicao_pedidos_status_check;
 alter table public.edicao_pedidos add constraint edicao_pedidos_status_check check (status in ('na_fila','aguardando_bruto','aguardando_cenas','ajustes_na_fila','remontar_na_fila','baixando','analisando','editando','previa_pronta','em_revisao','renderizando','final_pronto','erro','cancelado'));
+
+-- Áudio do vídeo: 'fala' (ela falando), 'narrado' (cenas + locução gravada à parte) ou 'musica' (vlog sem fala, só música)
+alter table public.edicao_pedidos add column if not exists audio_tipo text;

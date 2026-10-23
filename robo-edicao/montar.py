@@ -2,6 +2,7 @@
 
 Uso:
   python3 -I montar.py <pasta_do_job>                       gera saida/previa.mp4 e saida/base.mp4
+  python3 -I montar.py <pasta_do_job> --projeto saida/projeto_b.json   opção B: saida/previa_b.mp4 e saida/base_b.mp4
   python3 -I montar.py <pasta_do_job> --legendas palavras.json
       cria as camadas de legenda no projeto.json (uma camada por tela, no modelo do projeto) e sai
 
@@ -10,7 +11,8 @@ para a Lara mexer ao vivo. Trechos e títulos ficam guardados em work/montar/, e
 só o que mudou é refeito.
 
 Camadas (tempos sempre no vídeo final):
-  corte     inicio_s, fim_s, origem, origem_inicio_s           trechos do bruto, emendados na ordem
+  corte     inicio_s, fim_s, origem, origem_inicio_s, velocidade   trechos do bruto, emendados na ordem
+            (velocidade 2 = o dobro do bruto no mesmo tempo; o trecho usa (fim_s - inicio_s) * velocidade do bruto)
   zoom      inicio_s, fim_s, escala, cx, cy, entrada_s          punch-in com easing (entrada_s 0 = seco)
   rec/broll inicio_s, fim_s, arquivo, origem_inicio_s, x, y, escala   vídeo por cima (escala 1 = tela cheia)
   imagem    inicio_s, fim_s, arquivo, x, y, escala             png/jpg por cima (logo, print)
@@ -18,9 +20,10 @@ Camadas (tempos sempre no vídeo final):
             com "modelo": título da biblioteca (titulos/), props texto, destaque, numero, prefixo, cor,
             corDestaque, corFundo, arquivoFonte; x, y = centro do título (0 a 1), escala
   legenda   inicio_s, fim_s, texto, palavras [{w, s, e}]       uma tela de legenda
+  voz       inicio_s, fim_s, arquivo, origem_inicio_s, volume_db (padrão 0): locução gravada à parte
   musica    inicio_s, fim_s, arquivo, origem_inicio_s, volume_db (padrão -20, abaixa sozinha na fala)
-  sfx       inicio_s, arquivo, volume_db (padrão -12)
-Topo do projeto: formato, legenda {modelo, posicao, ativa}, marca.
+  sfx       inicio_s, arquivo, volume_db (padrão -18)
+Topo do projeto: formato, legenda {modelo, posicao, tamanho (multiplica o do modelo), ativa}, marca, som_original (false = tira o som do bruto).
 """
 import hashlib
 import json
@@ -111,9 +114,12 @@ def hash_de(*partes):
 
 
 class Projeto:
-    def __init__(self, job):
+    def __init__(self, job, arq=None):
         self.job = os.path.abspath(job)
-        self.arq = os.path.join(self.job, "saida", "projeto.json")
+        self.arq = os.path.join(self.job, arq) if arq else os.path.join(self.job, "saida", "projeto.json")
+        # opção B (saida/projeto_b.json) sai como previa_b.mp4, base_b.mp4 e legendas_b.srt
+        m = re.match(r"projeto(_\w+)?\.json$", os.path.basename(self.arq))
+        self.sufixo = (m.group(1) or "") if m else "_" + os.path.splitext(os.path.basename(self.arq))[0]
         self.p = json.load(open(self.arq, encoding="utf-8"))
         self.W, self.H = TAMANHO.get(self.p.get("formato") or "9:16", (1080, 1920))
         self.cache = os.path.join(self.job, "work", "montar")
@@ -161,6 +167,7 @@ def trechos(pj):
     if not cortes:
         raise SystemExit("o projeto não tem nenhuma camada corte")
     zooms = pj.camadas("zoom")
+    mudo = pj.p.get("som_original") is False      # vlog sem fala: o som do bruto sai, fica só música e efeitos
     tarefas, t = [], 0.0
     for c in cortes:
         dur = round(float(c["fim_s"]) - float(c["inicio_s"]), 3)
@@ -168,26 +175,27 @@ def trechos(pj):
             continue
         src = pj.achar(c.get("origem"))
         oi = float(c.get("origem_inicio_s") or 0)
-        vf = "scale=%d:%d:force_original_aspect_ratio=increase,crop=%d:%d,setsar=1,fps=%d" % (W, H, W, H, FPS)
+        vel = max(0.25, min(8.0, float(c.get("velocidade") or 1)))   # 2 = duas vezes mais rápido (usa o dobro do bruto)
+        vf = ("setpts=PTS/%.4f," % vel if vel != 1 else "") + "scale=%d:%d:force_original_aspect_ratio=increase,crop=%d:%d,setsar=1,fps=%d" % (W, H, W, H, FPS)
         aqui = [z for z in zooms if float(z["inicio_s"]) < t + dur and float(z["fim_s"]) > t and float(z.get("escala") or 1) != 1]
         if aqui:
             cx = float(aqui[0].get("cx", 0.5))
             cy = float(aqui[0].get("cy", 0.42))
             vf += ",zoompan=z='%s':x='(iw-iw/zoom)*%.3f':y='(ih-ih/zoom)*%.3f':d=1:s=%dx%d:fps=%d" % (zoom_expr(aqui, t), cx, cy, W, H, FPS)
         fade = min(0.03, dur / 4)
-        af = "aresample=48000,afade=t=in:d=%.3f,afade=t=out:st=%.3f:d=%.3f" % (fade, dur - fade, fade)
-        chave = hash_de(src, os.path.getmtime(src), oi, dur, vf, af)
-        tarefas.append((os.path.join(pj.cache, "trecho_" + chave + ".mp4"), src, oi, dur, vf, af))
+        af = None if mudo else ("atempo=%.4f," % vel if vel != 1 else "") + "aresample=48000,afade=t=in:d=%.3f,afade=t=out:st=%.3f:d=%.3f" % (fade, dur - fade, fade)
+        chave = hash_de(src, os.path.getmtime(src), oi, dur, vel, vf, af)
+        tarefas.append((os.path.join(pj.cache, "trecho_" + chave + ".mp4"), src, oi, dur, vf, af, vel))
         t += dur
     return tarefas, round(t, 3)
 
 
 def fazer_trecho(tarefa):
-    saida, src, oi, dur, vf, af = tarefa
+    saida, src, oi, dur, vf, af, vel = tarefa
     if os.path.exists(saida):
         return False
-    args = ["-ss", "%.3f" % oi, "-t", "%.3f" % dur, "-i", src]
-    if tem_audio(src):
+    args = ["-ss", "%.3f" % oi, "-t", "%.3f" % (dur * vel), "-i", src]
+    if af and tem_audio(src):
         args += ["-map", "0:v:0", "-map", "0:a:0", "-af", af]
     else:
         args += ["-f", "lavfi", "-t", "%.3f" % dur, "-i", "anullsrc=r=48000:cl=stereo", "-map", "0:v:0", "-map", "1:a:0"]
@@ -252,7 +260,10 @@ def modelo_legenda(pj):
     leg = pj.p.get("legenda") or {}
     if leg.get("ativa") is False or leg.get("modelo") is None and "modelo" in leg:
         return None, leg
-    return legendas_ass.modelo(os.path.join(DIR, "legendas.json"), leg.get("modelo") or "lara"), leg
+    m = dict(legendas_ass.modelo(os.path.join(DIR, "legendas.json"), leg.get("modelo") or "lara"))
+    if leg.get("tamanho"):   # a Lara aumentou ou diminuiu a legenda no admin
+        m["tamanho"] = m["tamanho"] * float(leg["tamanho"])
+    return m, leg
 
 
 def criar_legendas(pj, palavras_arq):
@@ -280,11 +291,11 @@ def montar(pj):
     with ThreadPoolExecutor(max_workers=max(2, min(6, (os.cpu_count() or 4) // 2))) as ex:
         novos = sum(ex.map(fazer_trecho, tarefas))
     print("montar: %d trecho(s) refeitos, %d reaproveitados" % (novos, len(tarefas) - novos), flush=True)
-    lista = os.path.join(pj.cache, "lista.txt")
+    lista = os.path.join(pj.cache, "lista" + pj.sufixo + ".txt")
     with open(lista, "w") as f:
         for tf in tarefas:
             f.write("file '%s'\n" % tf[0].replace("'", "'\\''"))
-    emendado = os.path.join(pj.cache, "emendado.mp4")
+    emendado = os.path.join(pj.cache, "emendado" + pj.sufixo + ".mp4")
     ff(["-f", "concat", "-safe", "0", "-i", lista, "-c", "copy", emendado])
 
     entradas = ["-i", emendado]
@@ -343,14 +354,14 @@ def montar(pj):
         grupos, fins = telas_de_legenda(pj)
         if grupos:
             ass, linhas = legendas_ass.gerar_ass(grupos, m, W, H, pj.p.get("marca") or "", leg.get("posicao"), fins)
-            arq_ass = os.path.join(pj.cache, "legenda.ass")
+            arq_ass = os.path.join(pj.cache, "legenda" + pj.sufixo + ".ass")
             open(arq_ass, "w", encoding="utf-8").write(ass)
             esc = lambda s: s.replace("\\", "/").replace(":", "\\:").replace("'", "\\'")
             filtros.append("%sass='%s':fontsdir='%s'[leg]" % (v, esc(arq_ass), esc(FONTES)))
             v = "[leg]"
     srt_txt = srt(pj)
     if srt_txt:
-        open(os.path.join(pj.job, "saida", "legendas.srt"), "w", encoding="utf-8").write(srt_txt)
+        open(os.path.join(pj.job, "saida", "legendas" + pj.sufixo + ".srt"), "w", encoding="utf-8").write(srt_txt)
 
     # 3) títulos da biblioteca por cima de tudo
     for c in pj.camadas("animacao"):
@@ -362,7 +373,18 @@ def montar(pj):
         por_cima(idx, c, False, "%.0f" % (x * W - W * s / 2), "%.0f" % (y * H - H * s / 2), s)
 
     # 4) áudio: voz tratada, música abaixando na fala, efeitos
-    filtros.append("[0:a]highpass=f=80,acompressor=threshold=-18dB:ratio=3:attack=10:release=150,asplit=2[voz][vozsc]")
+    # locução gravada à parte (vídeo narrado): entra junto com o som dos trechos e passa pelo mesmo tratamento de voz
+    vozes = ["[0:a]"]
+    for j, c in enumerate(pj.camadas("voz")):
+        ini, fim = float(c["inicio_s"]), min(float(c["fim_s"]), total)
+        if fim - ini <= 0.1:
+            continue
+        idx = entrada(["-ss", "%.3f" % float(c.get("origem_inicio_s") or 0), "-t", "%.3f" % (fim - ini), "-i", pj.achar(c.get("arquivo"))])
+        filtros.append("[%d:a]aresample=48000,volume=%sdB,adelay=%d:all=1[vz%d]" % (idx, c.get("volume_db", 0), round(ini * 1000), j))
+        vozes.append("[vz%d]" % j)
+    if len(vozes) > 1:
+        filtros.append("%samix=inputs=%d:normalize=0:duration=first[vozbase]" % ("".join(vozes), len(vozes)))
+    filtros.append("%shighpass=f=80,acompressor=threshold=-18dB:ratio=3:attack=10:release=150,asplit=2[voz][vozsc]" % ("[vozbase]" if len(vozes) > 1 else "[0:a]"))
     mix = ["[voz]"]
     musicas = []
     for c in pj.camadas("musica"):
@@ -385,15 +407,15 @@ def montar(pj):
         filtros.append("[vozsc]anullsink")
     for j, c in enumerate(pj.camadas("sfx")):
         idx = entrada(["-i", pj.achar(c.get("arquivo"))])
-        filtros.append("[%d:a]aresample=48000,volume=%sdB,adelay=%d:all=1[s%d]" % (idx, c.get("volume_db", -12), round(float(c["inicio_s"]) * 1000), j))
+        filtros.append("[%d:a]aresample=48000,volume=%sdB,adelay=%d:all=1[s%d]" % (idx, c.get("volume_db", -18), round(float(c["inicio_s"]) * 1000), j))
         mix.append("[s%d]" % j)
     filtros.append("%samix=inputs=%d:normalize=0:duration=first,afade=t=in:d=0.3,afade=t=out:st=%.3f:d=0.3,"
                    "loudnorm=I=-14:TP=-1:LRA=11,aresample=48000,asplit=2[a1][a2]" % ("".join(mix), len(mix), max(0, total - 0.3)))
 
-    grafo = os.path.join(pj.cache, "grafo.txt")
+    grafo = os.path.join(pj.cache, "grafo" + pj.sufixo + ".txt")
     open(grafo, "w", encoding="utf-8").write(";\n".join(filtros))
-    previa = os.path.join(pj.job, "saida", "previa.mp4")
-    base = os.path.join(pj.job, "saida", "base.mp4")
+    previa = os.path.join(pj.job, "saida", "previa" + pj.sufixo + ".mp4")
+    base = os.path.join(pj.job, "saida", "base" + pj.sufixo + ".mp4")
     print("montar: juntando legenda, títulos e som", flush=True)
     ff(entradas + ["-filter_complex_script", grafo,
                    "-map", v, "-map", "[a1]", "-t", "%.3f" % total, "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p",
@@ -404,13 +426,13 @@ def montar(pj):
         acertar_volume(arq)
     pj.p["duracao_s"] = total
     json.dump(pj.p, open(pj.arq, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-    print("montar: pronto, %.1f s → saida/previa.mp4" % total)
+    print("montar: pronto, %.1f s → saida/previa%s.mp4" % (total, pj.sufixo))
 
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         raise SystemExit(__doc__)
-    pj = Projeto(sys.argv[1])
+    pj = Projeto(sys.argv[1], sys.argv[sys.argv.index("--projeto") + 1] if "--projeto" in sys.argv else None)
     if "--legendas" in sys.argv:
         criar_legendas(pj, sys.argv[sys.argv.index("--legendas") + 1])
     else:

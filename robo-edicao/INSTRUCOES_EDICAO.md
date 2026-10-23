@@ -44,11 +44,26 @@ sem você. Por isso **tudo que aparece no vídeo precisa estar numa camada**: na
   - `legenda`: uma camada por tela. Não escreva na mão: gere com o montador (passo 5).
   - Arquivos de música e efeito: pelo nome do banco (`~/Desktop/sons`) ou caminho dentro da pasta do pedido
     (os do Epidemic ficam em `work/musica/` e `work/sfx/`).
+  - `voz`: locução gravada à parte (vídeo narrado). `"som_original": false` no topo tira o som do bruto.
   - O montador faz a cadeia de áudio sozinho (passa-alta e compressor na voz, música abaixando na fala,
     fades, -14 LUFS). Não trate o áudio por fora.
 - `saida/resumo.md`: primeira linha = uma frase curta do que foi feito (aparece no admin).
   Depois: cortes feitos, decisões que você tomou sozinho, o que ficou de fora e por quê, dúvidas para a Lara,
   e **3 sugestões de melhoria** que ela pode aprovar numa próxima versão.
+
+## Duas opções (A e B)
+
+A Lara recebe duas edições do mesmo bruto e escolhe uma no admin (a escolha vira aprendizado).
+- **Opção A** (`saida/projeto.json` → `previa.mp4`): a edição mais fiel ao estilo dela e às regras aprovadas.
+- **Opção B** (`saida/projeto_b.json` → `python3 -I ~/robo-edicao/montar.py . --projeto saida/projeto_b.json`
+  → `previa_b.mp4`): parte da A e muda **de 2 a 3 decisões de propósito**, que dê para ver de primeira. Exemplos:
+  outro gancho (abrir com outra frase), outra música/clima, ritmo mais rápido (cortes e zoom mais curtos),
+  outra forma de mostrar o texto (títulos diferentes, menos títulos), mais b-roll. Nunca mude o que o pedido
+  fixou (modelo de legenda, títulos liberados, duração) nem quebre uma regra aprovada.
+- Cada projeto leva `"opcao": {"nome": "A" ou "B", "descricao": "uma frase do que ela tem de diferente"}`
+  (ex.: "abre com o preço e corta mais rápido, música funk"). É essa frase que a Lara lê para escolher.
+- Faça a B depois que a A estiver pronta, reaproveitando transcrição, cortes e arquivos (o montador guarda os
+  trechos, então a B monta rápido). Se faltar tempo, entregue só a A e diga no resumo.
 
 ## Progresso ao vivo (a Lara vê no admin)
 
@@ -57,6 +72,29 @@ Mantenha `saida/progresso.json` atualizado a cada etapa:
 Etapas, nesta ordem: `transcricao`, `tomadas`, `cortes`, `legendas`, `zoom`, `som`, `render`.
 Assim que decidir os cortes, já escreva `saida/projeto.json` com as camadas `corte`; ao terminar a legenda,
 acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a linha do tempo com o que estiver lá.
+
+## Tipo de áudio (linha "Áudio" do PEDIDO.md)
+
+- **Ela falando** (padrão): siga "Como editar" normalmente.
+- **Vídeo narrado**: os vídeos da pasta são cenas sem fala e a locução é um áudio separado (m4a/mp3/opus/wav do
+  gravador ou do WhatsApp, ou um vídeo dela falando que só serve pela voz). A narração é a espinha:
+  transcreva e corte a NARRAÇÃO como se fosse a fala (tomadas, pausas, vícios). Cada pedaço da narração que fica
+  é uma camada `voz` (`arquivo`, `origem_inicio_s` no áudio dela, `inicio_s`/`fim_s` no vídeo final); o montador
+  trata como voz e abaixa a música por baixo. Cubra o tempo todo com cenas (`corte`) que
+  combinem com o que está sendo dito, trocando de cena a cada 1,5 a 3 s. Use `"som_original": false` no
+  projeto. Legenda vem da narração (palavras no tempo final).
+- **Vídeo sem fala** (vlog, b-roll, só música): use `"som_original": false` no topo do projeto (o som do bruto sai)
+  e `"legenda": {"ativa": false}`. Não transcreva para cortar.
+  1. Escolha a música primeiro (Epidemic ou banco: clima e bpm que combinam com o roteiro/observações) e use as `batidas`
+     dela (do catálogo, ou meça com librosa) como grade: cada corte cai numa batida (a cada 1 ou 2 batidas; acelera no refrão/drop).
+  2. Assista ao bruto (quadros a cada 0,5 s e `select='gt(scene,0.3)'`) e escolha os melhores momentos:
+     nítidos, bem iluminados, com movimento ou gesto; descarte tremido, borrado, escuro e repetido.
+     Trechos de 0,6 a 2,5 s, alternando plano aberto e detalhe; siga a ordem do dia/da história do roteiro.
+  3. Use `velocidade` no corte quando ajudar: 1,5x a 2x em deslocamento, 4x para timelapse, 0,5x para um
+     detalhe bonito. Lembre que o trecho usa (fim_s - inicio_s) * velocidade do bruto.
+  4. O texto vai na tela como títulos (camadas `animacao` com `modelo`), escritos a partir do roteiro ou das
+     observações: frases curtas, no máximo uma a cada 3 a 5 s, nunca em cima do rosto.
+  5. Efeitos sonoros (`sfx`) só nas entradas de texto e viradas fortes; a música manda.
 
 ## Como editar
 
@@ -87,7 +125,8 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
    Punch-in com easing (ease-out cúbico, ~0,25 s), nunca linear; nunca dois planos seguidos no mesmo tamanho.
    Use os picos de energia do áudio (ênfase na fala) como candidatos a zoom e efeito sonoro.
    Efeito só entra se serve à fala: nada de glitch, shake ou flash a não ser que o pedido peça estilo "hype".
-5. **Legenda**: use o modelo escolhido no PEDIDO.md, sem inventar estilo. Monte um JSON com as palavras no tempo
+5. **Legenda**: use exatamente o modelo escolhido no PEDIDO.md (fonte, tamanho, cor, caixa), sem inventar estilo
+   e sem mudar o tamanho. Monte um JSON com as palavras no tempo
    do vídeo FINAL (`[{"w": "palavra", "s": 1.20, "e": 1.48}, ...]`, já com o dicionário aplicado), ponha
    `"legenda": {"modelo": "<modelo>"}` no projeto.json e crie as telas de legenda:
    `python3 -I ~/robo-edicao/montar.py . --legendas work/palavras_finais.json`
@@ -121,8 +160,9 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
      (`y` normalmente 0,25 a 0,35 se o rosto está no meio). **Quantidade**: no máximo 1 título a cada 8 a 12 s
      (uns 5 por minuto), só nos momentos fortes do roteiro (gancho, número, nome do produto, virada, chamada final).
      Mais que isso polui (o vlog de 59 s com 11 títulos ficou carregado). Nunca dois títulos na tela ao mesmo tempo,
-     nunca em cima do rosto, nunca em cima da legenda. Toda entrada de título leva um efeito sonoro curto
-     (camada `sfx`, é o jeito da Lara).
+     nunca em cima do rosto, nunca em cima da legenda. Entrada de título pode levar um efeito curto e baixo (camada `sfx`).
+     **Fonte dos títulos**: a mesma família da legenda escolhida (no modelo "Do jeito da Lara", Montserrat
+     ExtraBold, `arquivoFonte: "Montserrat-ExtraBold.ttf"`), a não ser que o pedido ou a marca peçam outra.
    - **Cores**: só as da marca (site, logo) ou, sem marca, as que já estão no vídeo. Nada de cor genérica de "destaque"
      (verde, amarelo) que não tenha relação com a marca.
 7. **Logo da marca**: procure primeiro um arquivo `logo*` (png/svg) em `entrada/`. Se não tiver, baixe do site da marca
@@ -142,16 +182,17 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
      `COMPLETED` e `DownloadRecordingEdit` para `work/musica/`. Se a edição falhar, use `DownloadRecording` (faixa
      inteira) e deixe o montador cortar com `origem_inicio_s`.
    - **Efeitos**: `SearchSoundEffects` (whoosh, pop, click, camera shutter, riser...) e `DownloadSoundEffect` para
-     `work/sfx/`. Um efeito curto por entrada de título, print, logo ou troca de cena.
+     `work/sfx/`. Efeitos curtos e discretos (veja "Efeito é tempero" abaixo).
    - **Sem exagero**: baixe só o que vai usar (no máximo 3 músicas candidatas e uns 10 efeitos por vídeo).
    - Anote no `saida/resumo.md` nome da faixa, artista e ID do Epidemic de tudo que entrou no vídeo (é o comprovante
      de licença da Lara) e escreva `"fonte": "Epidemic Sound (Pro)"` em cada camada `musica`/`sfx` do projeto.
    **b) Banco local `~/Desktop/sons`**: só itens com `liberado_para_cliente: true` no `catalogo.json` (o robô atualiza o
    catálogo antes de você começar; ele tem bpm, batidas, clima e etiquetas).
-   **c) Efeitos gerados por você** com numpy (são seus, sem problema de licença), salvos em `work/sfx/`:
-     whoosh (ruído com passa-banda subindo de 200 Hz a 6 kHz, 250 ms, envelope exponencial),
-     pop (seno 900 Hz com decaimento de 60 ms), impacto (seno 45 Hz descendo + ruído, 700 ms),
-     riser (varredura 120 Hz a 3 kHz, 1,5 s, crescendo antes de um corte forte).
+   **Nunca gere efeito sonoro sintético** (numpy, seno, ruído): a Lara achou horrível. Sem efeito adequado do
+   Epidemic ou do banco, entregue SEM efeito sonoro e diga no resumo.
+   **Efeito é tempero**: no máximo um a cada 4 a 6 s, curto (até 0,5 s), `volume_db` entre -20 e -16, e só do tipo
+   certo (pop/click leve na entrada de texto, whoosh suave em troca de cena). Nada de impacto, riser ou glitch a não
+   ser que o pedido peça.
    Fora isso, **nunca baixe música nem efeito da internet** e não invente trilha: sem fonte permitida, entregue sem
    música e diga no resumo.
    Música de fundo = camada `musica`: comece numa batida (as `batidas` do catálogo, ou meça com librosa no arquivo do

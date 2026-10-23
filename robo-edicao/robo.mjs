@@ -184,13 +184,35 @@ async function entregar(p, job, etapas) {
     try { projeto = JSON.parse(fs.readFileSync(path.join(saida, 'projeto.json'), 'utf8')); } catch (_) {}
     try { resumo = fs.readFileSync(path.join(saida, 'resumo.md'), 'utf8').trim(); } catch (_) {}
     if (projeto) {
-        ['mudancas', 'editado_em', 'base_path'].forEach(k => delete projeto[k]);
+        ['mudancas', 'editado_em', 'base_path', 'alternativa'].forEach(k => delete projeto[k]);
         if (base_path) projeto.base_path = base_path;
         projeto.etapas = { feitas: etapas };
+        // opção B (o Claude faz duas edições diferentes do mesmo bruto; a Lara escolhe uma no admin)
+        const alt = await entregarOpcaoB(p, job, versao, etapas);
+        if (alt) projeto.alternativa = alt;
     }
     await proporRegras(p, job);
     await mudar(p, { status: 'previa_pronta', previa_link: link, projeto, previa_path, ajustes: null,
         status_msg: (resumo.split('\n').find(l => l.trim()) || 'Prévia v' + versao + ' no Drive').replace(/^#+\s*/, '').slice(0, 280) });
+}
+
+async function entregarOpcaoB(p, job, versao, etapas) {
+    const saida = path.join(job, 'saida'), previa = path.join(saida, 'previa_b.mp4');
+    let projeto; try { projeto = JSON.parse(fs.readFileSync(path.join(saida, 'projeto_b.json'), 'utf8')); } catch (_) { return null; }
+    if (!fs.existsSync(previa)) return null;
+    const alt = { previa_link: subir(p.drive_pasta_id, previa, 'PREVIA v' + versao + ' B - ' + p.pasta_nome + '.mp4') };
+    try {
+        const leve = path.join(job, 'previa_leve_b.mp4');
+        ffmpeg(['-i', previa, '-vf', "scale='if(gt(iw,ih),-2,720)':'if(gt(iw,ih),720,-2)'", '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '28', '-c:a', 'aac', '-b:a', '96k', '-movflags', '+faststart', leve]);
+        alt.previa_path = await subirStorage(leve, 'pedidos/' + p.id + '/previa_v' + versao + '_b.mp4');
+    } catch (e) { log('prévia B não subiu:', e.message); }
+    const base = path.join(saida, 'base_b.mp4');
+    if (fs.existsSync(base)) {
+        try { projeto.base_path = await subirStorage(base, 'pedidos/' + p.id + '/base_v' + versao + '_b.mp4'); } catch (e) { log('base B não subiu:', e.message); }
+    }
+    projeto.etapas = { feitas: etapas };
+    alt.projeto = projeto;
+    return alt;
 }
 
 /* ── Locução + cenas: Claude escreve locução e prompts, o robô grava a voz, a Lara gera as cenas, o robô monta ── */
@@ -407,7 +429,7 @@ async function aplicarAjustes(p) {
         fs.mkdirSync(path.join(job, 'saida'), { recursive: true });
         fs.writeFileSync(path.join(job, 'saida', 'projeto.json'), JSON.stringify(proj, null, 1));
     }
-    fs.rmSync(path.join(job, 'saida', 'base.mp4'), { force: true });
+    for (const n of ['base.mp4', 'previa_b.mp4', 'base_b.mp4', 'projeto_b.json']) fs.rmSync(path.join(job, 'saida', n), { force: true });
     fs.appendFileSync(path.join(job, 'ajustes_historico.json'), JSON.stringify({ quando: new Date().toISOString(), ajustes: p.ajustes }) + '\n');
     // a V2 é sempre uma edição em cima do que já existe (também no modo cenas), então valem as instruções de edição
     fs.copyFileSync(path.join(DIR, 'INSTRUCOES_EDICAO.md'), path.join(job, 'CLAUDE.md'));
@@ -448,7 +470,7 @@ async function remontar(p) {
     await mudar(p, { status: 'renderizando', status_msg: 'Remontando com as suas ' + mudancas.length + ' mudança(s)' });
     const proj = Object.assign({}, pj); ['etapas', 'base_path', 'mudancas', 'editado_em'].forEach(k => delete proj[k]);
     fs.writeFileSync(path.join(saida, 'projeto.json'), JSON.stringify(proj, null, 1));
-    for (const n of ['previa.mp4', 'base.mp4']) fs.rmSync(path.join(saida, n), { force: true });
+    for (const n of ['previa.mp4', 'base.mp4', 'previa_b.mp4', 'base_b.mp4', 'projeto_b.json']) fs.rmSync(path.join(saida, n), { force: true });
     const fim = await montarProjeto(job);
     if (!fs.existsSync(path.join(saida, 'previa.mp4'))) throw new Error('O montador parou: ' + fim);
     fs.writeFileSync(path.join(saida, 'resumo.md'), 'Nova versão com as suas ' + mudancas.length + ' mudança(s)\n');
@@ -485,6 +507,8 @@ function pedidoMd(p, refs, regras, dic, arquivos) {
     L.push('- Marca: ' + (p.marca || p.pasta_nome));
     L.push('- Formato: ' + p.formato + (p.duracao_alvo_s ? ' · duração desejada: ' + p.duracao_alvo_s + ' s' : ''));
     if (p.tipo === 'cenas') L.push('- Tipo: locução + cenas animadas · ' + Math.max(1, Math.round((p.duracao_alvo_s || 60) / 10)) + ' cenas de 10 s · visual: ' + (p.estilo_visual || 'marca') + ' · voz: ' + (p.voz || 'pt-BR-FranciscaNeural'));
+    if (p.tipo !== 'cenas') L.push('- Áudio: ' + ({ narrado: 'NARRADO: as cenas não têm fala; a locução da Lara é um áudio separado na pasta (veja "Vídeo narrado" no CLAUDE.md)',
+        musica: 'SEM FALA, só música (vlog/b-roll): veja "Vídeo sem fala" no CLAUDE.md' }[p.audio_tipo] || 'a Lara falando no vídeo (edição normal pela fala)'));
     L.push('- Títulos animados: ' + (p.titulos_modelos ? 'use estes modelos: ' + p.titulos_modelos.split(',').map(s => '`' + s.trim() + '`').join(', ') + ' (veja "Títulos" no CLAUDE.md)' : 'escolha entre os modelos da biblioteca (veja "Títulos" no CLAUDE.md)'));
     L.push('- Legenda: ' + (p.legenda_modelo ? 'modelo `' + p.legenda_modelo + '` (veja "Legenda" no CLAUDE.md)' : 'SEM legenda (a Lara escolheu não legendar)'));
     if (p.marca_site) L.push('- Site da marca: ' + p.marca_site);
@@ -546,7 +570,8 @@ function configMcp() {
 function rodarClaude(job, p, pedidoTexto) {
     const mcp = configMcp();
     const prompt = (pedidoTexto || 'Leia CLAUDE.md e PEDIDO.md e faça a edição completa deste pedido sozinho, sem perguntar nada. ' +
-        'No fim precisa existir saida/previa.mp4, saida/projeto.json e saida/resumo.md.') +
+        'No fim precisa existir saida/previa.mp4, saida/projeto.json e saida/resumo.md, e também a opção B ' +
+        '(saida/projeto_b.json montado em saida/previa_b.mp4), como explica "Duas opções" no CLAUDE.md.') +
         ' Antes de cada etapa, escreva uma frase curta em português dizendo o que vai fazer (a Lara acompanha ao vivo).';
     return new Promise(resolve => {
         const logArq = path.join(job, 'claude.log');
@@ -652,6 +677,49 @@ async function olharAprender() {
     log('aprender: pronto. Relatório na pasta _Aprender do Drive e regras propostas em Regras do estilo.');
 }
 
+/* Biblioteca de referências: o robô baixa cada Reels/TikTok novo da biblioteca (yt-dlp), guarda o vídeo aqui
+   e sobe uma folha de quadros (2 por segundo) para Edição/_Referencias no Drive. Assim dá para estudar
+   título, legenda e ritmo quadro a quadro sem baixar nada à mão. */
+const REFS = path.join(DIR, 'biblioteca');
+let bibUltimaOlhada = 0;
+async function olharBiblioteca() {
+    if (Date.now() - bibUltimaOlhada < 10 * 60000) return;
+    bibUltimaOlhada = Date.now();
+    const lista = await db('edicao_referencias?pedido_id=is.null&analise=is.null&select=id,nome,tipo,link&order=created_at');
+    if (!lista.length) return;
+    fs.mkdirSync(REFS, { recursive: true });
+    const ytdlp = fs.existsSync(path.join(VENV_BIN, 'yt-dlp')) ? path.join(VENV_BIN, 'yt-dlp') : 'yt-dlp';
+    rclone(['mkdir', 'drive:' + PASTA_RAIZ + '/_Referencias'], { silencioso: true });
+    for (const r of lista.slice(0, 5)) {
+        const nome = slug(r.nome || r.tipo).slice(0, 40) + '-' + r.id.slice(0, 6), video = path.join(REFS, nome + '.mp4');
+        let analise;
+        try {
+            if (!fs.existsSync(video)) {
+                const d = spawnSync(ytdlp, ['-q', '--no-playlist', '-f', 'mp4/bestvideo*+bestaudio/best', '--merge-output-format', 'mp4', '-o', video, r.link], { encoding: 'utf8', timeout: 5 * 60000 });
+                if (!fs.existsSync(video)) throw new Error((d.stderr || d.error && d.error.message || 'não baixou').trim().split('\n').pop().slice(0, 200));
+            }
+            const dur = duracao(video);
+            // até 48 quadros (24 s) por folha; vídeo mais longo ganha mais folhas
+            const folhas = [];
+            for (let ini = 0, k = 1; ini < Math.min(dur, 96); ini += 24, k++) {
+                const jpg = path.join(REFS, nome + '-quadros' + k + '.jpg');
+                const folha = vf => ffmpeg(['-ss', String(ini), '-t', '24', '-i', video, '-vf', vf, '-frames:v', '1', '-q:v', '6', jpg]);
+                // com o tempo escrito em cada quadro; se o ffmpeg não tiver drawtext, sem o tempo
+                try { folha("fps=2,scale=160:-2,drawtext=text='%{pts\\:hms}':x=4:y=4:fontsize=13:fontcolor=white:box=1:boxcolor=black@0.6,tile=8x6:padding=2"); }
+                catch (_) { folha('fps=2,scale=160:-2,tile=8x6:padding=2'); }
+                rclone(['copyto', jpg, 'drive:' + PASTA_RAIZ + '/_Referencias/' + nome + ' - quadros ' + k + '.jpg']);
+                folhas.push(PASTA_RAIZ + '/_Referencias/' + nome + ' - quadros ' + k + '.jpg');
+            }
+            analise = { video: video, quadros: folhas, duracao_s: Math.round(dur * 10) / 10, baixado_em: new Date().toISOString() };
+            log('biblioteca: ' + (r.nome || r.link) + ' baixada (' + folhas.length + ' folha(s) de quadros no Drive)');
+        } catch (e) {
+            analise = { erro: e.message, tentado_em: new Date().toISOString() };
+            log('biblioteca: não consegui baixar ' + r.link + ': ' + e.message);
+        }
+        await db('edicao_referencias?id=eq.' + r.id, { metodo: 'PATCH', corpo: { analise } }).catch(e => log('biblioteca:', e.message));
+    }
+}
+
 /* Atualiza sozinho: baixa do GitHub os arquivos do robô; se o robo.mjs mudou, reinicia com a versão nova.
    (O instalador só é necessário quando entra uma ferramenta nova, tipo uma biblioteca do Python.) */
 const ATUALIZAR_DE = process.env.ROBO_ATUALIZAR_DE || 'https://raw.githubusercontent.com/eilaradam/site-creators/main/robo-edicao/';
@@ -714,6 +782,7 @@ async function main() {
     do {
         try { await rodada(); } catch (e) { log('Não consegui olhar a fila:', e.message); }
         try { await olharAprender(); } catch (e) { log('aprender:', e.message); }
+        try { await olharBiblioteca(); } catch (e) { log('biblioteca:', e.message); }
         if (!process.argv.includes('--uma-vez') && await atualizarRobo()) return reiniciar();   // só entre uma rodada e outra, nunca no meio de uma edição
         if (process.argv.includes('--uma-vez')) break;
         await new Promise(r => setTimeout(r, INTERVALO_S * 1000));
