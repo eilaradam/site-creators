@@ -21,8 +21,8 @@ Camadas (tempos sempre no vídeo final):
   legenda   inicio_s, fim_s, texto, palavras [{w, s, e}]       uma tela de legenda
   voz       inicio_s, fim_s, arquivo, origem_inicio_s, volume_db (padrão 0): locução gravada à parte
   musica    inicio_s, fim_s, arquivo, origem_inicio_s, volume_db (padrão -20, abaixa sozinha na fala)
-  sfx       inicio_s, arquivo, volume_db (padrão -12)
-Topo do projeto: formato, legenda {modelo, posicao, ativa}, marca, som_original (false = tira o som do bruto).
+  sfx       inicio_s, arquivo, volume_db (padrão -18)
+Topo do projeto: formato, legenda {modelo, posicao, tamanho (multiplica o do modelo), ativa}, marca, som_original (false = tira o som do bruto).
 """
 import hashlib
 import json
@@ -204,7 +204,10 @@ def modelo_legenda(pj):
     leg = pj.p.get("legenda") or {}
     if leg.get("ativa") is False or leg.get("modelo") is None and "modelo" in leg:
         return None, leg
-    return legendas_ass.modelo(os.path.join(DIR, "legendas.json"), leg.get("modelo") or "lara"), leg
+    m = dict(legendas_ass.modelo(os.path.join(DIR, "legendas.json"), leg.get("modelo") or "lara"))
+    if leg.get("tamanho"):   # a Lara aumentou ou diminuiu a legenda no admin
+        m["tamanho"] = m["tamanho"] * float(leg["tamanho"])
+    return m, leg
 
 
 def criar_legendas(pj, palavras_arq):
@@ -348,7 +351,7 @@ def montar(pj):
         filtros.append("[vozsc]anullsink")
     for j, c in enumerate(pj.camadas("sfx")):
         idx = entrada(["-i", pj.achar(c.get("arquivo"))])
-        filtros.append("[%d:a]aresample=48000,volume=%sdB,adelay=%d:all=1[s%d]" % (idx, c.get("volume_db", -12), round(float(c["inicio_s"]) * 1000), j))
+        filtros.append("[%d:a]aresample=48000,volume=%sdB,adelay=%d:all=1[s%d]" % (idx, c.get("volume_db", -18), round(float(c["inicio_s"]) * 1000), j))
         mix.append("[s%d]" % j)
     filtros.append("%samix=inputs=%d:normalize=0:duration=first,afade=t=in:d=0.3,afade=t=out:st=%.3f:d=0.3,"
                    "loudnorm=I=-14:TP=-1:LRA=11,aresample=48000,asplit=2[a1][a2]" % ("".join(mix), len(mix), max(0, total - 0.3)))

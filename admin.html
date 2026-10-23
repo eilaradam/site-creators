@@ -18192,7 +18192,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     }
     /* ── Modelos de legenda: a mesma lista (robo-edicao/legendas.json) que o robô usa para queimar a legenda ── */
     let edLegendas = [], edLegTimer = null;
-    function edLegendaPadrao() { try { return localStorage.getItem('edLegendaPadrao') || 'pop_amarelo'; } catch (_) { return 'pop_amarelo'; } }
+    function edLegendaPadrao() { try { return localStorage.getItem('edLegendaPadrao') || 'lara'; } catch (_) { return 'lara'; } }
     async function edCarregarLegendas() {
         if (edLegendas.length) return;
         try { const r = await fetch('robo-edicao/legendas.json', { cache: 'no-cache' }); edLegendas = await r.json(); } catch (_) { edLegendas = []; }
@@ -18622,10 +18622,15 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         edEdMudar(ped, 'Pôs um zoom em ' + edMMSS(t), pj => { pj.camadas.push({ tipo: 'zoom', inicio_s: edR(t), fim_s: edR(Math.min(dur || t + 2, t + 2)), escala: 1.12 }); });
         edIaSel = ped.projeto.camadas.length - 1; edIaRedesenhar();
     }
+    function edEdSemSfx() {
+        const ped = edIaPed(); if (!ped) return;
+        edEdMudar(ped, 'Tirou todos os efeitos sonoros', pj => { pj.camadas = pj.camadas.filter(c => c.tipo !== 'sfx'); });
+    }
     function edEdLegenda(campo, valor) {
         const ped = edIaPed(); if (!ped) return;
         const leg = ped.projeto.legenda || {};
-        const frase = campo === 'modelo' ? 'Trocou o modelo de legenda para ' + valor : campo === 'ativa' ? (valor ? 'Voltou a legenda' : 'Tirou a legenda do vídeo') : 'Mudou a altura da legenda';
+        const frase = campo === 'modelo' ? 'Trocou o modelo de legenda para ' + valor : campo === 'ativa' ? (valor ? 'Voltou a legenda' : 'Tirou a legenda do vídeo')
+            : campo === 'tamanho' ? 'Mudou o tamanho da legenda para ' + Math.round(valor * 100) + '% do modelo' : 'Mudou a altura da legenda';
         edEdMudar(ped, frase, pj => { pj.legenda = Object.assign({}, leg, { [campo]: valor }); });
     }
     async function edEdRenderizar() {
@@ -18688,7 +18693,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             ativas.filter(x => x.c.tipo === 'legenda').forEach(x => {
                 const cx = w => { w = m.sem_pontuacao ? w.replace(/[.,!?;:…]+$/, '') : w; return m.caixa === 'alta' ? w.toUpperCase() : m.caixa === 'baixa' ? w.toLowerCase() : w; };
                 const pal = String(x.c.texto || '').split(/\s+/).filter(Boolean);
-                const estilo = edLegEstilo(Object.assign({}, m, { posicao: leg.posicao != null ? +leg.posicao : m.posicao }), Hp);
+                const estilo = edLegEstilo(Object.assign({}, m, { posicao: leg.posicao != null ? +leg.posicao : m.posicao, tamanho: m.tamanho * (+leg.tamanho || 1) }), Hp);
                 html += '<div class="lg-txt ed-leg' + (edIaSel === x.k ? ' sel' : '') + '" data-k="' + x.k + '" style="' + estilo + '">' + pal.map(w => '<span class="lg-w" style="color:' + (ED_LEG_FORTES.test(w) && m.modo !== 'karaoke' ? m.destaque : m.cor) + '">' + edEsc(cx(w)) + '</span>').join(' ') + '</div>';
             });
         }
@@ -18747,7 +18752,9 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             sel = '<div class="ia-cenas-dica" style="margin:0 0 10px;">Clique num item da linha do tempo ou arraste a legenda e os títulos no vídeo. Pare o vídeo onde quer mexer.</div>' +
                 '<div class="ed-ed-l">' + btn('+ Título aqui', 'edEdNovoTitulo()') + btn('+ Zoom aqui', 'edEdNovoZoom()', 'ghost') + btn('Dividir trecho aqui', 'edEdDividir()', 'ghost') + '</div>' +
                 '<div class="ed-ed-l"><span>Legenda</span><select class="ed-input" data-ed="leg.modelo" style="width:auto;">' + mods + '</select>' +
-                '<label class="ed-ed-ck"><input type="checkbox" data-ed="leg.ativa"' + (leg.ativa === false ? '' : ' checked') + '> no vídeo</label></div>';
+                '<label class="ed-ed-ck"><input type="checkbox" data-ed="leg.ativa"' + (leg.ativa === false ? '' : ' checked') + '> no vídeo</label></div>' +
+                '<div class="ed-ed-l"><span>Tamanho</span><input type="range" min="0.5" max="1.6" step="0.05" data-ed="leg.tamanho:n" value="' + (+leg.tamanho || 1) + '"><span>' + Math.round((+leg.tamanho || 1) * 100) + '%</span></div>' +
+                (pj.camadas.some(c => c.tipo === 'sfx') ? '<div class="ed-ed-l">' + btn('Tirar todos os efeitos sonoros (' + pj.camadas.filter(c => c.tipo === 'sfx').length + ')', 'edEdSemSfx()', 'ghost') + '</div>' : '');
         } else if (c.tipo === 'corte') {
             sel = '<div class="ed-ed-tit">Trecho do vídeo · ' + edMMSS(c.inicio_s) + ' a ' + edMMSS(c.fim_s) + ' · ' + edS(c.fim_s - c.inicio_s) + '</div>' +
                 '<div class="ed-ed-l"><span>Começo</span>' + btn('0,1 s antes', "edEdCorte('antes')", 'ghost') + btn('0,1 s depois', "edEdCorte('depois')", 'ghost') + '</div>' +

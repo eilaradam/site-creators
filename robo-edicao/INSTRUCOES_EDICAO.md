@@ -105,7 +105,8 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
    Punch-in com easing (ease-out cúbico, ~0,25 s), nunca linear; nunca dois planos seguidos no mesmo tamanho.
    Use os picos de energia do áudio (ênfase na fala) como candidatos a zoom e efeito sonoro.
    Efeito só entra se serve à fala: nada de glitch, shake ou flash a não ser que o pedido peça estilo "hype".
-5. **Legenda**: use o modelo escolhido no PEDIDO.md, sem inventar estilo. Monte um JSON com as palavras no tempo
+5. **Legenda**: use exatamente o modelo escolhido no PEDIDO.md (fonte, tamanho, cor, caixa), sem inventar estilo
+   e sem mudar o tamanho. Monte um JSON com as palavras no tempo
    do vídeo FINAL (`[{"w": "palavra", "s": 1.20, "e": 1.48}, ...]`, já com o dicionário aplicado), ponha
    `"legenda": {"modelo": "<modelo>"}` no projeto.json e crie as telas de legenda:
    `python3 -I ~/robo-edicao/montar.py . --legendas work/palavras_finais.json`
@@ -133,7 +134,9 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
      em empilhado e lista-check; contador usa `numero` e `prefixo`.
      Cores da marca (do site) em `corDestaque`; `arquivoFonte` da biblioteca de fontes. Posição longe do rosto
      (`y` normalmente 0,25 a 0,35 se o rosto está no meio). Um título a cada 4 a 8 s nos momentos fortes, nunca em cima de
-     outro título nem da legenda. Toda entrada de título leva um efeito sonoro curto (camada `sfx`, é o jeito da Lara).
+     outro título nem da legenda. Entrada de título pode levar um efeito curto e baixo do banco (camada `sfx`).
+     **Fonte dos títulos**: a mesma família da legenda escolhida (no modelo "Do jeito da Lara", Montserrat
+     ExtraBold, `arquivoFonte: "Montserrat-ExtraBold.ttf"`), a não ser que o pedido ou a marca peçam outra.
 7. **Logo da marca**: procure primeiro um arquivo `logo*` (png/svg) em `entrada/`. Se não tiver, baixe do site da marca
    (`<link rel="icon">`, `og:image` ou uma imagem com "logo" no nome) para `work/logo.png` (camada `imagem`). Use o logo na abertura ou
    no fechamento (chamada final animada no Remotion) e, se fizer sentido, discreto num canto. Sem logo de boa
@@ -143,10 +146,11 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
    Música de fundo = camada `musica`: comece numa batida (as `batidas` do catálogo; use a primeira depois de 0,5 s
    como `origem_inicio_s`) e termine junto com o vídeo. O montador abaixa a música quando há fala (~ -20 dB);
    efeitos (`sfx`) nas trocas de cena e na entrada de textos. Nunca baixe música nem efeito da internet.
-   - **Sem banco de efeitos**: gere os efeitos com numpy (são seus, sem problema de licença) e salve em `work/sfx/`:
-     whoosh (ruído com passa-banda subindo de 200 Hz a 6 kHz, 250 ms, envelope exponencial),
-     pop (seno 900 Hz com decaimento de 60 ms), impacto (seno 45 Hz descendo + ruído, 700 ms),
-     riser (varredura 120 Hz a 3 kHz, 1,5 s, crescendo antes de um corte forte).
+   - **Nunca gere efeito sonoro sintético** (numpy, seno, ruído): a Lara achou horrível. Sem efeito adequado no
+     banco, entregue SEM efeito sonoro e diga no resumo.
+   - Efeito é tempero: no máximo um a cada 4 a 6 s, curto (até 0,5 s), `volume_db` entre -20 e -16, e só do tipo
+     certo (pop/click leve na entrada de texto, whoosh suave em troca de cena). Nada de impacto, riser ou glitch
+     a não ser que o pedido peça.
    - **Sem banco de músicas**: entregue sem música e diga no resumo; não invente trilha.
 9. **Gravação de tela do site** (só se o PEDIDO.md pedir): use Playwright em `~/robo-edicao`
    (`cd ~/robo-edicao && npm i playwright && npx playwright install chromium` se ainda não tiver).
