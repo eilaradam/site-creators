@@ -8,7 +8,7 @@ mkdir -p "$D/bin" "$D/trabalhos"
 cd "$D"
 
 echo "1/5 Baixando o robô…"
-for f in robo.mjs INSTRUCOES_EDICAO.md INSTRUCOES_CENAS.md transcrever.py legendas.json legendas_ass.py montar.py catalogar_sons.py encaixar_musica.py baixar_fontes.py fontes.json INSTRUCOES_APRENDER.md titulos/package.json titulos/src/index.ts titulos/src/Raiz.tsx titulos/src/Titulos.tsx; do
+for f in robo.mjs icone.png INSTRUCOES_EDICAO.md INSTRUCOES_CENAS.md transcrever.py legendas.json legendas_ass.py montar.py catalogar_sons.py encaixar_musica.py baixar_fontes.py fontes.json INSTRUCOES_APRENDER.md titulos/package.json titulos/src/index.ts titulos/src/Raiz.tsx titulos/src/Titulos.tsx; do
   mkdir -p "$(dirname "$D/$f")"; curl -fsSL "$BASE/$f" -o "$D/$f"
 done
 
@@ -54,13 +54,8 @@ else
   ROBO_EMAIL="$ROBO_EMAIL" ROBO_SENHA="$ROBO_SENHA" node "$D/robo.mjs" --login
 fi
 
-L="$HOME/Desktop/Robô de Edição.command"
-cat > "$L" <<EOF
-#!/bin/bash
-cd "$D" && caffeinate -i node robo.mjs
-EOF
-chmod +x "$L"
+node "$D/robo.mjs" --app
 
 echo
-echo "Pronto. Para ligar o robô, dê dois cliques em \"Robô de Edição\" na Mesa (Desktop)."
-echo "Deixe aquela janela aberta: enquanto ela estiver aberta, o robô pega os pedidos da aba Edição."
+echo "Pronto. Para chamar o Estagiário, dê dois cliques no crachá \"Estagiário\" na Mesa (Desktop)."
+echo "Deixe aquela janela aberta: enquanto ela estiver aberta, ele pega os pedidos da aba Edição."

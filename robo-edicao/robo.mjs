@@ -101,7 +101,7 @@ async function prepararPasta(p) {
         return criarCenas(p);
     }
     await mudar(p, { drive_pasta_id: id, drive_pasta_link: p.drive_pasta_link || linkPasta(id), status: 'aguardando_bruto',
-        status_msg: 'Pasta pronta no Drive. Jogue o bruto lá dentro.' });
+        status_msg: 'Criei a pasta no Drive. Joga o bruto lá dentro que eu começo.' });
 }
 
 async function olharBruto(p) {
@@ -129,7 +129,7 @@ async function editar(p, arquivos) {
     const entrada = path.join(job, 'entrada'), saida = path.join(job, 'saida');
     fs.mkdirSync(entrada, { recursive: true }); fs.rmSync(saida, { recursive: true, force: true }); fs.mkdirSync(saida, { recursive: true });
 
-    await mudar(p, { status: 'baixando', status_msg: 'Baixando ' + arquivos.length + ' arquivo(s) do Drive' });
+    await mudar(p, { status: 'baixando', status_msg: 'Baixando o bruto do Drive (' + arquivos.length + ' arquivo(s))' });
     // sync (não copy): o que a Lara apagou da pasta também some daqui, para o Claude não usar arquivo velho
     rclone(['sync', 'drive:', entrada, ...naPasta(p.drive_pasta_id), '--exclude', '{PREVIA,PRÉVIA,FINAL,REC,LOCUCAO}*', '--max-depth', '3']);
 
@@ -144,7 +144,7 @@ async function editar(p, arquivos) {
     fs.copyFileSync(path.join(DIR, 'INSTRUCOES_EDICAO.md'), path.join(job, 'CLAUDE.md'));
     atualizarBancoDeSons();
 
-    await mudar(p, { status: 'editando', status_msg: 'Claude editando (pode levar uns 20 a 40 min)' });
+    await mudar(p, { status: 'editando', status_msg: 'Tô editando (leva uns 20 a 40 min)' });
     const ok = await rodarClaude(job, p);
     const previa = path.join(saida, 'previa.mp4');
     if (!fs.existsSync(previa)) throw new Error(ok ? 'O Claude terminou sem gerar a prévia. Veja ' + path.join(job, 'claude.log') : 'A edição passou de ' + LIMITE_EDICAO_MIN + ' min ou deu erro. Veja ' + path.join(job, 'claude.log'));
@@ -161,7 +161,7 @@ async function subirStorage(arq, caminho) {
 
 async function entregar(p, job, etapas) {
     const saida = path.join(job, 'saida'), previa = path.join(saida, 'previa.mp4');
-    await mudar(p, { status: 'renderizando', status_msg: 'Subindo a prévia para o Drive' });
+    await mudar(p, { status: 'renderizando', status_msg: 'Subindo a prévia pro Drive' });
     const versao = 1 + fs.readdirSync(job).filter(n => /^previa_v\d+\.mp4$/.test(n)).length;
     fs.copyFileSync(previa, path.join(job, 'previa_v' + versao + '.mp4'));
     const link = subir(p.drive_pasta_id, previa, 'PREVIA v' + versao + ' - ' + p.pasta_nome + '.mp4');
@@ -463,7 +463,7 @@ async function remontar(p) {
     if (!pj || !Array.isArray(pj.camadas) || !pj.camadas.some(c => c.tipo === 'corte')) throw new Error('Este pedido não tem projeto para remontar');
     fs.mkdirSync(saida, { recursive: true });
     if (!fs.existsSync(entrada)) {   // outro Mac ou pasta apagada: baixa o bruto de novo
-        await mudar(p, { status: 'baixando', status_msg: 'Remontando: baixando o bruto do Drive' });
+        await mudar(p, { status: 'baixando', status_msg: 'Remontando: baixando o bruto do Drive de novo' });
         rclone(['sync', 'drive:', entrada, ...naPasta(p.drive_pasta_id), '--exclude', '{PREVIA,PRÉVIA,FINAL,REC,LOCUCAO}*', '--max-depth', '3']);
     }
     const mudancas = Array.isArray(pj.mudancas) ? pj.mudancas : [];
@@ -572,7 +572,7 @@ function rodarClaude(job, p, pedidoTexto) {
     const prompt = (pedidoTexto || 'Leia CLAUDE.md e PEDIDO.md e faça a edição completa deste pedido sozinho, sem perguntar nada. ' +
         'No fim precisa existir saida/previa.mp4, saida/projeto.json e saida/resumo.md, e também a opção B ' +
         '(saida/projeto_b.json montado em saida/previa_b.mp4), como explica "Duas opções" no CLAUDE.md.') +
-        ' Antes de cada etapa, escreva uma frase curta em português dizendo o que vai fazer (a Lara acompanha ao vivo).';
+        ' Antes de cada etapa, escreva uma frase curta em português, em primeira pessoa (você é o Estagiário de edição dela), dizendo o que vai fazer (a Lara acompanha ao vivo).';
     return new Promise(resolve => {
         const logArq = path.join(job, 'claude.log');
         // Só as ferramentas básicas + Epidemic Sound: nenhum outro MCP/conector da Lara (Gmail, Metricool, Higgsfield...) roda sem ela ver
@@ -723,7 +723,7 @@ async function olharBiblioteca() {
 /* Atualiza sozinho: baixa do GitHub os arquivos do robô; se o robo.mjs mudou, reinicia com a versão nova.
    (O instalador só é necessário quando entra uma ferramenta nova, tipo uma biblioteca do Python.) */
 const ATUALIZAR_DE = process.env.ROBO_ATUALIZAR_DE || 'https://raw.githubusercontent.com/eilaradam/site-creators/main/robo-edicao/';
-const ARQUIVOS_DO_ROBO = ['robo.mjs', 'INSTRUCOES_EDICAO.md', 'INSTRUCOES_CENAS.md', 'INSTRUCOES_APRENDER.md', 'transcrever.py', 'legendas.json',
+const ARQUIVOS_DO_ROBO = ['robo.mjs', 'icone.png', 'INSTRUCOES_EDICAO.md', 'INSTRUCOES_CENAS.md', 'INSTRUCOES_APRENDER.md', 'transcrever.py', 'legendas.json',
     'legendas_ass.py', 'montar.py', 'catalogar_sons.py', 'encaixar_musica.py', 'baixar_fontes.py', 'fontes.json',
     'titulos/package.json', 'titulos/src/index.ts', 'titulos/src/Raiz.tsx', 'titulos/src/Titulos.tsx'];
 let ultimaAtualizacao = 0;
@@ -745,8 +745,55 @@ async function atualizarRobo() {
     if (mudou) log('Robô atualizado (' + mudou + ' arquivo(s)).' + (mudouCodigo ? ' Reiniciando com a versão nova…' : ''));
     return mudouCodigo;
 }
+/* O Estagiário vira um app na Mesa do Mac (ícone do crachá): dois cliques abrem a janela dele no Terminal.
+   Feito aqui (e não só no instalador) para quem já tem o robô ganhar o app na próxima atualização. */
+const APP = path.join(os.homedir(), 'Desktop', 'Estagiário.app');
+const LANCADOR = path.join(DIR, 'Estagiario.command');
+function criarApp() {
+    if (process.platform !== 'darwin') return;
+    const icone = path.join(DIR, 'icone.png');
+    if (!fs.existsSync(icone)) return;
+    const versao = String(fs.statSync(icone).size) + ':' + process.execPath;
+    const marca = path.join(APP, 'Contents', 'Resources', 'versao.txt');
+    try { if (fs.readFileSync(marca, 'utf8') === versao) return; } catch (_) {}
+    try {
+        fs.writeFileSync(LANCADOR, '#!/bin/bash\ncd "' + DIR + '" && caffeinate -i "' + process.execPath + '" robo.mjs\n', { mode: 0o755 });
+        const mac = path.join(APP, 'Contents', 'MacOS'), res = path.join(APP, 'Contents', 'Resources');
+        fs.mkdirSync(mac, { recursive: true }); fs.mkdirSync(res, { recursive: true });
+        fs.writeFileSync(path.join(APP, 'Contents', 'Info.plist'), '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n' +
+            '<plist version="1.0"><dict><key>CFBundleName</key><string>Estagiário</string><key>CFBundleDisplayName</key><string>Estagiário</string>' +
+            '<key>CFBundleIdentifier</key><string>com.laradam.estagiario</string><key>CFBundleExecutable</key><string>Estagiario</string>' +
+            '<key>CFBundleIconFile</key><string>Estagiario</string><key>CFBundlePackageType</key><string>APPL</string><key>CFBundleVersion</key><string>1</string></dict></plist>\n');
+        fs.writeFileSync(path.join(mac, 'Estagiario'), '#!/bin/bash\nopen -a Terminal "' + LANCADOR + '"\n', { mode: 0o755 });
+        // ícone: o crachá em todos os tamanhos que o Mac pede (sips e iconutil já vêm no macOS)
+        const set = path.join(os.tmpdir(), 'Estagiario.iconset');
+        fs.rmSync(set, { recursive: true, force: true }); fs.mkdirSync(set);
+        for (const t of [16, 32, 128, 256, 512]) {
+            spawnSync('sips', ['-z', String(t), String(t), icone, '--out', path.join(set, 'icon_' + t + 'x' + t + '.png')]);
+            spawnSync('sips', ['-z', String(t * 2), String(t * 2), icone, '--out', path.join(set, 'icon_' + t + 'x' + t + '@2x.png')]);
+        }
+        const r = spawnSync('iconutil', ['-c', 'icns', set, '-o', path.join(res, 'Estagiario.icns')], { encoding: 'utf8' });
+        if (r.status !== 0) log('ícone do app não ficou pronto:', (r.stderr || '').trim());
+        fs.writeFileSync(marca, versao);
+        spawnSync('touch', [APP]);
+        for (const velho of ['Robô de Edição.command', 'Robo de Edicao.command'])   // o atalho antigo some: agora é o app
+            fs.rmSync(path.join(os.homedir(), 'Desktop', velho), { force: true });
+        log('Agora eu sou um app na Mesa: dois cliques no crachá para me chamar.');
+    } catch (e) { log('não consegui criar o app na Mesa:', e.message); }
+}
+/* Um Estagiário só: se a janela já está aberta, a segunda para (senão os dois pegariam o mesmo pedido) */
+const TRAVA = path.join(DIR, 'robo.pid');
+function soUmEstagiario() {
+    let pid = 0; try { pid = Number(fs.readFileSync(TRAVA, 'utf8')) || 0; } catch (_) {}
+    const vivo = n => { try { process.kill(n, 0); return true; } catch (_) { return false; } };
+    if (pid && pid !== process.pid && pid !== Number(process.env.ROBO_PAI || 0) && vivo(pid)) return false;
+    fs.writeFileSync(TRAVA, String(process.pid));
+    process.on('exit', () => { try { if (Number(fs.readFileSync(TRAVA, 'utf8')) === process.pid) fs.rmSync(TRAVA); } catch (_) {} });
+    for (const sinal of ['SIGINT', 'SIGTERM', 'SIGHUP']) process.on(sinal, () => process.exit(0));
+    return true;
+}
 function reiniciar() {
-    const filho = spawn(process.execPath, process.argv.slice(1), { stdio: 'inherit' });
+    const filho = spawn(process.execPath, process.argv.slice(1), { stdio: 'inherit', env: Object.assign({}, process.env, { ROBO_PAI: String(process.pid) }) });
     filho.on('exit', code => process.exit(code || 0));
 }
 
@@ -770,14 +817,17 @@ async function main() {
         return log(r.ok ? 'Epidemic Sound ligado: o robô já escolhe música e efeitos sozinho nas próximas edições.'
             : 'Chave salva, mas o Epidemic não aceitou (' + r.status + '). Confira se copiou a chave do "MCP Server" inteira.');
     }
+    if (process.argv.includes('--app')) return criarApp();
+    if (!process.argv.includes('--uma-vez') && !soUmEstagiario()) return log('O Estagiário já está trabalhando em outra janela. Pode fechar esta.');
     if (await atualizarRobo()) return reiniciar();
+    criarApp();
     log('Epidemic Sound: ' + (chaveEpidemic() ? 'ligado (música e efeitos com a licença Pro)' : 'desligado. Para ligar: node robo.mjs --epidemic'));
-    log('Robô de edição ligado. Olhando a fila a cada ' + INTERVALO_S + ' s. Deixe esta janela aberta.');
+    log('Estagiário chegou! Olho a fila a cada ' + INTERVALO_S + ' s. Deixa esta janela aberta (pode minimizar).');
     // Se o robô foi fechado no meio de uma edição, o pedido ficou preso em "editando": volta para recomeçar
     try {
         for (const p of await db('edicao_pedidos?status=in.(baixando,analisando,editando,renderizando)&select=*'))
             await mudar(p, { status: /^Remontando/.test(p.status_msg || '') || (p.projeto && p.projeto.editado_em && !(p.ajustes || []).length) ? 'remontar_na_fila' : p.tipo !== 'cenas' ? 'aguardando_bruto' : (p.cenas ? 'aguardando_cenas' : 'na_fila'),
-                status_msg: 'O robô foi reiniciado no meio da edição. Recomeçando.' });
+                status_msg: 'Fui reiniciado no meio da edição. Recomeçando.' });
     } catch (e) { log('Não consegui conferir pedidos interrompidos:', e.message); }
     do {
         try { await rodada(); } catch (e) { log('Não consegui olhar a fila:', e.message); }
