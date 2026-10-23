@@ -5421,6 +5421,9 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
 @keyframes edMicPulso { 50% { box-shadow:0 0 0 6px rgba(200,68,26,.18); } }
 #tabEdicao .ia-avatar { width:40px; height:40px; border-radius:10px; display:block; }
 #tabEdicao .ia-sub { font-size:12px; color:#A69D93; margin-top:1px; }
+#tabEdicao .ia-falar { margin-top:12px; background:#141312; border:1px solid #C8441A; border-radius:16px; padding:12px 14px; }
+#tabEdicao .ia-box .ed-btn.ghost { background:transparent; color:#FFF8F2; border:1px solid #5A514A; }
+#tabEdicao .ia-falar textarea.ed-input { width:100%; box-sizing:border-box; resize:vertical; }
 #tabEdicao .ed-opcs { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:12px 0 0; }
 #tabEdicao .ed-opc { text-align:left; background:#141312; border:1px solid #2E2925; border-radius:14px; padding:10px 12px; color:#CFC6BC; cursor:pointer; font:inherit; display:flex; flex-direction:column; gap:3px; }
 #tabEdicao .ed-opc b { color:#FFF8F2; font-size:13.5px; }
@@ -18540,6 +18543,77 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         try { r.start(); } catch (_) { return edToast('Não consegui ligar o microfone', true); }
         edMicRec = r; edMicAlvo = id; botao(true);
     }
+    /* ── Falar com o Estagiário: escreve, dita ou grava um áudio e escolhe ajustar esta versão ou refazer do zero.
+       O áudio vai para o Storage e o robô transcreve no Mac. "Vale para sempre" vira regra do estilo já aprovada. ── */
+    let edGrav = null;   // { rec, partes, blob, url, ext, t0, timer }
+    function edUltimaFala(ped) {
+        const f = (Array.isArray(ped.ajustes) ? ped.ajustes : []).filter(a => a && a.tipo === 'feedback').pop();
+        return f ? (f.texto || (f.audio_path ? '(áudio gravado)' : '')) : '';
+    }
+    function edFalarHtml(ped) {
+        const audio = edGrav && edGrav.url ? '<audio src="' + edGrav.url + '" controls style="height:34px;max-width:240px;"></audio><button class="ed-x" type="button" title="Apagar o áudio" onclick="edGravApagar()">✕</button>' : '';
+        const gravando = edGrav && edGrav.rec;
+        return '<div class="ia-falar"><div class="ia-cenas-tit" style="margin:0 0 4px;">Falar com o Estagiário</div>' +
+            '<div class="ia-cenas-dica" style="margin:0 0 8px;">O que ficou ruim e o que mudar. Pode escrever, ditar ou gravar um áudio, do jeito que falaria com alguém da equipe.</div>' +
+            '<textarea class="ed-input" id="edFalaTx" rows="3" placeholder="ex.: a música tá alta, mostra a sequência inteira da máquina, corta antes da respiração"></textarea>' +
+            '<div class="ed-row" style="margin-top:8px;">' + edMicBtn('edFalaTx') +
+              '<button class="ed-mic' + (gravando ? ' on' : '') + '" type="button" id="edGravBtn" onclick="edGravar()">' + (gravando ? '■ Parar gravação' : '● Gravar áudio') + '</button>' + audio + '</div>' +
+            '<label class="ed-ed-ck" style="margin-top:8px;"><input type="checkbox" id="edFalaSempre"> Isso vale para todos os próximos vídeos (vira regra do estilo, já valendo)</label>' +
+            '<div class="ed-row" style="margin-top:10px;">' +
+              '<button class="ed-btn" type="button" onclick="edFalar(\'ajustar\')">Ajustar esta versão</button>' +
+              '<button class="ed-btn ghost" type="button" onclick="edFalar(\'refazer\')">↻ Refazer do zero com isso</button></div>' +
+            '<div class="ia-cenas-dica" style="margin:6px 0 0;">Ajustar: mexe só no que você falou, em cima desta edição. Refazer: começa de novo a partir do bruto.</div></div>';
+    }
+    async function edGravar() {
+        if (edGrav && edGrav.rec) { edGrav.rec.stop(); return; }
+        if (!navigator.mediaDevices || !window.MediaRecorder) return edToast('Este navegador não grava áudio. Use o Falar (ditado) ou escreva.', true);
+        let stream; try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); } catch (_) { return edToast('Libere o microfone para este site no navegador', true); }
+        const tipo = ['audio/webm', 'audio/mp4'].find(t => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t)) || '';
+        const rec = new MediaRecorder(stream, tipo ? { mimeType: tipo } : undefined), partes = [];
+        if (edGrav && edGrav.url) URL.revokeObjectURL(edGrav.url);
+        edGrav = { rec, partes, ext: /mp4/.test(rec.mimeType || tipo) ? 'm4a' : 'webm', t0: Date.now() };
+        rec.ondataavailable = e => { if (e.data && e.data.size) partes.push(e.data); };
+        rec.onstop = () => {
+            stream.getTracks().forEach(t => t.stop()); clearInterval(edGrav.timer);
+            edGrav.blob = new Blob(partes, { type: rec.mimeType || 'audio/webm' }); edGrav.url = URL.createObjectURL(edGrav.blob); edGrav.rec = null;
+            edFalarRedesenhar();
+        };
+        rec.start();
+        edGrav.timer = setInterval(() => { const b = document.getElementById('edGravBtn'); if (b) { const t = Math.round((Date.now() - edGrav.t0) / 1000); b.textContent = '■ Parar gravação ' + Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); } }, 500);
+        edFalarRedesenhar();
+    }
+    function edGravApagar() { if (edGrav && edGrav.url) URL.revokeObjectURL(edGrav.url); edGrav = null; edFalarRedesenhar(); }
+    function edFalarRedesenhar() {
+        const ped = edIaPed(), box = document.querySelector('#tabEdicao .ia-falar'); if (!ped || !box) return;
+        const tx = (document.getElementById('edFalaTx') || {}).value || '', sempre = !!(document.getElementById('edFalaSempre') || {}).checked;
+        box.outerHTML = edFalarHtml(ped);
+        const t = document.getElementById('edFalaTx'); if (t) t.value = tx;
+        const c = document.getElementById('edFalaSempre'); if (c) c.checked = sempre;
+    }
+    async function edFalar(modo) {
+        const ped = edIaPed(); if (!ped) return;
+        if (edGrav && edGrav.rec) return edToast('Pare a gravação primeiro', true);
+        const texto = ((document.getElementById('edFalaTx') || {}).value || '').trim(), sempre = !!(document.getElementById('edFalaSempre') || {}).checked;
+        if (!texto && !(edGrav && edGrav.blob)) return edToast('Escreva, dite ou grave o que mudar', true);
+        let audio_path = null;
+        if (edGrav && edGrav.blob) {
+            audio_path = 'pedidos/' + ped.id + '/fala_' + Date.now() + '.' + edGrav.ext;
+            const { error } = await sb.storage.from('edicao').upload(audio_path, edGrav.blob, { contentType: edGrav.blob.type || 'audio/webm', upsert: true });
+            if (error) return edErro('Não subi o áudio', error);
+        }
+        const v = document.getElementById('iaVideo');
+        const item = { tipo: 'feedback', modo, texto: texto || null, audio_path, sempre, tempo_s: v && v.currentTime ? Math.round(v.currentTime * 10) / 10 : null, em: new Date().toISOString() };
+        const ajustes = (Array.isArray(ped.ajustes) ? ped.ajustes : []).concat([item]);
+        const upd = modo === 'refazer'
+            ? { ajustes, status: 'na_fila', status_msg: 'Na fila: refazer do zero com o que você falou', projeto: null }
+            : { ajustes, status: 'ajustes_na_fila', status_msg: 'Na fila: ajustar com o que você falou' };
+        if (modo === 'refazer' && !confirm('Refazer do zero a partir do bruto? A versão atual sai do painel (continua no Drive).')) return;
+        const { error } = await sb.from('edicao_pedidos').update(Object.assign(upd, { updated_at: new Date().toISOString() })).eq('id', ped.id);
+        if (error) return edErro('Não mandei para o estagiário', error);
+        edGravApagar();
+        edToast(modo === 'refazer' ? 'Mandei refazer. Ele começa na próxima rodada.' : 'Mandei ajustar. Ele começa na próxima rodada.');
+        await edCarregarPedidos(); await edAbrirPedido(ped.id);
+    }
     /* ── Duas opções: o estagiário entrega A e B do mesmo bruto; a Lara compara e fica com uma (a escolha vira regra proposta) ── */
     let edOpcaoVer = 'a';
     function edOpcaoTrocar(k) { edOpcaoVer = k; edIaSel = null; edRender(); }
@@ -19026,8 +19100,8 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         return '<div class="ia-box">' +
             '<div class="ia-top"><img class="ia-avatar" src="robo-edicao/icone.png" alt="" width="40" height="40"><div><div class="ia-tit">Estagiário</div><div class="ia-sub">de edição · trabalha no seu Mac</div></div></div>' +
             '<div class="ia-status ' + (pronto ? 'ok' : ped.status === 'erro' ? 'erro' : 'vivo') + '"><span class="ia-dot"></span>' + edEsc(status) + '</div>' +
-            '<div class="ia-voce"><span>VOCÊ</span>“' + edEsc(pedido) + '”</div>' +
-            meio + linha + edPainelCenas(ped) +
+            '<div class="ia-voce"><span>VOCÊ</span>“' + edEsc(edUltimaFala(ped) || pedido) + '”</div>' +
+            meio + linha + edPainelCenas(ped) + (pronto || ped.status === 'erro' ? edFalarHtml(ped) : '') +
             '<div class="ia-rodape">' + links + (andando ? '<span>Atualiza sozinho a cada 15 s</span>' : '') + '</div>' +
           '</div>';
     }
