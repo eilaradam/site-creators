@@ -488,7 +488,12 @@ function pedidoMd(p, refs, regras, dic, arquivos) {
     L.push('- Legenda: ' + (p.legenda_modelo ? 'modelo `' + p.legenda_modelo + '` (veja "Legenda" no CLAUDE.md)' : 'SEM legenda (a Lara escolheu não legendar)'));
     if (p.marca_site) L.push('- Site da marca: ' + p.marca_site);
     if (p.marca_redes) L.push('- Redes da marca: ' + p.marca_redes.split('\n').map(s => s.trim()).filter(Boolean).join(' · '));
-    if (arquivos.length) L.push('', '## Arquivos (pasta entrada/)', ...arquivos.map(f => '- ' + f.Path + ' (' + (f.Size / 1048576).toFixed(1) + ' MB)'));
+    if (arquivos.length) {
+        // o Drive aceita vários arquivos com o mesmo nome; na pasta entrada/ só fica um de cada
+        const unicos = new Map();
+        arquivos.forEach(f => { const u = unicos.get(f.Path); unicos.set(f.Path, { f, n: u ? u.n + 1 : 1 }); });
+        L.push('', '## Arquivos (pasta entrada/)', ...[...unicos.values()].map(({ f, n }) => '- ' + f.Path + ' (' + (f.Size / 1048576).toFixed(1) + ' MB)' + (n > 1 ? ' · repetido ' + n + 'x no Drive, só 1 cópia baixada' : '')));
+    }
     L.push('', p.tipo === 'cenas' ? '## Texto da locução ou ideia' : '## Roteiro', p.roteiro || (p.tipo === 'cenas' ? '(sem texto: use as observações)' : '(sem roteiro: siga a fala do bruto)'));
     if (p.observacoes) L.push('', '## Observações da Lara', p.observacoes);
     if (p.rec_gravar) L.push('', '## Gravação de tela do site (pedida)', 'Site: ' + (p.marca_site || '(não informado)'), p.rec_passos || '(sem passo a passo: mostre a página principal e o que o roteiro cita)');
