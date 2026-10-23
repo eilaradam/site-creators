@@ -55,7 +55,7 @@
 
     /** Faz logout e redireciona. */
     async function logout() {
-        if (sb) await sb.auth.signOut();
+        if (sb) await sb.auth.signOut({ scope: 'local' });
         window.location.href = 'login.html';
     }
 
@@ -71,11 +71,11 @@
         try {
             role = await getRole();
         } catch (expErr) {
-            await sb.auth.signOut();
+            await sb.auth.signOut({ scope: 'local' });
             throw expErr;
         }
         if (!role) {
-            await sb.auth.signOut();
+            await sb.auth.signOut({ scope: 'local' });
             throw new Error('Acesso não autorizado. Entre em contato com a administradora.');
         }
         try { await sb.rpc('track_login'); } catch(e) {}
