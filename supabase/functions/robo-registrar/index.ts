@@ -30,6 +30,7 @@ serve(async (req) => {
       if (i.aprovados != null) patch.aprovados_agora = i.aprovados;
       if (i.status) { patch.status = i.status; patch.status_em = new Date().toISOString(); }
       if (i.etapa !== undefined) patch.etapa = i.etapa;
+      if (i.foto) patch.foto = i.foto;
       const { error } = await sb.from("robo_inscricoes").update(patch).eq("camp_id", i.camp_id);
       if (!error) n++;
     }
@@ -44,8 +45,8 @@ serve(async (req) => {
     for (const i of body.itens) {
       const ja = chaves.find((c: string) => c.startsWith(i.chave) || i.chave.startsWith(c));
       const { error } = ja
-        ? await sb.from("robo_aprovadas").update({ etapa: i.etapa, ultima: i.ultima, ordem: i.ordem, atualizado_em: new Date().toISOString() }).eq("chave", ja)
-        : await sb.from("robo_aprovadas").insert({ chave: i.chave, titulo: i.titulo, marca: i.titulo.includes(" - ") ? i.titulo.split(" - ").pop() : null, etapa: i.etapa, ultima: i.ultima, ordem: i.ordem });
+        ? await sb.from("robo_aprovadas").update({ etapa: i.etapa, ultima: i.ultima, ordem: i.ordem, ...(i.foto ? { foto: i.foto } : {}), atualizado_em: new Date().toISOString() }).eq("chave", ja)
+        : await sb.from("robo_aprovadas").insert({ chave: i.chave, titulo: i.titulo, marca: i.titulo.includes(" - ") ? i.titulo.split(" - ").pop() : null, etapa: i.etapa, ultima: i.ultima, ordem: i.ordem, foto: i.foto ?? null });
       if (!error) n++;
     }
     return new Response(JSON.stringify({ ok: true, atualizadas: n }));
