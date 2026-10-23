@@ -5419,6 +5419,8 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
 #tabEdicao .ia-box .ed-mic { margin-top:0; background:transparent; color:#E8A27E; border-color:#5A514A; }
 #tabEdicao .ed-mic.on { background:#C8441A; color:#fff; border-color:#C8441A; animation:edMicPulso 1.2s ease-in-out infinite; }
 @keyframes edMicPulso { 50% { box-shadow:0 0 0 6px rgba(200,68,26,.18); } }
+#tabEdicao .ia-avatar { width:40px; height:40px; border-radius:10px; display:block; }
+#tabEdicao .ia-sub { font-size:12px; color:#A69D93; margin-top:1px; }
 #tabEdicao .ed-opcs { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:12px 0 0; }
 #tabEdicao .ed-opc { text-align:left; background:#141312; border:1px solid #2E2925; border-radius:14px; padding:10px 12px; color:#CFC6BC; cursor:pointer; font:inherit; display:flex; flex-direction:column; gap:3px; }
 #tabEdicao .ed-opc b { color:#FFF8F2; font-size:13.5px; }
@@ -17896,7 +17898,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     }
 
     /* ── Pedidos de edição automática ──
-       O bruto fica numa pasta do Drive; o robô do Mac pega os pedidos "na_fila", baixa
+       O bruto fica numa pasta do Drive; o estagiário do Mac pega os pedidos "na_fila", baixa
        pelo ID da pasta, analisa as referências, edita e devolve prévia + projeto em camadas. */
     const ED_REF_TIPOS = [['geral','Geral (a vibe do vídeo)'],['legenda','Fonte e legenda'],['animacao','Animação e gráficos'],['cortes_zoom','Cortes e zoom'],['som','Som e música'],['cor','Cor']];
     const ED_PED_STATUS = {
@@ -17926,7 +17928,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         if (b.error) return edErro('Não carreguei a biblioteca', b.error);
         edPedidos = p.data || []; edRefsBib = b.data || [];
     }
-    /* Enquanto o robô trabalha, a lista e o pedido aberto se atualizam sozinhos (o robô escreve o passo atual em status_msg) */
+    /* Enquanto o estagiário trabalha, a lista e o pedido aberto se atualizam sozinhos (o estagiário escreve o passo atual em status_msg) */
     const ED_EM_ANDAMENTO = ['na_fila', 'aguardando_bruto', 'baixando', 'analisando', 'editando', 'renderizando', 'aguardando_cenas', 'ajustes_na_fila', 'remontar_na_fila'];
     setInterval(async () => {
         const aba = document.getElementById('tabEdicao');
@@ -17986,8 +17988,8 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         return [...s].sort((a, b) => a.localeCompare(b, 'pt-BR'));
     }
     function edFormato(f) { edLerForm(); edForm.formato = f; edRender(); }
-    const ED_AUDIO = [['fala', 'Eu falando', 'o robô corta pela fala e legenda o que você diz'],
-        ['narrado', 'Narrado', 'cenas sem fala + um áudio seu gravado à parte (gravador, WhatsApp): o robô monta as cenas em cima da narração'],
+    const ED_AUDIO = [['fala', 'Eu falando', 'o estagiário corta pela fala e legenda o que você diz'],
+        ['narrado', 'Narrado', 'cenas sem fala + um áudio seu gravado à parte (gravador, WhatsApp): o estagiário monta as cenas em cima da narração'],
         ['musica', 'Sem fala, só música', 'vlog/b-roll: tira o som do bruto, corta no ritmo da música e põe textos na tela no lugar da legenda']];
     function edAudioTipo(a) {
         edLerForm();
@@ -18013,7 +18015,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         edLerForm(); const f = edForm; if (!f) return;
         if (!f.marca.trim()) return edToast('Preencha a marca', true);
         if (edPastaOcupada(f.marca, f.id)) { edChecarPasta(); return edToast('Já existe uma pasta com esse nome. Coloque um número para diferenciar.', true); }
-        /* link é opcional: sem link, o robô cria a pasta Edição/<marca>/#<numero> <nome> e escreve o link no pedido */
+        /* link é opcional: sem link, o estagiário cria a pasta Edição/<marca>/#<numero> <nome> e escreve o link no pedido */
         const pid = f.drive_pasta_link.trim() ? edPastaId(f.drive_pasta_link) : null;
         if (f.drive_pasta_link.trim() && !pid) return edToast('Esse link não é de uma PASTA do Drive (drive.google.com/drive/folders/...)', true);
         const refs = f.refs.filter(r => r.link.trim());
@@ -18049,7 +18051,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             }
         }
         edRefazendo = null;
-        edToast(refazendo ? 'Na fila para refazer do zero. O robô do Mac pega na próxima rodada.' : f.id ? 'Pedido atualizado' : 'Pedido na fila. O robô do Mac pega na próxima rodada.');
+        edToast(refazendo ? 'Na fila para refazer do zero. O estagiário do Mac pega na próxima rodada.' : f.id ? 'Pedido atualizado' : 'Pedido na fila. O estagiário do Mac pega na próxima rodada.');
         await edCarregarPedidos(); edPedidoAberto = null; edForm = null; edRender();
     }
     async function edMudarStatusPedido(id, status, msg) {
@@ -18078,7 +18080,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         box.innerHTML =
           '<div class="ed-row" style="margin-bottom:12px;"><span class="ed-muted">' + edPedidos.length + ' pedido(s)</span><span style="flex:1"></span>' +
           '<button class="ed-btn" type="button" onclick="edAbrirNovoPedido()">+ Novo pedido de edição</button></div>' +
-          '<div class="ed-card">' + (cards || '<div class="ed-empty"><h4>Nenhum pedido ainda</h4><p>Suba o bruto numa pasta do Drive, crie o pedido com o link da pasta, o roteiro e as referências. O robô do seu Mac edita e devolve a prévia aqui.</p></div>') + '</div>';
+          '<div class="ed-card">' + (cards || '<div class="ed-empty"><h4>Nenhum pedido ainda</h4><p>Suba o bruto numa pasta do Drive, crie o pedido com o link da pasta, o roteiro e as referências. O estagiário do seu Mac edita e devolve a prévia aqui.</p></div>') + '</div>';
     }
     function edRenderFormPedido() {
         const box = document.getElementById('edBox'); const f = edForm; if (!box || !f) return;
@@ -18121,8 +18123,8 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
               '<div id="edPastaAviso" class="ed-muted" style="margin-top:5px;"></div>' +
               '<label class="ed-lb">' + (f.tipo === 'cenas' ? 'Pasta do Drive (opcional)' : 'Pasta do Drive com o bruto (opcional)') + '</label><input class="ed-input" id="edP_drive_pasta_link" placeholder="https://drive.google.com/drive/folders/..."' + dis + ' value="' + edEsc(f.drive_pasta_link) + '">' +
               '<div class="ed-muted" style="margin-top:4px;">' + (ped && ped.drive_pasta_link && !f.drive_pasta_link
-                ? '' : (f.drive_pasta_link.trim() ? 'O robô usa a pasta desse link.' :
-                  'Deixe vazio: o robô cria a pasta <b>Edição/' + edEsc(f.marca.trim() || '<marca>') + '</b> no seu Drive e o link aparece aqui. ' +
+                ? '' : (f.drive_pasta_link.trim() ? 'O estagiário usa a pasta desse link.' :
+                  'Deixe vazio: o estagiário cria a pasta <b>Edição/' + edEsc(f.marca.trim() || '<marca>') + '</b> no seu Drive e o link aparece aqui. ' +
                   (f.tipo === 'cenas' ? 'Lá você joga as cenas que gerar (cena01.mp4, cena02.mp4…).' : 'Aí é só jogar o bruto e as cenas extras dentro (dá para subir direto do celular pelo app do Drive).'))) +
                 ' O final volta para a mesma pasta.</div>' +
               '<label class="ed-lb">Formato</label><div class="ed-row">' + formatos + '</div>' +
@@ -18130,15 +18132,15 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                 '<button class="ed-chip' + ((f.audio_tipo || 'fala') === k ? ' on' : '') + '" type="button"' + dis + ' onclick="edAudioTipo(\'' + k + '\')">' + n + '</button>').join('') + '</div>' +
                 '<div class="ed-muted" style="margin-top:4px;">' + edEsc((ED_AUDIO.find(x => x[0] === (f.audio_tipo || 'fala')) || ED_AUDIO[0])[2]) + '.</div>') +
               '<label class="ed-lb">Legenda · ' + edEsc((edLegendas.find(m => m.id === f.legenda_modelo) || { nome: 'sem legenda' }).nome) + '</label>' + edPickLegendas(f, travado) +
-              '<label class="ed-lb">Títulos animados · ' + (f.titulos_modelos ? String(f.titulos_modelos).split(',').filter(Boolean).length + ' escolhido(s)' : 'nenhum escolhido = o robô escolhe') + '</label>' + edPickTitulos(f, travado) +
+              '<label class="ed-lb">Títulos animados · ' + (f.titulos_modelos ? String(f.titulos_modelos).split(',').filter(Boolean).length + ' escolhido(s)' : 'nenhum escolhido = o estagiário escolhe') + '</label>' + edPickTitulos(f, travado) +
               '<label class="ed-lb">' + (f.tipo === 'cenas' ? 'Duração (segundos; cada 10 s é uma cena)' : 'Duração desejada (segundos, opcional)') + '</label><input class="ed-input" id="edP_duracao_alvo_s" type="number" min="5" max="600" style="max-width:160px;"' + dis + ' value="' + edEsc(f.duracao_alvo_s) + '">' +
               '<div class="ed-lb-mic"><label class="ed-lb">Observações</label>' + (dis ? '' : edMicBtn('edP_observacoes')) + '</div><textarea class="ed-input" id="edP_observacoes" rows="3" placeholder="ex.: tirar a parte em que eu tropeço; destacar o preço"' + dis + '>' + edEsc(f.observacoes) + '</textarea>' +
             '</div>' +
             '<div class="ed-card">' +
               (f.tipo === 'cenas'
-                ? '<h4>Texto da locução ou ideia</h4><div class="ed-muted" style="margin-bottom:6px;">Cole o texto pronto ou só a ideia. O robô escreve (ou ajusta) a locução com umas 24 palavras por cena de 10 s.</div>'
-                : f.audio_tipo === 'musica' ? '<h4>O que o vídeo conta</h4><div class="ed-muted" style="margin-bottom:6px;">A ordem do dia ou da história e as frases que você quer na tela. O robô tira daqui os textos e a sequência das cenas.</div>'
-                : '<h4>' + (f.audio_tipo === 'narrado' ? 'Roteiro da narração' : 'Roteiro') + '</h4><div class="ed-muted" style="margin-bottom:6px;">Com o roteiro o robô sabe qual tomada é a certa e acerta os nomes na legenda.</div>') +
+                ? '<h4>Texto da locução ou ideia</h4><div class="ed-muted" style="margin-bottom:6px;">Cole o texto pronto ou só a ideia. O estagiário escreve (ou ajusta) a locução com umas 24 palavras por cena de 10 s.</div>'
+                : f.audio_tipo === 'musica' ? '<h4>O que o vídeo conta</h4><div class="ed-muted" style="margin-bottom:6px;">A ordem do dia ou da história e as frases que você quer na tela. O estagiário tira daqui os textos e a sequência das cenas.</div>'
+                : '<h4>' + (f.audio_tipo === 'narrado' ? 'Roteiro da narração' : 'Roteiro') + '</h4><div class="ed-muted" style="margin-bottom:6px;">Com o roteiro o estagiário sabe qual tomada é a certa e acerta os nomes na legenda.</div>') +
               (dis ? '' : '<div class="ed-lb-mic" style="justify-content:flex-end;margin-bottom:6px;">' + edMicBtn('edP_roteiro') + '</div>') +
               '<textarea class="ed-input" id="edP_roteiro" rows="14" placeholder="' + (f.tipo === 'cenas' ? 'ex.: por que milha vale dinheiro e quase ninguém usa' : 'Cole o roteiro aqui') + '"' + dis + '>' + edEsc(f.roteiro) + '</textarea>' +
             '</div>' +
@@ -18148,12 +18150,12 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
               ED_VOZES.map(([k, n]) => '<option value="' + k + '"' + (f.voz === k ? ' selected' : '') + '>' + n + '</option>').join('') + '</select>' +
             '<label class="ed-lb">Visual das cenas</label><div class="ed-row">' +
               ED_ESTILOS.map(([k, n, d]) => '<button class="ed-chip' + (f.estilo_visual === k ? ' on' : '') + '" type="button"' + dis + ' title="' + edEsc(d) + '" onclick="edEstiloVisual(\'' + k + '\')">' + n + '</button>').join('') + '</div>' +
-            '<div class="ed-muted" style="margin-top:6px;">' + edEsc((ED_ESTILOS.find(e => e[0] === f.estilo_visual) || ED_ESTILOS[0])[2]) + '. O robô te entrega o texto dividido em cenas, uma imagem-chave e um prompt por cena para rodar no Dreamina (créditos grátis). ' +
-              (f.voz === 'minha' ? 'Você grava o texto inteiro de uma vez (em vídeo, como um bruto, ou só o áudio) e joga na pasta junto com as cenas: o robô acha onde começa cada cena na sua fala e ajusta os vídeos.' : 'A voz gerada serve de rascunho para testar o ritmo.') + '</div>' +
+            '<div class="ed-muted" style="margin-top:6px;">' + edEsc((ED_ESTILOS.find(e => e[0] === f.estilo_visual) || ED_ESTILOS[0])[2]) + '. O estagiário te entrega o texto dividido em cenas, uma imagem-chave e um prompt por cena para rodar no Dreamina (créditos grátis). ' +
+              (f.voz === 'minha' ? 'Você grava o texto inteiro de uma vez (em vídeo, como um bruto, ou só o áudio) e joga na pasta junto com as cenas: o estagiário acha onde começa cada cena na sua fala e ajusta os vídeos.' : 'A voz gerada serve de rascunho para testar o ritmo.') + '</div>' +
           '</div>' : '') +
           '<div class="ed-card" style="margin-top:14px;">' +
             '<h4>A marca</h4>' +
-            '<div class="ed-muted" style="margin-bottom:6px;">O robô lê o site e as redes para acertar nome, cores e o que a marca faz. Se a marca já está na aba Marcas, o site e o @ vêm sozinhos.</div>' +
+            '<div class="ed-muted" style="margin-bottom:6px;">O estagiário lê o site e as redes para acertar nome, cores e o que a marca faz. Se a marca já está na aba Marcas, o site e o @ vêm sozinhos.</div>' +
             '<div class="ed-grid">' +
               '<div><label class="ed-lb">Site</label><input class="ed-input" id="edP_marca_site" placeholder="https://..."' + dis + ' value="' + edEsc(f.marca_site) + '">' +
               '<label class="ed-lb">Redes (uma por linha)</label><textarea class="ed-input" id="edP_marca_redes" rows="3" placeholder="@marca no Instagram&#10;link do TikTok&#10;link do YouTube"' + dis + '>' + edEsc(f.marca_redes) + '</textarea></div>' +
@@ -18212,14 +18214,14 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         if (k >= 0) { edForm.refs.splice(k, 1); edRender(); return; }
         edUsarDaBiblioteca(id);
     }
-    /* ── Biblioteca de fontes: robo-edicao/fontes.json (as mesmas que o robô instala no Mac) ── */
+    /* ── Biblioteca de fontes: robo-edicao/fontes.json (as mesmas que o estagiário instala no Mac) ── */
     let edFontes = [], edFonteCat = '', edFonteTexto = 'Você sabe quanto valem as suas milhas?';
     const ED_FONTE_CATS = [['', 'Todas'], ['impacto', 'Impacto'], ['moderna', 'Moderna'], ['serifa', 'Serifa'], ['manuscrita', 'Manuscrita'], ['divertida', 'Divertida'], ['tech', 'Tech']];
     async function edCarregarFontes() {
         if (edFontes.length) return;
         try { const r = await fetch('robo-edicao/fontes.json', { cache: 'no-cache' }); edFontes = await r.json(); } catch (_) { edFontes = []; }
         if (!edFontes.length || document.getElementById('edFontesCss')) return;
-        // pede ao Google Fonts só os pesos que o robô tem de cada família (mesmo visual do vídeo)
+        // pede ao Google Fonts só os pesos que o estagiário tem de cada família (mesmo visual do vídeo)
         const fam = edFontes.map(f => {
             const pesos = [...new Set((f.pesos_fixos && f.pesos_fixos.length ? f.pesos_fixos : f.pesos).filter(p => p >= 100))].sort((a, b) => a - b);
             return 'family=' + encodeURIComponent(f.familia).replace(/%20/g, '+') + (pesos.length > 1 ? ':wght@' + pesos.join(';') : '');
@@ -18243,7 +18245,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const conta = c => edFontes.filter(f => !c || f.categoria === c).length;
         const peso = n => /Black/.test(n) ? 900 : /ExtraBold/.test(n) ? 800 : /SemiBold/.test(n) ? 600 : /ExtraLight/.test(n) ? 200 : /Light/.test(n) ? 300 : /Medium/.test(n) ? 500 : /Thin/.test(n) ? 100 : /Bold/.test(n) ? 700 : 400;
         box.innerHTML =
-          '<div class="ed-muted" style="margin-bottom:10px;">' + edFontes.length + ' famílias do Google Fonts, todas com licença livre para uso comercial (inclusive vídeo de cliente). O robô instala essas no Mac e usa nos títulos, animações e legendas.</div>' +
+          '<div class="ed-muted" style="margin-bottom:10px;">' + edFontes.length + ' famílias do Google Fonts, todas com licença livre para uso comercial (inclusive vídeo de cliente). O estagiário instala essas no Mac e usa nos títulos, animações e legendas.</div>' +
           '<div class="ed-row" style="margin-bottom:10px;"><input class="ed-input" style="max-width:420px;" placeholder="Escreva um texto para testar" oninput="edFonteAmostra(this.value)" value="' + edEsc(edFonteTexto) + '"></div>' +
           '<div class="ed-sub">' + ED_FONTE_CATS.map(([k, n]) => '<button class="ed-chip' + (edFonteCat === k ? ' on' : '') + '" type="button" onclick="edFonteFiltro(\'' + k + '\')">' + n + ' · ' + conta(k) + '</button>').join('') + '</div>' +
           '<div class="fn-grade">' + lista.map(f => {
@@ -18251,11 +18253,11 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
               const forte = nomes.length ? peso(nomes[nomes.length - 1]) : 400;
               return '<div class="fn-card"><div class="fn-amostra" style="font-family:\'' + edEsc(f.familia) + '\';font-weight:' + forte + ';">' + edEsc(edFonteTexto) + '</div>' +
                 '<div class="fn-info"><b>' + edEsc(f.familia) + '</b> <span class="ed-tag">' + edEsc(f.categoria) + '</span>' + (f.nomes_italico && f.nomes_italico.length ? ' <span class="ed-tag">itálico</span>' : '') +
-                '<div class="fn-pesos">' + nomes.map(n => '<button type="button" class="fn-peso" title="Copiar o nome que o robô usa" style="font-family:\'' + edEsc(f.familia) + '\';font-weight:' + peso(n) + ';" onclick="edCopiarNome(\'' + edEsc(n).replace(/'/g, "\\'") + '\')">' + edEsc(n.replace(f.familia, '').trim() || 'Regular') + '</button>').join('') + '</div>' +
+                '<div class="fn-pesos">' + nomes.map(n => '<button type="button" class="fn-peso" title="Copiar o nome que o estagiário usa" style="font-family:\'' + edEsc(f.familia) + '\';font-weight:' + peso(n) + ';" onclick="edCopiarNome(\'' + edEsc(n).replace(/'/g, "\\'") + '\')">' + edEsc(n.replace(f.familia, '').trim() || 'Regular') + '</button>').join('') + '</div>' +
                 '<div class="ed-muted" style="font-size:11.5px;">Licença ' + edEsc(f.licenca) + ' · ' + edEsc(f.origem) + '</div></div></div>';
           }).join('') + '</div>';
     }
-    /* ── Modelos de título animado: os mesmos que o robô renderiza no Remotion (robo-edicao/titulos). As prévias são vídeos curtos. ── */
+    /* ── Modelos de título animado: os mesmos que o estagiário renderiza no Remotion (robo-edicao/titulos). As prévias são vídeos curtos. ── */
     const ED_TITULOS = [
         ['caixa-pop', 'Caixa pop', 'Frase numa caixa de cor que entra com pulinho. Bom para o gancho.'],
         ['palavra-por-palavra', 'Palavra por palavra', 'Cada palavra sobe na hora dela; a palavra forte muda de cor.'],
@@ -18276,8 +18278,8 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     function edRenderTitulos() {
         const box = document.getElementById('edBox'); if (!box) return;
         const fav = edTitulosFavoritos();
-        box.innerHTML = '<div class="ed-muted" style="margin-bottom:12px;">Títulos animados que o robô coloca nos momentos fortes do vídeo (gancho, número, lista, chamada), nas cores da marca. ' +
-            'Marque os seus favoritos: eles já vêm escolhidos nos próximos pedidos. Se nenhum for marcado, o robô escolhe.</div>' +
+        box.innerHTML = '<div class="ed-muted" style="margin-bottom:12px;">Títulos animados que o estagiário coloca nos momentos fortes do vídeo (gancho, número, lista, chamada), nas cores da marca. ' +
+            'Marque os seus favoritos: eles já vêm escolhidos nos próximos pedidos. Se nenhum for marcado, o estagiário escolhe.</div>' +
             '<div class="lg-grade">' + ED_TITULOS.map(([id, n, d]) =>
                 '<div class="lg-card' + (fav.includes(id) ? ' padrao' : '') + '">' +
                   '<video class="tt-video" src="robo-edicao/titulos/previas/' + id + '.mp4" autoplay loop muted playsinline preload="metadata"></video>' +
@@ -18290,7 +18292,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         if (i >= 0) sel.splice(i, 1); else sel.push(id);
         edForm.titulos_modelos = sel.join(','); edRender();
     }
-    /* ── Modelos de legenda: a mesma lista (robo-edicao/legendas.json) que o robô usa para queimar a legenda ── */
+    /* ── Modelos de legenda: a mesma lista (robo-edicao/legendas.json) que o estagiário usa para queimar a legenda ── */
     let edLegendas = [], edLegTimer = null;
     function edLegendaPadrao() { try { return localStorage.getItem('edLegendaPadrao') || 'lara'; } catch (_) { return 'lara'; } }
     async function edCarregarLegendas() {
@@ -18360,7 +18362,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         await edCarregarLegendas();
         if (!edLegendas.length) { box.innerHTML = '<div class="ed-card ed-empty">Não consegui carregar os modelos (robo-edicao/legendas.json).</div>'; return; }
         const padrao = edLegendaPadrao(), H = 400;
-        box.innerHTML = '<div class="ed-muted" style="margin-bottom:12px;">São os mesmos modelos que o robô usa para queimar a legenda no vídeo. Escolha um como padrão ou troque em cada pedido.</div>' +
+        box.innerHTML = '<div class="ed-muted" style="margin-bottom:12px;">São os mesmos modelos que o estagiário usa para queimar a legenda no vídeo. Escolha um como padrão ou troque em cada pedido.</div>' +
             '<div class="lg-grade">' + edLegendas.map(m =>
                 '<div class="lg-card' + (m.id === padrao ? ' padrao' : '') + '">' +
                   '<div class="lg-tela" data-id="' + m.id + '" style="height:' + H + 'px;"><div class="lg-txt" style="' + edLegEstilo(m, H) + '"></div></div>' +
@@ -18370,14 +18372,14 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         edLegAnimar();
     }
     /* ── Ajustar depois de pronto: clicar na linha do tempo, tirar/trocar itens, comentar no segundo exato e pedir a V2.
-       Cada ajuste fica salvo no pedido; o robô aplica na V2 e propõe regras do estilo a partir deles. ── */
+       Cada ajuste fica salvo no pedido; o estagiário aplica na V2 e propõe regras do estilo a partir deles. ── */
     let edIaSel = null, edIaRaf = null;
     const edIaAjustes = ped => Array.isArray(ped.ajustes) ? ped.ajustes : [];
     function edIaLinhaHtml(ped) {
         const pj = ped.projeto || {}, cam = Array.isArray(pj.camadas) ? pj.camadas : [];
         const andando = ED_EM_ANDAMENTO.includes(ped.status);
         const dur = Number(pj.duracao_s) || Math.max(0, ...cam.map(c => Number(c.fim_s) || 0)) || 0;
-        if (!dur) return '<div class="ia-tl vazio">' + (ped.tipo === 'cenas' ? 'A linha do tempo aparece quando o robô montar as cenas com a locução.' : andando ? 'A linha do tempo aparece aqui conforme o robô corta e legenda.' : 'Sem linha do tempo neste pedido.') + '</div>';
+        if (!dur) return '<div class="ia-tl vazio">' + (ped.tipo === 'cenas' ? 'A linha do tempo aparece quando o estagiário montar as cenas com a locução.' : andando ? 'A linha do tempo aparece aqui conforme o estagiário corta e legenda.' : 'Sem linha do tempo neste pedido.') + '</div>';
         const aj = edIaAjustes(ped);
         const fora = new Set(aj.filter(a => a.tipo === 'remover').map(a => a.i));
         const novoTexto = {}; aj.filter(a => a.tipo === 'texto').forEach(a => { novoTexto[a.i] = a.para; });
@@ -18421,7 +18423,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
               '<input class="ed-input" id="iaComTx" style="flex:1;min-width:180px;" placeholder="Comentário neste ponto (ex.: zoom aqui, música mais baixa)" onkeydown="if(event.key===\'Enter\')edIaComentar()">' +
               '<button class="ed-btn mini" type="button" onclick="edIaComentar()">Comentar</button></div>' +
             (aj.length ? '<div class="ia-ajs">' + lista + '</div>' +
-              '<div class="ed-row" style="margin-top:10px;justify-content:space-between;"><span class="ia-cenas-dica" style="margin:0;">O robô aplica na V2 e aprende: os ajustes viram regras propostas em Regras do estilo.</span>' +
+              '<div class="ed-row" style="margin-top:10px;justify-content:space-between;"><span class="ia-cenas-dica" style="margin:0;">O estagiário aplica na V2 e aprende: os ajustes viram regras propostas em Regras do estilo.</span>' +
               '<button class="ed-btn" type="button" onclick="edIaPedirV2()">Gerar V2 com ' + aj.length + ' ajuste' + (aj.length > 1 ? 's' : '') + '</button></div>' : '') +
           '</div>';
     }
@@ -18461,7 +18463,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     function edIaApagar(k) { const ped = edIaPed(); if (!ped) return; const a = edIaAjustes(ped).slice(); a.splice(k, 1); edIaSalvar(ped, a); }
     async function edIaPedirV2() {
         const ped = edIaPed(); if (!ped) return; const n = edIaAjustes(ped).length;
-        if (!confirm('Mandar ' + n + ' ajuste(s) para o robô fazer a V2?')) return;
+        if (!confirm('Mandar ' + n + ' ajuste(s) para o estagiário fazer a V2?')) return;
         await edMudarStatusPedido(ped.id, 'ajustes_na_fila', 'Na fila para a nova versão com ' + n + ' ajuste(s)');
     }
     /* liga vídeo, cabeça de leitura e cliques na linha do tempo (sem recriar o vídeo) */
@@ -18537,7 +18539,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         try { r.start(); } catch (_) { return edToast('Não consegui ligar o microfone', true); }
         edMicRec = r; edMicAlvo = id; botao(true);
     }
-    /* ── Duas opções: o robô entrega A e B do mesmo bruto; a Lara compara e fica com uma (a escolha vira regra proposta) ── */
+    /* ── Duas opções: o estagiário entrega A e B do mesmo bruto; a Lara compara e fica com uma (a escolha vira regra proposta) ── */
     let edOpcaoVer = 'a';
     function edOpcaoTrocar(k) { edOpcaoVer = k; edIaSel = null; edRender(); }
     function edOpcaoOutraHtml(ped) {
@@ -18562,10 +18564,10 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         edToast('Ficou com a opção ' + (oNova.nome || 'B'));
         await edCarregarPedidos(); await edAbrirPedido(ped.id);
     }
-    /* ── Reeditar o que o robô fez. O projeto em camadas (o mesmo que o robô monta) é editado aqui:
+    /* ── Reeditar o que o estagiário fez. O projeto em camadas (o mesmo que o estagiário monta) é editado aqui:
        o vídeo de base (sem legenda e sem títulos) toca e a legenda e os títulos são desenhados por cima, ao vivo,
-       para arrastar e trocar. "Renderizar" manda o robô remontar só com o montador, sem refazer a edição.
-       Cada mudança vira uma frase em projeto.mudancas: o robô aprende com elas e propõe regras do estilo. ── */
+       para arrastar e trocar. "Renderizar" manda o estagiário remontar só com o montador, sem refazer a edição.
+       Cada mudança vira uma frase em projeto.mudancas: o estagiário aprende com elas e propõe regras do estilo. ── */
     const edEdMontavel = ped => !!(ped && ped.projeto && ped.projeto.base_path && Array.isArray(ped.projeto.camadas) && ['previa_pronta', 'em_revisao', 'final_pronto'].includes(ped.status));
     const ED_TAM = { '9:16': [1080, 1920], '4:5': [1080, 1350], '1:1': [1080, 1080], '16:9': [1920, 1080] };
     const edR = x => Math.round(x * 1000) / 1000;
@@ -18722,7 +18724,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         if (!novo || novo === String(c.texto || '').trim()) return;
         const antes = String(c.texto || '').trim();
         edEdMudar(ped, 'Trocou ' + (c.tipo === 'legenda' ? 'a legenda' : 'o texto do título') + ' “' + antes + '” por “' + novo + '”', () => { c.texto = novo; });
-        // palavra corrigida na legenda: vai para o dicionário, para o robô já acertar nos próximos vídeos
+        // palavra corrigida na legenda: vai para o dicionário, para o estagiário já acertar nos próximos vídeos
         const dic = document.getElementById('edEdDic');
         if (c.tipo === 'legenda' && dic && dic.checked) {
             const a = antes.split(/\s+/), b = novo.split(/\s+/);
@@ -18764,8 +18766,8 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         clearTimeout(edEdSalvarT);
         const n = (ped.projeto.mudancas || []).length;
         const { error } = await sb.from('edicao_pedidos').update({ projeto: ped.projeto, status: 'remontar_na_fila', status_msg: 'Na fila para remontar com ' + n + ' mudança(s)', updated_at: new Date().toISOString() }).eq('id', ped.id);
-        if (error) return edErro('Não mandei para o robô', error);
-        edEdHist = []; edToast('O robô vai remontar em alguns minutos');
+        if (error) return edErro('Não mandei para o estagiário', error);
+        edEdHist = []; edToast('O estagiário vai remontar em alguns minutos');
         await edCarregarPedidos(); if (edPedidoAberto === ped.id) await edAbrirPedido(ped.id); else edRender();
     }
     function edEdModoTrocar(m) { edEdModo = m; edEdChave = ''; const ped = edIaPed(); if (ped) { edRender(); } }
@@ -18924,14 +18926,14 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         return '<div class="ia-editar"><div class="ed-ed-topo"><div class="ia-cenas-tit" style="margin:0;">Reeditar</div>' +
               '<span class="ia-tempo" id="iaTempo">00:00</span>' + (edEdHist.length ? btn('↶ Desfazer', 'edEdDesfazer()', 'ghost') : '') + '</div>' + sel +
             (mud.length ? '<div class="ed-ed-mud"><b>' + mud.length + ' mudança' + (mud.length > 1 ? 's' : '') + '</b>' + mud.slice(-4).reverse().map(x => '<div>' + edEsc(x) + '</div>').join('') + '</div>' +
-              '<div class="ed-row" style="margin-top:10px;justify-content:space-between;"><span class="ia-cenas-dica" style="margin:0;">O robô remonta em poucos minutos, sem refazer a edição, e aprende com o que você mudou.</span>' +
+              '<div class="ed-row" style="margin-top:10px;justify-content:space-between;"><span class="ia-cenas-dica" style="margin:0;">O estagiário remonta em poucos minutos, sem refazer a edição, e aprende com o que você mudou.</span>' +
               btn('Renderizar nova versão', 'edEdRenderizar()') + '</div>' : '') +
-            '<details class="ed-ed-pedir"' + (aj.length ? ' open' : '') + '><summary>Pedir ao robô o que não dá para fazer aqui</summary>' +
+            '<details class="ed-ed-pedir"' + (aj.length ? ' open' : '') + '><summary>Pedir ao estagiário o que não dá para fazer aqui</summary>' +
               '<div class="ed-row" style="margin-top:8px;"><select class="ed-input" id="iaComCat" style="width:auto;">' + tipos + '</select>' +
               '<input class="ed-input" id="iaComTx" style="flex:1;min-width:180px;" placeholder="Neste ponto: ex. troca a música, põe b-roll do app aqui" onkeydown="if(event.key===\'Enter\')edIaComentar()">' +
               edMicBtn('iaComTx') + btn('Comentar', 'edIaComentar()') + '</div>' +
               (aj.length ? '<div class="ia-ajs">' + aj.map((a, k) => '<div class="ia-aj"><span>' + edMMSS(a.tempo_s) + ' · ' + edEsc(a.texto || a.para || '') + '</span><button class="ed-x" type="button" onclick="edIaApagar(' + k + ')">✕</button></div>').join('') + '</div>' +
-                '<div class="ed-row" style="margin-top:8px;justify-content:flex-end;">' + btn('Mandar para o robô (V2 com o Claude)', 'edIaPedirV2()', 'ghost') + '</div>' : '') +
+                '<div class="ed-row" style="margin-top:8px;justify-content:flex-end;">' + btn('Mandar para o estagiário (V2 com o Claude)', 'edIaPedirV2()', 'ghost') + '</div>' : '') +
             '</details></div>';
     }
     /* Locução + cenas: imagem-chave e um prompt por cena, com botão de copiar */
@@ -18960,7 +18962,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                 '<div class="ia-cena-fala">“' + edEsc(x.texto || '') + '”</div>')).join('') +
           '</div>';
     }
-    /* ── Editor IA: o que o robô está fazendo, ao vivo, com a linha do tempo real do projeto ── */
+    /* ── Editor IA: o que o estagiário está fazendo, ao vivo, com a linha do tempo real do projeto ── */
     const ED_ETAPAS = [['transcricao', 'Transcreve a fala'], ['tomadas', 'Escolhe as melhores tomadas'], ['cortes', 'Corta pausas e repetições'],
         ['legendas', 'Coloca as legendas'], ['zoom', 'Zoom e animações'], ['som', 'Música e efeitos'], ['render', 'Renderiza e confere']];
     const edMMSS = t => { t = Math.max(0, Math.round(t || 0)); return String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'); };
@@ -18987,7 +18989,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const pj = ped.projeto || {}, cam = Array.isArray(pj.camadas) ? pj.camadas : [];
         const andando = ED_EM_ANDAMENTO.includes(ped.status), pronto = ['previa_pronta', 'em_revisao', 'final_pronto'].includes(ped.status);
         const dur = Number(pj.duracao_s) || Math.max(0, ...cam.map(c => Number(c.fim_s) || 0)) || 0;
-        const status = pronto ? 'Pronto: vídeo editado' : ped.status === 'erro' ? 'Parou: ' + (ped.status_msg || 'erro') : (ped.status_msg || 'Na fila do robô');
+        const status = pronto ? 'Pronto: vídeo editado' : ped.status === 'erro' ? 'Parou: ' + (ped.status_msg || 'erro') : (ped.status_msg || 'Na fila do estagiário');
         const pedido = (ped.observacoes || '').trim() || (ped.tipo === 'cenas'
             ? 'Vídeo de locução + cenas: ' + String(ped.roteiro || ped.pasta_nome || '').trim().replace(/\s+/g, ' ').slice(0, 110)
             : 'Edita seguindo o roteiro' + (ped.marca ? ' da ' + ped.marca : '') + ', com legenda, cortes e zoom.');
@@ -19018,7 +19020,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             (ped.final_link ? ' · <a href="' + edEsc(ped.final_link) + '" target="_blank" rel="noopener">Final no Drive</a>' : '') +
             (ped.drive_pasta_link ? (ped.previa_link || ped.final_link ? ' · ' : '') + '<a href="' + edEsc(ped.drive_pasta_link) + '" target="_blank" rel="noopener">Pasta</a>' : '');
         return '<div class="ia-box">' +
-            '<div class="ia-top"><div class="ia-logo"><svg viewBox="0 0 32 32" width="34" height="34" aria-hidden="true"><g stroke="#D97757" stroke-width="3.2" stroke-linecap="round"><line x1="16" y1="16" x2="16.0" y2="5.0"/><line x1="16" y1="16" x2="20.5" y2="8.2"/><line x1="16" y1="16" x2="26.4" y2="10.0"/><line x1="16" y1="16" x2="24.5" y2="16.0"/><line x1="16" y1="16" x2="26.0" y2="21.8"/><line x1="16" y1="16" x2="20.8" y2="24.2"/><line x1="16" y1="16" x2="16.0" y2="28.0"/><line x1="16" y1="16" x2="12.0" y2="22.9"/><line x1="16" y1="16" x2="6.5" y2="21.5"/><line x1="16" y1="16" x2="6.0" y2="16.0"/><line x1="16" y1="16" x2="5.6" y2="10.0"/><line x1="16" y1="16" x2="11.5" y2="8.2"/></g></svg></div><div class="ia-tit">Editor</div></div>' +
+            '<div class="ia-top"><img class="ia-avatar" src="robo-edicao/icone.png" alt="" width="40" height="40"><div><div class="ia-tit">Estagiário</div><div class="ia-sub">de edição · trabalha no seu Mac</div></div></div>' +
             '<div class="ia-status ' + (pronto ? 'ok' : ped.status === 'erro' ? 'erro' : 'vivo') + '"><span class="ia-dot"></span>' + edEsc(status) + '</div>' +
             '<div class="ia-voce"><span>VOCÊ</span>“' + edEsc(pedido) + '”</div>' +
             meio + linha + edPainelCenas(ped) +
