@@ -33,6 +33,8 @@ async function entrar(corpo, tipo) {
     const r = await fetch(SUPA + '/auth/v1/token?grant_type=' + tipo, {
         method: 'POST', headers: { apikey: ANON, 'Content-Type': 'application/json' }, body: JSON.stringify(corpo) });
     const j = await r.json().catch(() => ({}));
+    if (!r.ok && tipo === 'refresh_token' && /refresh token/i.test(j.error_description || j.msg || ''))
+        throw new Error('Perdi o acesso ao admin (alguém saiu de todas as sessões ou trocou a senha). Para me ligar de novo, feche esta janela e rode no Terminal: cd ~/robo-edicao && node robo.mjs --entrar');
     if (!r.ok) throw new Error('Login no admin falhou: ' + (j.error_description || j.msg || r.status));
     fs.writeFileSync(SESSAO, JSON.stringify({ refresh_token: j.refresh_token }), { mode: 0o600 });
     usuarioId = j.user && j.user.id; token = j.access_token; tokenAte = Date.now() + (j.expires_in - 120) * 1000;
@@ -804,6 +806,20 @@ async function main() {
         const eu = await db('usuarios?select=role&id=eq.' + usuarioId);
         if (!eu.length || eu[0].role !== 'admin') throw new Error('Esse login não é admin do site.');
         return log('Login ok. O robô está ligado ao admin.');
+    }
+    if (process.argv.includes('--entrar')) {   // login de novo, perguntando e-mail e senha (a senha não aparece)
+        const rl = (await import('node:readline')).createInterface({ input: process.stdin, output: process.stdout, terminal: !!process.stdin.isTTY });
+        const linhas = rl[Symbol.asyncIterator]();
+        let mudo = false; const escrever = rl._writeToOutput && rl._writeToOutput.bind(rl);
+        if (escrever) rl._writeToOutput = t => { if (!mudo) escrever(t); };
+        process.stdout.write('E-mail do admin: ');
+        const email = String((await linhas.next()).value || '').trim();
+        process.stdout.write('Senha do admin (não aparece enquanto digita): '); mudo = true;
+        const senha = String((await linhas.next()).value || ''); mudo = false; rl.close(); console.log('');
+        await entrar({ email, password: senha }, 'password');
+        const eu = await db('usuarios?select=role&id=eq.' + usuarioId);
+        if (!eu.length || eu[0].role !== 'admin') throw new Error('Esse login não é admin do site.');
+        return log('Pronto, voltei a ter acesso ao admin. Agora é só abrir o crachá "Estagiário" na Mesa.');
     }
     if (process.argv.includes('--epidemic')) {
         const rl = (await import('node:readline')).createInterface({ input: process.stdin, output: process.stdout });
