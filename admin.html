@@ -20540,7 +20540,7 @@ function roboRender() {
   var linhas = vis.map(roboLinha).join('');
   var tabela = vis.length ? '<div class="rb-tabwrap"><table class="rb-t"><thead>' + thead + '</thead><tbody>' + linhas + '</tbody></table></div>' : '<div class="rb-vazio">Nada nesse filtro.</div>';
   box.innerHTML = stats + '<div class="rb-sec"><h3>🤖 Inscrições feitas pelo robô</h3></div>' + filtros + tabela + roboAprovadasHtml()
-    + '<div class="rb-nota">Chance é uma estimativa: a marca vê as inscrições por ordem de chegada, então conta a sua posição na fila e as vagas que sobravam quando o robô entrou. Quando faltou o número da hora, ela é calculada com os números de hoje. Clique no título de uma coluna para ordenar. O placar atualiza a cada 30 minutos.</div>';
+    + '<div class="rb-nota">Chance é uma estimativa: a marca vê as inscrições por ordem de chegada, então conta a sua posição na fila e as vagas que sobravam quando o robô entrou. Quando faltou o número da hora, ela é calculada com os números de hoje. Clique no título de uma coluna para ordenar. O placar e as etapas atualizam 2 vezes por dia, de manhã e no fim do dia.</div>';
 }
 function roboLinha(x) {
   var ico = x.status === 'aprovada' ? '✅ Aprovada' : x.status === 'nao_aprovada' ? '❌ Não aprovada' : '⏳ Aguardando';
