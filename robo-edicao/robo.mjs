@@ -484,6 +484,8 @@ function pedidoMd(p, refs, regras, dic, arquivos) {
     L.push('- Marca: ' + (p.marca || p.pasta_nome));
     L.push('- Formato: ' + p.formato + (p.duracao_alvo_s ? ' · duração desejada: ' + p.duracao_alvo_s + ' s' : ''));
     if (p.tipo === 'cenas') L.push('- Tipo: locução + cenas animadas · ' + Math.max(1, Math.round((p.duracao_alvo_s || 60) / 10)) + ' cenas de 10 s · visual: ' + (p.estilo_visual || 'marca') + ' · voz: ' + (p.voz || 'pt-BR-FranciscaNeural'));
+    if (p.tipo !== 'cenas') L.push('- Áudio: ' + ({ narrado: 'NARRADO: as cenas não têm fala; a locução da Lara é um áudio separado na pasta (veja "Vídeo narrado" no CLAUDE.md)',
+        musica: 'SEM FALA, só música (vlog/b-roll): veja "Vídeo sem fala" no CLAUDE.md' }[p.audio_tipo] || 'a Lara falando no vídeo (edição normal pela fala)'));
     L.push('- Títulos animados: ' + (p.titulos_modelos ? 'use estes modelos: ' + p.titulos_modelos.split(',').map(s => '`' + s.trim() + '`').join(', ') + ' (veja "Títulos" no CLAUDE.md)' : 'escolha entre os modelos da biblioteca (veja "Títulos" no CLAUDE.md)'));
     L.push('- Legenda: ' + (p.legenda_modelo ? 'modelo `' + p.legenda_modelo + '` (veja "Legenda" no CLAUDE.md)' : 'SEM legenda (a Lara escolheu não legendar)'));
     if (p.marca_site) L.push('- Site da marca: ' + p.marca_site);

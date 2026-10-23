@@ -10,7 +10,8 @@ para a Lara mexer ao vivo. Trechos e títulos ficam guardados em work/montar/, e
 só o que mudou é refeito.
 
 Camadas (tempos sempre no vídeo final):
-  corte     inicio_s, fim_s, origem, origem_inicio_s           trechos do bruto, emendados na ordem
+  corte     inicio_s, fim_s, origem, origem_inicio_s, velocidade   trechos do bruto, emendados na ordem
+            (velocidade 2 = o dobro do bruto no mesmo tempo; o trecho usa (fim_s - inicio_s) * velocidade do bruto)
   zoom      inicio_s, fim_s, escala, cx, cy, entrada_s          punch-in com easing (entrada_s 0 = seco)
   rec/broll inicio_s, fim_s, arquivo, origem_inicio_s, x, y, escala   vídeo por cima (escala 1 = tela cheia)
   imagem    inicio_s, fim_s, arquivo, x, y, escala             png/jpg por cima (logo, print)
@@ -18,9 +19,10 @@ Camadas (tempos sempre no vídeo final):
             com "modelo": título da biblioteca (titulos/), props texto, destaque, numero, prefixo, cor,
             corDestaque, corFundo, arquivoFonte; x, y = centro do título (0 a 1), escala
   legenda   inicio_s, fim_s, texto, palavras [{w, s, e}]       uma tela de legenda
+  voz       inicio_s, fim_s, arquivo, origem_inicio_s, volume_db (padrão 0): locução gravada à parte
   musica    inicio_s, fim_s, arquivo, origem_inicio_s, volume_db (padrão -20, abaixa sozinha na fala)
   sfx       inicio_s, arquivo, volume_db (padrão -12)
-Topo do projeto: formato, legenda {modelo, posicao, ativa}, marca.
+Topo do projeto: formato, legenda {modelo, posicao, ativa}, marca, som_original (false = tira o som do bruto).
 """
 import hashlib
 import json
@@ -109,6 +111,7 @@ def trechos(pj):
     if not cortes:
         raise SystemExit("o projeto não tem nenhuma camada corte")
     zooms = pj.camadas("zoom")
+    mudo = pj.p.get("som_original") is False      # vlog sem fala: o som do bruto sai, fica só música e efeitos
     tarefas, t = [], 0.0
     for c in cortes:
         dur = round(float(c["fim_s"]) - float(c["inicio_s"]), 3)
@@ -116,26 +119,27 @@ def trechos(pj):
             continue
         src = pj.achar(c.get("origem"))
         oi = float(c.get("origem_inicio_s") or 0)
-        vf = "scale=%d:%d:force_original_aspect_ratio=increase,crop=%d:%d,setsar=1,fps=%d" % (W, H, W, H, FPS)
+        vel = max(0.25, min(8.0, float(c.get("velocidade") or 1)))   # 2 = duas vezes mais rápido (usa o dobro do bruto)
+        vf = ("setpts=PTS/%.4f," % vel if vel != 1 else "") + "scale=%d:%d:force_original_aspect_ratio=increase,crop=%d:%d,setsar=1,fps=%d" % (W, H, W, H, FPS)
         aqui = [z for z in zooms if float(z["inicio_s"]) < t + dur and float(z["fim_s"]) > t and float(z.get("escala") or 1) != 1]
         if aqui:
             cx = float(aqui[0].get("cx", 0.5))
             cy = float(aqui[0].get("cy", 0.42))
             vf += ",zoompan=z='%s':x='(iw-iw/zoom)*%.3f':y='(ih-ih/zoom)*%.3f':d=1:s=%dx%d:fps=%d" % (zoom_expr(aqui, t), cx, cy, W, H, FPS)
         fade = min(0.03, dur / 4)
-        af = "aresample=48000,afade=t=in:d=%.3f,afade=t=out:st=%.3f:d=%.3f" % (fade, dur - fade, fade)
-        chave = hash_de(src, os.path.getmtime(src), oi, dur, vf, af)
-        tarefas.append((os.path.join(pj.cache, "trecho_" + chave + ".mp4"), src, oi, dur, vf, af))
+        af = None if mudo else ("atempo=%.4f," % vel if vel != 1 else "") + "aresample=48000,afade=t=in:d=%.3f,afade=t=out:st=%.3f:d=%.3f" % (fade, dur - fade, fade)
+        chave = hash_de(src, os.path.getmtime(src), oi, dur, vel, vf, af)
+        tarefas.append((os.path.join(pj.cache, "trecho_" + chave + ".mp4"), src, oi, dur, vf, af, vel))
         t += dur
     return tarefas, round(t, 3)
 
 
 def fazer_trecho(tarefa):
-    saida, src, oi, dur, vf, af = tarefa
+    saida, src, oi, dur, vf, af, vel = tarefa
     if os.path.exists(saida):
         return False
-    args = ["-ss", "%.3f" % oi, "-t", "%.3f" % dur, "-i", src]
-    if tem_audio(src):
+    args = ["-ss", "%.3f" % oi, "-t", "%.3f" % (dur * vel), "-i", src]
+    if af and tem_audio(src):
         args += ["-map", "0:v:0", "-map", "0:a:0", "-af", af]
     else:
         args += ["-f", "lavfi", "-t", "%.3f" % dur, "-i", "anullsrc=r=48000:cl=stereo", "-map", "0:v:0", "-map", "1:a:0"]
@@ -310,7 +314,18 @@ def montar(pj):
         por_cima(idx, c, False, "%.0f" % (x * W - W * s / 2), "%.0f" % (y * H - H * s / 2), s)
 
     # 4) áudio: voz tratada, música abaixando na fala, efeitos
-    filtros.append("[0:a]highpass=f=80,acompressor=threshold=-18dB:ratio=3:attack=10:release=150,asplit=2[voz][vozsc]")
+    # locução gravada à parte (vídeo narrado): entra junto com o som dos trechos e passa pelo mesmo tratamento de voz
+    vozes = ["[0:a]"]
+    for j, c in enumerate(pj.camadas("voz")):
+        ini, fim = float(c["inicio_s"]), min(float(c["fim_s"]), total)
+        if fim - ini <= 0.1:
+            continue
+        idx = entrada(["-ss", "%.3f" % float(c.get("origem_inicio_s") or 0), "-t", "%.3f" % (fim - ini), "-i", pj.achar(c.get("arquivo"))])
+        filtros.append("[%d:a]aresample=48000,volume=%sdB,adelay=%d:all=1[vz%d]" % (idx, c.get("volume_db", 0), round(ini * 1000), j))
+        vozes.append("[vz%d]" % j)
+    if len(vozes) > 1:
+        filtros.append("%samix=inputs=%d:normalize=0:duration=first[vozbase]" % ("".join(vozes), len(vozes)))
+    filtros.append("%shighpass=f=80,acompressor=threshold=-18dB:ratio=3:attack=10:release=150,asplit=2[voz][vozsc]" % ("[vozbase]" if len(vozes) > 1 else "[0:a]"))
     mix = ["[voz]"]
     musicas = []
     for c in pj.camadas("musica"):

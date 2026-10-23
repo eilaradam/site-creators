@@ -17845,7 +17845,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         if (JSON.stringify(edPedidos.map(p => [p.id, p.status, p.status_msg, p.previa_link, p.projeto, p.cenas])) !== antes) edRender();
     }, 15000);
     function edNovoForm(base) {
-        edForm = Object.assign({ id: null, conteudo_id: '', marca: '', titulo: '', drive_pasta_link: '', roteiro: '', formato: '9:16', duracao_alvo_s: '', observacoes: '', marca_site: '', marca_redes: '', rec_gravar: false, rec_passos: '', tipo: 'edicao', voz: 'minha', estilo_visual: 'marca', legenda_modelo: edLegendaPadrao(), titulos_modelos: edTitulosFavoritos().join(','),
+        edForm = Object.assign({ id: null, conteudo_id: '', marca: '', titulo: '', drive_pasta_link: '', roteiro: '', formato: '9:16', duracao_alvo_s: '', observacoes: '', marca_site: '', marca_redes: '', rec_gravar: false, rec_passos: '', tipo: 'edicao', audio_tipo: 'fala', voz: 'minha', estilo_visual: 'marca', legenda_modelo: edLegendaPadrao(), titulos_modelos: edTitulosFavoritos().join(','),
             refs: [{ tipo: 'geral', link: '', nota: '', salvar: false, nome: '' }] }, base || {});
     }
     function edAbrirNovoPedido() { edPedidoAberto = 'novo'; edNovoForm(); edRender(); }
@@ -17858,7 +17858,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         edNovoForm({ id, conteudo_id: ped.conteudo_id || '', marca: ped.pasta_nome || ped.marca || '', titulo: ped.titulo || '', drive_pasta_link: ped.drive_pasta_link || '', roteiro: ped.roteiro || '',
             formato: ped.formato || '9:16', duracao_alvo_s: ped.duracao_alvo_s || '', observacoes: ped.observacoes || '',
             marca_site: ped.marca_site || '', marca_redes: ped.marca_redes || '', rec_gravar: !!ped.rec_gravar, rec_passos: ped.rec_passos || '',
-            tipo: ped.tipo || 'edicao', voz: ped.voz || 'minha', legenda_modelo: ped.legenda_modelo || edLegendaPadrao(), titulos_modelos: ped.titulos_modelos || '', estilo_visual: ped.estilo_visual || 'marca',
+            tipo: ped.tipo || 'edicao', audio_tipo: ped.audio_tipo || 'fala', voz: ped.voz || 'minha', legenda_modelo: ped.legenda_modelo || edLegendaPadrao(), titulos_modelos: ped.titulos_modelos || '', estilo_visual: ped.estilo_visual || 'marca',
             refs: edPedidoRefs.length ? edPedidoRefs.map(r => ({ id: r.id, tipo: r.tipo, link: r.link, nota: r.nota || '', salvar: false, nome: '' })) : [{ tipo: 'geral', link: '', nota: '', salvar: false, nome: '' }] });
         edRender();
     }
@@ -17891,6 +17891,15 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         return [...s].sort((a, b) => a.localeCompare(b, 'pt-BR'));
     }
     function edFormato(f) { edLerForm(); edForm.formato = f; edRender(); }
+    const ED_AUDIO = [['fala', 'Eu falando', 'o robô corta pela fala e legenda o que você diz'],
+        ['narrado', 'Narrado', 'cenas sem fala + um áudio seu gravado à parte (gravador, WhatsApp): o robô monta as cenas em cima da narração'],
+        ['musica', 'Sem fala, só música', 'vlog/b-roll: tira o som do bruto, corta no ritmo da música e põe textos na tela no lugar da legenda']];
+    function edAudioTipo(a) {
+        edLerForm();
+        if (a === 'musica' && edForm.audio_tipo !== 'musica') edForm.legenda_modelo = '';   // sem fala não tem o que legendar
+        if (a !== 'musica' && edForm.audio_tipo === 'musica' && !edForm.legenda_modelo) edForm.legenda_modelo = edLegendaPadrao();
+        edForm.audio_tipo = a; edRender();
+    }
     function edTipoPedido(t) { edLerForm(); edForm.tipo = t; if (t === 'cenas' && !edForm.duracao_alvo_s) edForm.duracao_alvo_s = 60; edRender(); }
     function edEstiloVisual(e) { edLerForm(); edForm.estilo_visual = e; edRender(); }
     const ED_VOZES = [['minha', 'Minha voz (eu gravo e subo o áudio)'], ['pt-BR-FranciscaNeural', 'Voz gerada: Francisca · feminina, calorosa'], ['pt-BR-ThalitaNeural', 'Voz gerada: Thalita · feminina, jovem'], ['pt-BR-AntonioNeural', 'Voz gerada: Antonio · masculina, firme']];
@@ -17918,7 +17927,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             roteiro: f.roteiro.trim() || null, formato: f.formato, duracao_alvo_s: f.duracao_alvo_s ? parseInt(f.duracao_alvo_s, 10) || null : null,
             observacoes: f.observacoes.trim() || null, updated_at: new Date().toISOString(),
             marca_site: f.marca_site.trim() || null, marca_redes: f.marca_redes.trim() || null, rec_gravar: !!f.rec_gravar, rec_passos: f.rec_passos.trim() || null,
-            tipo: f.tipo, legenda_modelo: f.legenda_modelo || null, titulos_modelos: f.titulos_modelos || null, voz: f.tipo === 'cenas' ? f.voz : null, estilo_visual: f.tipo === 'cenas' ? f.estilo_visual : null,
+            tipo: f.tipo, audio_tipo: f.tipo === 'cenas' ? null : (f.audio_tipo || 'fala'), legenda_modelo: f.legenda_modelo || null, titulos_modelos: f.titulos_modelos || null, voz: f.tipo === 'cenas' ? f.voz : null, estilo_visual: f.tipo === 'cenas' ? f.estilo_visual : null,
         };
         let pedidoId = f.id;
         if (pedidoId) {
@@ -18017,6 +18026,9 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                   (f.tipo === 'cenas' ? 'Lá você joga as cenas que gerar (cena01.mp4, cena02.mp4…).' : 'Aí é só jogar o bruto e as cenas extras dentro (dá para subir direto do celular pelo app do Drive).'))) +
                 ' O final volta para a mesma pasta.</div>' +
               '<label class="ed-lb">Formato</label><div class="ed-row">' + formatos + '</div>' +
+              (f.tipo === 'cenas' ? '' : '<label class="ed-lb">Áudio do vídeo</label><div class="ed-row">' + ED_AUDIO.map(([k, n]) =>
+                '<button class="ed-chip' + ((f.audio_tipo || 'fala') === k ? ' on' : '') + '" type="button"' + dis + ' onclick="edAudioTipo(\'' + k + '\')">' + n + '</button>').join('') + '</div>' +
+                '<div class="ed-muted" style="margin-top:4px;">' + edEsc((ED_AUDIO.find(x => x[0] === (f.audio_tipo || 'fala')) || ED_AUDIO[0])[2]) + '.</div>') +
               '<label class="ed-lb">Legenda · ' + edEsc((edLegendas.find(m => m.id === f.legenda_modelo) || { nome: 'sem legenda' }).nome) + '</label>' + edPickLegendas(f, travado) +
               '<label class="ed-lb">Títulos animados · ' + (f.titulos_modelos ? String(f.titulos_modelos).split(',').filter(Boolean).length + ' escolhido(s)' : 'nenhum escolhido = o robô escolhe') + '</label>' + edPickTitulos(f, travado) +
               '<label class="ed-lb">' + (f.tipo === 'cenas' ? 'Duração (segundos; cada 10 s é uma cena)' : 'Duração desejada (segundos, opcional)') + '</label><input class="ed-input" id="edP_duracao_alvo_s" type="number" min="5" max="600" style="max-width:160px;"' + dis + ' value="' + edEsc(f.duracao_alvo_s) + '">' +
@@ -18025,7 +18037,8 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             '<div class="ed-card">' +
               (f.tipo === 'cenas'
                 ? '<h4>Texto da locução ou ideia</h4><div class="ed-muted" style="margin-bottom:6px;">Cole o texto pronto ou só a ideia. O robô escreve (ou ajusta) a locução com umas 24 palavras por cena de 10 s.</div>'
-                : '<h4>Roteiro</h4><div class="ed-muted" style="margin-bottom:6px;">Com o roteiro o robô sabe qual tomada é a certa e acerta os nomes na legenda.</div>') +
+                : f.audio_tipo === 'musica' ? '<h4>O que o vídeo conta</h4><div class="ed-muted" style="margin-bottom:6px;">A ordem do dia ou da história e as frases que você quer na tela. O robô tira daqui os textos e a sequência das cenas.</div>'
+                : '<h4>' + (f.audio_tipo === 'narrado' ? 'Roteiro da narração' : 'Roteiro') + '</h4><div class="ed-muted" style="margin-bottom:6px;">Com o roteiro o robô sabe qual tomada é a certa e acerta os nomes na legenda.</div>') +
               (dis ? '' : '<div class="ed-lb-mic" style="justify-content:flex-end;margin-bottom:6px;">' + edMicBtn('edP_roteiro') + '</div>') +
               '<textarea class="ed-input" id="edP_roteiro" rows="14" placeholder="' + (f.tipo === 'cenas' ? 'ex.: por que milha vale dinheiro e quase ninguém usa' : 'Cole o roteiro aqui') + '"' + dis + '>' + edEsc(f.roteiro) + '</textarea>' +
             '</div>' +
@@ -18466,10 +18479,10 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                 if (i >= a - 0.001 && f <= b + 0.001) continue;
                 if (i < a && f > b) {
                     novas.push(Object.assign({}, c, { fim_s: edR(a) }));
-                    novas.push(Object.assign({}, c, { inicio_s: edR(a), fim_s: edR(f - d), origem_inicio_s: edR((+c.origem_inicio_s || 0) + (b - i)) }));
+                    novas.push(Object.assign({}, c, { inicio_s: edR(a), fim_s: edR(f - d), origem_inicio_s: edR((+c.origem_inicio_s || 0) + (b - i) * (+c.velocidade || 1)) }));
                     continue;
                 }
-                if (i < b && f > b) c.origem_inicio_s = edR((+c.origem_inicio_s || 0) + (b - Math.max(i, a)));
+                if (i < b && f > b) c.origem_inicio_s = edR((+c.origem_inicio_s || 0) + (b - Math.max(i, a)) * (+c.velocidade || 1));
                 c.inicio_s = edR(mapa(i)); c.fim_s = edR(mapa(f));
                 novas.push(c); continue;
             }
@@ -18511,13 +18524,13 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     function edEdCorte(acao) {
         const ped = edIaPed(), c = edEdSelC(); if (!ped || !c || c.tipo !== 'corte') return;
         const P = 0.1, i = +c.inicio_s, f = +c.fim_s;
-        if (acao === 'antes' && (+c.origem_inicio_s || 0) < P) return edToast('Esse trecho já começa no início do bruto', true);
+        if (acao === 'antes' && (+c.origem_inicio_s || 0) < P * (+c.velocidade || 1)) return edToast('Esse trecho já começa no início do bruto', true);
         if ((acao === 'depois' || acao === 'fimAntes') && f - i <= 0.3) return edToast('Trecho curto demais', true);
         const frases = { antes: 'Começou o trecho de ' + edMMSSd(i) + ' 0,1 s antes (devolveu um pedaço cortado)', depois: 'Cortou 0,1 s do começo do trecho em ' + edMMSSd(i),
             fimDepois: 'Deixou o trecho de ' + edMMSSd(i) + ' terminar 0,1 s depois', fimAntes: 'Cortou 0,1 s do fim do trecho em ' + edMMSSd(i),
             tirar: 'Tirou ' + edEdNome(c) + ' (' + edS(f - i) + ')' };
         edEdMudar(ped, frases[acao], pj => {
-            if (acao === 'antes') { edEdAbrir(pj, i, P, c); c.origem_inicio_s = edR(+c.origem_inicio_s - P); c.fim_s = edR(f + P); }
+            if (acao === 'antes') { edEdAbrir(pj, i, P, c); c.origem_inicio_s = edR(+c.origem_inicio_s - P * (+c.velocidade || 1)); c.fim_s = edR(f + P); }
             else if (acao === 'depois') edEdTirar(pj, i, i + P);
             else if (acao === 'fimDepois') { edEdAbrir(pj, f, P, c); c.fim_s = edR(f + P); }
             else if (acao === 'fimAntes') edEdTirar(pj, f - P, f);
@@ -18525,13 +18538,24 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         });
         if (acao === 'tirar') edIaSel = null;
     }
+    // muda a velocidade do trecho mantendo o mesmo pedaço do bruto: o trecho encurta ou alonga e o resto anda junto
+    function edEdVelocidade(v) {
+        const ped = edIaPed(), c = edEdSelC(); if (!ped || !c || c.tipo !== 'corte') return;
+        const vel = +c.velocidade || 1, i = +c.inicio_s, f = +c.fim_s, novo = (f - i) * vel / v, d = novo - (f - i);
+        if (novo < 0.2) return edToast('Trecho curto demais para essa velocidade', true);
+        edEdMudar(ped, 'Mudou a velocidade do trecho de ' + edMMSSd(i) + ' para ' + String(v).replace('.', ',') + 'x', pj => {
+            if (d > 0) edEdAbrir(pj, f, d, c); else edEdTirar(pj, f + d, f);
+            const k = pj.camadas.indexOf(c); if (k < 0) return;
+            c.velocidade = v; c.fim_s = edR(i + novo);
+        });
+    }
     function edEdDividir() {
         const ped = edIaPed(); if (!ped) return; const t = edEdTempo();
         const k = ped.projeto.camadas.findIndex(c => c.tipo === 'corte' && t > +c.inicio_s + 0.15 && t < +c.fim_s - 0.15);
         if (k < 0) return edToast('Pare o vídeo no meio de um trecho para dividir', true);
         edEdMudar(ped, 'Dividiu o trecho em ' + edMMSSd(t), pj => {
             const c = pj.camadas[k];
-            pj.camadas.splice(k + 1, 0, Object.assign({}, c, { inicio_s: edR(t), origem_inicio_s: edR((+c.origem_inicio_s || 0) + (t - c.inicio_s)) }));
+            pj.camadas.splice(k + 1, 0, Object.assign({}, c, { inicio_s: edR(t), origem_inicio_s: edR((+c.origem_inicio_s || 0) + (t - c.inicio_s) * (+c.velocidade || 1)) }));
             c.fim_s = edR(t);
         });
         edIaSel = k + 1; edIaRedesenhar();
@@ -18729,6 +18753,8 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                 '<div class="ed-ed-l"><span>Começo</span>' + btn('0,1 s antes', "edEdCorte('antes')", 'ghost') + btn('0,1 s depois', "edEdCorte('depois')", 'ghost') + '</div>' +
                 '<div class="ed-ed-l"><span>Fim</span>' + btn('0,1 s antes', "edEdCorte('fimAntes')", 'ghost') + btn('0,1 s depois', "edEdCorte('fimDepois')", 'ghost') + '</div>' +
                 '<div class="ed-ed-l">' + btn('Dividir aqui', 'edEdDividir()', 'ghost') + btn('Tirar este trecho', "edEdCorte('tirar')") + '</div>' +
+                '<div class="ed-ed-l"><span>Velocidade</span><select class="ed-input" style="width:auto;" onchange="edEdVelocidade(+this.value)">' +
+                  [[0.5, 'lenta (0,5x)'], [1, 'normal'], [1.1, '1,1x'], [1.5, '1,5x'], [2, '2x'], [4, '4x (timelapse)']].map(([v, n]) => '<option value="' + v + '"' + (Math.abs((+c.velocidade || 1) - v) < 0.01 ? ' selected' : '') + '>' + n + '</option>').join('') + '</select></div>' +
                 '<div class="ia-cenas-dica" style="margin:6px 0 0;">Para tirar só um pedaço (um “é…”, uma tomada errada): pare no começo, Dividir, pare no fim, Dividir e tire o pedaço do meio.</div>';
         } else if (c.tipo === 'legenda') {
             sel = '<div class="ed-ed-tit">Legenda</div><textarea class="ed-input" id="edEdTx" rows="2">' + edEsc(c.texto || '') + '</textarea>' +

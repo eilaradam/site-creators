@@ -43,6 +43,7 @@ sem você. Por isso **tudo que aparece no vídeo precisa estar numa camada**: na
     (0 a 1). Com `arquivo`: um .mov com fundo transparente que você mesmo fez no Remotion.
   - `legenda`: uma camada por tela. Não escreva na mão: gere com o montador (passo 5).
   - Arquivos de música e efeito: pelo nome do banco (`~/Desktop/sons`) ou caminho dentro da pasta do pedido.
+  - `voz`: locução gravada à parte (vídeo narrado). `"som_original": false` no topo tira o som do bruto.
   - O montador faz a cadeia de áudio sozinho (passa-alta e compressor na voz, música abaixando na fala,
     fades, -14 LUFS). Não trate o áudio por fora.
 - `saida/resumo.md`: primeira linha = uma frase curta do que foi feito (aparece no admin).
@@ -56,6 +57,29 @@ Mantenha `saida/progresso.json` atualizado a cada etapa:
 Etapas, nesta ordem: `transcricao`, `tomadas`, `cortes`, `legendas`, `zoom`, `som`, `render`.
 Assim que decidir os cortes, já escreva `saida/projeto.json` com as camadas `corte`; ao terminar a legenda,
 acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a linha do tempo com o que estiver lá.
+
+## Tipo de áudio (linha "Áudio" do PEDIDO.md)
+
+- **Ela falando** (padrão): siga "Como editar" normalmente.
+- **Vídeo narrado**: os vídeos da pasta são cenas sem fala e a locução é um áudio separado (m4a/mp3/opus/wav do
+  gravador ou do WhatsApp, ou um vídeo dela falando que só serve pela voz). A narração é a espinha:
+  transcreva e corte a NARRAÇÃO como se fosse a fala (tomadas, pausas, vícios). Cada pedaço da narração que fica
+  é uma camada `voz` (`arquivo`, `origem_inicio_s` no áudio dela, `inicio_s`/`fim_s` no vídeo final); o montador
+  trata como voz e abaixa a música por baixo. Cubra o tempo todo com cenas (`corte`) que
+  combinem com o que está sendo dito, trocando de cena a cada 1,5 a 3 s. Use `"som_original": false` no
+  projeto. Legenda vem da narração (palavras no tempo final).
+- **Vídeo sem fala** (vlog, b-roll, só música): use `"som_original": false` no topo do projeto (o som do bruto sai)
+  e `"legenda": {"ativa": false}`. Não transcreva para cortar.
+  1. Escolha a música primeiro (catálogo: clima e bpm que combinam com o roteiro/observações) e use as `batidas`
+     dela como grade: cada corte cai numa batida (a cada 1 ou 2 batidas; acelera no refrão/drop).
+  2. Assista ao bruto (quadros a cada 0,5 s e `select='gt(scene,0.3)'`) e escolha os melhores momentos:
+     nítidos, bem iluminados, com movimento ou gesto; descarte tremido, borrado, escuro e repetido.
+     Trechos de 0,6 a 2,5 s, alternando plano aberto e detalhe; siga a ordem do dia/da história do roteiro.
+  3. Use `velocidade` no corte quando ajudar: 1,5x a 2x em deslocamento, 4x para timelapse, 0,5x para um
+     detalhe bonito. Lembre que o trecho usa (fim_s - inicio_s) * velocidade do bruto.
+  4. O texto vai na tela como títulos (camadas `animacao` com `modelo`), escritos a partir do roteiro ou das
+     observações: frases curtas, no máximo uma a cada 3 a 5 s, nunca em cima do rosto.
+  5. Efeitos sonoros (`sfx`) só nas entradas de texto e viradas fortes; a música manda.
 
 ## Como editar
 
