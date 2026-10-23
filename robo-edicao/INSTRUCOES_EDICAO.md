@@ -61,6 +61,8 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
 
 0. **Qual arquivo é o bruto**: a base é sempre o bruto original, o vídeo mais longo e sem cortes. Se na pasta houver
    uma versão já cortada ou decupada (mais curta, com emendas), NÃO use como base; os demais vídeos são cenas extras.
+   Arquivos cujo nome começa com `REF` (ex.: `REF legenda.mp4`) são vídeos de referência que a Lara mandou: nunca
+   entram na edição, servem só para medir o estilo (passo 10).
    Diga no resumo qual arquivo usou como bruto.
 
 1. **Transcrever** o áudio com tempo por palavra. Use o Python do robô:
@@ -73,6 +75,9 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
    - a transcrição pode pular palavras: confira o áudio (silencedetect / volume) antes de decidir um corte;
    - esquete com duas ou mais personagens: diálogo não é repetição, só tire pausas mortas;
    - deixe 0,08 s de folga nas pontas de cada trecho (não engolir a sílaba);
+   - **duração**: respeite a duração do pedido (`duracao_alvo_s`) ou, sem ela, a do roteiro (a soma das marcações
+     de tempo), com no máximo 10% a mais. Passou disso: corte primeiro o que não está no roteiro (muletas como
+     "então fica a dica", "por exemplo", "eu descobri que") e só depois encurte pausas. Diga no resumo o que tirou.
    - **gancho**: os 3 primeiros segundos precisam prender. Se a frase mais forte do roteiro não é a primeira e
      o roteiro não proíbe, considere abrir com ela e anote a decisão no resumo.
 3. **Detectar cenas** (`ffmpeg ... select='gt(scene,0.3)'`) antes de zoom e gráficos: o bruto muitas vezes já vem
@@ -88,12 +93,16 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
    Se o PEDIDO.md disser SEM legenda, use `"legenda": {"ativa": false}` (o .srt sai do mesmo jeito se você
    criar as telas). Esconda a legenda em cima de inserções com muito texto (apague essas telas do projeto.json).
 6. **Animações com Remotion (obrigatório)** para números, preços, nomes de produto, listas e chamadas do roteiro.
-   Nada de texto chapado de FFmpeg: a Lara achou o resultado básico demais.
-   - Copie `~/Desktop/editor-lara` para `work/remotion` sem a pasta `node_modules` e crie um link para a original
-     (`ln -s ~/Desktop/editor-lara/node_modules work/remotion/node_modules`). Nunca altere o projeto original.
+   **Proibido texto na tela feito com FFmpeg ou .ass** (drawtext, caixinha branca/preta, cartão de texto): a Lara
+   reprovou esse visual. Texto na tela só existe de dois jeitos: título da biblioteca (abaixo) ou composição própria
+   no Remotion. Se nenhum dos dois funcionar, entregue sem aquele texto e explique no resumo.
+   - Para uma animação própria, use como base o projeto de títulos do robô: copie `~/robo-edicao/titulos` para
+     `work/remotion` sem a pasta `node_modules` e crie um link para a original
+     (`ln -s ~/robo-edicao/titulos/node_modules work/remotion/node_modules`). Nunca altere o projeto original.
+     Se existir `~/Desktop/editor-lara`, as composições de lá (Overlays.tsx, InfinitePay.tsx) servem de referência
+     de qualidade; se não existir, não é erro, siga sem.
    - Crie uma composição por animação, no tamanho do vídeo, com fundo transparente, nas cores da marca
-     (tire do site da marca) e com movimento de entrada e saída (spring, escala, deslize). Use as composições
-     que já existem lá (Overlays.tsx, InfinitePay.tsx) como referência de qualidade.
+     (tire do site da marca) e com movimento de entrada e saída firme (spring, escala, deslize; nada de câmera lenta).
    - Renderize com fundo transparente: `npx remotion render <id> work/anim_<n>.mov --image-format=png --codec=prores --prores-profile=4444 --pixel-format=yuva444p10le`
      e ponha no projeto como camada `animacao` com `arquivo` (o montador sobrepõe).
    - **Fontes**: títulos e animações só com fontes da biblioteca `~/robo-edicao/fontes.json` (arquivos em
@@ -108,8 +117,13 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
      `arquivoFonte`), mais `x`, `y` e `escala`; o montador renderiza e guarda. `texto` com "|" quebra linhas/itens
      em empilhado e lista-check; contador usa `numero` e `prefixo`.
      Cores da marca (do site) em `corDestaque`; `arquivoFonte` da biblioteca de fontes. Posição longe do rosto
-     (`y` normalmente 0,25 a 0,35 se o rosto está no meio). Um título a cada 4 a 8 s nos momentos fortes, nunca em cima de
-     outro título nem da legenda. Toda entrada de título leva um efeito sonoro curto (camada `sfx`, é o jeito da Lara).
+     (`y` normalmente 0,25 a 0,35 se o rosto está no meio). **Quantidade**: no máximo 1 título a cada 8 a 12 s
+     (uns 5 por minuto), só nos momentos fortes do roteiro (gancho, número, nome do produto, virada, chamada final).
+     Mais que isso polui (o vlog de 59 s com 11 títulos ficou carregado). Nunca dois títulos na tela ao mesmo tempo,
+     nunca em cima do rosto, nunca em cima da legenda. Toda entrada de título leva um efeito sonoro curto
+     (camada `sfx`, é o jeito da Lara).
+   - **Cores**: só as da marca (site, logo) ou, sem marca, as que já estão no vídeo. Nada de cor genérica de "destaque"
+     (verde, amarelo) que não tenha relação com a marca.
 7. **Logo da marca**: procure primeiro um arquivo `logo*` (png/svg) em `entrada/`. Se não tiver, baixe do site da marca
    (`<link rel="icon">`, `og:image` ou uma imagem com "logo" no nome) para `work/logo.png` (camada `imagem`). Use o logo na abertura ou
    no fechamento (chamada final animada no Remotion) e, se fizer sentido, discreto num canto. Sem logo de boa
@@ -129,8 +143,10 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
    Janela de celular 390x844, `recordVideo`, siga o passo a passo com pausas naturais (rolagem suave, clique visível).
    Salve em `saida/rec_site.mp4` (H.264). Só site aberto: não faça login nem preencha dados pessoais.
    Use trechos da gravação na edição onde o roteiro fala do site/produto (camadas `rec`).
-10. **Referências**: tente baixar com `~/robo-edicao/venv/bin/yt-dlp` para uma pasta `refs/` e meça ritmo
-   (cortes por minuto), frequência de zoom, estilo de legenda. Se não baixar, siga a nota escrita da Lara.
+10. **Referências**: primeiro os arquivos `REF*` de `entrada/` (a Lara põe o vídeo na pasta do Drive porque o
+   Instagram bloqueia download sem login). Meça ritmo (cortes por minuto), frequência de zoom, estilo de legenda e de
+   títulos. Link do Instagram: tente uma vez com `~/robo-edicao/venv/bin/yt-dlp` para `refs/`; se pedir login, desista
+   na hora (não use cookies da conta dela), siga a nota escrita e diga no resumo que precisa do arquivo `REF`.
    As regras do estilo aprovadas valem mais que a referência quando as duas brigam.
 11. **Conferir antes de entregar**: assista em pedaços (extraia frames a cada 2 s e olhe), confira que nenhuma
     legenda tem nome errado, que não sobrou repetição, que o áudio não estoura (loudnorm -14 LUFS) e que a duração

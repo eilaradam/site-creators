@@ -42,10 +42,62 @@ TITULOS = os.path.join(DIR, "titulos")
 IMAGEM = re.compile(r"\.(png|jpe?g|webp)$", re.I)
 
 
+_FF_VERSAO = None
+
+
+def ffmpeg_versao():
+    """Versão principal do ffmpeg instalado (ex.: 9). 0 se não der para saber."""
+    global _FF_VERSAO
+    if _FF_VERSAO is None:
+        try:
+            r = subprocess.run(["ffmpeg", "-version"], capture_output=True, text=True)
+            m = re.search(r"ffmpeg version n?(\d+)", r.stdout)
+            _FF_VERSAO = int(m.group(1)) if m else 0
+        except Exception:
+            _FF_VERSAO = 0
+    return _FF_VERSAO
+
+
 def ff(args, quieto=True):
+    # Do ffmpeg 7 em diante o grafo em arquivo é "-/filter_complex arquivo";
+    # o ffmpeg 9 não aceita mais o antigo "-filter_complex_script".
+    if ffmpeg_versao() >= 7:
+        args = ["-/filter_complex" if a == "-filter_complex_script" else a for a in args]
     r = subprocess.run(["ffmpeg", "-v", "error", "-y"] + args, capture_output=True, text=True)
     if r.returncode != 0:
         raise SystemExit("ffmpeg: " + (r.stderr.strip().splitlines() or ["erro"])[-1])
+
+
+def medir_volume(arq):
+    """Loudness integrada (LUFS) e pico real (dBTP) do áudio do arquivo."""
+    r = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-i", arq, "-map", "0:a:0", "-af", "ebur128=peak=true", "-f", "null", "-"],
+                       capture_output=True, text=True)
+    txt = r.stderr.split("Summary:")[-1]
+    i = re.search(r"I:\s+(-?[\d.]+) LUFS", txt)
+    tp = re.search(r"Peak:\s+(-?[\d.]+) dBFS", txt)
+    return (float(i.group(1)) if i else None), (float(tp.group(1)) if tp else None)
+
+
+def acertar_volume(arq, alvo=-14.0, teto=-1.0):
+    """Segunda passada: o loudnorm numa passada só fica abaixo do alvo (ex.: -16,3 LUFS).
+    Mede o arquivo pronto e corrige só o ganho do áudio, sem passar do teto de pico."""
+    if not os.path.exists(arq) or not tem_audio(arq):
+        return
+    lufs, _ = medir_volume(arq)
+    if lufs is None:
+        return
+    ganho = max(-6.0, min(6.0, alvo - lufs))
+    if abs(ganho) < 0.3:
+        return
+    # o limitador segura os picos que o ganho empurraria acima do teto (-1 dBTP com folga)
+    limite = 10 ** ((teto - 0.5) / 20)
+    filtro = "volume=%.2fdB,alimiter=limit=%.3f:attack=2:release=50:level=false" % (ganho, limite)
+    tmp = arq + ".vol.mp4"
+    ff(["-i", arq, "-map", "0", "-c:v", "copy", "-af", filtro, "-c:a", "aac",
+        "-b:a", "192k", "-movflags", "+faststart", tmp])
+    os.replace(tmp, arq)
+    depois, pico = medir_volume(arq)
+    print("montar: volume acertado de %.1f para %s LUFS (pico %s dBTP)" % (lufs, depois, pico), flush=True)
 
 
 def tem_audio(arq):
@@ -348,6 +400,8 @@ def montar(pj):
                    "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", previa,
                    "-map", "[base720]", "-map", "[a2]", "-t", "%.3f" % total, "-c:v", "libx264", "-preset", "veryfast", "-crf", "28", "-pix_fmt", "yuv420p",
                    "-c:a", "aac", "-b:a", "96k", "-movflags", "+faststart", base])
+    for arq in (previa, base):
+        acertar_volume(arq)
     pj.p["duracao_s"] = total
     json.dump(pj.p, open(pj.arq, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print("montar: pronto, %.1f s → saida/previa.mp4" % total)
