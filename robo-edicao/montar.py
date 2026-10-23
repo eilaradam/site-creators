@@ -22,7 +22,8 @@ Camadas (tempos sempre no vídeo final):
             corDestaque, corFundo, arquivoFonte; x, y = centro do título (0 a 1), escala
   legenda   inicio_s, fim_s, texto, palavras [{w, s, e}]       uma tela de legenda
   voz       inicio_s, fim_s, arquivo, origem_inicio_s, volume_db (padrão 0): locução gravada à parte
-  musica    inicio_s, fim_s, arquivo, origem_inicio_s, volume_db (padrão -20, abaixa sozinha na fala)
+  musica    inicio_s, fim_s, arquivo, origem_inicio_s, volume_db = dB ABAIXO DA VOZ (padrão -14, medido em LUFS;
+            o montador mede a voz e a música e acerta sozinho; abaixa mais um pouco quando há fala)
   sfx       inicio_s, arquivo, volume_db (padrão -18)
 Topo do projeto: formato, legenda {modelo, posicao, tamanho (multiplica o do modelo), ativa}, marca, som_original (false = tira o som do bruto).
 """
@@ -110,6 +111,16 @@ def tem_audio(arq):
     return bool(r.stdout.strip())
 
 
+def lufs(arq, ss=None, t=None):
+    """loudness integrada (LUFS) de um arquivo ou trecho; None se for silêncio ou não der para medir"""
+    args = ["ffmpeg", "-hide_banner", "-nostats"] + (["-ss", "%.3f" % ss] if ss else []) + (["-t", "%.3f" % t] if t else []) + \
+        ["-i", arq, "-vn", "-af", "ebur128=framelog=quiet", "-f", "null", "-"]
+    r = subprocess.run(args, capture_output=True, text=True)
+    m = re.findall(r"I:\s+(-?[\d.]+) LUFS", r.stderr)
+    v = float(m[-1]) if m else None
+    return v if v is not None and v > -60 else None
+
+
 def hash_de(*partes):
     return hashlib.sha1(json.dumps(partes, sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]
 
@@ -177,6 +188,8 @@ def trechos(pj):
         src = pj.achar(c.get("origem"))
         oi = float(c.get("origem_inicio_s") or 0)
         vel = max(0.25, min(8.0, float(c.get("velocidade") or 1)))   # 2 = duas vezes mais rápido (usa o dobro do bruto)
+        if vel < 1 and not pj.p.get("camera_lenta"):   # câmera lenta só quando a Lara pede (observação ou ela mesma no editor)
+            vel = 1.0
         vf = ("setpts=PTS/%.4f," % vel if vel != 1 else "") + "scale=%d:%d:force_original_aspect_ratio=increase,crop=%d:%d,setsar=1,fps=%d" % (W, H, W, H, FPS)
         aqui = [z for z in zooms if float(z["inicio_s"]) < t + dur and float(z["fim_s"]) > t and float(z.get("escala") or 1) != 1]
         if aqui:
@@ -197,6 +210,10 @@ def fazer_trecho(tarefa):
         return False
     args = ["-ss", "%.3f" % oi, "-t", "%.3f" % (dur * vel), "-i", src]
     if af and tem_audio(src):
+        canais = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "a:0", "-show_entries", "stream=channels", "-of", "csv=p=0", src],
+                                capture_output=True, text=True).stdout.strip()
+        if canais == "1":   # mono vira estéreo no mesmo volume (o padrão do ffmpeg baixaria 3 dB)
+            af = "pan=stereo|c0=c0|c1=c0," + af
         args += ["-map", "0:v:0", "-map", "0:a:0", "-af", af]
     else:
         args += ["-f", "lavfi", "-t", "%.3f" % dur, "-i", "anullsrc=r=48000:cl=stereo", "-map", "0:v:0", "-map", "1:a:0"]
@@ -385,7 +402,11 @@ def montar(pj):
         vozes.append("[vz%d]" % j)
     if len(vozes) > 1:
         filtros.append("%samix=inputs=%d:normalize=0:duration=first[vozbase]" % ("".join(vozes), len(vozes)))
-    filtros.append("%shighpass=f=80,acompressor=threshold=-18dB:ratio=3:attack=10:release=150,asplit=2[voz][vozsc]" % ("[vozbase]" if len(vozes) > 1 else "[0:a]"))
+    # voz no volume original, como a Lara deixa no CapCut (100%): só tira o grave de fundo, sem compressor nem normalizar
+    filtros.append("%shighpass=f=80,asplit=2[voz][vozsc]" % ("[vozbase]" if len(vozes) > 1 else "[0:a]"))
+    # a música entra num volume medido a partir da voz (não um número fixo): volume_db = quantos dB abaixo da voz
+    voz_lufs = lufs(emendado) or next((v for v in (lufs(pj.achar(c.get("arquivo"))) for c in pj.camadas("voz")) if v), None)
+    print("montar: voz em %s LUFS" % ("%.1f" % voz_lufs if voz_lufs else "silêncio"), flush=True)
     mix = ["[voz]"]
     musicas = []
     for c in pj.camadas("musica"):
@@ -393,16 +414,21 @@ def montar(pj):
         dur = fim - ini
         if dur <= 0.2:
             continue
-        idx = entrada(["-ss", "%.3f" % float(c.get("origem_inicio_s") or 0), "-t", "%.3f" % dur, "-i", pj.achar(c.get("arquivo"))])
-        filtros.append("[%d:a]aresample=48000,volume=%sdB,afade=t=in:d=0.4,afade=t=out:st=%.3f:d=1,adelay=%d:all=1[m%d]"
-                       % (idx, c.get("volume_db", -20), max(0, dur - 1), round(ini * 1000), len(musicas)))
+        arq_m, oi_m = pj.achar(c.get("arquivo")), float(c.get("origem_inicio_s") or 0)
+        idx = entrada(["-ss", "%.3f" % oi_m, "-t", "%.3f" % dur, "-i", arq_m])
+        abaixo = float(c.get("volume_db", -14))
+        mus_lufs = lufs(arq_m, oi_m, min(dur, 60)) or -14.0
+        alvo = (voz_lufs + abaixo) if voz_lufs else -16.0 + (abaixo + 14)   # sem voz (vlog só música): música em -16 LUFS
+        ganho = max(-40.0, min(6.0, alvo - mus_lufs))
+        filtros.append("[%d:a]aresample=48000,volume=%.1fdB,afade=t=in:d=0.4,afade=t=out:st=%.3f:d=1.5,adelay=%d:all=1[m%d]"
+                       % (idx, ganho, max(0, dur - 1.5), round(ini * 1000), len(musicas)))
         musicas.append("[m%d]" % len(musicas))
     if musicas:
         if len(musicas) > 1:
             filtros.append("%samix=inputs=%d:normalize=0[mus]" % ("".join(musicas), len(musicas)))
         else:
             filtros.append("%sanull[mus]" % musicas[0])
-        filtros.append("[mus][vozsc]sidechaincompress=threshold=0.02:ratio=6:attack=20:release=400[musd]")
+        filtros.append("[mus][vozsc]sidechaincompress=threshold=0.03:ratio=3:attack=30:release=500[musd]")
         mix.append("[musd]")
     else:
         filtros.append("[vozsc]anullsink")
@@ -410,8 +436,9 @@ def montar(pj):
         idx = entrada(["-i", pj.achar(c.get("arquivo"))])
         filtros.append("[%d:a]aresample=48000,volume=%sdB,adelay=%d:all=1[s%d]" % (idx, c.get("volume_db", -18), round(float(c["inicio_s"]) * 1000), j))
         mix.append("[s%d]" % j)
-    filtros.append("%samix=inputs=%d:normalize=0:duration=first,afade=t=in:d=0.3,afade=t=out:st=%.3f:d=0.3,"
-                   "loudnorm=I=-14:TP=-1:LRA=11,aresample=48000,asplit=2[a1][a2]" % ("".join(mix), len(mix), max(0, total - 0.3)))
+    # sem normalizar o volume (era isso que deixava a voz alta demais): só um limitador para não estourar
+    filtros.append("%samix=inputs=%d:normalize=0:duration=first,afade=t=in:d=0.2,afade=t=out:st=%.3f:d=0.8,"
+                   "alimiter=limit=0.89:level=false,aresample=48000,asplit=2[a1][a2]" % ("".join(mix), len(mix), max(0, total - 0.8)))
 
     grafo = os.path.join(pj.cache, "grafo" + pj.sufixo + ".txt")
     open(grafo, "w", encoding="utf-8").write(";\n".join(filtros))
@@ -423,8 +450,7 @@ def montar(pj):
                    "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", previa,
                    "-map", "[base720]", "-map", "[a2]", "-t", "%.3f" % total, "-c:v", "libx264", "-preset", "veryfast", "-crf", "28", "-pix_fmt", "yuv420p",
                    "-c:a", "aac", "-b:a", "96k", "-movflags", "+faststart", base])
-    for arq in (previa, base):
-        acertar_volume(arq)
+    # sem segunda passada de volume: subir o vídeo para -14 LUFS deixava a voz alta demais (a Lara usa a voz a 100%)
     pj.p["duracao_s"] = total
     json.dump(pj.p, open(pj.arq, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print("montar: pronto, %.1f s → saida/previa%s.mp4" % (total, pj.sufixo))

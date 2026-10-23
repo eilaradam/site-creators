@@ -506,6 +506,8 @@ async function proporRegras(p, job, origem) {
 function pedidoMd(p, refs, regras, dic, arquivos) {
     const L = [];
     L.push('# Pedido #' + p.numero + ': ' + p.pasta_nome, '');
+    // as observações vêm primeiro e com peso de ordem: ela reclamou que o robô ignorou o que escreveu
+    if (p.observacoes) L.push('## ⚠️ Observações da Lara (OBRIGATÓRIO: cumpra cada item e diga no resumo como cumpriu)', p.observacoes, '');
     L.push('- Marca: ' + (p.marca || p.pasta_nome));
     L.push('- Formato: ' + p.formato + (p.duracao_alvo_s ? ' · duração desejada: ' + p.duracao_alvo_s + ' s' : ''));
     if (p.tipo === 'cenas') L.push('- Tipo: locução + cenas animadas · ' + Math.max(1, Math.round((p.duracao_alvo_s || 60) / 10)) + ' cenas de 10 s · visual: ' + (p.estilo_visual || 'marca') + ' · voz: ' + (p.voz || 'pt-BR-FranciscaNeural'));
@@ -523,7 +525,6 @@ function pedidoMd(p, refs, regras, dic, arquivos) {
         L.push('', '## Arquivos (pasta entrada/)', ...[...unicos.values()].map(({ f, n }) => '- ' + f.Path + ' (' + (f.Size / 1048576).toFixed(1) + ' MB)' + (n > 1 ? ' · repetido ' + n + 'x no Drive, só 1 cópia baixada' : '')));
     }
     L.push('', p.tipo === 'cenas' ? '## Texto da locução ou ideia' : '## Roteiro', p.roteiro || (p.tipo === 'cenas' ? '(sem texto: use as observações)' : '(sem roteiro: siga a fala do bruto)'));
-    if (p.observacoes) L.push('', '## Observações da Lara', p.observacoes);
     if (p.rec_gravar) L.push('', '## Gravação de tela do site (pedida)', 'Site: ' + (p.marca_site || '(não informado)'), p.rec_passos || '(sem passo a passo: mostre a página principal e o que o roteiro cita)');
     L.push('', '## Referências');
     if (!refs.length) L.push('(nenhuma: siga as regras do estilo)');

@@ -18676,6 +18676,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             if (d > 0) edEdAbrir(pj, f, d, c); else edEdTirar(pj, f + d, f);
             const k = pj.camadas.indexOf(c); if (k < 0) return;
             c.velocidade = v; c.fim_s = edR(i + novo);
+            if (v < 1) pj.camera_lenta = true;   // câmera lenta só quando ela mesma escolhe
         });
     }
     function edEdDividir() {
@@ -18915,9 +18916,9 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                 '<span>Entrada</span><select class="ed-input" data-ed="entrada_s:n" style="width:auto;"><option value="0.25">suave</option><option value="0"' + (+c.entrada_s === 0 && c.entrada_s != null ? ' selected' : '') + '>seca</option></select></div>' + tempos +
                 '<div class="ed-ed-l">' + btn('Tirar este zoom', 'edEdTirarCamada()', 'ghost') + '</div>';
         } else if (c.tipo === 'musica' || c.tipo === 'sfx') {
-            const vol = c.volume_db != null ? +c.volume_db : (c.tipo === 'musica' ? -20 : -12);
+            const vol = c.volume_db != null ? +c.volume_db : (c.tipo === 'musica' ? -14 : -18);
             sel = '<div class="ed-ed-tit">' + (c.tipo === 'musica' ? 'Música' : 'Efeito sonoro') + ' · ' + edEsc(c.arquivo || '') + '</div>' +
-                '<div class="ed-ed-l"><span>Volume</span><input type="range" min="-36" max="-4" step="1" data-ed="volume_db:n" value="' + vol + '"><span>' + vol + ' dB</span></div>' + tempos +
+                '<div class="ed-ed-l"><span>Volume</span><input type="range" min="-36" max="-4" step="1" data-ed="volume_db:n" value="' + vol + '"><span>' + (c.tipo === 'musica' ? Math.abs(vol) + ' dB abaixo da voz' : vol + ' dB') + '</span></div>' + tempos +
                 '<div class="ed-ed-l">' + btn('Tirar', 'edEdTirarCamada()', 'ghost') + '</div>';
         } else {
             sel = '<div class="ed-ed-tit">' + edEsc(ED_IA_NOMES[c.tipo] || c.tipo) + (c.arquivo ? ' · ' + edEsc(String(c.arquivo).split('/').pop()) : '') + '</div>' + tempos +
