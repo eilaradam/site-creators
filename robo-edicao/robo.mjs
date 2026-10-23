@@ -506,11 +506,14 @@ async function proporRegras(p, job, origem) {
 function pedidoMd(p, refs, regras, dic, arquivos) {
     const L = [];
     L.push('# Pedido #' + p.numero + ': ' + p.pasta_nome, '');
+    // as observações vêm primeiro e com peso de ordem: ela reclamou que o robô ignorou o que escreveu
+    if (p.observacoes) L.push('## ⚠️ Observações da Lara (OBRIGATÓRIO: cumpra cada item e diga no resumo como cumpriu)', p.observacoes, '');
     L.push('- Marca: ' + (p.marca || p.pasta_nome));
     L.push('- Formato: ' + p.formato + (p.duracao_alvo_s ? ' · duração desejada: ' + p.duracao_alvo_s + ' s' : ''));
     if (p.tipo === 'cenas') L.push('- Tipo: locução + cenas animadas · ' + Math.max(1, Math.round((p.duracao_alvo_s || 60) / 10)) + ' cenas de 10 s · visual: ' + (p.estilo_visual || 'marca') + ' · voz: ' + (p.voz || 'pt-BR-FranciscaNeural'));
     if (p.tipo !== 'cenas') L.push('- Áudio: ' + ({ narrado: 'NARRADO: as cenas não têm fala; a locução da Lara é um áudio separado na pasta (veja "Vídeo narrado" no CLAUDE.md)',
-        musica: 'SEM FALA, só música (vlog/b-roll): veja "Vídeo sem fala" no CLAUDE.md' }[p.audio_tipo] || 'a Lara falando no vídeo (edição normal pela fala)'));
+        musica: 'SEM FALA, só música (vlog/b-roll): veja "Vídeo sem fala" no CLAUDE.md',
+        misto: 'FALANDO + NARRADO: partes dela falando para a câmera e partes narradas por cima de cenas (veja "Falando + narrado" no CLAUDE.md)' }[p.audio_tipo] || 'a Lara falando no vídeo (edição normal pela fala)'));
     L.push('- Títulos animados: ' + (p.titulos_modelos ? 'use estes modelos: ' + p.titulos_modelos.split(',').map(s => '`' + s.trim() + '`').join(', ') + ' (veja "Títulos" no CLAUDE.md)' : 'escolha entre os modelos da biblioteca (veja "Títulos" no CLAUDE.md)'));
     L.push('- Legenda: ' + (p.legenda_modelo ? 'modelo `' + p.legenda_modelo + '` (veja "Legenda" no CLAUDE.md)' : 'SEM legenda (a Lara escolheu não legendar)'));
     if (p.marca_site) L.push('- Site da marca: ' + p.marca_site);
@@ -522,7 +525,6 @@ function pedidoMd(p, refs, regras, dic, arquivos) {
         L.push('', '## Arquivos (pasta entrada/)', ...[...unicos.values()].map(({ f, n }) => '- ' + f.Path + ' (' + (f.Size / 1048576).toFixed(1) + ' MB)' + (n > 1 ? ' · repetido ' + n + 'x no Drive, só 1 cópia baixada' : '')));
     }
     L.push('', p.tipo === 'cenas' ? '## Texto da locução ou ideia' : '## Roteiro', p.roteiro || (p.tipo === 'cenas' ? '(sem texto: use as observações)' : '(sem roteiro: siga a fala do bruto)'));
-    if (p.observacoes) L.push('', '## Observações da Lara', p.observacoes);
     if (p.rec_gravar) L.push('', '## Gravação de tela do site (pedida)', 'Site: ' + (p.marca_site || '(não informado)'), p.rec_passos || '(sem passo a passo: mostre a página principal e o que o roteiro cita)');
     L.push('', '## Referências');
     if (!refs.length) L.push('(nenhuma: siga as regras do estilo)');

@@ -46,8 +46,8 @@ sem você. Por isso **tudo que aparece no vídeo precisa estar numa camada**: na
   - Arquivos de música e efeito: pelo nome do banco (`~/Desktop/sons`) ou caminho dentro da pasta do pedido
     (os do Epidemic ficam em `work/musica/` e `work/sfx/`).
   - `voz`: locução gravada à parte (vídeo narrado). `"som_original": false` no topo tira o som do bruto.
-  - O montador faz a cadeia de áudio sozinho (passa-alta e compressor na voz, música abaixando na fala,
-    fades, -14 LUFS). Não trate o áudio por fora.
+  - O montador faz o áudio sozinho: voz no volume original (100%), música medida e posta bem abaixo da voz,
+    abaixando na fala, fades e limitador. Não trate o áudio por fora.
 - `saida/resumo.md`: primeira linha = uma frase curta do que foi feito (aparece no admin).
   Depois: cortes feitos, decisões que você tomou sozinho, o que ficou de fora e por quê, dúvidas para a Lara,
   e **3 sugestões de melhoria** que ela pode aprovar numa próxima versão.
@@ -74,7 +74,43 @@ Etapas, nesta ordem: `transcricao`, `tomadas`, `cortes`, `legendas`, `zoom`, `so
 Assim que decidir os cortes, já escreva `saida/projeto.json` com as camadas `corte`; ao terminar a legenda,
 acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a linha do tempo com o que estiver lá.
 
+## O que a Lara reprovou (nunca repita)
+
+- **Ignorar as observações.** Elas estão no topo do PEDIDO.md. Antes de editar, liste cada pedido dela em
+  `work/checklist.md`; no fim, confira item por item e escreva no resumo como cumpriu cada um.
+- **Usar poucas cenas quando ela mandou muitas.** Ela grava b-roll de propósito: use (veja "Inventário de cenas").
+- **Pular passos de uma demonstração.** Se as cenas mostram um processo (ex.: pegar a roupa, pôr no saco, pegar a
+  máquina, tirar o ar do saco a vácuo), TODOS os passos aparecem, na ordem em que acontecem.
+- **Cortar uma ação no meio.** Cena com ação que tem começo e fim (ex.: a pilha de roupa no móvel, a mão faz o
+  estalo e a pilha some/diminui; um antes e depois; algo sendo fechado, aspirado, dobrado) entra INTEIRA, do começo
+  da ação até o resultado aparecer. O resultado é o que importa: nunca corte antes dele.
+- **Confundir fala com narração.** Se a Lara aparece no vídeo falando para a câmera (rosto de frente, boca mexendo e
+  o áudio do próprio arquivo com fala), aquilo é FALA: entra com o som do próprio trecho, sincronizado, e a legenda
+  vem dali. Nunca silencie esse trecho nem ponha narração por cima. Narração é só áudio sem ela falando na tela.
+- **Respiração antes da fala.** O corte de entrada fica ENTRE a respiração e a primeira palavra (veja "Cortar").
+- **Final seco.** Depois da última fala, o vídeo segue mais ~1 s (imagem continuando e música descendo).
+- **Câmera lenta.** Proibido `velocidade` menor que 1, a não ser que as observações peçam câmera lenta; nesse caso
+  ponha `"camera_lenta": true` no topo do projeto (sem isso o montador ignora).
+- **Voz e música altas.** Não mexa no volume da voz (fica a 100%, como no CapCut) e não ponha `volume_db` na música:
+  o montador mede a voz e põe a música bem abaixo dela. Só mude se as observações pedirem.
+
+## Inventário de cenas (obrigatório quando houver b-roll ou cenas na pasta)
+
+1. Para CADA vídeo da pasta que não é o bruto principal: extraia 4 quadros espalhados
+   (`ffmpeg -ss <t> -i arq -frames:v 1 work/inv/<arq>_<n>.jpg`), OLHE os quadros e escreva em `work/cenas.md`
+   uma linha por arquivo: o que mostra, duração, melhor trecho (início-fim) e se está bom (nítido, iluminado).
+2. Agrupe as cenas que formam uma sequência (um processo, um antes e depois, um passo a passo) e anote a ordem.
+3. Monte o plano: para cada frase do roteiro, qual cena aparece. Toda cena boa entra pelo menos uma vez; as
+   sequências entram completas e em ordem, cobrindo a parte do roteiro que fala delas.
+   **Tempo de cada cena**: em geral 1,5 a 2 s; até 2,5 s; mais que isso só se a informação for muito boa ou se a
+   ação precisar desse tempo para terminar (ação com começo e fim entra inteira, mesmo passando de 2,5 s).
+   Marque em `work/cenas.md` as cenas com ação (começo e fim da ação em segundos) e as cenas em que ela fala para a câmera.
+4. No resumo, liste as cenas que ficaram de fora e o porquê (tremida, repetida, escura).
+
 ## Tipo de áudio (linha "Áudio" do PEDIDO.md)
+
+**As observações da Lara mandam.** Se ela escrever, por exemplo, "gancho falado e o resto em b-roll narrado",
+siga isso mesmo que o tipo marcado seja outro (aqui, é o modo "Falando + narrado"). Diga no resumo como entendeu.
 
 - **Ela falando** (padrão): siga "Como editar" normalmente.
 - **Vídeo narrado**: os vídeos da pasta são cenas sem fala e a locução é um áudio separado (m4a/mp3/opus/wav do
@@ -82,17 +118,29 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
   transcreva e corte a NARRAÇÃO como se fosse a fala (tomadas, pausas, vícios). Cada pedaço da narração que fica
   é uma camada `voz` (`arquivo`, `origem_inicio_s` no áudio dela, `inicio_s`/`fim_s` no vídeo final); o montador
   trata como voz e abaixa a música por baixo. Cubra o tempo todo com cenas (`corte`) que
-  combinem com o que está sendo dito, trocando de cena a cada 1,5 a 3 s. Use `"som_original": false` no
+  combinem com o que está sendo dito, trocando de cena a cada 1,5 a 2 s (até 2,5 s). Use `"som_original": false` no
   projeto. Legenda vem da narração (palavras no tempo final).
+- **Falando + narrado** (o jeito mais comum dela): o vídeo mistura partes em que ela fala para a câmera e partes
+  narradas por cima de cenas. Na pasta vêm o bruto dela falando, as cenas (b-roll) e o áudio da narração (ou um
+  vídeo dela que só serve pela voz).
+  1. Transcreva TUDO que tem fala (bruto e narração) e encaixe cada frase do roteiro onde ela foi gravada. Se o
+     roteiro marcar `[fala]`/`[narração]` (ou "câmera"/"off"), obedeça; se não, a frase que existe nos dois fica
+     com a câmera no gancho e no fechamento e com a narração no meio, onde as cenas mostram o que é dito.
+  2. Parte falada: `corte` normal do bruto (com som), cortada pela fala como em "Como editar".
+  3. Parte narrada: cada pedaço da narração é uma camada `voz` e o vídeo por baixo são `corte` de cenas com
+     `"mudo": true` (o som da cena sai), trocando de cena a cada 1,5 a 2 s (até 2,5 s) e combinando com o que é dito.
+  4. A legenda segue a fala nas duas partes (palavras no tempo final, da câmera e da narração juntas).
+  5. Emenda câmera ↔ narração no fim de frase, nunca no meio; música por baixo do vídeo todo.
 - **Vídeo sem fala** (vlog, b-roll, só música): use `"som_original": false` no topo do projeto (o som do bruto sai)
   e `"legenda": {"ativa": false}`. Não transcreva para cortar.
   1. Escolha a música primeiro (Epidemic ou banco: clima e bpm que combinam com o roteiro/observações) e use as `batidas`
      dela (do catálogo, ou meça com librosa) como grade: cada corte cai numa batida (a cada 1 ou 2 batidas; acelera no refrão/drop).
   2. Assista ao bruto (quadros a cada 0,5 s e `select='gt(scene,0.3)'`) e escolha os melhores momentos:
      nítidos, bem iluminados, com movimento ou gesto; descarte tremido, borrado, escuro e repetido.
-     Trechos de 0,6 a 2,5 s, alternando plano aberto e detalhe; siga a ordem do dia/da história do roteiro.
-  3. Use `velocidade` no corte quando ajudar: 1,5x a 2x em deslocamento, 4x para timelapse, 0,5x para um
-     detalhe bonito. Lembre que o trecho usa (fim_s - inicio_s) * velocidade do bruto.
+     Trechos de 1,5 a 2 s (até 2,5 s; ação com começo e fim entra inteira), alternando plano aberto e detalhe;
+     siga a ordem do dia/da história do roteiro.
+  3. Use `velocidade` no corte quando ajudar: 1,5x a 2x em deslocamento, 4x para timelapse. Nunca menos que 1
+     (câmera lenta só se as observações pedirem). Lembre que o trecho usa (fim_s - inicio_s) * velocidade do bruto.
   4. O texto vai na tela como títulos (camadas `animacao` com `modelo`), escritos a partir do roteiro ou das
      observações: frases curtas, no máximo uma a cada 3 a 5 s, nunca em cima do rosto.
   5. Efeitos sonoros (`sfx`) só nas entradas de texto e viradas fortes; a música manda.
@@ -114,7 +162,12 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
    - corte sempre na fronteira entre palavras, com fade de áudio de 30 ms em cada emenda;
    - a transcrição pode pular palavras: confira o áudio (silencedetect / volume) antes de decidir um corte;
    - esquete com duas ou mais personagens: diálogo não é repetição, só tire pausas mortas;
-   - deixe 0,08 s de folga nas pontas de cada trecho (não engolir a sílaba);
+   - **entrada de cada trecho: entre a respiração e a fala.** Antes de quase toda frase tem uma inspiração audível;
+     ela NÃO entra. Ache o início da primeira palavra (tempo do whisper, conferido no áudio: a respiração é um ruído
+     soprado e baixo logo antes da voz) e comece o trecho 0,02 a 0,04 s antes da palavra, depois do fim da respiração;
+   - **saída de cada trecho**: 0,10 a 0,15 s depois da última palavra, sem engolir a cauda da sílaba;
+   - **fim do vídeo**: o último trecho não acaba seco na última palavra: deixe mais ~1 s (a imagem segue, de
+     preferência um b-roll ou ela parada sorrindo, e a música desce no fim);
    - **duração**: respeite a duração do pedido (`duracao_alvo_s`) ou, sem ela, a do roteiro (a soma das marcações
      de tempo), com no máximo 10% a mais. Passou disso: corte primeiro o que não está no roteiro (muletas como
      "então fica a dica", "por exemplo", "eu descobri que") e só depois encurte pausas. Diga no resumo o que tirou.
@@ -197,8 +250,9 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
    Fora isso, **nunca baixe música nem efeito da internet** e não invente trilha: sem fonte permitida, entregue sem
    música e diga no resumo.
    Música de fundo = camada `musica`: comece numa batida (as `batidas` do catálogo, ou meça com librosa no arquivo do
-   Epidemic; use a primeira depois de 0,5 s como `origem_inicio_s`) e termine junto com o vídeo. O montador abaixa a
-   música quando há fala (~ -20 dB); efeitos (`sfx`) nas trocas de cena e na entrada de textos.
+   Epidemic; use a primeira depois de 0,5 s como `origem_inicio_s`) e termine junto com o vídeo. **Não ponha
+   `volume_db` na música**: o montador mede a voz e deixa a música 14 dB abaixo dela (bem baixinha, como no CapCut
+   dela) e ainda abaixa um pouco mais quando há fala. Efeitos (`sfx`) nas trocas de cena e na entrada de textos.
 9. **Gravação de tela do site** (só se o PEDIDO.md pedir): use Playwright em `~/robo-edicao`
    (`cd ~/robo-edicao && npm i playwright && npx playwright install chromium` se ainda não tiver).
    Janela de celular 390x844, `recordVideo`, siga o passo a passo com pausas naturais (rolagem suave, clique visível).
@@ -210,8 +264,9 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
    na hora (não use cookies da conta dela), siga a nota escrita e diga no resumo que precisa do arquivo `REF`.
    As regras do estilo aprovadas valem mais que a referência quando as duas brigam.
 11. **Conferir antes de entregar**: assista em pedaços (extraia frames a cada 2 s e olhe), confira que nenhuma
-    legenda tem nome errado, que não sobrou repetição, que o áudio não estoura (loudnorm -14 LUFS) e que a duração
-    respeita o pedido.
+    legenda tem nome errado, que não sobrou repetição, que nenhum trecho começa com respiração, que o final não está
+    seco, que todas as sequências de cenas aparecem completas e que a duração respeita o pedido. Releia
+    `work/checklist.md` (as observações dela) e não entregue com item pendente sem explicar no resumo.
 
 ## Render
 
