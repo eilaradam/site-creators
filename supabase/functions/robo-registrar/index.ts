@@ -35,5 +35,20 @@ serve(async (req) => {
     }
     return new Response(JSON.stringify({ ok: true, atualizadas: n }));
   }
+  if (body.action === "aprovadas" && Array.isArray(body.itens)) {
+    // itens: [{chave, titulo, etapa, ultima, ordem}] da lista "Inscricoes" (so aprovadas) do site. Mantem valor/obs da Lara.
+    const { data: todas } = await sb.from("robo_aprovadas").select("chave");
+    const chaves = (todas || []).map((r: { chave: string }) => r.chave);
+    await sb.from("robo_aprovadas").update({ ordem: null }).not("ordem", "is", null);
+    let n = 0;
+    for (const i of body.itens) {
+      const ja = chaves.find((c: string) => c.startsWith(i.chave) || i.chave.startsWith(c));
+      const { error } = ja
+        ? await sb.from("robo_aprovadas").update({ etapa: i.etapa, ultima: i.ultima, ordem: i.ordem, atualizado_em: new Date().toISOString() }).eq("chave", ja)
+        : await sb.from("robo_aprovadas").insert({ chave: i.chave, titulo: i.titulo, marca: i.titulo.includes(" - ") ? i.titulo.split(" - ").pop() : null, etapa: i.etapa, ultima: i.ultima, ordem: i.ordem });
+      if (!error) n++;
+    }
+    return new Response(JSON.stringify({ ok: true, atualizadas: n }));
+  }
   return new Response("ação inválida", { status: 400 });
 });

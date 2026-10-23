@@ -4278,6 +4278,30 @@
 #tabRobo .rb-pe a { color:var(--accent); font-weight:800; text-decoration:none; margin-left:auto; }
 #tabRobo .rb-vazio { text-align:center; padding:50px 20px; color:var(--text-soft); background:var(--card); border:1px dashed var(--border-strong); border-radius:18px; }
 #tabRobo .rb-vazio .em { font-size:44px; }
+#tabRobo .rb-sec { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:26px 0 10px; }
+#tabRobo .rb-sec h3 { margin:0; font-size:15px; font-weight:800; color:var(--text); }
+#tabRobo .rb-sec .sp { flex:1; }
+#tabRobo .rb-btn { border:1px solid var(--border-strong); background:var(--card); color:var(--text); padding:7px 12px; border-radius:10px; font-size:12.5px; font-weight:700; cursor:pointer; }
+#tabRobo .rb-tabwrap { overflow:auto; max-height:70vh; border:1px solid var(--border); border-radius:12px; background:var(--card); }
+#tabRobo table.rb-t { width:100%; border-collapse:separate; border-spacing:0; font-size:13px; min-width:980px; font-variant-numeric:tabular-nums; }
+#tabRobo .rb-t th { position:sticky; top:0; z-index:1; background:var(--cream); text-align:left; font-size:11px; letter-spacing:.5px; text-transform:uppercase; color:var(--text-soft); font-weight:800; padding:10px 12px; border-bottom:1px solid var(--border-strong); white-space:nowrap; cursor:pointer; user-select:none; }
+#tabRobo .rb-t th.num, #tabRobo .rb-t td.num { text-align:right; }
+#tabRobo .rb-t th.on { color:var(--accent); }
+#tabRobo .rb-t td { padding:9px 12px; border-bottom:1px solid var(--border); vertical-align:middle; color:var(--text); }
+#tabRobo .rb-t td { white-space:nowrap; } #tabRobo .rb-t td.tit { white-space:normal; }
+#tabRobo .rb-t tbody tr:nth-child(even) td { background:rgba(240,231,221,.28); }
+#tabRobo .rb-t tbody tr:hover td { background:var(--accent-glow); }
+#tabRobo .rb-t td.tit { min-width:260px; max-width:380px; font-weight:700; line-height:1.3; }
+#tabRobo .rb-t td.st { white-space:nowrap; font-weight:700; border-left:5px solid var(--border-strong); }
+#tabRobo .rb-t tr.aprovada td.st { border-left-color:#10B981; color:#047857; } #tabRobo .rb-t tr.aguardando td.st { border-left-color:#F59E0B; color:#A86A00; } #tabRobo .rb-t tr.nao_aprovada td.st { border-left-color:#EF4444; color:#B91C1C; }
+#tabRobo .rb-t .mut { color:var(--text-muted); } #tabRobo .rb-t a { color:var(--accent); font-weight:800; text-decoration:none; white-space:nowrap; }
+#tabRobo .rb-t tfoot td { position:sticky; bottom:0; background:var(--cream); font-weight:800; border-top:1px solid var(--border-strong); }
+#tabRobo .rb-pill { display:inline-block; padding:3px 9px; border-radius:999px; font-size:11.5px; font-weight:800; white-space:nowrap; }
+#tabRobo .rb-pill.e1 { background:#DBEAFE; color:#1E40AF; } #tabRobo .rb-pill.e2 { background:#E0E7FF; color:#3730A3; } #tabRobo .rb-pill.e3, #tabRobo .rb-pill.e4, #tabRobo .rb-pill.e5 { background:#FEF3C7; color:#92400E; }
+#tabRobo .rb-pill.e6 { background:#EDE9FE; color:#5B21B6; } #tabRobo .rb-pill.e7 { background:#D1FAE5; color:#065F46; } #tabRobo .rb-pill.e8 { background:#A7F3D0; color:#064E3B; }
+#tabRobo .rb-in { width:110px; border:1px solid var(--border-strong); border-radius:8px; padding:6px 8px; font:inherit; font-size:13px; background:var(--card); color:var(--text); text-align:right; }
+#tabRobo .rb-in.obs { width:100%; min-width:180px; text-align:left; }
+#tabRobo .rb-in.salvo { border-color:#10B981; }
 #tabRobo .rb-nota { font-size:12px; color:var(--text-muted); margin-top:16px; line-height:1.5; }
 </style>
 <div class="rb-wrap">
@@ -20453,7 +20477,7 @@ input[type="email"], input[type="date"], input[type="datetime-local"], select, t
 </script>
 <script>
 /* ---- Aba Robô de inscrições ---- */
-var roboLinhas = [], roboFiltro = 'todas';
+var roboLinhas = [], roboAprov = [], roboFiltro = 'todas', roboOrdem = { col: 'inscrita_em', dir: -1 };
 function roboEsc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 function roboChance(x) {
   if (x.chance_pct != null) return { v: x.chance_pct, hoje: false };
@@ -20470,13 +20494,23 @@ async function roboLoad() {
   var bt = document.getElementById('roboAtualizar'); if (bt && !bt._ok) { bt._ok = 1; bt.addEventListener('click', roboLoad); }
   var r = await sb.from('robo_inscricoes').select('*').order('inscrita_em', { ascending: false }).limit(500);
   if (r.error) { box.innerHTML = '<div class="rb-vazio"><div class="em">😕</div><h4>Não consegui carregar</h4><p>' + roboEsc(r.error.message) + '</p></div>'; return; }
-  roboLinhas = r.data || []; roboRender();
+  roboLinhas = r.data || [];
+  var a = await sb.from('robo_aprovadas').select('*').not('ordem', 'is', null).order('ordem', { ascending: true }).limit(30);
+  roboAprov = (a && a.data) || [];
+  roboRender();
 }
 function roboSetFiltro(f) { roboFiltro = f; roboRender(); }
+function roboOrdenar(col) { roboOrdem = { col: col, dir: roboOrdem.col === col ? -roboOrdem.dir : (col === 'titulo' ? 1 : -1) }; roboRender(); }
+function roboValor(x, col) {
+  if (col === 'chance') return roboChance(x).v;
+  if (col === 'inscritos') return x.inscritos_agora != null ? x.inscritos_agora : x.inscritos_ao_entrar;
+  if (col === 'inscrita_em') return new Date(x.inscrita_em).getTime();
+  return x[col];
+}
 function roboRender() {
   var box = document.getElementById('roboBox'); if (!box) return;
   var L = roboLinhas;
-  if (!L.length) { box.innerHTML = '<div class="rb-vazio"><div class="em">😴</div><h3>Nenhuma inscrição ainda</h3><p>Assim que o robô se inscrever numa campanha, ela aparece aqui.</p></div>'; return; }
+  if (!L.length && !roboAprov.length) { box.innerHTML = '<div class="rb-vazio"><div class="em">😴</div><h3>Nenhuma inscrição ainda</h3><p>Assim que o robô se inscrever numa campanha, ela aparece aqui.</p></div>'; return; }
   var ap = L.filter(function (x) { return x.status === 'aprovada'; }), es = L.filter(function (x) { return x.status === 'aguardando'; }), na = L.filter(function (x) { return x.status === 'nao_aprovada'; });
   var decididas = ap.length + na.length, taxa = decididas ? Math.round(ap.length / decididas * 100) : null;
   var reac = L.filter(function (x) { return x.reacao_seg != null; }).map(function (x) { return Number(x.reacao_seg); });
@@ -20484,45 +20518,70 @@ function roboRender() {
   var hoje = new Date().toDateString(), nHoje = L.filter(function (x) { return new Date(x.inscrita_em).toDateString() === hoje; }).length;
   var potencial = es.reduce(function (a, x) { return a + (Number(x.valor) || 0) * ((roboChance(x).v || 0) / 100); }, 0);
   var stats = '<div class="rb-stats">'
-    + '<div class="rb-stat"><div class="n">' + L.length + '</div><div class="l">🧾 inscrições feitas</div></div>'
+    + '<div class="rb-stat"><div class="n">' + L.length + '</div><div class="l">🧾 inscrições do robô</div></div>'
     + '<div class="rb-stat"><div class="n">' + nHoje + '</div><div class="l">📅 hoje</div></div>'
     + '<div class="rb-stat ok"><div class="n">' + ap.length + '</div><div class="l">✅ aprovadas</div></div>'
     + '<div class="rb-stat wait"><div class="n">' + es.length + '</div><div class="l">⏳ aguardando</div></div>'
     + '<div class="rb-stat no"><div class="n">' + na.length + '</div><div class="l">❌ não aprovadas</div></div>'
     + '<div class="rb-stat"><div class="n">' + (taxa == null ? '-' : taxa + '%') + '</div><div class="l">🎯 taxa de aprovação</div></div>'
-    + '<div class="rb-stat"><div class="n">' + (medR == null ? '-' : roboTempo(medR)) + '</div><div class="l">⚡ rapidez média (campanhas novas)</div></div>'
-    + '<div class="rb-stat"><div class="n">' + roboMoeda(potencial) + '</div><div class="l">💰 ganho esperado (aguardando)</div></div>'
+    + '<div class="rb-stat"><div class="n">' + (medR == null ? '-' : roboTempo(medR)) + '</div><div class="l">⚡ rapidez média</div></div>'
+    + '<div class="rb-stat"><div class="n">' + roboMoeda(potencial) + '</div><div class="l">💰 ganho esperado</div></div>'
     + '</div>';
   var F = [['todas', 'Todas (' + L.length + ')'], ['aguardando', '⏳ Aguardando'], ['aprovada', '✅ Aprovadas'], ['nao_aprovada', '❌ Não aprovadas'], ['nova', '⚡ Novas'], ['antiga', '🧹 Antigas']];
-  var filtros = '<div class="rb-filtros">' + F.map(function (f) { return '<button class="rb-f' + (roboFiltro === f[0] ? ' on' : '') + '" type="button" onclick="roboSetFiltro(\'' + f[0] + '\')">' + f[1] + '</button>'; }).join('') + '</div>';
+  var filtros = '<div class="rb-filtros">' + F.map(function (f) { return '<button class="rb-f' + (roboFiltro === f[0] ? ' on' : '') + '" type="button" onclick="roboSetFiltro(\'' + f[0] + '\')">' + f[1] + '</button>'; }).join('') + '<span style="flex:1"></span><button class="rb-btn" type="button" onclick="roboCSV()">⬇ Baixar planilha (CSV)</button></div>';
   var vis = L.filter(function (x) { return roboFiltro === 'todas' || x.status === roboFiltro || x.origem === roboFiltro; });
-  var cards = vis.map(roboCard).join('');
-  box.innerHTML = stats + filtros + (cards ? '<div class="rb-grid">' + cards + '</div>' : '<div class="rb-vazio">Nada nesse filtro.</div>')
-    + '<div class="rb-nota">A chance é uma estimativa: a marca vê as inscrições por ordem de chegada, então ela considera a sua posição na fila e as vagas que ainda sobravam quando o robô entrou. "Aprovada" aparece quando a campanha entra na sua lista de inscrições aprovadas no Seu Influencer. O placar é atualizado a cada 30 minutos.</div>';
+  var o = roboOrdem; vis = vis.slice().sort(function (a, b) { var va = roboValor(a, o.col), vb = roboValor(b, o.col); if (va == null) return 1; if (vb == null) return -1; return (va > vb ? 1 : va < vb ? -1 : 0) * o.dir; });
+  var COLS = [['status', ''], ['titulo', 'Campanha'], ['origem', 'Origem'], ['inscrita_em', 'Inscrita em', 1], ['inscritos', 'Inscritos', 1], ['vagas', 'Vagas', 1], ['chance', 'Chance', 1], ['posicao', 'Posição', 1], ['valor', 'Valor', 1], ['reacao_seg', 'Chegada', 1], ['etapa', 'Etapa']];
+  var thead = '<tr>' + COLS.map(function (c) { return '<th class="' + (c[2] ? 'num ' : '') + (o.col === c[0] ? 'on' : '') + '" onclick="roboOrdenar(\'' + c[0] + '\')">' + c[1] + (o.col === c[0] ? (o.dir > 0 ? ' ▲' : ' ▼') : '') + '</th>'; }).join('') + '<th></th></tr>';
+  var linhas = vis.map(roboLinha).join('');
+  var tabela = vis.length ? '<div class="rb-tabwrap"><table class="rb-t"><thead>' + thead + '</thead><tbody>' + linhas + '</tbody></table></div>' : '<div class="rb-vazio">Nada nesse filtro.</div>';
+  box.innerHTML = stats + '<div class="rb-sec"><h3>🤖 Inscrições feitas pelo robô</h3></div>' + filtros + tabela + roboAprovadasHtml()
+    + '<div class="rb-nota">Chance é uma estimativa: a marca vê as inscrições por ordem de chegada, então conta a sua posição na fila e as vagas que sobravam quando o robô entrou. Quando faltou o número da hora, ela é calculada com os números de hoje. Clique no título de uma coluna para ordenar. O placar atualiza a cada 30 minutos.</div>';
 }
-function roboCard(x) {
-  var ico = x.status === 'aprovada' ? '✅' : x.status === 'nao_aprovada' ? '❌' : '⏳';
-  var rotulo = x.status === 'aprovada' ? 'Aprovada' : x.status === 'nao_aprovada' ? 'Não aprovada' : 'Aguardando resposta';
-  var org = x.origem === 'nova' ? '<span class="rb-badge nova">⚡ Nova</span>' : x.origem === 'antiga' ? '<span class="rb-badge antiga">🧹 Antiga</span>' : '<span class="rb-badge manual">✋ Na mão</span>';
+function roboLinha(x) {
+  var ico = x.status === 'aprovada' ? '✅ Aprovada' : x.status === 'nao_aprovada' ? '❌ Não aprovada' : '⏳ Aguardando';
+  var org = x.origem === 'nova' ? '⚡ Nova' : x.origem === 'antiga' ? '🧹 Antiga' : '✋ Na mão';
   var ins = x.inscritos_agora != null ? x.inscritos_agora : x.inscritos_ao_entrar;
-  var sobram = (x.vagas != null && x.aprovados_agora != null) ? Math.max(0, x.vagas - x.aprovados_agora) : null;
-  var conc = (ins != null && x.vagas) ? (ins / x.vagas) : null;
-  var ch = roboChance(x), chv = ch.v;
-  var corCh = chv == null ? '#A69D93' : chv >= 60 ? '#10B981' : chv >= 25 ? '#F59E0B' : '#EF4444';
-  var cheia = (x.vagas && x.aprovados_agora != null) ? Math.min(100, Math.round(x.aprovados_agora / x.vagas * 100)) : null;
-  var chips = ''
-    + '<div class="rb-chip"><div class="v">👥 ' + (ins == null ? '-' : ins) + '</div><div class="k">inscritos agora</div>' + (x.inscritos_ao_entrar != null ? '<div class="s">eram ' + x.inscritos_ao_entrar + ' quando entrei</div>' : '') + '</div>'
-    + '<div class="rb-chip"><div class="v">🎯 ' + (x.vagas == null ? '-' : x.vagas) + '</div><div class="k">vagas</div>' + (sobram != null ? '<div class="s">' + sobram + ' ainda livres' + (cheia != null ? '' : '') + '</div>' : '') + '</div>'
-    + '<div class="rb-chip"><div class="v" style="color:' + corCh + '">🍀 ' + (chv == null ? 'sem dados' : chv + '%') + '</div><div class="k">chance de passar</div>' + (chv != null ? '<div class="rb-barra"><i style="width:' + chv + '%;background:' + corCh + '"></i></div>' : '') + (ch.hoje && chv != null ? '<div class="s">calculada com os números de hoje</div>' : '') + '</div>'
-    + '<div class="rb-chip"><div class="v">📍 ' + (x.posicao == null ? 'não anotada' : '#' + x.posicao) + '</div><div class="k">minha posição na fila</div>' + (x.posicao == null ? '<div class="s">entrei antes do painel guardar isso</div>' : '') + (conc != null ? '<div class="s">' + conc.toFixed(1).replace('.', ',') + ' inscritos por vaga hoje</div>' : '') + '</div>'
-    + '<div class="rb-chip"><div class="v">💰 ' + roboMoeda(x.valor) + '</div><div class="k">por creator</div>' + (x.precisa_nf ? '<div class="s">🧾 pede nota fiscal</div>' : '') + '</div>'
-    + '<div class="rb-chip"><div class="v">⏱ ' + (x.reacao_seg != null ? roboTempo(x.reacao_seg) : x.origem === 'antiga' ? 'campanha antiga' : x.origem === 'manual' ? 'feita na mão' : 'não anotado') + '</div><div class="k">' + (x.reacao_seg != null ? 'depois da campanha abrir' : 'rapidez de chegada') + '</div>' + (x.data_fim ? '<div class="s">termina em ' + new Date(x.data_fim).toLocaleDateString('pt-BR') + '</div>' : '') + '</div>';
-  return '<div class="rb-card ' + roboEsc(x.status) + '">'
-    + '<div class="rb-top"><div class="rb-ico" title="' + rotulo + '">' + ico + '</div><div style="flex:1;min-width:0"><div class="rb-tit">' + roboEsc(x.titulo) + '</div><div class="rb-sub">' + org + rotulo + '</div></div></div>'
-    + '<div class="rb-chips">' + chips + '</div>'
-    + (x.etapa ? '<div class="rb-et">📌 Etapa: ' + roboEsc(x.etapa) + '</div>' : '')
-    + '<div class="rb-pe"><span>🕒 Inscrita ' + roboQuando(x.inscrita_em) + '</span>' + (x.link ? '<a href="' + roboEsc(x.link) + '" target="_blank" rel="noopener">Abrir no Seu Influencer ↗</a>' : '') + '</div>'
-    + '</div>';
+  var ch = roboChance(x), cor = ch.v == null ? 'var(--text-muted)' : ch.v >= 60 ? '#047857' : ch.v >= 25 ? '#A86A00' : '#B91C1C';
+  var vagasTxt = x.vagas == null ? '-' : x.vagas + (x.aprovados_agora != null ? ' <span class="mut">(' + Math.max(0, x.vagas - x.aprovados_agora) + ' livres)</span>' : '');
+  var pos = x.posicao == null ? '<span class="mut">não anotada</span>' : '#' + x.posicao;
+  var cheg = x.reacao_seg != null ? roboTempo(x.reacao_seg) : (x.origem === 'antiga' ? '<span class="mut">antiga</span>' : '<span class="mut">na mão</span>');
+  var et = x.etapa ? '<span class="rb-pill e' + String(x.etapa).charAt(0) + '">' + roboEsc(x.etapa) + '</span>' : '<span class="mut">-</span>';
+  return '<tr class="' + roboEsc(x.status) + '"><td class="st">' + ico + '</td><td class="tit">' + roboEsc(x.titulo) + '</td><td>' + org + '</td><td class="num">' + roboQuando(x.inscrita_em) + '</td>'
+    + '<td class="num">' + (ins == null ? '-' : ins) + (x.inscritos_ao_entrar != null && x.inscritos_ao_entrar !== ins ? ' <span class="mut">(eram ' + x.inscritos_ao_entrar + ')</span>' : '') + '</td><td class="num">' + vagasTxt + '</td>'
+    + '<td class="num" style="color:' + cor + ';font-weight:800">' + (ch.v == null ? '-' : (ch.hoje ? '~' : '') + ch.v + '%') + '</td><td class="num">' + pos + '</td><td class="num">' + roboMoeda(x.valor) + (x.precisa_nf ? ' <span title="pede nota fiscal">🧾</span>' : '') + '</td>'
+    + '<td class="num">' + cheg + '</td><td>' + et + '</td><td>' + (x.link ? '<a href="' + roboEsc(x.link) + '" target="_blank" rel="noopener">abrir ↗</a>' : '') + '</td></tr>';
+}
+function roboAprovadasHtml() {
+  var A = roboAprov; if (!A.length) return '';
+  var soma = A.reduce(function (t, x) { return t + (Number(x.valor) || 0); }, 0), preench = A.filter(function (x) { return x.valor != null; }).length;
+  var linhas = A.map(function (x) {
+    var k = roboEsc(x.chave), et = x.etapa ? '<span class="rb-pill e' + String(x.etapa).charAt(0) + '">' + roboEsc(x.etapa) + '</span>' : '-';
+    return '<tr><td class="num mut">' + x.ordem + '</td><td class="tit">' + roboEsc(x.titulo) + '</td><td>' + roboEsc(x.marca || '-') + '</td><td>' + et + '</td><td class="mut">' + roboEsc(x.ultima || '-') + '</td>'
+      + '<td class="num"><input class="rb-in" inputmode="decimal" placeholder="R$ 0" data-k="' + k + '" data-c="valor" value="' + (x.valor != null ? Number(x.valor).toLocaleString('pt-BR') : '') + '" onchange="roboSalvar(this)"></td>'
+      + '<td><input class="rb-in obs" placeholder="observação" data-k="' + k + '" data-c="obs" value="' + roboEsc(x.obs || '') + '" onchange="roboSalvar(this)"></td></tr>';
+  }).join('');
+  return '<div class="rb-sec"><h3>✅ Minhas últimas ' + A.length + ' aprovações</h3><span class="sp"></span></div>'
+    + '<div class="rb-tabwrap"><table class="rb-t" style="min-width:860px"><thead><tr><th class="num">#</th><th>Campanha</th><th>Marca</th><th>Etapa</th><th>Última atividade</th><th class="num">Valor combinado</th><th>Observações</th></tr></thead><tbody>' + linhas
+    + '</tbody><tfoot><tr><td></td><td colspan="4">Total dos valores preenchidos (' + preench + ' de ' + A.length + ')</td><td class="num" id="roboSoma">' + roboMoeda(soma) + '</td><td></td></tr></tfoot></table></div>'
+    + '<div class="rb-nota">O Seu Influencer não mostra o valor depois da aprovação, então preencha aqui uma vez e ele fica salvo. A etapa e a ordem vêm do site e atualizam sozinhas.</div>';
+}
+async function roboSalvar(el) {
+  var campo = el.dataset.c, v = el.value.trim(), patch = {};
+  if (campo === 'valor') { var n = v === '' ? null : parseFloat(v.replace(/[^\d,.-]/g, '').replace(/\./g, '').replace(',', '.')); if (v !== '' && isNaN(n)) { el.value = ''; return; } patch.valor = n; }
+  else patch.obs = v || null;
+  var r = await sb.from('robo_aprovadas').update(patch).eq('chave', el.dataset.k);
+  if (r.error) { el.style.borderColor = '#EF4444'; el.title = r.error.message; return; }
+  var row = roboAprov.find(function (x) { return x.chave === el.dataset.k; }); if (row) Object.assign(row, patch);
+  el.classList.add('salvo'); setTimeout(function () { el.classList.remove('salvo'); }, 1200);
+  if (campo === 'valor') { var s = document.getElementById('roboSoma'); if (s) s.textContent = roboMoeda(roboAprov.reduce(function (t, x) { return t + (Number(x.valor) || 0); }, 0)); if (n != null) el.value = n.toLocaleString('pt-BR'); }
+}
+function roboCSV() {
+  var cab = ['Status', 'Campanha', 'Origem', 'Inscrita em', 'Inscritos', 'Vagas', 'Chance %', 'Posição', 'Valor', 'Etapa', 'Link'];
+  var q = function (t) { return '"' + String(t == null ? '' : t).replace(/"/g, '""') + '"'; };
+  var linhas = roboLinhas.map(function (x) { return [x.status, x.titulo, x.origem, x.inscrita_em, x.inscritos_agora != null ? x.inscritos_agora : x.inscritos_ao_entrar, x.vagas, roboChance(x).v, x.posicao, x.valor, x.etapa, x.link].map(q).join(';'); });
+  var blob = new Blob(['﻿' + [cab.map(q).join(';')].concat(linhas).join('\n')], { type: 'text/csv;charset=utf-8' });
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'robo-inscricoes.csv'; document.body.appendChild(a); a.click(); a.remove();
 }
 </script>
 <script src="/pw-eye.js"></script>
