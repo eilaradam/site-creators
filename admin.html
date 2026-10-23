@@ -20628,13 +20628,26 @@ function roboTempo(seg) { if (seg == null) return null; seg = Math.round(seg); i
 function roboQuando(iso) { var d = new Date(iso); return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' às ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); }
 async function roboLoad() {
   var box = document.getElementById('roboBox'); if (!box) return;
-  var bt = document.getElementById('roboAtualizar'); if (bt && !bt._ok) { bt._ok = 1; bt.addEventListener('click', roboLoad); }
+  var bt = document.getElementById('roboAtualizar'); if (bt && !bt._ok) { bt._ok = 1; bt.addEventListener('click', roboAtualizarAgora); }
   var r = await sb.from('robo_inscricoes').select('*').order('inscrita_em', { ascending: false }).limit(500);
   if (r.error) { box.innerHTML = '<div class="rb-vazio"><div class="em">😕</div><h4>Não consegui carregar</h4><p>' + roboEsc(r.error.message) + '</p></div>'; return; }
   roboLinhas = r.data || [];
   var a = await sb.from('robo_aprovadas').select('*').not('ordem', 'is', null).order('ordem', { ascending: true }).limit(30);
   roboAprov = (a && a.data) || [];
   roboRender();
+}
+async function roboAtualizarAgora() {
+  var bt = document.getElementById('roboAtualizar'); if (!bt || bt.disabled) return;
+  bt.disabled = true; var original = bt.textContent; bt.textContent = '↻ Pedindo ao robô…';
+  var pedido = new Date().toISOString();
+  await sb.from('robo_controle').update({ pedir_sync_em: pedido }).eq('id', 1);
+  for (var i = 0; i < 24; i++) { // ate 2 min: o robo confere o pedido a cada 5s e demora alguns segundos a mais pra checar o site
+    await new Promise(function (r) { setTimeout(r, 5000); });
+    var r2 = await sb.from('robo_controle').select('sync_feito_em').eq('id', 1).single();
+    if (r2.data && r2.data.sync_feito_em && r2.data.sync_feito_em > pedido) { bt.textContent = '✓ Atualizado!'; await roboLoad(); setTimeout(function () { bt.textContent = original; bt.disabled = false; }, 1500); return; }
+    bt.textContent = '↻ Robô está checando… (' + (i + 1) * 5 + 's)';
+  }
+  bt.textContent = '↻ Ainda não respondeu, veja o log'; await roboLoad(); setTimeout(function () { bt.textContent = original; bt.disabled = false; }, 2500);
 }
 function roboSetFiltro(f) { roboFiltro = f; roboRender(); }
 function roboOrdenar(col) { roboOrdem = { col: col, dir: roboOrdem.col === col ? -roboOrdem.dir : (col === 'titulo' ? 1 : -1) }; roboRender(); }
