@@ -103,7 +103,7 @@ async function prepararPasta(p) {
         return criarCenas(p);
     }
     await mudar(p, { drive_pasta_id: id, drive_pasta_link: p.drive_pasta_link || linkPasta(id), status: 'aguardando_bruto',
-        status_msg: 'Criei a pasta no Drive. Joga o bruto lá dentro que eu começo.' });
+        status_msg: p.previa_link ? 'Vou refazer: conferindo o bruto na pasta' : 'Criei a pasta no Drive. Joga o bruto lá dentro que eu começo.' });
 }
 
 async function olharBruto(p) {
@@ -126,6 +126,36 @@ function atualizarBancoDeSons() {
     log(r.status === 0 ? 'banco de sons: ' + (r.stdout || '').trim().split('\n')[0] : 'banco de sons não atualizado: ' + (r.stderr || '').trim().split('\n').pop());
 }
 
+/* "Falar com o Estagiário" no admin: texto e/ou áudio gravado. O áudio é baixado do Storage e transcrito aqui
+   (faster-whisper, local). Cada fala vira texto em a.transcricao para entrar no PEDIDO.md / AJUSTES.md. */
+const falas = p => (Array.isArray(p.ajustes) ? p.ajustes : []).filter(a => a && a.tipo === 'feedback');
+async function lerFalas(p, job) {
+    const lista = falas(p).filter(a => a.audio_path && !a.transcricao);
+    if (!lista.length) return;
+    const pasta = path.join(job, 'falas'); fs.mkdirSync(pasta, { recursive: true });
+    const py = fs.existsSync(path.join(VENV_BIN, 'python')) ? path.join(VENV_BIN, 'python') : 'python3';
+    for (const a of lista) {
+        try {
+            const r = await fetch(SUPA + '/storage/v1/object/edicao/' + a.audio_path, { headers: { apikey: ANON, Authorization: 'Bearer ' + await acesso() } });
+            if (!r.ok) throw new Error('não baixou (' + r.status + ')');
+            const orig = path.join(pasta, path.basename(a.audio_path)), wav = orig.replace(/\.[^.]+$/, '') + '.wav', js = wav + '.json';
+            fs.writeFileSync(orig, Buffer.from(await r.arrayBuffer()));
+            ffmpeg(['-i', orig, '-ac', '1', '-ar', '16000', wav]);
+            const t = spawnSync(py, ['-I', path.join(DIR, 'transcrever.py'), wav, js, 'small'], { encoding: 'utf8', timeout: 10 * 60000 });
+            if (t.status !== 0) throw new Error((t.stderr || '').trim().split('\n').pop());
+            a.transcricao = JSON.parse(fs.readFileSync(js, 'utf8')).map(w => w.w).join(' ').replace(/\s+([,.!?])/g, '$1');
+            log('#' + p.numero, 'ouvi o seu áudio: ' + a.transcricao.slice(0, 120));
+        } catch (e) { a.transcricao = '(não consegui ouvir o áudio: ' + e.message + ')'; log('#' + p.numero, a.transcricao); }
+    }
+}
+function falasMd(p) {
+    const L = falas(p).map((a, k) => (k + 1) + '. ' + [a.texto, a.transcricao && !/^\(não consegui/.test(a.transcricao) ? '(áudio) ' + a.transcricao : a.transcricao].filter(Boolean).join(' / ') +
+        (a.sempre ? '  ← ela marcou que isso vale para TODOS os próximos vídeos' : ''));
+    return L.length ? ['## ⚠️ O que a Lara falou depois da versão anterior (OBRIGATÓRIO: é a razão deste refazer)', ...L,
+        'Cumpra cada item e diga no resumo como cumpriu. Escreva também `saida/regras_propostas.json` (formato de "Aprender com os ajustes")',
+        'com as regras gerais que essas falas revelam.', ''] : [];
+}
+
 async function editar(p, arquivos) {
     const job = path.join(TRABALHOS, p.numero + '-' + slug(p.pasta_nome));
     const entrada = path.join(job, 'entrada'), saida = path.join(job, 'saida');
@@ -142,6 +172,7 @@ async function editar(p, arquivos) {
     ]);
     const daMarca = c => !c || String(c).trim().toLowerCase() === String(p.marca || '').trim().toLowerCase();
     fs.writeFileSync(path.join(job, 'pedido.json'), JSON.stringify({ pedido: p, referencias: refs, regras: regras.filter(r => daMarca(r.cliente)), dicionario: dic.filter(d => daMarca(d.cliente)) }, null, 2));
+    await lerFalas(p, job);
     fs.writeFileSync(path.join(job, 'PEDIDO.md'), pedidoMd(p, refs, regras.filter(r => daMarca(r.cliente)), dic.filter(d => daMarca(d.cliente)), arquivos));
     fs.copyFileSync(path.join(DIR, 'INSTRUCOES_EDICAO.md'), path.join(job, 'CLAUDE.md'));
     atualizarBancoDeSons();
@@ -193,7 +224,8 @@ async function entregar(p, job, etapas) {
         const alt = await entregarOpcaoB(p, job, versao, etapas);
         if (alt) projeto.alternativa = alt;
     }
-    await proporRegras(p, job);
+    const sempre = falas(p).some(a => a.sempre);
+    await proporRegras(p, job, sempre ? 'Do que você falou no pedido #' + p.numero + ' (marcado como vale para sempre)' : undefined, sempre ? 'aprovada' : 'proposta');
     await mudar(p, { status: 'previa_pronta', previa_link: link, projeto, previa_path, ajustes: null,
         status_msg: (resumo.split('\n').find(l => l.trim()) || 'Prévia v' + versao + ' no Drive').replace(/^#+\s*/, '').slice(0, 280) });
 }
@@ -413,6 +445,8 @@ function ajustesMd(p) {
         const onde = (x => Math.floor(x / 60) + ':' + String(Math.round(x % 60)).padStart(2, '0'));
         if (a.tipo === 'remover') L.push((k + 1) + '. TIRAR ' + c.tipo + ' de ' + onde(c.inicio_s) + ' a ' + onde(c.fim_s) + (c.texto ? ' ("' + c.texto + '")' : '') + (c.tipo === 'corte' ? ' (tire este trecho do vídeo e emende sem engolir sílaba)' : ''));
         else if (a.tipo === 'texto') L.push((k + 1) + '. TROCAR o texto do ' + c.tipo + ' em ' + onde(c.inicio_s) + ': "' + a.de + '" vira "' + a.para + '"');
+        else if (a.tipo === 'feedback') L.push((k + 1) + '. O QUE ELA FALOU' + (a.tempo_s ? ' (vendo o vídeo em ' + onde(a.tempo_s) + ')' : '') + ': ' +
+            [a.texto, a.transcricao].filter(Boolean).join(' / ') + (a.sempre ? ' [vale para todos os próximos vídeos]' : ''));
         else L.push((k + 1) + '. COMENTÁRIO em ' + onde(a.tempo_s) + ' [' + a.categoria + ']: ' + a.texto);
     });
     L.push('', '## Aprender com os ajustes',
@@ -425,6 +459,7 @@ function ajustesMd(p) {
 async function aplicarAjustes(p) {
     const job = jobDe(p);
     if (!fs.existsSync(job)) throw new Error('Não achei a pasta da versão anterior neste Mac (' + job + ')');
+    await lerFalas(p, job);
     fs.writeFileSync(path.join(job, 'AJUSTES.md'), ajustesMd(p));
     if (p.projeto && p.projeto.editado_em) {   // ela também mexeu à mão no admin: a V2 parte da versão dela
         const proj = Object.assign({}, p.projeto); ['etapas', 'base_path', 'mudancas', 'editado_em'].forEach(k => delete proj[k]);
@@ -492,21 +527,22 @@ async function aprenderComReedicao(p, job, mudancas) {
 }
 
 /* O que a Lara corrigiu vira regra PROPOSTA em "Regras do estilo"; ela aprova ou descarta no admin */
-async function proporRegras(p, job, origem) {
+async function proporRegras(p, job, origem, status = 'proposta') {
     const arq = path.join(job, 'saida', 'regras_propostas.json');
     let regras; try { regras = JSON.parse(fs.readFileSync(arq, 'utf8')); } catch (_) { return; }
     fs.renameSync(arq, arq.replace(/\.json$/, '_' + Date.now() + '.json'));
     const CATS = ['corte', 'zoom', 'som', 'musica', 'legenda', 'animacao', 'cor', 'ritmo', 'outro'];
     const linhas = (Array.isArray(regras) ? regras : []).filter(r => r && String(r.texto || '').trim()).slice(0, 8).map(r => ({
         texto: String(r.texto).trim().slice(0, 400), motivo: ((origem || 'Dos seus ajustes no pedido #' + p.numero) + (r.motivo ? ': ' + r.motivo : '')).slice(0, 400),
-        categoria: CATS.includes(r.categoria) ? r.categoria : 'outro', cliente: r.so_desta_marca ? (p.marca || null) : null, status: 'proposta' }));
-    if (linhas.length) await db('edicao_regras', { metodo: 'POST', corpo: linhas }).then(() => log('#' + p.numero, linhas.length + ' regra(s) proposta(s) para a Lara aprovar')).catch(e => log('regras não salvas:', e.message));
+        categoria: CATS.includes(r.categoria) ? r.categoria : 'outro', cliente: r.so_desta_marca ? (p.marca || null) : null, status }));
+    if (linhas.length) await db('edicao_regras', { metodo: 'POST', corpo: linhas }).then(() => log('#' + p.numero, linhas.length + (status === 'aprovada' ? ' regra(s) nova(s) já valendo (você marcou "vale para sempre")' : ' regra(s) proposta(s) para a Lara aprovar'))).catch(e => log('regras não salvas:', e.message));
 }
 
 function pedidoMd(p, refs, regras, dic, arquivos) {
     const L = [];
     L.push('# Pedido #' + p.numero + ': ' + p.pasta_nome, '');
     // as observações vêm primeiro e com peso de ordem: ela reclamou que o robô ignorou o que escreveu
+    L.push(...falasMd(p));
     if (p.observacoes) L.push('## ⚠️ Observações da Lara (OBRIGATÓRIO: cumpra cada item e diga no resumo como cumpriu)', p.observacoes, '');
     L.push('- Marca: ' + (p.marca || p.pasta_nome));
     L.push('- Formato: ' + p.formato + (p.duracao_alvo_s ? ' · duração desejada: ' + p.duracao_alvo_s + ' s' : ''));
