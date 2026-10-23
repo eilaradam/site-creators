@@ -76,6 +76,9 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
 
 ## Tipo de áudio (linha "Áudio" do PEDIDO.md)
 
+**As observações da Lara mandam.** Se ela escrever, por exemplo, "gancho falado e o resto em b-roll narrado",
+siga isso mesmo que o tipo marcado seja outro (aqui, é o modo "Falando + narrado"). Diga no resumo como entendeu.
+
 - **Ela falando** (padrão): siga "Como editar" normalmente.
 - **Vídeo narrado**: os vídeos da pasta são cenas sem fala e a locução é um áudio separado (m4a/mp3/opus/wav do
   gravador ou do WhatsApp, ou um vídeo dela falando que só serve pela voz). A narração é a espinha:
@@ -84,6 +87,17 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
   trata como voz e abaixa a música por baixo. Cubra o tempo todo com cenas (`corte`) que
   combinem com o que está sendo dito, trocando de cena a cada 1,5 a 3 s. Use `"som_original": false` no
   projeto. Legenda vem da narração (palavras no tempo final).
+- **Falando + narrado** (o jeito mais comum dela): o vídeo mistura partes em que ela fala para a câmera e partes
+  narradas por cima de cenas. Na pasta vêm o bruto dela falando, as cenas (b-roll) e o áudio da narração (ou um
+  vídeo dela que só serve pela voz).
+  1. Transcreva TUDO que tem fala (bruto e narração) e encaixe cada frase do roteiro onde ela foi gravada. Se o
+     roteiro marcar `[fala]`/`[narração]` (ou "câmera"/"off"), obedeça; se não, a frase que existe nos dois fica
+     com a câmera no gancho e no fechamento e com a narração no meio, onde as cenas mostram o que é dito.
+  2. Parte falada: `corte` normal do bruto (com som), cortada pela fala como em "Como editar".
+  3. Parte narrada: cada pedaço da narração é uma camada `voz` e o vídeo por baixo são `corte` de cenas com
+     `"mudo": true` (o som da cena sai), trocando de cena a cada 1,5 a 3 s e combinando com o que é dito.
+  4. A legenda segue a fala nas duas partes (palavras no tempo final, da câmera e da narração juntas).
+  5. Emenda câmera ↔ narração no fim de frase, nunca no meio; música por baixo do vídeo todo.
 - **Vídeo sem fala** (vlog, b-roll, só música): use `"som_original": false` no topo do projeto (o som do bruto sai)
   e `"legenda": {"ativa": false}`. Não transcreva para cortar.
   1. Escolha a música primeiro (Epidemic ou banco: clima e bpm que combinam com o roteiro/observações) e use as `batidas`

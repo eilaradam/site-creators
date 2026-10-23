@@ -17990,6 +17990,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     function edFormato(f) { edLerForm(); edForm.formato = f; edRender(); }
     const ED_AUDIO = [['fala', 'Eu falando', 'o estagiário corta pela fala e legenda o que você diz'],
         ['narrado', 'Narrado', 'cenas sem fala + um áudio seu gravado à parte (gravador, WhatsApp): o estagiário monta as cenas em cima da narração'],
+        ['misto', 'Falando + narrado', 'partes você falando pra câmera e partes narradas por cima de cenas. Jogue na pasta o bruto, as cenas e o áudio da narração. Se quiser mandar em cada parte, marque no roteiro [fala] e [narração]'],
         ['musica', 'Sem fala, só música', 'vlog/b-roll: tira o som do bruto, corta no ritmo da música e põe textos na tela no lugar da legenda']];
     function edAudioTipo(a) {
         edLerForm();
@@ -18140,7 +18141,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
               (f.tipo === 'cenas'
                 ? '<h4>Texto da locução ou ideia</h4><div class="ed-muted" style="margin-bottom:6px;">Cole o texto pronto ou só a ideia. O estagiário escreve (ou ajusta) a locução com umas 24 palavras por cena de 10 s.</div>'
                 : f.audio_tipo === 'musica' ? '<h4>O que o vídeo conta</h4><div class="ed-muted" style="margin-bottom:6px;">A ordem do dia ou da história e as frases que você quer na tela. O estagiário tira daqui os textos e a sequência das cenas.</div>'
-                : '<h4>' + (f.audio_tipo === 'narrado' ? 'Roteiro da narração' : 'Roteiro') + '</h4><div class="ed-muted" style="margin-bottom:6px;">Com o roteiro o estagiário sabe qual tomada é a certa e acerta os nomes na legenda.</div>') +
+                : '<h4>' + (f.audio_tipo === 'narrado' ? 'Roteiro da narração' : f.audio_tipo === 'misto' ? 'Roteiro (marque [fala] e [narração] se quiser)' : 'Roteiro') + '</h4><div class="ed-muted" style="margin-bottom:6px;">Com o roteiro o estagiário sabe qual tomada é a certa e acerta os nomes na legenda.</div>') +
               (dis ? '' : '<div class="ed-lb-mic" style="justify-content:flex-end;margin-bottom:6px;">' + edMicBtn('edP_roteiro') + '</div>') +
               '<textarea class="ed-input" id="edP_roteiro" rows="14" placeholder="' + (f.tipo === 'cenas' ? 'ex.: por que milha vale dinheiro e quase ninguém usa' : 'Cole o roteiro aqui') + '"' + dis + '>' + edEsc(f.roteiro) + '</textarea>' +
             '</div>' +
@@ -18710,7 +18711,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         });
     }
     const ED_ED_CAMPO = { modelo: 'o modelo', destaque: 'a palavra em destaque', corDestaque: 'a cor de destaque', cor: 'a cor do texto', numero: 'o número', prefixo: 'o texto antes do número',
-        arquivoFonte: 'a fonte', escala: 'o tamanho', volume_db: 'o volume', entrada_s: 'a entrada do zoom' };
+        arquivoFonte: 'a fonte', escala: 'o tamanho', volume_db: 'o volume', entrada_s: 'a entrada do zoom', mudo: 'o som (mudo)' };
     function edEdCampo(campo, valor) {
         const ped = edIaPed(), c = edEdSelC(); if (!ped || !c) return;
         if (String(c[campo] ?? '') === String(valor)) return;
@@ -18888,6 +18889,8 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                 '<div class="ed-ed-l"><span>Começo</span>' + btn('0,1 s antes', "edEdCorte('antes')", 'ghost') + btn('0,1 s depois', "edEdCorte('depois')", 'ghost') + '</div>' +
                 '<div class="ed-ed-l"><span>Fim</span>' + btn('0,1 s antes', "edEdCorte('fimAntes')", 'ghost') + btn('0,1 s depois', "edEdCorte('fimDepois')", 'ghost') + '</div>' +
                 '<div class="ed-ed-l">' + btn('Dividir aqui', 'edEdDividir()', 'ghost') + btn('Tirar este trecho', "edEdCorte('tirar')") + '</div>' +
+                '<div class="ed-ed-l"><span>Som</span><select class="ed-input" style="width:auto;" onchange="edEdCampo(\'mudo\', this.value === \'1\' ? true : \'\')">' +
+                  '<option value=""' + (c.mudo ? '' : ' selected') + '>com o som do trecho</option><option value="1"' + (c.mudo ? ' selected' : '') + '>mudo (fica a narração/música)</option></select></div>' +
                 '<div class="ed-ed-l"><span>Velocidade</span><select class="ed-input" style="width:auto;" onchange="edEdVelocidade(+this.value)">' +
                   [[0.5, 'lenta (0,5x)'], [1, 'normal'], [1.1, '1,1x'], [1.5, '1,5x'], [2, '2x'], [4, '4x (timelapse)']].map(([v, n]) => '<option value="' + v + '"' + (Math.abs((+c.velocidade || 1) - v) < 0.01 ? ' selected' : '') + '>' + n + '</option>').join('') + '</select></div>' +
                 '<div class="ia-cenas-dica" style="margin:6px 0 0;">Para tirar só um pedaço (um “é…”, uma tomada errada): pare no começo, Dividir, pare no fim, Dividir e tire o pedaço do meio.</div>';

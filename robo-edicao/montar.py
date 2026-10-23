@@ -11,7 +11,8 @@ para a Lara mexer ao vivo. Trechos e títulos ficam guardados em work/montar/, e
 só o que mudou é refeito.
 
 Camadas (tempos sempre no vídeo final):
-  corte     inicio_s, fim_s, origem, origem_inicio_s, velocidade   trechos do bruto, emendados na ordem
+  corte     inicio_s, fim_s, origem, origem_inicio_s, velocidade, mudo   trechos do bruto, emendados na ordem
+            (mudo true = sem o som daquele trecho, ex.: cena coberta pela narração)
             (velocidade 2 = o dobro do bruto no mesmo tempo; o trecho usa (fim_s - inicio_s) * velocidade do bruto)
   zoom      inicio_s, fim_s, escala, cx, cy, entrada_s          punch-in com easing (entrada_s 0 = seco)
   rec/broll inicio_s, fim_s, arquivo, origem_inicio_s, x, y, escala   vídeo por cima (escala 1 = tela cheia)
@@ -183,7 +184,7 @@ def trechos(pj):
             cy = float(aqui[0].get("cy", 0.42))
             vf += ",zoompan=z='%s':x='(iw-iw/zoom)*%.3f':y='(ih-ih/zoom)*%.3f':d=1:s=%dx%d:fps=%d" % (zoom_expr(aqui, t), cx, cy, W, H, FPS)
         fade = min(0.03, dur / 4)
-        af = None if mudo else ("atempo=%.4f," % vel if vel != 1 else "") + "aresample=48000,afade=t=in:d=%.3f,afade=t=out:st=%.3f:d=%.3f" % (fade, dur - fade, fade)
+        af = None if mudo or c.get("mudo") else ("atempo=%.4f," % vel if vel != 1 else "") + "aresample=48000,afade=t=in:d=%.3f,afade=t=out:st=%.3f:d=%.3f" % (fade, dur - fade, fade)
         chave = hash_de(src, os.path.getmtime(src), oi, dur, vel, vf, af)
         tarefas.append((os.path.join(pj.cache, "trecho_" + chave + ".mp4"), src, oi, dur, vf, af, vel))
         t += dur
