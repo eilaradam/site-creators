@@ -20455,6 +20455,13 @@ input[type="email"], input[type="date"], input[type="datetime-local"], select, t
 /* ---- Aba Robô de inscrições ---- */
 var roboLinhas = [], roboFiltro = 'todas';
 function roboEsc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function roboChance(x) {
+  if (x.chance_pct != null) return { v: x.chance_pct, hoje: false };
+  if (!x.vagas || x.inscritos_agora == null) return { v: null, hoje: false };
+  var rest = Math.max(0, x.vagas - (x.aprovados_agora || 0));
+  if (!rest) return { v: 0, hoje: true };
+  return { v: x.inscritos_agora <= rest ? 95 : Math.max(2, Math.min(95, Math.round(rest / x.inscritos_agora * 100))), hoje: true };
+}
 function roboMoeda(v) { return v == null ? '-' : 'R$ ' + Number(v).toLocaleString('pt-BR', { maximumFractionDigits: 0 }); }
 function roboTempo(seg) { if (seg == null) return null; seg = Math.round(seg); if (seg < 90) return seg + ' segundos'; if (seg < 5400) return Math.round(seg / 60) + ' min'; if (seg < 172800) return Math.round(seg / 3600) + ' h'; return Math.round(seg / 86400) + ' dias'; }
 function roboQuando(iso) { var d = new Date(iso); return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' às ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); }
@@ -20475,7 +20482,7 @@ function roboRender() {
   var reac = L.filter(function (x) { return x.reacao_seg != null; }).map(function (x) { return Number(x.reacao_seg); });
   var medR = reac.length ? reac.reduce(function (a, b) { return a + b; }, 0) / reac.length : null;
   var hoje = new Date().toDateString(), nHoje = L.filter(function (x) { return new Date(x.inscrita_em).toDateString() === hoje; }).length;
-  var potencial = es.reduce(function (a, x) { return a + (Number(x.valor) || 0) * ((x.chance_pct || 0) / 100); }, 0);
+  var potencial = es.reduce(function (a, x) { return a + (Number(x.valor) || 0) * ((roboChance(x).v || 0) / 100); }, 0);
   var stats = '<div class="rb-stats">'
     + '<div class="rb-stat"><div class="n">' + L.length + '</div><div class="l">🧾 inscrições feitas</div></div>'
     + '<div class="rb-stat"><div class="n">' + nHoje + '</div><div class="l">📅 hoje</div></div>'
@@ -20500,15 +20507,16 @@ function roboCard(x) {
   var ins = x.inscritos_agora != null ? x.inscritos_agora : x.inscritos_ao_entrar;
   var sobram = (x.vagas != null && x.aprovados_agora != null) ? Math.max(0, x.vagas - x.aprovados_agora) : null;
   var conc = (ins != null && x.vagas) ? (ins / x.vagas) : null;
-  var corCh = x.chance_pct == null ? '#A69D93' : x.chance_pct >= 60 ? '#10B981' : x.chance_pct >= 25 ? '#F59E0B' : '#EF4444';
+  var ch = roboChance(x), chv = ch.v;
+  var corCh = chv == null ? '#A69D93' : chv >= 60 ? '#10B981' : chv >= 25 ? '#F59E0B' : '#EF4444';
   var cheia = (x.vagas && x.aprovados_agora != null) ? Math.min(100, Math.round(x.aprovados_agora / x.vagas * 100)) : null;
   var chips = ''
     + '<div class="rb-chip"><div class="v">👥 ' + (ins == null ? '-' : ins) + '</div><div class="k">inscritos agora</div>' + (x.inscritos_ao_entrar != null ? '<div class="s">eram ' + x.inscritos_ao_entrar + ' quando entrei</div>' : '') + '</div>'
     + '<div class="rb-chip"><div class="v">🎯 ' + (x.vagas == null ? '-' : x.vagas) + '</div><div class="k">vagas</div>' + (sobram != null ? '<div class="s">' + sobram + ' ainda livres' + (cheia != null ? '' : '') + '</div>' : '') + '</div>'
-    + '<div class="rb-chip"><div class="v" style="color:' + corCh + '">🍀 ' + (x.chance_pct == null ? '-' : x.chance_pct + '%') + '</div><div class="k">chance de passar</div>' + (x.chance_pct != null ? '<div class="rb-barra"><i style="width:' + x.chance_pct + '%;background:' + corCh + '"></i></div>' : '') + '</div>'
-    + '<div class="rb-chip"><div class="v">📍 ' + (x.posicao == null ? '-' : '#' + x.posicao) + '</div><div class="k">minha posição na fila</div>' + (conc != null ? '<div class="s">' + conc.toFixed(1).replace('.', ',') + ' inscritos por vaga</div>' : '') + '</div>'
+    + '<div class="rb-chip"><div class="v" style="color:' + corCh + '">🍀 ' + (chv == null ? 'sem dados' : chv + '%') + '</div><div class="k">chance de passar</div>' + (chv != null ? '<div class="rb-barra"><i style="width:' + chv + '%;background:' + corCh + '"></i></div>' : '') + (ch.hoje && chv != null ? '<div class="s">calculada com os números de hoje</div>' : '') + '</div>'
+    + '<div class="rb-chip"><div class="v">📍 ' + (x.posicao == null ? 'não anotada' : '#' + x.posicao) + '</div><div class="k">minha posição na fila</div>' + (x.posicao == null ? '<div class="s">entrei antes do painel guardar isso</div>' : '') + (conc != null ? '<div class="s">' + conc.toFixed(1).replace('.', ',') + ' inscritos por vaga hoje</div>' : '') + '</div>'
     + '<div class="rb-chip"><div class="v">💰 ' + roboMoeda(x.valor) + '</div><div class="k">por creator</div>' + (x.precisa_nf ? '<div class="s">🧾 pede nota fiscal</div>' : '') + '</div>'
-    + '<div class="rb-chip"><div class="v">⏱ ' + (x.reacao_seg != null ? roboTempo(x.reacao_seg) : '-') + '</div><div class="k">depois da campanha abrir</div>' + (x.data_fim ? '<div class="s">termina em ' + new Date(x.data_fim).toLocaleDateString('pt-BR') + '</div>' : '') + '</div>';
+    + '<div class="rb-chip"><div class="v">⏱ ' + (x.reacao_seg != null ? roboTempo(x.reacao_seg) : x.origem === 'antiga' ? 'campanha antiga' : x.origem === 'manual' ? 'feita na mão' : 'não anotado') + '</div><div class="k">' + (x.reacao_seg != null ? 'depois da campanha abrir' : 'rapidez de chegada') + '</div>' + (x.data_fim ? '<div class="s">termina em ' + new Date(x.data_fim).toLocaleDateString('pt-BR') + '</div>' : '') + '</div>';
   return '<div class="rb-card ' + roboEsc(x.status) + '">'
     + '<div class="rb-top"><div class="rb-ico" title="' + rotulo + '">' + ico + '</div><div style="flex:1;min-width:0"><div class="rb-tit">' + roboEsc(x.titulo) + '</div><div class="rb-sub">' + org + rotulo + '</div></div></div>'
     + '<div class="rb-chips">' + chips + '</div>'
