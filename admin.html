@@ -20557,18 +20557,19 @@ function roboLinha(x) {
     + '<td class="num">' + cheg + '</td><td>' + et + '</td><td>' + (x.link ? '<a href="' + roboEsc(x.link) + '" target="_blank" rel="noopener">abrir ↗</a>' : '') + '</td></tr>';
 }
 function roboAprovadasHtml() {
-  var A = roboAprov; if (!A.length) return '';
+  var A = roboAprov.slice().sort(function (a, b) { var ea = parseInt(a.etapa, 10), eb = parseInt(b.etapa, 10); ea = isNaN(ea) ? 99 : ea; eb = isNaN(eb) ? 99 : eb; return (ea - eb) || ((a.ordem || 999) - (b.ordem || 999)); });
+  if (!A.length) return '';
   var soma = A.reduce(function (t, x) { return t + (Number(x.valor) || 0); }, 0), preench = A.filter(function (x) { return x.valor != null; }).length;
-  var linhas = A.map(function (x) {
+  var linhas = A.map(function (x, idx) {
     var k = roboEsc(x.chave), et = x.etapa ? '<span class="rb-pill e' + String(x.etapa).charAt(0) + '">' + roboEsc(x.etapa) + '</span>' : '-';
-    return '<tr><td class="num mut">' + x.ordem + '</td><td class="tit"><div class="rb-cap">' + roboFoto(x) + '<span>' + roboEsc(x.titulo) + '</span></div></td><td>' + roboEsc(x.marca || '-') + '</td><td>' + et + '</td><td class="mut">' + roboEsc(x.ultima || '-') + '</td>'
+    return '<tr><td class="num mut">' + (idx + 1) + '</td><td class="tit"><div class="rb-cap">' + roboFoto(x) + '<span>' + roboEsc(x.titulo) + '</span></div></td><td>' + roboEsc(x.marca || '-') + '</td><td>' + et + '</td><td class="mut">' + roboEsc(x.ultima || '-') + '</td>'
       + '<td class="num"><input class="rb-in" inputmode="decimal" placeholder="R$ 0" data-k="' + k + '" data-c="valor" value="' + (x.valor != null ? Number(x.valor).toLocaleString('pt-BR') : '') + '" onchange="roboSalvar(this)"></td>'
       + '<td><input class="rb-in obs" placeholder="observação" data-k="' + k + '" data-c="obs" value="' + roboEsc(x.obs || '') + '" onchange="roboSalvar(this)"></td></tr>';
   }).join('');
   return '<div class="rb-sec"><h3>✅ Minhas últimas ' + A.length + ' aprovações</h3><span class="sp"></span></div>'
     + '<div class="rb-tabwrap"><table class="rb-t" style="min-width:860px"><thead><tr><th class="num">#</th><th>Campanha</th><th>Marca</th><th>Etapa</th><th>Última atividade</th><th class="num">Valor combinado</th><th>Observações</th></tr></thead><tbody>' + linhas
     + '</tbody><tfoot><tr><td></td><td colspan="4">Total dos valores preenchidos (' + preench + ' de ' + A.length + ')</td><td class="num" id="roboSoma">' + roboMoeda(soma) + '</td><td></td></tr></tfoot></table></div>'
-    + '<div class="rb-nota">O Seu Influencer não mostra o valor depois da aprovação, então preencha aqui uma vez e ele fica salvo. A etapa e a ordem vêm do site e atualizam sozinhas.</div>';
+    + '<div class="rb-nota">O Seu Influencer não mostra o valor depois da aprovação, então preencha aqui uma vez e ele fica salvo. As campanhas ficam sempre em ordem de etapa (1, 2, 3...), e a etapa vem do site e atualiza sozinha.</div>';
 }
 async function roboSalvar(el) {
   var campo = el.dataset.c, v = el.value.trim(), patch = {};
