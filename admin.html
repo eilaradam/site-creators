@@ -1322,6 +1322,10 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M3 9l2-5h14l2 5"/><path d="M8 4l2 5"/><path d="M13 4l2 5"/><path d="M10 13v5l4-2.5z"/></svg>
                         <span>Conteúdos</span>
                     </button>
+                    <button class="tab nav-item" data-tab="robo" type="button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 8V4"/><circle cx="12" cy="3" r="1"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/><path d="M2 14h2M20 14h2"/></svg>
+                        <span>Robô de inscrições</span>
+                    </button>
                     <button class="tab nav-item" data-tab="edicao" type="button">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
                         <span>Edição</span>
@@ -4232,6 +4236,87 @@
      As campanhas de publi e UGC (vieram do MeuManager pra tabela `conteudos`):
      da negociação ao pagamento, com funil de status, valor, pagamento e datas.
      Tudo com prefixo ct- (CSS) e ct* (JS). -->
+<!-- ============ Aba Robô de inscrições ============
+     Campanhas do Seu Influencer em que o robô (Mac da Lara) se inscreveu. Dados: tabela robo_inscricoes
+     (gravada pela edge function robo-registrar). Prefixo rb- (CSS) e robo* (JS). -->
+<div class="dashboard" id="tabRobo">
+<style>
+#tabRobo .rb-wrap { max-width:1180px; margin:0 auto; }
+#tabRobo .rb-hero { background:linear-gradient(135deg,#7B3E1B,#A75525); color:#fff; border-radius:20px; padding:22px 24px; display:flex; gap:18px; align-items:center; flex-wrap:wrap; margin-bottom:18px; }
+#tabRobo .rb-hero .em { font-size:44px; line-height:1; }
+#tabRobo .rb-hero h2 { margin:0; font-size:22px; font-weight:800; }
+#tabRobo .rb-hero p { margin:4px 0 0; opacity:.88; font-size:14px; }
+#tabRobo .rb-hero .rb-att { margin-left:auto; }
+#tabRobo .rb-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:18px; }
+#tabRobo .rb-stat { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:14px 16px; }
+#tabRobo .rb-stat .n { font-size:28px; font-weight:800; color:var(--text); line-height:1.1; }
+#tabRobo .rb-stat .l { font-size:12px; color:var(--text-soft); margin-top:4px; font-weight:600; }
+#tabRobo .rb-stat.ok { background:#ECFDF5; border-color:#A7F3D0; } #tabRobo .rb-stat.ok .n { color:#047857; }
+#tabRobo .rb-stat.wait { background:#FFF7E6; border-color:#FCE3AE; } #tabRobo .rb-stat.wait .n { color:#A86A00; }
+#tabRobo .rb-stat.no { background:#FEF2F2; border-color:#FECACA; } #tabRobo .rb-stat.no .n { color:#B91C1C; }
+#tabRobo .rb-filtros { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+#tabRobo .rb-f { border:1px solid var(--border-strong); background:var(--card); color:var(--text-soft); padding:8px 14px; border-radius:999px; font-size:13px; font-weight:700; cursor:pointer; }
+#tabRobo .rb-f.on { background:var(--accent); border-color:var(--accent); color:#fff; }
+#tabRobo .rb-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:14px; }
+#tabRobo .rb-card { background:var(--card); border:1px solid var(--border); border-left:6px solid var(--border-strong); border-radius:16px; padding:16px 18px; position:relative; }
+#tabRobo .rb-card.aprovada { border-left-color:#10B981; } #tabRobo .rb-card.aguardando { border-left-color:#F59E0B; } #tabRobo .rb-card.nao_aprovada { border-left-color:#EF4444; }
+#tabRobo .rb-top { display:flex; gap:12px; align-items:flex-start; }
+#tabRobo .rb-ico { font-size:30px; line-height:1; flex:none; }
+#tabRobo .rb-tit { font-size:15px; font-weight:800; color:var(--text); line-height:1.3; flex:1; min-width:0; word-break:break-word; }
+#tabRobo .rb-sub { font-size:12px; color:var(--text-muted); margin-top:3px; font-weight:600; }
+#tabRobo .rb-badge { display:inline-block; font-size:11px; font-weight:800; padding:3px 9px; border-radius:999px; margin-right:6px; }
+#tabRobo .rb-badge.nova { background:#EDE9FE; color:#5B21B6; } #tabRobo .rb-badge.antiga { background:#E0F2FE; color:#075985; } #tabRobo .rb-badge.manual { background:#F3F4F6; color:#374151; }
+#tabRobo .rb-chips { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:14px; }
+#tabRobo .rb-chip { background:var(--cream); border-radius:12px; padding:9px 11px; }
+#tabRobo .rb-chip .v { font-size:17px; font-weight:800; color:var(--text); }
+#tabRobo .rb-chip .k { font-size:11px; color:var(--text-soft); font-weight:700; margin-top:1px; }
+#tabRobo .rb-chip .s { font-size:11px; color:var(--text-muted); margin-top:2px; }
+#tabRobo .rb-barra { height:7px; background:var(--warm); border-radius:99px; overflow:hidden; margin-top:6px; }
+#tabRobo .rb-barra i { display:block; height:100%; border-radius:99px; }
+#tabRobo .rb-et { margin-top:12px; font-size:12.5px; font-weight:700; color:#047857; background:#ECFDF5; border-radius:10px; padding:7px 10px; }
+#tabRobo .rb-pe { display:flex; gap:10px; align-items:center; margin-top:12px; font-size:12px; color:var(--text-muted); flex-wrap:wrap; }
+#tabRobo .rb-pe a { color:var(--accent); font-weight:800; text-decoration:none; margin-left:auto; }
+#tabRobo .rb-vazio { text-align:center; padding:50px 20px; color:var(--text-soft); background:var(--card); border:1px dashed var(--border-strong); border-radius:18px; }
+#tabRobo .rb-vazio .em { font-size:44px; }
+#tabRobo .rb-sec { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:26px 0 10px; }
+#tabRobo .rb-sec h3 { margin:0; font-size:15px; font-weight:800; color:var(--text); }
+#tabRobo .rb-sec .sp { flex:1; }
+#tabRobo .rb-btn { border:1px solid var(--border-strong); background:var(--card); color:var(--text); padding:7px 12px; border-radius:10px; font-size:12.5px; font-weight:700; cursor:pointer; }
+#tabRobo .rb-tabwrap { overflow:auto; max-height:70vh; border:1px solid var(--border); border-radius:12px; background:var(--card); }
+#tabRobo table.rb-t { width:100%; border-collapse:separate; border-spacing:0; font-size:13px; min-width:980px; font-variant-numeric:tabular-nums; }
+#tabRobo .rb-t th { position:sticky; top:0; z-index:1; background:var(--cream); text-align:left; font-size:11px; letter-spacing:.5px; text-transform:uppercase; color:var(--text-soft); font-weight:800; padding:10px 12px; border-bottom:1px solid var(--border-strong); white-space:nowrap; cursor:pointer; user-select:none; }
+#tabRobo .rb-t th.num, #tabRobo .rb-t td.num { text-align:right; }
+#tabRobo .rb-t th.on { color:var(--accent); }
+#tabRobo .rb-t td { padding:9px 12px; border-bottom:1px solid var(--border); vertical-align:middle; color:var(--text); }
+#tabRobo .rb-t td { white-space:nowrap; } #tabRobo .rb-t td.tit { white-space:normal; }
+#tabRobo .rb-t tbody tr:nth-child(even) td { background:rgba(240,231,221,.28); }
+#tabRobo .rb-t tbody tr:hover td { background:var(--accent-glow); }
+#tabRobo .rb-t td.tit { min-width:260px; max-width:380px; font-weight:700; line-height:1.3; }
+#tabRobo .rb-t td.st { white-space:nowrap; font-weight:700; border-left:5px solid var(--border-strong); }
+#tabRobo .rb-t tr.aprovada td.st { border-left-color:#10B981; color:#047857; } #tabRobo .rb-t tr.aguardando td.st { border-left-color:#F59E0B; color:#A86A00; } #tabRobo .rb-t tr.nao_aprovada td.st { border-left-color:#EF4444; color:#B91C1C; }
+#tabRobo .rb-t .mut { color:var(--text-muted); } #tabRobo .rb-t a { color:var(--accent); font-weight:800; text-decoration:none; white-space:nowrap; }
+#tabRobo .rb-t tfoot td { position:sticky; bottom:0; background:var(--cream); font-weight:800; border-top:1px solid var(--border-strong); }
+#tabRobo .rb-pill { display:inline-block; padding:3px 9px; border-radius:999px; font-size:11.5px; font-weight:800; white-space:nowrap; }
+#tabRobo .rb-pill.e1 { background:#DBEAFE; color:#1E40AF; } #tabRobo .rb-pill.e2 { background:#E0E7FF; color:#3730A3; } #tabRobo .rb-pill.e3, #tabRobo .rb-pill.e4, #tabRobo .rb-pill.e5 { background:#FEF3C7; color:#92400E; }
+#tabRobo .rb-pill.e6 { background:#EDE9FE; color:#5B21B6; } #tabRobo .rb-pill.e7 { background:#D1FAE5; color:#065F46; } #tabRobo .rb-pill.e8 { background:#A7F3D0; color:#064E3B; }
+#tabRobo .rb-in { width:110px; border:1px solid var(--border-strong); border-radius:8px; padding:6px 8px; font:inherit; font-size:13px; background:var(--card); color:var(--text); text-align:right; }
+#tabRobo .rb-in.obs { width:100%; min-width:180px; text-align:left; }
+#tabRobo .rb-in.salvo { border-color:#10B981; }
+#tabRobo .rb-cap { display:flex; gap:10px; align-items:center; }
+#tabRobo .rb-ft { flex:none; width:38px; height:38px; border-radius:10px; object-fit:cover; background:var(--warm); display:block; }
+#tabRobo .rb-ft.ph { display:grid; place-items:center; font-weight:800; color:var(--accent); font-size:15px; }
+#tabRobo .rb-nota { font-size:12px; color:var(--text-muted); margin-top:16px; line-height:1.5; }
+</style>
+<div class="rb-wrap">
+  <div class="rb-hero">
+    <div class="em">🤖</div>
+    <div><h2>Robô de inscrições</h2><p>As campanhas do Seu Influencer em que o robô se inscreveu por você, com a concorrência e a chance de passar.</p></div>
+    <button class="rb-att btn" id="roboAtualizar" type="button" style="background:#fff;color:#7B3E1B;border:0;font-weight:800;padding:10px 16px;border-radius:12px;cursor:pointer;">↻ Atualizar</button>
+  </div>
+  <div id="roboBox"><div class="rb-vazio">Carregando…</div></div>
+</div>
+</div>
+
 <div class="dashboard" id="tabConteudos">
 <style>
 /* ---- Conteúdos: campanhas ---- */
@@ -5334,6 +5419,11 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
 #tabEdicao .ia-box .ed-mic { margin-top:0; background:transparent; color:#E8A27E; border-color:#5A514A; }
 #tabEdicao .ed-mic.on { background:#C8441A; color:#fff; border-color:#C8441A; animation:edMicPulso 1.2s ease-in-out infinite; }
 @keyframes edMicPulso { 50% { box-shadow:0 0 0 6px rgba(200,68,26,.18); } }
+#tabEdicao .ed-opcs { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:12px 0 0; }
+#tabEdicao .ed-opc { text-align:left; background:#141312; border:1px solid #2E2925; border-radius:14px; padding:10px 12px; color:#CFC6BC; cursor:pointer; font:inherit; display:flex; flex-direction:column; gap:3px; }
+#tabEdicao .ed-opc b { color:#FFF8F2; font-size:13.5px; }
+#tabEdicao .ed-opc span { font-size:12.5px; line-height:1.35; }
+#tabEdicao .ed-opc.on { border-color:#C8441A; box-shadow:0 0 0 2px rgba(200,68,26,.35); }
 #tabEdicao .ed-mont { display:grid; grid-template-columns:minmax(220px,330px) 1fr; gap:14px; margin:12px 0; align-items:start; }
 #tabEdicao .ed-mont .ia-editar { margin-top:0; }
 #tabEdicao .ed-palco-box { position:relative; border-radius:14px; overflow:hidden; border:2px solid #C8441A; background:#000; container-type:inline-size; }
@@ -6274,7 +6364,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
 
     /* ── Tabs ── */
-    const PAGE_TITLES = { objetivos: 'Objetivos', carrossel: 'Carrossel', painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', turmavivo: 'Turma ao vivo', imersaoblack: 'Imersão Black', vibeturma: 'Vibe da turma', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', marcas: 'Marcas', conteudos: 'Conteúdos', edicao: 'Edição de vídeo', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', aulabonus: 'Aula ao vivo', instagram: 'Instagram', bio: 'Link na Bio' };
+    const PAGE_TITLES = { objetivos: 'Objetivos', carrossel: 'Carrossel', painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', turmavivo: 'Turma ao vivo', imersaoblack: 'Imersão Black', vibeturma: 'Vibe da turma', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', marcas: 'Marcas', conteudos: 'Conteúdos', robo: 'Robô de inscrições', edicao: 'Edição de vídeo', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', aulabonus: 'Aula ao vivo', instagram: 'Instagram', bio: 'Link na Bio' };
     function setPageTitle(target) {
         const el = document.getElementById('pageTitle');
         if (el && PAGE_TITLES[target]) el.textContent = PAGE_TITLES[target];
@@ -6308,6 +6398,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             document.getElementById('tabCandidaturas').classList.toggle('show', target === 'candidaturas');
             document.getElementById('tabMarcas').classList.toggle('show', target === 'marcas');
             document.getElementById('tabConteudos').classList.toggle('show', target === 'conteudos');
+            document.getElementById('tabRobo').classList.toggle('show', target === 'robo');
             document.getElementById('tabEdicao').classList.toggle('show', target === 'edicao');
             document.getElementById('tabDisparo').classList.toggle('show', target === 'disparo');
             document.getElementById('tabImersao').classList.toggle('show', target === 'imersao');
@@ -6336,6 +6427,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             if (target === 'candidaturas') loadCandidaturas();
             if (target === 'marcas') { if (!marcasCarregado) loadMarcas(); if (!igPropsLoaded) { igPropsLoaded = true; igLoadProps(); } if (!igMarcasLoaded) { igMarcasLoaded = true; igLoadMarcas(); } }
             if (target === 'conteudos') ctLoad();
+            if (target === 'robo') roboLoad();
             if (target === 'edicao') edLoad();
             if (target === 'disparo') loadDisparo();
             if (target === 'imersao') { loadImersao(); loadAlunas(); }
@@ -17862,7 +17954,10 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             refs: edPedidoRefs.length ? edPedidoRefs.map(r => ({ id: r.id, tipo: r.tipo, link: r.link, nota: r.nota || '', salvar: false, nome: '' })) : [{ tipo: 'geral', link: '', nota: '', salvar: false, nome: '' }] });
         edRender();
     }
-    function edFecharPedido() { edPedidoAberto = null; edForm = null; edRender(); }
+    function edFecharPedido() { edPedidoAberto = null; edForm = null; edRefazendo = null; edOpcaoVer = 'a'; edRender(); }
+    /* Refazer do zero: destrava o pedido para mudar as opções (áudio, legenda, observações...) e manda de novo para a fila */
+    let edRefazendo = null;
+    function edRefazer(id) { edRefazendo = id; edRender(); edToast('Mude o que quiser e clique em "Refazer do zero"'); }
     /* guarda o que está digitado antes de re-renderizar o formulário */
     function edLerForm() {
         if (!edForm) return;
@@ -17930,6 +18025,8 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             tipo: f.tipo, audio_tipo: f.tipo === 'cenas' ? null : (f.audio_tipo || 'fala'), legenda_modelo: f.legenda_modelo || null, titulos_modelos: f.titulos_modelos || null, voz: f.tipo === 'cenas' ? f.voz : null, estilo_visual: f.tipo === 'cenas' ? f.estilo_visual : null,
         };
         let pedidoId = f.id;
+        const refazendo = !!(pedidoId && edRefazendo === pedidoId);
+        if (refazendo) Object.assign(linha, { status: 'na_fila', status_msg: 'Refazendo do zero', projeto: null, ajustes: null });
         if (pedidoId) {
             const { error } = await sb.from('edicao_pedidos').update(linha).eq('id', pedidoId);
             if (error && error.code === '23505') return edToast('Já existe uma pasta com esse nome. Coloque um número para diferenciar.', true);
@@ -17951,7 +18048,8 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                 if (b.error) edErro('Não salvei na biblioteca', b.error);
             }
         }
-        edToast(f.id ? 'Pedido atualizado' : 'Pedido na fila. O robô do Mac pega na próxima rodada.');
+        edRefazendo = null;
+        edToast(refazendo ? 'Na fila para refazer do zero. O robô do Mac pega na próxima rodada.' : f.id ? 'Pedido atualizado' : 'Pedido na fila. O robô do Mac pega na próxima rodada.');
         await edCarregarPedidos(); edPedidoAberto = null; edForm = null; edRender();
     }
     async function edMudarStatusPedido(id, status, msg) {
@@ -17985,7 +18083,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     function edRenderFormPedido() {
         const box = document.getElementById('edBox'); const f = edForm; if (!box || !f) return;
         const ped = f.id ? edPedidos.find(p => p.id === f.id) : null;
-        const travado = ped && !['na_fila', 'erro', 'cancelado'].includes(ped.status);
+        const travado = ped && !['na_fila', 'erro', 'cancelado'].includes(ped.status) && edRefazendo !== ped.id;
         const dis = travado ? ' disabled' : '';
         const camps = '<option value="">(sem campanha)</option>' + edCampanhas.map(c => '<option value="' + c.id + '"' + (c.id === f.conteudo_id ? ' selected' : '') + '>' + edEsc(c.nome) + (c.cliente ? ' · ' + edEsc(c.cliente) : '') + '</option>').join('');
         const formatos = [['9:16','Reels / TikTok'],['4:5','Feed 4:5'],['1:1','Quadrado'],['16:9','Horizontal']].map(([k, n]) =>
@@ -18005,6 +18103,8 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             (ped ? edStatusTag(ped.status) + (ped.status_msg ? '<span class="ed-muted">' + edEsc(ped.status_msg) + '</span>' : '') : '<b>Novo pedido de edição</b>') +
             '<span style="flex:1"></span>' +
             (ped && (ped.status === 'erro' || ped.status === 'cancelado') ? '<button class="ed-btn ghost mini" type="button" onclick="edMudarStatusPedido(\'' + ped.id + '\',\'na_fila\')">Voltar para a fila</button>' : '') +
+            (ped && ['previa_pronta', 'em_revisao', 'final_pronto'].includes(ped.status) && edRefazendo !== ped.id ? '<button class="ed-btn mini" type="button" onclick="edRefazer(\'' + ped.id + '\')">↻ Refazer</button>' : '') +
+            (ped && edRefazendo === ped.id ? '<button class="ed-btn ghost mini" type="button" onclick="edRefazendo=null;edAbrirPedido(\'' + ped.id + '\')">Desistir de refazer</button>' : '') +
             (ped && !['final_pronto', 'cancelado'].includes(ped.status) ? '<button class="ed-btn ghost mini" type="button" onclick="edMudarStatusPedido(\'' + ped.id + '\',\'cancelado\')">Cancelar</button>' : '') +
             (ped ? '<button class="ed-btn ghost mini" type="button" onclick="edApagarPedido(\'' + ped.id + '\')">Apagar</button>' : '') +
           '</div>' +
@@ -18072,7 +18172,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
               '<button class="ed-btn ghost mini" type="button" onclick="edAddRef()">+ Link novo</button>' +
             '</div>') +
           '</div>' +
-          (travado ? '' : '<div class="ed-row" style="margin-top:14px;justify-content:flex-end;"><button class="ed-btn" type="button" onclick="edSalvarPedido()">' + (f.id ? 'Salvar pedido' : 'Mandar para a fila') + '</button></div>');
+          (travado ? '' : '<div class="ed-row" style="margin-top:14px;justify-content:flex-end;"><button class="ed-btn" type="button" onclick="edSalvarPedido()">' + (f.id && edRefazendo === f.id ? '↻ Refazer do zero' : f.id ? 'Salvar pedido' : 'Mandar para a fila') + '</button></div>');
         if (!travado) edChecarPasta(); else if (ped) edIaMontar(ped);
         edLegAnimar();
     }
@@ -18299,7 +18399,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     }
     const ED_IA_NOMES = { corte: 'Trecho do vídeo', rec: 'Gravação de tela', broll: 'B-roll', imagem: 'Imagem', legenda: 'Legenda', zoom: 'Zoom', animacao: 'Animação', musica: 'Música', sfx: 'Efeito sonoro', voz: 'Locução' };
     function edIaEditorHtml(ped) {
-        if (edEdMontavel(ped)) return edEdEditorHtml(ped);
+        if (edEdMontavel(ped)) return edOpcaoVer === 'b' && ped.projeto.alternativa ? edOpcaoOutraHtml(ped) : edEdEditorHtml(ped);
         const cam = (ped.projeto && ped.projeto.camadas) || [], aj = edIaAjustes(ped);
         const c = edIaSel !== null ? cam[edIaSel] : null;
         const ajSel = aj.find(a => a.i === edIaSel && a.tipo === 'remover');
@@ -18368,7 +18468,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     function edIaLigar(ped) {
         const tl = document.querySelector('#iaLinha .ia-tl'); if (!tl) return;
         const dur = Number(tl.dataset.dur) || 0, v = document.getElementById('iaVideo');
-        tl.querySelectorAll('.ia-bl').forEach(b => b.addEventListener('click', ev => {
+        if (edOpcaoVer !== 'b') tl.querySelectorAll('.ia-bl').forEach(b => b.addEventListener('click', ev => {
             ev.stopPropagation(); edIaSel = Number(b.dataset.i);
             const c = ped.projeto.camadas[edIaSel]; if (v && c) { v.currentTime = Number(c.inicio_s) || 0; }
             edIaRedesenhar();
@@ -18399,7 +18499,8 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             await Promise.all([edCarregarLegendas(), edCarregarFontes()]);
             const e = document.getElementById('iaEditar'); if (e) { e.innerHTML = edIaEditorHtml(ped); edEdLigarEditor(); }
         }
-        const arq = montavel && edEdModo === 'editar' ? ped.projeto.base_path : ped.previa_path;
+        const outra = edOpcaoVer === 'b' && ped.projeto && ped.projeto.alternativa;
+        const arq = outra ? outra.previa_path : montavel && edEdModo === 'editar' ? ped.projeto.base_path : ped.previa_path;
         if (v && arq) {
             const { data, error } = await sb.storage.from('edicao').createSignedUrl(arq, 3 * 3600);
             if (!error && data) v.src = data.signedUrl;
@@ -18435,6 +18536,31 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         r.onend = () => { if (edMicRec === r) { edMicRec = null; edMicAlvo = null; } el.value = (base + final).trim(); botao(false); el.focus(); };
         try { r.start(); } catch (_) { return edToast('Não consegui ligar o microfone', true); }
         edMicRec = r; edMicAlvo = id; botao(true);
+    }
+    /* ── Duas opções: o robô entrega A e B do mesmo bruto; a Lara compara e fica com uma (a escolha vira regra proposta) ── */
+    let edOpcaoVer = 'a';
+    function edOpcaoTrocar(k) { edOpcaoVer = k; edIaSel = null; edRender(); }
+    function edOpcaoOutraHtml(ped) {
+        const o = (ped.projeto.alternativa.projeto.opcao) || {};
+        return '<div class="ia-editar"><div class="ia-cenas-tit" style="margin:0 0 8px;">Opção ' + edEsc(o.nome || 'B') + '</div>' +
+            '<div style="font-size:14px;line-height:1.45;margin-bottom:12px;">' + edEsc(o.descricao || 'Outra forma de editar o mesmo bruto.') + '</div>' +
+            '<div class="ia-cenas-dica" style="margin:0 0 12px;">Assista às duas. A que você escolher vira a edição do pedido (e dá para reeditar). A outra fica guardada.</div>' +
+            '<button class="ed-btn" type="button" onclick="edFicarComOutra()">Ficar com a opção ' + edEsc(o.nome || 'B') + '</button></div>';
+    }
+    async function edFicarComOutra() {
+        const ped = edIaPed(); if (!ped || !ped.projeto.alternativa) return;
+        const A = Object.assign({}, ped.projeto), alt = A.alternativa; delete A.alternativa;
+        const nova = Object.assign({}, alt.projeto, { alternativa: { projeto: A, previa_path: ped.previa_path || null, previa_link: ped.previa_link || null } });
+        const { error } = await sb.from('edicao_pedidos').update({ projeto: nova, previa_path: alt.previa_path || ped.previa_path, previa_link: alt.previa_link || ped.previa_link, updated_at: new Date().toISOString() }).eq('id', ped.id);
+        if (error) return edErro('Não troquei a opção', error);
+        const oNova = alt.projeto.opcao || {}, oVelha = A.opcao || {};
+        if (oNova.descricao && oNova.nome !== 'A') {   // a preferência dela vira regra proposta (ela aprova ou descarta em Regras do estilo)
+            await sb.from('edicao_regras').insert({ texto: 'Preferência: ' + oNova.descricao, categoria: 'ritmo', status: 'proposta', cliente: null,
+                motivo: 'Escolheu a opção ' + (oNova.nome || 'B') + ' em vez de "' + (oVelha.descricao || 'opção A') + '" no pedido #' + ped.numero });
+        }
+        edOpcaoVer = 'a'; edEdHist = [];
+        edToast('Ficou com a opção ' + (oNova.nome || 'B'));
+        await edCarregarPedidos(); await edAbrirPedido(ped.id);
     }
     /* ── Reeditar o que o robô fez. O projeto em camadas (o mesmo que o robô monta) é editado aqui:
        o vídeo de base (sem legenda e sem títulos) toca e a legenda e os títulos são desenhados por cima, ao vivo,
@@ -18679,7 +18805,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     }
     // desenha legenda e títulos do instante t por cima do vídeo de base
     function edEdPalco(ped, t) {
-        const palco = document.getElementById('edPalco'); if (!palco || edEdModo !== 'editar') return;
+        const palco = document.getElementById('edPalco'); if (!palco || edEdModo !== 'editar' || edOpcaoVer === 'b') return;
         if (edEdArr) return;
         const pj = ped.projeto, cam = pj.camadas, leg = pj.legenda || {};
         const ativas = cam.map((c, k) => ({ c, k })).filter(x => (x.c.tipo === 'legenda' || (x.c.tipo === 'animacao' && x.c.modelo)) && t >= +x.c.inicio_s && t < +x.c.fim_s);
@@ -18873,13 +18999,19 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const etapas = edEtapasDoPedido(ped).map(e => '<div class="ia-etapa ' + e.st + '"><span class="ia-ck">' + (e.st === 'feito' ? '✓' : '') + '</span>' + edEsc(e.n) + '</div>').join('');
         const podeAjustar = pronto && cam.length > 0;
         const montavel = edEdMontavel(ped);
-        const linha = '<div id="iaLinha">' + edIaLinhaHtml(ped) + '</div>' + (podeAjustar && !montavel ? '<div id="iaEditar">' + edIaEditorHtml(ped) + '</div>' : '');
+        const verOutra = montavel && edOpcaoVer === 'b' && pj.alternativa && pj.alternativa.projeto;
+        const linha = '<div id="iaLinha">' + edIaLinhaHtml(verOutra ? Object.assign({}, ped, { projeto: pj.alternativa.projeto, ajustes: [] }) : ped) + '</div>' + (podeAjustar && !montavel ? '<div id="iaEditar">' + edIaEditorHtml(ped) + '</div>' : '');
         const [TW, TH] = ED_TAM[pj.formato] || ED_TAM['9:16'];
         const modo = (m, n) => '<button class="ed-btn mini' + (edEdModo === m ? '' : ' ghost') + '" type="button" onclick="edEdModoTrocar(\'' + m + '\')">' + n + '</button>';
+        const alt = montavel && pj.alternativa && pj.alternativa.projeto;
+        if (!alt) edOpcaoVer = 'a';
+        const opc = (k, o) => '<button class="ed-opc' + (edOpcaoVer === k ? ' on' : '') + '" type="button" onclick="edOpcaoTrocar(\'' + k + '\')"><b>Opção ' + edEsc((o && o.nome) || (k === 'a' ? 'A' : 'B')) + (k === 'a' ? ' · escolhida' : '') + '</b>' +
+            (o && o.descricao ? '<span>' + edEsc(o.descricao) + '</span>' : '') + '</button>';
+        const opcoes = alt ? '<div class="ed-opcs">' + opc('a', pj.opcao) + opc('b', alt.opcao) + '</div>' : '';
         const meio = montavel
-            ? '<div class="ed-mont"><div><div class="ed-ed-modos">' + modo('editar', 'Editar') + modo('previa', 'Prévia renderizada') + '</div>' +
+            ? opcoes + '<div class="ed-mont"><div>' + (edOpcaoVer === 'b' && alt ? '' : '<div class="ed-ed-modos">' + modo('editar', 'Editar') + modo('previa', 'Prévia renderizada') + '</div>') +
                 '<div class="ed-palco-box" style="aspect-ratio:' + TW + '/' + TH + ';"><video id="iaVideo" playsinline controls preload="metadata"></video>' +
-                '<div id="edPalco" class="ed-palco' + (edEdModo === 'editar' ? '' : ' off') + '"></div></div></div>' +
+                '<div id="edPalco" class="ed-palco' + (edEdModo === 'editar' && edOpcaoVer !== 'b' ? '' : ' off') + '"></div></div></div>' +
                 '<div id="iaEditar"></div></div>'
             : '<div class="ia-meio"><div class="ia-prev">' + previa + '</div><div class="ia-etapas">' + etapas + '</div></div>';
         const links = (ped.previa_link ? '<a href="' + edEsc(ped.previa_link) + '" target="_blank" rel="noopener">Abrir prévia no Drive</a>' : '') +
@@ -20476,6 +20608,117 @@ input[type="email"], input[type="date"], input[type="datetime-local"], select, t
   if(document.readyState!=='loading') igaControlsInit();
   else document.addEventListener('DOMContentLoaded',igaControlsInit);
 })();
+</script>
+<script>
+/* ---- Aba Robô de inscrições ---- */
+var roboLinhas = [], roboAprov = [], roboFiltro = 'todas', roboOrdem = { col: 'inscrita_em', dir: -1 };
+function roboEsc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function roboChance(x) {
+  if (x.chance_pct != null) return { v: x.chance_pct, hoje: false };
+  if (!x.vagas || x.inscritos_agora == null) return { v: null, hoje: false };
+  var rest = Math.max(0, x.vagas - (x.aprovados_agora || 0));
+  if (!rest) return { v: 0, hoje: true };
+  return { v: x.inscritos_agora <= rest ? 95 : Math.max(2, Math.min(95, Math.round(rest / x.inscritos_agora * 100))), hoje: true };
+}
+function roboMoeda(v) { return v == null ? '-' : 'R$ ' + Number(v).toLocaleString('pt-BR', { maximumFractionDigits: 0 }); }
+function roboFoto(x) { var ini = roboEsc(String(x.titulo || '?').trim().charAt(0).toUpperCase()); return x.foto ? '<img class="rb-ft" loading="lazy" referrerpolicy="no-referrer" src="' + roboEsc(x.foto) + '" alt="" onerror="this.outerHTML=\'<div class=&quot;rb-ft ph&quot;>' + ini + '</div>\'">' : '<div class="rb-ft ph">' + ini + '</div>'; }
+function roboTempo(seg) { if (seg == null) return null; seg = Math.round(seg); if (seg < 90) return seg + ' segundos'; if (seg < 5400) return Math.round(seg / 60) + ' min'; if (seg < 172800) return Math.round(seg / 3600) + ' h'; return Math.round(seg / 86400) + ' dias'; }
+function roboQuando(iso) { var d = new Date(iso); return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' às ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); }
+async function roboLoad() {
+  var box = document.getElementById('roboBox'); if (!box) return;
+  var bt = document.getElementById('roboAtualizar'); if (bt && !bt._ok) { bt._ok = 1; bt.addEventListener('click', roboLoad); }
+  var r = await sb.from('robo_inscricoes').select('*').order('inscrita_em', { ascending: false }).limit(500);
+  if (r.error) { box.innerHTML = '<div class="rb-vazio"><div class="em">😕</div><h4>Não consegui carregar</h4><p>' + roboEsc(r.error.message) + '</p></div>'; return; }
+  roboLinhas = r.data || [];
+  var a = await sb.from('robo_aprovadas').select('*').not('ordem', 'is', null).order('ordem', { ascending: true }).limit(30);
+  roboAprov = (a && a.data) || [];
+  roboRender();
+}
+function roboSetFiltro(f) { roboFiltro = f; roboRender(); }
+function roboOrdenar(col) { roboOrdem = { col: col, dir: roboOrdem.col === col ? -roboOrdem.dir : (col === 'titulo' ? 1 : -1) }; roboRender(); }
+function roboValor(x, col) {
+  if (col === 'chance') return roboChance(x).v;
+  if (col === 'inscritos') return x.inscritos_agora != null ? x.inscritos_agora : x.inscritos_ao_entrar;
+  if (col === 'inscrita_em') return new Date(x.inscrita_em).getTime();
+  return x[col];
+}
+function roboRender() {
+  var box = document.getElementById('roboBox'); if (!box) return;
+  var L = roboLinhas;
+  if (!L.length && !roboAprov.length) { box.innerHTML = '<div class="rb-vazio"><div class="em">😴</div><h3>Nenhuma inscrição ainda</h3><p>Assim que o robô se inscrever numa campanha, ela aparece aqui.</p></div>'; return; }
+  var ap = L.filter(function (x) { return x.status === 'aprovada'; }), es = L.filter(function (x) { return x.status === 'aguardando'; }), na = L.filter(function (x) { return x.status === 'nao_aprovada'; });
+  var decididas = ap.length + na.length, taxa = decididas ? Math.round(ap.length / decididas * 100) : null;
+  var reac = L.filter(function (x) { return x.reacao_seg != null; }).map(function (x) { return Number(x.reacao_seg); });
+  var medR = reac.length ? reac.reduce(function (a, b) { return a + b; }, 0) / reac.length : null;
+  var hoje = new Date().toDateString(), nHoje = L.filter(function (x) { return new Date(x.inscrita_em).toDateString() === hoje; }).length;
+  var potencial = es.reduce(function (a, x) { return a + (Number(x.valor) || 0) * ((roboChance(x).v || 0) / 100); }, 0);
+  var stats = '<div class="rb-stats">'
+    + '<div class="rb-stat"><div class="n">' + L.length + '</div><div class="l">🧾 inscrições do robô</div></div>'
+    + '<div class="rb-stat"><div class="n">' + nHoje + '</div><div class="l">📅 hoje</div></div>'
+    + '<div class="rb-stat ok"><div class="n">' + ap.length + '</div><div class="l">✅ aprovadas</div></div>'
+    + '<div class="rb-stat wait"><div class="n">' + es.length + '</div><div class="l">⏳ aguardando</div></div>'
+    + '<div class="rb-stat no"><div class="n">' + na.length + '</div><div class="l">❌ não aprovadas</div></div>'
+    + '<div class="rb-stat"><div class="n">' + (taxa == null ? '-' : taxa + '%') + '</div><div class="l">🎯 taxa de aprovação</div></div>'
+    + '<div class="rb-stat"><div class="n">' + (medR == null ? '-' : roboTempo(medR)) + '</div><div class="l">⚡ rapidez média</div></div>'
+    + '<div class="rb-stat"><div class="n">' + roboMoeda(potencial) + '</div><div class="l">💰 ganho esperado</div></div>'
+    + '</div>';
+  var F = [['todas', 'Todas (' + L.length + ')'], ['aguardando', '⏳ Aguardando'], ['aprovada', '✅ Aprovadas'], ['nao_aprovada', '❌ Não aprovadas'], ['nova', '⚡ Novas'], ['antiga', '🧹 Antigas']];
+  var filtros = '<div class="rb-filtros">' + F.map(function (f) { return '<button class="rb-f' + (roboFiltro === f[0] ? ' on' : '') + '" type="button" onclick="roboSetFiltro(\'' + f[0] + '\')">' + f[1] + '</button>'; }).join('') + '<span style="flex:1"></span><button class="rb-btn" type="button" onclick="roboCSV()">⬇ Baixar planilha (CSV)</button></div>';
+  var vis = L.filter(function (x) { return roboFiltro === 'todas' || x.status === roboFiltro || x.origem === roboFiltro; });
+  var o = roboOrdem; vis = vis.slice().sort(function (a, b) { var va = roboValor(a, o.col), vb = roboValor(b, o.col); if (va == null) return 1; if (vb == null) return -1; return (va > vb ? 1 : va < vb ? -1 : 0) * o.dir; });
+  var COLS = [['status', ''], ['titulo', 'Campanha'], ['origem', 'Origem'], ['inscrita_em', 'Inscrita em', 1], ['inscritos', 'Inscritos', 1], ['vagas', 'Vagas', 1], ['chance', 'Chance', 1], ['posicao', 'Posição', 1], ['valor', 'Valor', 1], ['reacao_seg', 'Chegada', 1], ['etapa', 'Etapa']];
+  var thead = '<tr>' + COLS.map(function (c) { return '<th class="' + (c[2] ? 'num ' : '') + (o.col === c[0] ? 'on' : '') + '" onclick="roboOrdenar(\'' + c[0] + '\')">' + c[1] + (o.col === c[0] ? (o.dir > 0 ? ' ▲' : ' ▼') : '') + '</th>'; }).join('') + '<th></th></tr>';
+  var linhas = vis.map(roboLinha).join('');
+  var tabela = vis.length ? '<div class="rb-tabwrap"><table class="rb-t"><thead>' + thead + '</thead><tbody>' + linhas + '</tbody></table></div>' : '<div class="rb-vazio">Nada nesse filtro.</div>';
+  box.innerHTML = stats + '<div class="rb-sec"><h3>🤖 Inscrições feitas pelo robô</h3></div>' + filtros + tabela + roboAprovadasHtml()
+    + '<div class="rb-nota">Chance é uma estimativa: a marca vê as inscrições por ordem de chegada, então conta a sua posição na fila e as vagas que sobravam quando o robô entrou. Quando faltou o número da hora, ela é calculada com os números de hoje. Clique no título de uma coluna para ordenar. O placar e as etapas atualizam 2 vezes por dia, de manhã e no fim do dia.</div>';
+}
+function roboLinha(x) {
+  var ico = x.status === 'aprovada' ? '✅ Aprovada' : x.status === 'nao_aprovada' ? '❌ Não aprovada' : '⏳ Aguardando';
+  var org = x.origem === 'nova' ? '⚡ Nova' : x.origem === 'antiga' ? '🧹 Antiga' : '✋ Na mão';
+  var ins = x.inscritos_agora != null ? x.inscritos_agora : x.inscritos_ao_entrar;
+  var ch = roboChance(x), cor = ch.v == null ? 'var(--text-muted)' : ch.v >= 60 ? '#047857' : ch.v >= 25 ? '#A86A00' : '#B91C1C';
+  var vagasTxt = x.vagas == null ? '-' : x.vagas + (x.aprovados_agora != null ? ' <span class="mut">(' + Math.max(0, x.vagas - x.aprovados_agora) + ' livres)</span>' : '');
+  var pos = x.posicao == null ? '<span class="mut">não anotada</span>' : '#' + x.posicao;
+  var cheg = x.reacao_seg != null ? roboTempo(x.reacao_seg) : (x.origem === 'antiga' ? '<span class="mut">antiga</span>' : '<span class="mut">na mão</span>');
+  var et = x.etapa ? '<span class="rb-pill e' + String(x.etapa).charAt(0) + '">' + roboEsc(x.etapa) + '</span>' : '<span class="mut">-</span>';
+  return '<tr class="' + roboEsc(x.status) + '"><td class="st">' + ico + '</td><td class="tit"><div class="rb-cap">' + roboFoto(x) + '<span>' + roboEsc(x.titulo) + '</span></div></td><td>' + org + '</td><td class="num">' + roboQuando(x.inscrita_em) + '</td>'
+    + '<td class="num">' + (ins == null ? '-' : ins) + (x.inscritos_ao_entrar != null && x.inscritos_ao_entrar !== ins ? ' <span class="mut">(eram ' + x.inscritos_ao_entrar + ')</span>' : '') + '</td><td class="num">' + vagasTxt + '</td>'
+    + '<td class="num" style="color:' + cor + ';font-weight:800">' + (ch.v == null ? '-' : (ch.hoje ? '~' : '') + ch.v + '%') + '</td><td class="num">' + pos + '</td><td class="num">' + roboMoeda(x.valor) + (x.precisa_nf ? ' <span title="pede nota fiscal">🧾</span>' : '') + '</td>'
+    + '<td class="num">' + cheg + '</td><td>' + et + '</td><td>' + (x.link ? '<a href="' + roboEsc(x.link) + '" target="_blank" rel="noopener">abrir ↗</a>' : '') + '</td></tr>';
+}
+function roboAprovadasHtml() {
+  var A = roboAprov.slice().sort(function (a, b) { var ea = parseInt(a.etapa, 10), eb = parseInt(b.etapa, 10); ea = isNaN(ea) ? 99 : ea; eb = isNaN(eb) ? 99 : eb; return (ea - eb) || ((a.ordem || 999) - (b.ordem || 999)); });
+  if (!A.length) return '';
+  var soma = A.reduce(function (t, x) { return t + (Number(x.valor) || 0); }, 0), preench = A.filter(function (x) { return x.valor != null; }).length;
+  var linhas = A.map(function (x, idx) {
+    var k = roboEsc(x.chave), et = x.etapa ? '<span class="rb-pill e' + String(x.etapa).charAt(0) + '">' + roboEsc(x.etapa) + '</span>' : '-';
+    return '<tr><td class="num mut">' + (idx + 1) + '</td><td class="tit"><div class="rb-cap">' + roboFoto(x) + '<span>' + roboEsc(x.titulo) + '</span></div></td><td>' + roboEsc(x.marca || '-') + '</td><td>' + et + '</td><td class="mut">' + roboEsc(x.ultima || '-') + '</td>'
+      + '<td class="num"><input class="rb-in" inputmode="decimal" placeholder="R$ 0" data-k="' + k + '" data-c="valor" value="' + (x.valor != null ? Number(x.valor).toLocaleString('pt-BR') : '') + '" onchange="roboSalvar(this)"></td>'
+      + '<td><input class="rb-in obs" placeholder="observação" data-k="' + k + '" data-c="obs" value="' + roboEsc(x.obs || '') + '" onchange="roboSalvar(this)"></td></tr>';
+  }).join('');
+  return '<div class="rb-sec"><h3>✅ Minhas últimas ' + A.length + ' aprovações</h3><span class="sp"></span></div>'
+    + '<div class="rb-tabwrap"><table class="rb-t" style="min-width:860px"><thead><tr><th class="num">#</th><th>Campanha</th><th>Marca</th><th>Etapa</th><th>Última atividade</th><th class="num">Valor combinado</th><th>Observações</th></tr></thead><tbody>' + linhas
+    + '</tbody><tfoot><tr><td></td><td colspan="4">Total dos valores preenchidos (' + preench + ' de ' + A.length + ')</td><td class="num" id="roboSoma">' + roboMoeda(soma) + '</td><td></td></tr></tfoot></table></div>'
+    + '<div class="rb-nota">O Seu Influencer não mostra o valor depois da aprovação, então preencha aqui uma vez e ele fica salvo. As campanhas ficam sempre em ordem de etapa (1, 2, 3...), e a etapa vem do site e atualiza sozinha.</div>';
+}
+async function roboSalvar(el) {
+  var campo = el.dataset.c, v = el.value.trim(), patch = {};
+  if (campo === 'valor') { var n = v === '' ? null : parseFloat(v.replace(/[^\d,.-]/g, '').replace(/\./g, '').replace(',', '.')); if (v !== '' && isNaN(n)) { el.value = ''; return; } patch.valor = n; }
+  else patch.obs = v || null;
+  var r = await sb.from('robo_aprovadas').update(patch).eq('chave', el.dataset.k);
+  if (r.error) { el.style.borderColor = '#EF4444'; el.title = r.error.message; return; }
+  var row = roboAprov.find(function (x) { return x.chave === el.dataset.k; }); if (row) Object.assign(row, patch);
+  el.classList.add('salvo'); setTimeout(function () { el.classList.remove('salvo'); }, 1200);
+  if (campo === 'valor') { var s = document.getElementById('roboSoma'); if (s) s.textContent = roboMoeda(roboAprov.reduce(function (t, x) { return t + (Number(x.valor) || 0); }, 0)); if (n != null) el.value = n.toLocaleString('pt-BR'); }
+}
+function roboCSV() {
+  var cab = ['Status', 'Campanha', 'Origem', 'Inscrita em', 'Inscritos', 'Vagas', 'Chance %', 'Posição', 'Valor', 'Etapa', 'Link'];
+  var q = function (t) { return '"' + String(t == null ? '' : t).replace(/"/g, '""') + '"'; };
+  var linhas = roboLinhas.map(function (x) { return [x.status, x.titulo, x.origem, x.inscrita_em, x.inscritos_agora != null ? x.inscritos_agora : x.inscritos_ao_entrar, x.vagas, roboChance(x).v, x.posicao, x.valor, x.etapa, x.link].map(q).join(';'); });
+  var blob = new Blob(['﻿' + [cab.map(q).join(';')].concat(linhas).join('\n')], { type: 'text/csv;charset=utf-8' });
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'robo-inscricoes.csv'; document.body.appendChild(a); a.click(); a.remove();
+}
 </script>
 <script src="/pw-eye.js"></script>
 </body>

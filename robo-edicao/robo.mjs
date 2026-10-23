@@ -4,7 +4,8 @@
 
    node robo.mjs            roda sem parar (checa a fila a cada minuto)
    node robo.mjs --uma-vez  checa a fila uma vez e sai
-   node robo.mjs --login    guarda o acesso ao admin (usa ROBO_EMAIL e ROBO_SENHA) */
+   node robo.mjs --login    guarda o acesso ao admin (usa ROBO_EMAIL e ROBO_SENHA)
+   node robo.mjs --epidemic guarda a chave do Epidemic Sound (MCP Server API key, conta Pro da Lara) */
 import { spawn, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -183,13 +184,35 @@ async function entregar(p, job, etapas) {
     try { projeto = JSON.parse(fs.readFileSync(path.join(saida, 'projeto.json'), 'utf8')); } catch (_) {}
     try { resumo = fs.readFileSync(path.join(saida, 'resumo.md'), 'utf8').trim(); } catch (_) {}
     if (projeto) {
-        ['mudancas', 'editado_em', 'base_path'].forEach(k => delete projeto[k]);
+        ['mudancas', 'editado_em', 'base_path', 'alternativa'].forEach(k => delete projeto[k]);
         if (base_path) projeto.base_path = base_path;
         projeto.etapas = { feitas: etapas };
+        // opção B (o Claude faz duas edições diferentes do mesmo bruto; a Lara escolhe uma no admin)
+        const alt = await entregarOpcaoB(p, job, versao, etapas);
+        if (alt) projeto.alternativa = alt;
     }
     await proporRegras(p, job);
     await mudar(p, { status: 'previa_pronta', previa_link: link, projeto, previa_path, ajustes: null,
         status_msg: (resumo.split('\n').find(l => l.trim()) || 'Prévia v' + versao + ' no Drive').replace(/^#+\s*/, '').slice(0, 280) });
+}
+
+async function entregarOpcaoB(p, job, versao, etapas) {
+    const saida = path.join(job, 'saida'), previa = path.join(saida, 'previa_b.mp4');
+    let projeto; try { projeto = JSON.parse(fs.readFileSync(path.join(saida, 'projeto_b.json'), 'utf8')); } catch (_) { return null; }
+    if (!fs.existsSync(previa)) return null;
+    const alt = { previa_link: subir(p.drive_pasta_id, previa, 'PREVIA v' + versao + ' B - ' + p.pasta_nome + '.mp4') };
+    try {
+        const leve = path.join(job, 'previa_leve_b.mp4');
+        ffmpeg(['-i', previa, '-vf', "scale='if(gt(iw,ih),-2,720)':'if(gt(iw,ih),720,-2)'", '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '28', '-c:a', 'aac', '-b:a', '96k', '-movflags', '+faststart', leve]);
+        alt.previa_path = await subirStorage(leve, 'pedidos/' + p.id + '/previa_v' + versao + '_b.mp4');
+    } catch (e) { log('prévia B não subiu:', e.message); }
+    const base = path.join(saida, 'base_b.mp4');
+    if (fs.existsSync(base)) {
+        try { projeto.base_path = await subirStorage(base, 'pedidos/' + p.id + '/base_v' + versao + '_b.mp4'); } catch (e) { log('base B não subiu:', e.message); }
+    }
+    projeto.etapas = { feitas: etapas };
+    alt.projeto = projeto;
+    return alt;
 }
 
 /* ── Locução + cenas: Claude escreve locução e prompts, o robô grava a voz, a Lara gera as cenas, o robô monta ── */
@@ -406,7 +429,7 @@ async function aplicarAjustes(p) {
         fs.mkdirSync(path.join(job, 'saida'), { recursive: true });
         fs.writeFileSync(path.join(job, 'saida', 'projeto.json'), JSON.stringify(proj, null, 1));
     }
-    fs.rmSync(path.join(job, 'saida', 'base.mp4'), { force: true });
+    for (const n of ['base.mp4', 'previa_b.mp4', 'base_b.mp4', 'projeto_b.json']) fs.rmSync(path.join(job, 'saida', n), { force: true });
     fs.appendFileSync(path.join(job, 'ajustes_historico.json'), JSON.stringify({ quando: new Date().toISOString(), ajustes: p.ajustes }) + '\n');
     // a V2 é sempre uma edição em cima do que já existe (também no modo cenas), então valem as instruções de edição
     fs.copyFileSync(path.join(DIR, 'INSTRUCOES_EDICAO.md'), path.join(job, 'CLAUDE.md'));
@@ -447,7 +470,7 @@ async function remontar(p) {
     await mudar(p, { status: 'renderizando', status_msg: 'Remontando com as suas ' + mudancas.length + ' mudança(s)' });
     const proj = Object.assign({}, pj); ['etapas', 'base_path', 'mudancas', 'editado_em'].forEach(k => delete proj[k]);
     fs.writeFileSync(path.join(saida, 'projeto.json'), JSON.stringify(proj, null, 1));
-    for (const n of ['previa.mp4', 'base.mp4']) fs.rmSync(path.join(saida, n), { force: true });
+    for (const n of ['previa.mp4', 'base.mp4', 'previa_b.mp4', 'base_b.mp4', 'projeto_b.json']) fs.rmSync(path.join(saida, n), { force: true });
     const fim = await montarProjeto(job);
     if (!fs.existsSync(path.join(saida, 'previa.mp4'))) throw new Error('O montador parou: ' + fim);
     fs.writeFileSync(path.join(saida, 'resumo.md'), 'Nova versão com as suas ' + mudancas.length + ' mudança(s)\n');
@@ -490,7 +513,12 @@ function pedidoMd(p, refs, regras, dic, arquivos) {
     L.push('- Legenda: ' + (p.legenda_modelo ? 'modelo `' + p.legenda_modelo + '` (veja "Legenda" no CLAUDE.md)' : 'SEM legenda (a Lara escolheu não legendar)'));
     if (p.marca_site) L.push('- Site da marca: ' + p.marca_site);
     if (p.marca_redes) L.push('- Redes da marca: ' + p.marca_redes.split('\n').map(s => s.trim()).filter(Boolean).join(' · '));
-    if (arquivos.length) L.push('', '## Arquivos (pasta entrada/)', ...arquivos.map(f => '- ' + f.Path + ' (' + (f.Size / 1048576).toFixed(1) + ' MB)'));
+    if (arquivos.length) {
+        // o Drive aceita vários arquivos com o mesmo nome; na pasta entrada/ só fica um de cada
+        const unicos = new Map();
+        arquivos.forEach(f => { const u = unicos.get(f.Path); unicos.set(f.Path, { f, n: u ? u.n + 1 : 1 }); });
+        L.push('', '## Arquivos (pasta entrada/)', ...[...unicos.values()].map(({ f, n }) => '- ' + f.Path + ' (' + (f.Size / 1048576).toFixed(1) + ' MB)' + (n > 1 ? ' · repetido ' + n + 'x no Drive, só 1 cópia baixada' : '')));
+    }
     L.push('', p.tipo === 'cenas' ? '## Texto da locução ou ideia' : '## Roteiro', p.roteiro || (p.tipo === 'cenas' ? '(sem texto: use as observações)' : '(sem roteiro: siga a fala do bruto)'));
     if (p.observacoes) L.push('', '## Observações da Lara', p.observacoes);
     if (p.rec_gravar) L.push('', '## Gravação de tela do site (pedida)', 'Site: ' + (p.marca_site || '(não informado)'), p.rec_passos || '(sem passo a passo: mostre a página principal e o que o roteiro cita)');
@@ -521,17 +549,36 @@ function passoDoEvento(ev) {
 }
 
 const MCP_VAZIO = path.join(DIR, 'mcp-vazio.json');
-function rodarClaude(job, p, pedidoTexto) {
+const MCP_EPIDEMIC = path.join(DIR, 'mcp-epidemic.json');
+const EPIDEMIC_CHAVE = path.join(DIR, 'epidemic.json');      // só a chave, permissão 600, nunca vai pro GitHub nem pro log
+function chaveEpidemic() {
+    if (process.env.EPIDEMIC_SOUND_MCP_API_KEY) return process.env.EPIDEMIC_SOUND_MCP_API_KEY.trim();
+    try { return String(JSON.parse(fs.readFileSync(EPIDEMIC_CHAVE, 'utf8')).chave || '').trim(); } catch (_) { return ''; }
+}
+/* Único MCP liberado para o robô: o Epidemic Sound (música e efeitos com a licença Pro da Lara).
+   A configuração fica na pasta do robô (fora da pasta do pedido), só com permissão de leitura para o dono. */
+function configMcp() {
     fs.writeFileSync(MCP_VAZIO, '{"mcpServers":{}}');
+    const chave = chaveEpidemic();
+    if (!chave) return { arquivo: MCP_VAZIO, env: {} };
+    fs.writeFileSync(MCP_EPIDEMIC, JSON.stringify({ mcpServers: { 'epidemic-sound': {
+        type: 'http', url: 'https://www.epidemicsound.com/a/mcp-service/mcp',
+        headers: { Authorization: 'Bearer ' + chave } } } }, null, 1), { mode: 0o600 });
+    fs.chmodSync(MCP_EPIDEMIC, 0o600);
+    return { arquivo: MCP_EPIDEMIC, env: {} };
+}
+function rodarClaude(job, p, pedidoTexto) {
+    const mcp = configMcp();
     const prompt = (pedidoTexto || 'Leia CLAUDE.md e PEDIDO.md e faça a edição completa deste pedido sozinho, sem perguntar nada. ' +
-        'No fim precisa existir saida/previa.mp4, saida/projeto.json e saida/resumo.md.') +
+        'No fim precisa existir saida/previa.mp4, saida/projeto.json e saida/resumo.md, e também a opção B ' +
+        '(saida/projeto_b.json montado em saida/previa_b.mp4), como explica "Duas opções" no CLAUDE.md.') +
         ' Antes de cada etapa, escreva uma frase curta em português dizendo o que vai fazer (a Lara acompanha ao vivo).';
     return new Promise(resolve => {
         const logArq = path.join(job, 'claude.log');
-        // Só as ferramentas básicas: nenhum MCP/conector da Lara (Gmail, Metricool, Higgsfield...) roda sem ela ver
+        // Só as ferramentas básicas + Epidemic Sound: nenhum outro MCP/conector da Lara (Gmail, Metricool, Higgsfield...) roda sem ela ver
         const c = spawn(CLAUDE, ['-p', prompt, '--permission-mode', 'bypassPermissions', '--output-format', 'stream-json', '--verbose',
-            '--strict-mcp-config', '--mcp-config', MCP_VAZIO],
-            { cwd: job, stdio: ['ignore', 'pipe', 'pipe'], env: Object.assign({}, process.env, { ENABLE_CLAUDEAI_MCP_SERVERS: 'false' }) });
+            '--strict-mcp-config', '--mcp-config', mcp.arquivo],
+            { cwd: job, stdio: ['ignore', 'pipe', 'pipe'], env: Object.assign({}, process.env, { ENABLE_CLAUDEAI_MCP_SERVERS: 'false' }, mcp.env) });
         let resto = '', ultimoEnvio = 0, ultimaFrase = '';
         const enviar = frase => {
             ultimaFrase = frase;
@@ -711,7 +758,20 @@ async function main() {
         if (!eu.length || eu[0].role !== 'admin') throw new Error('Esse login não é admin do site.');
         return log('Login ok. O robô está ligado ao admin.');
     }
+    if (process.argv.includes('--epidemic')) {
+        const rl = (await import('node:readline')).createInterface({ input: process.stdin, output: process.stdout });
+        const chave = (await new Promise(r => rl.question('Cole a chave do Epidemic Sound (Account > API keys > MCP Server) e aperte Enter: ', r))).trim();
+        rl.close();
+        if (!chave) return log('Nenhuma chave colada. Nada mudou.');
+        fs.writeFileSync(EPIDEMIC_CHAVE, JSON.stringify({ chave, salva_em: new Date().toISOString() }), { mode: 0o600 });
+        const r = await fetch('https://www.epidemicsound.com/a/mcp-service/mcp', { method: 'POST',
+            headers: { Authorization: 'Bearer ' + chave, 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream' },
+            body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-03-26', capabilities: {}, clientInfo: { name: 'robo-edicao', version: '1' } } }) }).catch(e => ({ ok: false, status: e.message }));
+        return log(r.ok ? 'Epidemic Sound ligado: o robô já escolhe música e efeitos sozinho nas próximas edições.'
+            : 'Chave salva, mas o Epidemic não aceitou (' + r.status + '). Confira se copiou a chave do "MCP Server" inteira.');
+    }
     if (await atualizarRobo()) return reiniciar();
+    log('Epidemic Sound: ' + (chaveEpidemic() ? 'ligado (música e efeitos com a licença Pro)' : 'desligado. Para ligar: node robo.mjs --epidemic'));
     log('Robô de edição ligado. Olhando a fila a cada ' + INTERVALO_S + ' s. Deixe esta janela aberta.');
     // Se o robô foi fechado no meio de uma edição, o pedido ficou preso em "editando": volta para recomeçar
     try {

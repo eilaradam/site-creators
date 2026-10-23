@@ -2,6 +2,7 @@
 
 Uso:
   python3 -I montar.py <pasta_do_job>                       gera saida/previa.mp4 e saida/base.mp4
+  python3 -I montar.py <pasta_do_job> --projeto saida/projeto_b.json   opção B: saida/previa_b.mp4 e saida/base_b.mp4
   python3 -I montar.py <pasta_do_job> --legendas palavras.json
       cria as camadas de legenda no projeto.json (uma camada por tela, no modelo do projeto) e sai
 
@@ -44,10 +45,62 @@ TITULOS = os.path.join(DIR, "titulos")
 IMAGEM = re.compile(r"\.(png|jpe?g|webp)$", re.I)
 
 
+_FF_VERSAO = None
+
+
+def ffmpeg_versao():
+    """Versão principal do ffmpeg instalado (ex.: 9). 0 se não der para saber."""
+    global _FF_VERSAO
+    if _FF_VERSAO is None:
+        try:
+            r = subprocess.run(["ffmpeg", "-version"], capture_output=True, text=True)
+            m = re.search(r"ffmpeg version n?(\d+)", r.stdout)
+            _FF_VERSAO = int(m.group(1)) if m else 0
+        except Exception:
+            _FF_VERSAO = 0
+    return _FF_VERSAO
+
+
 def ff(args, quieto=True):
+    # Do ffmpeg 7 em diante o grafo em arquivo é "-/filter_complex arquivo";
+    # o ffmpeg 9 não aceita mais o antigo "-filter_complex_script".
+    if ffmpeg_versao() >= 7:
+        args = ["-/filter_complex" if a == "-filter_complex_script" else a for a in args]
     r = subprocess.run(["ffmpeg", "-v", "error", "-y"] + args, capture_output=True, text=True)
     if r.returncode != 0:
         raise SystemExit("ffmpeg: " + (r.stderr.strip().splitlines() or ["erro"])[-1])
+
+
+def medir_volume(arq):
+    """Loudness integrada (LUFS) e pico real (dBTP) do áudio do arquivo."""
+    r = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-i", arq, "-map", "0:a:0", "-af", "ebur128=peak=true", "-f", "null", "-"],
+                       capture_output=True, text=True)
+    txt = r.stderr.split("Summary:")[-1]
+    i = re.search(r"I:\s+(-?[\d.]+) LUFS", txt)
+    tp = re.search(r"Peak:\s+(-?[\d.]+) dBFS", txt)
+    return (float(i.group(1)) if i else None), (float(tp.group(1)) if tp else None)
+
+
+def acertar_volume(arq, alvo=-14.0, teto=-1.0):
+    """Segunda passada: o loudnorm numa passada só fica abaixo do alvo (ex.: -16,3 LUFS).
+    Mede o arquivo pronto e corrige só o ganho do áudio, sem passar do teto de pico."""
+    if not os.path.exists(arq) or not tem_audio(arq):
+        return
+    lufs, _ = medir_volume(arq)
+    if lufs is None:
+        return
+    ganho = max(-6.0, min(6.0, alvo - lufs))
+    if abs(ganho) < 0.3:
+        return
+    # o limitador segura os picos que o ganho empurraria acima do teto (-1 dBTP com folga)
+    limite = 10 ** ((teto - 0.5) / 20)
+    filtro = "volume=%.2fdB,alimiter=limit=%.3f:attack=2:release=50:level=false" % (ganho, limite)
+    tmp = arq + ".vol.mp4"
+    ff(["-i", arq, "-map", "0", "-c:v", "copy", "-af", filtro, "-c:a", "aac",
+        "-b:a", "192k", "-movflags", "+faststart", tmp])
+    os.replace(tmp, arq)
+    depois, pico = medir_volume(arq)
+    print("montar: volume acertado de %.1f para %s LUFS (pico %s dBTP)" % (lufs, depois, pico), flush=True)
 
 
 def tem_audio(arq):
@@ -61,9 +114,12 @@ def hash_de(*partes):
 
 
 class Projeto:
-    def __init__(self, job):
+    def __init__(self, job, arq=None):
         self.job = os.path.abspath(job)
-        self.arq = os.path.join(self.job, "saida", "projeto.json")
+        self.arq = os.path.join(self.job, arq) if arq else os.path.join(self.job, "saida", "projeto.json")
+        # opção B (saida/projeto_b.json) sai como previa_b.mp4, base_b.mp4 e legendas_b.srt
+        m = re.match(r"projeto(_\w+)?\.json$", os.path.basename(self.arq))
+        self.sufixo = (m.group(1) or "") if m else "_" + os.path.splitext(os.path.basename(self.arq))[0]
         self.p = json.load(open(self.arq, encoding="utf-8"))
         self.W, self.H = TAMANHO.get(self.p.get("formato") or "9:16", (1080, 1920))
         self.cache = os.path.join(self.job, "work", "montar")
@@ -79,7 +135,7 @@ class Projeto:
         if not nome:
             raise SystemExit("camada sem arquivo")
         for c in [nome, os.path.join(self.job, nome), os.path.join(self.job, "entrada", nome), os.path.join(self.job, "work", nome),
-                  os.path.join(self.job, "work", "sfx", nome), os.path.join(self.job, "saida", nome)]:
+                  os.path.join(self.job, "work", "sfx", nome), os.path.join(self.job, "work", "musica", nome), os.path.join(self.job, "saida", nome)]:
             if os.path.isfile(c):
                 return os.path.abspath(c)
         if self._sons is None:
@@ -235,11 +291,11 @@ def montar(pj):
     with ThreadPoolExecutor(max_workers=max(2, min(6, (os.cpu_count() or 4) // 2))) as ex:
         novos = sum(ex.map(fazer_trecho, tarefas))
     print("montar: %d trecho(s) refeitos, %d reaproveitados" % (novos, len(tarefas) - novos), flush=True)
-    lista = os.path.join(pj.cache, "lista.txt")
+    lista = os.path.join(pj.cache, "lista" + pj.sufixo + ".txt")
     with open(lista, "w") as f:
         for tf in tarefas:
             f.write("file '%s'\n" % tf[0].replace("'", "'\\''"))
-    emendado = os.path.join(pj.cache, "emendado.mp4")
+    emendado = os.path.join(pj.cache, "emendado" + pj.sufixo + ".mp4")
     ff(["-f", "concat", "-safe", "0", "-i", lista, "-c", "copy", emendado])
 
     entradas = ["-i", emendado]
@@ -298,14 +354,14 @@ def montar(pj):
         grupos, fins = telas_de_legenda(pj)
         if grupos:
             ass, linhas = legendas_ass.gerar_ass(grupos, m, W, H, pj.p.get("marca") or "", leg.get("posicao"), fins)
-            arq_ass = os.path.join(pj.cache, "legenda.ass")
+            arq_ass = os.path.join(pj.cache, "legenda" + pj.sufixo + ".ass")
             open(arq_ass, "w", encoding="utf-8").write(ass)
             esc = lambda s: s.replace("\\", "/").replace(":", "\\:").replace("'", "\\'")
             filtros.append("%sass='%s':fontsdir='%s'[leg]" % (v, esc(arq_ass), esc(FONTES)))
             v = "[leg]"
     srt_txt = srt(pj)
     if srt_txt:
-        open(os.path.join(pj.job, "saida", "legendas.srt"), "w", encoding="utf-8").write(srt_txt)
+        open(os.path.join(pj.job, "saida", "legendas" + pj.sufixo + ".srt"), "w", encoding="utf-8").write(srt_txt)
 
     # 3) títulos da biblioteca por cima de tudo
     for c in pj.camadas("animacao"):
@@ -356,25 +412,27 @@ def montar(pj):
     filtros.append("%samix=inputs=%d:normalize=0:duration=first,afade=t=in:d=0.3,afade=t=out:st=%.3f:d=0.3,"
                    "loudnorm=I=-14:TP=-1:LRA=11,aresample=48000,asplit=2[a1][a2]" % ("".join(mix), len(mix), max(0, total - 0.3)))
 
-    grafo = os.path.join(pj.cache, "grafo.txt")
+    grafo = os.path.join(pj.cache, "grafo" + pj.sufixo + ".txt")
     open(grafo, "w", encoding="utf-8").write(";\n".join(filtros))
-    previa = os.path.join(pj.job, "saida", "previa.mp4")
-    base = os.path.join(pj.job, "saida", "base.mp4")
+    previa = os.path.join(pj.job, "saida", "previa" + pj.sufixo + ".mp4")
+    base = os.path.join(pj.job, "saida", "base" + pj.sufixo + ".mp4")
     print("montar: juntando legenda, títulos e som", flush=True)
     ff(entradas + ["-filter_complex_script", grafo,
                    "-map", v, "-map", "[a1]", "-t", "%.3f" % total, "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p",
                    "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", previa,
                    "-map", "[base720]", "-map", "[a2]", "-t", "%.3f" % total, "-c:v", "libx264", "-preset", "veryfast", "-crf", "28", "-pix_fmt", "yuv420p",
                    "-c:a", "aac", "-b:a", "96k", "-movflags", "+faststart", base])
+    for arq in (previa, base):
+        acertar_volume(arq)
     pj.p["duracao_s"] = total
     json.dump(pj.p, open(pj.arq, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-    print("montar: pronto, %.1f s → saida/previa.mp4" % total)
+    print("montar: pronto, %.1f s → saida/previa%s.mp4" % (total, pj.sufixo))
 
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         raise SystemExit(__doc__)
-    pj = Projeto(sys.argv[1])
+    pj = Projeto(sys.argv[1], sys.argv[sys.argv.index("--projeto") + 1] if "--projeto" in sys.argv else None)
     if "--legendas" in sys.argv:
         criar_legendas(pj, sys.argv[sys.argv.index("--legendas") + 1])
     else:
