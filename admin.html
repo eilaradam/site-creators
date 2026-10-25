@@ -14724,11 +14724,22 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         { nome: 'carvão',  fundo: '#161113', texto: '#F5EDEF', dest: '#FF708F' },
         { nome: 'verde',   fundo: '#123B32', texto: '#EAF6F0', dest: '#5CCFA0' },
         { nome: 'papel',   fundo: '#FBF8F4', texto: '#211D1A', dest: '#7B3E1B' },
+        { nome: 'vermelho', fundo: '#B8273F', texto: '#FFF2E8', dest: '#F7C9D4' },
+        { nome: 'minimal',  fundo: '#F6F1E8', texto: '#1C1610', dest: '#C23B2A' },
+        { nome: 'terracota', fundo: '#F4E8E1', texto: '#FFFFFF', dest: '#7B3E1B' },
+        { nome: 'noturno',  fundo: '#2B2420', texto: '#F3ECE6', dest: '#D9A86C' },
     ];
+    /* Os 4 modelos novos (pop/app/cartao/revista) vieram de 15 referências que a Lara
+       mandou, agrupadas em 4 famílias de estilo. Testados fora do admin antes de entrar
+       aqui, pra conferir fonte e contraste com um render de verdade. */
     const CAR_MODELOS = [
         ['editorial', 'Editorial'],
         ['bloco',     'Bloco'],
         ['anotacao',  'Anotação'],
+        ['pop',       'Pop'],
+        ['app',       'Interface'],
+        ['cartao',    'Cartão'],
+        ['revista',   'Revista'],
     ];
 
     function carNovo() {
@@ -14779,6 +14790,17 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         ctx.beginPath();
         if (ctx.roundRect) ctx.roundRect(x, y, w, h, r); else ctx.rect(x, y, w, h);
         ctx.fill();
+    }
+    /* forma organica tipo flor/respingo, usada no modelo "pop" */
+    function carFlor(ctx, cx, cy, r, pontas, cor) {
+        ctx.fillStyle = cor;
+        ctx.beginPath();
+        for (let k = 0; k < pontas; k++) {
+            const ang = (k / pontas) * Math.PI * 2;
+            ctx.arc(cx + Math.cos(ang) * r * 0.62, cy + Math.sin(ang) * r * 0.62, r * 0.42, 0, Math.PI * 2);
+        }
+        ctx.fill();
+        ctx.beginPath(); ctx.arc(cx, cy, r * 0.62, 0, Math.PI * 2); ctx.fill();
     }
 
     /* ── os três modelos ── */
@@ -14879,6 +14901,97 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                 ctx.fillStyle = c.dest; ctx.textAlign = 'right';
                 ctx.font = '700 32px "DM Sans", sans-serif';
                 ctx.fillText('↳ arrasta', CAR_W - 104, CAR_H - 100); ctx.textAlign = 'left';
+            }
+        },
+        /* pop: fundo cheio, forma organica atras, titulo bem bold, chip de frase embaixo */
+        pop: function (ctx, s, i, n, c, arroba) {
+            ctx.fillStyle = c.fundo; ctx.fillRect(0, 0, CAR_W, CAR_H);
+            ctx.fillStyle = c.texto; ctx.globalAlpha = .8;
+            ctx.font = '600 26px "DM Sans", sans-serif';
+            ctx.fillText(arroba, 96, 110);
+            ctx.textAlign = 'right'; ctx.fillText('estratégia de criação', CAR_W - 96, 110); ctx.textAlign = 'left';
+            ctx.globalAlpha = 1;
+            carFlor(ctx, CAR_W / 2, 1040, 420, 14, c.dest);
+            ctx.fillStyle = c.texto;
+            carTextoCaixa(ctx, s.titulo, { x: 96, y: 220, larg: CAR_W - 192, alt: 540, max: 108, min: 48, entre: 1.04, peso: '400', fonte: '"Archivo Black", sans-serif' });
+            if (s.texto) {
+                ctx.font = '700 36px "DM Sans", sans-serif';
+                const w = Math.min(CAR_W - 192, ctx.measureText(s.texto).width + 56);
+                ctx.fillStyle = c.fundo; carRet(ctx, 96, 1130, w, 72, 36);
+                ctx.fillStyle = c.texto; ctx.textAlign = 'left';
+                ctx.fillText(s.texto, 96 + 28, 1176);
+            }
+            if (i < n - 1) { ctx.fillStyle = c.texto; ctx.globalAlpha = .85; ctx.textAlign = 'right'; ctx.font = '700 30px "DM Sans", sans-serif'; ctx.fillText('arrasta →', CAR_W - 96, CAR_H - 90); ctx.textAlign = 'left'; ctx.globalAlpha = 1; }
+        },
+        /* app: fundo claro, titulo preto solido, balao de chat com o subtexto */
+        app: function (ctx, s, i, n, c, arroba) {
+            ctx.fillStyle = c.fundo; ctx.fillRect(0, 0, CAR_W, CAR_H);
+            ctx.fillStyle = c.texto; ctx.globalAlpha = .7;
+            ctx.font = '600 26px "DM Sans", sans-serif';
+            ctx.fillText(arroba, 96, 110);
+            ctx.textAlign = 'right'; ctx.fillText('conteúdo', CAR_W - 96, 110); ctx.textAlign = 'left';
+            ctx.globalAlpha = 1;
+            const t = carTextoCaixa(ctx, s.titulo, { x: 96, y: 210, larg: CAR_W - 192, alt: 480, max: 100, min: 46, entre: 1.06, peso: '800', fonte: '"Montserrat", sans-serif' });
+            if (s.texto) {
+                const padX = 36, padY = 26;
+                ctx.font = '600 38px "DM Sans", sans-serif';
+                const linhas = carQuebra(ctx, s.texto, 640);
+                const largMax = Math.max.apply(null, linhas.map(function (l) { return ctx.measureText(l).width; })) + padX * 2;
+                const altura = linhas.length * 50 + padY * 2;
+                const y0 = t.fim + 50;
+                ctx.fillStyle = c.dest; carRet(ctx, 96, y0, largMax, altura, 28);
+                ctx.fillStyle = c.fundo;
+                let y = y0 + padY + 36;
+                linhas.forEach(function (l) { ctx.fillText(l, 96 + padX, y); y += 50; });
+                carRet(ctx, 96 + 30, y0 + altura - 2, 30, 24, 8);
+            }
+            ctx.strokeStyle = c.dest; ctx.lineWidth = 3;
+            carRet(ctx, CAR_W - 230, CAR_H - 220, 134, 134, 20);
+            ctx.fillStyle = c.fundo; carRet(ctx, CAR_W - 222, CAR_H - 212, 118, 118, 14);
+            ctx.fillStyle = c.dest;
+            ctx.font = '600 22px "DM Sans", sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText('toque aqui', CAR_W - 230 + 67, CAR_H - 70); ctx.textAlign = 'left';
+        },
+        /* cartao: fundo quente, cartao claro com sombra, chip de destaque embaixo */
+        cartao: function (ctx, s, i, n, c, arroba) {
+            ctx.fillStyle = c.fundo; ctx.fillRect(0, 0, CAR_W, CAR_H);
+            ctx.fillStyle = c.dest; ctx.globalAlpha = .9;
+            ctx.font = '700 28px "DM Mono", monospace';
+            ctx.fillText(String(i + 1).padStart(2, '0'), 96, 130);
+            ctx.globalAlpha = 1;
+            ctx.save();
+            ctx.shadowColor = 'rgba(0,0,0,.18)'; ctx.shadowBlur = 36; ctx.shadowOffsetY = 18;
+            ctx.fillStyle = '#FFFEFC'; carRet(ctx, 96, 200, CAR_W - 192, 760, 36);
+            ctx.restore();
+            ctx.fillStyle = '#211A14';
+            carTextoCaixa(ctx, s.titulo, { x: 150, y: 270, larg: CAR_W - 300, alt: 440, max: 84, min: 40, entre: 1.12, peso: '700', fonte: '"Be Vietnam Pro", sans-serif' });
+            if (s.texto) {
+                ctx.save();
+                ctx.shadowColor = 'rgba(0,0,0,.16)'; ctx.shadowBlur = 24; ctx.shadowOffsetY = 10;
+                ctx.fillStyle = c.dest; carRet(ctx, 150, 1020, CAR_W - 300, 220, 28);
+                ctx.restore();
+                ctx.fillStyle = '#FFFEFC';
+                carTextoCaixa(ctx, s.texto, { x: 190, y: 1060, larg: CAR_W - 380, alt: 150, max: 40, min: 26, entre: 1.4, peso: '600', fonte: '"DM Sans", sans-serif', meio: true });
+            }
+            ctx.fillStyle = c.dest; ctx.globalAlpha = .9;
+            ctx.font = '600 26px "DM Sans", sans-serif';
+            ctx.fillText(arroba, 96, CAR_H - 90);
+            ctx.globalAlpha = 1;
+        },
+        /* revista: editorial com serifa italica grande, sem foto por enquanto */
+        revista: function (ctx, s, i, n, c, arroba) {
+            ctx.fillStyle = c.fundo; ctx.fillRect(0, 0, CAR_W, CAR_H);
+            ctx.fillStyle = c.dest; ctx.globalAlpha = .55;
+            ctx.font = 'italic 400 34px "DM Serif Display", serif';
+            ctx.fillText('— ' + arroba, 96, 150);
+            ctx.globalAlpha = 1;
+            carTextoCaixa(ctx, s.titulo, { x: 96, y: 260, larg: CAR_W - 192, alt: 820, max: 120, min: 46, entre: 1.0, peso: 'italic 400', fonte: '"DM Serif Display", serif' });
+            if (s.texto) {
+                ctx.strokeStyle = c.dest; ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.moveTo(96, 1140); ctx.lineTo(96 + 120, 1140); ctx.stroke();
+                ctx.fillStyle = c.texto; ctx.globalAlpha = .82;
+                carTextoCaixa(ctx, s.texto, { x: 96, y: 1180, larg: CAR_W - 192, alt: 140, max: 36, min: 24, entre: 1.45, peso: '400', fonte: '"DM Sans", sans-serif' });
+                ctx.globalAlpha = 1;
             }
         },
     };
