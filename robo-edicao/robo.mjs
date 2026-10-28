@@ -213,7 +213,7 @@ async function entregar(p, job, etapas) {
     let previa_path = p.previa_path || null;
     try {
         const leve = path.join(job, 'previa_leve.mp4');
-        ffmpeg(['-i', previa, '-vf', "scale='if(gt(iw,ih),-2,720)':'if(gt(iw,ih),720,-2)'", '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '28', '-c:a', 'aac', '-b:a', '96k', '-movflags', '+faststart', leve]);
+        ffmpeg(['-i', previa, '-vf', "scale='if(gt(iw,ih),-2,1080)':'if(gt(iw,ih),1080,-2)'", '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '23', '-c:a', 'aac', '-b:a', '96k', '-movflags', '+faststart', leve]);
         previa_path = await subirStorage(leve, 'pedidos/' + p.id + '/previa_v' + versao + '.mp4');
     } catch (e) { log('prévia leve não subiu:', e.message); }
     // base sem legenda e sem títulos (feita pelo montar.py): é nela que a Lara reedita no admin
@@ -246,7 +246,7 @@ async function entregarOpcaoB(p, job, versao, etapas) {
     const alt = { previa_link: subir(p.drive_pasta_id, previa, 'PREVIA v' + versao + ' B - ' + p.pasta_nome + '.mp4') };
     try {
         const leve = path.join(job, 'previa_leve_b.mp4');
-        ffmpeg(['-i', previa, '-vf', "scale='if(gt(iw,ih),-2,720)':'if(gt(iw,ih),720,-2)'", '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '28', '-c:a', 'aac', '-b:a', '96k', '-movflags', '+faststart', leve]);
+        ffmpeg(['-i', previa, '-vf', "scale='if(gt(iw,ih),-2,1080)':'if(gt(iw,ih),1080,-2)'", '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '23', '-c:a', 'aac', '-b:a', '96k', '-movflags', '+faststart', leve]);
         alt.previa_path = await subirStorage(leve, 'pedidos/' + p.id + '/previa_v' + versao + '_b.mp4');
     } catch (e) { log('prévia B não subiu:', e.message); }
     const base = path.join(saida, 'base_b.mp4');
@@ -628,7 +628,9 @@ function rodarClaude(job, p, pedidoTexto) {
         // Só as ferramentas básicas + Epidemic Sound: nenhum outro MCP/conector da Lara (Gmail, Metricool, Higgsfield...) roda sem ela ver
         const c = spawn(CLAUDE, ['-p', prompt, '--permission-mode', 'bypassPermissions', '--output-format', 'stream-json', '--verbose',
             '--strict-mcp-config', '--mcp-config', mcp.arquivo],
-            { cwd: job, stdio: ['ignore', 'pipe', 'pipe'], env: Object.assign({}, process.env, { ENABLE_CLAUDEAI_MCP_SERVERS: 'false' }, mcp.env) });
+            { cwd: job, stdio: ['ignore', 'pipe', 'pipe'], detached: true, env: Object.assign({}, process.env, { ENABLE_CLAUDEAI_MCP_SERVERS: 'false' }, mcp.env) });
+        // detached: o Claude e tudo que ele abriu (python, ffmpeg, recorte...) ficam num grupo que dá para parar de uma vez
+        const parar = () => { try { process.kill(-c.pid, 'SIGTERM'); } catch (_) { try { c.kill('SIGTERM'); } catch (__) {} } };
         let resto = '', ultimoEnvio = 0, ultimaFrase = '';
         const enviar = frase => {
             ultimaFrase = frase;
@@ -650,6 +652,10 @@ function rodarClaude(job, p, pedidoTexto) {
         let ultimoProjeto = '';
         const vigia = setInterval(() => {
             if (!p.id) return;
+            // ela clicou em Cancelar no admin: para o Claude na hora (antes ele seguia até o fim)
+            db('edicao_pedidos?id=eq.' + p.id + '&select=status').then(r => {
+                if (r && r[0] && r[0].status === 'cancelado' && !p._cancelado) { p._cancelado = true; log('#' + p.numero, 'cancelado no admin: parei a edição'); parar(); }
+            }).catch(() => {});
             const ler = n => { try { return JSON.parse(fs.readFileSync(path.join(job, 'saida', n), 'utf8')); } catch (_) { return null; } };
             const prog = ler('progresso.json'), proj = ler('projeto.json');
             if (!prog && !proj) return;
@@ -659,7 +665,7 @@ function rodarClaude(job, p, pedidoTexto) {
             db('edicao_pedidos?id=eq.' + p.id, { metodo: 'PATCH', corpo: { projeto: JSON.parse(novo), updated_at: new Date().toISOString() } }).catch(() => {});
         }, 15000);
         c.on('exit', () => clearInterval(vigia));
-        const t = setTimeout(() => { c.kill('SIGTERM'); resolve(false); }, LIMITE_EDICAO_MIN * 60000);
+        const t = setTimeout(() => { parar(); resolve(false); }, LIMITE_EDICAO_MIN * 60000);
         c.on('error', e => { fs.appendFileSync(logArq, '\n[robô] ' + e.message + '\n'); clearTimeout(t); resolve(false); });
         c.on('exit', code => { clearTimeout(t); resolve(code === 0); });
     });
@@ -676,6 +682,7 @@ async function rodada() {
             if (p.status === 'ajustes_na_fila') await aplicarAjustes(p);
             if (p.status === 'remontar_na_fila') await remontar(p);
         } catch (e) {
+            if (p._cancelado) { await mudar(p, { status: 'cancelado', status_msg: 'Cancelado por você no meio da edição' }).catch(() => {}); continue; }
             log('#' + p.numero, 'ERRO', e.message);
             await mudar(p, { status: 'erro', status_msg: e.message.slice(0, 280) }).catch(() => {});
         }
