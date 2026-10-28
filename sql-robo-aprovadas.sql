@@ -27,3 +27,7 @@ insert into public.robo_aprovadas (chave,titulo,marca,etapa,ultima,ordem) values
 ('creatina rosa sabor pi','Creatina Rosa Sabor Pink Lemonade Desenvolvida Especialmente Para Mulheres. Fórm',null,'3 - Roteiro em andamento','17:29 - 14/10',9),
 ('preciso de criadores d','Preciso De Criadores De Contudo Para Gravar Videos De Iphone, Produtos De Casa E',null,'7 - Pagamento','12:36 - 14/10',10)
 on conflict (chave) do update set etapa=excluded.etapa, ultima=excluded.ultima, ordem=excluded.ordem, atualizado_em=now();
+
+-- Data em que a marca aprovou (base dos prazos: roteiro em 3 dias, vídeo 5 dias depois do roteiro).
+-- O robô preenche sozinho quando pega a campanha na etapa "1 - Aprovado"; a Lara pode corrigir no painel.
+alter table public.robo_aprovadas add column if not exists aprovada_em date;

@@ -4306,6 +4306,11 @@
 #tabRobo .rb-in { width:110px; border:1px solid var(--border-strong); border-radius:8px; padding:6px 8px; font:inherit; font-size:13px; background:var(--card); color:var(--text); text-align:right; }
 #tabRobo .rb-in.obs { width:100%; min-width:180px; text-align:left; }
 #tabRobo .rb-in.salvo { border-color:#10B981; }
+#tabRobo .rb-in.dt { width:130px; text-align:left; }
+#tabRobo .rb-pz { white-space:nowrap; font-weight:700; } #tabRobo .rb-pz small { display:block; font-weight:600; font-size:11px; }
+#tabRobo .rb-pz.atraso { color:#B91C1C; } #tabRobo .rb-pz.perto { color:#A86A00; } #tabRobo .rb-pz.ok { color:var(--text); } #tabRobo .rb-pz.feito { color:#047857; font-weight:600; }
+#tabRobo .rb-prox { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 12px; } #tabRobo .rb-prox span { border:1px solid var(--border-strong); border-radius:999px; padding:5px 11px; font-size:13px; background:var(--card); }
+#tabRobo .rb-prox span.atraso { border-color:#EF4444; color:#B91C1C; } #tabRobo .rb-prox span.perto { border-color:#F59E0B; color:#A86A00; }
 #tabRobo .rb-cap { display:flex; gap:10px; align-items:center; }
 #tabRobo .rb-ft { flex:none; width:38px; height:38px; border-radius:10px; object-fit:cover; background:var(--warm); display:block; }
 #tabRobo .rb-ft.ph { display:grid; place-items:center; font-weight:800; color:var(--accent); font-size:15px; }
@@ -20898,29 +20903,63 @@ function roboLinha(x) {
     + '<td class="num" style="color:' + cor + ';font-weight:800">' + (ch.v == null ? '-' : (ch.hoje ? '~' : '') + ch.v + '%') + '</td><td class="num">' + pos + '</td><td class="num">' + roboMoeda(x.valor) + (x.precisa_nf ? ' <span title="pede nota fiscal">🧾</span>' : '') + '</td>'
     + '<td class="num">' + cheg + '</td><td>' + et + '</td><td>' + (x.link ? '<a href="' + roboEsc(x.link) + '" target="_blank" rel="noopener">abrir ↗</a>' : '') + '</td></tr>';
 }
+// Prazos do Seu Influencer: roteiro 3 dias depois da aprovacao, video 5 dias depois do prazo do roteiro.
+// Etapas do site: 1 Aprovado, 3 Roteiro em andamento, 4 Aprovar roteiro, 5 Em gravacao, 6 Aprovar gravacao, 7 Pagamento, 8 Concluido.
+function roboPrazos(x) {
+  var et = parseInt(x.etapa, 10); if (isNaN(et)) et = 0;
+  var base = x.aprovada_em ? new Date(x.aprovada_em + 'T12:00:00') : null;
+  var mais = function (d) { if (!base) return null; var r = new Date(base); r.setDate(r.getDate() + d); return r; };
+  return { roteiro: { ate: mais(3), feito: et >= 4 }, video: { ate: mais(8), feito: et >= 6 } };
+}
+function roboPrazoInfo(p) {
+  if (p.feito) return { cls: 'feito', txt: '✓ entregue' };
+  if (!p.ate) return null;
+  var hoje = new Date(); hoje.setHours(12, 0, 0, 0);
+  var dias = Math.round((p.ate - hoje) / 864e5), dm = p.ate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  var falta = dias < 0 ? 'atrasado ' + (-dias) + (dias === -1 ? ' dia' : ' dias') : dias === 0 ? 'é hoje' : dias === 1 ? 'amanhã' : 'em ' + dias + ' dias';
+  return { cls: dias < 0 ? 'atraso' : dias <= 1 ? 'perto' : 'ok', txt: dm, falta: falta, dias: dias, dm: dm };
+}
+function roboPrazoCel(p) {
+  var i = roboPrazoInfo(p);
+  if (!i) return '<span class="mut">preencha a aprovação</span>';
+  return '<span class="rb-pz ' + i.cls + '">' + i.txt + (i.falta ? '<small>' + i.falta + '</small>' : '') + '</span>';
+}
+function roboProximas(A) {
+  var L = [];
+  A.forEach(function (x) { var p = roboPrazos(x); [['roteiro', 'Roteiro'], ['video', 'Vídeo']].forEach(function (k) { var i = roboPrazoInfo(p[k[0]]); if (i && i.cls !== 'feito') L.push({ i: i, t: k[1] + ' · ' + (x.marca || x.titulo).slice(0, 28) }); }); });
+  if (!L.length) return '';
+  L.sort(function (a, b) { return a.i.dias - b.i.dias; });
+  return '<div class="rb-prox">' + L.map(function (e) { return '<span class="' + e.i.cls + '"><b>' + e.i.dm + '</b> ' + roboEsc(e.t) + ' <span class="mut" style="border:0;padding:0;background:none">(' + e.i.falta + ')</span></span>'; }).join('') + '</div>';
+}
 function roboAprovadasHtml() {
   var A = roboAprov.slice().sort(function (a, b) { var ea = parseInt(a.etapa, 10), eb = parseInt(b.etapa, 10); ea = isNaN(ea) ? 99 : ea; eb = isNaN(eb) ? 99 : eb; return (ea - eb) || ((a.ordem || 999) - (b.ordem || 999)); });
   if (!A.length) return '';
   var soma = A.reduce(function (t, x) { return t + (Number(x.valor) || 0); }, 0), preench = A.filter(function (x) { return x.valor != null; }).length;
   var linhas = A.map(function (x, idx) {
     var k = roboEsc(x.chave), et = x.etapa ? '<span class="rb-pill e' + String(x.etapa).charAt(0) + '">' + roboEsc(x.etapa) + '</span>' : '-';
+    var pz = roboPrazos(x);
     return '<tr><td class="num mut">' + (idx + 1) + '</td><td class="tit"><div class="rb-cap">' + roboFoto(x) + '<span>' + roboEsc(x.titulo) + '</span></div></td><td>' + roboEsc(x.marca || '-') + '</td><td>' + et + '</td><td class="mut">' + roboEsc(x.ultima || '-') + '</td>'
+      + '<td><input class="rb-in dt" type="date" data-k="' + k + '" data-c="aprovada_em" value="' + roboEsc(x.aprovada_em || '') + '" onchange="roboSalvar(this)"></td>'
+      + '<td>' + roboPrazoCel(pz.roteiro) + '</td><td>' + roboPrazoCel(pz.video) + '</td>'
       + '<td class="num"><input class="rb-in" inputmode="decimal" placeholder="R$ 0" data-k="' + k + '" data-c="valor" value="' + (x.valor != null ? Number(x.valor).toLocaleString('pt-BR') : '') + '" onchange="roboSalvar(this)"></td>'
       + '<td><input class="rb-in obs" placeholder="observação" data-k="' + k + '" data-c="obs" value="' + roboEsc(x.obs || '') + '" onchange="roboSalvar(this)"></td></tr>';
   }).join('');
   return '<div class="rb-sec"><h3>✅ Minhas últimas ' + A.length + ' aprovações</h3><span class="sp"></span></div>'
-    + '<div class="rb-tabwrap"><table class="rb-t" style="min-width:860px"><thead><tr><th class="num">#</th><th>Campanha</th><th>Marca</th><th>Etapa</th><th>Última atividade</th><th class="num">Valor combinado</th><th>Observações</th></tr></thead><tbody>' + linhas
-    + '</tbody><tfoot><tr><td></td><td colspan="4">Total dos valores preenchidos (' + preench + ' de ' + A.length + ')</td><td class="num" id="roboSoma">' + roboMoeda(soma) + '</td><td></td></tr></tfoot></table></div>'
-    + '<div class="rb-nota">O Seu Influencer não mostra o valor depois da aprovação, então preencha aqui uma vez e ele fica salvo. As campanhas ficam sempre em ordem de etapa (1, 2, 3...), e a etapa vem do site e atualiza sozinha.</div>';
+    + roboProximas(A)
+    + '<div class="rb-tabwrap"><table class="rb-t" style="min-width:1180px"><thead><tr><th class="num">#</th><th>Campanha</th><th>Marca</th><th>Etapa</th><th>Última atividade</th><th>Aprovada em</th><th>Roteiro até</th><th>Vídeo até</th><th class="num">Valor combinado</th><th>Observações</th></tr></thead><tbody>' + linhas
+    + '</tbody><tfoot><tr><td></td><td colspan="7">Total dos valores preenchidos (' + preench + ' de ' + A.length + ')</td><td class="num" id="roboSoma">' + roboMoeda(soma) + '</td><td></td></tr></tfoot></table></div>'
+    + '<div class="rb-nota">O Seu Influencer não mostra o valor depois da aprovação, então preencha aqui uma vez e ele fica salvo. Prazos: roteiro 3 dias depois da aprovação e vídeo 5 dias depois do roteiro. O robô anota a data de aprovação quando pega a campanha na etapa 1; se faltar ou estiver errada, corrija em "Aprovada em". As campanhas ficam sempre em ordem de etapa (1, 2, 3...), e a etapa vem do site e atualiza sozinha.</div>';
 }
 async function roboSalvar(el) {
   var campo = el.dataset.c, v = el.value.trim(), patch = {};
   if (campo === 'valor') { var n = v === '' ? null : parseFloat(v.replace(/[^\d,.-]/g, '').replace(/\./g, '').replace(',', '.')); if (v !== '' && isNaN(n)) { el.value = ''; return; } patch.valor = n; }
+  else if (campo === 'aprovada_em') patch.aprovada_em = v || null;
   else patch.obs = v || null;
   var r = await sb.from('robo_aprovadas').update(patch).eq('chave', el.dataset.k);
   if (r.error) { el.style.borderColor = '#EF4444'; el.title = r.error.message; return; }
   var row = roboAprov.find(function (x) { return x.chave === el.dataset.k; }); if (row) Object.assign(row, patch);
   el.classList.add('salvo'); setTimeout(function () { el.classList.remove('salvo'); }, 1200);
+  if (campo === 'aprovada_em') { roboRender(); return; }
   if (campo === 'valor') { var s = document.getElementById('roboSoma'); if (s) s.textContent = roboMoeda(roboAprov.reduce(function (t, x) { return t + (Number(x.valor) || 0); }, 0)); if (n != null) el.value = n.toLocaleString('pt-BR'); }
 }
 function roboCSV() {
