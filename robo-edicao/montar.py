@@ -22,8 +22,8 @@ Camadas (tempos sempre no vídeo final):
             corDestaque, corFundo, arquivoFonte; x, y = centro do título (0 a 1), escala
   legenda   inicio_s, fim_s, texto, palavras [{w, s, e}]       uma tela de legenda
   voz       inicio_s, fim_s, arquivo, origem_inicio_s, volume_db (padrão 0): locução gravada à parte
-  musica    inicio_s, fim_s, arquivo, origem_inicio_s, volume_db = dB ABAIXO DA VOZ (padrão -14, medido em LUFS;
-            o montador mede a voz e a música e acerta sozinho; abaixa mais um pouco quando há fala)
+  musica    inicio_s, fim_s, arquivo, origem_inicio_s, volume_db = dB ABAIXO DA VOZ (padrão -16, medido em LUFS;
+            o montador mede a voz e a música e acerta sozinho; volume constante, sem subir e descer)
   sfx       inicio_s, arquivo, volume_db (padrão -18)
 Topo do projeto: formato, legenda {modelo, posicao, tamanho (multiplica o do modelo), ativa}, marca, som_original (false = tira o som do bruto).
 """
@@ -119,6 +119,17 @@ def lufs(arq, ss=None, t=None):
     m = re.findall(r"I:\s+(-?[\d.]+) LUFS", r.stderr)
     v = float(m[-1]) if m else None
     return v if v is not None and v > -60 else None
+
+
+def caixa_visivel(mov, dur):
+    """retângulo (x1, y1, x2, y2) onde o título tem pixel visível, no meio da animação; None se não der para medir"""
+    r = subprocess.run(["ffmpeg", "-hide_banner", "-ss", "%.2f" % max(0, dur * 0.55), "-i", mov, "-vf", "alphaextract,bbox=min_val=24",
+                        "-frames:v", "1", "-f", "null", "-"], capture_output=True, text=True)
+    m = re.findall(r"x1:(\d+) x2:(\d+) y1:(\d+) y2:(\d+)", r.stderr)
+    if not m:
+        return None
+    x1, x2, y1, y2 = map(int, m[-1])
+    return x1, y1, x2, y2
 
 
 def hash_de(*partes):
@@ -385,10 +396,24 @@ def montar(pj):
     for c in pj.camadas("animacao"):
         if not c.get("modelo"):
             continue
-        idx = entrada(["-i", titulo(pj, c)])
+        mov = titulo(pj, c)
+        idx = entrada(["-i", mov])
         s = float(c.get("escala") or 1)
         x, y = float(c.get("x", 0.5)), float(c.get("y", 0.32))
-        por_cima(idx, c, False, "%.0f" % (x * W - W * s / 2), "%.0f" % (y * H - H * s / 2), s)
+        ox, oy = x * W - W * s / 2, y * H - H * s / 2
+        # nunca deixa o título sair da tela (ex.: "R$ 12.000" cortado na borda): empurra para dentro da margem
+        cx = caixa_visivel(mov, float(c["fim_s"]) - float(c["inicio_s"]))
+        if cx:
+            mg = 0.05 * W
+            x1, y1, x2, y2 = (v * s for v in cx)
+            if x2 - x1 > W - 2 * mg:   # mais largo que a tela: diminui até caber
+                s2 = s * (W - 2 * mg) / (x2 - x1)
+                ox, oy = x * W - W * s2 / 2, y * H - H * s2 / 2
+                x1, y1, x2, y2 = (v * s2 for v in cx)
+                s = s2
+            ox += max(0, mg - (ox + x1)) - max(0, (ox + x2) - (W - mg))
+            oy += max(0, mg - (oy + y1)) - max(0, (oy + y2) - (H - mg))
+        por_cima(idx, c, False, "%.0f" % ox, "%.0f" % oy, s)
 
     # 4) áudio: voz tratada, música abaixando na fala, efeitos
     # locução gravada à parte (vídeo narrado): entra junto com o som dos trechos e passa pelo mesmo tratamento de voz
@@ -416,9 +441,9 @@ def montar(pj):
             continue
         arq_m, oi_m = pj.achar(c.get("arquivo")), float(c.get("origem_inicio_s") or 0)
         idx = entrada(["-ss", "%.3f" % oi_m, "-t", "%.3f" % dur, "-i", arq_m])
-        abaixo = float(c.get("volume_db", -14))
+        abaixo = float(c.get("volume_db", -16))
         mus_lufs = lufs(arq_m, oi_m, min(dur, 60)) or -14.0
-        alvo = (voz_lufs + abaixo) if voz_lufs else -16.0 + (abaixo + 14)   # sem voz (vlog só música): música em -16 LUFS
+        alvo = (voz_lufs + abaixo) if voz_lufs else -16.0 + (abaixo + 16)   # sem voz (vlog só música): música em -16 LUFS
         ganho = max(-40.0, min(6.0, alvo - mus_lufs))
         filtros.append("[%d:a]aresample=48000,volume=%.1fdB,afade=t=in:d=0.4,afade=t=out:st=%.3f:d=1.5,adelay=%d:all=1[m%d]"
                        % (idx, ganho, max(0, dur - 1.5), round(ini * 1000), len(musicas)))
@@ -428,8 +453,9 @@ def montar(pj):
             filtros.append("%samix=inputs=%d:normalize=0[mus]" % ("".join(musicas), len(musicas)))
         else:
             filtros.append("%sanull[mus]" % musicas[0])
-        filtros.append("[mus][vozsc]sidechaincompress=threshold=0.03:ratio=3:attack=30:release=500[musd]")
-        mix.append("[musd]")
+        # volume constante (a Lara não quer a música subindo e descendo): sem abaixar na fala, já fica bem abaixo da voz
+        filtros.append("[vozsc]anullsink")
+        mix.append("[mus]")
     else:
         filtros.append("[vozsc]anullsink")
     for j, c in enumerate(pj.camadas("sfx")):
@@ -446,7 +472,7 @@ def montar(pj):
     base = os.path.join(pj.job, "saida", "base" + pj.sufixo + ".mp4")
     print("montar: juntando legenda, títulos e som", flush=True)
     ff(entradas + ["-filter_complex_script", grafo,
-                   "-map", v, "-map", "[a1]", "-t", "%.3f" % total, "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p",
+                   "-map", v, "-map", "[a1]", "-t", "%.3f" % total, "-c:v", "libx264", "-preset", "medium", "-crf", "17", "-pix_fmt", "yuv420p",
                    "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", previa,
                    "-map", "[base720]", "-map", "[a2]", "-t", "%.3f" % total, "-c:v", "libx264", "-preset", "veryfast", "-crf", "28", "-pix_fmt", "yuv420p",
                    "-c:a", "aac", "-b:a", "96k", "-movflags", "+faststart", base])

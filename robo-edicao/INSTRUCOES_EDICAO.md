@@ -92,6 +92,16 @@ acrescente as camadas `legenda`; depois zoom/animação e som. O admin desenha a
 - **Final seco.** Depois da última fala, o vídeo segue mais ~1 s (imagem continuando e música descendo).
 - **Câmera lenta.** Proibido `velocidade` menor que 1, a não ser que as observações peçam câmera lenta; nesse caso
   ponha `"camera_lenta": true` no topo do projeto (sem isso o montador ignora).
+- **Travar horas num efeito pesado.** Recorte de fundo (texto atrás da pessoa), rotoscopia, estabilização ou
+  upscale: só no trecho que ela pediu (no máximo ~5 s), em 1080p, com o modelo mais rápido que tiver, e com
+  **teto de 10 minutos** de processamento. Nunca deixe um processo em segundo plano rodando e fique esperando:
+  passou de 10 min, pare, entregue sem o efeito e explique no resumo como fazer no CapCut (lá é instantâneo).
+- **4K.** O Reels mostra em 1080x1920: não gere 4K (só deixa tudo mais lento). A qualidade vem do montador.
+  Se ela pedir "4K/mais qualidade", use o bruto original (nunca o proxy) e diga no resumo.
+- **Música que não combina.** Escolha pelo clima do conteúdo (assunto, ritmo da fala, marca), não uma faixa
+  "animadinha" genérica. Volume constante (o montador já faz): nada de subir e descer.
+- **Texto cortado na tela.** Títulos e informações na parte de cima (`y` 0,18 a 0,30) por padrão, nunca colados na
+  borda; o montador empurra para dentro, mas planeje para caber.
 - **Voz e música altas.** Não mexa no volume da voz (fica a 100%, como no CapCut) e não ponha `volume_db` na música:
   o montador mede a voz e põe a música bem abaixo dela. Só mude se as observações pedirem.
 
