@@ -55,7 +55,8 @@ else
 fi
 
 node "$D/robo.mjs" --app
+node "$D/robo.mjs" --servico
 
 echo
-echo "Pronto. Para chamar o Estagiário, dê dois cliques no crachá \"Estagiário\" na Mesa (Desktop)."
-echo "Deixe aquela janela aberta: enquanto ela estiver aberta, ele pega os pedidos da aba Edição."
+echo "Pronto. O Estagiário já está trabalhando escondido (liga sozinho quando o Mac liga)."
+echo "Acompanhe pela aba Edição do admin. O crachá \"Estagiário\" na Mesa religa e abre o admin."

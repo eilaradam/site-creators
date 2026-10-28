@@ -186,3 +186,18 @@ alter table public.edicao_pedidos add constraint edicao_pedidos_status_check che
 
 -- Áudio do vídeo: 'fala' (ela falando), 'narrado' (cenas + locução gravada à parte) ou 'musica' (vlog sem fala, só música)
 alter table public.edicao_pedidos add column if not exists audio_tipo text;
+
+-- Pedido pode pedir duas opções (A e B); sem marcar, o estagiário faz só uma (mais rápido)
+alter table public.edicao_pedidos add column if not exists duas_opcoes boolean not null default false;
+
+-- Sinal de vida do estagiário (ele trabalha escondido no Mac): o admin mostra se está ligado
+create table if not exists public.edicao_robo (
+  id int primary key default 1,
+  visto_em timestamptz,
+  ultima_msg text,
+  escondido boolean
+);
+insert into public.edicao_robo (id) values (1) on conflict (id) do nothing;
+alter table public.edicao_robo enable row level security;
+drop policy if exists "edicao_robo admin" on public.edicao_robo;
+create policy "edicao_robo admin" on public.edicao_robo for all to authenticated using (exists (select 1 from public.usuarios where id = auth.uid() and role = 'admin')) with check (exists (select 1 from public.usuarios where id = auth.uid() and role = 'admin'));

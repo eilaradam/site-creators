@@ -54,6 +54,7 @@ sem você. Por isso **tudo que aparece no vídeo precisa estar numa camada**: na
 
 ## Duas opções (A e B)
 
+**Só quando o PEDIDO.md pedir duas opções** (linha "Duas opções"). Sem isso, faça só a A: é mais rápido.
 A Lara recebe duas edições do mesmo bruto e escolhe uma no admin (a escolha vira aprendizado).
 - **Opção A** (`saida/projeto.json` → `previa.mp4`): a edição mais fiel ao estilo dela e às regras aprovadas.
 - **Opção B** (`saida/projeto_b.json` → `python3 -I ~/robo-edicao/montar.py . --projeto saida/projeto_b.json`
