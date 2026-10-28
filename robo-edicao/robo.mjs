@@ -25,7 +25,8 @@ const VIDEO = /\.(mov|mp4|m4v|mkv|avi|webm)$/i;
 const MIDIA = /\.(mov|mp4|m4v|mkv|avi|webm|jpg|jpeg|png|heic|webp|mp3|wav|m4a|aac)$/i;
 const DO_ROBO = /^(PREVIA|PRÉVIA|FINAL|REC)\b/i;            // arquivos que o próprio robô sobe
 
-const log = (...a) => console.log(new Date().toLocaleTimeString('pt-BR'), ...a);
+let ultimaLinha = '';
+const log = (...a) => { ultimaLinha = a.join(' ').slice(0, 280); console.log(new Date().toLocaleTimeString('pt-BR'), ...a); };
 
 /* ── Supabase (login da Lara, com as mesmas permissões de admin do site) ── */
 let token = null, tokenAte = 0, usuarioId = null;
@@ -558,6 +559,7 @@ function pedidoMd(p, refs, regras, dic, arquivos) {
     if (p.tipo !== 'cenas') L.push('- Áudio: ' + ({ narrado: 'NARRADO: as cenas não têm fala; a locução da Lara é um áudio separado na pasta (veja "Vídeo narrado" no CLAUDE.md)',
         musica: 'SEM FALA, só música (vlog/b-roll): veja "Vídeo sem fala" no CLAUDE.md',
         misto: 'FALANDO + NARRADO: partes dela falando para a câmera e partes narradas por cima de cenas (veja "Falando + narrado" no CLAUDE.md)' }[p.audio_tipo] || 'a Lara falando no vídeo (edição normal pela fala)'));
+    if (p.duas_opcoes && p.tipo !== 'cenas') L.push('- Duas opções: SIM, entregue a A e a B (veja "Duas opções" no CLAUDE.md)');
     L.push('- Títulos animados: ' + (p.titulos_modelos ? 'use estes modelos: ' + p.titulos_modelos.split(',').map(s => '`' + s.trim() + '`').join(', ') + ' (veja "Títulos" no CLAUDE.md)' : 'escolha entre os modelos da biblioteca (veja "Títulos" no CLAUDE.md)'));
     L.push('- Legenda: ' + (p.legenda_modelo ? 'modelo `' + p.legenda_modelo + '` (veja "Legenda" no CLAUDE.md)' : 'SEM legenda (a Lara escolheu não legendar)'));
     if (p.marca_site) L.push('- Site da marca: ' + p.marca_site);
@@ -618,8 +620,8 @@ function configMcp() {
 function rodarClaude(job, p, pedidoTexto) {
     const mcp = configMcp();
     const prompt = (pedidoTexto || 'Leia CLAUDE.md e PEDIDO.md e faça a edição completa deste pedido sozinho, sem perguntar nada. ' +
-        'No fim precisa existir saida/previa.mp4, saida/projeto.json e saida/resumo.md, e também a opção B ' +
-        '(saida/projeto_b.json montado em saida/previa_b.mp4), como explica "Duas opções" no CLAUDE.md.') +
+        'No fim precisa existir saida/previa.mp4, saida/projeto.json e saida/resumo.md' +
+        (p.duas_opcoes ? ', e também a opção B (saida/projeto_b.json montado em saida/previa_b.mp4), como explica "Duas opções" no CLAUDE.md.' : '. Faça só uma opção (a A): a Lara não pediu duas.')) +
         ' Antes de cada etapa, escreva uma frase curta em português, em primeira pessoa (você é o Estagiário de edição dela), dizendo o que vai fazer (a Lara acompanha ao vivo).';
     return new Promise(resolve => {
         const logArq = path.join(job, 'claude.log');
@@ -801,7 +803,7 @@ function criarApp() {
     if (process.platform !== 'darwin') return;
     const icone = path.join(DIR, 'icone.png');
     if (!fs.existsSync(icone)) return;
-    const versao = String(fs.statSync(icone).size) + ':' + process.execPath;
+    const versao = String(fs.statSync(icone).size) + ':' + process.execPath + ':servico';
     const marca = path.join(APP, 'Contents', 'Resources', 'versao.txt');
     try { if (fs.readFileSync(marca, 'utf8') === versao) return; } catch (_) {}
     try {
@@ -812,7 +814,9 @@ function criarApp() {
             '<plist version="1.0"><dict><key>CFBundleName</key><string>Estagiário</string><key>CFBundleDisplayName</key><string>Estagiário</string>' +
             '<key>CFBundleIdentifier</key><string>com.laradam.estagiario</string><key>CFBundleExecutable</key><string>Estagiario</string>' +
             '<key>CFBundleIconFile</key><string>Estagiario</string><key>CFBundlePackageType</key><string>APPL</string><key>CFBundleVersion</key><string>1</string></dict></plist>\n');
-        fs.writeFileSync(path.join(mac, 'Estagiario'), '#!/bin/bash\nopen -a Terminal "' + LANCADOR + '"\n', { mode: 0o755 });
+        // dois cliques: garante o serviço escondido rodando e abre o admin (sem Terminal)
+        fs.writeFileSync(path.join(mac, 'Estagiario'), '#!/bin/bash\n"' + process.execPath + '" "' + path.join(DIR, 'robo.mjs') + '" --servico >> "' + LOG_SERVICO + '" 2>&1\n' +
+            'open "https://creators.laradam.com/admin.html"\n', { mode: 0o755 });
         // ícone: o crachá em todos os tamanhos que o Mac pede (sips e iconutil já vêm no macOS)
         const set = path.join(os.tmpdir(), 'Estagiario.iconset');
         fs.rmSync(set, { recursive: true, force: true }); fs.mkdirSync(set);
@@ -826,9 +830,55 @@ function criarApp() {
         spawnSync('touch', [APP]);
         for (const velho of ['Robô de Edição.command', 'Robo de Edicao.command'])   // o atalho antigo some: agora é o app
             fs.rmSync(path.join(os.homedir(), 'Desktop', velho), { force: true });
-        log('Agora eu sou um app na Mesa: dois cliques no crachá para me chamar.');
+        log('Agora eu sou um app na Mesa: dois cliques no crachá me ligam (sem Terminal) e abrem o admin.');
     } catch (e) { log('não consegui criar o app na Mesa:', e.message); }
 }
+/* Estagiário sem Terminal: um serviço do macOS (launchd) que liga sozinho quando o Mac liga e volta se cair.
+   O crachá na Mesa só garante que o serviço está rodando e abre o admin. A janela do Terminal some. */
+const SERVICO = 'com.laradam.estagiario';
+const PLIST = path.join(os.homedir(), 'Library', 'LaunchAgents', SERVICO + '.plist');
+const LOG_SERVICO = path.join(DIR, 'estagiario.log');
+const PATH_SALVO = path.join(DIR, 'path.txt');
+function guardarPath() {   // quando roda pelo Terminal o PATH é o completo (ffmpeg, claude, npx): guarda para o serviço usar
+    if (process.env.ROBO_SERVICO || !/homebrew|local\/bin/.test(process.env.PATH || '')) return;
+    try { fs.writeFileSync(PATH_SALVO, process.env.PATH); } catch (_) {}
+}
+function instalarServico() {
+    if (process.platform !== 'darwin') return log('O serviço escondido só existe no Mac.');
+    let salvo = ''; try { salvo = fs.readFileSync(PATH_SALVO, 'utf8').trim(); } catch (_) {}
+    const extras = [path.dirname(process.execPath), '/opt/homebrew/bin', '/usr/local/bin', path.join(os.homedir(), '.local', 'bin'),
+        path.join(os.homedir(), '.claude', 'local'), path.join(DIR, 'bin'), '/usr/bin', '/bin', '/usr/sbin', '/sbin'];
+    const PATH = [...new Set([...salvo.split(':'), ...(process.env.PATH || '').split(':'), ...extras].filter(Boolean))].join(':');
+    const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+    const plist = '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0"><dict>' +
+        '<key>Label</key><string>' + SERVICO + '</string>' +
+        // caffeinate -s: não deixa o Mac dormir enquanto está na tomada (na bateria ele dorme normal)
+        '<key>ProgramArguments</key><array><string>/usr/bin/caffeinate</string><string>-s</string><string>' + esc(process.execPath) + '</string><string>' + esc(path.join(DIR, 'robo.mjs')) + '</string></array>' +
+        '<key>WorkingDirectory</key><string>' + esc(DIR) + '</string>' +
+        '<key>EnvironmentVariables</key><dict><key>PATH</key><string>' + esc(PATH) + '</string><key>ROBO_SERVICO</key><string>1</string><key>HOME</key><string>' + esc(os.homedir()) + '</string></dict>' +
+        '<key>RunAtLoad</key><true/><key>KeepAlive</key><true/><key>ThrottleInterval</key><integer>30</integer>' +
+        '<key>StandardOutPath</key><string>' + esc(LOG_SERVICO) + '</string><key>StandardErrorPath</key><string>' + esc(LOG_SERVICO) + '</string>' +
+        '</dict></plist>\n';
+    fs.mkdirSync(path.dirname(PLIST), { recursive: true });
+    const mudou = !fs.existsSync(PLIST) || fs.readFileSync(PLIST, 'utf8') !== plist;
+    const dominio = 'gui/' + process.getuid();
+    if (mudou) {
+        spawnSync('launchctl', ['bootout', dominio + '/' + SERVICO]);
+        fs.writeFileSync(PLIST, plist);
+        const r = spawnSync('launchctl', ['bootstrap', dominio, PLIST], { encoding: 'utf8' });
+        if (r.status !== 0) return log('Não consegui ligar o serviço:', (r.stderr || '').trim());
+        log('Pronto: agora eu trabalho escondido, sem janela. Ligo sozinho quando o Mac liga. Acompanhe pelo admin.');
+    } else {
+        spawnSync('launchctl', ['bootstrap', dominio, PLIST]);   // se já estava rodando, não faz nada
+        spawnSync('launchctl', ['kickstart', dominio + '/' + SERVICO]);
+    }
+}
+/* Sinal de vida no admin: a cada minuto, mesmo no meio de uma edição */
+async function sinalDeVida() {
+    await db('edicao_robo?id=eq.1', { metodo: 'PATCH', corpo: { visto_em: new Date().toISOString(), ultima_msg: ultimaLinha || null,
+        escondido: !!process.env.ROBO_SERVICO } }).catch(() => {});
+}
+
 /* Um Estagiário só: se a janela já está aberta, a segunda para (senão os dois pegariam o mesmo pedido) */
 const TRAVA = path.join(DIR, 'robo.pid');
 function soUmEstagiario() {
@@ -841,6 +891,7 @@ function soUmEstagiario() {
     return true;
 }
 function reiniciar() {
+    if (process.env.ROBO_SERVICO) process.exit(0);   // rodando escondido (launchd): ele mesmo liga de novo com a versão nova
     const filho = spawn(process.execPath, process.argv.slice(1), { stdio: 'inherit', env: Object.assign({}, process.env, { ROBO_PAI: String(process.pid) }) });
     filho.on('exit', code => process.exit(code || 0));
 }
@@ -880,9 +931,21 @@ async function main() {
             : 'Chave salva, mas o Epidemic não aceitou (' + r.status + '). Confira se copiou a chave do "MCP Server" inteira.');
     }
     if (process.argv.includes('--app')) return criarApp();
+    if (process.argv.includes('--servico')) { guardarPath(); return instalarServico(); }
+    guardarPath();
     if (!process.argv.includes('--uma-vez') && !soUmEstagiario()) return log('O Estagiário já está trabalhando em outra janela. Pode fechar esta.');
     if (await atualizarRobo()) return reiniciar();
     criarApp();
+    // rodando pela janela do Terminal no Mac: passa a trabalhar escondido (serviço) e fecha a janela
+    if (process.platform === 'darwin' && !process.env.ROBO_SERVICO && !process.argv.includes('--uma-vez') && !process.env.ROBO_COM_JANELA) {
+        instalarServico();
+        if (spawnSync('launchctl', ['print', 'gui/' + process.getuid() + '/' + SERVICO]).status === 0) {
+            log('A partir de agora eu trabalho escondido, sem esta janela. Pode fechar o Terminal. Acompanhe pelo admin.');
+            try { fs.rmSync(TRAVA); } catch (_) {}
+            spawnSync('launchctl', ['kickstart', '-k', 'gui/' + process.getuid() + '/' + SERVICO]);
+            process.exit(0);
+        }
+    }
     log('Epidemic Sound: ' + (chaveEpidemic() ? 'ligado (música e efeitos com a licença Pro)' : 'desligado. Para ligar: node robo.mjs --epidemic'));
     log('Estagiário chegou! Olho a fila a cada ' + INTERVALO_S + ' s. Deixa esta janela aberta (pode minimizar).');
     // Se o robô foi fechado no meio de uma edição, o pedido ficou preso em "editando": volta para recomeçar
@@ -891,6 +954,7 @@ async function main() {
             await mudar(p, { status: /^Remontando/.test(p.status_msg || '') || (p.projeto && p.projeto.editado_em && !(p.ajustes || []).length) ? 'remontar_na_fila' : p.tipo !== 'cenas' ? 'aguardando_bruto' : (p.cenas ? 'aguardando_cenas' : 'na_fila'),
                 status_msg: 'Fui reiniciado no meio da edição. Recomeçando.' });
     } catch (e) { log('Não consegui conferir pedidos interrompidos:', e.message); }
+    sinalDeVida(); setInterval(sinalDeVida, 60000).unref();
     do {
         try { await rodada(); } catch (e) { log('Não consegui olhar a fila:', e.message); }
         try { await olharAprender(); } catch (e) { log('aprender:', e.message); }

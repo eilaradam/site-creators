@@ -5430,6 +5430,12 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
 @keyframes edMicPulso { 50% { box-shadow:0 0 0 6px rgba(200,68,26,.18); } }
 #tabEdicao .ia-avatar { width:40px; height:40px; border-radius:10px; display:block; }
 #tabEdicao .ia-sub { font-size:12px; color:#A69D93; margin-top:1px; }
+#tabEdicao .ed-robo { display:flex; gap:10px; align-items:flex-start; border:1px solid var(--border); border-radius:14px; padding:10px 12px; margin-bottom:12px; background:var(--card); font-size:13.5px; }
+#tabEdicao .ed-robo img { border-radius:7px; flex:0 0 auto; }
+#tabEdicao .ed-robo.on b { color:#1D6B3A; }
+#tabEdicao .ed-robo.off { border-color:#E8A27E; background:#FFF6EF; }
+#tabEdicao .ed-robo.off b { color:#B3261E; }
+#tabEdicao .ed-robo code { font-size:12px; background:#F4F2EF; padding:1px 5px; border-radius:5px; }
 #tabEdicao .ia-falar { margin-top:12px; background:#141312; border:1px solid #C8441A; border-radius:16px; padding:12px 14px; }
 #tabEdicao .ia-box .ed-btn.ghost { background:transparent; color:#FFF8F2; border:1px solid #5A514A; }
 #tabEdicao .ia-falar textarea.ed-input { width:100%; box-sizing:border-box; resize:vertical; }
@@ -18044,11 +18050,14 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const s = ED_PED_STATUS[st] || [st, '#F4F2EF', '#8A817A'];
         return '<span class="ed-st" style="background:' + s[1] + ';color:' + s[2] + ';">' + edEsc(s[0]) + '</span>';
     }
+    let edRobo = null;   // sinal de vida do estagiário (tabela edicao_robo, ele escreve a cada minuto)
     async function edCarregarPedidos() {
-        const [p, b] = await Promise.all([
+        const [p, b, rb] = await Promise.all([
             sb.from('edicao_pedidos').select('*').order('created_at', { ascending: false }).limit(200),
             sb.from('edicao_referencias').select('*').is('pedido_id', null).order('created_at', { ascending: false }),
+            sb.from('edicao_robo').select('*').eq('id', 1).maybeSingle(),
         ]);
+        edRobo = rb && !rb.error ? (Array.isArray(rb.data) ? rb.data[0] : rb.data) || null : null;
         if (p.error) return edErro('Não carreguei os pedidos', p.error);
         if (b.error) return edErro('Não carreguei a biblioteca', b.error);
         edPedidos = p.data || []; edRefsBib = b.data || [];
@@ -18064,7 +18073,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         if (JSON.stringify(edPedidos.map(p => [p.id, p.status, p.status_msg, p.previa_link, p.projeto, p.cenas])) !== antes) edRender();
     }, 15000);
     function edNovoForm(base) {
-        edForm = Object.assign({ id: null, conteudo_id: '', marca: '', titulo: '', drive_pasta_link: '', roteiro: '', formato: '9:16', duracao_alvo_s: '', observacoes: '', marca_site: '', marca_redes: '', rec_gravar: false, rec_passos: '', tipo: 'edicao', audio_tipo: 'fala', voz: 'minha', estilo_visual: 'marca', legenda_modelo: edLegendaPadrao(), titulos_modelos: edTitulosFavoritos().join(','),
+        edForm = Object.assign({ id: null, conteudo_id: '', marca: '', titulo: '', drive_pasta_link: '', roteiro: '', formato: '9:16', duracao_alvo_s: '', observacoes: '', marca_site: '', marca_redes: '', rec_gravar: false, rec_passos: '', tipo: 'edicao', audio_tipo: 'fala', duas_opcoes: false, voz: 'minha', estilo_visual: 'marca', legenda_modelo: edLegendaPadrao(), titulos_modelos: edTitulosFavoritos().join(','),
             refs: [{ tipo: 'geral', link: '', nota: '', salvar: false, nome: '' }] }, base || {});
     }
     function edAbrirNovoPedido() { edPedidoAberto = 'novo'; edNovoForm(); edRender(); }
@@ -18077,7 +18086,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         edNovoForm({ id, conteudo_id: ped.conteudo_id || '', marca: ped.pasta_nome || ped.marca || '', titulo: ped.titulo || '', drive_pasta_link: ped.drive_pasta_link || '', roteiro: ped.roteiro || '',
             formato: ped.formato || '9:16', duracao_alvo_s: ped.duracao_alvo_s || '', observacoes: ped.observacoes || '',
             marca_site: ped.marca_site || '', marca_redes: ped.marca_redes || '', rec_gravar: !!ped.rec_gravar, rec_passos: ped.rec_passos || '',
-            tipo: ped.tipo || 'edicao', audio_tipo: ped.audio_tipo || 'fala', voz: ped.voz || 'minha', legenda_modelo: ped.legenda_modelo || edLegendaPadrao(), titulos_modelos: ped.titulos_modelos || '', estilo_visual: ped.estilo_visual || 'marca',
+            tipo: ped.tipo || 'edicao', audio_tipo: ped.audio_tipo || 'fala', duas_opcoes: !!ped.duas_opcoes, voz: ped.voz || 'minha', legenda_modelo: ped.legenda_modelo || edLegendaPadrao(), titulos_modelos: ped.titulos_modelos || '', estilo_visual: ped.estilo_visual || 'marca',
             refs: edPedidoRefs.length ? edPedidoRefs.map(r => ({ id: r.id, tipo: r.tipo, link: r.link, nota: r.nota || '', salvar: false, nome: '' })) : [{ tipo: 'geral', link: '', nota: '', salvar: false, nome: '' }] });
         edRender();
     }
@@ -18097,6 +18106,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             const ck = document.getElementById('edR_salvar_' + i); if (ck) r.salvar = ck.checked;
         });
         const rec = document.getElementById('edP_rec_gravar'); if (rec) edForm.rec_gravar = rec.checked;
+        const duas = document.getElementById('edP_duas_opcoes'); if (duas) edForm.duas_opcoes = duas.checked;
     }
     function edCampanhaNoForm(id) {
         edLerForm(); edForm.conteudo_id = id;
@@ -18149,7 +18159,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             pasta_nome: f.marca.trim().replace(/\s+/g, ' '), marca: f.marca.trim().replace(/\s+\d+$/, ''), titulo: f.marca.trim(), conteudo_id: f.conteudo_id || null, drive_pasta_link: f.drive_pasta_link.trim() || null, drive_pasta_id: pid,
             roteiro: f.roteiro.trim() || null, formato: f.formato, duracao_alvo_s: f.duracao_alvo_s ? parseInt(f.duracao_alvo_s, 10) || null : null,
             observacoes: f.observacoes.trim() || null, updated_at: new Date().toISOString(),
-            marca_site: f.marca_site.trim() || null, marca_redes: f.marca_redes.trim() || null, rec_gravar: !!f.rec_gravar, rec_passos: f.rec_passos.trim() || null,
+            marca_site: f.marca_site.trim() || null, marca_redes: f.marca_redes.trim() || null, rec_gravar: !!f.rec_gravar, rec_passos: f.rec_passos.trim() || null, duas_opcoes: !!f.duas_opcoes,
             tipo: f.tipo, audio_tipo: f.tipo === 'cenas' ? null : (f.audio_tipo || 'fala'), legenda_modelo: f.legenda_modelo || null, titulos_modelos: f.titulos_modelos || null, voz: f.tipo === 'cenas' ? f.voz : null, estilo_visual: f.tipo === 'cenas' ? f.estilo_visual : null,
         };
         let pedidoId = f.id;
@@ -18204,6 +18214,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                 edStatusTag(p.status) + '</div>';
         }).join('');
         box.innerHTML =
+          edRoboHtml() +
           '<div class="ed-row" style="margin-bottom:12px;"><span class="ed-muted">' + edPedidos.length + ' pedido(s)</span><span style="flex:1"></span>' +
           '<button class="ed-btn" type="button" onclick="edAbrirNovoPedido()">+ Novo pedido de edição</button></div>' +
           '<div class="ed-card">' + (cards || '<div class="ed-empty"><h4>Nenhum pedido ainda</h4><p>Suba o bruto numa pasta do Drive, crie o pedido com o link da pasta, o roteiro e as referências. O estagiário do seu Mac edita e devolve a prévia aqui.</p></div>') + '</div>';
@@ -18258,6 +18269,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                 '<button class="ed-chip' + ((f.audio_tipo || 'fala') === k ? ' on' : '') + '" type="button"' + dis + ' onclick="edAudioTipo(\'' + k + '\')">' + n + '</button>').join('') + '</div>' +
                 '<div class="ed-muted" style="margin-top:4px;">' + edEsc((ED_AUDIO.find(x => x[0] === (f.audio_tipo || 'fala')) || ED_AUDIO[0])[2]) + '.</div>') +
               '<label class="ed-lb">Legenda · ' + edEsc((edLegendas.find(m => m.id === f.legenda_modelo) || { nome: 'sem legenda' }).nome) + '</label>' + edPickLegendas(f, travado) +
+              (f.tipo === 'cenas' ? '' : '<label class="ed-ed-ck" style="margin-top:12px;color:var(--text);font-size:13.5px;"><input type="checkbox" id="edP_duas_opcoes"' + dis + (f.duas_opcoes ? ' checked' : '') + '> Quero duas opções (A e B) para escolher <span class="ed-muted">· demora uns 30% a mais</span></label>') +
               '<label class="ed-lb">Títulos animados · ' + (f.titulos_modelos ? String(f.titulos_modelos).split(',').filter(Boolean).length + ' escolhido(s)' : 'nenhum escolhido = o estagiário escolhe') + '</label>' + edPickTitulos(f, travado) +
               '<label class="ed-lb">' + (f.tipo === 'cenas' ? 'Duração (segundos; cada 10 s é uma cena)' : 'Duração desejada (segundos, opcional)') + '</label><input class="ed-input" id="edP_duracao_alvo_s" type="number" min="5" max="600" style="max-width:160px;"' + dis + ' value="' + edEsc(f.duracao_alvo_s) + '">' +
               '<div class="ed-lb-mic"><label class="ed-lb">Observações</label>' + (dis ? '' : edMicBtn('edP_observacoes')) + '</div><textarea class="ed-input" id="edP_observacoes" rows="3" placeholder="ex.: tirar a parte em que eu tropeço; destacar o preço"' + dis + '>' + edEsc(f.observacoes) + '</textarea>' +
@@ -18668,6 +18680,17 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     /* ── Falar com o Estagiário: escreve, dita ou grava um áudio e escolhe ajustar esta versão ou refazer do zero.
        O áudio vai para o Storage e o robô transcreve no Mac. "Vale para sempre" vira regra do estilo já aprovada. ── */
     let edGrav = null;   // { rec, partes, blob, url, ext, t0, timer }
+    function edRoboHtml() {
+        if (!edRobo) return '';
+        const visto = edRobo.visto_em ? new Date(edRobo.visto_em) : null, seg = visto ? (Date.now() - visto) / 1000 : Infinity;
+        const ligado = seg < 180;
+        const quando = !visto ? 'nunca' : seg < 90 ? 'agora' : seg < 3600 ? 'há ' + Math.round(seg / 60) + ' min' : visto.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+        return '<div class="ed-robo ' + (ligado ? 'on' : 'off') + '"><img src="robo-edicao/icone.png" alt="" width="28" height="28">' +
+            '<div><b>Estagiário ' + (ligado ? 'trabalhando' : 'parado') + '</b> <span class="ed-muted">· visto ' + quando + '</span>' +
+            (ligado ? (edRobo.ultima_msg ? '<div class="ed-muted">' + edEsc(edRobo.ultima_msg) + '</div>' : '')
+                : '<div class="ed-muted">Dê dois cliques no crachá "Estagiário" na Mesa do Mac. Se continuar parado, ele perdeu o login: no Terminal, <code>cd ~/robo-edicao && node robo.mjs --entrar</code>' +
+                  (edRobo.ultima_msg ? '<br>Última coisa que ele disse: ' + edEsc(edRobo.ultima_msg) : '') + '</div>') + '</div></div>';
+    }
     function edUltimaFala(ped) {
         const f = (Array.isArray(ped.ajustes) ? ped.ajustes : []).filter(a => a && a.tipo === 'feedback').pop();
         return f ? (f.texto || (f.audio_path ? '(áudio gravado)' : '')) : '';
