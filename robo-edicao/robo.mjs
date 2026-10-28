@@ -41,8 +41,16 @@ async function entrar(corpo, tipo) {
 }
 async function acesso() {
     if (token && Date.now() < tokenAte) return token;
-    if (!fs.existsSync(SESSAO)) throw new Error('Robô sem login. Rode de novo o instalador.');
-    await entrar({ refresh_token: JSON.parse(fs.readFileSync(SESSAO, 'utf8')).refresh_token }, 'refresh_token');
+    if (!fs.existsSync(SESSAO)) throw new Error('Robô sem login. Rode no Terminal: cd ~/robo-edicao && node robo.mjs --entrar');
+    const ler = () => JSON.parse(fs.readFileSync(SESSAO, 'utf8')).refresh_token;
+    const usado = ler();
+    try { await entrar({ refresh_token: usado }, 'refresh_token'); }
+    catch (e) {
+        // o acesso gira a cada renovação: se outra janela (ou o --entrar) acabou de renovar, o arquivo já tem o novo
+        await new Promise(r => setTimeout(r, 2000));
+        if (ler() === usado) throw e;
+        await entrar({ refresh_token: ler() }, 'refresh_token');
+    }
     return token;
 }
 async function db(caminho, opcoes = {}, tentativa = 1) {
