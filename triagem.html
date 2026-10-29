@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Triagem · lara.dam</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.98.0" integrity="sha384-Sm2s7OXxsAMTyJ4iIyRBgVpeGUvMPk2lRQnnZhE78Wej7oggIoolKt+SCt0XJbUB" crossorigin="anonymous"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/triagem.js"></script>
+    <!-- Página da equipe (role "equipe"): só a triagem de creators, sem o resto do admin. -->
+    <style>
+        :root {
+            --card: #FFFFFF;
+            --warm: #F0E7DD;
+            --text: #211D1A;
+            --text-soft: #6B635B;
+            --text-muted: #A69D93;
+            --accent: #7B3E1B;
+            --border: #ECE6DF;
+            --border-strong: #DED6CC;
+            --success: #10B981;
+            --error: #DC2626;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', sans-serif; background: #FBF8F4; color: var(--text); -webkit-font-smoothing: antialiased; min-height: 100vh; visibility: hidden; }
+        .topo { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 20px; border-bottom: 1px solid var(--border); background: var(--card); }
+        .logo { font-weight: 800; font-size: 17px; }
+        .logo span { color: var(--accent); }
+        .usuario { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--text-soft); }
+        .btn-logout { background: none; border: 1px solid var(--border); padding: 7px 16px; border-radius: 100px; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--text-soft); cursor: pointer; }
+        .btn-logout:hover { border-color: var(--error); color: var(--error); }
+        main { padding: 28px 16px 48px; }
+    </style>
+</head>
+<body>
+    <header class="topo">
+        <div class="logo">lara<span>.</span>dam</div>
+        <div class="usuario"><span id="userName"></span><button class="btn-logout" onclick="Auth.logout()">Sair</button></div>
+    </header>
+    <main id="triRoot"></main>
+    <script>
+    (async function init() {
+        const authData = await Auth.checkAuth();
+        if (!authData) return;
+        const role = await Auth.getRole();
+        if (role !== 'equipe' && role !== 'admin') { window.location.href = 'login.html'; return; }
+        const info = await Auth.getUserInfo();
+        document.getElementById('userName').textContent = info ? info.nome : '';
+        document.body.style.visibility = 'visible';
+        Triagem.mount(document.getElementById('triRoot'));
+    })();
+    </script>
+</body>
+</html>

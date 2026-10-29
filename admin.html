@@ -13,6 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.98.0" integrity="sha384-Sm2s7OXxsAMTyJ4iIyRBgVpeGUvMPk2lRQnnZhE78Wej7oggIoolKt+SCt0XJbUB" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
     <script src="js/auth.js"></script>
+    <script src="js/triagem.js"></script>
     <style>
         /* ══ PALETA ÚNICA DO PAINEL ══
            Havia três :root concorrentes no arquivo (linhas 17, 639 e ~10450) e o de baixo
@@ -4143,65 +4144,7 @@
      A base de marcas virou A lista; o que estava na DM aparece como coluna "Na DM" de cada
      marca (cruzando marcas.instagram com ig_negociacoes.username). Os botoes de varrer a DM
      e o analisador de conversas vieram junto. -->
-<div class="dashboard" id="tabTriagem">
-    <style>
-    /* ---- Triagem: uma creator por vez, Boa / Não boa ---- */
-    .tri-wrap { max-width:560px; margin:0 auto; }
-    .tri-topo { display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
-    .tri-topo h2 { margin:0; font-size:20px; }
-    .tri-cont { font-size:13px; color:var(--text-soft); }
-    .tri-cont b { color:var(--text); }
-    .tri-barra { height:4px; border-radius:4px; background:var(--border); overflow:hidden; margin-bottom:16px; }
-    .tri-barra div { height:100%; background:var(--accent); transition:width .25s ease; }
-    .tri-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-md); padding:22px; touch-action:pan-y; user-select:none; -webkit-user-select:none; transition:transform .22s ease, opacity .22s ease; position:relative; }
-    .tri-card.arrastando { transition:none; }
-    .tri-carimbo { position:absolute; top:18px; padding:4px 10px; border:2px solid; border-radius:8px; font-weight:800; font-size:13px; letter-spacing:1px; text-transform:uppercase; opacity:0; pointer-events:none; }
-    .tri-carimbo.boa { right:18px; color:var(--success); }
-    .tri-carimbo.nao { left:18px; color:var(--error); }
-    .tri-cab { display:flex; gap:16px; align-items:center; margin-bottom:14px; }
-    .tri-foto { width:84px; height:84px; border-radius:50%; object-fit:cover; background:var(--warm); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:24px; color:var(--text-soft); }
-    .tri-nome { font-size:19px; font-weight:700; margin:0 0 3px; }
-    .tri-sub { font-size:13px; color:var(--text-soft); line-height:1.5; }
-    .tri-tags { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
-    .tri-sobre { font-size:13.5px; line-height:1.55; color:var(--text); margin:0 0 14px; max-height:120px; overflow:auto; white-space:pre-line; }
-    .tri-links { display:flex; flex-wrap:wrap; gap:8px; }
-    .tri-links a { padding:8px 13px; border:1px solid var(--border-strong); border-radius:100px; font-size:13px; font-weight:600; color:var(--text); text-decoration:none; }
-    .tri-links a:hover { border-color:var(--accent); color:var(--accent); }
-    .tri-links a.principal { background:var(--accent); border-color:var(--accent); color:#fff; }
-    .tri-sem { font-size:13px; color:var(--error); font-weight:600; }
-    .tri-acoes { display:flex; gap:12px; margin-top:16px; }
-    .tri-acoes button { flex:1; padding:14px; border-radius:var(--radius); font-family:inherit; font-size:15px; font-weight:700; cursor:pointer; border:1.5px solid; background:var(--card); }
-    .tri-btn-nao { color:var(--error); border-color:var(--error) !important; }
-    .tri-btn-nao:hover { background:#FEF2F2 !important; }
-    .tri-btn-boa { color:#fff; background:var(--success) !important; border-color:var(--success) !important; }
-    .tri-btn-boa:hover { filter:brightness(.95); }
-    .tri-motivos { display:none; gap:8px; flex-wrap:wrap; margin-top:12px; }
-    .tri-motivos.show { display:flex; }
-    .tri-motivos button { flex:1 1 40%; padding:10px; border:1px solid var(--border-strong); border-radius:var(--radius-sm); background:var(--card); font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; color:var(--text); }
-    .tri-motivos button:hover { border-color:var(--error); color:var(--error); }
-    .tri-outro { display:flex; gap:8px; flex:1 1 100%; }
-    .tri-outro input { flex:1; padding:10px 12px; border:1px solid var(--border-strong); border-radius:var(--radius-sm); font-family:inherit; font-size:13px; }
-    .tri-outro input:focus { outline:none; border-color:var(--error); }
-    .tri-outro button { flex:0 0 auto; }
-    .tri-motivos kbd, .tri-acoes kbd { font-family:inherit; font-size:11px; opacity:.6; margin-left:4px; }
-    .tri-mini { display:flex; justify-content:space-between; margin-top:12px; font-size:13px; }
-    .tri-mini button { background:none; border:none; font-family:inherit; font-size:13px; color:var(--text-soft); cursor:pointer; padding:4px 0; }
-    .tri-mini button:hover { color:var(--accent); }
-    .tri-mini button:disabled { opacity:.35; cursor:default; color:var(--text-soft); }
-    .tri-atalhos { margin-top:18px; font-size:12px; color:var(--text-muted); text-align:center; line-height:1.7; }
-    .tri-vazio { text-align:center; padding:48px 20px; color:var(--text-soft); }
-    .tri-vazio b { display:block; font-size:18px; color:var(--text); margin-bottom:6px; }
-    </style>
-    <div class="tri-wrap">
-        <div class="tri-topo">
-            <h2>Triagem de creators</h2>
-            <div class="tri-cont" id="triCont"></div>
-        </div>
-        <div class="tri-barra"><div id="triBarra" style="width:0"></div></div>
-        <div id="triArea"><div class="loading">Carregando creators...</div></div>
-        <div class="tri-atalhos">Atalhos: <b>→</b> boa · <b>←</b> não boa e depois <b>1</b>–<b>4</b> pro motivo (ou escreva outro) · <b>P</b> abre o portfólio · <b>espaço</b> pula · <b>Z</b> desfaz<br>No celular, arraste o card pra direita (boa) ou pra esquerda (não boa).</div>
-    </div>
-</div>
+<div class="dashboard" id="tabTriagem"><div id="triRoot"></div></div>
 
 <div class="dashboard" id="tabMarcas">
             <style>
@@ -6510,7 +6453,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             if (target === 'admin') showAdminSubtab('termos');
             if (target === 'orcamentos') { orcMountTopbar(); loadOrcamentos(); }
             if (target === 'candidaturas') loadCandidaturas();
-            if (target === 'triagem') triLoad();
+            if (target === 'triagem') Triagem.mount(document.getElementById('triRoot'));
             if (target === 'marcas') { if (!marcasCarregado) loadMarcas(); if (!igPropsLoaded) { igPropsLoaded = true; igLoadProps(); } if (!igMarcasLoaded) { igMarcasLoaded = true; igLoadMarcas(); } }
             if (target === 'conteudos') ctLoad();
             if (target === 'robo') roboLoad();
@@ -10359,173 +10302,6 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         if (total >= 3) return `<span class="badge-destaque">⭐ Destaque</span>`;
         return '';
     }
-
-    /* ══════════════════════════════════════
-       TRIAGEM: uma creator por vez, Boa / Não boa.
-       Fila = quem ainda não tem nao_qualificada nem qualificada_em.
-       Não boa grava nao_qualificada (o mesmo do painel); Boa grava qualificada_em.
-       ══════════════════════════════════════ */
-    const TRI_MOTIVOS = ['Sem portfólio', 'Portfólio ruim', 'Conteúdo ruim', 'Link inválido'];
-    let triFila = [], triFeitas = [], triTotal = 0, triBoas = 0, triNao = 0, triOcupado = false;
-
-    async function triLoad() {
-        const area = document.getElementById('triArea');
-        area.innerHTML = '<div class="loading">Carregando creators...</div>';
-        const { data, error } = await sb.from('creators')
-            .select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, melhor_conteudo, experiencia, created_at')
-            .is('nao_qualificada', null).is('qualificada_em', null)
-            .order('created_at', { ascending: false });
-        if (error) { area.innerHTML = '<div class="tri-vazio"><b>Erro ao carregar</b>' + escapeHtml(error.message) + '</div>'; return; }
-        triFila = data || [];
-        triTotal = triFila.length; triFeitas = []; triBoas = 0; triNao = 0;
-        triRender();
-    }
-
-    function triRender() {
-        const area = document.getElementById('triArea');
-        const feitas = triBoas + triNao;
-        document.getElementById('triCont').innerHTML = `<b>${triFila.length}</b> na fila · ${triBoas} boas · ${triNao} não boas`;
-        document.getElementById('triBarra').style.width = triTotal ? (feitas / triTotal * 100) + '%' : '0';
-        const c = triFila[0];
-        if (!c) {
-            area.innerHTML = `<div class="tri-card tri-vazio"><b>Tudo triado 🎉</b>Nenhuma creator esperando avaliação.${triFeitas.length ? `<div class="tri-mini" style="justify-content:center"><button onclick="triDesfazer()">Desfazer a última</button></div>` : ''}</div>`;
-            return;
-        }
-        const loc = [c.cidade, c.estado].filter(Boolean).map(escapeHtml).join(' · ');
-        const ig = formatInstagramUrl(c.instagram);
-        const tt = formatTiktokUrl(c.tiktok);
-        const links = [
-            c.portfolio ? `<a class="principal" href="${safeUrl(c.portfolio)}" target="_blank" rel="noopener">Portfólio</a>` : '',
-            c.melhor_conteudo ? `<a href="${safeUrl(c.melhor_conteudo)}" target="_blank" rel="noopener">Melhor conteúdo</a>` : '',
-            ig ? `<a href="${ig}" target="_blank" rel="noopener">Instagram</a>` : '',
-            tt ? `<a href="${tt}" target="_blank" rel="noopener">TikTok</a>` : ''
-        ].join('');
-        const foto = c.foto_perfil
-            ? `<img class="tri-foto" src="${escapeHtml(c.foto_perfil)}" alt="" onerror="this.outerHTML='<div class=&quot;tri-foto&quot;>${getInitials(c.nome)}</div>'">`
-            : `<div class="tri-foto">${getInitials(c.nome)}</div>`;
-        area.innerHTML = `
-            <div class="tri-card" id="triCard">
-                <span class="tri-carimbo boa">Boa</span><span class="tri-carimbo nao">Não boa</span>
-                <div class="tri-cab">
-                    ${foto}
-                    <div>
-                        <p class="tri-nome">${escapeHtml(c.nome)}</p>
-                        <div class="tri-sub">${c.instagram ? '@' + escapeHtml(String(c.instagram).replace(/^@/, '').replace(/^.*instagram\.com\//i, '').replace(/\/.*$/, '')) : ''}${loc ? ' · ' + loc : ''}<br>Seguidores: ${escapeHtml(formatSeguidores(c.seguidores))} · Cadastro ${formatDate(c.created_at)}</div>
-                    </div>
-                </div>
-                <div class="tri-tags">${formatTipoCreator(c.tipo_creator)} ${formatExpBadge(c.experiencia)} ${c.nicho ? formatNicho(c.nicho) : ''}</div>
-                ${c.sobre ? `<p class="tri-sobre">${escapeHtml(c.sobre)}</p>` : ''}
-                <div class="tri-links">${links || '<span class="tri-sem">Sem portfólio nem links</span>'}</div>
-                <div class="tri-acoes">
-                    <button class="tri-btn-nao" onclick="triAbrirMotivos()">✕ Não boa<kbd>←</kbd></button>
-                    <button class="tri-btn-boa" onclick="triMarcar('boa')">✓ Boa<kbd>→</kbd></button>
-                </div>
-                <div class="tri-motivos" id="triMotivos">
-                    ${TRI_MOTIVOS.map((m, i) => `<button onclick="triMarcar(${i})">${m}<kbd>${i + 1}</kbd></button>`).join('')}
-                    <form class="tri-outro" onsubmit="event.preventDefault();triMarcar(this.motivo.value)">
-                        <input name="motivo" placeholder="Ou escreva outro motivo e aperte Enter" autocomplete="off">
-                        <button type="submit">Salvar</button>
-                    </form>
-                </div>
-                <div class="tri-mini">
-                    <button onclick="triDesfazer()" ${triFeitas.length ? '' : 'disabled'}>↶ Desfazer</button>
-                    <button onclick="triPular()">Pular →</button>
-                </div>
-            </div>`;
-        if (!c.portfolio && !c.melhor_conteudo) triAbrirMotivos();
-        triLigarArraste(document.getElementById('triCard'));
-        /* pré-carrega a foto da próxima */
-        if (triFila[1] && triFila[1].foto_perfil) new Image().src = triFila[1].foto_perfil;
-    }
-
-    function triAbrirMotivos() {
-        const el = document.getElementById('triMotivos');
-        if (el) el.classList.add('show');
-    }
-
-    async function triMarcar(qual) {
-        const c = triFila[0];
-        if (!c || triOcupado) return;
-        let patch;
-        if (qual === 'boa') {
-            patch = { qualificada_em: new Date().toISOString() };
-        } else {
-            /* número = um dos botões; texto = motivo escrito no campo */
-            const motivo = typeof qual === 'number' ? TRI_MOTIVOS[qual] : String(qual || '').trim();
-            if (!motivo) return;
-            patch = { nao_qualificada: motivo, nao_qualificada_em: new Date().toISOString() };
-        }
-        triOcupado = true;
-        const card = document.getElementById('triCard');
-        if (card) { card.style.transform = `translateX(${qual === 'boa' ? 120 : -120}%) rotate(${qual === 'boa' ? 12 : -12}deg)`; card.style.opacity = '0'; }
-        const { error } = await sb.from('creators').update(patch).eq('id', c.id);
-        triOcupado = false;
-        if (error) { alert('Não deu pra salvar: ' + error.message); triRender(); return; }
-        triFila.shift();
-        triFeitas.push({ c, boa: qual === 'boa' });
-        if (qual === 'boa') triBoas++; else triNao++;
-        setTimeout(triRender, 120);
-    }
-
-    async function triDesfazer() {
-        const ult = triFeitas[triFeitas.length - 1];
-        if (!ult || triOcupado) return;
-        triOcupado = true;
-        const { error } = await sb.from('creators')
-            .update({ qualificada_em: null, nao_qualificada: null, nao_qualificada_em: null })
-            .eq('id', ult.c.id);
-        triOcupado = false;
-        if (error) { alert('Não deu pra desfazer: ' + error.message); return; }
-        triFeitas.pop();
-        if (ult.boa) triBoas--; else triNao--;
-        triFila.unshift(ult.c);
-        triRender();
-    }
-
-    function triPular() {
-        if (triFila.length < 2) return;
-        triFila.push(triFila.shift());
-        triRender();
-    }
-
-    /* Arrastar o card (dedo ou mouse): direita = boa, esquerda = abre os motivos */
-    function triLigarArraste(card) {
-        if (!card) return;
-        let x0 = null, dx = 0;
-        const boa = card.querySelector('.tri-carimbo.boa'), nao = card.querySelector('.tri-carimbo.nao');
-        card.addEventListener('pointerdown', e => {
-            if (e.target.closest('a, button')) return;
-            x0 = e.clientX; dx = 0; card.classList.add('arrastando'); card.setPointerCapture(e.pointerId);
-        });
-        card.addEventListener('pointermove', e => {
-            if (x0 === null) return;
-            dx = e.clientX - x0;
-            card.style.transform = `translateX(${dx}px) rotate(${dx / 25}deg)`;
-            boa.style.opacity = Math.max(0, Math.min(1, dx / 100));
-            nao.style.opacity = Math.max(0, Math.min(1, -dx / 100));
-        });
-        const solta = () => {
-            if (x0 === null) return;
-            x0 = null; card.classList.remove('arrastando');
-            if (dx > 110) { triMarcar('boa'); return; }
-            card.style.transform = ''; boa.style.opacity = 0; nao.style.opacity = 0;
-            if (dx < -110) triAbrirMotivos();
-        };
-        card.addEventListener('pointerup', solta);
-        card.addEventListener('pointercancel', solta);
-    }
-
-    document.addEventListener('keydown', e => {
-        if (!document.getElementById('tabTriagem').classList.contains('show')) return;
-        if (e.target.closest('input, textarea, select, [contenteditable]') || e.metaKey || e.ctrlKey || e.altKey) return;
-        const c = triFila[0];
-        if (e.key === 'ArrowRight') { e.preventDefault(); triMarcar('boa'); }
-        else if (e.key === 'ArrowLeft') { e.preventDefault(); triAbrirMotivos(); }
-        else if (['1', '2', '3', '4'].includes(e.key) && document.querySelector('#triMotivos.show')) triMarcar(+e.key - 1);
-        else if (e.key === 'z' || e.key === 'Z') triDesfazer();
-        else if (e.key === ' ') { e.preventDefault(); triPular(); }
-        else if ((e.key === 'p' || e.key === 'P') && c && (c.portfolio || c.melhor_conteudo)) window.open(safeUrl(c.portfolio || c.melhor_conteudo).replace(/&amp;/g, '&'), '_blank', 'noopener');
-    });
 
     /* ══════════════════════════════════════
        CREATORS TAB
