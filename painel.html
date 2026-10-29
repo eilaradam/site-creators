@@ -318,6 +318,16 @@
         .drawer-nq-motivos button { padding: 8px 12px; border-radius: 100px; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--card); color: var(--text); }
         .drawer-nq-motivos button:hover { border-color: var(--error); color: var(--error); }
         .drawer-nq-atual { font-size: 13px; color: var(--text-soft); margin-bottom: 10px; }
+        .drawer-nq-acoes { display: flex; gap: 10px; }
+        .drawer-nq-acoes button { flex: 1; padding: 11px; border-radius: 12px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; border: 1.5px solid; background: var(--card); transition: all 0.2s; }
+        .drawer-nq-nao { color: var(--error); border-color: var(--error) !important; }
+        .drawer-nq-nao:hover { background: rgba(196,69,60,0.06) !important; }
+        .drawer-nq-boa { color: #fff; background: var(--success) !important; border-color: var(--success) !important; }
+        .drawer-nq-boa:hover { filter: brightness(.95); }
+        .drawer-nq-outro { display: flex; gap: 8px; flex: 1 1 100%; }
+        .drawer-nq-outro input { flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: 100px; font-family: 'Outfit', sans-serif; font-size: 12px; }
+        .drawer-nq-outro input:focus { outline: none; border-color: var(--error); }
+        .ok-badge { display: inline-block; padding: 2px 8px; border-radius: 100px; font-size: 10px; font-weight: 600; background: rgba(45,122,79,0.1); color: var(--success); white-space: nowrap; }
         .nq-bloco { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); }
         .nq-bloco summary { cursor: pointer; font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 14px; list-style: none; }
         .nq-bloco summary::-webkit-details-marker { display: none; }
@@ -1051,6 +1061,7 @@
     let savedTotalCount = 0;
     let currentUserId = null;
     let currentRole = null;
+    let podeTriar = false;
     const NQ_MOTIVOS = ['Sem portfólio', 'Portfólio ruim', 'Conteúdo ruim', 'Link inválido'];
     let savedCreatorIds = new Set();
     let popularityMap = {};
@@ -1101,6 +1112,7 @@
         /* quem ajuda na triagem (pode_triar) ganha a aba Análise */
         sb.rpc('pode_triar').then(({ data }) => {
             if (!data) return;
+            podeTriar = true;
             document.getElementById('navAnalise').style.display = '';
             document.getElementById('tabBtnAnalise').style.display = '';
         });
@@ -1650,6 +1662,7 @@
                     ${formatTipoCreator(c.tipo_creator)}
                     <span class="seg-badge">${formatSeguidores(c.seguidores)}</span>
                     ${c.nao_qualificada ? `<span class="nq-badge">${escapeHtml(c.nao_qualificada)}</span>` : ''}
+                    ${podeTriar && c.qualificada_em ? `<span class="ok-badge">✓ Aprovada</span>` : ''}
                 </div>
                 ${(c.instagram || c.tiktok || c.portfolio) ? `
                 <div class="card-social">
@@ -1778,7 +1791,7 @@
 
         try {
             let query = sb.from('creators')
-                .select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, melhor_conteudo, whatsapp, status, experiencia, nao_qualificada', { count: 'exact' })
+                .select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, melhor_conteudo, whatsapp, status, experiencia, nao_qualificada, qualificada_em', { count: 'exact' })
                 .is('nao_qualificada', null)
                 .order('created_at', { ascending: false });
 
@@ -1823,7 +1836,7 @@
         const bloco = document.getElementById('nqBloco');
         try {
             const { data, error } = await sb.from('creators')
-                .select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, melhor_conteudo, whatsapp, status, experiencia, nao_qualificada')
+                .select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, melhor_conteudo, whatsapp, status, experiencia, nao_qualificada, qualificada_em')
                 .not('nao_qualificada', 'is', null)
                 .order('nao_qualificada_em', { ascending: false });
             if (error) throw error;
@@ -1836,33 +1849,50 @@
         }
     }
 
-    async function marcarNaoQualificada(creatorId, motivo) {
-        if (motivo === 'Outro') {
-            motivo = (prompt('Qual o motivo?') || '').trim();
-            if (!motivo) return;
-        }
-        const patch = motivo
-            ? { nao_qualificada: motivo, nao_qualificada_em: new Date().toISOString() }
-            : { nao_qualificada: null, nao_qualificada_em: null };
-        const { error } = await sb.from('creators').update(patch).eq('id', creatorId);
+    /* Aprovar / não aprovar no perfil da creator: grava igual à aba Análise (triagem_marcar) */
+    async function triarCreator(creatorId, status, motivo) {
+        if (status === 'nao' && !motivo) return;
+        const { error } = await sb.rpc('triagem_marcar', { p_id: creatorId, p_status: status, p_motivo: motivo || null });
         if (error) { alert('Não deu pra salvar: ' + error.message); return; }
-        if (creatorsCache[creatorId]) creatorsCache[creatorId].nao_qualificada = patch.nao_qualificada;
-        closeDrawer();
-        loadCreators();
+        const c = creatorsCache[creatorId];
+        if (c) {
+            c.nao_qualificada = status === 'nao' ? motivo : null;
+            c.qualificada_em = status === 'boa' ? new Date().toISOString() : null;
+        }
+        if (status === 'boa') {
+            /* aprovada continua na vitrine: só atualiza o perfil e o selo do card */
+            openDrawer(creatorId);
+            document.querySelectorAll('.creator-card[data-creator-id="' + creatorId + '"]').forEach(el => { el.outerHTML = buildCardHtml(c); });
+        } else {
+            closeDrawer();
+            loadCreators();
+        }
     }
 
     function buildNaoQualificadaHtml(c) {
-        if (currentRole !== 'admin') return '';
+        if (!podeTriar) return '';
         if (c.nao_qualificada) {
             return `<div class="drawer-nq">
-                <div class="drawer-nq-atual">Não qualificada: <strong>${escapeHtml(c.nao_qualificada)}</strong></div>
-                <button class="drawer-nq-btn" onclick="marcarNaoQualificada('${c.id}', null)">Voltar pra base principal</button>
+                <div class="drawer-nq-atual">Não aprovada: <strong>${escapeHtml(c.nao_qualificada)}</strong></div>
+                <button class="drawer-nq-btn" onclick="triarCreator('${c.id}', 'limpar')">Desfazer e voltar pra base principal</button>
+            </div>`;
+        }
+        if (c.qualificada_em) {
+            return `<div class="drawer-nq">
+                <div class="drawer-nq-atual" style="color:var(--success)">✓ Aprovada em ${new Date(c.qualificada_em).toLocaleDateString('pt-BR')}</div>
+                <button class="drawer-nq-btn" onclick="triarCreator('${c.id}', 'limpar')">Desfazer</button>
             </div>`;
         }
         return `<div class="drawer-nq">
-            <button class="drawer-nq-btn" onclick="this.nextElementSibling.classList.toggle('show')">Não qualificada</button>
+            <div class="drawer-nq-acoes">
+                <button class="drawer-nq-nao" onclick="this.parentElement.nextElementSibling.classList.toggle('show')">✕ Não aprovar</button>
+                <button class="drawer-nq-boa" onclick="triarCreator('${c.id}', 'boa')">✓ Aprovar</button>
+            </div>
             <div class="drawer-nq-motivos">
-                ${NQ_MOTIVOS.concat('Outro').map(m => `<button onclick="marcarNaoQualificada('${c.id}', '${m}')">${m}</button>`).join('')}
+                ${NQ_MOTIVOS.map(m => `<button onclick="triarCreator('${c.id}', 'nao', '${m}')">${m}</button>`).join('')}
+                <form class="drawer-nq-outro" onsubmit="event.preventDefault();triarCreator('${c.id}', 'nao', this.motivo.value.trim())">
+                    <input name="motivo" placeholder="Outro motivo e Enter" autocomplete="off">
+                </form>
             </div>
         </div>`;
     }
@@ -1950,7 +1980,7 @@
             const idsArray = Array.from(savedCreatorIds);
 
             let query = sb.from('creators')
-                .select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, melhor_conteudo, whatsapp, status, experiencia, nao_qualificada', { count: 'exact' })
+                .select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, melhor_conteudo, whatsapp, status, experiencia, nao_qualificada, qualificada_em', { count: 'exact' })
                 .in('id', idsArray)
                 .order('created_at', { ascending: false });
 
@@ -2082,7 +2112,7 @@
 
         grid.innerHTML = '<div class="loading">Carregando...</div>';
         try {
-            const { data } = await sb.from('creators').select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, melhor_conteudo, whatsapp, status, experiencia, nao_qualificada').in('id', ids);
+            const { data } = await sb.from('creators').select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, melhor_conteudo, whatsapp, status, experiencia, nao_qualificada, qualificada_em').in('id', ids);
             document.getElementById('savedResultsInfo').innerHTML = `<strong>${escapeHtml(lista.nome)}</strong> — ${(data || []).length} creator(s)`;
             grid.innerHTML = (data || []).map(c => buildCardHtml(c)).join('');
             document.getElementById('savedPagination').style.display = 'none';
