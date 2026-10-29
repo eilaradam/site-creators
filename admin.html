@@ -1869,6 +1869,9 @@
     <div class="stats-row">
         <div class="stat-card accent"><div class="stat-value" id="statTotal">—</div><div class="stat-label">Total de creators</div></div>
         <div class="stat-card"><div class="stat-value" id="statNovo">—</div><div class="stat-label">Novos</div></div>
+        <div class="stat-card"><div class="stat-value" id="statTriBoa">—</div><div class="stat-label">✓ Aprovadas</div></div>
+        <div class="stat-card"><div class="stat-value" id="statTriNao">—</div><div class="stat-label">✕ Não aprovadas</div></div>
+        <div class="stat-card"><div class="stat-value" id="statTriFalta">—</div><div class="stat-label">Falta revisar</div></div>
     </div>
 
     <div class="filters-bar">
@@ -1878,7 +1881,11 @@
         </div>
         <div class="filter-group">
             <label>Status</label>
-            <select id="filterStatus"><option value="">Todos</option><option value="novo">Novo</option><option value="aprovado">Aprovado</option><option value="ativo">Ativo</option><option value="nao_qualificada">Não qualificadas</option></select>
+            <select id="filterStatus"><option value="">Todos</option><option value="novo">Novo</option><option value="aprovado">Aprovado</option><option value="ativo">Ativo</option></select>
+        </div>
+        <div class="filter-group">
+            <label>Triagem</label>
+            <select id="filterTriagem"><option value="">Todas (menos não aprovadas)</option><option value="boa">✓ Aprovadas</option><option value="nao">✕ Não aprovadas</option><option value="falta">Falta revisar</option></select>
         </div>
         <div class="filter-group">
             <label>Nicho</label>
@@ -10312,7 +10319,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         listEl.innerHTML = '<div class="loading">Carregando creators...</div>';
 
         try {
-            const selectFields = 'id, nome, email, foto_perfil, estado, cidade, tipo_creator, seguidores, experiencia, whatsapp, instagram, tiktok, sobre, nicho, portfolio, melhor_conteudo, data_nascimento, created_at, utm_origem, codigo_indicacao, indicada_por, status, email_boas_vindas_enviado, genero, campanha_interesse, nao_qualificada';
+            const selectFields = 'id, nome, email, foto_perfil, estado, cidade, tipo_creator, seguidores, experiencia, whatsapp, instagram, tiktok, sobre, nicho, portfolio, melhor_conteudo, data_nascimento, created_at, utm_origem, codigo_indicacao, indicada_por, status, email_boas_vindas_enviado, genero, campanha_interesse, nao_qualificada, nao_qualificada_em, qualificada_em';
             let allData = [];
             let from = 0;
             const pageSize = 1000;
@@ -10356,6 +10363,9 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     function updateStats() {
         document.getElementById('statTotal').textContent = allCreators.length;
         document.getElementById('statNovo').textContent = allCreators.filter(c => c.status === 'novo').length;
+        document.getElementById('statTriBoa').textContent = allCreators.filter(c => c.qualificada_em).length;
+        document.getElementById('statTriNao').textContent = allCreators.filter(c => c.nao_qualificada).length;
+        document.getElementById('statTriFalta').textContent = allCreators.filter(c => !c.qualificada_em && !c.nao_qualificada).length;
     }
 
     function populateEstadoFilter() {
@@ -10474,16 +10484,19 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const ordem = document.getElementById('filterOrdem').value;
         const utm = document.getElementById('filterUtm').value;
         const indicacao = document.getElementById('filterIndicacao').value;
+        const triagem = document.getElementById('filterTriagem').value;
         const salvosOnly = document.getElementById('btnSalvosToggle').classList.contains('active');
         const isIdadeDefault = idadeMin === 16 && idadeMax === 60;
 
         let filtered = allCreators.filter(c => {
             if (salvosOnly && !savedCreatorIds.has(c.id)) return false;
             if (search && !(c.nome || '').toLowerCase().includes(search) && !(c.instagram || '').toLowerCase().includes(search) && !(c.email || '').toLowerCase().includes(search)) return false;
-            // Não qualificadas (marcadas no painel) saem da base e só aparecem no filtro delas
-            if (status === 'nao_qualificada') { if (!c.nao_qualificada) return false; }
+            // Triagem: não aprovadas saem da base e só aparecem no filtro delas
+            if (triagem === 'nao') { if (!c.nao_qualificada) return false; }
             else if (c.nao_qualificada) return false;
-            else if (status && c.status !== status) return false;
+            if (triagem === 'boa' && !c.qualificada_em) return false;
+            if (triagem === 'falta' && c.qualificada_em) return false;
+            if (status && c.status !== status) return false;
             if (!nichoMatches(c.nicho, nicho)) return false;
             if (tipoCreator && c.tipo_creator !== tipoCreator) return false;
             if (genero && c.genero !== genero) return false;
@@ -10562,7 +10575,8 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                         <span class="col-w-tipo">${formatTipoCreator(c.tipo_creator)}</span>
                         <span class="col-card-tag col-w-seg">${formatSeguidores(c.seguidores)}</span>
                         <span class="col-w-exp">${formatExpBadge(c.experiencia)}</span>
-                        ${c.nao_qualificada ? `<span class="col-card-tag" style="color:var(--error)">${escapeHtml(c.nao_qualificada)}</span>` : ''}
+                        ${c.nao_qualificada ? `<span class="col-card-tag" style="color:var(--error)" title="Não aprovada em ${c.nao_qualificada_em ? new Date(c.nao_qualificada_em).toLocaleDateString('pt-BR') : '-'}">✕ ${escapeHtml(c.nao_qualificada)}</span>` : ''}
+                        ${c.qualificada_em ? `<span class="col-card-tag" style="color:var(--success)" title="Aprovada em ${new Date(c.qualificada_em).toLocaleDateString('pt-BR')}">✓ Aprovada</span>` : ''}
                         ${totalSalvos > 0 ? `<span class="salvos-count" style="font-size:11px">♥ ${totalSalvos}</span>` : ''}
                     </div>
                     <button class="btn-save ${savedCreatorIds.has(c.id) ? 'saved' : ''}" data-id="${c.id}" title="Salvar / remover dos salvos" onclick="event.stopPropagation();toggleSave('${c.id}')">${heartSvg()}</button>
@@ -10642,6 +10656,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     document.getElementById('filterSeguidores').addEventListener('change', applyFilters);
     document.getElementById('filterUtm').addEventListener('change', applyFilters);
     document.getElementById('filterIndicacao').addEventListener('change', applyFilters);
+    document.getElementById('filterTriagem').addEventListener('change', applyFilters);
     document.getElementById('filterOrdem').addEventListener('change', applyFilters);
     setupRangeSlider('idadeMin', 'idadeMax', 'idadeLabel', 'idadeTrack', applyFilters);
 
@@ -10667,6 +10682,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         document.getElementById('filterOrdem').value = 'recentes';
         document.getElementById('filterUtm').value = '';
         document.getElementById('filterIndicacao').value = '';
+        document.getElementById('filterTriagem').value = '';
         document.getElementById('idadeMin').value = 16;
         document.getElementById('idadeMax').value = 60;
         document.getElementById('idadeLabel').textContent = '16 - 60';
