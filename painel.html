@@ -141,7 +141,19 @@
         .results-info strong { color: var(--text); }
 
         /* Cards grid */
-        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
+        .cards-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+        @media (max-width: 1400px) { .cards-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+        @media (max-width: 1200px) { .cards-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+        @media (max-width: 1000px) { .cards-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+        /* Card compacto pra caber 6 por linha: foto em cima, nome embaixo com a largura toda */
+        @media (min-width: 769px) {
+            .cards-grid .creator-card { padding: 14px; }
+            .cards-grid .card-top { flex-direction: column; align-items: flex-start; gap: 8px; margin-bottom: 10px; padding-right: 0; }
+            .cards-grid .card-info { width: 100%; }
+            .cards-grid .card-badges { margin-bottom: 10px; }
+            .cards-grid .card-social { gap: 4px; }
+            .cards-grid .card-social a { padding: 6px 2px; font-size: 10.5px; }
+        }
         .creator-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; transition: all 0.25s; position: relative; overflow: visible; cursor: pointer; display: flex; flex-direction: column; }
         .creator-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); border-color: rgba(212,87,42,0.3); }
         .creator-card.dropdown-open { z-index: 31; }
@@ -293,6 +305,25 @@
         .drawer-btn { flex: 1; padding: 12px; border-radius: 12px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; text-align: center; border: 1.5px solid var(--border); background: none; color: var(--text-soft); }
         .drawer-btn:hover { border-color: var(--accent); color: var(--accent); }
         .drawer-btn.saved { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
+
+        /* Não qualificadas: botão no drawer (só admin) + bloco embaixo da pesquisa */
+        .nq-badge { display: inline-block; padding: 2px 8px; border-radius: 100px; font-size: 10px; font-weight: 600; background: rgba(196,69,60,0.1); color: var(--error); white-space: nowrap; }
+        .drawer-nq { padding: 0 32px 20px; }
+        .drawer-nq-btn { width: 100%; padding: 10px; border-radius: 12px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; border: 1.5px dashed var(--border); background: none; color: var(--text-soft); transition: all 0.2s; }
+        .drawer-nq-btn:hover { border-color: var(--error); color: var(--error); }
+        .drawer-nq-motivos { display: none; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .drawer-nq-motivos.show { display: flex; }
+        .drawer-nq-motivos button { padding: 8px 12px; border-radius: 100px; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--card); color: var(--text); }
+        .drawer-nq-motivos button:hover { border-color: var(--error); color: var(--error); }
+        .drawer-nq-atual { font-size: 13px; color: var(--text-soft); margin-bottom: 10px; }
+        .nq-bloco { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); }
+        .nq-bloco summary { cursor: pointer; font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 14px; list-style: none; }
+        .nq-bloco summary::-webkit-details-marker { display: none; }
+        .nq-bloco summary::before { content: '▸ '; color: var(--text-muted); }
+        .nq-bloco[open] summary::before { content: '▾ '; }
+        .nq-bloco summary span { color: var(--text-muted); font-weight: 500; }
+        .nq-bloco .creator-card { opacity: 0.75; }
+        @media (max-width: 768px) { .drawer-nq { padding: 0 20px 16px; } }
 
         /* Calculadora de Campanha UGC */
         .calc { max-width: 680px; margin: 0 auto; }
@@ -689,6 +720,11 @@
             </div>
             <button id="btnNext">Proximo</button>
         </div>
+
+        <details class="nq-bloco" id="nqBloco" style="display:none;">
+            <summary>Creators não qualificadas <span id="nqCount"></span></summary>
+            <div class="cards-grid" id="nqGrid"></div>
+        </details>
     </div>
 
     <!-- ── TAB: MINHAS LISTAS ── -->
@@ -1004,6 +1040,8 @@
     let savedCurrentPage = 1;
     let savedTotalCount = 0;
     let currentUserId = null;
+    let currentRole = null;
+    const NQ_MOTIVOS = ['Sem portfólio', 'Qualidade baixa', 'Link inválido'];
     let savedCreatorIds = new Set();
     let popularityMap = {};
     let allListas = [];
@@ -1044,6 +1082,7 @@
         }
 
         currentUserId = authData.user.id;
+        currentRole = role;
         const userInfo = await Auth.getUserInfo();
         const uname = userInfo ? userInfo.nome : '';
         document.getElementById('userName').textContent = uname;
@@ -1591,6 +1630,7 @@
                 <div class="card-badges">
                     ${formatTipoCreator(c.tipo_creator)}
                     <span class="seg-badge">${formatSeguidores(c.seguidores)}</span>
+                    ${c.nao_qualificada ? `<span class="nq-badge">${escapeHtml(c.nao_qualificada)}</span>` : ''}
                 </div>
                 ${(c.instagram || c.tiktok || c.portfolio) ? `
                 <div class="card-social">
@@ -1646,6 +1686,7 @@
                 <button class="drawer-btn" onclick="showListaDropdownDrawer('${c.id}')">📁 Lista</button>
             </div>
             ${buildListaDropdown(c.id)}
+            ${buildNaoQualificadaHtml(c)}
         `;
         overlay.classList.add('show');
         document.body.style.overflow = 'hidden';
@@ -1718,7 +1759,8 @@
 
         try {
             let query = sb.from('creators')
-                .select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, melhor_conteudo, whatsapp, status, experiencia', { count: 'exact' })
+                .select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, melhor_conteudo, whatsapp, status, experiencia, nao_qualificada', { count: 'exact' })
+                .is('nao_qualificada', null)
                 .order('created_at', { ascending: false });
 
             if (search) query = query.ilike('nome', `%${search}%`);
@@ -1754,6 +1796,56 @@
         } catch (err) {
             grid.innerHTML = `<div class="empty-state"><p style="color:var(--error)">Erro ao carregar: ${escapeHtml(err.message)}</p></div>`;
         }
+        loadNaoQualificadas();
+    }
+
+    /* Bloco "Creators não qualificadas": saem da pesquisa e ficam aqui embaixo */
+    async function loadNaoQualificadas() {
+        const bloco = document.getElementById('nqBloco');
+        try {
+            const { data, error } = await sb.from('creators')
+                .select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, melhor_conteudo, whatsapp, status, experiencia, nao_qualificada')
+                .not('nao_qualificada', 'is', null)
+                .order('nao_qualificada_em', { ascending: false });
+            if (error) throw error;
+            if (!data || data.length === 0) { bloco.style.display = 'none'; return; }
+            document.getElementById('nqCount').textContent = '(' + data.length + ')';
+            document.getElementById('nqGrid').innerHTML = data.map(c => buildCardHtml(c)).join('');
+            bloco.style.display = '';
+        } catch (e) {
+            bloco.style.display = 'none';
+        }
+    }
+
+    async function marcarNaoQualificada(creatorId, motivo) {
+        if (motivo === 'Outro') {
+            motivo = (prompt('Qual o motivo?') || '').trim();
+            if (!motivo) return;
+        }
+        const patch = motivo
+            ? { nao_qualificada: motivo, nao_qualificada_em: new Date().toISOString() }
+            : { nao_qualificada: null, nao_qualificada_em: null };
+        const { error } = await sb.from('creators').update(patch).eq('id', creatorId);
+        if (error) { alert('Não deu pra salvar: ' + error.message); return; }
+        if (creatorsCache[creatorId]) creatorsCache[creatorId].nao_qualificada = patch.nao_qualificada;
+        closeDrawer();
+        loadCreators();
+    }
+
+    function buildNaoQualificadaHtml(c) {
+        if (currentRole !== 'admin') return '';
+        if (c.nao_qualificada) {
+            return `<div class="drawer-nq">
+                <div class="drawer-nq-atual">Não qualificada: <strong>${escapeHtml(c.nao_qualificada)}</strong></div>
+                <button class="drawer-nq-btn" onclick="marcarNaoQualificada('${c.id}', null)">Voltar pra base principal</button>
+            </div>`;
+        }
+        return `<div class="drawer-nq">
+            <button class="drawer-nq-btn" onclick="this.nextElementSibling.classList.toggle('show')">Não qualificada</button>
+            <div class="drawer-nq-motivos">
+                ${NQ_MOTIVOS.concat('Outro').map(m => `<button onclick="marcarNaoQualificada('${c.id}', '${m}')">${m}</button>`).join('')}
+            </div>
+        </div>`;
     }
 
     function renderPagination() {
@@ -1839,7 +1931,7 @@
             const idsArray = Array.from(savedCreatorIds);
 
             let query = sb.from('creators')
-                .select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, melhor_conteudo, whatsapp, status, experiencia', { count: 'exact' })
+                .select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, melhor_conteudo, whatsapp, status, experiencia, nao_qualificada', { count: 'exact' })
                 .in('id', idsArray)
                 .order('created_at', { ascending: false });
 
@@ -1971,7 +2063,7 @@
 
         grid.innerHTML = '<div class="loading">Carregando...</div>';
         try {
-            const { data } = await sb.from('creators').select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, melhor_conteudo, whatsapp, status, experiencia').in('id', ids);
+            const { data } = await sb.from('creators').select('id, nome, foto_perfil, cidade, estado, nicho, tipo_creator, sobre, seguidores, instagram, tiktok, portfolio, melhor_conteudo, whatsapp, status, experiencia, nao_qualificada').in('id', ids);
             document.getElementById('savedResultsInfo').innerHTML = `<strong>${escapeHtml(lista.nome)}</strong> — ${(data || []).length} creator(s)`;
             grid.innerHTML = (data || []).map(c => buildCardHtml(c)).join('');
             document.getElementById('savedPagination').style.display = 'none';
