@@ -613,6 +613,7 @@
     </div>
     <div class="header-right">
         <span class="header-user" id="userName"></span>
+        <a class="btn-logout" id="triagemLink" href="triagem.html" style="display:none;text-decoration:none">Triagem</a>
         <button class="btn-logout" id="logoutBtn">Sair</button>
     </div>
 </header>
@@ -1087,6 +1088,9 @@
         const uname = userInfo ? userInfo.nome : '';
         document.getElementById('userName').textContent = uname;
         document.body.style.visibility = 'visible';
+
+        /* quem ajuda na triagem (pode_triar) ganha o atalho no topo */
+        sb.rpc('pode_triar').then(({ data }) => { if (data) document.getElementById('triagemLink').style.display = ''; });
 
         await Promise.all([loadEstados(), loadSavedIds(), loadPopularity(), loadListas()]);
         await loadCreators();

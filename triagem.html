@@ -13,7 +13,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.98.0" integrity="sha384-Sm2s7OXxsAMTyJ4iIyRBgVpeGUvMPk2lRQnnZhE78Wej7oggIoolKt+SCt0XJbUB" crossorigin="anonymous"></script>
     <script src="js/auth.js"></script>
     <script src="js/triagem.js"></script>
-    <!-- Página da equipe (role "equipe"): só a triagem de creators, sem o resto do admin. -->
+    <!-- Página da triagem pra quem não é admin: role "equipe" (só isso) ou aluna com pode_triar
+         (que volta pro painel pelo link do topo). -->
     <style>
         :root {
             --card: #FFFFFF;
@@ -34,6 +35,7 @@
         .logo span { color: var(--accent); }
         .usuario { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--text-soft); }
         .btn-logout { background: none; border: 1px solid var(--border); padding: 7px 16px; border-radius: 100px; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--text-soft); cursor: pointer; }
+        .btn-voltar { font-size: 13px; font-weight: 600; color: var(--accent); text-decoration: none; }
         .btn-logout:hover { border-color: var(--error); color: var(--error); }
         main { padding: 28px 16px 48px; }
     </style>
@@ -41,7 +43,7 @@
 <body>
     <header class="topo">
         <div class="logo">lara<span>.</span>dam</div>
-        <div class="usuario"><span id="userName"></span><button class="btn-logout" onclick="Auth.logout()">Sair</button></div>
+        <div class="usuario"><a class="btn-voltar" id="voltarPainel" href="painel.html" style="display:none">← Voltar ao painel</a><span id="userName"></span><button class="btn-logout" onclick="Auth.logout()">Sair</button></div>
     </header>
     <main id="triRoot"></main>
     <script>
@@ -49,7 +51,9 @@
         const authData = await Auth.checkAuth();
         if (!authData) return;
         const role = await Auth.getRole();
-        if (role !== 'equipe' && role !== 'admin') { window.location.href = 'login.html'; return; }
+        const { data: podeTriar } = await Auth.sb.rpc('pode_triar');
+        if (!podeTriar) { Auth.redirectByRole(role); return; }
+        if (role === 'aluna') document.getElementById('voltarPainel').style.display = '';
         const info = await Auth.getUserInfo();
         document.getElementById('userName').textContent = info ? info.nome : '';
         document.body.style.visibility = 'visible';
