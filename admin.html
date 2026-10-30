@@ -1357,6 +1357,10 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2.5"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
                         <span>Link na Bio</span>
                     </button>
+                    <button class="tab nav-item" data-tab="roteiros" type="button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h5"/></svg>
+                        <span>Roteiros</span>
+                    </button>
                     <!-- Um botao so pra Imersao + Direct no Automatico. Abre na Imersao; a troca
                          entre as duas e pelo menuzinho no topo do painel (.subnav). -->
                     <button class="tab nav-item" data-tab="imersao" type="button">
@@ -4257,6 +4261,49 @@
 <!-- ============ Aba Robô de inscrições ============
      Campanhas do Seu Influencer em que o robô (Mac da Lara) se inscreveu. Dados: tabela robo_inscricoes
      (gravada pela edge function robo-registrar). Prefixo rb- (CSS) e robo* (JS). -->
+<!-- Roteiros pra marca (ugc.laradam.com/roteiro/<slug>). A lista vem do Supabase (só admin le);
+     o roteiro abre aqui dentro no modo Lara, e a marca recebe só o link público. -->
+<div class="dashboard" id="tabRoteiros">
+<style>
+#tabRoteiros .rtl-wrap { max-width:1180px; margin:0 auto; }
+#tabRoteiros .rtl-topo { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
+#tabRoteiros .rtl-topo p { margin:0; color:var(--text-soft); font-size:14px; }
+#tabRoteiros .rtl-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:14px; }
+#tabRoteiros .rtl-card { background:var(--card); border:1px solid var(--border); border-left:6px solid #F59E0B; border-radius:16px; padding:16px 18px; display:flex; flex-direction:column; gap:12px; }
+#tabRoteiros .rtl-card.aprovado { border-left-color:#10B981; }
+#tabRoteiros .rtl-tit { font-size:17px; font-weight:800; color:var(--text); }
+#tabRoteiros .rtl-sub { font-size:12px; color:var(--text-muted); font-weight:600; margin-top:2px; }
+#tabRoteiros .rtl-badge { font-size:11px; font-weight:800; padding:3px 10px; border-radius:999px; background:#FFF7E6; color:#A86A00; white-space:nowrap; }
+#tabRoteiros .rtl-card.aprovado .rtl-badge { background:#ECFDF5; color:#047857; }
+#tabRoteiros .rtl-info { display:flex; flex-wrap:wrap; gap:6px; }
+#tabRoteiros .rtl-chip { background:var(--cream); border-radius:10px; padding:6px 10px; font-size:12.5px; font-weight:600; color:var(--text); }
+#tabRoteiros .rtl-chip.alerta { background:#EDE9FE; color:#5B21B6; }
+#tabRoteiros .rtl-botoes { display:flex; gap:8px; flex-wrap:wrap; margin-top:auto; }
+#tabRoteiros .rtl-btn { border:1px solid var(--border-strong); background:var(--card); color:var(--text); padding:8px 14px; border-radius:999px; font-size:13px; font-weight:700; cursor:pointer; text-decoration:none; font-family:inherit; }
+#tabRoteiros .rtl-btn.forte { background:var(--text); border-color:var(--text); color:#fff; }
+#tabRoteiros .rtl-vazio { text-align:center; padding:60px 20px; color:var(--text-soft); background:var(--card); border:1px dashed var(--border-strong); border-radius:16px; }
+#tabRoteiros .rtl-vazio .em { font-size:40px; }
+#tabRoteiros .rtl-barra { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+#tabRoteiros .rtl-barra strong { font-size:16px; margin-right:auto; }
+#tabRoteiros iframe { width:100%; height:calc(100vh - 150px); min-height:600px; border:1px solid var(--border); border-radius:16px; background:#F6F3EC; }
+</style>
+<div class="rtl-wrap">
+    <div id="rtlLista">
+        <div class="rtl-topo"><p>A marca recebe só o link público. Aqui você vê tudo e abre o roteiro no modo Lara (aceitar, editar, subir fotos e links).</p></div>
+        <div id="rtlBox"><div class="rtl-vazio">Carregando…</div></div>
+    </div>
+    <div id="rtlAberto" hidden>
+        <div class="rtl-barra">
+            <button class="rtl-btn" id="rtlVoltar" type="button">← Todos os roteiros</button>
+            <strong id="rtlTitulo"></strong>
+            <button class="rtl-btn" id="rtlCopiar" type="button">Copiar link da marca</button>
+            <a class="rtl-btn" id="rtlNovaAba" target="_blank" rel="noopener">Abrir em nova aba ↗</a>
+        </div>
+        <iframe id="rtlFrame" title="Roteiro"></iframe>
+    </div>
+</div>
+</div>
+
 <div class="dashboard" id="tabRobo">
 <style>
 #tabRobo .rb-wrap { max-width:1180px; margin:0 auto; }
@@ -6398,7 +6445,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
 
     /* ── Tabs ── */
-    const PAGE_TITLES = { objetivos: 'Objetivos', carrossel: 'Carrossel', painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', triagem: 'Triagem', admin: 'Conteúdo do site', turmavivo: 'Turma ao vivo', imersaoblack: 'Imersão Black', vibeturma: 'Vibe da turma', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', marcas: 'Marcas', conteudos: 'Conteúdos', robo: 'Robô de inscrições', edicao: 'Edição de vídeo', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', aulabonus: 'Aula ao vivo', instagram: 'Instagram', bio: 'Link na Bio' };
+    const PAGE_TITLES = { objetivos: 'Objetivos', carrossel: 'Carrossel', painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', triagem: 'Triagem', admin: 'Conteúdo do site', turmavivo: 'Turma ao vivo', imersaoblack: 'Imersão Black', vibeturma: 'Vibe da turma', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', marcas: 'Marcas', conteudos: 'Conteúdos', robo: 'Robô de inscrições', roteiros: 'Roteiros', edicao: 'Edição de vídeo', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', aulabonus: 'Aula ao vivo', instagram: 'Instagram', bio: 'Link na Bio' };
     function setPageTitle(target) {
         const el = document.getElementById('pageTitle');
         if (el && PAGE_TITLES[target]) el.textContent = PAGE_TITLES[target];
@@ -6434,6 +6481,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             document.getElementById('tabMarcas').classList.toggle('show', target === 'marcas');
             document.getElementById('tabConteudos').classList.toggle('show', target === 'conteudos');
             document.getElementById('tabRobo').classList.toggle('show', target === 'robo');
+            document.getElementById('tabRoteiros').classList.toggle('show', target === 'roteiros');
             document.getElementById('tabEdicao').classList.toggle('show', target === 'edicao');
             document.getElementById('tabDisparo').classList.toggle('show', target === 'disparo');
             document.getElementById('tabImersao').classList.toggle('show', target === 'imersao');
@@ -6464,6 +6512,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             if (target === 'marcas') { if (!marcasCarregado) loadMarcas(); if (!igPropsLoaded) { igPropsLoaded = true; igLoadProps(); } if (!igMarcasLoaded) { igMarcasLoaded = true; igLoadMarcas(); } }
             if (target === 'conteudos') ctLoad();
             if (target === 'robo') roboLoad();
+            if (target === 'roteiros') rtlLoad();
             if (target === 'edicao') edLoad();
             if (target === 'disparo') loadDisparo();
             if (target === 'imersao') { loadImersao(); loadAlunas(); }
@@ -20878,6 +20927,68 @@ function roboMoeda(v) { return v == null ? '-' : 'R$ ' + Number(v).toLocaleStrin
 function roboFoto(x) { var ini = roboEsc(String(x.titulo || '?').trim().charAt(0).toUpperCase()); return x.foto ? '<img class="rb-ft" loading="lazy" referrerpolicy="no-referrer" src="' + roboEsc(x.foto) + '" alt="" onerror="this.outerHTML=\'<div class=&quot;rb-ft ph&quot;>' + ini + '</div>\'">' : '<div class="rb-ft ph">' + ini + '</div>'; }
 function roboTempo(seg) { if (seg == null) return null; seg = Math.round(seg); if (seg < 90) return seg + ' segundos'; if (seg < 5400) return Math.round(seg / 60) + ' min'; if (seg < 172800) return Math.round(seg / 3600) + ' h'; return Math.round(seg / 86400) + ' dias'; }
 function roboQuando(iso) { var d = new Date(iso); return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' às ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); }
+/* ── Roteiros pra marca ── */
+var RTL_SITE = 'https://ugc.laradam.com/roteiro/';
+var rtlLinhas = [];
+function rtlEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function rtlQuando(iso) { return iso ? new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''; }
+async function rtlLoad() {
+  rtlFechar();
+  var box = document.getElementById('rtlBox'); if (!box) return;
+  var r = await sb.from('roteiros_marca').select('id, slug, chave_lara, conteudo, gancho_escolhido, aprovado_em, aprovado_por, visualizacoes, visto_em, created_at').order('created_at', { ascending: false });
+  if (r.error) { box.innerHTML = '<div class="rtl-vazio"><div class="em">😕</div><p>Não consegui carregar: ' + rtlEsc(r.error.message) + '</p></div>'; return; }
+  var n = await sb.from('roteiros_marca_notas').select('roteiro_id, tipo').eq('status', 'aberta').neq('tipo', 'resposta');
+  var abertas = (n && n.data) || [];
+  rtlLinhas = r.data || [];
+  if (!rtlLinhas.length) { box.innerHTML = '<div class="rtl-vazio"><div class="em">📝</div><p>Nenhum roteiro ainda. Manda o texto pro Claude que ele cadastra.</p></div>'; return; }
+  box.innerHTML = '<div class="rtl-grid">' + rtlLinhas.map(function (x, i) {
+    var c = x.conteudo || {};
+    var minhas = abertas.filter(function (a) { return a.roteiro_id === x.id; });
+    var sug = minhas.filter(function (a) { return a.tipo === 'sugestao'; }).length, com = minhas.length - sug;
+    var chips = [
+      x.visualizacoes ? '👀 Aberto ' + x.visualizacoes + 'x · ' + rtlQuando(x.visto_em) : '👀 A marca ainda não abriu',
+    ];
+    if (x.gancho_escolhido) chips.push('🎯 Gancho ' + rtlEsc(x.gancho_escolhido));
+    var alerta = [];
+    if (sug) alerta.push('✏️ ' + sug + (sug > 1 ? ' sugestões' : ' sugestão'));
+    if (com) alerta.push('💬 ' + com + (com > 1 ? ' comentários' : ' comentário'));
+    return '<div class="rtl-card' + (x.aprovado_em ? ' aprovado' : '') + '">' +
+      '<div style="display:flex;gap:10px;align-items:flex-start"><div style="flex:1;min-width:0"><div class="rtl-tit">' + rtlEsc(c.marca) + '</div>' +
+      '<div class="rtl-sub">' + rtlEsc(c.formato || '') + ' · criado ' + rtlQuando(x.created_at) + '</div></div>' +
+      '<span class="rtl-badge">' + (x.aprovado_em ? '✅ Aprovado' + (x.aprovado_por ? ' por ' + rtlEsc(x.aprovado_por) : '') : 'Em revisão') + '</span></div>' +
+      '<div class="rtl-info">' + chips.map(function (t) { return '<span class="rtl-chip">' + t + '</span>'; }).join('') +
+      alerta.map(function (t) { return '<span class="rtl-chip alerta">' + t + '</span>'; }).join('') + '</div>' +
+      '<div class="rtl-botoes"><button class="rtl-btn forte" type="button" data-rtl-abrir="' + i + '">Abrir roteiro</button>' +
+      '<button class="rtl-btn" type="button" data-rtl-copiar="' + i + '">Copiar link da marca</button></div></div>';
+  }).join('') + '</div>';
+}
+function rtlCopiar(x, bt) {
+  navigator.clipboard.writeText(RTL_SITE + x.slug).then(function () {
+    var t = bt.textContent; bt.textContent = '✓ Copiado!'; setTimeout(function () { bt.textContent = t; }, 1600);
+  });
+}
+var rtlAtual = null;
+function rtlAbrir(x) {
+  rtlAtual = x;
+  var url = RTL_SITE + x.slug + '?k=' + x.chave_lara;
+  document.getElementById('rtlTitulo').textContent = (x.conteudo && x.conteudo.marca) || 'Roteiro';
+  document.getElementById('rtlNovaAba').href = url;
+  document.getElementById('rtlFrame').src = url;
+  document.getElementById('rtlLista').hidden = true;
+  document.getElementById('rtlAberto').hidden = false;
+}
+function rtlFechar() {
+  var a = document.getElementById('rtlAberto'); if (!a || a.hidden) return;
+  a.hidden = true; document.getElementById('rtlLista').hidden = false;
+  document.getElementById('rtlFrame').src = 'about:blank';
+}
+document.addEventListener('click', function (e) {
+  var ab = e.target.closest('[data-rtl-abrir]'); if (ab) return rtlAbrir(rtlLinhas[+ab.dataset.rtlAbrir]);
+  var cp = e.target.closest('[data-rtl-copiar]'); if (cp) return rtlCopiar(rtlLinhas[+cp.dataset.rtlCopiar], cp);
+  if (e.target.closest('#rtlVoltar')) return rtlLoad();
+  if (e.target.closest('#rtlCopiar') && rtlAtual) return rtlCopiar(rtlAtual, e.target.closest('#rtlCopiar'));
+});
+
 async function roboLoad() {
   var box = document.getElementById('roboBox'); if (!box) return;
   var bt = document.getElementById('roboAtualizar'); if (bt && !bt._ok) { bt._ok = 1; bt.addEventListener('click', roboAtualizarAgora); }
