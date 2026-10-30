@@ -590,7 +590,7 @@
         /* ── Sidebar: seções agrupadas ── */
         .nav-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); padding: 16px 14px 6px; }
         .nav-section-label:first-child { padding-top: 4px; }
-        /* ── Grupos recolhiveis da barra (Agencia e Meus sites) ──
+        /* ── Grupos recolhiveis da barra (UGC Creator, Agencia e Outros) ──
            Ficam so com o titulo e abrem quando o mouse passa por cima. A altura anima com
            o truque de grid 0fr -> 1fr, que da transicao suave sem precisar saber a altura. */
         .nav-group { display: flex; flex-direction: column; }
@@ -1311,17 +1311,11 @@
                  cima. O grupo que contem a aba aberta ganha .aberto pelo JS e fica expandido,
                  senao ela perderia de vista onde esta. -->
             <div class="nav-group recolhivel">
-                <div class="nav-section-label">Agência<svg class="nav-group-seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+                <div class="nav-section-label">UGC Creator<svg class="nav-group-seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
                 <div class="nav-group-itens"><div class="nav-group-lista">
-                    <!-- Um botao so pra Base de creators + Campanhas. Abre na Base; a troca
-                         entre as duas e pelo menuzinho no topo do painel (.subnav). -->
-                    <button class="tab nav-item" data-tab="creators" type="button">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                        <span>Creators</span>
-                    </button>
-                    <button class="tab nav-item" data-tab="triagem" type="button">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M9 14l2 2 4-4"/></svg>
-                        <span>Triagem</span>
+                    <button class="tab nav-item" data-tab="roteiros" type="button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h5"/></svg>
+                        <span>Roteiros</span>
                     </button>
                     <button class="tab nav-item" data-tab="marcas" type="button">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/><path d="M9 11h.01"/><path d="M15 11h.01"/></svg>
@@ -1339,6 +1333,22 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
                         <span>Edição</span>
                     </button>
+                </div></div>
+            </div>
+
+            <div class="nav-group recolhivel">
+                <div class="nav-section-label">Agência<svg class="nav-group-seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+                <div class="nav-group-itens"><div class="nav-group-lista">
+                    <!-- Um botao so pra Base de creators + Campanhas. Abre na Base; a troca
+                         entre as duas e pelo menuzinho no topo do painel (.subnav). -->
+                    <button class="tab nav-item" data-tab="creators" type="button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <span>Creators</span>
+                    </button>
+                    <button class="tab nav-item" data-tab="triagem" type="button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M9 14l2 2 4-4"/></svg>
+                        <span>Triagem</span>
+                    </button>
                     <button class="tab nav-item" data-tab="disparo" type="button">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9z"/></svg>
                         <span>Disparo de e-mail</span>
@@ -1347,7 +1357,7 @@
             </div>
 
             <div class="nav-group recolhivel">
-                <div class="nav-section-label">Meus sites<svg class="nav-group-seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+                <div class="nav-section-label">Outros<svg class="nav-group-seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
                 <div class="nav-group-itens"><div class="nav-group-lista">
                     <button class="tab nav-item" data-tab="portfolio" type="button">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
@@ -1357,10 +1367,6 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2.5"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
                         <span>Link na Bio</span>
                     </button>
-                    <button class="tab nav-item" data-tab="roteiros" type="button">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h5"/></svg>
-                        <span>Roteiros</span>
-                    </button>
                     <!-- Um botao so pra Imersao + Direct no Automatico. Abre na Imersao; a troca
                          entre as duas e pelo menuzinho no topo do painel (.subnav). -->
                     <button class="tab nav-item" data-tab="imersao" type="button">
@@ -1369,7 +1375,6 @@
                     </button>
                 </div></div>
             </div>
-
         </nav>
         <div class="sidebar-foot">
             <div class="sidebar-user">
@@ -4285,11 +4290,27 @@
 #tabRoteiros .rtl-vazio .em { font-size:40px; }
 #tabRoteiros .rtl-barra { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
 #tabRoteiros .rtl-barra strong { font-size:16px; margin-right:auto; }
+#tabRoteiros .rtl-novo { display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px 18px; margin-bottom:16px; }
+#tabRoteiros .rtl-novo label { display:flex; flex-direction:column; gap:5px; font-size:12px; font-weight:700; color:var(--text-soft); }
+#tabRoteiros .rtl-novo input:not([type=color]), #tabRoteiros .rtl-novo select { border:1px solid var(--border-strong); border-radius:10px; padding:9px 12px; font-size:14px; font-family:inherit; min-width:200px; background:#fff; }
+#tabRoteiros .rtl-novo input[type=color] { width:52px; height:38px; border:1px solid var(--border-strong); border-radius:10px; padding:3px; background:#fff; cursor:pointer; }
+#tabRoteiros .rtl-cor { display:inline-block; width:12px; height:12px; border-radius:50%; margin-right:6px; vertical-align:-1px; }
 #tabRoteiros iframe { width:100%; height:calc(100vh - 150px); min-height:600px; border:1px solid var(--border); border-radius:16px; background:#F6F3EC; }
 </style>
 <div class="rtl-wrap">
     <div id="rtlLista">
-        <div class="rtl-topo"><p>A marca recebe só o link público. Aqui você vê tudo e abre o roteiro no modo Lara (aceitar, editar, subir fotos e links).</p></div>
+        <div class="rtl-topo">
+            <p style="flex:1;min-width:240px">A marca recebe só o link público. Aqui você cria, edita e acompanha cada roteiro.</p>
+            <button class="rtl-btn forte" id="rtlNovoBtn" type="button">+ Novo roteiro</button>
+        </div>
+        <form id="rtlNovo" class="rtl-novo" hidden>
+            <label>Marca<input id="rtlNovoMarca" placeholder="Ex.: Coza" maxlength="80" required></label>
+            <label>Cor da marca<input id="rtlNovoCor" type="color" value="#5b3df5"></label>
+            <label>Começar de<select id="rtlNovoBase"><option value="">Roteiro em branco</option></select></label>
+            <button class="rtl-btn forte" type="submit" id="rtlNovoCriar">Criar e abrir</button>
+            <button class="rtl-btn" type="button" id="rtlNovoCancelar">Cancelar</button>
+            <span id="rtlNovoErro" style="color:#B91C1C;font-size:13px;font-weight:600"></span>
+        </form>
         <div id="rtlBox"><div class="rtl-vazio">Carregando…</div></div>
     </div>
     <div id="rtlAberto" hidden>
@@ -20953,13 +20974,14 @@ async function rtlLoad() {
     if (sug) alerta.push('✏️ ' + sug + (sug > 1 ? ' sugestões' : ' sugestão'));
     if (com) alerta.push('💬 ' + com + (com > 1 ? ' comentários' : ' comentário'));
     return '<div class="rtl-card' + (x.aprovado_em ? ' aprovado' : '') + '">' +
-      '<div style="display:flex;gap:10px;align-items:flex-start"><div style="flex:1;min-width:0"><div class="rtl-tit">' + rtlEsc(c.marca) + '</div>' +
+      '<div style="display:flex;gap:10px;align-items:flex-start"><div style="flex:1;min-width:0"><div class="rtl-tit"><span class="rtl-cor" style="background:' + rtlEsc(c.cor || '#5b3df5') + '"></span>' + rtlEsc(c.marca) + '</div>' +
       '<div class="rtl-sub">' + rtlEsc(c.formato || '') + ' · criado ' + rtlQuando(x.created_at) + '</div></div>' +
       '<span class="rtl-badge">' + (x.aprovado_em ? '✅ Aprovado' + (x.aprovado_por ? ' por ' + rtlEsc(x.aprovado_por) : '') : 'Em revisão') + '</span></div>' +
       '<div class="rtl-info">' + chips.map(function (t) { return '<span class="rtl-chip">' + t + '</span>'; }).join('') +
       alerta.map(function (t) { return '<span class="rtl-chip alerta">' + t + '</span>'; }).join('') + '</div>' +
       '<div class="rtl-botoes"><button class="rtl-btn forte" type="button" data-rtl-abrir="' + i + '">Abrir roteiro</button>' +
-      '<button class="rtl-btn" type="button" data-rtl-copiar="' + i + '">Copiar link da marca</button></div></div>';
+      '<button class="rtl-btn" type="button" data-rtl-copiar="' + i + '">Copiar link da marca</button>' +
+      '<button class="rtl-btn" type="button" data-rtl-duplicar="' + i + '">Duplicar</button></div></div>';
   }).join('') + '</div>';
 }
 function rtlCopiar(x, bt) {
@@ -20967,6 +20989,41 @@ function rtlCopiar(x, bt) {
     var t = bt.textContent; bt.textContent = '✓ Copiado!'; setTimeout(function () { bt.textContent = t; }, 1600);
   });
 }
+/* Novo roteiro: cria pela API do portfólio, que confere o login de admin pelo token da sessão. */
+function rtlNovoAbrir(base) {
+  var f = document.getElementById('rtlNovo');
+  var sel = document.getElementById('rtlNovoBase');
+  sel.innerHTML = '<option value="">Roteiro em branco</option>' + rtlLinhas.map(function (x) {
+    return '<option value="' + rtlEsc(x.slug) + '">Cópia do roteiro ' + rtlEsc((x.conteudo || {}).marca) + '</option>';
+  }).join('');
+  sel.value = base || '';
+  document.getElementById('rtlNovoErro').textContent = '';
+  f.hidden = false;
+  document.getElementById('rtlNovoMarca').focus();
+}
+document.addEventListener('submit', async function (e) {
+  if (e.target.id !== 'rtlNovo') return;
+  e.preventDefault();
+  var bt = document.getElementById('rtlNovoCriar'), er = document.getElementById('rtlNovoErro');
+  var marca = document.getElementById('rtlNovoMarca').value.trim(); if (!marca) return;
+  bt.disabled = true; bt.textContent = 'Criando…'; er.textContent = '';
+  try {
+    var sess = (await sb.auth.getSession()).data.session;
+    var res = await fetch('https://ugc.laradam.com/api/roteiro/novo', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: 'Bearer ' + (sess ? sess.access_token : '') },
+      body: JSON.stringify({ marca: marca, cor: document.getElementById('rtlNovoCor').value, copiar_de: document.getElementById('rtlNovoBase').value || undefined })
+    });
+    var j = await res.json();
+    if (!res.ok) { er.textContent = j.error || 'Não deu certo'; return; }
+    document.getElementById('rtlNovo').hidden = true;
+    document.getElementById('rtlNovoMarca').value = '';
+    await rtlLoad();
+    var novo = rtlLinhas.find(function (x) { return x.slug === j.slug; });
+    if (novo) rtlAbrir(novo);
+  } catch (err) { er.textContent = 'Sem conexão, tenta de novo'; }
+  finally { bt.disabled = false; bt.textContent = 'Criar e abrir'; }
+});
 var rtlAtual = null;
 function rtlAbrir(x) {
   rtlAtual = x;
@@ -20986,6 +21043,9 @@ document.addEventListener('click', function (e) {
   var ab = e.target.closest('[data-rtl-abrir]'); if (ab) return rtlAbrir(rtlLinhas[+ab.dataset.rtlAbrir]);
   var cp = e.target.closest('[data-rtl-copiar]'); if (cp) return rtlCopiar(rtlLinhas[+cp.dataset.rtlCopiar], cp);
   if (e.target.closest('#rtlVoltar')) return rtlLoad();
+  if (e.target.closest('#rtlNovoBtn')) return rtlNovoAbrir('');
+  if (e.target.closest('#rtlNovoCancelar')) { document.getElementById('rtlNovo').hidden = true; return; }
+  var du = e.target.closest('[data-rtl-duplicar]'); if (du) return rtlNovoAbrir(rtlLinhas[+du.dataset.rtlDuplicar].slug);
   if (e.target.closest('#rtlCopiar') && rtlAtual) return rtlCopiar(rtlAtual, e.target.closest('#rtlCopiar'));
 });
 
