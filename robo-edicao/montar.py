@@ -25,7 +25,8 @@ Camadas (tempos sempre no vídeo final):
   musica    inicio_s, fim_s, arquivo, origem_inicio_s, volume_db = dB ABAIXO DA VOZ (padrão -16, medido em LUFS;
             o montador mede a voz e a música e acerta sozinho; volume constante, sem subir e descer)
   sfx       inicio_s, arquivo, volume_db (padrão -18)
-Topo do projeto: formato, legenda {modelo, posicao, tamanho (multiplica o do modelo), ativa}, marca, som_original (false = tira o som do bruto).
+Topo do projeto: formato, legenda {modelo, posicao, tamanho (multiplica o do modelo), ativa}, marca, som_original (false = tira o som do bruto),
+  cor ("auto" = correção leve tipo Aprimorar), voz ("tratada" = limpeza da voz no mesmo volume). Zoom sem cx/cy vai no rosto.
 """
 import hashlib
 import json
@@ -38,6 +39,7 @@ from concurrent.futures import ThreadPoolExecutor
 DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, DIR)
 import legendas_ass  # noqa: E402
+import tratamento  # noqa: E402
 
 TAMANHO = {"9:16": (1080, 1920), "4:5": (1080, 1350), "1:1": (1080, 1080), "16:9": (1920, 1080)}
 FPS = 30
@@ -201,12 +203,24 @@ def trechos(pj):
         vel = max(0.25, min(8.0, float(c.get("velocidade") or 1)))   # 2 = duas vezes mais rápido (usa o dobro do bruto)
         if vel < 1 and not pj.p.get("camera_lenta"):   # câmera lenta só quando a Lara pede (observação ou ela mesma no editor)
             vel = 1.0
-        vf = ("setpts=PTS/%.4f," % vel if vel != 1 else "") + "scale=%d:%d:force_original_aspect_ratio=increase,crop=%d:%d,setsar=1,fps=%d" % (W, H, W, H, FPS)
+        enquadrar = "scale=%d:%d:force_original_aspect_ratio=increase,crop=%d:%d,setsar=1" % (W, H, W, H)
+        vf = ("setpts=PTS/%.4f," % vel if vel != 1 else "") + enquadrar + ",fps=%d" % FPS
+        if pj.p.get("cor") == "auto":   # correção leve, tipo o "Aprimorar" do CapCut (veja tratamento.py)
+            cor = tratamento.cor_auto(src)
+            if cor:
+                vf += "," + cor
         aqui = [z for z in zooms if float(z["inicio_s"]) < t + dur and float(z["fim_s"]) > t and float(z.get("escala") or 1) != 1]
         if aqui:
-            cx = float(aqui[0].get("cx", 0.5))
-            cy = float(aqui[0].get("cy", 0.42))
-            vf += ",zoompan=z='%s':x='(iw-iw/zoom)*%.3f':y='(ih-ih/zoom)*%.3f':d=1:s=%dx%d:fps=%d" % (zoom_expr(aqui, t), cx, cy, W, H, FPS)
+            rosto = None
+            if "cx" not in aqui[0] and "cy" not in aqui[0]:   # sem centro escolhido: o zoom vai no rosto
+                rosto = tratamento.centro_rosto(src, oi, dur * vel, enquadrar, pj.cache)
+            if rosto:
+                vf += (",zoompan=z='%s':x='max(0,min(iw-iw/zoom,%.3f*iw-iw/zoom/2))':y='max(0,min(ih-ih/zoom,%.3f*ih-ih/zoom/2))'"
+                       ":d=1:s=%dx%d:fps=%d") % (zoom_expr(aqui, t), rosto[0], rosto[1], W, H, FPS)
+            else:
+                cx = float(aqui[0].get("cx", 0.5))
+                cy = float(aqui[0].get("cy", 0.42))
+                vf += ",zoompan=z='%s':x='(iw-iw/zoom)*%.3f':y='(ih-ih/zoom)*%.3f':d=1:s=%dx%d:fps=%d" % (zoom_expr(aqui, t), cx, cy, W, H, FPS)
         fade = min(0.03, dur / 4)
         af = None if mudo or c.get("mudo") else ("atempo=%.4f," % vel if vel != 1 else "") + "aresample=48000,afade=t=in:d=%.3f,afade=t=out:st=%.3f:d=%.3f" % (fade, dur - fade, fade)
         chave = hash_de(src, os.path.getmtime(src), oi, dur, vel, vf, af)
@@ -428,7 +442,12 @@ def montar(pj):
     if len(vozes) > 1:
         filtros.append("%samix=inputs=%d:normalize=0:duration=first[vozbase]" % ("".join(vozes), len(vozes)))
     # voz no volume original, como a Lara deixa no CapCut (100%): só tira o grave de fundo, sem compressor nem normalizar
-    filtros.append("%shighpass=f=80,asplit=2[voz][vozsc]" % ("[vozbase]" if len(vozes) > 1 else "[0:a]"))
+    # "voz": "tratada" no projeto: limpa ruído, grave embolado e chiado, e recoloca no MESMO volume da voz original
+    trat_voz = ""
+    if pj.p.get("voz") == "tratada" and tem_audio(emendado):
+        trat_voz = "," + tratamento.filtro_voz_no_mesmo_volume(emendado)
+        print("montar: voz tratada (mesmo volume do original)", flush=True)
+    filtros.append("%shighpass=f=80%s,asplit=2[voz][vozsc]" % ("[vozbase]" if len(vozes) > 1 else "[0:a]", trat_voz))
     # a música entra num volume medido a partir da voz (não um número fixo): volume_db = quantos dB abaixo da voz
     voz_lufs = lufs(emendado) or next((v for v in (lufs(pj.achar(c.get("arquivo"))) for c in pj.camadas("voz")) if v), None)
     print("montar: voz em %s LUFS" % ("%.1f" % voz_lufs if voz_lufs else "silêncio"), flush=True)

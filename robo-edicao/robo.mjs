@@ -210,13 +210,39 @@ async function editar(p, arquivos) {
     fs.writeFileSync(path.join(job, 'PEDIDO.md'), pedidoMd(p, refs, regras.filter(r => daMarca(r.cliente)), dic.filter(d => daMarca(d.cliente)), arquivos));
     fs.copyFileSync(path.join(DIR, 'INSTRUCOES_EDICAO.md'), path.join(job, 'CLAUDE.md'));
     atualizarBancoDeSons();
+    const kit = baixarKitDaMarca(p, job);
 
     await mudar(p, { status: 'editando', status_msg: 'Tô editando (leva uns 20 a 40 min)' });
     const ok = await rodarClaude(job, p);
     const previa = path.join(saida, 'previa.mp4');
     if (!fs.existsSync(previa)) throw new Error(ok ? 'O Claude terminou sem gerar a prévia. Veja ' + path.join(job, 'claude.log') : 'A edição passou de ' + LIMITE_EDICAO_MIN + ' min ou deu erro. Veja ' + path.join(job, 'claude.log'));
+    subirKitDaMarca(kit, job);
 
     await entregar(p, job, ['transcricao', 'tomadas', 'cortes', 'legendas', 'zoom', 'som', 'render']);
+}
+
+/* Kit da marca: cada marca tem uma pasta em Edição/_Marcas/<marca> no Drive (logo, estilo.md, componentes).
+   O robô baixa para marca/ antes de editar e, se o Claude criou ou melhorou o kit, sobe de volta.
+   Assim o segundo vídeo da mesma marca já começa com cores, fonte e logo certos, nos dois Macs. */
+function baixarKitDaMarca(p, job) {
+    const nome = String(p.marca || '').trim();
+    if (!nome) return null;
+    const remoto = 'drive:' + PASTA_RAIZ + '/_Marcas/' + nome.replace(/[\/\\]/g, '-');
+    const local = path.join(job, 'marca');
+    fs.mkdirSync(local, { recursive: true });
+    try { rclone(['copy', remoto, local], { silencioso: true }); } catch (e) { log('kit da marca:', e.message); }
+    const tinha = fs.existsSync(path.join(local, 'estilo.md'));
+    log('#' + p.numero, tinha ? 'kit da marca ' + nome + ' baixado' : 'marca ' + nome + ' ainda sem kit: o Claude vai criar');
+    return { remoto, local, assinatura: assinaturaPasta(local) };
+}
+function assinaturaPasta(dir) {
+    try { return fs.readdirSync(dir).map(n => n + ':' + fs.statSync(path.join(dir, n)).size).sort().join('|'); } catch (_) { return ''; }
+}
+function subirKitDaMarca(kit) {
+    if (!kit || !fs.existsSync(path.join(kit.local, 'estilo.md'))) return;
+    if (assinaturaPasta(kit.local) === kit.assinatura) return;
+    try { rclone(['copy', kit.local, kit.remoto]); log('kit da marca atualizado no Drive (' + kit.remoto.replace('drive:', '') + ')'); }
+    catch (e) { log('kit da marca não subiu:', e.message); }
 }
 
 async function subirStorage(arq, caminho) {
@@ -829,7 +855,7 @@ async function olharBiblioteca() {
 const ATUALIZAR_DE = process.env.ROBO_ATUALIZAR_DE || 'https://raw.githubusercontent.com/eilaradam/site-creators/main/robo-edicao/';
 const ARQUIVOS_DO_ROBO = ['robo.mjs', 'icone.png', 'INSTRUCOES_EDICAO.md', 'INSTRUCOES_CENAS.md', 'INSTRUCOES_APRENDER.md', 'transcrever.py', 'legendas.json',
     'legendas_ass.py', 'montar.py', 'catalogar_sons.py', 'encaixar_musica.py', 'baixar_fontes.py', 'fontes.json',
-    'empacotar_transcricao.py', 'conferir_cortes.py',
+    'empacotar_transcricao.py', 'conferir_cortes.py', 'tratamento.py',
     'titulos/package.json', 'titulos/src/index.ts', 'titulos/src/Raiz.tsx', 'titulos/src/Titulos.tsx'];
 let ultimaAtualizacao = 0;
 async function atualizarRobo() {

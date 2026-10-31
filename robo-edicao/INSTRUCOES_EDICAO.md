@@ -48,6 +48,9 @@ sem você. Por isso **tudo que aparece no vídeo precisa estar numa camada**: na
   - `voz`: locução gravada à parte (vídeo narrado). `"som_original": false` no topo tira o som do bruto.
   - O montador faz o áudio sozinho: voz no volume original (100%), música medida e posta bem abaixo da voz,
     abaixando na fala, fades e limitador. Não trate o áudio por fora.
+- **Cor e voz**: ponha sempre `"cor": "auto"` e `"voz": "tratada"` no topo do projeto.json (correção leve tipo
+  "Aprimorar" do CapCut e limpeza da voz no mesmo volume), a não ser que as observações peçam o contrário ou o bruto
+  já venha tratado (export do CapCut com filtro). Não trate cor nem voz por fora.
 - `saida/resumo.md`: primeira linha = uma frase curta do que foi feito (aparece no admin).
   Depois: cortes feitos, decisões que você tomou sozinho, o que ficou de fora e por quê, dúvidas para a Lara,
   e **3 sugestões de melhoria** que ela pode aprovar numa próxima versão.
@@ -226,7 +229,10 @@ de um tipo para outro; transcrição, cortes, som e conferência seguem iguais.
      o roteiro não proíbe, considere abrir com ela e anote a decisão no resumo.
 3. **Detectar cenas** (`ffmpeg ... select='gt(scene,0.3)'`) antes de zoom e gráficos: o bruto muitas vezes já vem
    com inserções (tela de site, relatório, logo). Nunca ponha zoom nem gráfico em cima delas.
-4. **Zoom de ritmo**: alternar 100% e 112% nas viradas de frase, centro um pouco acima do meio (rosto).
+4. **Zoom de ritmo**: alternar 100% e 112% nas viradas de frase. Não ponha `cx`/`cy` na camada `zoom`: sem eles o
+   montador acha o rosto sozinho e centraliza nele. Só use `cx`/`cy` para dar zoom em outra coisa (produto, tela).
+   **Trave os cortes antes dos gráficos**: monte uma prévia só com cortes e legenda, confira as emendas (passo 11) e só
+   depois faça títulos, animações e som. Mudar corte depois dos gráficos desalinha tudo.
    Punch-in com easing (ease-out cúbico, ~0,25 s), nunca linear; nunca dois planos seguidos no mesmo tamanho.
    Use os picos de energia do áudio (ênfase na fala) como candidatos a zoom e efeito sonoro.
    Efeito só entra se serve à fala: nada de glitch, shake ou flash a não ser que o pedido peça estilo "hype".
@@ -270,7 +276,15 @@ de um tipo para outro; transcrição, cortes, som e conferência seguem iguais.
      ExtraBold, `arquivoFonte: "Montserrat-ExtraBold.ttf"`), a não ser que o pedido ou a marca peçam outra.
    - **Cores**: só as da marca (site, logo) ou, sem marca, as que já estão no vídeo. Nada de cor genérica de "destaque"
      (verde, amarelo) que não tenha relação com a marca.
-7. **Logo da marca**: procure primeiro um arquivo `logo*` (png/svg) em `entrada/`. Se não tiver, baixe do site da marca
+7. **Kit da marca (pasta `marca/`)**: se existir `marca/estilo.md`, ele manda nas cores, fonte, logo, tom dos títulos
+   e componentes da marca (ex.: chamada final já aprovada em `marca/componentes/`). Use primeiro o que está lá.
+   Se a pasta estiver vazia, crie o kit no fim da edição: `marca/estilo.md` com cores (hex, de onde tirou),
+   fonte da biblioteca usada, posição e tamanho do logo, estilo dos títulos, o que a marca proíbe (do briefing) e
+   observações da Lara sobre essa marca; copie para `marca/` o logo bom (`logo.png`) e, se fez uma composição
+   Remotion reaproveitável (chamada final, etiqueta de produto), guarde a pasta dela em `marca/componentes/`.
+   Se já existia e você aprendeu algo novo (outra cor aprovada, uma proibição nova), atualize o `estilo.md`.
+   O robô sobe o kit para o Drive sozinho.
+   **Logo da marca**: procure primeiro em `marca/`, depois um arquivo `logo*` (png/svg) em `entrada/`. Se não tiver, baixe do site da marca
    (`<link rel="icon">`, `og:image` ou uma imagem com "logo" no nome) para `work/logo.png` (camada `imagem`). Use o logo na abertura ou
    no fechamento (chamada final animada no Remotion) e, se fizer sentido, discreto num canto. Sem logo de boa
    qualidade, escreva no resumo em vez de usar um borrado.
