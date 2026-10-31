@@ -72,8 +72,23 @@ async function db1(caminho, { metodo = 'GET', corpo } = {}) {
 const q = encodeURIComponent;
 async function mudar(p, patch) {
     Object.assign(p, patch);
-    await db('edicao_pedidos?id=eq.' + p.id, { metodo: 'PATCH', corpo: Object.assign({ updated_at: new Date().toISOString() }, patch) });
+    const r = await db('edicao_pedidos?id=eq.' + p.id, { metodo: 'PATCH', corpo: Object.assign({ updated_at: new Date().toISOString() }, patch) });
+    if (Array.isArray(r) && r[0] && r[0].updated_at) p.updated_at = r[0].updated_at;
     log('#' + p.numero, p.pasta_nome, '→', patch.status || '', patch.status_msg || '');
+}
+
+/* Dois Macs (Lara e Isa) olham a mesma fila. Antes de começar um trabalho, o robô "pega" o pedido:
+   só muda se ninguém mexeu nele desde que a fila foi lida (mesmo updated_at). Se o outro Mac pegou antes,
+   a resposta vem vazia e este Mac deixa o pedido para ele. */
+const MAQUINA = (process.env.ROBO_NOME || os.hostname() || 'Mac').replace(/\.local$/i, '');
+async function pegar(p) {
+    if (!p.updated_at) return true;
+    const agora = new Date().toISOString();
+    const r = await db('edicao_pedidos?id=eq.' + p.id + '&updated_at=eq.' + encodeURIComponent(p.updated_at),
+        { metodo: 'PATCH', corpo: { updated_at: agora } });
+    if (!Array.isArray(r) || !r.length) { log('#' + p.numero, 'o outro Mac já pegou este pedido'); return false; }
+    p.updated_at = r[0].updated_at || agora;
+    return true;
 }
 
 /* ── Drive pelo rclone (remote "drive") ── */
@@ -105,6 +120,7 @@ function subir(pastaId, local, nomeNoDrive) {
 const tamanhos = new Map();   // pedido -> "arquivo:tamanho" da última olhada (upload só conta quando para de crescer)
 
 async function prepararPasta(p) {
+    if (!await pegar(p)) return;
     let id = p.drive_pasta_id || idDaPasta(p.drive_pasta_link);
     if (!id) id = criarPasta(p.pasta_nome);
     if (p.tipo === 'cenas') {
@@ -121,6 +137,7 @@ async function olharBruto(p) {
     const assinatura = arquivos.map(f => f.Path + ':' + f.Size).sort().join('|');
     if (tamanhos.get(p.id) !== assinatura) { tamanhos.set(p.id, assinatura); log('#' + p.numero, 'bruto apareceu, conferindo se terminou de subir…'); return; }
     tamanhos.delete(p.id);
+    if (!await pegar(p)) return;
     await editar(p, arquivos);
 }
 
@@ -129,6 +146,14 @@ function slug(s) { return String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').rep
 /* Banco de sons (~/Desktop/sons): atualiza o catalogo.json antes de editar, só analisando o que mudou */
 const SONS = process.env.ROBO_SONS || path.join(os.homedir(), 'Desktop', 'sons');
 function atualizarBancoDeSons() {
+    // banco compartilhado: o que a Lara ou a Isa jogarem em Edição/_Sons no Drive chega nos dois Macs
+    // (copy, não sync: nunca apaga o que já está no Mac)
+    try {
+        if (rclone(['lsf', 'drive:' + PASTA_RAIZ + '/_Sons', '--max-depth', '1'], { silencioso: true })) {
+            fs.mkdirSync(SONS, { recursive: true });
+            rclone(['copy', 'drive:' + PASTA_RAIZ + '/_Sons', SONS, '--exclude', 'catalogo.json'], { silencioso: true });
+        }
+    } catch (e) { log('banco de sons do Drive:', e.message); }
     if (!fs.existsSync(SONS)) return;
     const py = fs.existsSync(path.join(VENV_BIN, 'python')) ? path.join(VENV_BIN, 'python') : 'python3';
     const r = spawnSync(py, ['-I', path.join(DIR, 'catalogar_sons.py'), SONS], { encoding: 'utf8', timeout: 20 * 60000 });
@@ -333,6 +358,7 @@ async function olharCenas(p) {
     const assinatura = recebidas.map(n => porN.get(n).Path + ':' + porN.get(n).Size).join('|') + (audio ? '|' + audio.Path + ':' + audio.Size : '');
     if (tamanhos.get(p.id) !== assinatura) { tamanhos.set(p.id, assinatura); log('#' + p.numero, 'todas as cenas chegaram, conferindo se terminaram de subir…'); return; }
     tamanhos.delete(p.id);
+    if (!await pegar(p)) return;
     await montarCenas(p, recebidas.map(n => porN.get(n)), audio);
 }
 
@@ -467,7 +493,12 @@ function ajustesMd(p) {
 
 async function aplicarAjustes(p) {
     const job = jobDe(p);
-    if (!fs.existsSync(job)) throw new Error('Não achei a pasta da versão anterior neste Mac (' + job + ')');
+    if (!fs.existsSync(job)) {
+        // a versão anterior foi feita no outro Mac: deixa para ele por 20 min; depois disso avisa no admin
+        if (Date.now() - Date.parse(p.updated_at || 0) < 20 * 60000) return;
+        throw new Error('A versão anterior foi editada no outro Mac (' + MAQUINA + ' não tem a pasta). Ligue o outro Mac para ele aplicar os ajustes');
+    }
+    if (!await pegar(p)) return;
     await lerFalas(p, job);
     fs.writeFileSync(path.join(job, 'AJUSTES.md'), ajustesMd(p));
     if (p.projeto && p.projeto.editado_em) {   // ela também mexeu à mão no admin: a V2 parte da versão dela
@@ -504,6 +535,7 @@ function montarProjeto(job, extra = []) {
     });
 }
 async function remontar(p) {
+    if (!await pegar(p)) return;
     const job = jobDe(p), saida = path.join(job, 'saida'), entrada = path.join(job, 'entrada');
     const pj = p.projeto;
     if (!pj || !Array.isArray(pj.camadas) || !pj.camadas.some(c => c.tipo === 'corte')) throw new Error('Este pedido não tem projeto para remontar');
@@ -715,7 +747,17 @@ async function olharAprender() {
     const estadoArq = path.join(APRENDER, 'estado.json');
     let feito = null; try { feito = JSON.parse(fs.readFileSync(estadoArq, 'utf8')).assinatura; } catch (_) {}
     if (assinatura === feito) return;
+    // o estado também fica no Drive: se o outro Mac já estudou (ou está estudando) estes vídeos, este não repete
+    const ESTADO_DRIVE = APRENDER_DRIVE + '/ESTILO - estado do robo.json';
+    let noDrive = null; try { noDrive = JSON.parse(rclone(['cat', ESTADO_DRIVE], { silencioso: true }) || 'null'); } catch (_) {}
+    if (noDrive && noDrive.assinatura === assinatura &&
+        (noDrive.pronto || Date.now() - Date.parse(noDrive.desde || 0) < 3 * 3600000)) {
+        if (noDrive.pronto) { fs.mkdirSync(APRENDER, { recursive: true }); fs.writeFileSync(estadoArq, JSON.stringify(noDrive)); }
+        return;
+    }
     if (aprenderAssinatura !== assinatura) { aprenderAssinatura = assinatura; aprenderUltimaOlhada = Date.now() - 9 * 60000; log('aprender: vídeos novos em _Aprender, conferindo se terminaram de subir…'); return; }
+    const marcarNoDrive = estado => { const t = path.join(os.tmpdir(), 'robo-estado-aprender.json'); fs.writeFileSync(t, JSON.stringify(estado)); rclone(['copyto', t, ESTADO_DRIVE], { silencioso: true }); };
+    marcarNoDrive({ assinatura, desde: new Date().toISOString(), maquina: MAQUINA, pronto: false });
     const job = path.join(APRENDER, 'rodada-' + new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-'));
     fs.mkdirSync(path.join(job, 'saida'), { recursive: true });
     log('aprender: baixando ' + arqs.length + ' vídeo(s) para estudar o seu estilo');
@@ -731,6 +773,7 @@ async function olharAprender() {
     await proporRegras({ marca: null }, job, 'Aprendido com os seus vídeos em _Aprender');
     rclone(['copyto', path.join(job, 'saida', 'relatorio.md'), APRENDER_DRIVE + '/ESTILO - o que aprendi ' + new Date().toISOString().slice(0, 10) + '.md']);
     fs.writeFileSync(estadoArq, JSON.stringify({ assinatura, quando: new Date().toISOString() }));
+    marcarNoDrive({ assinatura, desde: new Date().toISOString(), maquina: MAQUINA, pronto: true });
     log('aprender: pronto. Relatório na pasta _Aprender do Drive e regras propostas em Regras do estilo.');
 }
 
@@ -748,6 +791,10 @@ async function olharBiblioteca() {
     const ytdlp = fs.existsSync(path.join(VENV_BIN, 'yt-dlp')) ? path.join(VENV_BIN, 'yt-dlp') : 'yt-dlp';
     rclone(['mkdir', 'drive:' + PASTA_RAIZ + '/_Referencias'], { silencioso: true });
     for (const r of lista.slice(0, 5)) {
+        // marca a referência antes de baixar, para o outro Mac não baixar a mesma
+        const marcada = await db('edicao_referencias?id=eq.' + r.id + '&analise=is.null', { metodo: 'PATCH',
+            corpo: { analise: { baixando_em: new Date().toISOString(), maquina: MAQUINA } } }).catch(() => null);
+        if (!Array.isArray(marcada) || !marcada.length) continue;
         const nome = slug(r.nome || r.tipo).slice(0, 40) + '-' + r.id.slice(0, 6), video = path.join(REFS, nome + '.mp4');
         let analise;
         try {
@@ -882,7 +929,7 @@ function instalarServico() {
 }
 /* Sinal de vida no admin: a cada minuto, mesmo no meio de uma edição */
 async function sinalDeVida() {
-    await db('edicao_robo?id=eq.1', { metodo: 'PATCH', corpo: { visto_em: new Date().toISOString(), ultima_msg: ultimaLinha || null,
+    await db('edicao_robo?id=eq.1', { metodo: 'PATCH', corpo: { visto_em: new Date().toISOString(), ultima_msg: ultimaLinha ? '[' + MAQUINA + '] ' + ultimaLinha : null,
         escondido: !!process.env.ROBO_SERVICO } }).catch(() => {});
 }
 

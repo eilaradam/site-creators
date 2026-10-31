@@ -156,6 +156,36 @@ siga isso mesmo que o tipo marcado seja outro (aqui, é o modo "Falando + narrad
      observações: frases curtas, no máximo uma a cada 3 a 5 s, nunca em cima do rosto.
   5. Efeitos sonoros (`sfx`) só nas entradas de texto e viradas fortes; a música manda.
 
+## Tipo de conteúdo (preset)
+
+Antes de cortar, decida qual destes 3 tipos é o pedido e escreva no resumo qual escolheu e por quê.
+As observações e as regras aprovadas mandam mais que o preset. Só as etapas de títulos/gráficos e de legenda mudam
+de um tipo para outro; transcrição, cortes, som e conferência seguem iguais.
+
+- **Publi pra marca** (padrão quando a linha "Marca" é uma empresa que não é a própria Lara):
+  - duração do briefing/roteiro (máximo 10% a mais); frases obrigatórias do roteiro entram inteiras e sem mudar palavra;
+  - produto e logo aparecem: logo na abertura ou no fechamento, nome do produto como título no momento em que ela fala;
+  - títulos nas cores da marca, no máximo 1 a cada 8 a 12 s; chamada final (cupom, link, "baixe o app") sempre como título;
+  - nada de política, religião ou aposta na tela, mesmo que apareça na fala.
+- **TikTok cru / série própria** (marca = Lara, conta dela, observação citando TikTok, série, fofoca, vlog falado):
+  - cortes secos e rápidos, poucos zooms (só nas viradas fortes), nada de títulos de "publi";
+  - abertura fixa da série, se houver, fica intacta;
+  - gráficos de informação no terço de cima (cards de resultado, nomes, mapa), estilo cartão escuro com destaque na cor do perfil;
+  - fecha chamando para seguir (se ela não gravou, um cartão "follow for part X" por cima do último quadro, ~2 s).
+- **Reels educativo** (tutorial, passo a passo, aula, dica de ferramenta):
+  - cada passo vira um título curto (lista-check ou etiqueta) na hora em que ela fala dele;
+  - prints e gravação de tela no terço de cima com ela embaixo; zoom no print quando ela aponta algo;
+  - ritmo um pouco mais calmo que o TikTok cru: não corte pausas que separam um passo do outro (até ~0,3 s).
+
+## Conteúdo de notícia ou política (quando o vídeo fala de fato real)
+
+- Todo número, data ou resultado que entrar na tela precisa vir de uma fonte que você conferiu na internet; anote a
+  fonte no resumo. Sem fonte, não coloque o número na tela (a legenda da fala dela continua).
+- Alegação que ainda não foi confirmada (fuga, prisão, acusação) entra na tela com "reportedly", "allegedly" ou
+  "segundo [veículo]", nunca como fato. Se a fala dela afirma algo não confirmado, avise no resumo.
+- Foto de pessoa pública só se a Lara mandou o arquivo na pasta (nome com "foto"). Nunca baixe foto da internet:
+  sem arquivo, use o nome em etiqueta com as iniciais e diga no resumo em que segundo a foto entraria.
+
 ## Como editar
 
 0. **Qual arquivo é o bruto**: a base é sempre o bruto original, o vídeo mais longo e sem cortes. Se na pasta houver
