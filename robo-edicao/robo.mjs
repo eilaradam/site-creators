@@ -829,6 +829,7 @@ async function olharBiblioteca() {
 const ATUALIZAR_DE = process.env.ROBO_ATUALIZAR_DE || 'https://raw.githubusercontent.com/eilaradam/site-creators/main/robo-edicao/';
 const ARQUIVOS_DO_ROBO = ['robo.mjs', 'icone.png', 'INSTRUCOES_EDICAO.md', 'INSTRUCOES_CENAS.md', 'INSTRUCOES_APRENDER.md', 'transcrever.py', 'legendas.json',
     'legendas_ass.py', 'montar.py', 'catalogar_sons.py', 'encaixar_musica.py', 'baixar_fontes.py', 'fontes.json',
+    'empacotar_transcricao.py', 'conferir_cortes.py',
     'titulos/package.json', 'titulos/src/index.ts', 'titulos/src/Raiz.tsx', 'titulos/src/Titulos.tsx'];
 let ultimaAtualizacao = 0;
 async function atualizarRobo() {

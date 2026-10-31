@@ -197,6 +197,16 @@ de um tipo para outro; transcrição, cortes, som e conferência seguem iguais.
 1. **Transcrever** o áudio com tempo por palavra. Use o Python do robô:
    `~/robo-edicao/venv/bin/python` com `faster_whisper` (modelo `small` ou `medium`, `language="pt"`, `word_timestamps=True`).
    Aplique o dicionário de correções do PEDIDO.md e compare com o roteiro: o roteiro manda na grafia de nomes e marcas.
+   Vídeo falado em inglês (série do TikTok gringo): `language="en"` (ou rode `transcrever.py audio.wav saida.json small en`).
+   Depois, gere a leitura por frases e decida os cortes lendo ELA (não o JSON cru):
+   `python3 -I ~/robo-edicao/empacotar_transcricao.py work/palavras.json work/frases.md`
+   Frases parecidas em sequência são tomadas repetidas; o silêncio entre as linhas mostra onde cortar.
+   **Muitas tomadas** (a mesma frase 3 ou mais vezes, ou mais de 2 minutos de bruto): chame um subagente (ferramenta
+   `Agent`) só para escolher as tomadas. Passe para ele `work/frases.md`, o roteiro, a duração alvo e esta ordem:
+   escolher a melhor tomada de cada parte do roteiro (gancho, problema, solução, prova, chamada), cortar só em fim de
+   palavra, preferir silêncios de 0,4 s ou mais como ponto de corte, e devolver uma lista JSON
+   `[{"inicio": 12.40, "fim": 16.85, "parte": "gancho", "frase": "...", "motivo": "..."}]` com o total de segundos.
+   Você confere a lista dele antes de usar.
 2. **Cortar** seguindo o roteiro:
    - quando uma frase foi dita mais de uma vez, fique com a última tomada completa e sem erro;
    - tire erros, frases abandonadas, silêncios maiores que ~0,4 s e vícios ("é...", "tipo", "né" soltos);
@@ -304,7 +314,17 @@ de um tipo para outro; transcrição, cortes, som e conferência seguem iguais.
    títulos. Link do Instagram: tente uma vez com `~/robo-edicao/venv/bin/yt-dlp` para `refs/`; se pedir login, desista
    na hora (não use cookies da conta dela), siga a nota escrita e diga no resumo que precisa do arquivo `REF`.
    As regras do estilo aprovadas valem mais que a referência quando as duas brigam.
-11. **Conferir antes de entregar**: assista em pedaços (extraia frames a cada 2 s e olhe), confira que nenhuma
+11. **Conferir cada emenda (obrigatório)**: depois de montar, gere uma imagem por emenda da PRÉVIA
+    (`python3 -I ~/robo-edicao/conferir_cortes.py saida/previa.mp4 --projeto saida/projeto.json`) e OLHE todas
+    (Read nas imagens de `work/conferir`). Em cada uma: a linha vermelha é o corte. Procure onda cortada em cima da
+    voz (palavra comida), pico bem no corte (estalo), respiração sobrando logo depois da linha, pulo de cabeça ou
+    gesto cortado no meio (se o pulo incomoda, cubra com zoom ou b-roll), legenda escondida. Corrija no projeto.json,
+    monte de novo e confira de novo só as emendas que mudaram. **No máximo 3 rodadas**: o que sobrar, explique no resumo.
+    Você não ouve o vídeo: diga isso no resumo e informe os números do áudio (`ffmpeg -i saida/previa.mp4 -af ebur128 -f null -`).
+    **Publi pra marca**: antes de entregar, chame um subagente "crítico" (ferramenta `Agent`) com a prévia, o projeto.json,
+    o roteiro e as observações. Peça para ele ser duro, não elogiar: um veredito, os problemas em ordem de gravidade com
+    o segundo exato e a evidência (quadro, número), e as 5 correções mais importantes. Corrija o que for de fato erro.
+12. **Conferir antes de entregar**: assista em pedaços (extraia frames a cada 2 s e olhe), confira que nenhuma
     legenda tem nome errado, que não sobrou repetição, que nenhum trecho começa com respiração, que o final não está
     seco, que todas as sequências de cenas aparecem completas e que a duração respeita o pedido. Releia
     `work/checklist.md` (as observações dela) e não entregue com item pendente sem explicar no resumo.
