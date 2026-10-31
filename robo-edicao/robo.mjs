@@ -194,11 +194,36 @@ async function editar(p, arquivos) {
     await entregar(p, job, ['transcricao', 'tomadas', 'cortes', 'legendas', 'zoom', 'som', 'render']);
 }
 
-async function subirStorage(arq, caminho) {
+async function subirStorage(arq, caminho, tipo = 'video/mp4') {
     const r = await fetch(SUPA + '/storage/v1/object/edicao/' + caminho, { method: 'POST', body: fs.readFileSync(arq),
-        headers: { apikey: ANON, Authorization: 'Bearer ' + await acesso(), 'Content-Type': 'video/mp4', 'x-upsert': 'true' } });
+        headers: { apikey: ANON, Authorization: 'Bearer ' + await acesso(), 'Content-Type': tipo, 'x-upsert': 'true' } });
     if (!r.ok) throw new Error(r.status + ' ' + (await r.text()).slice(0, 200));
     return caminho;
+}
+
+/* Música, efeitos e locução do projeto vão pro Storage (versão leve em m4a) para o editor do admin tocar junto com a prévia */
+function acharArquivo(job, nome) {
+    if (!nome) return null;
+    for (const c of [nome, path.join(job, nome), path.join(job, 'entrada', nome), path.join(job, 'work', nome), path.join(job, 'work', 'sfx', nome),
+        path.join(job, 'work', 'musica', nome), path.join(job, 'saida', nome)]) if (fs.existsSync(c) && fs.statSync(c).isFile()) return c;
+    const alvo = path.basename(nome).toLowerCase();
+    const procurar = dir => { for (const e of fs.readdirSync(dir, { withFileTypes: true })) { const f = path.join(dir, e.name);
+        if (e.isDirectory()) { const r = procurar(f); if (r) return r; } else if (e.name.toLowerCase() === alvo) return f; } return null; };
+    try { return fs.existsSync(SONS) ? procurar(SONS) : null; } catch (_) { return null; }
+}
+async function subirSons(p, job, projeto) {
+    const feitos = {};
+    for (const c of (projeto.camadas || []).filter(c => ['musica', 'sfx', 'voz'].includes(c.tipo) && c.arquivo)) {
+        if (feitos[c.arquivo] !== undefined) { if (feitos[c.arquivo]) c.audio_path = feitos[c.arquivo]; continue; }
+        feitos[c.arquivo] = null;
+        const arq = acharArquivo(job, c.arquivo); if (!arq) continue;
+        try {
+            const leve = path.join(job, 'work', 'sons_admin', slug(path.basename(arq)) + '.m4a');
+            fs.mkdirSync(path.dirname(leve), { recursive: true });
+            if (!fs.existsSync(leve)) ffmpeg(['-i', arq, '-vn', '-ac', '2', '-c:a', 'aac', '-b:a', '128k', leve]);
+            feitos[c.arquivo] = c.audio_path = await subirStorage(leve, 'pedidos/' + p.id + '/sons/' + path.basename(leve), 'audio/mp4');
+        } catch (e) { log('#' + p.numero, 'som não subiu pro editor:', c.arquivo, e.message); }
+    }
 }
 
 async function entregar(p, job, etapas) {
@@ -229,6 +254,7 @@ async function entregar(p, job, etapas) {
         ['mudancas', 'editado_em', 'base_path', 'alternativa'].forEach(k => delete projeto[k]);
         if (base_path) projeto.base_path = base_path;
         projeto.etapas = { feitas: etapas };
+        await subirSons(p, job, projeto);
         // opção B (o Claude faz duas edições diferentes do mesmo bruto; a Lara escolhe uma no admin)
         const alt = await entregarOpcaoB(p, job, versao, etapas);
         if (alt) projeto.alternativa = alt;
@@ -254,6 +280,7 @@ async function entregarOpcaoB(p, job, versao, etapas) {
         try { projeto.base_path = await subirStorage(base, 'pedidos/' + p.id + '/base_v' + versao + '_b.mp4'); } catch (e) { log('base B não subiu:', e.message); }
     }
     projeto.etapas = { feitas: etapas };
+    await subirSons(p, job, projeto);
     alt.projeto = projeto;
     return alt;
 }
@@ -513,6 +540,8 @@ async function remontar(p) {
         rclone(['sync', 'drive:', entrada, ...naPasta(p.drive_pasta_id), '--exclude', '{PREVIA,PRÉVIA,FINAL,REC,LOCUCAO}*', '--max-depth', '3']);
     }
     const mudancas = Array.isArray(pj.mudancas) ? pj.mudancas : [];
+    await baixarLut(p, job, pj);
+    await trocarMusicas(p, job, pj, mudancas);
     await mudar(p, { status: 'renderizando', status_msg: 'Remontando com as suas ' + mudancas.length + ' mudança(s)' });
     const proj = Object.assign({}, pj); ['etapas', 'base_path', 'mudancas', 'editado_em'].forEach(k => delete proj[k]);
     fs.writeFileSync(path.join(saida, 'projeto.json'), JSON.stringify(proj, null, 1));
@@ -522,6 +551,46 @@ async function remontar(p) {
     fs.writeFileSync(path.join(saida, 'resumo.md'), 'Nova versão com as suas ' + mudancas.length + ' mudança(s)\n');
     await entregar(p, job, ETAPAS_EDICAO);
     if (mudancas.length) aprenderComReedicao(p, job, mudancas).catch(e => log('#' + p.numero, 'aprender com a reedição:', e.message));
+}
+/* LUT que a Lara subiu no admin (storage:luts/x.cube): baixa para work/luts/, onde o montar.py procura */
+async function baixarLut(p, job, pj) {
+    const lut = String((pj.cor && pj.cor.lut) || '');
+    if (!lut.startsWith('storage:')) return;
+    const caminho = lut.slice(8), destino = path.join(job, 'work', 'luts', path.basename(caminho));
+    if (fs.existsSync(destino)) return;
+    const r = await fetch(SUPA + '/storage/v1/object/edicao/' + caminho, { headers: { apikey: ANON, Authorization: 'Bearer ' + await acesso() } });
+    if (!r.ok) throw new Error('Não consegui baixar a LUT ' + path.basename(caminho) + ' (' + r.status + ')');
+    fs.mkdirSync(path.dirname(destino), { recursive: true });
+    fs.writeFileSync(destino, Buffer.from(await r.arrayBuffer()));
+}
+/* Ela pediu outra música no editor (camada musica com "trocar": {clima, obs}): o Claude busca no Epidemic (ou no banco de sons),
+   corta no tamanho e devolve em saida/musica_nova.json. Se não achar, fica a música antiga e o motivo vai pro histórico. */
+async function trocarMusicas(p, job, pj, mudancas) {
+    for (const c of (pj.camadas || []).filter(c => c.tipo === 'musica' && c.trocar)) {
+        const dur = Math.round(((+c.fim_s || 0) - (+c.inicio_s || 0)) * 10) / 10, t = c.trocar || {};
+        const resp = path.join(job, 'saida', 'musica_nova.json'); fs.rmSync(resp, { force: true });
+        if (!fs.existsSync(path.join(job, 'CLAUDE.md'))) fs.copyFileSync(path.join(DIR, 'INSTRUCOES_EDICAO.md'), path.join(job, 'CLAUDE.md'));
+        await mudar(p, { status: 'renderizando', status_msg: 'Procurando outra música (' + (t.clima || 'outro clima') + ')' });
+        fs.writeFileSync(path.join(job, 'TROCAR_MUSICA.md'), '# A Lara quer outra música neste vídeo (pedido #' + p.numero + ', ' + (p.marca || '') + ')\n\n' +
+            '- Música atual (ela NÃO gostou, não repita): ' + (c.titulo || c.arquivo || '?') + '\n- Clima pedido: ' + (t.clima || 'livre') + '\n' +
+            (t.obs ? '- O que ela disse: ' + t.obs + '\n' : '') + '- Duração necessária: ' + dur + ' s\n\n' +
+            'Siga a parte de música do CLAUDE.md (só instrumental, sem voz; Epidemic Sound primeiro, banco de sons depois).\n' +
+            'Corte a faixa no tamanho com EditRecording quando for do Epidemic e salve o arquivo em work/musica/.\n' +
+            'No fim escreva saida/musica_nova.json: {"arquivo": "nome-do-arquivo-em-work-musica", "titulo": "Faixa - Artista", "id": "id do Epidemic ou vazio", "fonte": "Epidemic Sound (Pro)" ou "banco", "origem_inicio_s": 0}\n');
+        await rodarClaude(job, p, 'Leia CLAUDE.md e TROCAR_MUSICA.md. Faça SÓ a troca da música descrita lá: NÃO edite, NÃO monte e NÃO renderize o vídeo. ' +
+            'No fim precisa existir saida/musica_nova.json.');
+        let nova; try { nova = JSON.parse(fs.readFileSync(resp, 'utf8')); } catch (_) {}
+        const arq = nova && acharArquivo(job, nova.arquivo);
+        delete c.trocar;
+        if (!arq) {
+            mudancas.push('Pediu ' + (c.arquivo ? 'outra música' : 'música') + ' (' + (t.clima || '') + '), mas o estagiário não achou' + (c.arquivo ? ': ficou a anterior' : ': o vídeo segue sem música'));
+            if (!c.arquivo) pj.camadas.splice(pj.camadas.indexOf(c), 1);
+            continue;
+        }
+        mudancas.push('Trocou a música por ' + (nova.titulo || nova.arquivo) + ' (' + (t.clima || 'outro clima') + (t.obs ? ': ' + t.obs : '') + ')');
+        Object.assign(c, { arquivo: path.basename(arq), titulo: nova.titulo || null, epidemic_id: nova.id || null, fonte: nova.fonte || null, origem_inicio_s: +nova.origem_inicio_s || 0 });
+        delete c.audio_path;
+    }
 }
 // roda depois da entrega, sem segurar a fila: o Claude lê o que ela mudou e propõe regras do estilo
 async function aprenderComReedicao(p, job, mudancas) {
@@ -782,7 +851,8 @@ async function olharBiblioteca() {
 const ATUALIZAR_DE = process.env.ROBO_ATUALIZAR_DE || 'https://raw.githubusercontent.com/eilaradam/site-creators/main/robo-edicao/';
 const ARQUIVOS_DO_ROBO = ['robo.mjs', 'icone.png', 'INSTRUCOES_EDICAO.md', 'INSTRUCOES_CENAS.md', 'INSTRUCOES_APRENDER.md', 'transcrever.py', 'legendas.json',
     'legendas_ass.py', 'montar.py', 'catalogar_sons.py', 'encaixar_musica.py', 'baixar_fontes.py', 'fontes.json',
-    'titulos/package.json', 'titulos/src/index.ts', 'titulos/src/Raiz.tsx', 'titulos/src/Titulos.tsx'];
+    'titulos/package.json', 'titulos/src/index.ts', 'titulos/src/Raiz.tsx', 'titulos/src/Titulos.tsx',
+    'luts/luts.json', 'luts/quente-dourado.cube', 'luts/frio-limpo.cube', 'luts/filme-desbotado.cube', 'luts/contraste-suave.cube', 'luts/verao-vibrante.cube', 'luts/preto-e-branco.cube'];
 let ultimaAtualizacao = 0;
 async function atualizarRobo() {
     if (process.env.ROBO_SEM_ATUALIZAR || Date.now() - ultimaAtualizacao < 30 * 60000) return false;
