@@ -5425,29 +5425,55 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
 @keyframes iaGira { to { transform:rotate(360deg); } }
 #tabEdicao .ia-tl { position:relative; background:#141312; border:1px solid #2E2925; border-radius:16px; padding:12px 14px 14px; }
 #tabEdicao .ia-tl.vazio { color:#A69D93; font-size:13px; text-align:center; padding:22px; }
-#tabEdicao .ia-regua { display:flex; justify-content:space-between; color:#A69D93; font-size:12px; font-family:'DM Mono', ui-monospace, monospace; margin-left:78px; margin-bottom:6px; }
-#tabEdicao .ia-tr { display:flex; align-items:center; gap:8px; margin-top:8px; }
-#tabEdicao .ia-tr-n { width:70px; flex:none; font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:#A69D93; }
-#tabEdicao .ia-tr-l { position:relative; flex:1; height:34px; background:#211E1C; border-radius:9px; overflow:hidden; }
-#tabEdicao .ia-bl { position:absolute; top:3px; bottom:3px; border-radius:7px; overflow:hidden; display:flex; align-items:center; min-width:3px; }
-#tabEdicao .ia-bl span { font-size:11px; font-weight:800; padding:0 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-#tabEdicao .ia-bl.vid { background:repeating-linear-gradient(90deg,#C8441A 0 26px,#A9391A 26px 28px); border:1px solid #E06A42; }
+/* linha do tempo do editor: faixas por tipo, nome na lateral fixa, zoom com rolagem lateral */
+#tabEdicao .tl-barra { display:flex; align-items:center; gap:6px; margin-bottom:10px; flex-wrap:wrap; }
+#tabEdicao .tl-b { min-width:32px; height:30px; border-radius:8px; border:1px solid #3D3530; background:#211E1C; color:#FFF8F2; font-size:13px; font-weight:800; cursor:pointer; padding:0 8px; }
+#tabEdicao .tl-b:hover { border-color:#C8441A; }
+#tabEdicao .tl-play { background:#C8441A; border-color:#C8441A; min-width:40px; }
+#tabEdicao .tl-txt { font-size:12px; font-weight:700; }
+#tabEdicao .tl-tempo { color:#A69D93; font-size:12px; font-family:'DM Mono', ui-monospace, monospace; margin-left:4px; }
+#tabEdicao .tl-tempo b { color:#FFF8F2; font-weight:500; }
+#tabEdicao .tl-esp { flex:1; }
+#tabEdicao .tl-zoom { width:120px; accent-color:#C8441A; }
+#tabEdicao .tl-rolo { overflow-x:auto; overflow-y:hidden; scrollbar-color:#3D3530 transparent; }
+#tabEdicao .tl-cont { position:relative; min-width:100%; padding-bottom:4px; }
+#tabEdicao .ia-regua { position:relative; height:18px; margin-left:80px; color:#A69D93; font-size:11px; font-family:'DM Mono', ui-monospace, monospace; cursor:col-resize; border-bottom:1px solid #2E2925; touch-action:none; }
+#tabEdicao .ia-regua span { position:absolute; top:0; padding-left:4px; border-left:1px solid #3D3530; white-space:nowrap; line-height:14px; }
+#tabEdicao .ia-tr { display:flex; align-items:stretch; gap:8px; margin-top:6px; }
+#tabEdicao .ia-tr-n { position:sticky; left:0; z-index:4; width:72px; flex:none; display:flex; align-items:center; font-size:10.5px; font-weight:800; letter-spacing:.8px; text-transform:uppercase; color:#A69D93; background:#141312; }
+#tabEdicao .ia-tr-l { position:relative; flex:1; height:30px; background:#211E1C; border-radius:8px; overflow:hidden; cursor:pointer; }
+#tabEdicao .f-vid .ia-tr-l { height:52px; }
+#tabEdicao .f-som .ia-tr-l { height:34px; }
+#tabEdicao .tl-mini { position:absolute; inset:0; display:flex; pointer-events:none; }
+#tabEdicao .tl-mini i { flex:1; min-width:0; background:#2A231E center/cover no-repeat; border-right:1px solid #141312; }
+#tabEdicao .tl-onda { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; opacity:.85; }
+#tabEdicao .ia-bl { position:absolute; top:3px; bottom:3px; border-radius:6px; overflow:hidden; display:flex; align-items:center; min-width:3px; cursor:pointer; box-sizing:border-box; }
+#tabEdicao .ia-bl span { font-size:11px; font-weight:700; padding:0 7px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; pointer-events:none; }
+#tabEdicao .ia-bl.vid { background:rgba(200,68,26,.18); border:1.5px solid #E06A42; }
 #tabEdicao .ia-bl.rec { background:#7B3E1B; border:1px solid #A75525; color:#FFF8F2; }
-#tabEdicao .ia-bl.leg { background:#FFF8F2; color:#1B1B1B; }
+#tabEdicao .ia-bl.leg { background:#FFF8F2; color:#1B1B1B; border-right:1px solid #1B1B1B; }
 #tabEdicao .ia-bl.zoom { background:#3A2A20; border:1px solid #A75525; color:#F4D9C8; }
 #tabEdicao .ia-bl.anim { background:#A75525; color:#FFF8F2; }
-#tabEdicao .ia-bl.mus { background:repeating-linear-gradient(90deg,#2A231E 0 3px,#D9C3AE 3px 5px); border:1px solid #D9C3AE; }
-#tabEdicao .ia-bl.sfx { background:#F0E7DD; }
-#tabEdicao .ia-play { position:absolute; top:30px; bottom:10px; left:92px; width:2px; background:#FFF8F2; box-shadow:0 0 8px #FFF8F2; display:none; }
+#tabEdicao .ia-bl.mus { background:#2F4A3C; border:1px solid #5FCB8C; color:#E3F6EA; }
+#tabEdicao .ia-bl.sfx { background:#4A3A63; border:1px solid #A98BD6; color:#EFE6FB; }
+#tabEdicao .ia-bl.arrasta { cursor:grab; }
+#tabEdicao .ia-bl.arrasta:active { cursor:grabbing; }
+#tabEdicao .tl-alca { display:none; position:absolute; top:0; bottom:0; width:7px; z-index:2; cursor:ew-resize; }
+#tabEdicao .tl-alca.e { left:0; } #tabEdicao .tl-alca.d { right:0; }
+#tabEdicao .ia-bl.arrasta .tl-alca { display:block; }
+#tabEdicao .ia-bl.arrasta:hover .tl-alca, #tabEdicao .ia-bl.arrasta.sel .tl-alca { background:rgba(255,248,242,.55); }
+#tabEdicao .ia-bl.sel { outline:2px solid #FFF8F2; outline-offset:1px; z-index:3; touch-action:none; }
+#tabEdicao .tl-marcas { position:absolute; top:18px; bottom:0; left:80px; right:0; pointer-events:none; }
+#tabEdicao .ia-marca { position:absolute; top:0; bottom:0; width:2px; margin-left:-1px; background:#E8A27E; opacity:.8; pointer-events:auto; }
+#tabEdicao .ia-play { position:absolute; top:0; bottom:0; left:80px; width:2px; margin-left:-1px; background:#FFF8F2; box-shadow:0 0 6px #FFF8F2; display:none; z-index:5; pointer-events:none; }
+#tabEdicao .tl-guia { position:absolute; top:0; bottom:0; width:1px; background:#5FCB8C; display:none; z-index:6; pointer-events:none; }
 #tabEdicao .ia-tl.vivo .ia-play { display:block; animation:iaVarre 4s linear infinite; }
-@keyframes iaVarre { from { left:92px; } to { left:calc(100% - 16px); } }
+@keyframes iaVarre { from { left:80px; } to { left:100%; } }
 #tabEdicao .ia-rodape { display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-top:10px; font-size:12.5px; color:#A69D93; }
 #tabEdicao .ia-rodape a { color:#E8A27E; }
 @media (max-width: 600px) {
   #tabEdicao .ia-meio { grid-template-columns:110px 1fr; }
   #tabEdicao .ia-etapa { font-size:12px; padding:6px 8px; }
-  #tabEdicao .ia-tr-n { width:56px; font-size:10px; }
-  #tabEdicao .ia-regua { margin-left:64px; }
 }
 #tabEdicao .ia-cenas { margin-top:12px; background:#141312; border:1px solid #2E2925; border-radius:16px; padding:12px 14px; }
 #tabEdicao .ia-cenas-tit { font-weight:800; font-size:15px; margin-bottom:4px; }
@@ -5473,7 +5499,6 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
 #tabEdicao .ia-prev { position:relative; }
 #tabEdicao .ia-prev iframe.ia-prev-drive { position:absolute; top:0; left:0; width:360px; height:640px; transform:scale(.5455); transform-origin:0 0; border:0; }
 #tabEdicao .ia-prev-abrir { position:absolute; left:6px; right:6px; bottom:6px; text-align:center; background:rgba(27,27,27,.85); color:#FFF8F2; border-radius:8px; padding:5px; font-size:12px; font-weight:700; text-decoration:none; }
-#tabEdicao .ia-bl.leg { border-right:1px solid #1B1B1B; }
 #tabEdicao .fn-grade { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:12px; }
 #tabEdicao .fn-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
 #tabEdicao .fn-amostra { background:#1B1B1B; color:#FFF8F2; padding:22px 16px; font-size:28px; line-height:1.15; min-height:110px; display:flex; align-items:center; }
@@ -5483,12 +5508,8 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
 #tabEdicao .fn-peso:hover { border-color:var(--accent); color:var(--accent); }
 @media (max-width: 600px) { #tabEdicao .ia-meio { grid-template-columns:130px 1fr; } #tabEdicao .ia-prev iframe.ia-prev-drive { transform:scale(.3611); } }
 #tabEdicao .ia-prev-video { width:100%; height:100%; object-fit:contain; background:#000; display:block; }
-#tabEdicao .ia-tr-l { cursor:pointer; }
-#tabEdicao .ia-bl { cursor:pointer; }
-#tabEdicao .ia-bl.sel { outline:2px solid #FFF8F2; outline-offset:1px; z-index:2; }
 #tabEdicao .ia-bl.fora { opacity:.25; background:repeating-linear-gradient(45deg,#555 0 4px,#333 4px 8px) !important; }
 #tabEdicao .ia-bl.editado { box-shadow:inset 0 -3px 0 #E8A27E; }
-#tabEdicao .ia-marca { position:absolute; top:-3px; bottom:-3px; width:3px; margin-left:-1px; background:#E8A27E; border-radius:2px; z-index:3; }
 #tabEdicao .ed-pick { display:flex; gap:10px; overflow-x:auto; padding:2px 2px 8px; scroll-snap-type:x proximity; }
 #tabEdicao .ed-pk { flex:0 0 auto; width:112px; display:flex; flex-direction:column; gap:5px; padding:0; border:0; background:none; cursor:pointer; text-align:center; scroll-snap-align:start; font:inherit; color:var(--text); }
 #tabEdicao .ed-pk:disabled { cursor:default; }
@@ -18616,6 +18637,18 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
        Cada ajuste fica salvo no pedido; o estagiário aplica na V2 e propõe regras do estilo a partir deles. ── */
     let edIaSel = null, edIaRaf = null;
     const edIaAjustes = ped => Array.isArray(ped.ajustes) ? ped.ajustes : [];
+    /* TL-INICIO ── Linha do tempo do editor (faixas separadas, nomes, miniaturas, onda do som, zoom, arrastar e esticar) ── */
+    let edTlZoom = (() => { try { return Math.max(1, Math.min(24, +localStorage.getItem('edTlZoom') || 1)); } catch (_) { return 1; } })();
+    let edTlArr = null, edTlScrub = false, edTlMidia = {};
+    const ED_TL_ARRASTA = ['legenda', 'animacao', 'zoom', 'musica', 'sfx', 'broll', 'imagem', 'rec', 'voz'];
+    const edTlNomeArq = a => String(a || '').split('/').pop().replace(/\.[a-z0-9]{2,4}$/i, '').replace(/[_-]+/g, ' ').trim();
+    function edTlRotulo(c) {
+        if (c.tipo === 'corte') return '';
+        if (c.tipo === 'legenda' || c.tipo === 'animacao') return c.texto || (c.tipo === 'animacao' ? 'animação' : '');
+        if (c.tipo === 'zoom') return 'zoom ' + Math.round((+c.escala || 1.12) * 100) + '%';
+        if (c.tipo === 'musica' || c.tipo === 'sfx') return c.titulo || c.nome || edTlNomeArq(c.arquivo) || (c.tipo === 'musica' ? 'música' : 'efeito');
+        return ({ rec: 'tela do site', broll: 'b-roll', imagem: 'imagem', voz: 'locução' }[c.tipo] || '') + (c.arquivo ? ' · ' + edTlNomeArq(c.arquivo) : '');
+    }
     function edIaLinhaHtml(ped) {
         const pj = ped.projeto || {}, cam = Array.isArray(pj.camadas) ? pj.camadas : [];
         const andando = ED_EM_ANDAMENTO.includes(ped.status);
@@ -18624,22 +18657,236 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const aj = edIaAjustes(ped);
         const fora = new Set(aj.filter(a => a.tipo === 'remover').map(a => a.i));
         const novoTexto = {}; aj.filter(a => a.tipo === 'texto').forEach(a => { novoTexto[a.i] = a.para; });
-        const bloco = (c, i, cls, txt) => {
-            const ini = Math.max(0, Number(c.inicio_s) || 0), fim = Math.max(ini + 0.05, Number(c.fim_s) || ini);
-            const largura = (fim - ini) / dur, t = novoTexto[i] !== undefined ? novoTexto[i] : txt;
-            return '<div class="ia-bl ' + cls + (fora.has(i) ? ' fora' : '') + (novoTexto[i] !== undefined ? ' editado' : '') + (edIaSel === i ? ' sel' : '') + '" data-i="' + i + '" style="left:' + (ini / dur * 100).toFixed(3) + '%;width:' + (largura * 100).toFixed(3) + '%;" title="' + edEsc(edMMSS(ini) + ' a ' + edMMSS(fim) + (t ? ' · ' + t : '')) + '">' + (t && largura >= 0.06 ? '<span>' + edEsc(t) + '</span>' : '') + '</div>';
+        const pct = x => (x / dur * 100).toFixed(4) + '%';
+        const bloco = (c, i, cls) => {
+            const ini = Math.max(0, Number(c.inicio_s) || 0);
+            const fim = c.tipo === 'sfx' && c.fim_s == null ? ini + (+c.dur_s || 0.6) : Math.max(ini + 0.05, Number(c.fim_s) || ini);
+            const t = novoTexto[i] !== undefined ? novoTexto[i] : edTlRotulo(c);
+            return '<div class="ia-bl ' + cls + (fora.has(i) ? ' fora' : '') + (novoTexto[i] !== undefined ? ' editado' : '') + (edIaSel === i ? ' sel' : '') + '" data-i="' + i + '" style="left:' + pct(ini) + ';width:' + pct(fim - ini) + ';" title="' + edEsc(edMMSSd(ini) + ' a ' + edMMSSd(fim) + (t ? ' · ' + t : '')) + '">' +
+                '<i class="tl-alca e"></i>' + (t ? '<span>' + edEsc(t) + '</span>' : '') + '<i class="tl-alca d"></i></div>';
         };
         const lista = filtro => cam.map((c, i) => ({ c, i })).filter(x => filtro(x.c));
-        const trilha = (nome, itens) => '<div class="ia-tr"><div class="ia-tr-n">' + nome + '</div><div class="ia-tr-l">' + itens + '</div></div>';
-        const marcas = aj.filter(a => a.tipo === 'comentario').map(a => '<div class="ia-marca" style="left:' + (a.tempo_s / dur * 100).toFixed(3) + '%;" title="' + edEsc(edMMSS(a.tempo_s) + ' · ' + a.texto) + '"></div>').join('');
-        return '<div class="ia-tl' + (andando ? ' vivo' : '') + '" data-dur="' + dur + '">' +
-            '<div class="ia-regua"><span>00:00</span><span>' + edMMSS(dur / 2) + '</span><span>' + edMMSS(dur) + '</span></div>' +
-            trilha('Vídeo', lista(c => ['corte', 'rec', 'broll', 'imagem'].includes(c.tipo)).map(x => bloco(x.c, x.i, x.c.tipo === 'corte' ? 'vid' : 'rec', { rec: 'tela do site', broll: 'b-roll', imagem: 'imagem' }[x.c.tipo] || '')).join('') + marcas) +
-            trilha('Legendas', lista(c => c.tipo === 'legenda').map(x => bloco(x.c, x.i, 'leg', x.c.texto || '')).join('')) +
-            trilha('Efeitos', lista(c => c.tipo === 'zoom' || c.tipo === 'animacao').map(x => bloco(x.c, x.i, x.c.tipo === 'zoom' ? 'zoom' : 'anim', x.c.tipo === 'zoom' ? 'zoom' : (x.c.texto || ''))).join('')) +
-            trilha('Áudio', lista(c => c.tipo === 'musica' || c.tipo === 'sfx' || c.tipo === 'voz').map(x => bloco(x.c, x.i, x.c.tipo === 'sfx' ? 'sfx' : 'mus', '')).join('')) +
-            '<div class="ia-play"></div></div>';
+        const faixa = (nome, cls, itens, sempre, extra) => (itens.length || sempre) ?
+            '<div class="ia-tr ' + cls + '"><div class="ia-tr-n">' + nome + '</div><div class="ia-tr-l">' + (extra || '') + itens.map(x => bloco(x.c, x.i, x.k)).join('') + '</div></div>' : '';
+        const tipoVid = { corte: 'vid', rec: 'rec', broll: 'rec', imagem: 'rec' };
+        const marcas = aj.filter(a => a.tipo === 'comentario').map(a => '<div class="ia-marca" style="left:' + pct(a.tempo_s) + ';" title="' + edEsc(edMMSS(a.tempo_s) + ' · ' + a.texto) + '"></div>').join('');
+        const mk = (f, k) => lista(f).map(x => Object.assign(x, { k: typeof k === 'function' ? k(x.c) : k }));
+        const temBase = !!(pj.base_path && !andando);
+        return '<div class="ia-tl' + (andando ? ' vivo' : '') + '" data-dur="' + dur + '" data-base="' + edEsc(pj.base_path || '') + '">' +
+            '<div class="tl-barra">' +
+              '<button class="tl-b" type="button" data-tl="volta" title="Voltar 2 s">⏮</button>' +
+              '<button class="tl-b tl-play" type="button" data-tl="play" title="Tocar ou pausar (espaço)">▶</button>' +
+              '<button class="tl-b" type="button" data-tl="frente" title="Avançar 2 s">⏭</button>' +
+              '<span class="tl-tempo"><b id="tlAgora">00:00,0</b> / ' + edMMSSd(dur) + '</span>' +
+              '<span class="tl-esp"></span>' +
+              '<button class="tl-b" type="button" data-tl="menos" title="Afastar">−</button>' +
+              '<input class="tl-zoom" type="range" min="1" max="24" step="0.25" value="' + edTlZoom + '" title="Zoom da linha do tempo (ou Ctrl + roda do mouse)">' +
+              '<button class="tl-b" type="button" data-tl="mais" title="Aproximar">+</button>' +
+              '<button class="tl-b tl-txt" type="button" data-tl="caber" title="Ver o vídeo inteiro">Inteiro</button>' +
+            '</div>' +
+            '<div class="tl-rolo"><div class="tl-cont" style="width:' + (edTlZoom * 100) + '%;">' +
+              '<div class="ia-regua"></div>' +
+              faixa('Vídeo', 'f-vid', mk(c => tipoVid[c.tipo] === 'vid', 'vid'), true, '<div class="tl-mini"></div>') +
+              faixa('Imagens', 'f-img', mk(c => tipoVid[c.tipo] === 'rec', 'rec')) +
+              (temBase ? faixa('Som', 'f-som', [], true, '<canvas class="tl-onda"></canvas>') : '') +
+              faixa('Legendas', 'f-leg', mk(c => c.tipo === 'legenda', 'leg'), true) +
+              faixa('Títulos', 'f-tit', mk(c => c.tipo === 'animacao', 'anim'), true) +
+              faixa('Zoom', 'f-zoom', mk(c => c.tipo === 'zoom', 'zoom')) +
+              faixa('Locução', 'f-voz', mk(c => c.tipo === 'voz', 'mus')) +
+              faixa('Música', 'f-mus', mk(c => c.tipo === 'musica', 'mus'), true) +
+              faixa('Efeitos', 'f-sfx', mk(c => c.tipo === 'sfx', 'sfx'), true) +
+              '<div class="tl-marcas">' + marcas + '</div>' +
+              '<div class="ia-play"></div><div class="tl-guia"></div>' +
+            '</div></div></div>';
     }
+    /* régua com marcas que se ajustam ao zoom */
+    function edTlRegua(tl) {
+        const dur = +tl.dataset.dur || 0, cont = tl.querySelector('.tl-cont'), r = tl.querySelector('.ia-regua'); if (!cont || !r || !dur) return;
+        const pxs = (cont.clientWidth - 80) / dur;
+        const passo = [0.1, 0.25, 0.5, 1, 2, 5, 10, 15, 30, 60, 120].find(p => p * pxs >= 64) || 300;
+        let h = '';
+        for (let t = 0; t <= dur + 0.0001; t += passo) h += '<span style="left:' + (t / dur * 100).toFixed(4) + '%">' + (passo < 1 ? edMMSSd(t) : edMMSS(t)) + '</span>';
+        r.innerHTML = h;
+    }
+    function edTlAplicarZoom(tl, z, focoT) {
+        const rolo = tl.querySelector('.tl-rolo'), cont = tl.querySelector('.tl-cont'), dur = +tl.dataset.dur || 0; if (!rolo || !cont) return;
+        edTlZoom = Math.max(1, Math.min(24, z)); try { localStorage.setItem('edTlZoom', edTlZoom); } catch (_) {}
+        cont.style.width = (edTlZoom * 100) + '%';
+        const zi = tl.querySelector('.tl-zoom'); if (zi) zi.value = edTlZoom;
+        edTlRegua(tl); edTlOnda(tl);
+        if (focoT != null && dur) rolo.scrollLeft = Math.max(0, 80 + (cont.clientWidth - 80) * focoT / dur - rolo.clientWidth / 2);
+    }
+    const edTlX2T = (tl, x) => { const l = tl.querySelector('.tl-cont .ia-tr-l'), dur = +tl.dataset.dur || 0; if (!l || !dur) return 0; const r = l.getBoundingClientRect(); return Math.max(0, Math.min(dur, (x - r.left) / r.width * dur)); };
+    /* miniaturas e onda do som tiradas do próprio vídeo base, no navegador (nada muda pro robô) */
+    async function edTlCarregarMidia(tl, url) {
+        const base = tl.dataset.base, dur = +tl.dataset.dur || 0; if (!base || !url || !dur) return;
+        const m = edTlMidia[base] = edTlMidia[base] || { frames: [], onda: null, busy: false };
+        edTlMini(tl); edTlOnda(tl);
+        if (m.busy || (m.frames.length && m.onda)) return; m.busy = true;
+        try {
+            if (!m.frames.length) {
+                const v = document.createElement('video'); v.crossOrigin = 'anonymous'; v.muted = true; v.preload = 'auto'; v.src = url;
+                await new Promise((ok, erro) => { v.onloadeddata = ok; v.onerror = erro; setTimeout(erro, 20000); });
+                const n = Math.max(4, Math.min(60, Math.ceil(dur / 0.75))), cv = document.createElement('canvas');
+                cv.height = 96; cv.width = Math.round(96 * (v.videoWidth / v.videoHeight || 0.5625));
+                const g = cv.getContext('2d');
+                for (let k = 0; k < n; k++) {
+                    v.currentTime = Math.min(dur - 0.05, (k + 0.5) * dur / n);
+                    await new Promise(ok => { v.onseeked = ok; setTimeout(ok, 3000); });
+                    g.drawImage(v, 0, 0, cv.width, cv.height);
+                    m.frames[k] = cv.toDataURL('image/jpeg', 0.6);
+                    if (k % 6 === 5 || k === n - 1) document.querySelectorAll('#iaLinha .ia-tl[data-base="' + CSS.escape(base) + '"]').forEach(edTlMini);
+                }
+                v.removeAttribute('src'); v.load();
+            }
+            if (!m.onda && (window.AudioContext || window.webkitAudioContext)) {
+                const resp = await fetch(url); const tam = +resp.headers.get('content-length') || 0;
+                if (resp.ok && tam < 150e6) {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    const buf = await ctx.decodeAudioData(await resp.arrayBuffer()); ctx.close && ctx.close();
+                    const d = buf.getChannelData(0), N = 2000, picos = new Float32Array(N), passo = Math.max(1, Math.floor(d.length / N));
+                    let max = 0.0001;
+                    for (let k = 0; k < N; k++) { let p = 0; for (let j = k * passo, f = Math.min(d.length, j + passo); j < f; j += 4) { const a = Math.abs(d[j]); if (a > p) p = a; } picos[k] = p; if (p > max) max = p; }
+                    m.onda = Array.from(picos, p => p / max);
+                    document.querySelectorAll('#iaLinha .ia-tl[data-base="' + CSS.escape(base) + '"]').forEach(edTlOnda);
+                }
+            }
+        } catch (_) { /* sem miniatura ou onda: a linha do tempo funciona igual */ }
+        m.busy = false;
+    }
+    function edTlMini(tl) {
+        const m = edTlMidia[tl.dataset.base], box = tl.querySelector('.tl-mini'); if (!m || !box || !m.frames.length) return;
+        box.innerHTML = m.frames.map(f => f ? '<i style="background-image:url(' + f + ')"></i>' : '<i></i>').join('');
+    }
+    function edTlOnda(tl) {
+        const m = edTlMidia[tl.dataset.base], cv = tl.querySelector('.tl-onda'); if (!m || !m.onda || !cv) return;
+        const w = Math.min(16000, cv.parentNode.clientWidth), h = cv.parentNode.clientHeight, dpr = window.devicePixelRatio || 1;
+        cv.width = w * dpr; cv.height = h * dpr; const g = cv.getContext('2d'); g.scale(dpr, dpr);
+        g.fillStyle = '#E8A27E'; const N = m.onda.length;
+        for (let x = 0; x < w; x++) { const p = m.onda[Math.floor(x / w * N)] || 0, a = Math.max(1, p * (h - 6)); g.fillRect(x, (h - a) / 2, 1, a); }
+    }
+    /* liga vídeo, cabeça de leitura, zoom, arrastar e esticar (sem recriar o vídeo) */
+    function edIaLigar(ped) {
+        const tl = document.querySelector('#iaLinha .ia-tl'); if (!tl || tl.classList.contains('vazio')) return;
+        const dur = Number(tl.dataset.dur) || 0, v = document.getElementById('iaVideo');
+        const rolo = tl.querySelector('.tl-rolo'), cont = tl.querySelector('.tl-cont'), play = tl.querySelector('.ia-play');
+        const montavel = edEdMontavel(ped), soLer = edOpcaoVer === 'b';
+        edTlRegua(tl);
+        if (v && v.src && tl.dataset.base) edTlCarregarMidia(tl, v.currentSrc || v.src);
+        else if (v && tl.dataset.base) v.addEventListener('loadedmetadata', () => edTlCarregarMidia(tl, v.currentSrc || v.src), { once: true });
+        edTlMini(tl); edTlOnda(tl);
+        const ir = t => { if (v && dur) { v.currentTime = Math.max(0, Math.min(dur - 0.01, t)); edEdChave = ''; } };
+        tl.querySelector('.tl-barra').addEventListener('click', ev => {
+            const b = ev.target.closest('[data-tl]'); if (!b) return; const a = b.dataset.tl, agora = v ? v.currentTime || 0 : 0;
+            if (a === 'play' && v) v.paused ? v.play() : v.pause();
+            if (a === 'volta') ir(agora - 2); if (a === 'frente') ir(agora + 2);
+            if (a === 'mais') edTlAplicarZoom(tl, edTlZoom * 1.5, agora);
+            if (a === 'menos') edTlAplicarZoom(tl, edTlZoom / 1.5, agora);
+            if (a === 'caber') edTlAplicarZoom(tl, 1);
+        });
+        tl.querySelector('.tl-zoom').addEventListener('input', ev => edTlAplicarZoom(tl, +ev.target.value, v ? v.currentTime : 0));
+        rolo.addEventListener('wheel', ev => {
+            if (!(ev.ctrlKey || ev.metaKey)) return; ev.preventDefault();
+            edTlAplicarZoom(tl, edTlZoom * (ev.deltaY < 0 ? 1.15 : 1 / 1.15), edTlX2T(tl, ev.clientX));
+        }, { passive: false });
+        // régua: clicar ou arrastar leva o vídeo junto
+        const regua = tl.querySelector('.ia-regua');
+        regua.addEventListener('pointerdown', ev => { edTlScrub = true; regua.setPointerCapture(ev.pointerId); ir(edTlX2T(tl, ev.clientX)); });
+        regua.addEventListener('pointermove', ev => { if (edTlScrub) ir(edTlX2T(tl, ev.clientX)); });
+        regua.addEventListener('pointerup', () => { edTlScrub = false; });
+        tl.querySelectorAll('.ia-tr-l').forEach(l => l.addEventListener('click', ev => { if (!ev.target.closest('.ia-bl')) ir(edTlX2T(tl, ev.clientX)); }));
+        // blocos: clique seleciona; no editor, arrastar move e as pontas esticam
+        if (!soLer) tl.querySelectorAll('.ia-bl').forEach(b => {
+            const i = Number(b.dataset.i), c = ped.projeto.camadas[i];
+            const pode = montavel && c && ED_TL_ARRASTA.includes(c.tipo);
+            if (pode) b.classList.add('arrasta');
+            b.addEventListener('pointerdown', ev => {
+                if (ev.button > 0) return;
+                if (!pode || (ev.pointerType === 'touch' && edIaSel !== i)) return;
+                ev.preventDefault();
+                const alca = ev.target.closest('.tl-alca'), modo = alca ? (alca.classList.contains('e') ? 'ini' : 'fim') : 'mover';
+                if (modo === 'fim' && c.fim_s == null && c.tipo === 'sfx') return;
+                const lr = b.parentNode.getBoundingClientRect();
+                edTlArr = { b, i, c, modo, x0: ev.clientX, pxs: lr.width / dur, ini: +c.inicio_s || 0, fim: c.fim_s != null ? +c.fim_s : null, moveu: false, alvo: null };
+                b.setPointerCapture(ev.pointerId);
+            });
+            b.addEventListener('pointermove', ev => {
+                const a = edTlArr; if (!a || a.b !== b) return;
+                const dx = ev.clientX - a.x0; if (!a.moveu && Math.abs(dx) < 4) return; a.moveu = true;
+                let dt = dx / a.pxs, ini = a.ini, fim = a.fim;
+                const tam = fim != null ? fim - ini : 0;
+                if (a.modo === 'mover') { ini = Math.max(0, Math.min(dur - Math.max(tam, 0.05), a.ini + dt)); if (fim != null) fim = ini + tam; }
+                if (a.modo === 'ini') ini = Math.max(0, Math.min(fim - 0.1, a.ini + dt));
+                if (a.modo === 'fim') fim = Math.max(ini + 0.1, Math.min(dur, a.fim + dt));
+                // ímã: encosta na cabeça de leitura e nas pontas dos outros blocos (8 px)
+                const imas = [v ? v.currentTime : -1, 0, dur];
+                ped.projeto.camadas.forEach((o, k) => { if (k !== a.i) { imas.push(+o.inicio_s); if (o.fim_s != null) imas.push(+o.fim_s); } });
+                const lim = 8 / a.pxs, guia = tl.querySelector('.tl-guia'); let colou = null;
+                const prende = t => { const m = imas.reduce((b2, x) => Math.abs(x - t) < Math.abs(b2 - t) ? x : b2, Infinity); return Math.abs(m - t) <= lim ? m : null; };
+                if (a.modo !== 'fim') { const s = prende(ini); if (s != null) { if (fim != null && a.modo === 'mover') fim += s - ini; ini = s; colou = s; } else if (a.modo === 'mover' && fim != null) { const s2 = prende(fim); if (s2 != null) { ini += s2 - fim; fim = s2; colou = s2; } } }
+                if (a.modo === 'fim') { const s = prende(fim); if (s != null && s > ini + 0.05) { fim = s; colou = s; } }
+                guia.style.display = colou != null ? 'block' : 'none'; if (colou != null) guia.style.left = 'calc(80px + (100% - 80px) * ' + (colou / dur) + ')';
+                a.alvo = { ini: edR(Math.round(ini * 20) / 20), fim: fim != null ? edR(Math.round(fim * 20) / 20) : null };
+                if (colou != null) { if (a.modo !== 'fim' && Math.abs(ini - colou) < 0.001) a.alvo.ini = edR(colou); if (a.modo !== 'ini' && fim != null && Math.abs(fim - colou) < 0.001) a.alvo.fim = edR(colou); }
+                b.style.left = (a.alvo.ini / dur * 100) + '%';
+                if (a.alvo.fim != null) b.style.width = ((a.alvo.fim - a.alvo.ini) / dur * 100) + '%';
+                const ag = document.getElementById('tlAgora'); if (ag) ag.textContent = edMMSSd(a.modo === 'fim' ? a.alvo.fim : a.alvo.ini);
+            });
+            b.addEventListener('pointerup', ev => {
+                const a = edTlArr; edTlArr = null; tl.querySelector('.tl-guia').style.display = 'none';
+                if (a && a.b === b && a.moveu && a.alvo) {
+                    const { ini, fim } = a.alvo, d = ini - a.ini;
+                    if (Math.abs(d) < 0.001 && (fim == null || Math.abs(fim - a.fim) < 0.001)) return;
+                    const frase = (a.modo === 'mover' ? 'Moveu ' : a.modo === 'ini' ? 'Mudou o começo de ' : 'Mudou o fim de ') + edEdNome(c) + (a.modo === 'fim' ? ' (sai em ' + edMMSSd(fim) + ')' : ' (entra em ' + edMMSSd(ini) + ')');
+                    edEdMudar(ped, frase, () => {
+                        c.inicio_s = ini; if (fim != null) c.fim_s = fim;
+                        if (Array.isArray(c.palavras)) c.palavras = a.modo === 'mover'
+                            ? c.palavras.map(p => ({ w: p.w, s: edR(p.s + d), e: edR(p.e + d) }))
+                            : [];   // esticou na mão: a fala é redistribuída na tela, como nos botões de tempo
+                        if (c.tipo === 'musica' && c.origem_inicio_s != null && a.modo === 'ini') c.origem_inicio_s = edR(Math.max(0, +c.origem_inicio_s + d));
+                    });
+                    return;
+                }
+                if (a && a.moveu) return;
+                ev.stopPropagation(); edIaSel = i;
+                if (v && c) ir(Number(c.inicio_s) || 0);
+                edIaRedesenhar();
+            });
+            if (!pode) b.addEventListener('click', ev => { ev.stopPropagation(); edIaSel = i; if (v && c) ir(Number(c.inicio_s) || 0); edIaRedesenhar(); });
+        });
+        cancelAnimationFrame(edIaRaf);
+        if (!v || ED_EM_ANDAMENTO.includes(ped.status)) return;
+        play.style.display = 'block'; play.style.animation = 'none';
+        const bPlay = tl.querySelector('.tl-play');
+        const passo = () => {
+            if (!document.body.contains(v) || !document.body.contains(tl)) return;
+            const t = v.currentTime || 0, lt = document.getElementById('iaTempo');
+            play.style.left = 'calc(80px + (100% - 80px) * ' + Math.min(1, dur ? t / dur : 0) + ')';
+            if (!edTlArr) { const ag = document.getElementById('tlAgora'); if (ag) ag.textContent = edMMSSd(t); }
+            if (bPlay) bPlay.textContent = v.paused ? '▶' : '❚❚';
+            if (lt) lt.textContent = edMMSS(t);
+            // segue a cabeça de leitura quando ela sai da área visível
+            if (!v.paused && edTlZoom > 1 && !edTlArr) {
+                const x = 80 + (cont.clientWidth - 80) * t / dur;
+                if (x < rolo.scrollLeft + 80 || x > rolo.scrollLeft + rolo.clientWidth - 30) rolo.scrollLeft = x - 120;
+            }
+            if (montavel) edEdPalco(ped, t);
+            edIaRaf = requestAnimationFrame(passo);
+        };
+        passo();
+    }
+    /* atalhos: espaço toca/pausa, ← → anda 0,1 s (Shift: 1 s), Ctrl/Cmd+Z desfaz, Delete tira o item selecionado */
+    document.addEventListener('keydown', ev => {
+        const tl = document.querySelector('#iaLinha .ia-tl'); if (!tl || !tl.offsetParent) return;
+        if (ev.target.closest && ev.target.closest('input, textarea, select, [contenteditable="true"]')) return;
+        const v = document.getElementById('iaVideo'), ped = edIaPed(); if (!v || !ped) return;
+        if (ev.key === ' ') { ev.preventDefault(); v.paused ? v.play() : v.pause(); }
+        else if (ev.key === 'ArrowLeft' || ev.key === 'ArrowRight') { ev.preventDefault(); v.currentTime = Math.max(0, v.currentTime + (ev.key === 'ArrowLeft' ? -1 : 1) * (ev.shiftKey ? 1 : 0.1)); }
+        else if ((ev.ctrlKey || ev.metaKey) && !ev.shiftKey && ev.key.toLowerCase() === 'z' && edEdMontavel(ped)) { ev.preventDefault(); edEdDesfazer(); }
+        else if ((ev.key === 'Delete' || ev.key === 'Backspace') && edIaSel !== null && edEdMontavel(ped) && edOpcaoVer !== 'b') { ev.preventDefault(); edEdTirarCamada(); }
+        else if (ev.key === 'Escape' && edIaSel !== null) { edIaSel = null; edIaRedesenhar(); }
+    });
+    /* TL-FIM */
     const ED_IA_NOMES = { corte: 'Trecho do vídeo', rec: 'Gravação de tela', broll: 'B-roll', imagem: 'Imagem', legenda: 'Legenda', zoom: 'Zoom', animacao: 'Animação', musica: 'Música', sfx: 'Efeito sonoro', voz: 'Locução' };
     function edIaEditorHtml(ped) {
         if (edEdMontavel(ped)) return edOpcaoVer === 'b' && ped.projeto.alternativa ? edOpcaoOutraHtml(ped) : edEdEditorHtml(ped);
@@ -18706,33 +18953,6 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const ped = edIaPed(); if (!ped) return; const n = edIaAjustes(ped).length;
         if (!confirm('Mandar ' + n + ' ajuste(s) para o estagiário fazer a V2?')) return;
         await edMudarStatusPedido(ped.id, 'ajustes_na_fila', 'Na fila para a nova versão com ' + n + ' ajuste(s)');
-    }
-    /* liga vídeo, cabeça de leitura e cliques na linha do tempo (sem recriar o vídeo) */
-    function edIaLigar(ped) {
-        const tl = document.querySelector('#iaLinha .ia-tl'); if (!tl) return;
-        const dur = Number(tl.dataset.dur) || 0, v = document.getElementById('iaVideo');
-        if (edOpcaoVer !== 'b') tl.querySelectorAll('.ia-bl').forEach(b => b.addEventListener('click', ev => {
-            ev.stopPropagation(); edIaSel = Number(b.dataset.i);
-            const c = ped.projeto.camadas[edIaSel]; if (v && c) { v.currentTime = Number(c.inicio_s) || 0; }
-            edIaRedesenhar();
-        }));
-        tl.querySelectorAll('.ia-tr-l').forEach(l => l.addEventListener('click', ev => {
-            const r = l.getBoundingClientRect(); if (v && dur) v.currentTime = Math.max(0, Math.min(dur, (ev.clientX - r.left) / r.width * dur));
-        }));
-        cancelAnimationFrame(edIaRaf);
-        if (!v || ED_EM_ANDAMENTO.includes(ped.status)) return;
-        const play = tl.querySelector('.ia-play'), faixa = tl.querySelector('.ia-tr-l');
-        const montavel = edEdMontavel(ped);
-        play.style.display = 'block'; play.style.animation = 'none';
-        const passo = () => {
-            if (!document.body.contains(v)) return;
-            const t = v.currentTime || 0, lt = document.getElementById('iaTempo');
-            if (faixa && dur) play.style.left = (faixa.offsetLeft + faixa.offsetWidth * Math.min(1, t / dur)) + 'px';
-            if (lt) lt.textContent = edMMSS(t);
-            if (montavel) edEdPalco(ped, t);
-            edIaRaf = requestAnimationFrame(passo);
-        };
-        passo();
     }
     async function edIaMontar(ped) {
         const v = document.getElementById('iaVideo');
