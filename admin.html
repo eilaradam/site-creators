@@ -5437,10 +5437,10 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
 #tabEdicao .tl-zoom { width:120px; accent-color:#C8441A; }
 #tabEdicao .tl-rolo { overflow-x:auto; overflow-y:hidden; scrollbar-color:#3D3530 transparent; }
 #tabEdicao .tl-cont { position:relative; min-width:100%; padding-bottom:4px; }
-#tabEdicao .ia-regua { position:relative; height:18px; margin-left:80px; color:#A69D93; font-size:11px; font-family:'DM Mono', ui-monospace, monospace; cursor:col-resize; border-bottom:1px solid #2E2925; touch-action:none; }
+#tabEdicao .ia-regua { position:relative; height:18px; margin-left:108px; color:#A69D93; font-size:11px; font-family:'DM Mono', ui-monospace, monospace; cursor:col-resize; border-bottom:1px solid #2E2925; touch-action:none; }
 #tabEdicao .ia-regua span { position:absolute; top:0; padding-left:4px; border-left:1px solid #3D3530; white-space:nowrap; line-height:14px; }
 #tabEdicao .ia-tr { display:flex; align-items:stretch; gap:8px; margin-top:6px; }
-#tabEdicao .ia-tr-n { position:sticky; left:0; z-index:4; width:72px; flex:none; display:flex; align-items:center; font-size:10.5px; font-weight:800; letter-spacing:.8px; text-transform:uppercase; color:#A69D93; background:#141312; }
+#tabEdicao .ia-tr-n { position:sticky; left:0; z-index:4; width:100px; box-sizing:border-box; padding-right:2px; flex:none; display:flex; align-items:center; font-size:10.5px; font-weight:800; letter-spacing:.8px; text-transform:uppercase; color:#A69D93; background:#141312; }
 #tabEdicao .ia-tr-l { position:relative; flex:1; height:30px; background:#211E1C; border-radius:8px; overflow:hidden; cursor:pointer; }
 #tabEdicao .f-vid .ia-tr-l { height:52px; }
 #tabEdicao .f-som .ia-tr-l { height:34px; }
@@ -5463,12 +5463,12 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
 #tabEdicao .ia-bl.arrasta .tl-alca { display:block; }
 #tabEdicao .ia-bl.arrasta:hover .tl-alca, #tabEdicao .ia-bl.arrasta.sel .tl-alca { background:rgba(255,248,242,.55); }
 #tabEdicao .ia-bl.sel { outline:2px solid #FFF8F2; outline-offset:1px; z-index:3; touch-action:none; }
-#tabEdicao .tl-marcas { position:absolute; top:18px; bottom:0; left:80px; right:0; pointer-events:none; }
+#tabEdicao .tl-marcas { position:absolute; top:18px; bottom:0; left:108px; right:0; pointer-events:none; }
 #tabEdicao .ia-marca { position:absolute; top:0; bottom:0; width:2px; margin-left:-1px; background:#E8A27E; opacity:.8; pointer-events:auto; }
-#tabEdicao .ia-play { position:absolute; top:0; bottom:0; left:80px; width:2px; margin-left:-1px; background:#FFF8F2; box-shadow:0 0 6px #FFF8F2; display:none; z-index:5; pointer-events:none; }
+#tabEdicao .ia-play { position:absolute; top:0; bottom:0; left:108px; width:2px; margin-left:-1px; background:#FFF8F2; box-shadow:0 0 6px #FFF8F2; display:none; z-index:5; pointer-events:none; }
 #tabEdicao .tl-guia { position:absolute; top:0; bottom:0; width:1px; background:#5FCB8C; display:none; z-index:6; pointer-events:none; }
 #tabEdicao .ia-tl.vivo .ia-play { display:block; animation:iaVarre 4s linear infinite; }
-@keyframes iaVarre { from { left:80px; } to { left:100%; } }
+@keyframes iaVarre { from { left:108px; } to { left:100%; } }
 #tabEdicao .ia-rodape { display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-top:10px; font-size:12.5px; color:#A69D93; }
 #tabEdicao .ia-rodape a { color:#E8A27E; }
 @media (max-width: 600px) {
@@ -5566,6 +5566,20 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
 #tabEdicao .ed-ed-topo .ia-tempo { margin-left:auto; }
 #tabEdicao .ed-ed-tit { font-weight:700; margin:2px 0 8px; color:#FFF8F2; }
 #tabEdicao .ed-ed-l { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:7px 0; font-size:13px; color:#CFC6BC; }
+#tabEdicao .ed-ed-sec { border-top:1px solid #2E2925; margin-top:10px; padding-top:8px; }
+#tabEdicao .ed-ed-sec > summary { cursor:pointer; font-weight:800; font-size:13.5px; color:#FFF8F2; list-style:none; }
+#tabEdicao .ed-ed-sec > summary::before { content:'▸ '; color:#C8441A; }
+#tabEdicao .ed-ed-sec[open] > summary::before { content:'▾ '; }
+#tabEdicao .ed-ed-sec input[type=color] { width:30px; height:26px; padding:0; border:1px solid #3D3530; border-radius:6px; background:none; cursor:pointer; }
+#tabEdicao .ed-chips { display:flex; flex-wrap:wrap; gap:6px; margin:8px 0 4px; }
+#tabEdicao .ed-ed-sec .ed-chip { background:#211E1C; border-color:#3D3530; color:#EDE6DE; padding:6px 11px; font-size:12px; }
+#tabEdicao .ed-ed-sec .ed-chip.on { background:#C8441A; border-color:#C8441A; color:#fff; }
+#tabEdicao .ed-chip.sobe { border-style:dashed; }
+#tabEdicao .ed-cor { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; display:none; }
+#tabEdicao .ia-tr-n { justify-content:space-between; gap:2px; }
+#tabEdicao .tl-ms { display:inline-flex; gap:2px; }
+#tabEdicao .tl-ms button { width:17px; height:17px; padding:0; border-radius:4px; border:1px solid #3D3530; background:#211E1C; color:#A69D93; font-size:9px; font-weight:800; cursor:pointer; line-height:1; }
+#tabEdicao .tl-ms button.on { background:#E8A27E; border-color:#E8A27E; color:#1B1B1B; }
 #tabEdicao .ed-ed-l > span { min-width:44px; }
 #tabEdicao .ed-ed-l input[type=color] { width:34px; height:30px; border:0; background:none; padding:0; cursor:pointer; }
 #tabEdicao .ed-ed-ck { display:flex; gap:5px; align-items:center; font-size:12.5px; color:#CFC6BC; }
@@ -18646,6 +18660,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         if (c.tipo === 'corte') return '';
         if (c.tipo === 'legenda' || c.tipo === 'animacao') return c.texto || (c.tipo === 'animacao' ? 'animação' : '');
         if (c.tipo === 'zoom') return 'zoom ' + Math.round((+c.escala || 1.12) * 100) + '%';
+        if (c.tipo === 'musica' && c.trocar) return '↻ outra música: ' + c.trocar.clima;
         if (c.tipo === 'musica' || c.tipo === 'sfx') return c.titulo || c.nome || edTlNomeArq(c.arquivo) || (c.tipo === 'musica' ? 'música' : 'efeito');
         return ({ rec: 'tela do site', broll: 'b-roll', imagem: 'imagem', voz: 'locução' }[c.tipo] || '') + (c.arquivo ? ' · ' + edTlNomeArq(c.arquivo) : '');
     }
@@ -18666,8 +18681,9 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                 '<i class="tl-alca e"></i>' + (t ? '<span>' + edEsc(t) + '</span>' : '') + '<i class="tl-alca d"></i></div>';
         };
         const lista = filtro => cam.map((c, i) => ({ c, i })).filter(x => filtro(x.c));
-        const faixa = (nome, cls, itens, sempre, extra) => (itens.length || sempre) ?
-            '<div class="ia-tr ' + cls + '"><div class="ia-tr-n">' + nome + '</div><div class="ia-tr-l">' + (extra || '') + itens.map(x => bloco(x.c, x.i, x.k)).join('') + '</div></div>' : '';
+        const ms = edEdMontavel(ped) && !andando;
+        const faixa = (nome, cls, itens, sempre, extra, som) => (itens.length || sempre) ?
+            '<div class="ia-tr ' + cls + '"><div class="ia-tr-n"><span>' + nome + '</span>' + (ms && som ? edTlMSHtml(som) : '') + '</div><div class="ia-tr-l">' + (extra || '') + itens.map(x => bloco(x.c, x.i, x.k)).join('') + '</div></div>' : '';
         const tipoVid = { corte: 'vid', rec: 'rec', broll: 'rec', imagem: 'rec' };
         const marcas = aj.filter(a => a.tipo === 'comentario').map(a => '<div class="ia-marca" style="left:' + pct(a.tempo_s) + ';" title="' + edEsc(edMMSS(a.tempo_s) + ' · ' + a.texto) + '"></div>').join('');
         const mk = (f, k) => lista(f).map(x => Object.assign(x, { k: typeof k === 'function' ? k(x.c) : k }));
@@ -18688,13 +18704,13 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
               '<div class="ia-regua"></div>' +
               faixa('Vídeo', 'f-vid', mk(c => tipoVid[c.tipo] === 'vid', 'vid'), true, '<div class="tl-mini"></div>') +
               faixa('Imagens', 'f-img', mk(c => tipoVid[c.tipo] === 'rec', 'rec')) +
-              (temBase ? faixa('Som', 'f-som', [], true, '<canvas class="tl-onda"></canvas>') : '') +
+              (temBase ? faixa('Som', 'f-som', [], true, '<canvas class="tl-onda"></canvas>', 'som') : '') +
               faixa('Legendas', 'f-leg', mk(c => c.tipo === 'legenda', 'leg'), true) +
               faixa('Títulos', 'f-tit', mk(c => c.tipo === 'animacao', 'anim'), true) +
               faixa('Zoom', 'f-zoom', mk(c => c.tipo === 'zoom', 'zoom')) +
-              faixa('Locução', 'f-voz', mk(c => c.tipo === 'voz', 'mus')) +
-              faixa('Música', 'f-mus', mk(c => c.tipo === 'musica', 'mus'), true) +
-              faixa('Efeitos', 'f-sfx', mk(c => c.tipo === 'sfx', 'sfx'), true) +
+              faixa('Locução', 'f-voz', mk(c => c.tipo === 'voz', 'mus'), false, '', 'voz') +
+              faixa('Música', 'f-mus', mk(c => c.tipo === 'musica', 'mus'), true, '', 'mus') +
+              faixa('Efeitos', 'f-sfx', mk(c => c.tipo === 'sfx', 'sfx'), true, '', 'sfx') +
               '<div class="tl-marcas">' + marcas + '</div>' +
               '<div class="ia-play"></div><div class="tl-guia"></div>' +
             '</div></div></div>';
@@ -18702,7 +18718,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     /* régua com marcas que se ajustam ao zoom */
     function edTlRegua(tl) {
         const dur = +tl.dataset.dur || 0, cont = tl.querySelector('.tl-cont'), r = tl.querySelector('.ia-regua'); if (!cont || !r || !dur) return;
-        const pxs = (cont.clientWidth - 80) / dur;
+        const pxs = (cont.clientWidth - 108) / dur;
         const passo = [0.1, 0.25, 0.5, 1, 2, 5, 10, 15, 30, 60, 120].find(p => p * pxs >= 64) || 300;
         let h = '';
         for (let t = 0; t <= dur + 0.0001; t += passo) h += '<span style="left:' + (t / dur * 100).toFixed(4) + '%">' + (passo < 1 ? edMMSSd(t) : edMMSS(t)) + '</span>';
@@ -18714,7 +18730,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         cont.style.width = (edTlZoom * 100) + '%';
         const zi = tl.querySelector('.tl-zoom'); if (zi) zi.value = edTlZoom;
         edTlRegua(tl); edTlOnda(tl);
-        if (focoT != null && dur) rolo.scrollLeft = Math.max(0, 80 + (cont.clientWidth - 80) * focoT / dur - rolo.clientWidth / 2);
+        if (focoT != null && dur) rolo.scrollLeft = Math.max(0, 108 + (cont.clientWidth - 108) * focoT / dur - rolo.clientWidth / 2);
     }
     const edTlX2T = (tl, x) => { const l = tl.querySelector('.tl-cont .ia-tr-l'), dur = +tl.dataset.dur || 0; if (!l || !dur) return 0; const r = l.getBoundingClientRect(); return Math.max(0, Math.min(dur, (x - r.left) / r.width * dur)); };
     /* miniaturas e onda do som tiradas do próprio vídeo base, no navegador (nada muda pro robô) */
@@ -18784,6 +18800,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             if (a === 'menos') edTlAplicarZoom(tl, edTlZoom / 1.5, agora);
             if (a === 'caber') edTlAplicarZoom(tl, 1);
         });
+        tl.addEventListener('click', edTlMSClique, true);
         tl.querySelector('.tl-zoom').addEventListener('input', ev => edTlAplicarZoom(tl, +ev.target.value, v ? v.currentTime : 0));
         rolo.addEventListener('wheel', ev => {
             if (!(ev.ctrlKey || ev.metaKey)) return; ev.preventDefault();
@@ -18825,7 +18842,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                 const prende = t => { const m = imas.reduce((b2, x) => Math.abs(x - t) < Math.abs(b2 - t) ? x : b2, Infinity); return Math.abs(m - t) <= lim ? m : null; };
                 if (a.modo !== 'fim') { const s = prende(ini); if (s != null) { if (fim != null && a.modo === 'mover') fim += s - ini; ini = s; colou = s; } else if (a.modo === 'mover' && fim != null) { const s2 = prende(fim); if (s2 != null) { ini += s2 - fim; fim = s2; colou = s2; } } }
                 if (a.modo === 'fim') { const s = prende(fim); if (s != null && s > ini + 0.05) { fim = s; colou = s; } }
-                guia.style.display = colou != null ? 'block' : 'none'; if (colou != null) guia.style.left = 'calc(80px + (100% - 80px) * ' + (colou / dur) + ')';
+                guia.style.display = colou != null ? 'block' : 'none'; if (colou != null) guia.style.left = 'calc(108px + (100% - 108px) * ' + (colou / dur) + ')';
                 a.alvo = { ini: edR(Math.round(ini * 20) / 20), fim: fim != null ? edR(Math.round(fim * 20) / 20) : null };
                 if (colou != null) { if (a.modo !== 'fim' && Math.abs(ini - colou) < 0.001) a.alvo.ini = edR(colou); if (a.modo !== 'ini' && fim != null && Math.abs(fim - colou) < 0.001) a.alvo.fim = edR(colou); }
                 b.style.left = (a.alvo.ini / dur * 100) + '%';
@@ -18859,18 +18876,18 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         play.style.display = 'block'; play.style.animation = 'none';
         const bPlay = tl.querySelector('.tl-play');
         const passo = () => {
-            if (!document.body.contains(v) || !document.body.contains(tl)) return;
+            if (!document.body.contains(v) || !document.body.contains(tl)) { edAudParar(); return; }
             const t = v.currentTime || 0, lt = document.getElementById('iaTempo');
-            play.style.left = 'calc(80px + (100% - 80px) * ' + Math.min(1, dur ? t / dur : 0) + ')';
+            play.style.left = 'calc(108px + (100% - 108px) * ' + Math.min(1, dur ? t / dur : 0) + ')';
             if (!edTlArr) { const ag = document.getElementById('tlAgora'); if (ag) ag.textContent = edMMSSd(t); }
             if (bPlay) bPlay.textContent = v.paused ? '▶' : '❚❚';
             if (lt) lt.textContent = edMMSS(t);
             // segue a cabeça de leitura quando ela sai da área visível
             if (!v.paused && edTlZoom > 1 && !edTlArr) {
-                const x = 80 + (cont.clientWidth - 80) * t / dur;
-                if (x < rolo.scrollLeft + 80 || x > rolo.scrollLeft + rolo.clientWidth - 30) rolo.scrollLeft = x - 120;
+                const x = 108 + (cont.clientWidth - 108) * t / dur;
+                if (x < rolo.scrollLeft + 108 || x > rolo.scrollLeft + rolo.clientWidth - 30) rolo.scrollLeft = x - 120;
             }
-            if (montavel) edEdPalco(ped, t);
+            if (montavel) { edEdPalco(ped, t); edAudSync(ped, v); edLutDesenhar(ped, v); }
             edIaRaf = requestAnimationFrame(passo);
         };
         passo();
@@ -18887,6 +18904,203 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         else if (ev.key === 'Escape' && edIaSel !== null) { edIaSel = null; edIaRedesenhar(); }
     });
     /* TL-FIM */
+    /* ED-EXTRA ── Som da prévia (música e efeitos tocando junto, M e S por faixa), cor com LUT ao vivo e estilo da legenda ── */
+    let edTlMS = { mudo: {}, solo: '' }, edAudEls = {}, edAudUrl = {};
+    const ED_TL_FAIXA_SOM = { musica: 'mus', sfx: 'sfx', voz: 'voz' };
+    function edTlOuve(faixa) { return edTlMS.solo ? edTlMS.solo === faixa : !edTlMS.mudo[faixa]; }
+    function edTlMSHtml(faixa) {
+        return '<span class="tl-ms"><button type="button" class="' + (edTlMS.mudo[faixa] ? 'on' : '') + '" data-ms="m:' + faixa + '" title="Silenciar esta faixa na prévia">M</button>' +
+            '<button type="button" class="' + (edTlMS.solo === faixa ? 'on' : '') + '" data-ms="s:' + faixa + '" title="Ouvir só esta faixa">S</button></span>';
+    }
+    function edTlMSClique(ev) {
+        const b = ev.target.closest('[data-ms]'); if (!b) return; ev.stopPropagation();
+        const [q, f] = b.dataset.ms.split(':');
+        if (q === 'm') edTlMS.mudo[f] = !edTlMS.mudo[f]; else edTlMS.solo = edTlMS.solo === f ? '' : f;
+        document.querySelectorAll('#iaLinha [data-ms]').forEach(x => { const [q2, f2] = x.dataset.ms.split(':'); x.classList.toggle('on', q2 === 'm' ? !!edTlMS.mudo[f2] : edTlMS.solo === f2); });
+    }
+    async function edAudUrlDe(caminho) {
+        if (edAudUrl[caminho]) return edAudUrl[caminho];
+        edAudUrl[caminho] = (async () => { const { data, error } = await sb.storage.from('edicao').createSignedUrl(caminho, 3 * 3600); return error || !data ? null : data.signedUrl; })();
+        return edAudUrl[caminho];
+    }
+    // volume aproximado: na prévia a música não é medida em LUFS como no robô, então é só para ter noção
+    const edAudGanho = c => c.tipo === 'musica' ? Math.min(1, Math.pow(10, ((c.volume_db != null ? +c.volume_db : -16) + 8) / 20))
+        : c.tipo === 'sfx' ? Math.min(1, Math.pow(10, ((c.volume_db != null ? +c.volume_db : -18) + 10) / 20)) : Math.min(1, Math.pow(10, (+c.volume_db || 0) / 20));
+    function edAudSync(ped, v) {
+        const cam = (ped.projeto && ped.projeto.camadas) || [], vivos = new Set(), t = v.currentTime || 0, tocando = !v.paused && !v.seeking;
+        v.muted = !edTlOuve('som');
+        cam.forEach((c, k) => {
+            const faixa = ED_TL_FAIXA_SOM[c.tipo]; if (!faixa || !c.audio_path) return;
+            const chave = k + '|' + c.audio_path; vivos.add(chave);
+            let a = edAudEls[chave];
+            if (!a) { a = edAudEls[chave] = new Audio(); a.preload = 'auto'; edAudUrlDe(c.audio_path).then(u => { if (u) a.src = u; }); }
+            const ini = +c.inicio_s || 0, fim = c.fim_s != null ? +c.fim_s : ini + (a.duration || 1);
+            const dentro = t >= ini && t < fim, pos = t - ini + (c.tipo === 'sfx' ? 0 : (+c.origem_inicio_s || 0));
+            a.volume = edAudGanho(c);
+            if (tocando && dentro && edTlOuve(faixa) && a.src) {
+                if (Math.abs((a.currentTime || 0) - pos) > 0.25) { try { a.currentTime = pos; } catch (_) {} }
+                if (a.paused) a.play().catch(() => {});
+            } else if (!a.paused) a.pause();
+        });
+        Object.keys(edAudEls).forEach(k => { if (!vivos.has(k)) { edAudEls[k].pause(); delete edAudEls[k]; } });
+    }
+    function edAudParar() { Object.values(edAudEls).forEach(a => a.pause()); }
+
+    /* Cor: LUT .cube aplicada ao vivo por cima da base (WebGL); o robô aplica a mesma LUT no final */
+    let edLuts = null, edLutCache = {}, edLutGl = null;
+    async function edCarregarLuts() {
+        if (edLuts) return edLuts;
+        let lib = []; try { lib = await (await fetch('robo-edicao/luts/luts.json', { cache: 'no-cache' })).json(); } catch (_) {}
+        edLuts = lib.map(l => ({ id: l.arquivo, nome: l.nome, descricao: l.descricao, url: 'robo-edicao/luts/' + l.arquivo }));
+        try {
+            const { data } = await sb.storage.from('edicao').list('luts', { limit: 100, sortBy: { column: 'created_at', order: 'desc' } });
+            (data || []).filter(f => /\.cube$/i.test(f.name)).forEach(f => edLuts.push({ id: 'storage:luts/' + f.name, nome: f.name.replace(/^\d+-/, '').replace(/\.cube$/i, '').replace(/[-_]+/g, ' '), descricao: 'sua LUT', storage: 'luts/' + f.name }));
+        } catch (_) {}
+        return edLuts;
+    }
+    async function edLutDados(id) {
+        if (edLutCache[id]) return edLutCache[id];
+        edLutCache[id] = (async () => {
+            const l = (await edCarregarLuts()).find(x => x.id === id) || (String(id).startsWith('storage:') ? { storage: id.slice(8) } : { url: 'robo-edicao/luts/' + id });
+            const url = l.storage ? await edAudUrlDe(l.storage) : l.url;
+            const txt = await (await fetch(url)).text();
+            const n = +((txt.match(/LUT_3D_SIZE\s+(\d+)/) || [])[1] || 0); if (!n) throw new Error('arquivo .cube sem LUT_3D_SIZE');
+            const nums = txt.split('\n').filter(l => /^\s*-?[\d.]/.test(l)).map(l => l.trim().split(/\s+/).map(Number)).filter(x => x.length === 3);
+            if (nums.length < n * n * n) throw new Error('LUT incompleta');
+            const px = new Uint8Array(n * n * n * 4);   // fatias de azul lado a lado: largura n*n, altura n
+            for (let b = 0; b < n; b++) for (let g = 0; g < n; g++) for (let r = 0; r < n; r++) {
+                const s = nums[r + g * n + b * n * n], o = ((g * n * n) + b * n + r) * 4;
+                px[o] = Math.round(Math.max(0, Math.min(1, s[0])) * 255); px[o + 1] = Math.round(Math.max(0, Math.min(1, s[1])) * 255); px[o + 2] = Math.round(Math.max(0, Math.min(1, s[2])) * 255); px[o + 3] = 255;
+            }
+            return { n, px };
+        })();
+        return edLutCache[id];
+    }
+    function edLutPreparar(cv) {
+        const gl = cv.getContext('webgl', { premultipliedAlpha: false }); if (!gl) return null;
+        const sh = (t, src) => { const s = gl.createShader(t); gl.shaderSource(s, src); gl.compileShader(s); return s; };
+        const pr = gl.createProgram();
+        gl.attachShader(pr, sh(gl.VERTEX_SHADER, 'attribute vec2 p;varying vec2 uv;void main(){uv=vec2(p.x*.5+.5,.5-p.y*.5);gl_Position=vec4(p,0.,1.);}'));
+        gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, 'precision mediump float;varying vec2 uv;uniform sampler2D v;uniform sampler2D l;uniform float n;uniform float f;' +
+            'vec3 sl(float z,vec3 c){return texture2D(l,vec2((z*n+c.r*(n-1.)+.5)/(n*n),(c.g*(n-1.)+.5)/n)).rgb;}' +
+            'void main(){vec3 c=texture2D(v,uv).rgb;float b=c.b*(n-1.);float z0=floor(b);float z1=min(z0+1.,n-1.);vec3 o=mix(sl(z0,c),sl(z1,c),b-z0);gl_FragColor=vec4(mix(c,o,f),1.);}'));
+        gl.linkProgram(pr); if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) return null;
+        gl.useProgram(pr);
+        const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+        const loc = gl.getAttribLocation(pr, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+        const tex = i => { const t = gl.createTexture(); gl.activeTexture(gl.TEXTURE0 + i); gl.bindTexture(gl.TEXTURE_2D, t);
+            [gl.TEXTURE_WRAP_S, gl.TEXTURE_WRAP_T].forEach(k => gl.texParameteri(gl.TEXTURE_2D, k, gl.CLAMP_TO_EDGE));
+            [gl.TEXTURE_MIN_FILTER, gl.TEXTURE_MAG_FILTER].forEach(k => gl.texParameteri(gl.TEXTURE_2D, k, gl.LINEAR)); return t; };
+        const tv = tex(0), tl = tex(1);
+        gl.uniform1i(gl.getUniformLocation(pr, 'v'), 0); gl.uniform1i(gl.getUniformLocation(pr, 'l'), 1);
+        return { gl, tv, tl, un: gl.getUniformLocation(pr, 'n'), uf: gl.getUniformLocation(pr, 'f'), lut: null };
+    }
+    function edLutDesenhar(ped, v) {
+        const cv = document.getElementById('edCor'); if (!cv) return;
+        const cor = (ped.projeto && ped.projeto.cor) || {};
+        const ativo = cor.lut && (+cor.forca || 0) > 0.01 && edEdModo === 'editar' && edOpcaoVer !== 'b';
+        cv.style.display = ativo && edLutGl && edLutGl.ok ? 'block' : 'none';
+        if (!ativo) return;
+        if (!edLutGl || edLutGl.cv !== cv) { const g = edLutPreparar(cv); edLutGl = g ? Object.assign(g, { cv, ok: true }) : { cv, ok: false }; }
+        if (!edLutGl.ok) return;
+        const G = edLutGl, gl = G.gl;
+        if (G.lut !== cor.lut) {
+            G.lut = cor.lut; G.pronta = false;
+            edLutDados(cor.lut).then(d => { if (G.lut !== cor.lut) return; gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, G.tl);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, d.n * d.n, d.n, 0, gl.RGBA, gl.UNSIGNED_BYTE, d.px); gl.uniform1f(G.un, d.n); G.pronta = true; })
+                .catch(e => { G.ok = false; cv.style.display = 'none'; edToast('Não consegui abrir a LUT: ' + e.message, true); });
+        }
+        if (!G.pronta || v.readyState < 2) { cv.style.display = 'none'; return; }
+        const w = cv.clientWidth * (window.devicePixelRatio || 1), h = cv.clientHeight * (window.devicePixelRatio || 1);
+        if (cv.width !== Math.round(w) || cv.height !== Math.round(h)) { cv.width = Math.round(w); cv.height = Math.round(h); gl.viewport(0, 0, cv.width, cv.height); }
+        try {
+            gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, G.tv);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, v);
+        } catch (_) { G.ok = false; cv.style.display = 'none'; edToast('O navegador não deixou aplicar a cor na prévia. Ela entra no vídeo quando renderizar.', true); return; }
+        gl.uniform1f(G.uf, Math.max(0, Math.min(1, +cor.forca)));
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+    function edEdCor(campo, valor) {
+        const ped = edIaPed(); if (!ped) return;
+        const cor = Object.assign({ forca: 0.8 }, ped.projeto.cor || {});
+        if (campo === 'lut' && !valor) return edEdMudar(ped, 'Tirou a LUT do vídeo', pj => { delete pj.cor; });
+        const nome = campo === 'lut' ? ((edLuts || []).find(l => l.id === valor) || {}).nome || valor : '';
+        edEdMudar(ped, campo === 'lut' ? 'Pôs a LUT ' + nome + ' (' + Math.round(cor.forca * 100) + '%)' : 'Mudou a força da LUT para ' + Math.round(valor * 100) + '%',
+            pj => { pj.cor = Object.assign(cor, { [campo]: valor }); });
+    }
+    async function edEdSubirLut(inp) {
+        const f = inp.files && inp.files[0]; if (!f) return;
+        if (!/\.cube$/i.test(f.name)) return edToast('A LUT precisa ser um arquivo .cube', true);
+        if (f.size > 12e6) return edToast('LUT grande demais (máximo 12 MB)', true);
+        const caminho = 'luts/' + Date.now() + '-' + f.name.toLowerCase().replace(/[^a-z0-9.]+/g, '-');
+        const { error } = await sb.storage.from('edicao').upload(caminho, f, { contentType: 'text/plain', upsert: false });
+        if (error) return edErro('Não subi a LUT', error);
+        edLuts = null; await edCarregarLuts();
+        edEdCor('lut', 'storage:' + caminho);
+    }
+    function edEdCorHtml(pj) {
+        const cor = pj.cor || {}, luts = edLuts || [];
+        const chip = (id, nome, desc) => '<button type="button" class="ed-chip' + ((cor.lut || '') === id ? ' on' : '') + '" title="' + edEsc(desc || '') + '" onclick="edEdCor(\'lut\',' + (id ? '\'' + edEsc(id) + '\'' : 'null') + ')">' + edEsc(nome) + '</button>';
+        return '<details class="ed-ed-sec"' + (cor.lut ? ' open' : '') + '><summary>Cor (LUT)' + (cor.lut ? ' · ' + edEsc(((luts.find(l => l.id === cor.lut) || {}).nome) || 'sua LUT') : '') + '</summary>' +
+            '<div class="ed-chips">' + chip('', 'Sem cor') + luts.map(l => chip(l.id, l.nome, l.descricao)).join('') +
+              '<label class="ed-chip sobe">+ Subir LUT (.cube)<input type="file" accept=".cube" hidden onchange="edEdSubirLut(this)"></label></div>' +
+            (cor.lut ? '<div class="ed-ed-l"><span>Força</span><input type="range" min="0.1" max="1" step="0.05" value="' + (+cor.forca || 0.8) + '" oninput="this.nextElementSibling.textContent=Math.round(this.value*100)+\'%\';const p=edIaPed();if(p&&p.projeto.cor)p.projeto.cor.forca=+this.value" onchange="edEdCor(\'forca\',+this.value)"><span>' + Math.round((+cor.forca || 0.8) * 100) + '%</span></div>' : '') +
+            '<div class="ia-cenas-dica" style="margin:4px 0 0;">A cor vale só para a imagem gravada: prints, telas e logo ficam com a cor original.</div></details>';
+    }
+    /* estilo da legenda: o modelo é a base e o que ela trocar aqui vale só para este vídeo */
+    const ED_LEG_TROCAVEL = ['cor', 'destaque', 'caixa', 'contorno', 'contorno_cor', 'fundo', 'sombra', 'animacao', 'modo'];
+    function edLegModeloDoProjeto(leg) {
+        const m = edLegendas.find(x => x.id === (leg.modelo || 'lara')) || edLegendas[0]; if (!m) return null;
+        const o = Object.assign({}, m);
+        ED_LEG_TROCAVEL.forEach(k => { if (leg[k] != null && leg[k] !== '') o[k] = leg[k]; });
+        return o;
+    }
+    function edEdLegHtml(pj) {
+        const leg = pj.legenda || {}, m = edLegModeloDoProjeto(leg) || {};
+        const mods = edLegendas.map(x => '<option value="' + x.id + '"' + (x.id === (leg.modelo || 'lara') ? ' selected' : '') + '>' + edEsc(x.nome) + '</option>').join('');
+        const sel = (campo, ops, num) => '<select class="ed-input" style="width:auto;" data-ed="leg.' + campo + (num ? ':n' : '') + '">' + ops.map(([v, n]) => '<option value="' + v + '"' + (String(m[campo]) === String(v) ? ' selected' : '') + '>' + n + '</option>').join('') + '</select>';
+        const trocou = ED_LEG_TROCAVEL.some(k => leg[k] != null && leg[k] !== '');
+        return '<details class="ed-ed-sec" open><summary>Legenda</summary>' +
+            '<div class="ed-ed-l"><span>Modelo</span><select class="ed-input" data-ed="leg.modelo" style="width:auto;">' + mods + '</select>' +
+              '<label class="ed-ed-ck"><input type="checkbox" data-ed="leg.ativa"' + (leg.ativa === false ? '' : ' checked') + '> no vídeo</label></div>' +
+            '<div class="ed-ed-l"><span>Tamanho</span><input type="range" min="0.5" max="1.6" step="0.05" data-ed="leg.tamanho:n" value="' + (+leg.tamanho || 1) + '"><span>' + Math.round((+leg.tamanho || 1) * 100) + '%</span></div>' +
+            '<div class="ed-ed-l"><span>Cor</span><input type="color" data-ed="leg.cor" value="' + edEsc(m.cor || '#FFFFFF') + '" title="Cor do texto">' +
+              '<span>Destaque</span><input type="color" data-ed="leg.destaque" value="' + edEsc(m.destaque || '#FFFFFF') + '" title="Palavra falada (karaokê) ou palavra forte">' +
+              '<span>Letras</span>' + sel('caixa', [['normal', 'Normal'], ['alta', 'MAIÚSCULAS'], ['baixa', 'minúsculas']]) + '</div>' +
+            '<div class="ed-ed-l"><span>Contorno</span>' + sel('contorno', [[0, 'sem'], [4, 'fino'], [7, 'médio'], [12, 'grosso']], true) +
+              '<input type="color" data-ed="leg.contorno_cor" value="' + edEsc(m.contorno_cor || '#000000') + '" title="Cor do contorno ou da caixa">' +
+              '<span>Fundo</span>' + sel('fundo', [['nenhum', 'sem fundo'], ['caixa', 'caixa colorida']]) + '</div>' +
+            '<div class="ed-ed-l"><span>Jeito</span>' + sel('modo', [['frase', 'frase inteira'], ['karaoke', 'palavra falada acende']]) +
+              '<span>Entrada</span>' + sel('animacao', [['nenhuma', 'sem animação'], ['pop', 'pulinho'], ['fade', 'suave']]) + '</div>' +
+            (trocou ? '<div class="ed-ed-l">' + '<button class="ed-btn mini ghost" type="button" onclick="edEdLegVoltar()">Voltar ao modelo</button></div>' : '') +
+          '</details>';
+    }
+    function edEdLegVoltar() {
+        const ped = edIaPed(); if (!ped) return;
+        edEdMudar(ped, 'Voltou a legenda ao modelo original', pj => { const l = Object.assign({}, pj.legenda || {}); ED_LEG_TROCAVEL.forEach(k => delete l[k]); pj.legenda = l; });
+    }
+    /* música: pedir outra ao estagiário (Epidemic Sound), que troca na hora de renderizar */
+    const ED_CLIMAS = ['animada', 'tech / corporativa', 'chill / lo-fi', 'suspense pro gancho', 'vlog leve', 'emocionante', 'divertida'];
+    function edEdMusicaHtml(c) {
+        const t = c.trocar;
+        return '<div class="ed-ed-l"><span>' + (t ? 'Vai trocar ao renderizar: ' + edEsc(t.clima) + (t.obs ? ' (' + edEsc(t.obs) + ')' : '') : 'Não gostou?') + '</span></div>' +
+            '<div class="ed-ed-l"><select class="ed-input" id="edMusClima" style="width:auto;">' + ED_CLIMAS.map(x => '<option' + (t && t.clima === x ? ' selected' : '') + '>' + x + '</option>').join('') + '</select>' +
+              '<input class="ed-input" id="edMusObs" style="flex:1;min-width:150px;" placeholder="ex.: mais calma, sem batida forte" value="' + edEsc((t && t.obs) || '') + '">' +
+              '<button class="ed-btn mini" type="button" onclick="edEdPedirMusica()">' + (t ? 'Atualizar pedido' : 'Pedir outra música') + '</button>' +
+              (t ? '<button class="ed-btn mini ghost" type="button" onclick="edEdPedirMusica(true)">Manter a atual</button>' : '') + '</div>';
+    }
+    function edEdPedirMusica(cancelar) {
+        const ped = edIaPed(); if (!ped) return;
+        let c = edEdSelC();
+        const clima = (document.getElementById('edMusClima') || {}).value, obs = ((document.getElementById('edMusObs') || {}).value || '').trim();
+        if (cancelar) return c && edEdMudar(ped, 'Desistiu de trocar a música', () => { delete c.trocar; });
+        if (!c || c.tipo !== 'musica') {   // vídeo sem música: cria a faixa no vídeo todo e o estagiário escolhe
+            return edEdMudar(ped, 'Pediu música (' + clima + (obs ? ': ' + obs : '') + ')', pj => {
+                pj.camadas.push({ tipo: 'musica', inicio_s: 0, fim_s: edR(+pj.duracao_s || 0), trocar: { clima, obs } }); edIaSel = pj.camadas.length - 1; });
+        }
+        edEdMudar(ped, 'Pediu outra música (' + clima + (obs ? ': ' + obs : '') + ')', () => { c.trocar = { clima, obs }; });
+    }
+    /* ED-EXTRA-FIM */
     const ED_IA_NOMES = { corte: 'Trecho do vídeo', rec: 'Gravação de tela', broll: 'B-roll', imagem: 'Imagem', legenda: 'Legenda', zoom: 'Zoom', animacao: 'Animação', musica: 'Música', sfx: 'Efeito sonoro', voz: 'Locução' };
     function edIaEditorHtml(ped) {
         if (edEdMontavel(ped)) return edOpcaoVer === 'b' && ped.projeto.alternativa ? edOpcaoOutraHtml(ped) : edEdEditorHtml(ped);
@@ -18959,7 +19173,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const montavel = edEdMontavel(ped);
         if (montavel) {
             if (edEdPedId !== ped.id) { edEdPedId = ped.id; edEdHist = []; edIaSel = null; }
-            await Promise.all([edCarregarLegendas(), edCarregarFontes()]);
+            await Promise.all([edCarregarLegendas(), edCarregarFontes(), edCarregarLuts()]);
             const e = document.getElementById('iaEditar'); if (e) { e.innerHTML = edIaEditorHtml(ped); edEdLigarEditor(); }
         }
         const outra = edOpcaoVer === 'b' && ped.projeto && ped.projeto.alternativa;
@@ -19302,7 +19516,10 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const ped = edIaPed(); if (!ped) return;
         const leg = ped.projeto.legenda || {};
         const frase = campo === 'modelo' ? 'Trocou o modelo de legenda para ' + valor : campo === 'ativa' ? (valor ? 'Voltou a legenda' : 'Tirou a legenda do vídeo')
-            : campo === 'tamanho' ? 'Mudou o tamanho da legenda para ' + Math.round(valor * 100) + '% do modelo' : 'Mudou a altura da legenda';
+            : campo === 'tamanho' ? 'Mudou o tamanho da legenda para ' + Math.round(valor * 100) + '% do modelo'
+            : campo === 'posicao' ? 'Mudou a altura da legenda'
+            : 'Mudou ' + ({ cor: 'a cor da legenda', destaque: 'a cor de destaque da legenda', caixa: 'as letras da legenda', contorno: 'o contorno da legenda', contorno_cor: 'a cor do contorno da legenda',
+                fundo: 'o fundo da legenda', animacao: 'a entrada da legenda', modo: 'o jeito da legenda' }[campo] || campo) + ' para ' + valor;
         edEdMudar(ped, frase, pj => { pj.legenda = Object.assign({}, leg, { [campo]: valor }); });
     }
     async function edEdRenderizar() {
@@ -19359,7 +19576,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         if (chave === edEdChave) return;
         edEdChave = chave;
         const Wp = palco.clientWidth, Hp = palco.clientHeight;
-        const m = edLegendas.find(x => x.id === (leg.modelo || 'lara')) || edLegendas[0];
+        const m = edLegModeloDoProjeto(leg);
         let html = '';
         if (m && leg.ativa !== false) {
             ativas.filter(x => x.c.tipo === 'legenda').forEach(x => {
@@ -19420,12 +19637,11 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             btn('Começar aqui', "edEdTempoCamada('aqui')", 'ghost') + '</div>' : '';
         let sel = '';
         if (!c) {
-            const mods = edLegendas.map(m => '<option value="' + m.id + '"' + (m.id === (leg.modelo || 'lara') ? ' selected' : '') + '>' + edEsc(m.nome) + '</option>').join('');
-            sel = '<div class="ia-cenas-dica" style="margin:0 0 10px;">Clique num item da linha do tempo ou arraste a legenda e os títulos no vídeo. Pare o vídeo onde quer mexer.</div>' +
+            const temMus = pj.camadas.some(c => c.tipo === 'musica');
+            sel = '<div class="ia-cenas-dica" style="margin:0 0 10px;">Clique num item da linha do tempo (ou arraste e estique ele lá) ou arraste a legenda e os títulos no vídeo. Pare o vídeo onde quer mexer.</div>' +
                 '<div class="ed-ed-l">' + btn('+ Título aqui', 'edEdNovoTitulo()') + btn('+ Zoom aqui', 'edEdNovoZoom()', 'ghost') + btn('Dividir trecho aqui', 'edEdDividir()', 'ghost') + '</div>' +
-                '<div class="ed-ed-l"><span>Legenda</span><select class="ed-input" data-ed="leg.modelo" style="width:auto;">' + mods + '</select>' +
-                '<label class="ed-ed-ck"><input type="checkbox" data-ed="leg.ativa"' + (leg.ativa === false ? '' : ' checked') + '> no vídeo</label></div>' +
-                '<div class="ed-ed-l"><span>Tamanho</span><input type="range" min="0.5" max="1.6" step="0.05" data-ed="leg.tamanho:n" value="' + (+leg.tamanho || 1) + '"><span>' + Math.round((+leg.tamanho || 1) * 100) + '%</span></div>' +
+                edEdLegHtml(pj) + edEdCorHtml(pj) +
+                (temMus ? '' : '<details class="ed-ed-sec"><summary>Música</summary><div class="ia-cenas-dica" style="margin:4px 0 6px;">Este vídeo está sem música. Peça uma e o estagiário escolhe no Epidemic ao renderizar.</div>' + edEdMusicaHtml({}) + '</details>') +
                 (pj.camadas.some(c => c.tipo === 'sfx') ? '<div class="ed-ed-l">' + btn('Tirar todos os efeitos sonoros (' + pj.camadas.filter(c => c.tipo === 'sfx').length + ')', 'edEdSemSfx()', 'ghost') + '</div>' : '');
         } else if (c.tipo === 'corte') {
             sel = '<div class="ed-ed-tit">Trecho do vídeo · ' + edMMSS(c.inicio_s) + ' a ' + edMMSS(c.fim_s) + ' · ' + edS(c.fim_s - c.inicio_s) + '</div>' +
@@ -19459,8 +19675,9 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                 '<div class="ed-ed-l">' + btn('Tirar este zoom', 'edEdTirarCamada()', 'ghost') + '</div>';
         } else if (c.tipo === 'musica' || c.tipo === 'sfx') {
             const vol = c.volume_db != null ? +c.volume_db : (c.tipo === 'musica' ? -14 : -18);
-            sel = '<div class="ed-ed-tit">' + (c.tipo === 'musica' ? 'Música' : 'Efeito sonoro') + ' · ' + edEsc(c.arquivo || '') + '</div>' +
+            sel = '<div class="ed-ed-tit">' + (c.tipo === 'musica' ? 'Música' : 'Efeito sonoro') + ' · ' + edEsc(c.titulo || edTlNomeArq(c.arquivo) || 'a escolher') + '</div>' +
                 '<div class="ed-ed-l"><span>Volume</span><input type="range" min="-36" max="-4" step="1" data-ed="volume_db:n" value="' + vol + '"><span>' + (c.tipo === 'musica' ? Math.abs(vol) + ' dB abaixo da voz' : vol + ' dB') + '</span></div>' + tempos +
+                (c.tipo === 'musica' ? edEdMusicaHtml(c) : '') +
                 '<div class="ed-ed-l">' + btn('Tirar', 'edEdTirarCamada()', 'ghost') + '</div>';
         } else {
             sel = '<div class="ed-ed-tit">' + edEsc(ED_IA_NOMES[c.tipo] || c.tipo) + (c.arquivo ? ' · ' + edEsc(String(c.arquivo).split('/').pop()) : '') + '</div>' + tempos +
@@ -19558,7 +19775,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const opcoes = alt ? '<div class="ed-opcs">' + opc('a', pj.opcao) + opc('b', alt.opcao) + '</div>' : '';
         const meio = montavel
             ? opcoes + '<div class="ed-mont"><div>' + (edOpcaoVer === 'b' && alt ? '' : '<div class="ed-ed-modos">' + modo('editar', 'Editar') + modo('previa', 'Prévia renderizada') + '</div>') +
-                '<div class="ed-palco-box" style="aspect-ratio:' + TW + '/' + TH + ';"><video id="iaVideo" playsinline controls preload="metadata"></video>' +
+                '<div class="ed-palco-box" style="aspect-ratio:' + TW + '/' + TH + ';"><video id="iaVideo" crossorigin="anonymous" playsinline controls preload="metadata"></video><canvas id="edCor" class="ed-cor"></canvas>' +
                 '<div id="edPalco" class="ed-palco' + (edEdModo === 'editar' && edOpcaoVer !== 'b' ? '' : ' off') + '"></div></div></div>' +
                 '<div id="iaEditar"></div></div>'
             : '<div class="ia-meio"><div class="ia-prev">' + previa + '</div><div class="ia-etapas">' + etapas + '</div></div>';

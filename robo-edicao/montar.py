@@ -25,7 +25,10 @@ Camadas (tempos sempre no vídeo final):
   musica    inicio_s, fim_s, arquivo, origem_inicio_s, volume_db = dB ABAIXO DA VOZ (padrão -16, medido em LUFS;
             o montador mede a voz e a música e acerta sozinho; volume constante, sem subir e descer)
   sfx       inicio_s, arquivo, volume_db (padrão -18)
-Topo do projeto: formato, legenda {modelo, posicao, tamanho (multiplica o do modelo), ativa}, marca, som_original (false = tira o som do bruto).
+Topo do projeto: formato, legenda {modelo, posicao, tamanho (multiplica o do modelo), ativa, e o que a Lara trocou do modelo no admin:
+  cor, destaque, caixa, contorno, contorno_cor, fundo, sombra, animacao, modo}, marca, som_original (false = tira o som do bruto),
+  cor {lut, forca}: LUT .cube na imagem gravada (lut = arquivo de luts/ do robô ou "storage:luts/x.cube" que o robô baixa
+  em work/luts/; forca 0 a 1). Prints, telas e logos por cima ficam sem LUT, e a base do admin sai sem ela (o admin mostra ao vivo).
 """
 import hashlib
 import json
@@ -43,6 +46,7 @@ TAMANHO = {"9:16": (1080, 1920), "4:5": (1080, 1350), "1:1": (1080, 1080), "16:9
 FPS = 30
 SONS = os.path.expanduser(os.environ.get("ROBO_SONS", "~/Desktop/sons"))
 FONTES = os.path.join(DIR, "fontes")
+LUTS = os.path.join(DIR, "luts")
 TITULOS = os.path.join(DIR, "titulos")
 IMAGEM = re.compile(r"\.(png|jpe?g|webp)$", re.I)
 
@@ -292,7 +296,27 @@ def modelo_legenda(pj):
     m = dict(legendas_ass.modelo(os.path.join(DIR, "legendas.json"), leg.get("modelo") or "lara"))
     if leg.get("tamanho"):   # a Lara aumentou ou diminuiu a legenda no admin
         m["tamanho"] = m["tamanho"] * float(leg["tamanho"])
+    for k in LEG_TROCAVEL:   # cor, caixa, contorno... que ela trocou no admin por cima do modelo
+        if leg.get(k) is not None and leg.get(k) != "":
+            m[k] = leg[k]
     return m, leg
+
+
+LEG_TROCAVEL = ("cor", "destaque", "caixa", "contorno", "contorno_cor", "fundo", "sombra", "animacao", "modo")
+
+
+def lut_do_projeto(pj):
+    """(caminho do .cube, força 0 a 1) ou (None, 0) se o projeto não tem cor"""
+    cor = pj.p.get("cor") or {}
+    nome = str(cor.get("lut") or "").strip()
+    forca = max(0.0, min(1.0, float(cor.get("forca", 1) or 0)))
+    if not nome or forca < 0.02:
+        return None, 0
+    base = os.path.basename(nome.replace("storage:", ""))
+    for arq in (os.path.join(pj.job, "work", "luts", base), os.path.join(LUTS, base)):
+        if os.path.exists(arq):
+            return arq, forca
+    raise SystemExit("LUT não encontrada: %s (procurei em work/luts/ e na biblioteca luts/)" % nome)
 
 
 def criar_legendas(pj, palavras_arq):
@@ -355,27 +379,49 @@ def montar(pj):
         v = "[v%d]" % k
         k += 1
 
-    for c in pj.camadas("rec", "broll", "imagem", "animacao"):
-        if c["tipo"] == "animacao" and c.get("modelo"):
-            continue
-        ini, fim = float(c["inicio_s"]), float(c["fim_s"])
-        arq = pj.achar(c.get("arquivo"))
-        if IMAGEM.search(arq):
-            idx = entrada(["-loop", "1", "-t", "%.3f" % (fim - ini), "-i", arq])
+    idx_de = {}
+
+    def sobreposicoes():
+        nonlocal v, k
+        for j, c in enumerate(pj.camadas("rec", "broll", "imagem", "animacao")):
+            if c["tipo"] == "animacao" and c.get("modelo"):
+                continue
+            ini, fim = float(c["inicio_s"]), float(c["fim_s"])
+            arq = pj.achar(c.get("arquivo"))
+            if j not in idx_de:
+                if IMAGEM.search(arq):
+                    idx_de[j] = entrada(["-loop", "1", "-t", "%.3f" % (fim - ini), "-i", arq])
+                else:
+                    idx_de[j] = entrada(["-ss", "%.3f" % float(c.get("origem_inicio_s") or 0), "-t", "%.3f" % (fim - ini), "-i", arq])
+            idx = idx_de[j]
+            s = float(c.get("escala") or 1)
+            x, y = float(c.get("x", 0.5)), float(c.get("y", 0.5))
+            if c["tipo"] == "imagem":   # imagem: escala = fração da largura do vídeo
+                filtros.append("[%d:v]scale=%d:-2,format=yuva420p,setpts=PTS-STARTPTS+%.3f/TB[o%d]" % (idx, round(W * s / 2) * 2, ini, k))
+                filtros.append("%s[o%d]overlay=x=%.0f-w/2:y=%.0f-h/2:eof_action=pass:enable='between(t,%.3f,%.3f)'[v%d]" % (v, k, x * W, y * H, ini, fim, k))
+                v = "[v%d]" % k
+                k += 1
+                continue
+            por_cima(idx, c, c["tipo"] in ("rec", "broll"), "%.0f" % (x * W - W * s / 2), "%.0f" % (y * H - H * s / 2), s)
+
+    lut, forca = lut_do_projeto(pj)
+    if lut:
+        # base do admin sem a LUT (o admin aplica ao vivo) e o final com a LUT só na imagem gravada, antes dos prints e logos
+        sobreposicoes()
+        filtros.append("%sscale='if(gt(iw,ih),-2,720)':'if(gt(iw,ih),720,-2)'[base720]" % v)
+        esc_l = lut.replace("\\", "/").replace(":", "\\:").replace("'", "\\'")
+        if forca >= 0.99:
+            filtros.append("[0:v]lut3d=file='%s':interp=tetrahedral[cor]" % esc_l)
         else:
-            idx = entrada(["-ss", "%.3f" % float(c.get("origem_inicio_s") or 0), "-t", "%.3f" % (fim - ini), "-i", arq])
-        s = float(c.get("escala") or 1)
-        x, y = float(c.get("x", 0.5)), float(c.get("y", 0.5))
-        if c["tipo"] == "imagem":   # imagem: escala = fração da largura do vídeo
-            filtros.append("[%d:v]scale=%d:-2,format=yuva420p,setpts=PTS-STARTPTS+%.3f/TB[o%d]" % (idx, round(W * s / 2) * 2, ini, k))
-            filtros.append("%s[o%d]overlay=x=%.0f-w/2:y=%.0f-h/2:eof_action=pass:enable='between(t,%.3f,%.3f)'[v%d]" % (v, k, x * W, y * H, ini, fim, k))
-            v = "[v%d]" % k
-            k += 1
-            continue
-        por_cima(idx, c, c["tipo"] in ("rec", "broll"), "%.0f" % (x * W - W * s / 2), "%.0f" % (y * H - H * s / 2), s)
-    filtros.append("%ssplit=2[base][cheio]" % v)
-    filtros.append("[base]scale='if(gt(iw,ih),-2,720)':'if(gt(iw,ih),720,-2)'[base720]")
-    v = "[cheio]"
+            filtros.append("[0:v]split=2[cru][paralut];[paralut]lut3d=file='%s':interp=tetrahedral[comlut];[comlut][cru]blend=all_opacity=%.3f[cor]" % (esc_l, forca))
+        print("montar: LUT %s em %d%%" % (os.path.basename(lut), round(forca * 100)), flush=True)
+        v = "[cor]"
+        sobreposicoes()
+    else:
+        sobreposicoes()
+        filtros.append("%ssplit=2[base][cheio]" % v)
+        filtros.append("[base]scale='if(gt(iw,ih),-2,720)':'if(gt(iw,ih),720,-2)'[base720]")
+        v = "[cheio]"
 
     # 2) legenda queimada
     m, leg = modelo_legenda(pj)

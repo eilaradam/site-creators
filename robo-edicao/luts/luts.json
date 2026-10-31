@@ -1,0 +1,38 @@
+[
+ {
+  "id": "quente-dourado",
+  "nome": "Quente dourado",
+  "descricao": "pele mais viva e luz de fim de tarde",
+  "arquivo": "quente-dourado.cube"
+ },
+ {
+  "id": "frio-limpo",
+  "nome": "Frio limpo",
+  "descricao": "branco mais branco, cara de tech e app",
+  "arquivo": "frio-limpo.cube"
+ },
+ {
+  "id": "filme-desbotado",
+  "nome": "Filme desbotado",
+  "descricao": "preto lavado e cor suave, estilo analógico",
+  "arquivo": "filme-desbotado.cube"
+ },
+ {
+  "id": "contraste-suave",
+  "nome": "Contraste suave",
+  "descricao": "mais profundidade sem mudar a cor",
+  "arquivo": "contraste-suave.cube"
+ },
+ {
+  "id": "verao-vibrante",
+  "nome": "Verão vibrante",
+  "descricao": "cores mais saturadas, praia e comida",
+  "arquivo": "verao-vibrante.cube"
+ },
+ {
+  "id": "preto-e-branco",
+  "nome": "Preto e branco",
+  "descricao": "P&B com contraste",
+  "arquivo": "preto-e-branco.cube"
+ }
+]
