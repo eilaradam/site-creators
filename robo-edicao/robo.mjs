@@ -1,270 +1,57 @@
 #!/usr/bin/env node
-/* Robô de edição da Lara: roda no Mac, pega os pedidos da aba Edição do admin,
-   cria a pasta no Drive, espera o bruto, edita com o Claude Code e devolve a prévia.
+/* Robô de edição da Lara (o Estagiário): roda só no Mac, sem admin, sem Supabase e sem Drive.
+   Tudo acontece na pasta "Estagiário" da Mesa:
 
-   node robo.mjs            roda sem parar (checa a fila a cada minuto)
-   node robo.mjs --uma-vez  checa a fila uma vez e sai
-   node robo.mjs --login    guarda o acesso ao admin (usa ROBO_EMAIL e ROBO_SENHA)
-   node robo.mjs --epidemic guarda a chave do Epidemic Sound (MCP Server API key, conta Pro da Lara) */
+     1 - Pra editar   você joga aqui uma pasta com o bruto (e b-rolls, e um pedido.txt se quiser)
+                      ou só o arquivo de vídeo solto
+     2 - Editando     o robô move a pasta pra cá enquanto edita (tirar a pasta daqui cancela a edição)
+     3 - Prontos      a pasta volta pra cá com "<nome> - com legenda vN.mp4" e "<nome> - sem legenda vN.mp4"
+                      pra pedir ajuste: escreva um ajustes.txt (ou grave um áudio ajustes.m4a) dentro da pasta pronta
+     Aprender         vídeos prontos seus pra ele estudar o estilo
+     Regras do estilo.md, Dicionário de legendas.txt, O que estou fazendo.txt
+
+   node robo.mjs            roda sem parar (olha as pastas a cada minuto)
+   node robo.mjs --uma-vez  olha uma vez e sai
+   node robo.mjs --epidemic guarda a chave do Epidemic Sound (MCP Server API key, conta Pro da Lara)
+   node robo.mjs --servico  liga o robô escondido (liga sozinho quando o Mac liga) */
 import { spawn, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 
-const SUPA = process.env.ROBO_SUPABASE_URL || 'https://mfrmnquvwwuxraqgemyh.supabase.co';
-const ANON = process.env.ROBO_SUPABASE_ANON || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mcm1ucXV2d3d1eHJhcWdlbXloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNDI1NDIsImV4cCI6MjA4NzYxODU0Mn0.zmsi08dV5L1IlXJSr34vOii71w0g0OsD5_5DKio5g-o';
 const DIR = process.env.ROBO_DIR || path.dirname(new URL(import.meta.url).pathname);
-const SESSAO = path.join(DIR, 'sessao.json');           // só o refresh token, nunca a senha
 const TRABALHOS = path.join(DIR, 'trabalhos');
-const RCLONE = fs.existsSync(path.join(DIR, 'bin', 'rclone')) ? path.join(DIR, 'bin', 'rclone') : 'rclone';
 const CLAUDE = process.env.ROBO_CLAUDE || 'claude';
-const PASTA_RAIZ = 'Edição';
+const ESTAG = process.env.ROBO_PASTA || path.join(os.homedir(), 'Desktop', 'Estagiário');
+const P_EDITAR = path.join(ESTAG, '1 - Pra editar'), P_EDITANDO = path.join(ESTAG, '2 - Editando'), P_PRONTOS = path.join(ESTAG, '3 - Prontos');
+const P_APRENDER = path.join(ESTAG, 'Aprender');
+const ARQ_REGRAS = path.join(ESTAG, 'Regras do estilo.md'), ARQ_DIC = path.join(ESTAG, 'Dicionário de legendas.txt');
+const ARQ_STATUS = path.join(ESTAG, 'O que estou fazendo.txt');
+const ESTADO = '.estagiario.json';
 const INTERVALO_S = Number(process.env.ROBO_INTERVALO_S || 60);
 const LIMITE_EDICAO_MIN = Number(process.env.ROBO_LIMITE_MIN || 90);
 const VIDEO = /\.(mov|mp4|m4v|mkv|avi|webm)$/i;
 const MIDIA = /\.(mov|mp4|m4v|mkv|avi|webm|jpg|jpeg|png|heic|webp|mp3|wav|m4a|aac)$/i;
-const DO_ROBO = /^(PREVIA|PRÉVIA|FINAL|REC)\b/i;            // arquivos que o próprio robô sobe
-
-let ultimaLinha = '';
-const log = (...a) => { ultimaLinha = a.join(' ').slice(0, 280); console.log(new Date().toLocaleTimeString('pt-BR'), ...a); };
-
-/* ── Supabase (login da Lara, com as mesmas permissões de admin do site) ── */
-let token = null, tokenAte = 0, usuarioId = null;
-async function entrar(corpo, tipo) {
-    const r = await fetch(SUPA + '/auth/v1/token?grant_type=' + tipo, {
-        method: 'POST', headers: { apikey: ANON, 'Content-Type': 'application/json' }, body: JSON.stringify(corpo) });
-    const j = await r.json().catch(() => ({}));
-    if (!r.ok && tipo === 'refresh_token' && /refresh token/i.test(j.error_description || j.msg || ''))
-        throw new Error('Perdi o acesso ao admin (alguém saiu de todas as sessões ou trocou a senha). Para me ligar de novo, feche esta janela e rode no Terminal: cd ~/robo-edicao && node robo.mjs --entrar');
-    if (!r.ok) throw new Error('Login no admin falhou: ' + (j.error_description || j.msg || r.status));
-    fs.writeFileSync(SESSAO, JSON.stringify({ refresh_token: j.refresh_token }), { mode: 0o600 });
-    usuarioId = j.user && j.user.id; token = j.access_token; tokenAte = Date.now() + (j.expires_in - 120) * 1000;
-}
-async function acesso() {
-    if (token && Date.now() < tokenAte) return token;
-    if (!fs.existsSync(SESSAO)) throw new Error('Robô sem login. Rode no Terminal: cd ~/robo-edicao && node robo.mjs --entrar');
-    const ler = () => JSON.parse(fs.readFileSync(SESSAO, 'utf8')).refresh_token;
-    const usado = ler();
-    try { await entrar({ refresh_token: usado }, 'refresh_token'); }
-    catch (e) {
-        // o acesso gira a cada renovação: se outra janela (ou o --entrar) acabou de renovar, o arquivo já tem o novo
-        await new Promise(r => setTimeout(r, 2000));
-        if (ler() === usado) throw e;
-        await entrar({ refresh_token: ler() }, 'refresh_token');
-    }
-    return token;
-}
-async function db(caminho, opcoes = {}, tentativa = 1) {
-    // depois de uma etapa longa (render, Claude) a conexão guardada pode ter caído: tenta de novo
-    try { return await db1(caminho, opcoes); }
-    catch (e) { if (tentativa >= 3 || !/fetch failed|ECONNRESET|socket|other side closed/i.test(e.message + ' ' + (e.cause && e.cause.message))) throw e;
-        await new Promise(r => setTimeout(r, 1000 * tentativa)); return db(caminho, opcoes, tentativa + 1); }
-}
-async function db1(caminho, { metodo = 'GET', corpo } = {}) {
-    const r = await fetch(SUPA + '/rest/v1/' + caminho, {
-        method: metodo,
-        headers: { apikey: ANON, Authorization: 'Bearer ' + await acesso(), 'Content-Type': 'application/json', Prefer: 'return=representation' },
-        body: corpo ? JSON.stringify(corpo) : undefined });
-    const tx = await r.text();
-    if (!r.ok) throw new Error('Supabase ' + r.status + ': ' + tx.slice(0, 300));
-    return tx ? JSON.parse(tx) : null;
-}
-const q = encodeURIComponent;
-async function mudar(p, patch) {
-    Object.assign(p, patch);
-    await db('edicao_pedidos?id=eq.' + p.id, { metodo: 'PATCH', corpo: Object.assign({ updated_at: new Date().toISOString() }, patch) });
-    log('#' + p.numero, p.pasta_nome, '→', patch.status || '', patch.status_msg || '');
-}
-
-/* ── Drive pelo rclone (remote "drive") ── */
-function rclone(args, { silencioso } = {}) {
-    const r = spawnSync(RCLONE, args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
-    if (r.error) throw new Error('rclone não encontrado (' + r.error.message + ')');
-    if (r.status !== 0) { if (silencioso) return null; throw new Error('rclone ' + args[0] + ': ' + (r.stderr || '').trim().split('\n').pop()); }
-    return r.stdout;
-}
-const naPasta = id => ['--drive-root-folder-id', id];
-const linkPasta = id => 'https://drive.google.com/drive/folders/' + id;
-const linkArquivo = id => 'https://drive.google.com/file/d/' + id + '/view';
-function idDaPasta(link) { const m = String(link || '').match(/\/folders\/([\w-]+)|[?&]id=([\w-]+)/); return m ? (m[1] || m[2]) : null; }
-function listar(pastaId) { return JSON.parse(rclone(['lsjson', 'drive:', '-R', '--files-only', ...naPasta(pastaId)]) || '[]'); }
-function criarPasta(nome) {
-    rclone(['mkdir', 'drive:' + PASTA_RAIZ + '/' + nome]);
-    const dirs = JSON.parse(rclone(['lsjson', 'drive:' + PASTA_RAIZ, '--dirs-only']) || '[]');
-    const d = dirs.find(x => x.Name === nome);
-    if (!d || !d.ID) throw new Error('Criei a pasta mas não achei o ID dela no Drive');
-    return d.ID;
-}
-function subir(pastaId, local, nomeNoDrive) {
-    rclone(['copyto', local, 'drive:' + nomeNoDrive, ...naPasta(pastaId)]);
-    const f = listar(pastaId).find(x => x.Path === nomeNoDrive);
-    return f && f.ID ? linkArquivo(f.ID) : linkPasta(pastaId);
-}
-
-/* ── Etapas ── */
-const tamanhos = new Map();   // pedido -> "arquivo:tamanho" da última olhada (upload só conta quando para de crescer)
-
-async function prepararPasta(p) {
-    let id = p.drive_pasta_id || idDaPasta(p.drive_pasta_link);
-    if (!id) id = criarPasta(p.pasta_nome);
-    if (p.tipo === 'cenas') {
-        await mudar(p, { drive_pasta_id: id, drive_pasta_link: p.drive_pasta_link || linkPasta(id) });
-        return criarCenas(p);
-    }
-    await mudar(p, { drive_pasta_id: id, drive_pasta_link: p.drive_pasta_link || linkPasta(id), status: 'aguardando_bruto',
-        status_msg: p.previa_link ? 'Vou refazer: conferindo o bruto na pasta' : 'Criei a pasta no Drive. Joga o bruto lá dentro que eu começo.' });
-}
-
-async function olharBruto(p) {
-    const arquivos = listar(p.drive_pasta_id).filter(f => MIDIA.test(f.Path) && !DO_ROBO.test(path.basename(f.Path)));
-    if (!arquivos.some(f => VIDEO.test(f.Path))) { tamanhos.delete(p.id); return; }
-    const assinatura = arquivos.map(f => f.Path + ':' + f.Size).sort().join('|');
-    if (tamanhos.get(p.id) !== assinatura) { tamanhos.set(p.id, assinatura); log('#' + p.numero, 'bruto apareceu, conferindo se terminou de subir…'); return; }
-    tamanhos.delete(p.id);
-    await editar(p, arquivos);
-}
-
-function slug(s) { return String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\w]+/g, '-').replace(/^-|-$/g, '').toLowerCase(); }
-
-/* Banco de sons (~/Desktop/sons): atualiza o catalogo.json antes de editar, só analisando o que mudou */
-const SONS = process.env.ROBO_SONS || path.join(os.homedir(), 'Desktop', 'sons');
-function atualizarBancoDeSons() {
-    if (!fs.existsSync(SONS)) return;
-    const py = fs.existsSync(path.join(VENV_BIN, 'python')) ? path.join(VENV_BIN, 'python') : 'python3';
-    const r = spawnSync(py, ['-I', path.join(DIR, 'catalogar_sons.py'), SONS], { encoding: 'utf8', timeout: 20 * 60000 });
-    log(r.status === 0 ? 'banco de sons: ' + (r.stdout || '').trim().split('\n')[0] : 'banco de sons não atualizado: ' + (r.stderr || '').trim().split('\n').pop());
-}
-
-/* "Falar com o Estagiário" no admin: texto e/ou áudio gravado. O áudio é baixado do Storage e transcrito aqui
-   (faster-whisper, local). Cada fala vira texto em a.transcricao para entrar no PEDIDO.md / AJUSTES.md. */
-const falas = p => (Array.isArray(p.ajustes) ? p.ajustes : []).filter(a => a && a.tipo === 'feedback');
-async function lerFalas(p, job) {
-    const lista = falas(p).filter(a => a.audio_path && !a.transcricao);
-    if (!lista.length) return;
-    const pasta = path.join(job, 'falas'); fs.mkdirSync(pasta, { recursive: true });
-    const py = fs.existsSync(path.join(VENV_BIN, 'python')) ? path.join(VENV_BIN, 'python') : 'python3';
-    for (const a of lista) {
-        try {
-            const r = await fetch(SUPA + '/storage/v1/object/edicao/' + a.audio_path, { headers: { apikey: ANON, Authorization: 'Bearer ' + await acesso() } });
-            if (!r.ok) throw new Error('não baixou (' + r.status + ')');
-            const orig = path.join(pasta, path.basename(a.audio_path)), wav = orig.replace(/\.[^.]+$/, '') + '.wav', js = wav + '.json';
-            fs.writeFileSync(orig, Buffer.from(await r.arrayBuffer()));
-            ffmpeg(['-i', orig, '-ac', '1', '-ar', '16000', wav]);
-            const t = spawnSync(py, ['-I', path.join(DIR, 'transcrever.py'), wav, js, 'small'], { encoding: 'utf8', timeout: 10 * 60000 });
-            if (t.status !== 0) throw new Error((t.stderr || '').trim().split('\n').pop());
-            a.transcricao = JSON.parse(fs.readFileSync(js, 'utf8')).map(w => w.w).join(' ').replace(/\s+([,.!?])/g, '$1');
-            log('#' + p.numero, 'ouvi o seu áudio: ' + a.transcricao.slice(0, 120));
-        } catch (e) { a.transcricao = '(não consegui ouvir o áudio: ' + e.message + ')'; log('#' + p.numero, a.transcricao); }
-    }
-}
-function falasMd(p) {
-    const L = falas(p).map((a, k) => (k + 1) + '. ' + [a.texto, a.transcricao && !/^\(não consegui/.test(a.transcricao) ? '(áudio) ' + a.transcricao : a.transcricao].filter(Boolean).join(' / ') +
-        (a.sempre ? '  ← ela marcou que isso vale para TODOS os próximos vídeos' : ''));
-    return L.length ? ['## ⚠️ O que a Lara falou depois da versão anterior (OBRIGATÓRIO: é a razão deste refazer)', ...L,
-        'Cumpra cada item e diga no resumo como cumpriu. Escreva também `saida/regras_propostas.json` (formato de "Aprender com os ajustes")',
-        'com as regras gerais que essas falas revelam.', ''] : [];
-}
-
-async function editar(p, arquivos) {
-    const job = path.join(TRABALHOS, p.numero + '-' + slug(p.pasta_nome));
-    const entrada = path.join(job, 'entrada'), saida = path.join(job, 'saida');
-    fs.mkdirSync(entrada, { recursive: true }); fs.rmSync(saida, { recursive: true, force: true }); fs.mkdirSync(saida, { recursive: true });
-
-    await mudar(p, { status: 'baixando', status_msg: 'Baixando o bruto do Drive (' + arquivos.length + ' arquivo(s))' });
-    // sync (não copy): o que a Lara apagou da pasta também some daqui, para o Claude não usar arquivo velho
-    rclone(['sync', 'drive:', entrada, ...naPasta(p.drive_pasta_id), '--exclude', '{PREVIA,PRÉVIA,FINAL,REC,LOCUCAO}*', '--max-depth', '3']);
-
-    const [refs, regras, dic] = await Promise.all([
-        db('edicao_referencias?pedido_id=eq.' + p.id + '&select=tipo,link,nota,analise&order=created_at'),
-        db('edicao_regras?status=eq.aprovada&select=texto,motivo,categoria,cliente&order=categoria'),
-        db('edicao_dicionario?select=cliente,errado,certo'),
-    ]);
-    const daMarca = c => !c || String(c).trim().toLowerCase() === String(p.marca || '').trim().toLowerCase();
-    fs.writeFileSync(path.join(job, 'pedido.json'), JSON.stringify({ pedido: p, referencias: refs, regras: regras.filter(r => daMarca(r.cliente)), dicionario: dic.filter(d => daMarca(d.cliente)) }, null, 2));
-    await lerFalas(p, job);
-    fs.writeFileSync(path.join(job, 'PEDIDO.md'), pedidoMd(p, refs, regras.filter(r => daMarca(r.cliente)), dic.filter(d => daMarca(d.cliente)), arquivos));
-    fs.copyFileSync(path.join(DIR, 'INSTRUCOES_EDICAO.md'), path.join(job, 'CLAUDE.md'));
-    atualizarBancoDeSons();
-
-    await mudar(p, { status: 'editando', status_msg: 'Tô editando (leva uns 20 a 40 min)' });
-    const ok = await rodarClaude(job, p);
-    const previa = path.join(saida, 'previa.mp4');
-    if (!fs.existsSync(previa)) throw new Error(ok ? 'O Claude terminou sem gerar a prévia. Veja ' + path.join(job, 'claude.log') : 'A edição passou de ' + LIMITE_EDICAO_MIN + ' min ou deu erro. Veja ' + path.join(job, 'claude.log'));
-
-    await entregar(p, job, ['transcricao', 'tomadas', 'cortes', 'legendas', 'zoom', 'som', 'render']);
-}
-
-async function subirStorage(arq, caminho) {
-    const r = await fetch(SUPA + '/storage/v1/object/edicao/' + caminho, { method: 'POST', body: fs.readFileSync(arq),
-        headers: { apikey: ANON, Authorization: 'Bearer ' + await acesso(), 'Content-Type': 'video/mp4', 'x-upsert': 'true' } });
-    if (!r.ok) throw new Error(r.status + ' ' + (await r.text()).slice(0, 200));
-    return caminho;
-}
-
-async function entregar(p, job, etapas) {
-    const saida = path.join(job, 'saida'), previa = path.join(saida, 'previa.mp4');
-    await mudar(p, { status: 'renderizando', status_msg: 'Subindo a prévia pro Drive' });
-    const versao = 1 + fs.readdirSync(job).filter(n => /^previa_v\d+\.mp4$/.test(n)).length;
-    fs.copyFileSync(previa, path.join(job, 'previa_v' + versao + '.mp4'));
-    const link = subir(p.drive_pasta_id, previa, 'PREVIA v' + versao + ' - ' + p.pasta_nome + '.mp4');
-    for (const n of fs.readdirSync(saida).filter(n => /^rec.*\.mp4$/i.test(n)))
-        subir(p.drive_pasta_id, path.join(saida, n), 'REC - ' + n);
-
-    let previa_path = p.previa_path || null;
-    try {
-        const leve = path.join(job, 'previa_leve.mp4');
-        ffmpeg(['-i', previa, '-vf', "scale='if(gt(iw,ih),-2,1080)':'if(gt(iw,ih),1080,-2)'", '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '23', '-c:a', 'aac', '-b:a', '96k', '-movflags', '+faststart', leve]);
-        previa_path = await subirStorage(leve, 'pedidos/' + p.id + '/previa_v' + versao + '.mp4');
-    } catch (e) { log('prévia leve não subiu:', e.message); }
-    // base sem legenda e sem títulos (feita pelo montar.py): é nela que a Lara reedita no admin
-    let base_path = null;
-    const base = path.join(saida, 'base.mp4');
-    if (fs.existsSync(base)) {
-        try { base_path = await subirStorage(base, 'pedidos/' + p.id + '/base_v' + versao + '.mp4'); } catch (e) { log('base do editor não subiu:', e.message); }
-    }
-    let projeto = null, resumo = '';
-    try { projeto = JSON.parse(fs.readFileSync(path.join(saida, 'projeto.json'), 'utf8')); } catch (_) {}
-    try { resumo = fs.readFileSync(path.join(saida, 'resumo.md'), 'utf8').trim(); } catch (_) {}
-    if (projeto) {
-        ['mudancas', 'editado_em', 'base_path', 'alternativa'].forEach(k => delete projeto[k]);
-        if (base_path) projeto.base_path = base_path;
-        projeto.etapas = { feitas: etapas };
-        // opção B (o Claude faz duas edições diferentes do mesmo bruto; a Lara escolhe uma no admin)
-        const alt = await entregarOpcaoB(p, job, versao, etapas);
-        if (alt) projeto.alternativa = alt;
-    }
-    const sempre = falas(p).some(a => a.sempre);
-    await proporRegras(p, job, sempre ? 'Do que você falou no pedido #' + p.numero + ' (marcado como vale para sempre)' : undefined, sempre ? 'aprovada' : 'proposta');
-    await mudar(p, { status: 'previa_pronta', previa_link: link, projeto, previa_path, ajustes: null,
-        status_msg: (resumo.split('\n').find(l => l.trim()) || 'Prévia v' + versao + ' no Drive').replace(/^#+\s*/, '').slice(0, 280) });
-}
-
-async function entregarOpcaoB(p, job, versao, etapas) {
-    const saida = path.join(job, 'saida'), previa = path.join(saida, 'previa_b.mp4');
-    let projeto; try { projeto = JSON.parse(fs.readFileSync(path.join(saida, 'projeto_b.json'), 'utf8')); } catch (_) { return null; }
-    if (!fs.existsSync(previa)) return null;
-    const alt = { previa_link: subir(p.drive_pasta_id, previa, 'PREVIA v' + versao + ' B - ' + p.pasta_nome + '.mp4') };
-    try {
-        const leve = path.join(job, 'previa_leve_b.mp4');
-        ffmpeg(['-i', previa, '-vf', "scale='if(gt(iw,ih),-2,1080)':'if(gt(iw,ih),1080,-2)'", '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '23', '-c:a', 'aac', '-b:a', '96k', '-movflags', '+faststart', leve]);
-        alt.previa_path = await subirStorage(leve, 'pedidos/' + p.id + '/previa_v' + versao + '_b.mp4');
-    } catch (e) { log('prévia B não subiu:', e.message); }
-    const base = path.join(saida, 'base_b.mp4');
-    if (fs.existsSync(base)) {
-        try { projeto.base_path = await subirStorage(base, 'pedidos/' + p.id + '/base_v' + versao + '_b.mp4'); } catch (e) { log('base B não subiu:', e.message); }
-    }
-    projeto.etapas = { feitas: etapas };
-    alt.projeto = projeto;
-    return alt;
-}
-
-/* ── Locução + cenas: Claude escreve locução e prompts, o robô grava a voz, a Lara gera as cenas, o robô monta ── */
-const VENV_BIN = path.join(DIR, 'venv', 'bin');
 const AUDIO = /\.(m4a|mp3|wav|ogg|opus|aac|caf|amr|flac)$/i;
-const ARQ_CENA = /^(?:cena|block|scene)[\s_-]*0*(\d+)\.(mp4|mov|m4v|webm)$/i;
-const TAMANHO = { '9:16': [1080, 1920], '4:5': [1080, 1350], '1:1': [1080, 1080], '16:9': [1920, 1080] };
+const DO_ROBO = / - (com legenda|sem legenda|opção B|locução cena)\b|^(O que eu fiz|PROMPTS DAS CENAS|ERRO|REC) /i;   // arquivos que o próprio robô entrega
+const AJUSTE = /^ajustes?\b.*\.(txt|md|m4a|mp3|wav|aac|caf|ogg|opus|mp4|mov)$/i;
+const PEDIDO_TXT = /^pedido\b.*\.(txt|md)$/i;
+
+/* ── Registro: janela/log do serviço + "O que estou fazendo.txt" (as últimas 40 linhas) ── */
+let ultimas = [];
+const log = (...a) => {
+    const l = new Date().toLocaleTimeString('pt-BR') + ' ' + a.join(' ');
+    console.log(l);
+    ultimas = [...ultimas, l.slice(0, 400)].slice(-40);
+    try { fs.writeFileSync(ARQ_STATUS, 'O Estagiário, ao vivo (a linha mais nova fica embaixo)\n\n' + ultimas.join('\n') + '\n'); } catch (_) {}
+};
+
+/* ── Utilidades ── */
+function slug(s) { return String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\w]+/g, '-').replace(/^-|-$/g, '').toLowerCase(); }
 const pasta2 = n => String(n).padStart(2, '0');
-const jobDe = p => path.join(TRABALHOS, p.numero + '-' + slug(p.pasta_nome));
+const VENV_BIN = path.join(DIR, 'venv', 'bin');
+const PY = () => fs.existsSync(path.join(VENV_BIN, 'python')) ? path.join(VENV_BIN, 'python') : 'python3';
+const TAMANHO = { '9:16': [1080, 1920], '4:5': [1080, 1350], '1:1': [1080, 1080], '16:9': [1920, 1080] };
 function duracao(arq) {
     const r = spawnSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', arq], { encoding: 'utf8' });
     return parseFloat(r.stdout) || 0;
@@ -273,77 +60,336 @@ function ffmpeg(args) {
     const r = spawnSync('ffmpeg', ['-v', 'error', '-y', ...args], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
     if (r.status !== 0) throw new Error('ffmpeg: ' + (r.stderr || '').trim().split('\n').pop());
 }
+const visivel = n => !n.startsWith('.') && n !== 'Icon\r';
+function listarArquivos(pasta, base = pasta) {   // tudo dentro da pasta do pedido (até 3 níveis), com caminho relativo e tamanho
+    const out = [];
+    const andar = (d, nivel) => {
+        for (const n of fs.readdirSync(d).filter(visivel)) {
+            const c = path.join(d, n), st = fs.statSync(c);
+            if (st.isDirectory()) { if (nivel < 3) andar(c, nivel + 1); }
+            else out.push({ Path: path.relative(base, c), Size: st.size, mtime: st.mtimeMs });
+        }
+    };
+    if (fs.existsSync(pasta)) andar(pasta, 0);
+    return out;
+}
+function lerEstado(pasta) { try { return JSON.parse(fs.readFileSync(path.join(pasta, ESTADO), 'utf8')); } catch (_) { return null; } }
+function gravarEstado(pasta, e) { fs.writeFileSync(path.join(pasta, ESTADO), JSON.stringify(e, null, 1)); }
+function mover(de, paraDir) {
+    fs.mkdirSync(paraDir, { recursive: true });
+    let destino = path.join(paraDir, path.basename(de)), k = 2;
+    while (fs.existsSync(destino)) destino = path.join(paraDir, path.basename(de) + ' (' + k++ + ')');
+    fs.renameSync(de, destino);
+    return destino;
+}
+function proximoNumero() {
+    const arq = path.join(DIR, 'contador.txt');
+    let n = 0; try { n = Number(fs.readFileSync(arq, 'utf8')) || 0; } catch (_) {}
+    if (!n) n = fs.existsSync(TRABALHOS) ? fs.readdirSync(TRABALHOS).map(x => parseInt(x, 10)).filter(Boolean).reduce((a, b) => Math.max(a, b), 0) : 0;
+    fs.writeFileSync(arq, String(n + 1));
+    return n + 1;
+}
 
-async function criarCenas(p) {
+/* ── Pastas da Mesa: cria na primeira vez, com o "Como usar" ── */
+const COMO_USAR = `COMO USAR O ESTAGIÁRIO (tudo aqui no Mac, nada no admin)
+
+1. Joga em "1 - Pra editar" uma PASTA com o nome do conteúdo (ex.: "Reforma100 01") com o bruto dentro.
+   B-rolls, gravações de tela e imagens vão na mesma pasta. Pode jogar só o vídeo solto também.
+2. Quando o arquivo termina de copiar, eu movo a pasta pra "2 - Editando" e começo.
+   Pra cancelar, é só tirar a pasta de "2 - Editando".
+3. Quando acabo, a pasta vai pra "3 - Prontos" com:
+   "<nome> - com legenda v1.mp4", "<nome> - sem legenda v1.mp4" e "O que eu fiz v1.txt".
+4. Ajuste: dentro da pasta pronta, escreva um "ajustes.txt" (ou grave um áudio "ajustes.m4a")
+   dizendo o que mudar. Eu faço a v2 na mesma pasta. Linha que começa com "sempre:" vira regra pra todos os vídeos.
+5. Deu erro? A pasta volta pra "1 - Pra editar" com um ERRO.txt explicando. Apague o ERRO.txt que eu tento de novo.
+
+PEDIDO.TXT (opcional, dentro da pasta do conteúdo). Uma coisa por linha, tudo opcional:
+   marca: Reforma100
+   legenda: lara            (ou "sem" pra não legendar, ou o nome de outro modelo)
+   formato: 9:16            (4:5, 1:1, 16:9)
+   audio: fala              (narrado, musica, misto)
+   duas opções: sim
+   titulos: caixa-pop, sublinhado
+   site: https://reforma100.com.br
+   referencia: https://www.instagram.com/reel/...
+   duração: 45
+   Qualquer outra linha vira observação que eu sou obrigado a cumprir.
+
+REGRAS: "Regras do estilo.md" é o que eu sigo. O que eu aprender cai em "Propostas": você aprova
+movendo a linha pra "Valendo". "Dicionário de legendas.txt" corrige palavra que a transcrição erra.
+APRENDER: joga vídeos prontos seus em "Aprender" que eu estudo o estilo e proponho regras.
+`;
+function prepararMesa() {
+    for (const d of [P_EDITAR, P_EDITANDO, P_PRONTOS, P_APRENDER]) fs.mkdirSync(d, { recursive: true });
+    const como = path.join(ESTAG, 'Como usar.txt');
+    if (!fs.existsSync(como) || fs.readFileSync(como, 'utf8') !== COMO_USAR) fs.writeFileSync(como, COMO_USAR);
+    // regras e dicionário salvos do admin antigo (vêm junto com o robô na primeira vez)
+    for (const [orig, dest] of [[path.join(DIR, 'Regras do estilo.md'), ARQ_REGRAS], [path.join(DIR, 'Dicionário de legendas.txt'), ARQ_DIC]])
+        if (!fs.existsSync(dest) && fs.existsSync(orig)) fs.copyFileSync(orig, dest);
+    if (!fs.existsSync(ARQ_REGRAS)) fs.writeFileSync(ARQ_REGRAS, '# Regras do estilo do Estagiário\n\n## Valendo\n\n## Propostas (pra você aprovar)\n');
+    if (!fs.existsSync(ARQ_DIC)) fs.writeFileSync(ARQ_DIC, '# Uma por linha:  errado => certo      (só numa marca: [Marca] errado => certo)\n');
+}
+
+/* ── Regras e dicionário (arquivos de texto na pasta Estagiário) ── */
+function lerRegras() {
+    let tx = ''; try { tx = fs.readFileSync(ARQ_REGRAS, 'utf8'); } catch (_) {}
+    const out = { valendo: [], propostas: [] };
+    let sec = null;
+    for (const l of tx.split('\n')) {
+        if (/^##\s*valendo/i.test(l)) { sec = 'valendo'; continue; }
+        if (/^##\s*propostas/i.test(l)) { sec = 'propostas'; continue; }
+        if (/^##/.test(l)) { sec = null; continue; }
+        const m = l.match(/^\s*-\s*(?:\[([^\]]+)\]\s*)?(.+?)\s*(?:\(só ([^)]+)\))?\s*$/);
+        if (sec && m) out[sec].push({ categoria: (m[1] || 'outro').trim(), texto: m[2].trim(), cliente: m[3] ? m[3].trim() : null });
+    }
+    return out;
+}
+function lerDicionario() {
+    let tx = ''; try { tx = fs.readFileSync(ARQ_DIC, 'utf8'); } catch (_) {}
+    return tx.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#')).map(l => {
+        const m = l.match(/^(?:\[([^\]]+)\]\s*)?(.+?)\s*=>\s*(.+)$/);
+        return m ? { cliente: m[1] || null, errado: m[2].trim(), certo: m[3].trim() } : null;
+    }).filter(Boolean);
+}
+const daMarca = (c, marca) => !c || String(c).trim().toLowerCase() === String(marca || '').trim().toLowerCase();
+/* O que o Claude aprendeu vira PROPOSTA no arquivo de regras (ou já Valendo, quando ela escreveu "sempre:") */
+function proporRegras(p, job, origem, valendo = false) {
+    const arq = path.join(job, 'saida', 'regras_propostas.json');
+    let regras; try { regras = JSON.parse(fs.readFileSync(arq, 'utf8')); } catch (_) { return; }
+    fs.renameSync(arq, arq.replace(/\.json$/, '_' + Date.now() + '.json'));
+    const linhas = (Array.isArray(regras) ? regras : []).filter(r => r && String(r.texto || '').trim()).slice(0, 8).map(r =>
+        '- [' + (r.categoria || 'outro') + '] ' + String(r.texto).trim().replace(/\s+/g, ' ').slice(0, 400) + (r.so_desta_marca && p.marca ? ' (só ' + p.marca + ')' : ''));
+    if (!linhas.length) return;
+    let tx = fs.readFileSync(ARQ_REGRAS, 'utf8');
+    const nota = '  <!-- ' + (origem || 'dos ajustes de ' + p.pasta_nome) + ', ' + new Date().toLocaleDateString('pt-BR') + ' -->';
+    const bloco = linhas.join('\n') + '\n';
+    if (valendo) {
+        const i = tx.search(/^##\s*propostas/im);
+        tx = i >= 0 ? tx.slice(0, i) + bloco + '\n' + tx.slice(i) : tx + '\n' + bloco;
+    } else {
+        if (!/^##\s*propostas/im.test(tx)) tx += '\n## Propostas (pra você aprovar)\n';
+        tx = tx.replace(/\s*$/, '\n') + nota + '\n' + bloco;
+    }
+    fs.writeFileSync(ARQ_REGRAS, tx);
+    log(p.pasta_nome + ':', linhas.length + (valendo ? ' regra(s) nova(s) já valendo' : ' regra(s) proposta(s) em "Regras do estilo.md"'));
+}
+
+/* ── Pedido a partir da pasta (pedido.txt opcional) ── */
+const PADRAO = { formato: '9:16', audio_tipo: 'fala', legenda_modelo: 'lara', tipo: 'edicao' };
+function lerPedido(pasta, estado) {
+    const nome = path.basename(pasta).replace(/ \(\d+\)$/, '');
+    const p = Object.assign({}, PADRAO, { pasta_nome: nome, marca: nome.replace(/\s*\d+\s*$/, '').trim() || nome, numero: estado.numero, refs: [], observacoes: '' });
+    const txt = fs.readdirSync(pasta).find(n => PEDIDO_TXT.test(n));
+    if (!txt) return p;
+    const obs = [];
+    for (const bruta of fs.readFileSync(path.join(pasta, txt), 'utf8').split('\n')) {
+        const l = bruta.trim(); if (!l) continue;
+        const m = l.match(/^([a-zçãõéêíóú ]+?)\s*:\s*(.+)$/i);
+        const k = m ? slug(m[1]) : '', v = m ? m[2].trim() : '';
+        if (k === 'marca') p.marca = v;
+        else if (k === 'legenda') p.legenda_modelo = /^(sem|nao|não|nenhuma)$/i.test(v) ? null : v;
+        else if (k === 'formato' && TAMANHO[v]) p.formato = v;
+        else if (k === 'audio') p.audio_tipo = slug(v);
+        else if (k === 'duas-opcoes') p.duas_opcoes = /^s/i.test(v);
+        else if (k === 'titulos') p.titulos_modelos = v;
+        else if (k === 'site') p.marca_site = v;
+        else if (k === 'redes') p.marca_redes = v;
+        else if (k === 'referencia' || k === 'ref') p.refs.push({ tipo: 'geral', link: v.split(/\s+/)[0], nota: v.split(/\s+/).slice(1).join(' ') });
+        else if (k === 'duracao') p.duracao_alvo_s = parseInt(v, 10) || null;
+        else if (k === 'tipo') p.tipo = /cena/i.test(v) ? 'cenas' : 'edicao';
+        else if (k === 'voz') p.voz = v;
+        else if (k === 'estilo') p.estilo_visual = v;
+        else if (k === 'roteiro') p.roteiro = v;
+        else if (k === 'gravar-site' || k === 'gravacao-de-tela') { p.rec_gravar = true; p.rec_passos = v; }
+        else obs.push(l);
+    }
+    p.observacoes = obs.join('\n');
+    return p;
+}
+
+/* ── Áudio de ajuste: transcreve local (faster-whisper) ── */
+function transcreverAudio(arq, pasta) {
+    fs.mkdirSync(pasta, { recursive: true });
+    const wav = path.join(pasta, slug(path.basename(arq)) + '.wav'), js = wav + '.json';
+    ffmpeg(['-i', arq, '-vn', '-ac', '1', '-ar', '16000', wav]);
+    const t = spawnSync(PY(), ['-I', path.join(DIR, 'transcrever.py'), wav, js, 'small'], { encoding: 'utf8', timeout: 10 * 60000 });
+    if (t.status !== 0) throw new Error((t.stderr || '').trim().split('\n').pop());
+    return JSON.parse(fs.readFileSync(js, 'utf8')).map(w => w.w).join(' ').replace(/\s+([,.!?])/g, '$1');
+}
+
+/* ── Banco de sons local (opcional, ~/Desktop/sons) ── */
+const SONS = process.env.ROBO_SONS || path.join(os.homedir(), 'Desktop', 'sons');
+function atualizarBancoDeSons() {
+    if (!fs.existsSync(SONS)) return;
+    const r = spawnSync(PY(), ['-I', path.join(DIR, 'catalogar_sons.py'), SONS], { encoding: 'utf8', timeout: 20 * 60000 });
+    log(r.status === 0 ? 'banco de sons: ' + (r.stdout || '').trim().split('\n')[0] : 'banco de sons não atualizado: ' + (r.stderr || '').trim().split('\n').pop());
+}
+
+/* ── entrada/ do trabalho: links físicos dos arquivos da pasta (não ocupa espaço de novo) ── */
+function espelharEntrada(pasta, entrada) {
+    fs.rmSync(entrada, { recursive: true, force: true }); fs.mkdirSync(entrada, { recursive: true });
+    const arqs = listarArquivos(pasta).filter(f => MIDIA.test(f.Path) && !DO_ROBO.test(path.basename(f.Path)) && !AJUSTE.test(path.basename(f.Path)));
+    for (const f of arqs) {
+        const dest = path.join(entrada, f.Path);
+        fs.mkdirSync(path.dirname(dest), { recursive: true });
+        try { fs.linkSync(path.join(pasta, f.Path), dest); } catch (_) { fs.copyFileSync(path.join(pasta, f.Path), dest); }
+    }
+    return arqs;
+}
+function baixarReferencias(p, entrada) {
+    const ytdlp = fs.existsSync(path.join(VENV_BIN, 'yt-dlp')) ? path.join(VENV_BIN, 'yt-dlp') : 'yt-dlp';
+    p.refs.forEach((r, i) => {
+        const dest = path.join(entrada, 'REF' + (i + 1) + '.mp4');
+        if (fs.existsSync(dest)) return;
+        const d = spawnSync(ytdlp, ['-q', '--no-playlist', '-f', 'mp4/bestvideo*+bestaudio/best', '--merge-output-format', 'mp4', '-o', dest, r.link], { encoding: 'utf8', timeout: 5 * 60000 });
+        log(p.pasta_nome + ':', fs.existsSync(dest) ? 'baixei a referência ' + (i + 1) : 'não consegui baixar a referência ' + r.link + ' (' + ((d.stderr || '').trim().split('\n').pop() || 'sem resposta').slice(0, 120) + ')');
+    });
+}
+
+/* ── Editar ── */
+const jobDe = p => path.join(TRABALHOS, p.numero + '-' + slug(p.pasta_nome));
+async function editar(pasta, estado) {
+    const p = lerPedido(pasta, estado);
+    const job = jobDe(p), entrada = path.join(job, 'entrada'), saida = path.join(job, 'saida');
+    fs.mkdirSync(job, { recursive: true });
+    if (p.tipo === 'cenas' && !estado.cenas) return criarCenas(pasta, estado, p);
+    if (p.tipo === 'cenas') return montarCenas(pasta, estado, p);
+    fs.rmSync(saida, { recursive: true, force: true }); fs.mkdirSync(saida, { recursive: true });
+    const arquivos = espelharEntrada(pasta, entrada);
+    baixarReferencias(p, entrada);
+    const { valendo } = lerRegras(), regras = valendo.filter(r => daMarca(r.cliente, p.marca)), dic = lerDicionario().filter(d => daMarca(d.cliente, p.marca));
+    fs.writeFileSync(path.join(job, 'pedido.json'), JSON.stringify({ pedido: p, referencias: p.refs, regras, dicionario: dic }, null, 2));
+    fs.writeFileSync(path.join(job, 'PEDIDO.md'), pedidoMd(p, p.refs, regras, dic, arquivos));
+    fs.copyFileSync(path.join(DIR, 'INSTRUCOES_EDICAO.md'), path.join(job, 'CLAUDE.md'));
+    atualizarBancoDeSons();
+    log(p.pasta_nome + ': tô editando (leva uns 20 a 40 min)');
+    const ok = await rodarClaude(job, p, null, pasta);
+    if (!fs.existsSync(path.join(saida, 'previa.mp4'))) throw new Error(ok ? 'O Claude terminou sem gerar o vídeo. Veja ' + path.join(job, 'claude.log') : 'A edição passou de ' + LIMITE_EDICAO_MIN + ' min, deu erro ou foi cancelada. Veja ' + path.join(job, 'claude.log'));
+    return entregar(pasta, estado, p, job);
+}
+
+/* versão sem legenda: o mesmo projeto com a legenda desligada (o montador reaproveita os trechos já feitos) */
+function montarSemLegenda(job, nomeProjeto, sufixo) {
+    const saida = path.join(job, 'saida');
+    let pj; try { pj = JSON.parse(fs.readFileSync(path.join(saida, nomeProjeto), 'utf8')); } catch (_) { return null; }
+    const temLegenda = (pj.camadas || []).some(c => c.tipo === 'legenda') && !(pj.legenda && pj.legenda.ativa === false);
+    if (!temLegenda) return null;
+    pj.legenda = Object.assign({}, pj.legenda || {}, { ativa: false });
+    fs.writeFileSync(path.join(saida, 'projeto_' + sufixo + '.json'), JSON.stringify(pj));
+    const r = spawnSync(PY(), ['-I', path.join(DIR, 'montar.py'), job, '--projeto', 'saida/projeto_' + sufixo + '.json'], { encoding: 'utf8', timeout: 60 * 60000 });
+    const arq = path.join(saida, 'previa_' + sufixo + '.mp4');
+    if (r.status !== 0 || !fs.existsSync(arq)) { log('versão sem legenda não saiu:', ((r.stderr || r.stdout || '').trim().split('\n').pop() || '').slice(0, 200)); return null; }
+    return arq;
+}
+
+function entregar(pasta, estado, p, job) {
+    const saida = path.join(job, 'saida');
+    const versao = (estado.versao || 0) + 1;
+    const nome = p.pasta_nome, v = ' v' + versao;
+    const temLegenda = !!p.legenda_modelo;
+    fs.copyFileSync(path.join(saida, 'previa.mp4'), path.join(pasta, nome + (temLegenda ? ' - com legenda' : ' - sem legenda') + v + '.mp4'));
+    if (temLegenda) {
+        log(nome + ': montando a versão sem legenda');
+        const sem = montarSemLegenda(job, 'projeto.json', 'semleg');
+        if (sem) fs.copyFileSync(sem, path.join(pasta, nome + ' - sem legenda' + v + '.mp4'));
+    }
+    if (fs.existsSync(path.join(saida, 'previa_b.mp4'))) fs.copyFileSync(path.join(saida, 'previa_b.mp4'), path.join(pasta, nome + ' - opção B' + v + '.mp4'));
+    for (const n of fs.readdirSync(saida).filter(n => /^rec.*\.mp4$/i.test(n))) fs.copyFileSync(path.join(saida, n), path.join(pasta, 'REC ' + n));
+    let resumo = ''; try { resumo = fs.readFileSync(path.join(saida, 'resumo.md'), 'utf8').trim(); } catch (_) {}
+    fs.writeFileSync(path.join(pasta, 'O que eu fiz' + v + '.txt'), (resumo || 'Versão ' + versao + ' pronta.') + '\n');
+    if (fs.existsSync(path.join(saida, 'projeto.json'))) fs.copyFileSync(path.join(saida, 'projeto.json'), path.join(job, 'projeto_v' + versao + '.json'));
+    proporRegras(p, job, estado.sempre ? 'do que você marcou com "sempre:"' : undefined, !!estado.sempre);
+    Object.assign(estado, { versao, status: 'pronto', entregue_em: Date.now(), sempre: false, job });
+    return (resumo.split('\n').find(l => l.trim()) || 'pronto').replace(/^#+\s*/, '').slice(0, 200);
+}
+
+/* ── Ajustes (v2, v3…): ajustes.txt ou áudio dentro da pasta pronta ── */
+function ajustesNovos(pasta, estado) {
+    return fs.readdirSync(pasta).filter(n => AJUSTE.test(n)).map(n => ({ n, mtime: fs.statSync(path.join(pasta, n)).mtimeMs }))
+        .filter(a => a.mtime > (estado.ajustes_vistos || {})[a.n] || !(estado.ajustes_vistos || {})[a.n]);
+}
+async function aplicarAjustes(pasta, estado, novos) {
+    const p = lerPedido(pasta, estado);
+    const job = estado.job && fs.existsSync(estado.job) ? estado.job : jobDe(p);
+    if (!fs.existsSync(path.join(job, 'saida'))) throw new Error('Não achei o trabalho da versão anterior neste Mac (' + job + ')');
+    const textos = [];
+    for (const a of novos) {
+        const arq = path.join(pasta, a.n);
+        if (/\.(txt|md)$/i.test(a.n)) textos.push(fs.readFileSync(arq, 'utf8').trim());
+        else { try { textos.push('(áudio) ' + transcreverAudio(arq, path.join(job, 'falas'))); } catch (e) { textos.push('(não consegui ouvir o áudio ' + a.n + ': ' + e.message + ')'); } }
+    }
+    const linhas = textos.join('\n').split('\n').map(l => l.trim()).filter(Boolean);
+    estado.sempre = linhas.some(l => /^sempre\s*:/i.test(l));
+    const L = ['# Ajustes da Lara para a versão ' + ((estado.versao || 1) + 1), '',
+        'Aplique SÓ estes ajustes em cima da versão anterior (saida/projeto.json e a pasta work/), reaproveitando o que já foi feito.',
+        'Tempos (ex.: 0:12) são da versão anterior. Depois de aplicar, gere de novo saida/previa.mp4, saida/projeto.json e saida/resumo.md.', '',
+        '## ⚠️ O que ela pediu (OBRIGATÓRIO: cumpra cada item e diga no resumo como cumpriu)',
+        ...linhas.map((l, k) => (k + 1) + '. ' + l.replace(/^sempre\s*:\s*/i, '') + (/^sempre\s*:/i.test(l) ? '  [vale para todos os próximos vídeos]' : '')), '',
+        '## Aprender com os ajustes',
+        'Escreva também `saida/regras_propostas.json`: uma lista de regras GERAIS do estilo da Lara que esses ajustes revelam',
+        '(o que vale para os próximos vídeos, não a correção pontual). Formato: [{"texto": "...", "motivo": "...", "categoria": "corte|zoom|som|musica|legenda|animacao|cor|ritmo|outro", "so_desta_marca": false}].',
+        'Se um ajuste for só um erro deste vídeo (nome errado, palavra trocada), não vire regra. Lista vazia é melhor que regra inventada.'];
+    fs.writeFileSync(path.join(job, 'AJUSTES.md'), L.join('\n') + '\n');
+    fs.appendFileSync(path.join(job, 'ajustes_historico.json'), JSON.stringify({ quando: new Date().toISOString(), ajustes: linhas }) + '\n');
+    espelharEntrada(pasta, path.join(job, 'entrada'));   // b-roll novo que ela jogou na pasta também entra
+    for (const n of ['previa.mp4', 'base.mp4', 'previa_b.mp4', 'base_b.mp4', 'projeto_b.json', 'previa_semleg.mp4']) fs.rmSync(path.join(job, 'saida', n), { force: true });
+    fs.copyFileSync(path.join(DIR, 'INSTRUCOES_EDICAO.md'), path.join(job, 'CLAUDE.md'));
+    atualizarBancoDeSons();
+    log(p.pasta_nome + ': aplicando ' + linhas.length + ' ajuste(s)');
+    const ok = await rodarClaude(job, p, 'Leia CLAUDE.md, PEDIDO.md e AJUSTES.md. Aplique só os ajustes da Lara na versão anterior, sem refazer o resto, ' +
+        'e gere de novo saida/previa.mp4, saida/projeto.json, saida/resumo.md e saida/regras_propostas.json. Não pergunte nada.', pasta);
+    if (!fs.existsSync(path.join(job, 'saida', 'previa.mp4'))) throw new Error(ok ? 'O Claude terminou sem gerar a nova versão. Veja ' + path.join(job, 'claude.log') : 'A nova versão passou do tempo, deu erro ou foi cancelada. Veja ' + path.join(job, 'claude.log'));
+    estado.ajustes_vistos = Object.assign({}, estado.ajustes_vistos, Object.fromEntries(novos.map(a => [a.n, a.mtime])));
+    return entregar(pasta, estado, p, job);
+}
+
+/* ── Locução + cenas (pedido.txt com "tipo: cenas"): o Claude escreve locução e prompts, você gera as cenas,
+   joga na pasta como cena01.mp4, cena02.mp4… (e o seu áudio, se a voz for sua) e o robô monta ── */
+const ARQ_CENA = /^(?:cena|block|scene)[\s_-]*0*(\d+)\.(mp4|mov|m4v|webm)$/i;
+async function criarCenas(pasta, estado, p) {
     const job = jobDe(p), saida = path.join(job, 'saida'), voz = path.join(job, 'voz');
     fs.rmSync(saida, { recursive: true, force: true }); fs.mkdirSync(saida, { recursive: true }); fs.mkdirSync(voz, { recursive: true });
-    const [refs, regras] = await Promise.all([
-        db('edicao_referencias?pedido_id=eq.' + p.id + '&select=tipo,link,nota&order=created_at'),
-        db('edicao_regras?status=eq.aprovada&select=texto,motivo,categoria,cliente&order=categoria'),
-    ]);
-    const daMarca = c => !c || String(c).trim().toLowerCase() === String(p.marca || '').trim().toLowerCase();
-    fs.writeFileSync(path.join(job, 'PEDIDO.md'), pedidoMd(p, refs, regras.filter(r => daMarca(r.cliente)), [], []));
+    const regras = lerRegras().valendo.filter(r => daMarca(r.cliente, p.marca));
+    fs.writeFileSync(path.join(job, 'PEDIDO.md'), pedidoMd(p, p.refs, regras, [], []));
     fs.copyFileSync(path.join(DIR, 'INSTRUCOES_CENAS.md'), path.join(job, 'CLAUDE.md'));
-
-    await mudar(p, { status: 'editando', status_msg: 'Escrevendo a locução e os prompts das cenas' });
+    log(p.pasta_nome + ': escrevendo a locução e os prompts das cenas');
     const ok = await rodarClaude(job, p, 'Leia CLAUDE.md e PEDIDO.md e prepare este pedido de locução + cenas sozinho, sem perguntar nada. ' +
-        'No fim precisa existir saida/cenas.json no formato do CLAUDE.md.');
+        'No fim precisa existir saida/cenas.json no formato do CLAUDE.md.', pasta);
     let c; try { c = JSON.parse(fs.readFileSync(path.join(saida, 'cenas.json'), 'utf8')); } catch (_) {}
     if (!c || !Array.isArray(c.cenas) || !c.cenas.length) throw new Error(ok ? 'O Claude terminou sem gerar saida/cenas.json' : 'O Claude parou ou passou do tempo. Veja ' + path.join(job, 'claude.log'));
-
     const propria = !p.voz || p.voz === 'minha';
     c.voz_propria = propria;
-    if (!propria) await mudar(p, { status_msg: 'Gravando a narração (' + c.cenas.length + ' cenas)' });
     const edgeTts = fs.existsSync(path.join(VENV_BIN, 'edge-tts')) ? path.join(VENV_BIN, 'edge-tts') : 'edge-tts';
     for (const x of c.cenas) {
         x.arquivo = 'cena' + pasta2(x.n) + '.mp4';
         if (propria) continue;
         const mp3 = path.join(voz, 'cena' + pasta2(x.n) + '.mp3');
-        const r = spawnSync(edgeTts, ['--voice', p.voz || 'pt-BR-FranciscaNeural', '--text', x.texto, '--write-media', mp3], { encoding: 'utf8' });
+        const r = spawnSync(edgeTts, ['--voice', p.voz, '--text', x.texto, '--write-media', mp3], { encoding: 'utf8' });
         if (r.status !== 0 || !fs.existsSync(mp3)) throw new Error('Não consegui gerar a voz da cena ' + x.n + ': ' + ((r.stderr || r.error && r.error.message || '').trim().split('\n').pop()));
         x.voz_s = Math.round(duracao(mp3) * 100) / 100;
-        subir(p.drive_pasta_id, mp3, 'LOCUCAO - cena' + pasta2(x.n) + '.mp3');
+        fs.copyFileSync(mp3, path.join(pasta, p.pasta_nome + ' - locução cena' + pasta2(x.n) + '.mp3'));
     }
-    const longas = c.cenas.filter(x => x.voz_s > 12).map(x => x.n);
-    c.recebidas = [];
-    c.instrucoes = c.instrucoes || 'Gere a imagem-chave uma vez. Depois gere cada cena de 10 s no Dreamina (Seedance) anexando a imagem-chave e salve na pasta do pedido como cena01.mp4, cena02.mp4…';
-    await db('edicao_pedidos?id=eq.' + p.id, { metodo: 'PATCH', corpo: { cenas: c, updated_at: new Date().toISOString() } });
-    p.cenas = c;
-    await mudar(p, { status: 'aguardando_cenas', status_msg: (propria ? 'Texto e prompts prontos. Grave o texto, gere as ' + c.cenas.length + ' cenas e jogue o áudio e as cenas na pasta' : 'Prompts prontos. Gere as ' + c.cenas.length + ' cenas e jogue na pasta como cena01.mp4…') +
-        (longas.length ? ' (atenção: a fala da cena ' + longas.join(', ') + ' passou de 12 s)' : '') });
+    const instr = c.instrucoes || 'Gere a imagem-chave uma vez. Depois gere cada cena de 10 s anexando a imagem-chave e salve nesta pasta como cena01.mp4, cena02.mp4…';
+    fs.writeFileSync(path.join(pasta, 'PROMPTS DAS CENAS.txt'), instr + '\n\n' + c.cenas.map(x => 'CENA ' + pasta2(x.n) + (x.voz_s ? ' (' + x.voz_s + ' s de fala)' : '') +
+        '\nFala: ' + (x.texto || '') + '\nPrompt: ' + (x.prompt || x.prompt_video || JSON.stringify(x)) + '\n').join('\n') +
+        (propria ? '\nDepois grave você mesma o texto de todas as falas num áudio só e jogue nesta pasta junto com as cenas.\n' : ''));
+    Object.assign(estado, { cenas: c, status: 'aguardando_cenas', job });
+    return 'prompts prontos: gere as ' + c.cenas.length + ' cenas e jogue na pasta (veja PROMPTS DAS CENAS.txt)';
 }
-
-async function olharCenas(p) {
-    const c = p.cenas || {}; const total = (c.cenas || []).length; if (!total || !p.drive_pasta_id) return;
-    const todos = listar(p.drive_pasta_id);
-    const arqs = todos.filter(f => ARQ_CENA.test(path.basename(f.Path)));
-    // a locução da Lara pode vir como áudio (gravador, WhatsApp) ou como vídeo gravado (um bruto qualquer que não seja cenaNN)
-    const recente = l => l.sort((a, b) => String(b.ModTime).localeCompare(String(a.ModTime)))[0];
-    const livre = f => !/^LOCUCAO/i.test(path.basename(f.Path)) && !DO_ROBO.test(path.basename(f.Path)) && !ARQ_CENA.test(path.basename(f.Path));
-    const audio = c.voz_propria ? (recente(todos.filter(f => AUDIO.test(f.Path) && livre(f))) || recente(todos.filter(f => VIDEO.test(f.Path) && livre(f)))) : null;
-    const porN = new Map(); arqs.forEach(f => porN.set(Number(path.basename(f.Path).match(ARQ_CENA)[1]), f));
-    const recebidas = [...porN.keys()].filter(n => n >= 1 && n <= total).sort((a, b) => a - b);
-    const audioNome = audio ? path.basename(audio.Path) : null;
-    if (JSON.stringify(recebidas) !== JSON.stringify(c.recebidas || []) || audioNome !== (c.audio || null)) {
-        c.recebidas = recebidas; c.audio = audioNome;
-        await db('edicao_pedidos?id=eq.' + p.id, { metodo: 'PATCH', corpo: { cenas: c, updated_at: new Date().toISOString(),
-            status_msg: recebidas.length + ' de ' + total + ' cenas na pasta' + (c.voz_propria ? (audioNome ? ' · áudio recebido' : ' · falta o seu áudio') : '') } });
-    }
-    if (recebidas.length < total || (c.voz_propria && !audio)) { tamanhos.delete(p.id); return; }
-    const assinatura = recebidas.map(n => porN.get(n).Path + ':' + porN.get(n).Size).join('|') + (audio ? '|' + audio.Path + ':' + audio.Size : '');
-    if (tamanhos.get(p.id) !== assinatura) { tamanhos.set(p.id, assinatura); log('#' + p.numero, 'todas as cenas chegaram, conferindo se terminaram de subir…'); return; }
-    tamanhos.delete(p.id);
-    await montarCenas(p, recebidas.map(n => porN.get(n)), audio);
+function cenasCompletas(pasta, estado) {
+    const c = estado.cenas || {}, total = (c.cenas || []).length;
+    const todos = fs.readdirSync(pasta).filter(visivel);
+    const nums = todos.map(n => (n.match(ARQ_CENA) || [])[1]).filter(Boolean).map(Number);
+    const livre = n => !DO_ROBO.test(n) && !ARQ_CENA.test(n) && !AJUSTE.test(n);
+    const audio = c.voz_propria ? (todos.filter(n => AUDIO.test(n) && livre(n))[0] || todos.filter(n => VIDEO.test(n) && livre(n))[0]) : true;
+    return total && [...Array(total)].every((_, i) => nums.includes(i + 1)) && !!audio;
 }
-
-/* Acha na fala da Lara onde começa cada cena: transcreve com tempo por palavra e casa com o texto de cada cena */
-const norm = w => String(w).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
 function fatiarFala(palavras, cenas) {
+    const norm = w => String(w).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
     const M = palavras.length; if (!M) throw new Error('Não ouvi fala nenhuma no seu áudio');
     const qtd = cenas.map(x => String(x.texto || '').split(/\s+/).filter(Boolean).length || 1);
     const N = qtd.reduce((a, b) => a + b, 0);
-    const cortes = [];   // índice da primeira palavra de cada cena (a partir da 2ª)
-    let acum = 0;
+    const cortes = []; let acum = 0;
     for (let k = 0; k < cenas.length - 1; k++) {
         acum += qtd[k];
         let i = Math.min(M - 1, Math.max(1, Math.round(acum / N * M)));
@@ -361,7 +407,6 @@ function fatiarFala(palavras, cenas) {
         return { s: Math.max(antes, a.s - 0.12), e: Math.min(depois, b.e + 0.15), texto: palavras.slice(ini[k], fim[k] + 1).map(x => x.w).join(' ') };
     });
 }
-
 function legendaAss(palavras, modelo, W, H, saida, marca) {
     const pj = saida.replace(/\.ass$/, '.palavras.json');
     fs.writeFileSync(pj, JSON.stringify(palavras));
@@ -369,212 +414,88 @@ function legendaAss(palavras, modelo, W, H, saida, marca) {
     if (r.status !== 0) { log('legenda não gerada:', (r.stderr || '').trim().split('\n').pop()); return false; }
     return true;
 }
-function srt(palavras) {
-    const t = x => { const ms = Math.round(x * 1000); return new Date(ms).toISOString().slice(11, 19) + ',' + String(ms % 1000).padStart(3, '0'); };
-    const blocos = []; for (let i = 0; i < palavras.length; i += 6) blocos.push(palavras.slice(i, i + 6));
-    return blocos.map((b, i) => (i + 1) + '\n' + t(b[0].s) + ' --> ' + t(b[b.length - 1].e) + '\n' + b.map(w => w.w).join(' ') + '\n').join('\n');
-}
-
-async function montarCenas(p, arqs, audio) {
-    const job = jobDe(p), cenasDir = path.join(job, 'cenas'), work = path.join(job, 'work'), saida = path.join(job, 'saida');
-    for (const d of [cenasDir, work, saida]) fs.mkdirSync(d, { recursive: true });
-    await mudar(p, { status: 'baixando', status_msg: 'Baixando as ' + arqs.length + ' cenas do Drive' });
-    for (const f of arqs) rclone(['copyto', 'drive:' + f.Path, path.join(cenasDir, path.basename(f.Path)), ...naPasta(p.drive_pasta_id)]);
-
-    const cenas = (p.cenas && p.cenas.cenas) || [];
-    const vozDir = path.join(job, 'voz'); fs.mkdirSync(vozDir, { recursive: true });
+async function montarCenas(pasta, estado, p) {
+    const job = jobDe(p), work = path.join(job, 'work'), saida = path.join(job, 'saida'), vozDir = path.join(job, 'voz');
+    for (const d of [work, saida, vozDir]) fs.mkdirSync(d, { recursive: true });
+    const c = estado.cenas, cenas = c.cenas;
+    const todos = fs.readdirSync(pasta).filter(visivel);
+    const arqs = cenas.map((_, i) => todos.find(n => (n.match(ARQ_CENA) || [])[1] && Number(n.match(ARQ_CENA)[1]) === i + 1));
     let fatias = null;
-    if (audio) {
-        await mudar(p, { status: 'editando', status_msg: 'Ouvindo o seu áudio para achar o começo de cada cena' });
-        const orig = path.join(vozDir, 'minha' + path.extname(audio.Path).toLowerCase());
-        rclone(['copyto', 'drive:' + audio.Path, orig, ...naPasta(p.drive_pasta_id)]);
+    if (c.voz_propria) {
+        const livre = n => !DO_ROBO.test(n) && !ARQ_CENA.test(n) && !AJUSTE.test(n);
+        const audio = todos.filter(n => AUDIO.test(n) && livre(n))[0] || todos.filter(n => VIDEO.test(n) && livre(n))[0];
+        log(p.pasta_nome + ': ouvindo o seu áudio para achar o começo de cada cena');
         const wav = path.join(vozDir, 'minha.wav');
-        ffmpeg(['-i', orig, '-vn', '-ac', '1', '-ar', '48000', '-af', 'highpass=f=80', wav]);
-        const py = fs.existsSync(path.join(VENV_BIN, 'python')) ? path.join(VENV_BIN, 'python') : 'python3';
+        ffmpeg(['-i', path.join(pasta, audio), '-vn', '-ac', '1', '-ar', '48000', '-af', 'highpass=f=80', wav]);
         const pj = path.join(vozDir, 'palavras.json');
-        const r = spawnSync(process.env.ROBO_TRANSCREVER || py, [path.join(DIR, 'transcrever.py'), wav, pj], { encoding: 'utf8' });
+        const r = spawnSync(process.env.ROBO_TRANSCREVER || PY(), [path.join(DIR, 'transcrever.py'), wav, pj], { encoding: 'utf8' });
         if (r.status !== 0 || !fs.existsSync(pj)) throw new Error('Não consegui transcrever o seu áudio: ' + ((r.stderr || '').trim().split('\n').pop() || 'erro'));
-        fatias = fatiarFala(JSON.parse(fs.readFileSync(pj, 'utf8')), cenas.slice(0, arqs.length));
-        fatias.forEach((f, i) => ffmpeg(['-i', wav, '-ss', f.s.toFixed(3), '-to', f.e.toFixed(3), '-af', 'afade=t=in:d=0.03,areverse,afade=t=in:d=0.03,areverse',
-            path.join(vozDir, 'cena' + pasta2(i + 1) + '.wav')]));
+        fatias = fatiarFala(JSON.parse(fs.readFileSync(pj, 'utf8')), cenas);
+        fatias.forEach((f, i) => ffmpeg(['-i', wav, '-ss', f.s.toFixed(3), '-to', f.e.toFixed(3), '-af', 'afade=t=in:d=0.03,areverse,afade=t=in:d=0.03,areverse', path.join(vozDir, 'cena' + pasta2(i + 1) + '.wav')]));
     }
-    await mudar(p, { status: 'editando', status_msg: 'Montando cenas + locução' });
+    log(p.pasta_nome + ': montando cenas + locução');
     const [W, H] = TAMANHO[p.formato] || TAMANHO['9:16'];
-    const lista = [], camadas = [];
-    let t0 = 0;
-    const palavrasFinais = [];
+    const lista = [], camadas = [], palavrasFinais = [];
     const palavrasLara = fatias ? JSON.parse(fs.readFileSync(path.join(vozDir, 'palavras.json'), 'utf8')) : [];
-    arqs.forEach((f, i) => {
-        const n = i + 1, clip = path.join(cenasDir, path.basename(f.Path));
-        const mp3 = path.join(vozDir, 'cena' + pasta2(n) + (fatias ? '.wav' : '.mp3'));
-        if (!fs.existsSync(mp3)) throw new Error('Falta a locução da cena ' + n + ' (' + mp3 + ')');
-        const vd = duracao(mp3);
-        // voz gerada: blocos de 10 s; voz da Lara: a cena dura o tempo da fala dela
-        const dur = fatias ? Math.max(1.5, vd + 0.35) : 10;
-        const tempo = !fatias && vd > 9.7 ? Math.min(vd / 9.7, 1.25) : 1;
-        const atraso = fatias ? 150 : 250;
+    let t0 = 0;
+    arqs.forEach((nomeArq, i) => {
+        const n = i + 1, clip = path.join(pasta, nomeArq);
+        const voz = path.join(vozDir, 'cena' + pasta2(n) + (fatias ? '.wav' : '.mp3'));
+        if (!fs.existsSync(voz)) throw new Error('Falta a locução da cena ' + n);
+        const vd = duracao(voz), dur = fatias ? Math.max(1.5, vd + 0.35) : 10;
+        const tempo = !fatias && vd > 9.7 ? Math.min(vd / 9.7, 1.25) : 1, atraso = fatias ? 150 : 250;
         const af = (tempo > 1 ? 'atempo=' + tempo.toFixed(3) + ',' : '') + 'adelay=' + atraso + '|' + atraso + ',apad';
         const temAudio = spawnSync('ffprobe', ['-v', 'error', '-select_streams', 'a', '-show_entries', 'stream=index', '-of', 'csv=p=0', clip], { encoding: 'utf8' }).stdout.trim();
         const v = '[0:v]scale=' + W + ':' + H + ':force_original_aspect_ratio=increase,crop=' + W + ':' + H + ',fps=30,setsar=1,tpad=stop_mode=clone:stop_duration=' + Math.ceil(dur) + '[v]';
         const a = temAudio ? '[0:a]volume=0.22[amb];[1:a]' + af + '[vo];[amb][vo]amix=inputs=2:duration=longest:normalize=0[a]' : '[1:a]' + af + '[a]';
         const seg = path.join(work, 'seg' + pasta2(n) + '.mp4');
-        ffmpeg(['-i', clip, '-i', mp3, '-filter_complex', v + ';' + a, '-map', '[v]', '-map', '[a]', '-t', dur.toFixed(3),
-            '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-ar', '48000', '-ac', '2', seg]);
+        ffmpeg(['-i', clip, '-i', voz, '-filter_complex', v + ';' + a, '-map', '[v]', '-map', '[a]', '-t', dur.toFixed(3),
+            '-c:v', 'libx264', '-preset', 'medium', '-crf', '16', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-ar', '48000', '-ac', '2', seg]);
         lista.push("file '" + seg.replace(/'/g, "'\\''") + "'");
-        camadas.push({ tipo: 'corte', inicio_s: t0, fim_s: t0 + dur, origem: path.basename(f.Path) });
-        camadas.push({ tipo: 'voz', inicio_s: t0 + atraso / 1000, fim_s: t0 + Math.min(atraso / 1000 + vd / tempo, dur) });
+        camadas.push({ tipo: 'corte', inicio_s: t0, fim_s: t0 + dur, origem: nomeArq });
         if (fatias) palavrasLara.filter(w => w.s >= fatias[i].s - 0.01 && w.e <= fatias[i].e + 0.01)
             .forEach(w => palavrasFinais.push({ w: w.w, s: +(t0 + atraso / 1000 + w.s - fatias[i].s).toFixed(3), e: +(t0 + atraso / 1000 + w.e - fatias[i].s).toFixed(3) }));
-        const txt = fatias ? fatias[i].texto : cenas[i] && cenas[i].texto;
-        if (txt) camadas.push({ tipo: 'legenda', inicio_s: t0 + atraso / 1000, fim_s: t0 + dur - 0.1, texto: txt });
         t0 += dur;
     });
     fs.writeFileSync(path.join(work, 'lista.txt'), lista.join('\n') + '\n');
     const junto = path.join(work, 'junto.mp4');
     ffmpeg(['-f', 'concat', '-safe', '0', '-i', path.join(work, 'lista.txt'), '-c', 'copy', junto]);
-    // legenda do modelo escolhido (só quando temos o tempo de cada palavra, ou seja, com a voz da Lara)
     const ass = path.join(work, 'legenda.ass');
     const comLegenda = p.legenda_modelo && palavrasFinais.length && legendaAss(palavrasFinais, p.legenda_modelo, W, H, ass, p.marca);
-    ffmpeg(['-i', junto, ...(comLegenda ? ['-vf', 'ass=' + ass + ':fontsdir=' + path.join(DIR, 'fontes'), '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-pix_fmt', 'yuv420p'] : ['-c:v', 'copy']),
-        '-af', 'loudnorm=I=-14:TP=-1:LRA=11', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-movflags', '+faststart', path.join(saida, 'previa.mp4')]);
-    if (palavrasFinais.length) fs.writeFileSync(path.join(saida, 'legendas.srt'), srt(palavrasFinais));
+    const final = (arq, leg) => ffmpeg(['-i', junto, ...(leg ? ['-vf', 'ass=' + ass + ':fontsdir=' + path.join(DIR, 'fontes'), '-c:v', 'libx264', '-preset', 'medium', '-crf', '16', '-pix_fmt', 'yuv420p'] : ['-c:v', 'copy']),
+        '-af', 'loudnorm=I=-14:TP=-1:LRA=11', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-movflags', '+faststart', arq]);
+    final(path.join(saida, 'previa.mp4'), comLegenda);
+    if (comLegenda) final(path.join(saida, 'previa_semleg.mp4'), false);
     fs.writeFileSync(path.join(saida, 'projeto.json'), JSON.stringify({ duracao_s: Math.round(t0 * 100) / 100, formato: p.formato, camadas }));
     fs.writeFileSync(path.join(saida, 'resumo.md'), 'Vídeo montado: ' + arqs.length + ' cenas + ' + (fatias ? 'a sua locução' : 'locução gerada (' + p.voz + ')') + ', ' + Math.round(t0) + ' s.\n');
-    await entregar(p, job, ['roteiro', 'estilo', 'prompts', 'locucao', 'cenas', 'montagem']);
-}
-
-/* V2: a Lara ajustou na linha do tempo do admin (tirar, trocar texto, comentários no segundo exato) */
-function ajustesMd(p) {
-    const cam = (p.projeto && p.projeto.camadas) || [];
-    const L = ['# Ajustes da Lara para a próxima versão', '',
-        'Aplique SÓ estes ajustes em cima da versão anterior (saida/projeto.json e a pasta work/), reaproveitando o que já foi feito.',
-        'Tempos são da versão anterior. Depois de aplicar, gere de novo saida/previa.mp4, saida/projeto.json e saida/resumo.md.', ''];
-    (p.ajustes || []).forEach((a, k) => {
-        const c = a.camada || cam[a.i] || {};
-        const onde = (x => Math.floor(x / 60) + ':' + String(Math.round(x % 60)).padStart(2, '0'));
-        if (a.tipo === 'remover') L.push((k + 1) + '. TIRAR ' + c.tipo + ' de ' + onde(c.inicio_s) + ' a ' + onde(c.fim_s) + (c.texto ? ' ("' + c.texto + '")' : '') + (c.tipo === 'corte' ? ' (tire este trecho do vídeo e emende sem engolir sílaba)' : ''));
-        else if (a.tipo === 'texto') L.push((k + 1) + '. TROCAR o texto do ' + c.tipo + ' em ' + onde(c.inicio_s) + ': "' + a.de + '" vira "' + a.para + '"');
-        else if (a.tipo === 'feedback') L.push((k + 1) + '. O QUE ELA FALOU' + (a.tempo_s ? ' (vendo o vídeo em ' + onde(a.tempo_s) + ')' : '') + ': ' +
-            [a.texto, a.transcricao].filter(Boolean).join(' / ') + (a.sempre ? ' [vale para todos os próximos vídeos]' : ''));
-        else L.push((k + 1) + '. COMENTÁRIO em ' + onde(a.tempo_s) + ' [' + a.categoria + ']: ' + a.texto);
-    });
-    L.push('', '## Aprender com os ajustes',
-        'Escreva também `saida/regras_propostas.json`: uma lista de regras GERAIS do estilo da Lara que esses ajustes revelam',
-        '(o que vale para os próximos vídeos, não a correção pontual). Formato: [{"texto": "...", "motivo": "...", "categoria": "corte|zoom|som|musica|legenda|animacao|cor|ritmo|outro", "so_desta_marca": false}].',
-        'Se um ajuste for só um erro deste vídeo (nome errado, palavra trocada), não vire regra. Lista vazia é melhor que regra inventada.');
-    return L.join('\n') + '\n';
-}
-
-async function aplicarAjustes(p) {
-    const job = jobDe(p);
-    if (!fs.existsSync(job)) throw new Error('Não achei a pasta da versão anterior neste Mac (' + job + ')');
-    await lerFalas(p, job);
-    fs.writeFileSync(path.join(job, 'AJUSTES.md'), ajustesMd(p));
-    if (p.projeto && p.projeto.editado_em) {   // ela também mexeu à mão no admin: a V2 parte da versão dela
-        const proj = Object.assign({}, p.projeto); ['etapas', 'base_path', 'mudancas', 'editado_em'].forEach(k => delete proj[k]);
-        fs.mkdirSync(path.join(job, 'saida'), { recursive: true });
-        fs.writeFileSync(path.join(job, 'saida', 'projeto.json'), JSON.stringify(proj, null, 1));
-    }
-    for (const n of ['base.mp4', 'previa_b.mp4', 'base_b.mp4', 'projeto_b.json']) fs.rmSync(path.join(job, 'saida', n), { force: true });
-    fs.appendFileSync(path.join(job, 'ajustes_historico.json'), JSON.stringify({ quando: new Date().toISOString(), ajustes: p.ajustes }) + '\n');
-    // a V2 é sempre uma edição em cima do que já existe (também no modo cenas), então valem as instruções de edição
-    fs.copyFileSync(path.join(DIR, 'INSTRUCOES_EDICAO.md'), path.join(job, 'CLAUDE.md'));
-    atualizarBancoDeSons();
-    await mudar(p, { status: 'editando', status_msg: 'Aplicando ' + (p.ajustes || []).length + ' ajuste(s) da Lara' });
-    const previa = path.join(job, 'saida', 'previa.mp4');
-    fs.rmSync(previa, { force: true });
-    const ok = await rodarClaude(job, p, 'Leia CLAUDE.md, PEDIDO.md e AJUSTES.md. Aplique só os ajustes da Lara na versão anterior, sem refazer o resto, ' +
-        'e gere de novo saida/previa.mp4, saida/projeto.json, saida/resumo.md e saida/regras_propostas.json. Não pergunte nada.');
-    if (!fs.existsSync(previa)) throw new Error(ok ? 'O Claude terminou sem gerar a nova prévia. Veja ' + path.join(job, 'claude.log') : 'A nova versão passou do tempo ou deu erro. Veja ' + path.join(job, 'claude.log'));
-    await entregar(p, job, p.tipo === 'cenas' ? ['roteiro', 'estilo', 'prompts', 'locucao', 'cenas', 'montagem'] : ['transcricao', 'tomadas', 'cortes', 'legendas', 'zoom', 'som', 'render']);
-}
-
-/* Reedição feita no admin (tirou trecho, moveu título, trocou legenda...): o robô só remonta o projeto com o
-   montar.py, sem o Claude, e depois aprende com as mudanças dela */
-const ETAPAS_EDICAO = ['transcricao', 'tomadas', 'cortes', 'legendas', 'zoom', 'som', 'render'];
-function montarProjeto(job, extra = []) {
-    const py = fs.existsSync(path.join(VENV_BIN, 'python')) ? path.join(VENV_BIN, 'python') : 'python3';
-    return new Promise(resolve => {
-        const c = spawn(py, ['-I', path.join(DIR, 'montar.py'), job, ...extra], { stdio: ['ignore', 'pipe', 'pipe'] });
-        let ultima = '';
-        const ler = b => { const l = b.toString().trim().split('\n').pop(); if (l) { ultima = l; log(path.basename(job), l); } };
-        c.stdout.on('data', ler); c.stderr.on('data', ler);
-        c.on('error', e => resolve(e.message));
-        c.on('exit', () => resolve(ultima));
-    });
-}
-async function remontar(p) {
-    const job = jobDe(p), saida = path.join(job, 'saida'), entrada = path.join(job, 'entrada');
-    const pj = p.projeto;
-    if (!pj || !Array.isArray(pj.camadas) || !pj.camadas.some(c => c.tipo === 'corte')) throw new Error('Este pedido não tem projeto para remontar');
-    fs.mkdirSync(saida, { recursive: true });
-    if (!fs.existsSync(entrada)) {   // outro Mac ou pasta apagada: baixa o bruto de novo
-        await mudar(p, { status: 'baixando', status_msg: 'Remontando: baixando o bruto do Drive de novo' });
-        rclone(['sync', 'drive:', entrada, ...naPasta(p.drive_pasta_id), '--exclude', '{PREVIA,PRÉVIA,FINAL,REC,LOCUCAO}*', '--max-depth', '3']);
-    }
-    const mudancas = Array.isArray(pj.mudancas) ? pj.mudancas : [];
-    await mudar(p, { status: 'renderizando', status_msg: 'Remontando com as suas ' + mudancas.length + ' mudança(s)' });
-    const proj = Object.assign({}, pj); ['etapas', 'base_path', 'mudancas', 'editado_em'].forEach(k => delete proj[k]);
-    fs.writeFileSync(path.join(saida, 'projeto.json'), JSON.stringify(proj, null, 1));
-    for (const n of ['previa.mp4', 'base.mp4', 'previa_b.mp4', 'base_b.mp4', 'projeto_b.json']) fs.rmSync(path.join(saida, n), { force: true });
-    const fim = await montarProjeto(job);
-    if (!fs.existsSync(path.join(saida, 'previa.mp4'))) throw new Error('O montador parou: ' + fim);
-    fs.writeFileSync(path.join(saida, 'resumo.md'), 'Nova versão com as suas ' + mudancas.length + ' mudança(s)\n');
-    await entregar(p, job, ETAPAS_EDICAO);
-    if (mudancas.length) aprenderComReedicao(p, job, mudancas).catch(e => log('#' + p.numero, 'aprender com a reedição:', e.message));
-}
-// roda depois da entrega, sem segurar a fila: o Claude lê o que ela mudou e propõe regras do estilo
-async function aprenderComReedicao(p, job, mudancas) {
-    fs.writeFileSync(path.join(job, 'MUDANCAS.md'), '# O que a Lara mudou à mão na edição do robô (pedido #' + p.numero + ', ' + (p.marca || '') + ')\n\n' +
-        mudancas.map(m => '- ' + m).join('\n') + '\n\nO projeto como ela deixou está em saida/projeto.json (camadas com tempos no vídeo final).\n');
-    log('#' + p.numero, 'aprendendo com as ' + mudancas.length + ' mudança(s) da Lara');
-    await rodarClaude(job, { numero: p.numero }, 'Leia MUDANCAS.md e saida/projeto.json. NÃO edite, NÃO monte e NÃO renderize nada: a nova versão já foi entregue. ' +
-        'Só escreva saida/regras_propostas.json com as regras GERAIS do estilo da Lara que essas mudanças revelam (o que vale para os próximos vídeos), ' +
-        'no formato [{"texto": "...", "motivo": "...", "categoria": "corte|zoom|som|musica|legenda|animacao|cor|ritmo|outro", "so_desta_marca": false}]. ' +
-        'Use números quando der (ex.: "título no terço de cima, y ~ 0,25"). Correção pontual (nome errado, uma palavra) não vira regra. Lista vazia é melhor que regra inventada.');
-    await proporRegras(p, job, 'Das suas reedições no pedido #' + p.numero);
-}
-
-/* O que a Lara corrigiu vira regra PROPOSTA em "Regras do estilo"; ela aprova ou descarta no admin */
-async function proporRegras(p, job, origem, status = 'proposta') {
-    const arq = path.join(job, 'saida', 'regras_propostas.json');
-    let regras; try { regras = JSON.parse(fs.readFileSync(arq, 'utf8')); } catch (_) { return; }
-    fs.renameSync(arq, arq.replace(/\.json$/, '_' + Date.now() + '.json'));
-    const CATS = ['corte', 'zoom', 'som', 'musica', 'legenda', 'animacao', 'cor', 'ritmo', 'outro'];
-    const linhas = (Array.isArray(regras) ? regras : []).filter(r => r && String(r.texto || '').trim()).slice(0, 8).map(r => ({
-        texto: String(r.texto).trim().slice(0, 400), motivo: ((origem || 'Dos seus ajustes no pedido #' + p.numero) + (r.motivo ? ': ' + r.motivo : '')).slice(0, 400),
-        categoria: CATS.includes(r.categoria) ? r.categoria : 'outro', cliente: r.so_desta_marca ? (p.marca || null) : null, status }));
-    if (linhas.length) await db('edicao_regras', { metodo: 'POST', corpo: linhas }).then(() => log('#' + p.numero, linhas.length + (status === 'aprovada' ? ' regra(s) nova(s) já valendo (você marcou "vale para sempre")' : ' regra(s) proposta(s) para a Lara aprovar'))).catch(e => log('regras não salvas:', e.message));
+    const versao = (estado.versao || 0) + 1, v = ' v' + versao;
+    fs.copyFileSync(path.join(saida, 'previa.mp4'), path.join(pasta, p.pasta_nome + (comLegenda ? ' - com legenda' : ' - sem legenda') + v + '.mp4'));
+    if (comLegenda) fs.copyFileSync(path.join(saida, 'previa_semleg.mp4'), path.join(pasta, p.pasta_nome + ' - sem legenda' + v + '.mp4'));
+    fs.writeFileSync(path.join(pasta, 'O que eu fiz' + v + '.txt'), fs.readFileSync(path.join(saida, 'resumo.md'), 'utf8'));
+    Object.assign(estado, { versao, status: 'pronto', entregue_em: Date.now(), job });
+    return 'cenas montadas';
 }
 
 function pedidoMd(p, refs, regras, dic, arquivos) {
-    const L = [];
-    L.push('# Pedido #' + p.numero + ': ' + p.pasta_nome, '');
-    // as observações vêm primeiro e com peso de ordem: ela reclamou que o robô ignorou o que escreveu
-    L.push(...falasMd(p));
+    const L = ['# Pedido #' + p.numero + ': ' + p.pasta_nome, ''];
     if (p.observacoes) L.push('## ⚠️ Observações da Lara (OBRIGATÓRIO: cumpra cada item e diga no resumo como cumpriu)', p.observacoes, '');
     L.push('- Marca: ' + (p.marca || p.pasta_nome));
     L.push('- Formato: ' + p.formato + (p.duracao_alvo_s ? ' · duração desejada: ' + p.duracao_alvo_s + ' s' : ''));
-    if (p.tipo === 'cenas') L.push('- Tipo: locução + cenas animadas · ' + Math.max(1, Math.round((p.duracao_alvo_s || 60) / 10)) + ' cenas de 10 s · visual: ' + (p.estilo_visual || 'marca') + ' · voz: ' + (p.voz || 'pt-BR-FranciscaNeural'));
+    if (p.tipo === 'cenas') L.push('- Tipo: locução + cenas animadas · ' + Math.max(1, Math.round((p.duracao_alvo_s || 60) / 10)) + ' cenas de 10 s · visual: ' + (p.estilo_visual || 'marca') + ' · voz: ' + (p.voz || 'minha'));
     if (p.tipo !== 'cenas') L.push('- Áudio: ' + ({ narrado: 'NARRADO: as cenas não têm fala; a locução da Lara é um áudio separado na pasta (veja "Vídeo narrado" no CLAUDE.md)',
         musica: 'SEM FALA, só música (vlog/b-roll): veja "Vídeo sem fala" no CLAUDE.md',
         misto: 'FALANDO + NARRADO: partes dela falando para a câmera e partes narradas por cima de cenas (veja "Falando + narrado" no CLAUDE.md)' }[p.audio_tipo] || 'a Lara falando no vídeo (edição normal pela fala)'));
     if (p.duas_opcoes && p.tipo !== 'cenas') L.push('- Duas opções: SIM, entregue a A e a B (veja "Duas opções" no CLAUDE.md)');
     L.push('- Títulos animados: ' + (p.titulos_modelos ? 'use estes modelos: ' + p.titulos_modelos.split(',').map(s => '`' + s.trim() + '`').join(', ') + ' (veja "Títulos" no CLAUDE.md)' : 'escolha entre os modelos da biblioteca (veja "Títulos" no CLAUDE.md)'));
-    L.push('- Legenda: ' + (p.legenda_modelo ? 'modelo `' + p.legenda_modelo + '` (veja "Legenda" no CLAUDE.md)' : 'SEM legenda (a Lara escolheu não legendar)'));
+    L.push('- Legenda: ' + (p.legenda_modelo ? 'modelo `' + p.legenda_modelo + '` (veja "Legenda" no CLAUDE.md). O robô gera sozinho a versão sem legenda depois.' : 'SEM legenda (a Lara escolheu não legendar)'));
     if (p.marca_site) L.push('- Site da marca: ' + p.marca_site);
-    if (p.marca_redes) L.push('- Redes da marca: ' + p.marca_redes.split('\n').map(s => s.trim()).filter(Boolean).join(' · '));
-    if (arquivos.length) {
-        // o Drive aceita vários arquivos com o mesmo nome; na pasta entrada/ só fica um de cada
-        const unicos = new Map();
-        arquivos.forEach(f => { const u = unicos.get(f.Path); unicos.set(f.Path, { f, n: u ? u.n + 1 : 1 }); });
-        L.push('', '## Arquivos (pasta entrada/)', ...[...unicos.values()].map(({ f, n }) => '- ' + f.Path + ' (' + (f.Size / 1048576).toFixed(1) + ' MB)' + (n > 1 ? ' · repetido ' + n + 'x no Drive, só 1 cópia baixada' : '')));
-    }
+    if (p.marca_redes) L.push('- Redes da marca: ' + p.marca_redes);
+    if (arquivos.length) L.push('', '## Arquivos (pasta entrada/)', ...arquivos.map(f => '- ' + f.Path + ' (' + (f.Size / 1048576).toFixed(1) + ' MB)'));
     L.push('', p.tipo === 'cenas' ? '## Texto da locução ou ideia' : '## Roteiro', p.roteiro || (p.tipo === 'cenas' ? '(sem texto: use as observações)' : '(sem roteiro: siga a fala do bruto)'));
     if (p.rec_gravar) L.push('', '## Gravação de tela do site (pedida)', 'Site: ' + (p.marca_site || '(não informado)'), p.rec_passos || '(sem passo a passo: mostre a página principal e o que o roteiro cita)');
     L.push('', '## Referências');
     if (!refs.length) L.push('(nenhuma: siga as regras do estilo)');
-    refs.forEach(r => L.push('- [' + r.tipo + '] ' + r.link + (r.nota ? ' · copiar: ' + r.nota : '')));
+    refs.forEach((r, i) => L.push('- REF' + (i + 1) + ': ' + r.link + (r.nota ? ' · copiar: ' + r.nota : '') + ' (se baixou, está em entrada/REF' + (i + 1) + '.mp4)'));
     L.push('', '## Regras do estilo aprovadas (obrigatórias)');
     regras.forEach(r => L.push('- [' + r.categoria + '] ' + r.texto + (r.cliente ? ' (só ' + r.cliente + ')' : '')));
     L.push('', '## Dicionário de correções (legenda)');
@@ -582,7 +503,7 @@ function pedidoMd(p, refs, regras, dic, arquivos) {
     return L.join('\n') + '\n';
 }
 
-/* Mostra o que o Claude está fazendo: na janela do robô e no admin (status_msg, no máximo a cada 15 s) */
+/* ── Claude Code ── */
 function passoDoEvento(ev) {
     if (ev.type !== 'assistant' || !ev.message || !Array.isArray(ev.message.content)) return [];
     return ev.message.content.map(c => {
@@ -597,220 +518,157 @@ function passoDoEvento(ev) {
         return '';
     }).map(t => t.replace(/^#+\s*/, '').slice(0, 160)).filter(Boolean);
 }
-
 const MCP_VAZIO = path.join(DIR, 'mcp-vazio.json');
 const MCP_EPIDEMIC = path.join(DIR, 'mcp-epidemic.json');
-const EPIDEMIC_CHAVE = path.join(DIR, 'epidemic.json');      // só a chave, permissão 600, nunca vai pro GitHub nem pro log
+const EPIDEMIC_CHAVE = path.join(DIR, 'epidemic.json');      // só a chave, permissão 600, nunca vai pro log
 function chaveEpidemic() {
     if (process.env.EPIDEMIC_SOUND_MCP_API_KEY) return process.env.EPIDEMIC_SOUND_MCP_API_KEY.trim();
     try { return String(JSON.parse(fs.readFileSync(EPIDEMIC_CHAVE, 'utf8')).chave || '').trim(); } catch (_) { return ''; }
 }
-/* Único MCP liberado para o robô: o Epidemic Sound (música e efeitos com a licença Pro da Lara).
-   A configuração fica na pasta do robô (fora da pasta do pedido), só com permissão de leitura para o dono. */
+/* Único MCP liberado para o robô: o Epidemic Sound (música e efeitos com a licença Pro da Lara) */
 function configMcp() {
     fs.writeFileSync(MCP_VAZIO, '{"mcpServers":{}}');
     const chave = chaveEpidemic();
-    if (!chave) return { arquivo: MCP_VAZIO, env: {} };
+    if (!chave) return MCP_VAZIO;
     fs.writeFileSync(MCP_EPIDEMIC, JSON.stringify({ mcpServers: { 'epidemic-sound': {
-        type: 'http', url: 'https://www.epidemicsound.com/a/mcp-service/mcp',
-        headers: { Authorization: 'Bearer ' + chave } } } }, null, 1), { mode: 0o600 });
+        type: 'http', url: 'https://www.epidemicsound.com/a/mcp-service/mcp', headers: { Authorization: 'Bearer ' + chave } } } }, null, 1), { mode: 0o600 });
     fs.chmodSync(MCP_EPIDEMIC, 0o600);
-    return { arquivo: MCP_EPIDEMIC, env: {} };
+    return MCP_EPIDEMIC;
 }
-function rodarClaude(job, p, pedidoTexto) {
-    const mcp = configMcp();
+function rodarClaude(job, p, pedidoTexto, pastaVigiada) {
     const prompt = (pedidoTexto || 'Leia CLAUDE.md e PEDIDO.md e faça a edição completa deste pedido sozinho, sem perguntar nada. ' +
         'No fim precisa existir saida/previa.mp4, saida/projeto.json e saida/resumo.md' +
         (p.duas_opcoes ? ', e também a opção B (saida/projeto_b.json montado em saida/previa_b.mp4), como explica "Duas opções" no CLAUDE.md.' : '. Faça só uma opção (a A): a Lara não pediu duas.')) +
-        ' Antes de cada etapa, escreva uma frase curta em português, em primeira pessoa (você é o Estagiário de edição dela), dizendo o que vai fazer (a Lara acompanha ao vivo).';
+        ' Antes de cada etapa, escreva uma frase curta em português, em primeira pessoa (você é o Estagiário de edição dela), dizendo o que vai fazer.';
     return new Promise(resolve => {
         const logArq = path.join(job, 'claude.log');
-        // Só as ferramentas básicas + Epidemic Sound: nenhum outro MCP/conector da Lara (Gmail, Metricool, Higgsfield...) roda sem ela ver
+        // Só as ferramentas básicas + Epidemic Sound: nenhum outro MCP/conector da Lara roda sem ela ver
         const c = spawn(CLAUDE, ['-p', prompt, '--permission-mode', 'bypassPermissions', '--output-format', 'stream-json', '--verbose',
-            '--strict-mcp-config', '--mcp-config', mcp.arquivo],
-            { cwd: job, stdio: ['ignore', 'pipe', 'pipe'], detached: true, env: Object.assign({}, process.env, { ENABLE_CLAUDEAI_MCP_SERVERS: 'false' }, mcp.env) });
-        // detached: o Claude e tudo que ele abriu (python, ffmpeg, recorte...) ficam num grupo que dá para parar de uma vez
+            '--strict-mcp-config', '--mcp-config', configMcp()],
+            { cwd: job, stdio: ['ignore', 'pipe', 'pipe'], detached: true, env: Object.assign({}, process.env, { ENABLE_CLAUDEAI_MCP_SERVERS: 'false' }) });
         const parar = () => { try { process.kill(-c.pid, 'SIGTERM'); } catch (_) { try { c.kill('SIGTERM'); } catch (__) {} } };
-        let resto = '', ultimoEnvio = 0, ultimaFrase = '';
-        const enviar = frase => {
-            ultimaFrase = frase;
-            if (Date.now() - ultimoEnvio < 15000) return;
-            ultimoEnvio = Date.now();
-            if (!p.id) return;
-            db('edicao_pedidos?id=eq.' + p.id, { metodo: 'PATCH', corpo: { status_msg: frase.slice(0, 280), updated_at: new Date().toISOString() } }).catch(() => {});
-        };
+        let resto = '';
         c.stdout.on('data', buf => {
             fs.appendFileSync(logArq, buf);
             const linhas = (resto + buf.toString()).split('\n'); resto = linhas.pop();
-            for (const l of linhas) {
-                let ev; try { ev = JSON.parse(l); } catch (_) { continue; }
-                for (const passo of passoDoEvento(ev)) { log('#' + p.numero, passo); if (!passo.startsWith('›')) enviar(passo); }
-            }
+            for (const l of linhas) { let ev; try { ev = JSON.parse(l); } catch (_) { continue; } for (const passo of passoDoEvento(ev)) log(p.pasta_nome + ':', passo); }
         });
         c.stderr.on('data', buf => fs.appendFileSync(logArq, buf));
-        // Etapas e linha do tempo parcial (saida/progresso.json + saida/projeto.json) vão para o painel Editor IA do admin
-        let ultimoProjeto = '';
+        // tirou a pasta de "2 - Editando": cancela na hora
         const vigia = setInterval(() => {
-            if (!p.id) return;
-            // ela clicou em Cancelar no admin: para o Claude na hora (antes ele seguia até o fim)
-            db('edicao_pedidos?id=eq.' + p.id + '&select=status').then(r => {
-                if (r && r[0] && r[0].status === 'cancelado' && !p._cancelado) { p._cancelado = true; log('#' + p.numero, 'cancelado no admin: parei a edição'); parar(); }
-            }).catch(() => {});
-            const ler = n => { try { return JSON.parse(fs.readFileSync(path.join(job, 'saida', n), 'utf8')); } catch (_) { return null; } };
-            const prog = ler('progresso.json'), proj = ler('projeto.json');
-            if (!prog && !proj) return;
-            const novo = JSON.stringify(Object.assign({}, proj || {}, { etapas: prog || {} }));
-            if (novo === ultimoProjeto) return;
-            ultimoProjeto = novo;
-            db('edicao_pedidos?id=eq.' + p.id, { metodo: 'PATCH', corpo: { projeto: JSON.parse(novo), updated_at: new Date().toISOString() } }).catch(() => {});
-        }, 15000);
-        c.on('exit', () => clearInterval(vigia));
+            if (pastaVigiada && !fs.existsSync(pastaVigiada) && !p._cancelado) { p._cancelado = true; log(p.pasta_nome + ': você tirou a pasta de "2 - Editando", parei a edição'); parar(); }
+        }, 10000);
         const t = setTimeout(() => { parar(); resolve(false); }, LIMITE_EDICAO_MIN * 60000);
-        c.on('error', e => { fs.appendFileSync(logArq, '\n[robô] ' + e.message + '\n'); clearTimeout(t); resolve(false); });
-        c.on('exit', code => { clearTimeout(t); resolve(code === 0); });
+        c.on('error', e => { fs.appendFileSync(logArq, '\n[robô] ' + e.message + '\n'); clearInterval(vigia); clearTimeout(t); resolve(false); });
+        c.on('exit', code => { clearInterval(vigia); clearTimeout(t); resolve(code === 0); });
     });
 }
 
-/* ── Fila ── */
+/* ── Fila: olha as pastas ── */
+const assinaturas = new Map();   // pasta -> "arquivo:tamanho" da última olhada (só começa quando parou de copiar)
+function estavel(chave, pasta) {
+    const ass = listarArquivos(pasta).map(f => f.Path + ':' + f.Size).sort().join('|');
+    if (assinaturas.get(chave) !== ass) { assinaturas.set(chave, ass); return false; }
+    assinaturas.delete(chave); return true;
+}
+async function trabalhar(pastaOrigem, fazer, voltarPara) {
+    const nome = path.basename(pastaOrigem);
+    const pasta = mover(pastaOrigem, P_EDITANDO);
+    const estado = lerEstado(pasta) || { numero: proximoNumero() };
+    estado.status = 'editando'; gravarEstado(pasta, estado);
+    try {
+        const msg = await fazer(pasta, estado);
+        if (!fs.existsSync(pasta)) return;
+        gravarEstado(pasta, estado);
+        const destino = estado.status === 'aguardando_cenas' ? P_EDITAR : P_PRONTOS;
+        mover(pasta, destino);
+        log(nome + ': ' + msg + (destino === P_PRONTOS ? ' → está em "3 - Prontos"' : ''));
+        spawnSync('osascript', ['-e', 'display notification "' + (nome + ': ' + msg).replace(/"/g, "'").slice(0, 180) + '" with title "Estagiário"']);
+    } catch (e) {
+        if (!fs.existsSync(pasta)) { log(nome + ': cancelado'); return; }
+        log(nome + ': ERRO ' + e.message);
+        fs.writeFileSync(path.join(pasta, 'ERRO.txt'), 'Deu erro: ' + e.message + '\n\nApague este arquivo que eu tento de novo.\n');
+        estado.status = 'erro'; gravarEstado(pasta, estado);
+        mover(pasta, voltarPara);
+    }
+}
 async function rodada() {
-    const pedidos = await db('edicao_pedidos?status=in.(na_fila,aguardando_bruto,aguardando_cenas,ajustes_na_fila,remontar_na_fila)&select=*&order=created_at');
-    for (const p of pedidos) {
-        try {
-            if (p.status === 'na_fila') await prepararPasta(p);
-            if (p.status === 'aguardando_bruto') await olharBruto(p);
-            if (p.status === 'aguardando_cenas') await olharCenas(p);
-            if (p.status === 'ajustes_na_fila') await aplicarAjustes(p);
-            if (p.status === 'remontar_na_fila') await remontar(p);
-        } catch (e) {
-            if (p._cancelado) { await mudar(p, { status: 'cancelado', status_msg: 'Cancelado por você no meio da edição' }).catch(() => {}); continue; }
-            log('#' + p.numero, 'ERRO', e.message);
-            await mudar(p, { status: 'erro', status_msg: e.message.slice(0, 280) }).catch(() => {});
+    // vídeo solto em "1 - Pra editar": vira uma pasta com o nome dele
+    for (const n of fs.readdirSync(P_EDITAR).filter(visivel)) {
+        const c = path.join(P_EDITAR, n);
+        if (fs.statSync(c).isFile() && VIDEO.test(n)) {
+            const st = fs.statSync(c).size;
+            if (assinaturas.get('solto:' + n) !== st) { assinaturas.set('solto:' + n, st); continue; }
+            assinaturas.delete('solto:' + n);
+            const dir = path.join(P_EDITAR, n.replace(/\.[^.]+$/, ''));
+            fs.mkdirSync(dir, { recursive: true }); fs.renameSync(c, path.join(dir, n));
         }
+    }
+    for (const n of fs.readdirSync(P_EDITAR).filter(visivel)) {
+        const pasta = path.join(P_EDITAR, n);
+        if (!fs.statSync(pasta).isDirectory() || fs.existsSync(path.join(pasta, 'ERRO.txt'))) continue;
+        const estado = lerEstado(pasta);
+        if (estado && estado.status === 'aguardando_cenas') {
+            if (cenasCompletas(pasta, estado) && estavel(pasta, pasta)) await trabalhar(pasta, (d, e) => editar(d, e), P_EDITAR);
+            continue;
+        }
+        const temVideo = listarArquivos(pasta).some(f => VIDEO.test(f.Path)) || fs.readdirSync(pasta).some(x => PEDIDO_TXT.test(x) && /tipo\s*:\s*cena/i.test(fs.readFileSync(path.join(pasta, x), 'utf8')));
+        if (!temVideo) continue;
+        if (!estavel(pasta, pasta)) { log(n + ': chegou, esperando terminar de copiar…'); continue; }
+        if (estado && estado.versao) { // pasta pronta que ela trouxe de volta: só ajustes contam
+            const novos = ajustesNovos(pasta, estado);
+            await trabalhar(pasta, (d, e) => novos.length ? aplicarAjustes(d, e, novos) : editar(d, Object.assign(e, { cenas: null })), P_EDITAR);
+        } else await trabalhar(pasta, (d, e) => editar(d, e), P_EDITAR);
+    }
+    for (const n of fs.readdirSync(P_PRONTOS).filter(visivel)) {
+        const pasta = path.join(P_PRONTOS, n);
+        if (!fs.statSync(pasta).isDirectory() || fs.existsSync(path.join(pasta, 'ERRO.txt'))) continue;
+        const estado = lerEstado(pasta); if (!estado || !estado.versao) continue;
+        const novos = ajustesNovos(pasta, estado);
+        if (!novos.length) continue;
+        if (!estavel(pasta, pasta)) { log(n + ': vi o seu ajuste, esperando você terminar…'); continue; }
+        await trabalhar(pasta, (d, e) => aplicarAjustes(d, e, ajustesNovos(d, e)), P_PRONTOS);
     }
 }
 
-/* ── Aprender com os vídeos da Lara: ela joga vídeos prontos (e, se tiver, o bruto) em Edição/_Aprender no Drive.
-   O robô olha a pasta a cada 10 min; quando chega coisa nova, o Claude mede o estilo e propõe regras. ── */
-const APRENDER_DRIVE = 'drive:' + PASTA_RAIZ + '/_Aprender';
+/* ── Aprender com os vídeos da Lara (pasta "Aprender") ── */
 const APRENDER = path.join(DIR, 'aprender');
-// Outras pastas do Drive para estudar, uma por linha (ex.: "2026/LARADAM UGC"); as pastas de pedido do robô ficam de fora
-const APRENDER_PASTAS = path.join(DIR, 'aprender_pastas.txt');
-function pastasAprender() {
-    let extra = []; try { extra = fs.readFileSync(APRENDER_PASTAS, 'utf8').split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#')); } catch (_) {}
-    return [APRENDER_DRIVE, ...extra.map(l => 'drive:' + l.replace(/^drive:/, ''))];
-}
-const FORA_DO_ESTUDO = ['--exclude', 'ESTILO*', '--exclude', '{PREVIA,PRÉVIA,REC,LOCUCAO}*', '--exclude', 'Edição*/**', '--exclude', 'cena[0-9]*'];
-let aprenderUltimaOlhada = 0, aprenderAssinatura = null;
+let aprenderUltimaOlhada = 0;
 async function olharAprender() {
     if (Date.now() - aprenderUltimaOlhada < 10 * 60000) return;
     aprenderUltimaOlhada = Date.now();
-    rclone(['mkdir', APRENDER_DRIVE], { silencioso: true });
-    // o CapCut às vezes exporta sem extensão: vale qualquer arquivo de vídeo pelo tipo informado pelo Drive
-    // vídeos e anotações (ex.: "CAPCUT - observado.md", escritas olhando o CapCut do celular espelhado no Mac)
-    const ehVideo = f => VIDEO.test(f.Path) || /^video\//.test(f.MimeType || '') || /\.(md|txt)$/i.test(f.Path);
-    const arqs = pastasAprender().flatMap(pasta => JSON.parse(rclone(['lsjson', pasta, '-R', '--files-only', ...FORA_DO_ESTUDO], { silencioso: true }) || '[]')
-        .filter(ehVideo).map(f => Object.assign(f, { Path: pasta + '/' + f.Path })));
+    const arqs = listarArquivos(P_APRENDER).filter(f => (VIDEO.test(f.Path) || /\.(md|txt)$/i.test(f.Path)) && !/^ESTILO/i.test(path.basename(f.Path)));
     if (!arqs.length) return;
     const assinatura = arqs.map(f => f.Path + ':' + f.Size).sort().join('|');
     const estadoArq = path.join(APRENDER, 'estado.json');
     let feito = null; try { feito = JSON.parse(fs.readFileSync(estadoArq, 'utf8')).assinatura; } catch (_) {}
     if (assinatura === feito) return;
-    if (aprenderAssinatura !== assinatura) { aprenderAssinatura = assinatura; aprenderUltimaOlhada = Date.now() - 9 * 60000; log('aprender: vídeos novos em _Aprender, conferindo se terminaram de subir…'); return; }
+    if (!estavel('aprender', P_APRENDER)) { aprenderUltimaOlhada = Date.now() - 9 * 60000; log('aprender: vídeos novos, esperando terminar de copiar…'); return; }
     const job = path.join(APRENDER, 'rodada-' + new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-'));
     fs.mkdirSync(path.join(job, 'saida'), { recursive: true });
-    log('aprender: baixando ' + arqs.length + ' vídeo(s) para estudar o seu estilo');
-    for (const pasta of pastasAprender())
-        rclone(['sync', pasta, path.join(APRENDER, 'videos', slug(pasta.replace(/^drive:/, '')) || 'aprender'), ...FORA_DO_ESTUDO]);
-    fs.symlinkSync(path.join(APRENDER, 'videos'), path.join(job, 'videos'));
+    fs.symlinkSync(P_APRENDER, path.join(job, 'videos'));
     fs.copyFileSync(path.join(DIR, 'INSTRUCOES_APRENDER.md'), path.join(job, 'CLAUDE.md'));
-    const regras = await db('edicao_regras?select=texto,categoria,status,cliente&status=in.(aprovada,proposta)');
-    fs.writeFileSync(path.join(job, 'REGRAS_ATUAIS.md'), '# Regras que já existem (não repita)\n\n' + regras.map(r => '- [' + r.categoria + '] ' + r.texto + ' (' + r.status + ')').join('\n') + '\n');
-    const ok = await rodarClaude(job, {}, 'Leia CLAUDE.md e REGRAS_ATUAIS.md e estude os vídeos da pasta videos/ sozinho, sem perguntar nada. ' +
-        'No fim precisa existir saida/relatorio.md e saida/regras_propostas.json.');
+    const r = lerRegras();
+    fs.writeFileSync(path.join(job, 'REGRAS_ATUAIS.md'), '# Regras que já existem (não repita)\n\n' +
+        [...r.valendo.map(x => '- [' + x.categoria + '] ' + x.texto + ' (valendo)'), ...r.propostas.map(x => '- [' + x.categoria + '] ' + x.texto + ' (proposta)')].join('\n') + '\n');
+    log('aprender: estudando ' + arqs.length + ' arquivo(s) da pasta Aprender');
+    const ok = await rodarClaude(job, { pasta_nome: 'aprender' }, 'Leia CLAUDE.md e REGRAS_ATUAIS.md e estude os vídeos da pasta videos/ sozinho, sem perguntar nada. ' +
+        'Não altere nada dentro de videos/. No fim precisa existir saida/relatorio.md e saida/regras_propostas.json.');
     if (!fs.existsSync(path.join(job, 'saida', 'relatorio.md'))) { log('aprender: o Claude não entregou o relatório (' + (ok ? 'terminou' : 'parou') + '). Veja ' + path.join(job, 'claude.log')); return; }
-    await proporRegras({ marca: null }, job, 'Aprendido com os seus vídeos em _Aprender');
-    rclone(['copyto', path.join(job, 'saida', 'relatorio.md'), APRENDER_DRIVE + '/ESTILO - o que aprendi ' + new Date().toISOString().slice(0, 10) + '.md']);
-    fs.writeFileSync(estadoArq, JSON.stringify({ assinatura, quando: new Date().toISOString() }));
-    log('aprender: pronto. Relatório na pasta _Aprender do Drive e regras propostas em Regras do estilo.');
+    proporRegras({ marca: null, pasta_nome: 'aprender' }, job, 'aprendido com a pasta Aprender');
+    fs.copyFileSync(path.join(job, 'saida', 'relatorio.md'), path.join(P_APRENDER, 'ESTILO - o que aprendi ' + new Date().toISOString().slice(0, 10) + '.md'));
+    fs.writeFileSync(estadoArq, JSON.stringify({ assinatura: listarArquivos(P_APRENDER).filter(f => (VIDEO.test(f.Path) || /\.(md|txt)$/i.test(f.Path)) && !/^ESTILO/i.test(path.basename(f.Path))).map(f => f.Path + ':' + f.Size).sort().join('|'), quando: new Date().toISOString() }));
+    log('aprender: pronto. Relatório na pasta Aprender e regras propostas em "Regras do estilo.md".');
 }
 
-/* Biblioteca de referências: o robô baixa cada Reels/TikTok novo da biblioteca (yt-dlp), guarda o vídeo aqui
-   e sobe uma folha de quadros (2 por segundo) para Edição/_Referencias no Drive. Assim dá para estudar
-   título, legenda e ritmo quadro a quadro sem baixar nada à mão. */
-const REFS = path.join(DIR, 'biblioteca');
-let bibUltimaOlhada = 0;
-async function olharBiblioteca() {
-    if (Date.now() - bibUltimaOlhada < 10 * 60000) return;
-    bibUltimaOlhada = Date.now();
-    const lista = await db('edicao_referencias?pedido_id=is.null&analise=is.null&select=id,nome,tipo,link&order=created_at');
-    if (!lista.length) return;
-    fs.mkdirSync(REFS, { recursive: true });
-    const ytdlp = fs.existsSync(path.join(VENV_BIN, 'yt-dlp')) ? path.join(VENV_BIN, 'yt-dlp') : 'yt-dlp';
-    rclone(['mkdir', 'drive:' + PASTA_RAIZ + '/_Referencias'], { silencioso: true });
-    for (const r of lista.slice(0, 5)) {
-        const nome = slug(r.nome || r.tipo).slice(0, 40) + '-' + r.id.slice(0, 6), video = path.join(REFS, nome + '.mp4');
-        let analise;
-        try {
-            if (!fs.existsSync(video)) {
-                const d = spawnSync(ytdlp, ['-q', '--no-playlist', '-f', 'mp4/bestvideo*+bestaudio/best', '--merge-output-format', 'mp4', '-o', video, r.link], { encoding: 'utf8', timeout: 5 * 60000 });
-                if (!fs.existsSync(video)) throw new Error((d.stderr || d.error && d.error.message || 'não baixou').trim().split('\n').pop().slice(0, 200));
-            }
-            const dur = duracao(video);
-            // até 48 quadros (24 s) por folha; vídeo mais longo ganha mais folhas
-            const folhas = [];
-            for (let ini = 0, k = 1; ini < Math.min(dur, 96); ini += 24, k++) {
-                const jpg = path.join(REFS, nome + '-quadros' + k + '.jpg');
-                const folha = vf => ffmpeg(['-ss', String(ini), '-t', '24', '-i', video, '-vf', vf, '-frames:v', '1', '-q:v', '6', jpg]);
-                // com o tempo escrito em cada quadro; se o ffmpeg não tiver drawtext, sem o tempo
-                try { folha("fps=2,scale=160:-2,drawtext=text='%{pts\\:hms}':x=4:y=4:fontsize=13:fontcolor=white:box=1:boxcolor=black@0.6,tile=8x6:padding=2"); }
-                catch (_) { folha('fps=2,scale=160:-2,tile=8x6:padding=2'); }
-                rclone(['copyto', jpg, 'drive:' + PASTA_RAIZ + '/_Referencias/' + nome + ' - quadros ' + k + '.jpg']);
-                folhas.push(PASTA_RAIZ + '/_Referencias/' + nome + ' - quadros ' + k + '.jpg');
-            }
-            analise = { video: video, quadros: folhas, duracao_s: Math.round(dur * 10) / 10, baixado_em: new Date().toISOString() };
-            log('biblioteca: ' + (r.nome || r.link) + ' baixada (' + folhas.length + ' folha(s) de quadros no Drive)');
-        } catch (e) {
-            analise = { erro: e.message, tentado_em: new Date().toISOString() };
-            log('biblioteca: não consegui baixar ' + r.link + ': ' + e.message);
-        }
-        await db('edicao_referencias?id=eq.' + r.id, { metodo: 'PATCH', corpo: { analise } }).catch(e => log('biblioteca:', e.message));
-    }
-}
-
-/* Atualiza sozinho: baixa do GitHub os arquivos do robô; se o robo.mjs mudou, reinicia com a versão nova.
-   (O instalador só é necessário quando entra uma ferramenta nova, tipo uma biblioteca do Python.) */
-const ATUALIZAR_DE = process.env.ROBO_ATUALIZAR_DE || 'https://raw.githubusercontent.com/eilaradam/site-creators/main/robo-edicao/';
-const ARQUIVOS_DO_ROBO = ['robo.mjs', 'icone.png', 'INSTRUCOES_EDICAO.md', 'INSTRUCOES_CENAS.md', 'INSTRUCOES_APRENDER.md', 'transcrever.py', 'legendas.json',
-    'legendas_ass.py', 'montar.py', 'catalogar_sons.py', 'encaixar_musica.py', 'baixar_fontes.py', 'fontes.json',
-    'titulos/package.json', 'titulos/src/index.ts', 'titulos/src/Raiz.tsx', 'titulos/src/Titulos.tsx'];
-let ultimaAtualizacao = 0;
-async function atualizarRobo() {
-    if (process.env.ROBO_SEM_ATUALIZAR || Date.now() - ultimaAtualizacao < 30 * 60000) return false;
-    ultimaAtualizacao = Date.now();
-    let mudouCodigo = false, mudou = 0;
-    for (const nome of ARQUIVOS_DO_ROBO) {
-        try {
-            const r = await fetch(ATUALIZAR_DE + nome + '?t=' + Date.now(), { cache: 'no-store' });
-            if (!r.ok) continue;
-            const novo = Buffer.from(await r.arrayBuffer()), arq = path.join(DIR, nome);
-            if (!novo.length || (fs.existsSync(arq) && fs.readFileSync(arq).equals(novo))) continue;
-            fs.mkdirSync(path.dirname(arq), { recursive: true });
-            fs.writeFileSync(arq + '.novo', novo); fs.renameSync(arq + '.novo', arq);
-            mudou++; if (nome === 'robo.mjs') mudouCodigo = true;
-        } catch (_) { /* sem internet agora: tenta na próxima */ }
-    }
-    if (mudou) log('Robô atualizado (' + mudou + ' arquivo(s)).' + (mudouCodigo ? ' Reiniciando com a versão nova…' : ''));
-    return mudouCodigo;
-}
-/* O Estagiário vira um app na Mesa do Mac (ícone do crachá): dois cliques abrem a janela dele no Terminal.
-   Feito aqui (e não só no instalador) para quem já tem o robô ganhar o app na próxima atualização. */
+/* ── App na Mesa: dois cliques ligam o robô escondido e abrem a pasta Estagiário ── */
 const APP = path.join(os.homedir(), 'Desktop', 'Estagiário.app');
 const LANCADOR = path.join(DIR, 'Estagiario.command');
 function criarApp() {
     if (process.platform !== 'darwin') return;
     const icone = path.join(DIR, 'icone.png');
     if (!fs.existsSync(icone)) return;
-    const versao = String(fs.statSync(icone).size) + ':' + process.execPath + ':servico';
+    const versao = String(fs.statSync(icone).size) + ':' + process.execPath + ':local-v1';
     const marca = path.join(APP, 'Contents', 'Resources', 'versao.txt');
     try { if (fs.readFileSync(marca, 'utf8') === versao) return; } catch (_) {}
     try {
@@ -820,33 +678,27 @@ function criarApp() {
         fs.writeFileSync(path.join(APP, 'Contents', 'Info.plist'), '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n' +
             '<plist version="1.0"><dict><key>CFBundleName</key><string>Estagiário</string><key>CFBundleDisplayName</key><string>Estagiário</string>' +
             '<key>CFBundleIdentifier</key><string>com.laradam.estagiario</string><key>CFBundleExecutable</key><string>Estagiario</string>' +
-            '<key>CFBundleIconFile</key><string>Estagiario</string><key>CFBundlePackageType</key><string>APPL</string><key>CFBundleVersion</key><string>1</string></dict></plist>\n');
-        // dois cliques: garante o serviço escondido rodando e abre o admin (sem Terminal)
+            '<key>CFBundleIconFile</key><string>Estagiario</string><key>CFBundlePackageType</key><string>APPL</string><key>CFBundleVersion</key><string>2</string></dict></plist>\n');
         fs.writeFileSync(path.join(mac, 'Estagiario'), '#!/bin/bash\n"' + process.execPath + '" "' + path.join(DIR, 'robo.mjs') + '" --servico >> "' + LOG_SERVICO + '" 2>&1\n' +
-            'open "https://creators.laradam.com/admin.html"\n', { mode: 0o755 });
-        // ícone: o crachá em todos os tamanhos que o Mac pede (sips e iconutil já vêm no macOS)
+            'open "' + ESTAG + '"\n', { mode: 0o755 });
         const set = path.join(os.tmpdir(), 'Estagiario.iconset');
         fs.rmSync(set, { recursive: true, force: true }); fs.mkdirSync(set);
         for (const t of [16, 32, 128, 256, 512]) {
             spawnSync('sips', ['-z', String(t), String(t), icone, '--out', path.join(set, 'icon_' + t + 'x' + t + '.png')]);
             spawnSync('sips', ['-z', String(t * 2), String(t * 2), icone, '--out', path.join(set, 'icon_' + t + 'x' + t + '@2x.png')]);
         }
-        const r = spawnSync('iconutil', ['-c', 'icns', set, '-o', path.join(res, 'Estagiario.icns')], { encoding: 'utf8' });
-        if (r.status !== 0) log('ícone do app não ficou pronto:', (r.stderr || '').trim());
+        spawnSync('iconutil', ['-c', 'icns', set, '-o', path.join(res, 'Estagiario.icns')], { encoding: 'utf8' });
         fs.writeFileSync(marca, versao);
         spawnSync('touch', [APP]);
-        for (const velho of ['Robô de Edição.command', 'Robo de Edicao.command'])   // o atalho antigo some: agora é o app
-            fs.rmSync(path.join(os.homedir(), 'Desktop', velho), { force: true });
-        log('Agora eu sou um app na Mesa: dois cliques no crachá me ligam (sem Terminal) e abrem o admin.');
+        log('App "Estagiário" na Mesa: dois cliques me ligam e abrem a pasta Estagiário.');
     } catch (e) { log('não consegui criar o app na Mesa:', e.message); }
 }
-/* Estagiário sem Terminal: um serviço do macOS (launchd) que liga sozinho quando o Mac liga e volta se cair.
-   O crachá na Mesa só garante que o serviço está rodando e abre o admin. A janela do Terminal some. */
+/* Serviço do macOS (launchd): liga sozinho quando o Mac liga e volta se cair */
 const SERVICO = 'com.laradam.estagiario';
 const PLIST = path.join(os.homedir(), 'Library', 'LaunchAgents', SERVICO + '.plist');
 const LOG_SERVICO = path.join(DIR, 'estagiario.log');
 const PATH_SALVO = path.join(DIR, 'path.txt');
-function guardarPath() {   // quando roda pelo Terminal o PATH é o completo (ffmpeg, claude, npx): guarda para o serviço usar
+function guardarPath() {
     if (process.env.ROBO_SERVICO || !/homebrew|local\/bin/.test(process.env.PATH || '')) return;
     try { fs.writeFileSync(PATH_SALVO, process.env.PATH); } catch (_) {}
 }
@@ -859,7 +711,6 @@ function instalarServico() {
     const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
     const plist = '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0"><dict>' +
         '<key>Label</key><string>' + SERVICO + '</string>' +
-        // caffeinate -s: não deixa o Mac dormir enquanto está na tomada (na bateria ele dorme normal)
         '<key>ProgramArguments</key><array><string>/usr/bin/caffeinate</string><string>-s</string><string>' + esc(process.execPath) + '</string><string>' + esc(path.join(DIR, 'robo.mjs')) + '</string></array>' +
         '<key>WorkingDirectory</key><string>' + esc(DIR) + '</string>' +
         '<key>EnvironmentVariables</key><dict><key>PATH</key><string>' + esc(PATH) + '</string><key>ROBO_SERVICO</key><string>1</string><key>HOME</key><string>' + esc(os.homedir()) + '</string></dict>' +
@@ -874,99 +725,68 @@ function instalarServico() {
         fs.writeFileSync(PLIST, plist);
         const r = spawnSync('launchctl', ['bootstrap', dominio, PLIST], { encoding: 'utf8' });
         if (r.status !== 0) return log('Não consegui ligar o serviço:', (r.stderr || '').trim());
-        log('Pronto: agora eu trabalho escondido, sem janela. Ligo sozinho quando o Mac liga. Acompanhe pelo admin.');
+        log('Pronto: agora eu trabalho escondido, sem janela, e ligo sozinho quando o Mac liga.');
     } else {
-        spawnSync('launchctl', ['bootstrap', dominio, PLIST]);   // se já estava rodando, não faz nada
+        spawnSync('launchctl', ['bootstrap', dominio, PLIST]);
         spawnSync('launchctl', ['kickstart', dominio + '/' + SERVICO]);
     }
 }
-/* Sinal de vida no admin: a cada minuto, mesmo no meio de uma edição */
-async function sinalDeVida() {
-    await db('edicao_robo?id=eq.1', { metodo: 'PATCH', corpo: { visto_em: new Date().toISOString(), ultima_msg: ultimaLinha || null,
-        escondido: !!process.env.ROBO_SERVICO } }).catch(() => {});
-}
-
-/* Um Estagiário só: se a janela já está aberta, a segunda para (senão os dois pegariam o mesmo pedido) */
+/* Um Estagiário só por Mac */
 const TRAVA = path.join(DIR, 'robo.pid');
 function soUmEstagiario() {
     let pid = 0; try { pid = Number(fs.readFileSync(TRAVA, 'utf8')) || 0; } catch (_) {}
     const vivo = n => { try { process.kill(n, 0); return true; } catch (_) { return false; } };
-    if (pid && pid !== process.pid && pid !== Number(process.env.ROBO_PAI || 0) && vivo(pid)) return false;
+    if (pid && pid !== process.pid && vivo(pid)) return false;
     fs.writeFileSync(TRAVA, String(process.pid));
     process.on('exit', () => { try { if (Number(fs.readFileSync(TRAVA, 'utf8')) === process.pid) fs.rmSync(TRAVA); } catch (_) {} });
     for (const sinal of ['SIGINT', 'SIGTERM', 'SIGHUP']) process.on(sinal, () => process.exit(0));
     return true;
 }
-function reiniciar() {
-    if (process.env.ROBO_SERVICO) process.exit(0);   // rodando escondido (launchd): ele mesmo liga de novo com a versão nova
-    const filho = spawn(process.execPath, process.argv.slice(1), { stdio: 'inherit', env: Object.assign({}, process.env, { ROBO_PAI: String(process.pid) }) });
-    filho.on('exit', code => process.exit(code || 0));
+/* Restos da época do admin: o login do admin some (o robô não fala mais com o site) */
+function limparAdmin() {
+    for (const n of ['sessao.json']) { try { fs.rmSync(path.join(DIR, n)); log('Apaguei o login antigo do admin (' + n + '): agora eu só trabalho no Mac.'); } catch (_) {} }
 }
 
 async function main() {
     fs.mkdirSync(TRABALHOS, { recursive: true });
-    if (process.argv.includes('--login')) {
-        await entrar({ email: process.env.ROBO_EMAIL, password: process.env.ROBO_SENHA }, 'password');
-        const eu = await db('usuarios?select=role&id=eq.' + usuarioId);
-        if (!eu.length || eu[0].role !== 'admin') throw new Error('Esse login não é admin do site.');
-        return log('Login ok. O robô está ligado ao admin.');
-    }
-    if (process.argv.includes('--entrar')) {   // login de novo, perguntando e-mail e senha (a senha não aparece)
-        const rl = (await import('node:readline')).createInterface({ input: process.stdin, output: process.stdout, terminal: !!process.stdin.isTTY });
-        const linhas = rl[Symbol.asyncIterator]();
-        let mudo = false; const escrever = rl._writeToOutput && rl._writeToOutput.bind(rl);
-        if (escrever) rl._writeToOutput = t => { if (!mudo) escrever(t); };
-        process.stdout.write('E-mail do admin: ');
-        const email = String((await linhas.next()).value || '').trim();
-        process.stdout.write('Senha do admin (não aparece enquanto digita): '); mudo = true;
-        const senha = String((await linhas.next()).value || ''); mudo = false; rl.close(); console.log('');
-        await entrar({ email, password: senha }, 'password');
-        const eu = await db('usuarios?select=role&id=eq.' + usuarioId);
-        if (!eu.length || eu[0].role !== 'admin') throw new Error('Esse login não é admin do site.');
-        return log('Pronto, voltei a ter acesso ao admin. Agora é só abrir o crachá "Estagiário" na Mesa.');
-    }
     if (process.argv.includes('--epidemic')) {
         const rl = (await import('node:readline')).createInterface({ input: process.stdin, output: process.stdout });
         const chave = (await new Promise(r => rl.question('Cole a chave do Epidemic Sound (Account > API keys > MCP Server) e aperte Enter: ', r))).trim();
         rl.close();
-        if (!chave) return log('Nenhuma chave colada. Nada mudou.');
+        if (!chave) return console.log('Nenhuma chave colada. Nada mudou.');
         fs.writeFileSync(EPIDEMIC_CHAVE, JSON.stringify({ chave, salva_em: new Date().toISOString() }), { mode: 0o600 });
         const r = await fetch('https://www.epidemicsound.com/a/mcp-service/mcp', { method: 'POST',
             headers: { Authorization: 'Bearer ' + chave, 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream' },
             body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-03-26', capabilities: {}, clientInfo: { name: 'robo-edicao', version: '1' } } }) }).catch(e => ({ ok: false, status: e.message }));
-        return log(r.ok ? 'Epidemic Sound ligado: o robô já escolhe música e efeitos sozinho nas próximas edições.'
-            : 'Chave salva, mas o Epidemic não aceitou (' + r.status + '). Confira se copiou a chave do "MCP Server" inteira.');
+        return console.log(r.ok ? 'Epidemic Sound ligado: o robô já escolhe música e efeitos sozinho.' : 'Chave salva, mas o Epidemic não aceitou (' + r.status + '). Confira se copiou a chave do "MCP Server" inteira.');
     }
+    prepararMesa();
     if (process.argv.includes('--app')) return criarApp();
     if (process.argv.includes('--servico')) { guardarPath(); return instalarServico(); }
     guardarPath();
-    if (!process.argv.includes('--uma-vez') && !soUmEstagiario()) return log('O Estagiário já está trabalhando em outra janela. Pode fechar esta.');
-    if (await atualizarRobo()) return reiniciar();
+    if (!process.argv.includes('--uma-vez') && !soUmEstagiario()) return log('O Estagiário já está trabalhando. Pode fechar esta janela.');
+    limparAdmin();
     criarApp();
-    // rodando pela janela do Terminal no Mac: passa a trabalhar escondido (serviço) e fecha a janela
     if (process.platform === 'darwin' && !process.env.ROBO_SERVICO && !process.argv.includes('--uma-vez') && !process.env.ROBO_COM_JANELA) {
         instalarServico();
         if (spawnSync('launchctl', ['print', 'gui/' + process.getuid() + '/' + SERVICO]).status === 0) {
-            log('A partir de agora eu trabalho escondido, sem esta janela. Pode fechar o Terminal. Acompanhe pelo admin.');
+            log('A partir de agora eu trabalho escondido, sem esta janela. Pode fechar o Terminal.');
             try { fs.rmSync(TRAVA); } catch (_) {}
             spawnSync('launchctl', ['kickstart', '-k', 'gui/' + process.getuid() + '/' + SERVICO]);
             process.exit(0);
         }
     }
     log('Epidemic Sound: ' + (chaveEpidemic() ? 'ligado (música e efeitos com a licença Pro)' : 'desligado. Para ligar: node robo.mjs --epidemic'));
-    log('Estagiário chegou! Olho a fila a cada ' + INTERVALO_S + ' s. Deixa esta janela aberta (pode minimizar).');
-    // Se o robô foi fechado no meio de uma edição, o pedido ficou preso em "editando": volta para recomeçar
-    try {
-        for (const p of await db('edicao_pedidos?status=in.(baixando,analisando,editando,renderizando)&select=*'))
-            await mudar(p, { status: /^Remontando/.test(p.status_msg || '') || (p.projeto && p.projeto.editado_em && !(p.ajustes || []).length) ? 'remontar_na_fila' : p.tipo !== 'cenas' ? 'aguardando_bruto' : (p.cenas ? 'aguardando_cenas' : 'na_fila'),
-                status_msg: 'Fui reiniciado no meio da edição. Recomeçando.' });
-    } catch (e) { log('Não consegui conferir pedidos interrompidos:', e.message); }
-    sinalDeVida(); setInterval(sinalDeVida, 60000).unref();
+    log('Estagiário chegou (versão só Mac, sem admin). Olho a pasta "' + ESTAG + '" a cada ' + INTERVALO_S + ' s.');
+    // robô fechado no meio de uma edição: a pasta volta pra recomeçar
+    for (const n of fs.readdirSync(P_EDITANDO).filter(visivel)) {
+        const pasta = path.join(P_EDITANDO, n), e = lerEstado(pasta);
+        mover(pasta, e && e.versao ? P_PRONTOS : P_EDITAR);
+        log(n + ': fui reiniciado no meio da edição, recomeço sozinho');
+    }
     do {
-        try { await rodada(); } catch (e) { log('Não consegui olhar a fila:', e.message); }
+        try { await rodada(); } catch (e) { log('Não consegui olhar as pastas:', e.message); }
         try { await olharAprender(); } catch (e) { log('aprender:', e.message); }
-        try { await olharBiblioteca(); } catch (e) { log('biblioteca:', e.message); }
-        if (!process.argv.includes('--uma-vez') && await atualizarRobo()) return reiniciar();   // só entre uma rodada e outra, nunca no meio de uma edição
         if (process.argv.includes('--uma-vez')) break;
         await new Promise(r => setTimeout(r, INTERVALO_S * 1000));
     } while (true);
