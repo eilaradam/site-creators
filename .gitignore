@@ -1,1 +1,7 @@
 __pycache__/
+
+# gerados localmente pelo render do robô
+robo-edicao/fontes/
+robo-edicao/titulos/node_modules/
+robo-edicao/titulos/package-lock.json
+robo-edicao/titulos/public/
