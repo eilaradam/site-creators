@@ -4274,13 +4274,13 @@
 #tabRoteiros .rtl-topo { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
 #tabRoteiros .rtl-topo p { margin:0; color:var(--text-soft); font-size:14px; }
 #tabRoteiros .rtl-tabela-box { background:var(--card); border:1px solid var(--border); border-radius:16px; overflow-x:auto; }
-#tabRoteiros .rtl-tabela { width:100%; min-width:960px; border-collapse:collapse; font-size:13.5px; }
+#tabRoteiros .rtl-tabela { width:100%; min-width:1040px; border-collapse:collapse; font-size:13.5px; }
 #tabRoteiros .rtl-tabela th { text-align:left; padding:12px 14px; font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--text-soft); border-bottom:1px solid var(--border); white-space:nowrap; }
 #tabRoteiros .rtl-tabela td { padding:12px 14px; border-bottom:1px solid var(--border); color:var(--text); vertical-align:middle; }
 #tabRoteiros .rtl-tabela tbody:last-child tr:last-child td { border-bottom:0; }
 #tabRoteiros .rtl-marca { cursor:pointer; }
 #tabRoteiros .rtl-marca:hover td { background:var(--cream); }
-#tabRoteiros .rtl-expandir { display:flex; align-items:center; gap:10px; width:100%; border:0; background:none; padding:0; font:inherit; font-size:15px; font-weight:800; color:var(--text); text-align:left; cursor:pointer; }
+#tabRoteiros .rtl-expandir { white-space:nowrap; display:flex; align-items:center; gap:10px; width:100%; border:0; background:none; padding:0; font:inherit; font-size:15px; font-weight:800; color:var(--text); text-align:left; cursor:pointer; }
 #tabRoteiros .rtl-seta { display:inline-block; width:12px; color:var(--text-soft); transition:transform .15s; }
 #tabRoteiros .rtl-expandir[aria-expanded="true"] .rtl-seta { transform:rotate(90deg); }
 #tabRoteiros .rtl-secao td { background:var(--cream); padding:7px 14px 7px 40px; font-size:11.5px; font-weight:800; color:var(--text-soft); }
@@ -4315,6 +4315,7 @@
     <div id="rtlLista">
         <div class="rtl-topo">
             <p style="flex:1;min-width:240px">A marca recebe só o link público. Clique na marca pra ver os roteiros dela.</p>
+            <button class="rtl-btn" id="rtlVerFinal" type="button">Ver finalizados</button>
             <button class="rtl-btn forte" id="rtlNovoBtn" type="button">+ Novo roteiro</button>
         </div>
         <form id="rtlNovo" class="rtl-novo" hidden>
@@ -19030,13 +19031,13 @@ function roboTempo(seg) { if (seg == null) return null; seg = Math.round(seg); i
 function roboQuando(iso) { var d = new Date(iso); return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' às ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); }
 /* ── Roteiros pra marca ── */
 var RTL_SITE = 'https://ugc.laradam.com/roteiro/';
-var rtlLinhas = [], rtlNotas = [], rtlAbertas = {};
+var rtlLinhas = [], rtlNotas = [], rtlAbertas = {}, rtlFinalizados = false;
 function rtlEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 function rtlQuando(iso) { return iso ? new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''; }
 async function rtlLoad() {
   rtlFechar();
   var box = document.getElementById('rtlBox'); if (!box) return;
-  var r = await sb.from('roteiros_marca').select('id, slug, chave_lara, conteudo, gancho_escolhido, aprovado_em, aprovado_por, visualizacoes, visto_em, created_at').order('created_at', { ascending: false });
+  var r = await sb.from('roteiros_marca').select('*').order('created_at', { ascending: false });
   if (r.error) { box.innerHTML = '<div class="rtl-vazio"><div class="em">😕</div><p>Não consegui carregar: ' + rtlEsc(r.error.message) + '</p></div>'; return; }
   var n = await sb.from('roteiros_marca_notas').select('roteiro_id, tipo').eq('status', 'aberta').neq('tipo', 'resposta');
   rtlNotas = (n && n.data) || [];
@@ -19067,9 +19068,17 @@ function rtlRender() {
     if (!porChave[chave]) { porChave[chave] = { chave: chave, nome: nome, cor: c.cor, itens: [] }; marcas.push(porChave[chave]); }
     porChave[chave].itens.push({ x: x, i: i });
   });
+  var fin = rtlLinhas.filter(function (x) { return x.finalizado_em; }).length;
+  document.getElementById('rtlVerFinal').textContent = rtlFinalizados ? '← Voltar pros ativos' : 'Ver finalizados (' + fin + ')';
+  marcas = marcas.map(function (m) {
+    m.visiveis = m.itens.filter(function (t) { return !!t.x.finalizado_em === rtlFinalizados; });
+    return m;
+  }).filter(function (m) { return m.visiveis.length; });
+  if (!marcas.length) { box.innerHTML = '<div class="rtl-vazio"><div class="em">✨</div><p>' + (rtlFinalizados ? 'Nenhum roteiro finalizado ainda.' : 'Tudo finalizado por aqui.') + '</p></div>'; return; }
+  var acao = rtlFinalizados ? 'Reabrir' : 'Finalizar';
   box.innerHTML = '<div class="rtl-tabela-box"><table class="rtl-tabela"><thead><tr><th>Marca</th><th>Roteiros</th><th>Aprovação</th><th>Marca abriu</th><th>Pendências</th><th></th></tr></thead>' + marcas.map(function (m) {
-    var lista = m.itens.map(function (t) { return t.x; }), entregas = {}, aberta = !!rtlAbertas[m.chave];
-    lista.forEach(function (x) { var k = rtlEntrega(x); entregas[k] = entregas[k] || !!x.aprovado_em; });
+    var lista = m.visiveis.map(function (t) { return t.x; }), entregas = {}, aberta = !!rtlAbertas[m.chave];
+    m.itens.forEach(function (t) { var k = rtlEntrega(t.x); entregas[k] = entregas[k] || !!t.x.aprovado_em; });
     var chaves = Object.keys(entregas), ok = chaves.filter(function (k) { return entregas[k]; }).length;
     var status = !ok ? '<span class="rtl-badge">Em revisão</span>'
       : ok === chaves.length ? '<span class="rtl-badge ok">✅ ' + (ok > 1 ? ok + ' aprovados' : 'Aprovado') + '</span>'
@@ -19077,10 +19086,10 @@ function rtlRender() {
     var html = '<tbody><tr class="rtl-marca" data-rtl-marca="' + rtlEsc(m.chave) + '">' +
       '<td><button class="rtl-expandir" type="button" aria-expanded="' + aberta + '"><span class="rtl-seta">▸</span><span class="rtl-cor" style="background:' + rtlEsc(m.cor || '#5b3df5') + '"></span>' + rtlEsc(m.nome) + '</button></td>' +
       '<td>' + lista.length + '</td><td>' + status + '</td><td class="rtl-aberto">' + rtlAberturas(lista) + '</td>' +
-      '<td>' + rtlPendencias(lista.map(function (x) { return x.id; })) + '</td><td></td></tr>';
+      '<td>' + rtlPendencias(lista.map(function (x) { return x.id; })) + '</td><td><div class="rtl-botoes"><button class="rtl-btn" type="button" data-rtl-fin-marca="' + rtlEsc(m.chave) + '">' + acao + ' marca</button></div></td></tr>';
     if (aberta) {
       var secao = null;
-      m.itens.slice().reverse().forEach(function (t) {
+      m.visiveis.slice().reverse().forEach(function (t) {
         var x = t.x, c = x.conteudo || {}, meta = [c.rotulo, 'criado ' + rtlQuando(x.created_at)].filter(Boolean).join(' · ');
         if ((c.secao || '') !== secao) { secao = c.secao || ''; if (secao) html += '<tr class="rtl-secao"><td colspan="6">' + rtlEsc(secao) + '</td></tr>'; }
         var linhaStatus = x.aprovado_em ? '<span class="rtl-badge ok">✅ Aprovado' + (x.aprovado_por ? ' por ' + rtlEsc(x.aprovado_por) : '') + '</span>'
@@ -19089,11 +19098,22 @@ function rtlRender() {
           '<td>' + linhaStatus + '</td><td class="rtl-aberto">' + rtlAberturas([x]) + '</td><td>' + rtlPendencias([x.id]) + '</td>' +
           '<td><div class="rtl-botoes"><button class="rtl-btn forte" type="button" data-rtl-abrir="' + t.i + '">Abrir</button>' +
           '<button class="rtl-btn" type="button" data-rtl-copiar="' + t.i + '">Copiar link da marca</button>' +
-          '<button class="rtl-btn" type="button" data-rtl-duplicar="' + t.i + '">Duplicar</button></div></td></tr>';
+          '<button class="rtl-btn" type="button" data-rtl-duplicar="' + t.i + '">Duplicar</button>' +
+          '<button class="rtl-btn" type="button" data-rtl-fin="' + t.i + '">' + acao + '</button></div></td></tr>';
       });
     }
     return html + '</tbody>';
   }).join('') + '</table></div>';
+}
+/* Finalizar só tira da lista: o link da marca continua funcionando e dá pra reabrir. */
+async function rtlFinalizar(ids, bt) {
+  var quando = rtlFinalizados ? null : new Date().toISOString();
+  bt.disabled = true;
+  var r = await sb.from('roteiros_marca').update({ finalizado_em: quando }).in('id', ids).select('id');
+  bt.disabled = false;
+  if (r.error || !(r.data || []).length) { alert('Não consegui salvar' + (r.error ? ': ' + r.error.message : '. Confere se o SQL já rodou.')); return; }
+  rtlLinhas.forEach(function (x) { if (ids.indexOf(x.id) >= 0) x.finalizado_em = quando; });
+  rtlRender();
 }
 function rtlCopiar(x, bt) {
   navigator.clipboard.writeText(RTL_SITE + x.slug).then(function () {
@@ -19152,6 +19172,10 @@ function rtlFechar() {
 }
 document.addEventListener('click', function (e) {
   var ab = e.target.closest('[data-rtl-abrir]'); if (ab) return rtlAbrir(rtlLinhas[+ab.dataset.rtlAbrir]);
+  var fm = e.target.closest('[data-rtl-fin-marca]');
+  if (fm) return rtlFinalizar(rtlLinhas.filter(function (x) { return String((x.conteudo || {}).marca || 'Sem marca').trim().toLowerCase() === fm.dataset.rtlFinMarca && !!x.finalizado_em === rtlFinalizados; }).map(function (x) { return x.id; }), fm);
+  var fi = e.target.closest('[data-rtl-fin]'); if (fi) return rtlFinalizar([rtlLinhas[+fi.dataset.rtlFin].id], fi);
+  if (e.target.closest('#rtlVerFinal')) { rtlFinalizados = !rtlFinalizados; return rtlRender(); }
   var mc = e.target.closest('[data-rtl-marca]'); if (mc) { rtlAbertas[mc.dataset.rtlMarca] = !rtlAbertas[mc.dataset.rtlMarca]; rtlRender(); var bx = document.querySelector('[data-rtl-marca="' + CSS.escape(mc.dataset.rtlMarca) + '"] .rtl-expandir'); if (bx) bx.focus(); return; }
   var cp = e.target.closest('[data-rtl-copiar]'); if (cp) return rtlCopiar(rtlLinhas[+cp.dataset.rtlCopiar], cp);
   if (e.target.closest('#rtlVoltar')) return rtlLoad();
