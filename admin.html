@@ -1328,7 +1328,7 @@
                     </button>
                     <button class="tab nav-item" data-tab="robo" type="button">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 8V4"/><circle cx="12" cy="3" r="1"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/><path d="M2 14h2M20 14h2"/></svg>
-                        <span>Robô de inscrições</span>
+                        <span>Robô</span>
                     </button>
                     <button class="tab nav-item" data-tab="edicao" type="button">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
@@ -4318,7 +4318,7 @@
 <div class="rb-wrap">
   <div class="rb-hero">
     <div class="em">🤖</div>
-    <div><h2>Robô de inscrições</h2><p>As campanhas do Seu Influencer em que o robô se inscreveu por você, com a concorrência e a chance de passar.</p></div>
+    <div><h2>Robô</h2><p>As campanhas do Seu Influencer em que o robô se inscreveu por você, com a concorrência e a chance de passar.</p></div>
     <button class="rb-att btn" id="roboAtualizar" type="button" style="background:#fff;color:#7B3E1B;border:0;font-weight:800;padding:10px 16px;border-radius:12px;cursor:pointer;">↻ Atualizar</button>
   </div>
   <div id="roboBox"><div class="rb-vazio">Carregando…</div></div>
@@ -6377,7 +6377,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
 
     /* ── Tabs ── */
-    const PAGE_TITLES = { objetivos: 'Objetivos', carrossel: 'Carrossel', painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', turmavivo: 'Turma ao vivo', imersaoblack: 'Imersão Black', vibeturma: 'Vibe da turma', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', marcas: 'Marcas', conteudos: 'Conteúdos', robo: 'Robô de inscrições', edicao: 'Edição de vídeo', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', aulabonus: 'Aula ao vivo', instagram: 'Instagram', bio: 'Link na Bio' };
+    const PAGE_TITLES = { objetivos: 'Objetivos', carrossel: 'Carrossel', painel: 'Painel', agenda: 'Agenda', dashboard: 'Visão geral', creators: 'Base de creators', admin: 'Conteúdo do site', turmavivo: 'Turma ao vivo', imersaoblack: 'Imersão Black', vibeturma: 'Vibe da turma', portfolio: 'Portfólio', orcamentos: 'Propostas comerciais', candidaturas: 'Campanhas', marcas: 'Marcas', conteudos: 'Conteúdos', robo: 'Robô', edicao: 'Edição de vídeo', disparo: 'Disparo de e-mail', imersao: 'Imersão', direct: 'Curso Direct no Automático', aulabonus: 'Aula ao vivo', instagram: 'Instagram', bio: 'Link na Bio' };
     function setPageTitle(target) {
         const el = document.getElementById('pageTitle');
         if (el && PAGE_TITLES[target]) el.textContent = PAGE_TITLES[target];
