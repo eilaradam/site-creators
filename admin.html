@@ -2471,13 +2471,18 @@
 
     <div class="bio-chart-card" style="margin-top:18px;">
         <div class="bio-card-title" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
-            <span>💛 Lista de espera da próxima turma <span id="leCount" style="color:var(--text-muted);font-weight:600;"></span></span>
+            <span>💛 Lista de espera <span id="leCount" style="color:var(--text-muted);font-weight:600;"></span></span>
             <span style="display:flex;gap:8px;">
+                <select id="leFiltro" onchange="loadListaEspera()" style="background:var(--card);border:1px solid var(--border);border-radius:9px;padding:7px 10px;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--text);cursor:pointer;">
+                    <option value="imersao">Próxima turma</option>
+                    <option value="widget">Widget (reels)</option>
+                    <option value="todos">Todos</option>
+                </select>
                 <button type="button" onclick="loadListaEspera()" style="background:var(--card);border:1px solid var(--border);border-radius:9px;padding:7px 13px;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--text-soft);cursor:pointer;">↻ Atualizar</button>
                 <button type="button" onclick="exportListaEsperaCsv()" style="background:var(--card);border:1px solid var(--border);border-radius:9px;padding:7px 13px;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--text-soft);cursor:pointer;">⬇ Exportar CSV</button>
             </span>
         </div>
-        <p style="margin:0 0 12px 0;color:var(--text-muted);font-size:12.5px;">Quem se inscreveu em <b>creators.laradam.com/lista-espera</b> (o link que a automação do Instagram manda na DM). Quando abrir a próxima turma, exporta o CSV ou dispara e-mail pra essa lista.</p>
+        <p id="leDesc" style="margin:0 0 12px 0;color:var(--text-muted);font-size:12.5px;">Quem se inscreveu em <b>creators.laradam.com/lista-espera</b> (o link que a automação do Instagram manda na DM). Quando abrir a próxima turma, exporta o CSV ou dispara e-mail pra essa lista.</p>
         <div id="leBox"><div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando...</div></div>
     </div>
 
@@ -7756,10 +7761,15 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         if (!box) return;
         box.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);">Carregando...</div>';
         try {
-            const { data, error } = await sb.from('lista_espera')
-                .select('*')
-                .eq('interesse', 'imersao')
-                .order('created_at', { ascending: false });
+            const leF = (document.getElementById('leFiltro') || {}).value || 'imersao';
+            const desc = document.getElementById('leDesc');
+            if (desc) desc.innerHTML = leF === 'widget'
+                ? 'Quem preencheu o cadastro em <b>ugc.laradam.com/widget</b> pra liberar o passo a passo (link que a automação WIDGET manda no direct, só pra quem te segue). WhatsApp e @ são clicáveis.'
+                : leF === 'todos' ? 'Todo mundo das listas de espera, de todas as páginas.'
+                : 'Quem se inscreveu em <b>creators.laradam.com/lista-espera</b> (o link que a automação do Instagram manda na DM). Quando abrir a próxima turma, exporta o CSV ou dispara e-mail pra essa lista.';
+            let leQ = sb.from('lista_espera').select('*');
+            if (leF !== 'todos') leQ = leQ.eq('interesse', leF);
+            const { data, error } = await leQ.order('created_at', { ascending: false });
             if (error) throw error;
             leCache = data || [];
             if (cnt) cnt.textContent = '(' + leCache.length + ')';
@@ -7814,7 +7824,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const blob = new Blob(['﻿' + linhas.join('\n')], { type: 'text/csv;charset=utf-8;' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = 'lista-espera-imersao.csv';
+        a.download = 'lista-espera-' + (((document.getElementById('leFiltro') || {}).value) || 'imersao') + '.csv';
         a.click();
         URL.revokeObjectURL(a.href);
     }
