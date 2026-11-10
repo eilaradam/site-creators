@@ -50,6 +50,7 @@
     function redirectByRole(role) {
         if (role === 'admin') window.location.href = 'admin.html';
         else if (role === 'aluna') window.location.href = 'painel.html';
+        else if (role === 'equipe') window.location.href = 'triagem.html';
         else window.location.href = 'login.html';
     }
 
