@@ -243,14 +243,6 @@ siga isso mesmo que o tipo marcado seja outro (aqui, é o modo "Falando + narrad
      ou nas etiquetas, ou que a descrição diga que não tem voz. Voz na música briga com a fala da Lara.
      Climas que ela usa: animada/pop leve (tipo "Upbeat Happy"), funk/chill (tipo "Funky Chill Night"), tech/corporativo
      para marca de app e IA, lo-fi para vlog, suspense curto para gancho. Escolha UMA faixa por vídeo.
-   - **Filtro de gosto (obrigatório antes de escolher)**: busque 8 a 15 candidatas, salve o resultado do
-     `SearchRecordings` (o JSON inteiro) em `work/candidatas.json` e rode
-     `~/robo-edicao/venv/bin/python -I ~/robo-edicao/gosto-musical/filtrar_musica.py --json work/candidatas.json`.
-     Escolha só entre as que vierem com `"passa": true`, de preferência a de maior `nota`, e que combine com o
-     clima do vídeo. Nenhuma passou: busque de novo com termos mais escuros e com mais grave ("dark", "deep bass",
-     "mellow", "warm") e menos brilhantes, e filtre outra vez. O gosto dela, medido: músicas escuras (pouco brilho,
-     ~1.600 a 1.750 Hz de centroide), com muito grave (65 a 77% da energia abaixo de 150 Hz) e volume estável.
-     No resumo, escreva a nota do filtro da faixa escolhida e o ID dela.
    - **Cortar no tamanho**: `EditRecording` com a duração do vídeo final (até 5 min), `PollEditRecordingJob` até
      `COMPLETED` e `DownloadRecordingEdit` para `work/musica/`. Se a edição falhar, use `DownloadRecording` (faixa
      inteira) e deixe o montador cortar com `origem_inicio_s`.

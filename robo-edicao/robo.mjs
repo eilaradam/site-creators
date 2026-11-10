@@ -161,9 +161,7 @@ function falasMd(p) {
     const L = falas(p).map((a, k) => (k + 1) + '. ' + [a.texto, a.transcricao && !/^\(não consegui/.test(a.transcricao) ? '(áudio) ' + a.transcricao : a.transcricao].filter(Boolean).join(' / ') +
         (a.sempre ? '  ← ela marcou que isso vale para TODOS os próximos vídeos' : ''));
     return L.length ? ['## ⚠️ O que a Lara falou depois da versão anterior (OBRIGATÓRIO: é a razão deste refazer)', ...L,
-        'Cumpra cada item e diga no resumo como cumpriu. Se ela falou da MÚSICA (gostou, não gostou, "muito animadinha"...), registre no',
-        'gosto dela: `~/robo-edicao/venv/bin/python -I ~/robo-edicao/gosto-musical/filtrar_musica.py --reprovar <ID da faixa>` (ou --aprovar),',
-        'com o ID que está no resumo da versão anterior. Escreva também `saida/regras_propostas.json` (formato de "Aprender com os ajustes")',
+        'Cumpra cada item e diga no resumo como cumpriu. Escreva também `saida/regras_propostas.json` (formato de "Aprender com os ajustes")',
         'com as regras gerais que essas falas revelam.', ''] : [];
 }
 
@@ -784,10 +782,7 @@ async function olharBiblioteca() {
 const ATUALIZAR_DE = process.env.ROBO_ATUALIZAR_DE || 'https://raw.githubusercontent.com/eilaradam/site-creators/main/robo-edicao/';
 const ARQUIVOS_DO_ROBO = ['robo.mjs', 'icone.png', 'INSTRUCOES_EDICAO.md', 'INSTRUCOES_CENAS.md', 'INSTRUCOES_APRENDER.md', 'transcrever.py', 'legendas.json',
     'legendas_ass.py', 'montar.py', 'catalogar_sons.py', 'encaixar_musica.py', 'baixar_fontes.py', 'fontes.json',
-    'titulos/package.json', 'titulos/src/index.ts', 'titulos/src/Raiz.tsx', 'titulos/src/Titulos.tsx',
-    'gosto-musical/ouvido.py', 'gosto-musical/filtrar_musica.py', 'gosto-musical/faixas_iniciais.json', 'gosto-musical/gosto.json'];
-// o gosto.json do Mac é o que vale (cresce a cada aprovação ou reprovação dela): só baixa se ainda não existir
-const SO_SE_FALTAR = ['gosto-musical/gosto.json'];
+    'titulos/package.json', 'titulos/src/index.ts', 'titulos/src/Raiz.tsx', 'titulos/src/Titulos.tsx'];
 let ultimaAtualizacao = 0;
 async function atualizarRobo() {
     if (process.env.ROBO_SEM_ATUALIZAR || Date.now() - ultimaAtualizacao < 30 * 60000) return false;
@@ -798,7 +793,7 @@ async function atualizarRobo() {
             const r = await fetch(ATUALIZAR_DE + nome + '?t=' + Date.now(), { cache: 'no-store' });
             if (!r.ok) continue;
             const novo = Buffer.from(await r.arrayBuffer()), arq = path.join(DIR, nome);
-            if (!novo.length || (fs.existsSync(arq) && (SO_SE_FALTAR.includes(nome) || fs.readFileSync(arq).equals(novo)))) continue;
+            if (!novo.length || (fs.existsSync(arq) && fs.readFileSync(arq).equals(novo))) continue;
             fs.mkdirSync(path.dirname(arq), { recursive: true });
             fs.writeFileSync(arq + '.novo', novo); fs.renameSync(arq + '.novo', arq);
             mudou++; if (nome === 'robo.mjs') mudouCodigo = true;
