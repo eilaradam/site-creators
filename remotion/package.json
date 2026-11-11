@@ -1,0 +1,22 @@
+{
+  "name": "site-creators-remotion",
+  "version": "1.0.0",
+  "description": "Projeto Remotion para criação de vídeos programáticos",
+  "private": true,
+  "scripts": {
+    "dev": "remotion studio",
+    "render": "remotion render",
+    "upgrade": "remotion upgrade"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.479",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "remotion": "4.0.479"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "typescript": "^5.8.3"
+  }
+}
