@@ -2477,6 +2477,7 @@
                     <option value="imersao">Próxima turma</option>
                     <option value="widget">Widget (reels)</option>
                     <option value="roteiro">Roteiro (carrossel)</option>
+                    <option value="edicao">Edição (aula grátis 26/11)</option>
                     <option value="todos">Todos</option>
                 </select>
                 <button type="button" onclick="loadListaEspera()" style="background:var(--card);border:1px solid var(--border);border-radius:9px;padding:7px 13px;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--text-soft);cursor:pointer;">↻ Atualizar</button>
@@ -7766,6 +7767,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             const desc = document.getElementById('leDesc');
             if (desc) desc.innerHTML = leF === 'widget'
                 ? 'Quem preencheu o cadastro em <b>ugc.laradam.com/widget</b> pra liberar o passo a passo (link que a automação WIDGET manda no direct, só pra quem te segue). WhatsApp e @ são clicáveis.'
+                : leF === 'edicao' ? 'Quem entrou na lista da <b>aula grátis de Edição com Claude (26/11)</b> em <b>ugc.laradam.com/edicao</b> (link da automação EDIÇÃO no direct). Em 18/11, manda pra essa lista o link do grupo da aula. WhatsApp e @ são clicáveis.'
                 : leF === 'roteiro' ? 'Quem preencheu o cadastro em <b>ugc.laradam.com/roteiro-prompt</b> pra liberar o modelo de entrega de roteiro e o prompt (link que a automação ROTEIRO manda no direct, só pra quem te segue). WhatsApp e @ são clicáveis.'
                 : leF === 'todos' ? 'Todo mundo das listas de espera, de todas as páginas.'
                 : 'Quem se inscreveu em <b>creators.laradam.com/lista-espera</b> (o link que a automação do Instagram manda na DM). Quando abrir a próxima turma, exporta o CSV ou dispara e-mail pra essa lista.';
