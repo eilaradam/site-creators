@@ -15902,7 +15902,13 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     }
     function igFilaHoje() { return new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' }); }
     function igFilaStatusTxt(r) {
-        if (r.status === 'enviado') return r.link_at ? '✅ tocou e recebeu o link' : '✉️ recebeu a mensagem';
+        if (r.status === 'enviado') {
+            if (r.link_at) return '✅ tocou e recebeu o link';
+            const lem = String(r.motivo || '');
+            if (lem.indexOf('lembrete com erro') === 0) return '✉️ recebeu · ⚠️ lembrete falhou';
+            if (lem.indexOf('lembrete') === 0) return '✉️ recebeu · 🔔 lembrete enviado';
+            return '✉️ recebeu a mensagem';
+        }
         return { na_fila: '⏳ na fila', enviando: '⏳ saindo', pendente: '🟠 pendente', erro: '⚠️ erro' }[r.status] || r.status;
     }
     function igFilaHtml(a) {
@@ -15926,6 +15932,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             + igCard('responderam hoje', igNum(doDia.length))
             + igCard('receberam a mensagem', igNum(enviados))
             + igCard('tocaram e pegaram o link', igNum(tocaram))
+            + igCard('receberam o lembrete (30 min)', igNum(doDia.filter(r => !r.link_at && String(r.motivo || '').indexOf('lembrete') === 0 && String(r.motivo || '').indexOf('erro') < 0).length))
             + igCard('na fila agora', igNum(naFila))
             + igCard('pendentes (na mão)', igNum(mao.length))
             + '</div>'
