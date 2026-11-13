@@ -5408,6 +5408,8 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                 <select id="dispTarget" onchange="loadDisparo()" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;background:var(--cream);color:var(--text);outline:none;">
                     <option value="todos">Todos os creators da base</option>
                     <option value="teste">🧪 Teste — só laradam.ugc@gmail.com</option>
+                    <option value="espera_imersao">💛 Lista de espera da imersão (modelo "lista de espera")</option>
+                    <option value="todos_sem_espera">📣 Base de creators, sem quem está na lista de espera (modelo "base")</option>
                     <option value="lista">📋 Lista avulsa: colar e-mails (um por linha)</option>
                     <option value="imersao">🎓 Imersão — todas as alunas (Turma 1 + 2)</option>
                     <option value="imersao_t1">🎓 Imersão — só a Turma 1</option>
@@ -6723,6 +6725,23 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             } catch (e) { /* segue sem código */ }
             return [{ nome: 'Lara', email: 'laradam.ugc@gmail.com', codigo: codigo }];
         }
+        // Lista de espera da imersão (lista_espera, interesse=imersao), sem repetir e-mail.
+        if (target === 'espera_imersao') {
+            const lista = await disparoListaEspera();
+            return lista;
+        }
+        // Base de creators sem quem está na lista de espera (essas recebem o e-mail próprio).
+        if (target === 'todos_sem_espera') {
+            const [base, espera] = await Promise.all([disparoRecipients('todos'), disparoListaEspera()]);
+            if (base === null || espera === null) return null;
+            const fora = new Set(espera.map(r => r.email));
+            const vistos = new Set();
+            return base.filter(r => {
+                const e = String(r.email || '').trim().toLowerCase();
+                if (fora.has(e) || vistos.has(e)) return false;
+                vistos.add(e); return true;
+            });
+        }
         // Lista avulsa: e-mails colados na mão (ex.: contatos que ainda não estão na base).
         if (target === 'lista') {
             const txt = (document.getElementById('dispLista') || {}).value || '';
@@ -6789,6 +6808,18 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             if (data.length < PAGE) break;
         }
         return all.filter(c => c.email && String(c.email).includes('@')).map(c => ({ nome: c.nome || '', email: String(c.email).trim(), codigo: c.codigo_indicacao || '' }));
+    }
+    async function disparoListaEspera() {
+        const { data, error } = await sb.from('lista_espera').select('nome,email').eq('interesse', 'imersao').limit(5000);
+        if (error) return null;
+        const vistos = new Set(), saida = [];
+        (data || []).forEach(r => {
+            const e = String(r.email || '').trim().toLowerCase();
+            if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e) || vistos.has(e) || e === 'laradam.ugc@gmail.com') return;
+            vistos.add(e);
+            saida.push({ nome: r.nome || '', email: e });
+        });
+        return saida;
     }
     function dispPct(parte, total) { return total ? Math.round(parte * 1000 / total) / 10 : 0; }
 
@@ -6905,6 +6936,8 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         else if (target === 'lista') el.innerHTML = recs.length
             ? '<b style="color:var(--accent);">' + recs.length + '</b> e-mails válidos na lista colada vão receber este e-mail. Como não tem nome, não use {{nome}} no texto.'
             : 'Cole os e-mails na caixa acima, um por linha.';
+        else if (target === 'espera_imersao') el.innerHTML = '<b style="color:var(--accent);">' + recs.length + '</b> pessoas da <b>lista de espera da imersão</b> vão receber este e-mail. (o filtro de estado não vale aqui)';
+        else if (target === 'todos_sem_espera') el.innerHTML = '<b style="color:var(--accent);">' + recs.length + '</b> creators da base vão receber este e-mail. Quem está na lista de espera fica de fora, porque recebe o e-mail próprio.';
         else if (target.indexOf('imersao') === 0) {
             const qualTurma = target === 'imersao_t1' ? ' da <b>Turma 1</b>' : target === 'imersao_t2' ? ' da <b>Turma 2</b>' : '';
             el.innerHTML = '<b style="color:var(--accent);">' + recs.length + '</b> alunas da <b>Imersão</b>' + qualTurma + ' vão receber este e-mail. (o filtro de estado não vale aqui)';
@@ -7097,6 +7130,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const when = new Date(whenRaw);
         if (isNaN(when.getTime()) || when.getTime() < Date.now() + 60000) { msg.style.color = 'var(--error)'; msg.textContent = 'A data precisa ser no futuro (pelo menos 1 minuto à frente).'; return; }
         const target = document.getElementById('dispTarget').value;
+        if (target === 'espera_imersao' || target === 'todos_sem_espera') { msg.style.color = 'var(--error)'; msg.textContent = 'Essa lista ainda não dá pra agendar. Use o botão Disparar.'; return; }
         // os filtros de estado/cidade viajam com o agendamento (a função respeita os dois)
         const ufAg = (target === 'teste' || target.indexOf('imersao') === 0) ? '' : ((document.getElementById('dispUF') || {}).value || '');
         const cidAg = ufAg ? ((document.getElementById('dispCidade') || {}).value || '') : '';
