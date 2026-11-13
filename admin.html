@@ -5409,7 +5409,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                     <option value="todos">Todos os creators da base</option>
                     <option value="teste">🧪 Teste — só laradam.ugc@gmail.com</option>
                     <option value="espera_imersao">💛 Lista de espera da imersão (modelo "lista de espera")</option>
-                    <option value="todos_sem_espera">📣 Base completa: creators + todos os leads, sem a lista de espera (modelo "base")</option>
+                    <option value="todos_sem_espera">📣 Leads: prompts, widget, aulas, imersão e compradoras, sem a lista de espera (modelo "base")</option>
                     <option value="lista">📋 Lista avulsa: colar e-mails (um por linha)</option>
                     <option value="imersao">🎓 Imersão — todas as alunas (Turma 1 + 2)</option>
                     <option value="imersao_t1">🎓 Imersão — só a Turma 1</option>
@@ -6732,9 +6732,9 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         }
         // Base de creators sem quem está na lista de espera (essas recebem o e-mail próprio).
         if (target === 'todos_sem_espera') {
-            const [base0, espera, extras] = await Promise.all([disparoRecipients('todos'), disparoListaEspera(), disparoLeadsExtras()]);
-            if (base0 === null || espera === null) return null;
-            const base = base0.concat(extras);
+            /* só os leads (sem a tabela creators, sem casting e candidaturas), pedido dela em 13/11 */
+            const [espera, base] = await Promise.all([disparoListaEspera(), disparoLeadsExtras()]);
+            if (espera === null) return null;
             const fora = new Set(espera.map(r => r.email));
             const vistos = new Set();
             return base.filter(r => {
@@ -6818,7 +6818,6 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             ['lista_espera', q => q.neq('interesse', 'imersao')],
             ['aula_bonus'], ['aula_portfolio_envios'], ['bio_leads'], ['direct_leads'],
             ['imersao_alunas'], ['black_contas'], ['kiwify_acessos'],
-            ['campanha_candidaturas'], ['casting_candidaturas'],
         ];
         const res = await Promise.all(fontes.map(async ([t, f]) => {
             const out = [];
@@ -6962,7 +6961,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             ? '<b style="color:var(--accent);">' + recs.length + '</b> e-mails válidos na lista colada vão receber este e-mail. Como não tem nome, não use {{nome}} no texto.'
             : 'Cole os e-mails na caixa acima, um por linha.';
         else if (target === 'espera_imersao') el.innerHTML = '<b style="color:var(--accent);">' + recs.length + '</b> pessoas da <b>lista de espera da imersão</b> vão receber este e-mail. (o filtro de estado não vale aqui)';
-        else if (target === 'todos_sem_espera') el.innerHTML = '<b style="color:var(--accent);">' + recs.length + '</b> pessoas vão receber este e-mail: a base de creators + quem pegou os prompts, o widget, as aulas, alunas e compradoras (sem repetir). Quem está na lista de espera fica de fora, porque recebe o e-mail próprio.';
+        else if (target === 'todos_sem_espera') el.innerHTML = '<b style="color:var(--accent);">' + recs.length + '</b> pessoas vão receber este e-mail: quem pegou os prompts, o widget, as aulas, alunas e compradoras (sem repetir). A base de creators, o casting e a lista de espera ficam de fora.';
         else if (target.indexOf('imersao') === 0) {
             const qualTurma = target === 'imersao_t1' ? ' da <b>Turma 1</b>' : target === 'imersao_t2' ? ' da <b>Turma 2</b>' : '';
             el.innerHTML = '<b style="color:var(--accent);">' + recs.length + '</b> alunas da <b>Imersão</b>' + qualTurma + ' vão receber este e-mail. (o filtro de estado não vale aqui)';
