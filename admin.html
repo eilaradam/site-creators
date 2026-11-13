@@ -15932,7 +15932,82 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
         const { data, error } = await sb.from('ig_automations').select('*').order('created_at', { ascending: false });
         if (error) { list.innerHTML = '<div style="color:var(--error);padding:16px;">Erro ao carregar: ' + escapeHtml(error.message) + '</div></div>'; return; }
         igAutomations = data || [];
+        await igFilaLoad();
         igRenderAutomations();
+    }
+
+    /* ── Fila de STORY (13/11/2026, "Story · Aula Edição") ──
+       Quem responde o story com a palavra entra em ig_story_fila e o carteiro manda uma DM por
+       vez (20 a 90 s entre envios), 1 por pessoa a cada 24h, teto por dia. Passou do teto, a
+       janela de 24h fechou ou deu erro: vira "pendente" e aparece aqui pra ela mandar na mão. */
+    let igFilaRows = [];
+    async function igFilaLoad() {
+        if (!igAutomations.some(a => a.fila_story)) { igFilaRows = []; return; }
+        const desde = new Date(Date.now() - 3 * 86400000).toISOString();
+        const { data, error } = await sb.from('ig_story_fila').select('*').gte('created_at', desde).order('created_at', { ascending: false }).range(0, 1999);
+        igFilaRows = error ? [] : (data || []);
+    }
+    function igFilaHoje() { return new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' }); }
+    function igFilaStatusTxt(r) {
+        return { na_fila: '⏳ na fila', enviando: '⏳ saindo', enviado: '✅ enviado', pendente: '🟠 pendente', erro: '⚠️ erro' }[r.status] || r.status;
+    }
+    function igFilaHtml(a) {
+        const f = a.fila_story || {};
+        const hoje = igFilaHoje();
+        const rows = igFilaRows.filter(r => r.automation_id === a.id);
+        const doDia = rows.filter(r => r.dia === hoje);
+        const enviados = doDia.filter(r => r.status === 'enviado').length;
+        const naFila = doDia.filter(r => r.status === 'na_fila' || r.status === 'enviando').length;
+        /* pendente/erro de qualquer dos últimos 3 dias que ainda dá tempo de mandar na mão */
+        const agora = Date.now();
+        const mao = rows.filter(r => (r.status === 'pendente' || r.status === 'erro') && (!r.janela_ate || new Date(r.janela_ate).getTime() > agora));
+        const conta = r => r.username
+            ? '<a href="https://ig.me/m/' + encodeURIComponent(r.username) + '" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;text-decoration:none;">@' + escapeHtml(r.username) + '</a>'
+            : escapeHtml(r.ig_user_id);
+        const fecha = r => { if (!r.janela_ate) return ''; const h = Math.max(0, (new Date(r.janela_ate).getTime() - agora) / 3600000); return h < 1 ? 'fecha em ' + Math.round(h * 60) + ' min' : 'fecha em ' + Math.floor(h) + 'h'; };
+        return '<div onclick="event.stopPropagation()" style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">'
+            + (f.so_teste ? '<div style="background:#fff7d6;color:#6b5200;border-radius:10px;padding:8px 11px;font-size:12.5px;margin-bottom:10px;">🧪 <b>Modo teste:</b> só as suas contas de teste (@meumanager e @crlarx) disparam. Desligue o modo teste pra valer pra todo mundo.</div>' : '')
+            + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">'
+            + igCard('responderam hoje', igNum(doDia.length))
+            + igCard('receberam o link', igNum(enviados))
+            + igCard('na fila agora', igNum(naFila))
+            + igCard('pendentes (na mão)', igNum(mao.length))
+            + '</div>'
+            + (mao.length
+                ? '<div style="background:#ffe9e4;border:1px solid #f3b9a9;border-radius:12px;padding:10px 12px;margin-bottom:10px;">'
+                  + '<div style="font-weight:800;color:#8a2a12;font-size:13px;margin-bottom:6px;">⚠️ ' + mao.length + (mao.length === 1 ? ' pessoa precisa' : ' pessoas precisam') + ' do link na mão (antes de fechar as 24h)</div>'
+                  + mao.map(r => '<div style="font-size:12.5px;line-height:1.7;">' + conta(r) + (r.nome ? ' · ' + escapeHtml(r.nome) : '') + ' <span style="color:var(--text-muted);">· ' + escapeHtml(r.motivo || r.status) + ' · ' + fecha(r) + '</span></div>').join('')
+                  + '</div>'
+                : '')
+            + '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;">'
+            + '<label style="font-size:12.5px;font-weight:700;color:var(--text-soft);">Link do grupo</label>'
+            + '<input id="igFilaLink_' + a.id + '" type="url" value="' + igEsc(a.link_url || '') + '" placeholder="https://chat.whatsapp.com/..." style="flex:1;min-width:220px;padding:8px 10px;border:1px solid var(--border);border-radius:9px;font-family:inherit;font-size:13px;background:var(--card);color:var(--text);">'
+            + '<button class="ig-btn" type="button" onclick="igFilaSalvarLink(\'' + a.id + '\')">Salvar link</button>'
+            + '<button class="ig-btn ghost" type="button" onclick="igFilaModoTeste(\'' + a.id + '\')">' + (f.so_teste ? '🧪 Sair do modo teste' : '🧪 Voltar pro modo teste') + '</button>'
+            + '</div>'
+            + (rows.length
+                ? '<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:auto;max-height:320px;"><table><thead><tr><th>Conta</th><th>Nome</th><th>Quando</th><th>Origem</th><th>Status</th><th>Variação</th></tr></thead><tbody>'
+                  + rows.slice(0, 200).map(r => '<tr><td>' + conta(r) + '</td><td>' + escapeHtml(r.nome || '—') + '</td><td>' + escapeHtml(igFmtDate(r.created_at)) + '</td><td>' + (r.origem === 'dm' ? '📩 dm edição' : '📖 story edição') + '</td><td title="' + igEsc(r.motivo || '') + '">' + igFilaStatusTxt(r) + '</td><td>' + (r.variacao || '—') + '</td></tr>').join('')
+                  + '</tbody></table></div>'
+                : '<div style="font-size:12.5px;color:var(--text-muted);">Ninguém respondeu ainda.</div>')
+            + '</div>';
+    }
+    async function igFilaSalvarLink(id) {
+        const el = document.getElementById('igFilaLink_' + id);
+        const url = igNormUrl(el && el.value);
+        if (!url) { alert('Esse link não parece um endereço válido. Cole o link do grupo completo (https://chat.whatsapp.com/...).'); return; }
+        const { error } = await sb.from('ig_automations').update({ link_url: url, updated_at: new Date().toISOString() }).eq('id', id);
+        if (error) { alert('Erro: ' + error.message); return; }
+        igLoadAutomations();
+    }
+    async function igFilaModoTeste(id) {
+        const a = igAutomations.find(x => x.id === id); if (!a) return;
+        const f = Object.assign({}, a.fila_story || {});
+        if (f.so_teste && !confirm('Sair do modo teste? Com a automação ligada, qualquer pessoa que responder o story com a palavra entra na fila.')) return;
+        f.so_teste = !f.so_teste;
+        const { error } = await sb.from('ig_automations').update({ fila_story: f, updated_at: new Date().toISOString() }).eq('id', id);
+        if (error) { alert('Erro: ' + error.message); return; }
+        igLoadAutomations();
     }
 
     function igRenderAutomations() {
@@ -15962,9 +16037,9 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                 + '<div style="flex:1;min-width:0;">'
                 + '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:7px;">'
                 + '<span style="font-weight:800;color:var(--text);font-size:15px;">' + escapeHtml(a.nome || 'Automação') + '</span>'
-                + '<span class="ig-badge">' + (a.trigger_type === 'story_reply' ? '📖 Story' : '💬 Comentário') + '</span>'
+                + '<span class="ig-badge">' + (a.fila_story ? '📖 Story + Direct · fila espaçada' : (a.trigger_type === 'story_reply' ? '📖 Story' : '💬 Comentário')) + '</span>'
                 + '</div>'
-                + '<div style="margin-bottom:7px;line-height:1.7;">' + kws + '<span style="font-size:11px;color:var(--text-muted);">· ' + posts + '</span></div>'
+                + '<div style="margin-bottom:7px;line-height:1.7;">' + kws + (a.fila_story ? '' : '<span style="font-size:11px;color:var(--text-muted);">· ' + posts + '</span>') + '</div>'
                 + '<div style="font-size:12px;color:var(--text-muted);">🔗 ' + escapeHtml(a.link_url || '(sem link)') + '</div>'
                 + '</div>'
                 + '</div>'
@@ -15974,10 +16049,11 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                     ? '<button class="ig-btn ghost" type="button" title="Mandar pra quem comentou antes da automação existir" data-ig-act="retro" data-ig-id="' + a.id + '">📨 Quem ficou de fora</button>' : '')
                 + ((a.media_ids && a.media_ids.length)
                     ? '<button class="ig-btn ghost" type="button" title="Mandar uma mensagem nova pra quem já interagiu" data-ig-act="recado" data-ig-id="' + a.id + '">💬 Mandar recado</button>' : '')
-                + '<button class="ig-btn ghost" type="button" data-ig-act="edit" data-ig-id="' + a.id + '">Editar</button>'
+                + (a.fila_story ? '' : '<button class="ig-btn ghost" type="button" data-ig-act="edit" data-ig-id="' + a.id + '">Editar</button>')
                 + '<button class="ig-iconbtn" type="button" title="Excluir" data-ig-act="delete" data-ig-id="' + a.id + '">🗑</button>'
                 + '</div>'
                 + '</div>'
+                + (a.fila_story ? igFilaHtml(a) : '')
                 + igPainelHtml(a)
                 + '</div>';
         }).join('');
@@ -16894,6 +16970,18 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     let igLeadsExpandido = false;
     const IG_LEADS_TETO = 300;   // teto de linhas desenhadas de uma vez
     function igLeadsToggle() { igLeadsExpandido = !igLeadsExpandido; igRenderLeads(); }
+    /* pessoa que passou pela fila de story: origem "story edição" e status/variação da fila */
+    function igLeadFila(l) { return igFilaRows.find(r => r.ig_user_id === l.ig_user_id && r.automation_id === l.automation_id) || null; }
+    function igLeadOrigemTxt(l) {
+        const r = igLeadFila(l);
+        if (r) return r.origem === 'dm' ? '📩 dm edição' : '📖 story edição';
+        return l.last_source === 'comment' ? '💬 Comentário' : (l.last_source === 'story_reply' ? '📖 Story' : '📩 Direct');
+    }
+    function igLeadRecebeuTxt(l) {
+        const r = igLeadFila(l);
+        if (r) return igFilaStatusTxt(r) + (r.variacao ? ' <span style="color:var(--text-muted);font-size:11px;">(var. ' + r.variacao + ')</span>' : '');
+        return l.link_sent ? '✅' : '—';
+    }
     function igRenderLeads() {
         const stats = document.getElementById('igLeadStats');
         const list = document.getElementById('igLeadList');
@@ -16918,11 +17006,11 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             + '<th>Conta</th><th>Origem</th><th>Palavra</th><th>📧 Contato</th><th>🏷️ Etiqueta</th><th>Recebeu?</th><th>Interações</th><th>Última vez</th></tr></thead><tbody>'
             + mostrar.map(l => '<tr>'
                 + '<td>' + (l.username ? '<a href="https://instagram.com/' + encodeURIComponent(l.username) + '" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;font-weight:700;">@' + escapeHtml(l.username) + '</a>' : escapeHtml(l.ig_user_id || '')) + '</td>'
-                + '<td>' + (l.last_source === 'comment' ? '💬 Comentário' : '📩 Direct') + '</td>'
+                + '<td>' + igLeadOrigemTxt(l) + '</td>'
                 + '<td>' + escapeHtml(l.last_keyword || '') + '</td>'
                 + '<td style="white-space:normal;max-width:170px;">' + ((l.email || l.telefone) ? ((l.email ? '<a href="mailto:' + escapeHtml(l.email) + '" style="color:var(--accent);text-decoration:none;">' + escapeHtml(l.email) + '</a>' : '') + (l.telefone ? ' <span>' + escapeHtml(l.telefone) + '</span>' : '')) : '<span style="color:var(--text-muted);">—</span>') + '</td>'
                 + '<td style="white-space:normal;max-width:180px;">' + igLeadTags(l) + '</td>'
-                + '<td>' + (l.link_sent ? '✅' : '—') + '</td>'
+                + '<td>' + igLeadRecebeuTxt(l) + '</td>'
                 + '<td>' + (l.interactions || 1) + '</td>'
                 + '<td>' + escapeHtml(igFmtDate(l.updated_at)) + '</td>'
                 + '</tr>').join('')
