@@ -15844,14 +15844,16 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     }
     function igFilaHoje() { return new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' }); }
     function igFilaStatusTxt(r) {
-        return { na_fila: '⏳ na fila', enviando: '⏳ saindo', enviado: '✅ enviado', pendente: '🟠 pendente', erro: '⚠️ erro' }[r.status] || r.status;
+        if (r.status === 'enviado') return r.link_at ? '✅ tocou e recebeu o link' : '✉️ recebeu a mensagem';
+        return { na_fila: '⏳ na fila', enviando: '⏳ saindo', pendente: '🟠 pendente', erro: '⚠️ erro' }[r.status] || r.status;
     }
     function igFilaHtml(a) {
         const f = a.fila_story || {};
         const hoje = igFilaHoje();
         const rows = igFilaRows.filter(r => r.automation_id === a.id);
         const doDia = rows.filter(r => r.dia === hoje);
-        const enviados = doDia.filter(r => r.status === 'enviado').length;
+        const enviados = doDia.filter(r => r.sent_at).length;
+        const tocaram = doDia.filter(r => r.link_at).length;
         const naFila = doDia.filter(r => r.status === 'na_fila' || r.status === 'enviando').length;
         /* pendente/erro de qualquer dos últimos 3 dias que ainda dá tempo de mandar na mão */
         const agora = Date.now();
@@ -15864,7 +15866,8 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             + (f.so_teste ? '<div style="background:#fff7d6;color:#6b5200;border-radius:10px;padding:8px 11px;font-size:12.5px;margin-bottom:10px;">🧪 <b>Modo teste:</b> só as suas contas de teste (@meumanager e @crlarx) disparam. Desligue o modo teste pra valer pra todo mundo.</div>' : '')
             + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">'
             + igCard('responderam hoje', igNum(doDia.length))
-            + igCard('receberam o link', igNum(enviados))
+            + igCard('receberam a mensagem', igNum(enviados))
+            + igCard('tocaram e pegaram o link', igNum(tocaram))
             + igCard('na fila agora', igNum(naFila))
             + igCard('pendentes (na mão)', igNum(mao.length))
             + '</div>'
