@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Estúdio de Vídeos</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#5A1230">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: uma coluna de celular, como uma ficha técnica de confecção: etapas numeradas, campos curtos, resultado no fim. */
+:root{
+  --bg:#f7f2f4; --surface:#ffffff; --ink:#2E0817; --muted:#72585f; --line:#e6d9de;
+  --accent:#8A1F4A; --accent-ink:#ffffff; --soft:#f4e3ea; --ok:#1f7a4d; --warn:#8a5200; --warn-bg:#fbf0d9;
+  --vinho:#5A1230; --lima:#DCFB4E; --lima-ink:#2E0817;
+  --display:"Bricolage Grotesque","Trebuchet MS",sans-serif;
+  --body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+
+*{box-sizing:border-box}
+html{color-scheme:light}
+body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:640px;margin:0 auto;padding-block:16px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:20px}
+h1{font-family:var(--display);font-weight:700;font-size:1.7rem;line-height:1.1;margin:0;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-size:1.15rem;margin:0;text-wrap:balance}
+h3{font-size:.95rem;font-weight:600;margin:0}
+p{margin:0}
+.sub{color:var(--muted);font-size:.92rem}
+header{display:flex;flex-direction:column;gap:6px;background:linear-gradient(135deg,#5A1230,#8A1F4A);color:#fff;border-radius:16px;padding:18px 16px}
+header .sub{color:#f1d9e3}
+
+nav{display:flex;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px}
+nav a{flex:1;text-align:center;padding:10px 6px;border-radius:9px;text-decoration:none;color:var(--muted);font-weight:600;font-size:.92rem}
+nav a[aria-current="page"]{background:var(--lima);color:var(--lima-ink)}
+
+section.view{display:flex;flex-direction:column;gap:22px}
+.step{display:flex;flex-direction:column;gap:12px}
+.step-head{display:flex;align-items:baseline;gap:10px}
+.num{font-family:var(--display);font-weight:700;color:var(--accent);font-size:1.15rem;font-variant-numeric:tabular-nums}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:12px}
+
+label{display:flex;flex-direction:column;gap:4px;font-size:.82rem;font-weight:600;color:var(--muted);min-width:0}
+input[type=text],input[type=number],select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:10px;width:100%;min-width:0}
+textarea{resize:vertical;min-height:72px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:420px){.grid2{grid-template-columns:1fr}}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+button{font:inherit;font-weight:600;border-radius:10px;padding:11px 14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+button.primary{background:var(--lima);color:var(--lima-ink);border-color:var(--lima)}
+button.small{padding:7px 10px;font-size:.85rem}
+button:disabled{opacity:.5;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:9px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:600;font-size:.92rem}
+.chip[aria-pressed="true"]{background:var(--soft);border-color:var(--accent);color:var(--accent)}
+.tag{display:inline-block;font-size:.72rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:6px;background:var(--warn-bg);color:var(--warn)}
+
+.formats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media (max-width:480px){.formats{grid-template-columns:1fr}}
+.format{display:flex;flex-direction:column;gap:4px;text-align:left;padding:12px;border-radius:12px}
+.format small{font-weight:400;color:var(--muted);font-size:.82rem;line-height:1.35}
+.format[aria-pressed="true"]{background:var(--soft);border-color:var(--accent)}
+
+.thumbs{display:flex;flex-wrap:wrap;gap:8px}
+.thumbs img{width:72px;height:96px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+.note{font-size:.88rem;color:var(--muted)}
+.alert{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:10px 12px;font-size:.9rem}
+
+.out-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+textarea.prompt{font-family:var(--mono);font-size:.8rem;line-height:1.5;min-height:230px;background:var(--bg)}
+textarea.caption{min-height:110px}
+
+.check{display:flex;flex-direction:column;gap:2px}
+.check label{flex-direction:row;align-items:flex-start;gap:10px;font-size:.95rem;font-weight:400;color:var(--ink);padding:8px 0;border-bottom:1px solid var(--line)}
+.check label:last-child{border-bottom:0}
+.check input{width:20px;height:20px;margin-top:2px;accent-color:var(--accent);flex:none}
+#checkStatus{font-weight:600}
+#checkStatus.done{color:var(--ok)}
+#confVeredito{font-weight:600;padding:10px 12px;border-radius:10px;background:var(--warn-bg);color:var(--warn)}
+#confVeredito.ok{background:var(--soft);color:var(--ok)}
+#confLista{margin:0;padding-left:20px;font-size:.93rem}
+#confLista li{margin-bottom:6px}
+
+.perfil-card{display:flex;flex-direction:column;gap:6px}
+.perfil-card dl{margin:0;display:grid;gap:6px}
+.perfil-card dt{font-size:.75rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.perfil-card dd{margin:0;font-size:.93rem}
+
+.rules{display:flex;flex-direction:column;gap:10px}
+.rules li{margin-bottom:6px}
+.rules ul{margin:0;padding-left:20px}
+a{color:var(--accent)}
+.flow{display:grid;gap:8px;counter-reset:f}
+.flow div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:.93rem}
+.flow b{display:block}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Estúdio de Vídeos</h1>
+    <p class="sub">Monta os prompts de cada vídeo com a ficha do produto travada, para a roupa sair igual à da loja.</p>
+  </header>
+
+  <nav aria-label="Seções">
+    <a href="#criar" data-tab="criar">Novo vídeo</a>
+    <a href="#perfis" data-tab="perfis">Perfis</a>
+    <a href="#regras" data-tab="regras">Regras</a>
+  </nav>
+
+  <!-- CRIAR -->
+  <section class="view" id="view-criar">
+    <div class="step">
+      <div class="step-head"><span class="num">1</span><h2>Qual perfil?</h2></div>
+      <div class="chips" id="perfilChips"><span class="note">Carregando perfis…</span></div>
+      <p class="note" id="perfilResumo"></p>
+    </div>
+
+    <div class="step">
+      <div class="step-head"><span class="num">2</span><h2>Ficha do produto</h2></div>
+      <div class="panel">
+        <div class="row">
+          <span class="tag" id="exemploTag">Exemplo</span>
+          <button class="small" id="limparBtn" type="button">Limpar e começar um produto novo</button>
+        </div>
+        <label>Fotos do produto (as mesmas da loja)
+          <input type="file" id="fotos" accept="image/jpeg,image/png,image/webp" multiple>
+        </label>
+        <div class="thumbs" id="thumbs"></div>
+        <div class="row">
+          <button type="button" id="lerBtn" hidden>Ler as fotos e preencher a ficha</button>
+          <span class="note" id="lerStatus"></span>
+        </div>
+        <div class="grid2">
+          <label>Nome do produto<input type="text" id="p_nome"></label>
+          <label>Tipo
+            <select id="p_tipo">
+              <option value="blusa">Blusa ou camisa</option>
+              <option value="vestido">Vestido</option>
+              <option value="conjunto">Conjunto</option>
+              <option value="calca">Calça ou saia</option>
+              <option value="intima">Roupa íntima</option>
+              <option value="calcado">Calçado</option>
+              <option value="acessorio">Acessório</option>
+            </select>
+          </label>
+          <label>Cor exata<input type="text" id="p_cor"></label>
+          <label>Tecido e textura<input type="text" id="p_tecido"></label>
+          <label>Gola ou decote<input type="text" id="p_gola"></label>
+          <label>Manga ou alça<input type="text" id="p_manga"></label>
+          <label>Comprimento (onde bate no corpo)<input type="text" id="p_comp"></label>
+          <label>Fechamento (botões, zíper)<input type="text" id="p_fecho"></label>
+        </div>
+        <label>Detalhes que não podem mudar (laço, renda, costura, estampa)
+          <textarea id="p_det"></textarea>
+        </label>
+        <div class="grid2">
+          <label>Quantas peças vêm no pedido<input type="number" id="p_pecas" min="1" max="20" inputmode="numeric"></label>
+          <label>Tamanho real (calçado e acessório)<input type="text" id="p_medida" placeholder="ex.: salto de 7 cm"></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head"><span class="num">3</span><h2>Formato do vídeo</h2></div>
+      <div class="formats" id="formats">
+        <button type="button" class="format" data-f="pov"><span>POV na mão</span><small>A mão mostra a peça para a câmera.</small></button>
+        <button type="button" class="format" data-f="desfile"><span>Desfile</span><small>A personagem veste e caminha.</small></button>
+        <button type="button" class="format" data-f="misto"><span>Misto</span><small>Começa no detalhe e abre para o corpo todo.</small></button>
+      </div>
+      <p class="alert" id="intimaAviso" hidden>Roupa íntima fica só no formato na mão ou no cabide. Personagem vestindo roupa íntima é o tipo de vídeo com mais chance de ser removido.</p>
+    </div>
+
+    <div class="step">
+      <div class="step-head"><span class="num">4</span><h2>Primeiro a foto</h2></div>
+      <p class="note">Cole este prompt junto com as fotos do produto e a imagem da personagem. Só siga para o vídeo quando a foto estiver igual à da loja.</p>
+      <div class="panel">
+        <div class="out-head"><h3>Prompt da foto</h3><button class="small" type="button" data-copy="outImg">Copiar</button></div>
+        <textarea class="prompt" id="outImg" readonly></textarea>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head"><span class="num">5</span><h2>Depois o vídeo</h2></div>
+      <p class="note">Use a foto aprovada como primeiro quadro. O vídeo começa com o produto certo e o prompt proíbe mudanças.</p>
+      <div class="panel">
+        <div class="out-head"><h3>Prompt do vídeo</h3><button class="small" type="button" data-copy="outVid">Copiar</button></div>
+        <textarea class="prompt" id="outVid" readonly></textarea>
+      </div>
+      <div class="panel">
+        <div class="out-head"><h3>Legenda</h3>
+          <div class="row">
+            <button class="small" type="button" id="legBtn" hidden>Escrever legenda</button>
+            <button class="small" type="button" data-copy="outLeg">Copiar</button>
+          </div>
+        </div>
+        <textarea class="caption" id="outLeg" placeholder="Escreva a legenda aqui."></textarea>
+        <span class="note" id="legStatus"></span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head"><span class="num">6</span><h2>Conferir antes de postar</h2></div>
+      <div class="panel" id="autoPanel" hidden>
+        <h3>Conferência automática</h3>
+        <p class="note">Envie a foto gerada, ou prints do começo, meio e fim do vídeo. A IA compara com as fotos da loja do passo 2 e aponta cada diferença.</p>
+        <label>Foto gerada ou prints do vídeo
+          <input type="file" id="gerados" accept="image/jpeg,image/png,image/webp" multiple>
+        </label>
+        <div class="thumbs" id="thumbsGer"></div>
+        <div class="row"><button type="button" class="primary" id="confBtn">Conferir com a foto da loja</button><span class="note" id="confStatus"></span></div>
+        <p id="confVeredito" hidden></p>
+        <ul id="confLista" hidden></ul>
+      </div>
+      <p class="note">Lista para conferir à mão, item por item.</p>
+      <div class="panel">
+        <div class="check" id="check"></div>
+        <p id="checkStatus"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PERFIS -->
+  <section class="view" id="view-perfis" hidden>
+    <p class="note" id="perfisNota">Cada perfil guarda a personagem e o público. Eles entram sozinhos em todo prompt e ficam salvos neste celular.</p>
+    <div id="perfisLista" style="display:flex;flex-direction:column;gap:12px"></div>
+    <div class="panel" id="perfilForm">
+      <h2 id="formTitulo">Novo perfil</h2>
+      <div class="grid2">
+        <label>Nome do perfil<input type="text" id="f_nome"></label>
+        <label>@ no TikTok<input type="text" id="f_arroba"></label>
+      </div>
+      <label>Personagem (idade, cabelo, pele, corpo, jeito)
+        <textarea id="f_pers"></textarea>
+      </label>
+      <label>Cenário de sempre
+        <textarea id="f_cen"></textarea>
+      </label>
+      <label>Público-alvo
+        <textarea id="f_pub"></textarea>
+      </label>
+      <div class="row">
+        <button type="button" class="primary" id="salvarPerfil">Salvar perfil</button>
+        <button type="button" id="cancelarPerfil" hidden>Cancelar</button>
+        <span class="note" id="perfilStatus"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- REGRAS -->
+  <section class="view" id="view-regras" hidden>
+    <div class="rules">
+      <h2>O que o TikTok Shop cobra</h2>
+      <div class="panel">
+        <h3>Da política oficial de conteúdo (Brasil)</h3>
+        <ul>
+          <li>Vídeo feito com IA é permitido, desde que não engane quem assiste e não imite outra pessoa.</li>
+          <li>O criador não pode postar conteúdo diferente do produto anunciado: demonstração falsa, imagem ou atributo falso do produto.</li>
+          <li>O produto do vídeo precisa ser o mesmo da página para onde o link leva.</li>
+          <li>Punições: remoção do vídeo e suspensão temporária ou definitiva do acesso ao TikTok Shop. Dá para recorrer com documentos.</li>
+        </ul>
+        <p class="note"><a href="https://seller-br.tiktok.com/university/essay?knowledge_id=1413208980588305&lang=pt-BR" target="_blank" rel="noopener">Política de Conteúdo do TikTok Shop</a></p>
+      </div>
+      <div class="panel">
+        <h3>De guias de terceiros (ainda não conferido no texto oficial)</h3>
+        <ul>
+          <li>Ligar o rótulo de conteúdo gerado por IA em todo vídeo com personagem realista.</li>
+          <li>A IA não pode mudar tamanho, cor, material, quantidade de peças nem o que vem no kit.</li>
+          <li>O rótulo de IA sozinho não reduz o alcance de um vídeo que segue as regras.</li>
+        </ul>
+        <p class="note">O artigo oficial que detalha isso se chama Restrições e requisitos para conteúdo gerado por IA e fica na Central do Vendedor.</p>
+      </div>
+      <h2>Como o site completo funcionaria</h2>
+      <div class="flow">
+        <div><b>Hoje, neste app</b>Ela preenche a ficha, copia os prompts e gera a foto e o vídeo no Flow.</div>
+        <div><b>No site completo</b>O botão gera a foto ali mesmo, ela aprova ou refaz, e o vídeo sai da foto aprovada, sem copiar nada.</div>
+        <div><b>Conferência automática</b>Antes de liberar o vídeo, a IA compara os quadros com a foto da loja e aponta laço, costura ou tamanho diferente.</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const FIELDS = ["nome","tipo","cor","tecido","gola","manga","comp","fecho","det","pecas","medida"];
+const EXEMPLO = {nome:"Blusa com laço na gola",tipo:"blusa",cor:"terracota fechado, sem brilho",tecido:"crepe leve, fosco, sem transparência",
+  gola:"gola alta com laço de duas pontas na frente",manga:"manga longa com punho de um botão",comp:"na altura do quadril",fecho:"três botões forrados no punho",
+  det:"Laço macio e caído, pontas até o meio do peito, um laço só. Costura reta no ombro. Sem estampa, sem bolso.",pecas:"1",medida:""};
+
+const state = { perfis: [], perfilId: null, formato: "pov", exemplo: true, files: [], editId: null, db: null, sample: null, salvaLocal: false };
+
+/* ---------- prompts ---------- */
+const TIPO_EN = {blusa:"blouse/shirt",vestido:"dress",conjunto:"two-piece set",calca:"pants/skirt",intima:"underwear set",calcado:"pair of shoes",acessorio:"accessory"};
+function produto(){ const p={}; FIELDS.forEach(f=>p[f]=$("p_"+f).value.trim()); return p; }
+function perfilAtual(){ return state.perfis.find(p=>p.id===state.perfilId) || null; }
+
+function fichaLinhas(p){
+  const L=[]; const add=(k,v)=>{ if(v) L.push("- "+k+": "+v); };
+  add("Color",p.cor); add("Fabric and texture",p.tecido); add("Collar / neckline",p.gola); add("Sleeves / straps",p.manga);
+  add("Length",p.comp?("hem falls exactly at: "+p.comp+" (do not shorten or lengthen)"):"");
+  add("Closure",p.fecho); add("Details that must stay identical",p.det);
+  const n=parseInt(p.pecas,10)||1;
+  L.push("- Pieces: exactly "+n+(n>1?" pieces, all visible, no more and no fewer":" piece"));
+  if(p.medida) L.push("- Real size: "+p.medida+" (keep true scale against the hand and body, not bigger, not smaller)");
+  return L.join("\n");
+}
+function buildPrompts(){
+  const p=produto(), pf=perfilAtual(), f=state.formato;
+  const pers = pf&&pf.personagem ? pf.personagem : "[personagem do perfil]";
+  const cen  = pf&&pf.cenario ? pf.cenario : "[cenário do perfil]";
+  const nome = p.nome || "[nome do produto]";
+  const det  = p.det ? p.det.split(/[.\n]/)[0].trim() : "main detail";
+  const intima = p.tipo==="intima";
+  const quadro = {
+    pov: intima
+      ? "First-person POV. The character's hands hold the pieces on a hanger (or laid flat on a bed) toward the camera. No body wearing the product. Product fills about half of the frame."
+      : "First-person POV. The character's hand holds the product toward the camera at chest height. Product fills about half of the frame; the hand gives true scale. Face not required.",
+    desfile: "Full-body shot, head to feet in frame. The character wears the product, standing, facing the camera.",
+    misto: "Waist-up shot. The character wears the product; the framing favors the detail ("+det+") while keeping the whole piece readable."
+  }[f];
+  const mov = {
+    pov: "The hand slowly tilts the product left and right, then fingers gently point at the detail ("+det+"). Handheld camera, minimal motion. Nothing else moves.",
+    desfile: "The character takes three slow steps toward the camera, stops, makes a soft quarter turn (max 45 degrees) to show the side, returns to front and lightly touches the detail ("+det+"). Camera fixed at chest height.",
+    misto: "The camera slowly pulls back from the waist-up framing to a full-body view while the character takes one small step and a soft quarter turn (max 45 degrees). No fast movement."
+  }[f];
+  const img =
+"Vertical 9:16 photo, realistic smartphone look, soft natural light.\n\n"+
+"CHARACTER: "+pers+"\nSETTING: "+cen+"\n\n"+
+"PRODUCT: "+nome+" ("+TIPO_EN[p.tipo]+"). The attached product photos are the only source of truth. Copy the product exactly as it appears in them:\n"+
+fichaLinhas(p)+"\n\n"+
+"FIDELITY RULES:\n"+
+"- Do not add, remove, move, resize or restyle any seam, bow, button, lace, trim, pocket or print.\n"+
+"- Same color in every part of the product. No extra pieces, no missing pieces.\n"+
+"- Real-life proportions: the product is the same size on the body as in the reference photos.\n"+
+"- No text, no logos, no watermark, no price tags.\n\n"+
+"FRAMING: "+quadro;
+  const vid =
+"Animate the attached approved image. Use it as the exact first frame. 8 seconds, vertical 9:16, realistic smartphone video.\n\n"+
+"MOVEMENT: "+mov+"\n\n"+
+"THE PRODUCT MUST STAY IDENTICAL TO THE FIRST FRAME IN EVERY FRAME:\n"+
+fichaLinhas(p)+"\n\n"+
+"- No morphing, no new details, no detail disappearing, no change in size, length or number of pieces.\n"+
+"- Fabric moves naturally and lightly. The character never turns fully away from the camera.\n"+
+"- Same lighting and setting from start to end. No cuts.\n"+
+"- No on-screen text, no logos, no watermark.";
+  return {img,vid};
+}
+
+/* ---------- conferência ---------- */
+function checkItens(){
+  const p=produto(); const n=parseInt(p.pecas,10)||1; const it=[];
+  it.push("A cor é a mesma da foto da loja"+(p.cor?" ("+p.cor+")":"")+".");
+  if(p.det) it.push("Os detalhes estão iguais, no mesmo lugar e do mesmo tamanho: "+p.det);
+  if(p.gola) it.push("Gola ou decote igual: "+p.gola+".");
+  if(p.manga) it.push("Manga ou alça igual: "+p.manga+".");
+  it.push("As costuras aparecem nos mesmos lugares e nenhuma costura nova surgiu.");
+  if(p.comp) it.push("O comprimento bate no mesmo ponto do corpo: "+p.comp+".");
+  if(p.medida) it.push("O tamanho parece o real: "+p.medida+".");
+  else it.push("A peça não ficou maior nem menor do que é de verdade.");
+  it.push(n>1?("Aparecem exatamente "+n+" peças, como no pedido."):"Aparece uma peça só, como no pedido.");
+  it.push("Do primeiro ao último segundo a peça não muda.");
+  it.push("O produto do vídeo é o mesmo do link que vai no post.");
+  it.push("O rótulo de conteúdo gerado por IA está ligado.");
+  return it;
+}
+let checkKey="";
+function renderCheck(){
+  const it=checkItens(); const key=it.join("|");
+  if(key!==checkKey){
+    checkKey=key; const box=$("check"); box.textContent="";
+    it.forEach((t,i)=>{ const l=document.createElement("label"); const c=document.createElement("input"); c.type="checkbox"; c.id="chk_"+i;
+      c.addEventListener("change",statusCheck); const s=document.createElement("span"); s.textContent=t; l.append(c,s); box.append(l); });
+  }
+  statusCheck();
+}
+function statusCheck(){
+  const all=[...$("check").querySelectorAll("input")]; const ok=all.filter(c=>c.checked).length; const el=$("checkStatus");
+  el.className = ok===all.length ? "done" : "";
+  el.textContent = ok===all.length ? "Tudo conferido. Pode postar." : ("Faltam "+(all.length-ok)+" de "+all.length+". Se algum item não bater, refaça a foto antes de gerar outro vídeo.");
+}
+
+/* ---------- render ---------- */
+function render(){
+  const p=produto(); const intima=p.tipo==="intima";
+  if(intima && state.formato!=="pov") state.formato="pov";
+  $("intimaAviso").hidden=!intima;
+  document.querySelectorAll(".format").forEach(b=>{ b.setAttribute("aria-pressed", String(b.dataset.f===state.formato)); b.disabled = intima && b.dataset.f!=="pov"; });
+  const {img,vid}=buildPrompts(); $("outImg").value=img; $("outVid").value=vid;
+  $("exemploTag").hidden=!state.exemplo;
+  const pf=perfilAtual();
+  $("perfilResumo").textContent = pf ? ("Público: "+(pf.publico||"não preenchido")) : "";
+  renderCheck();
+}
+function renderPerfis(){
+  const chips=$("perfilChips"); chips.textContent="";
+  if(!state.perfis.length){ const s=document.createElement("span"); s.className="note"; s.textContent="Nenhum perfil ainda. Crie o primeiro na aba Perfis."; chips.append(s); }
+  if(!perfilAtual() && state.perfis.length) state.perfilId=state.perfis[0].id;
+  state.perfis.forEach(pf=>{ const b=document.createElement("button"); b.type="button"; b.className="chip"; b.textContent=pf.nome||"Sem nome";
+    b.setAttribute("aria-pressed",String(pf.id===state.perfilId)); b.addEventListener("click",()=>{state.perfilId=pf.id; renderPerfis(); render();}); chips.append(b); });
+  const lista=$("perfisLista"); lista.textContent="";
+  state.perfis.forEach(pf=>{
+    const c=document.createElement("div"); c.className="panel perfil-card";
+    const h=document.createElement("div"); h.className="row"; const t=document.createElement("h2"); t.textContent=pf.nome||"Sem nome"; h.append(t);
+    if(pf.exemplo){ const g=document.createElement("span"); g.className="tag"; g.textContent="Exemplo"; h.append(g); }
+    const dl=document.createElement("dl");
+    [["@",pf.arroba],["Personagem",pf.personagem],["Cenário",pf.cenario],["Público",pf.publico]].forEach(([k,v])=>{ if(!v) return;
+      const d=document.createElement("div"); const dt=document.createElement("dt"); dt.textContent=k; const dd=document.createElement("dd"); dd.textContent=v; d.append(dt,dd); dl.append(d); });
+    const r=document.createElement("div"); r.className="row";
+    const e=document.createElement("button"); e.type="button"; e.className="small"; e.textContent="Editar"; e.addEventListener("click",()=>editar(pf));
+    const x=document.createElement("button"); x.type="button"; x.className="small"; x.textContent="Excluir";
+    x.addEventListener("click",()=>{ if(x.dataset.sure){ excluir(pf); } else { x.dataset.sure="1"; x.textContent="Excluir mesmo?"; setTimeout(()=>{delete x.dataset.sure; x.textContent="Excluir";},4000); } });
+    r.append(e,x); c.append(h,dl,r); lista.append(c);
+  });
+  render();
+}
+
+/* ---------- perfis: salvar ---------- */
+function editar(pf){ state.editId=pf.id; $("f_nome").value=pf.nome||""; $("f_arroba").value=pf.arroba||""; $("f_pers").value=pf.personagem||""; $("f_cen").value=pf.cenario||""; $("f_pub").value=pf.publico||"";
+  $("formTitulo").textContent="Editar perfil"; $("cancelarPerfil").hidden=false; $("perfilForm").scrollIntoView({block:"start"}); }
+function limparForm(){ state.editId=null; ["f_nome","f_arroba","f_pers","f_cen","f_pub"].forEach(i=>$(i).value=""); $("formTitulo").textContent="Novo perfil"; $("cancelarPerfil").hidden=true; }
+async function salvarPerfil(){
+  const d={nome:$("f_nome").value.trim(),arroba:$("f_arroba").value.trim(),personagem:$("f_pers").value.trim(),cenario:$("f_cen").value.trim(),publico:$("f_pub").value.trim()};
+  const st=$("perfilStatus");
+  if(!d.nome||!d.personagem){ st.textContent="Preencha pelo menos o nome e a personagem."; return; }
+  $("salvarPerfil").disabled=true; st.textContent="Salvando…";
+  try{
+    if(state.db){
+      const col=state.db.collection("perfis"); const ref=state.editId?col.doc(state.editId):col.doc();
+      await ref.set(d); st.textContent="Perfil salvo.";
+    } else {
+      const id=state.editId||("local"+Date.now()); const i=state.perfis.findIndex(p=>p.id===id);
+      if(i>=0) state.perfis[i]={id,...d}; else state.perfis.push({id,...d});
+      persist(); st.textContent="Perfil salvo."; renderPerfis();
+    }
+    limparForm();
+  }catch(e){ st.textContent = e&&e.code==="invalid_argument" ? "Você não tem permissão para salvar perfis nesta página." : "Não deu para salvar agora. Tente de novo."; }
+  $("salvarPerfil").disabled=false;
+}
+async function excluir(pf){
+  try{ if(state.db) await state.db.collection("perfis").doc(pf.id).delete(); else { state.perfis=state.perfis.filter(p=>p.id!==pf.id); persist(); renderPerfis(); } }
+  catch(e){ $("perfilStatus").textContent="Não deu para excluir agora."; }
+}
+
+/* ---------- Claude: ler fotos e legenda ---------- */
+const ERRO = c => ({not_granted:null,sampling_disabled:null,not_declared:null,capability_disabled:null,capability_removed:null,
+  rate_limited:"Muitos pedidos seguidos. Espere um pouco e tente de novo.",session_expired:"Entre na conta de novo para usar a IA.",
+  image_rejected:"A IA não aceitou essa foto. Use JPG, PNG ou WebP.",images_unavailable:"Leitura de foto não está disponível aqui. Preencha a ficha à mão.",
+  refused:"A IA não respondeu a esse pedido.",invalid_json:"A resposta veio incompleta. Tente de novo."}[c] ?? "A IA falhou agora. Tente de novo.");
+async function lerFotos(){
+  if(!state.sample||!state.files.length) return;
+  const st=$("lerStatus"), b=$("lerBtn"); b.disabled=true; st.textContent="Lendo as fotos…";
+  const prompt = "As imagens são fotos de um produto de moda vendido no TikTok Shop. Descreva o produto com precisão para que uma IA de vídeo o reproduza sem mudar nada. "+
+    "Responda só com um objeto JSON, em português, com estas chaves (string vazia quando não der para ver): "+
+    '{"nome":"","tipo":"blusa|vestido|conjunto|calca|intima|calcado|acessorio","cor":"","tecido":"","gola":"","manga":"","comp":"onde a barra bate no corpo","fecho":"","det":"laços, rendas, costuras aparentes, estampas, com posição e tamanho","pecas":"número de peças do pedido"}. '+
+    "Descreva apenas o que aparece nas fotos. Não invente.";
+  try{
+    const r = await state.sample.json(prompt,{images:state.files.slice(0,state.maxImgs||4)});
+    if(r&&typeof r==="object"){ FIELDS.forEach(f=>{ if(r[f]!=null&&String(r[f]).trim()){ const el=$("p_"+f); const v=String(r[f]).trim();
+      if(f==="tipo"){ if(TIPO_EN[v]) el.value=v; } else if(f==="pecas"){ const n=parseInt(v,10); if(n>0) el.value=n; } else el.value=v; } });
+      state.exemplo=false; st.textContent="Ficha preenchida. Confira cada campo com a foto antes de usar."; render(); }
+  }catch(e){ const m=ERRO(e&&e.code); if(m===null){ b.hidden=true; st.textContent="Leitura por IA indisponível aqui. Preencha a ficha à mão."; } else st.textContent=m; }
+  b.disabled=false;
+}
+async function legenda(){
+  if(!state.sample) return; const p=produto(), pf=perfilAtual(); const st=$("legStatus"), b=$("legBtn"); b.disabled=true; $("outLeg").value=""; st.textContent="Escrevendo…";
+  const prompt="Escreva uma legenda de TikTok em português do Brasil para um vídeo de produto do TikTok Shop. "+
+    "Formato: uma frase curta de abertura com um ou dois emojis, linha em branco, depois duas ou três frases descrevendo o produto. No máximo 350 caracteres. "+
+    "Fale só do que está na ficha. Não prometa resultado, não invente tecido, tamanho nem preço. Responda só com a legenda.\n\n"+
+    "Público: "+((pf&&pf.publico)||"mulheres que compram roupa online")+"\nFicha do produto:\n"+JSON.stringify(p);
+  try{ const {text}=await state.sample(prompt,{modelTier:"quick",cache:false,onText:({text})=>{$("outLeg").value=text; st.textContent="";}}); $("outLeg").value=text.trim(); st.textContent=""; }
+  catch(e){ const m=ERRO(e&&e.code); if(m===null){ b.hidden=true; st.textContent="Legenda por IA indisponível aqui. Escreva à mão."; } else st.textContent=m; }
+  b.disabled=false;
+}
+
+async function conferir(){
+  const st=$("confStatus"), b=$("confBtn"), ver=$("confVeredito"), lista=$("confLista");
+  const ger=[...$("gerados").files];
+  if(!state.files.length){ st.textContent="Envie antes as fotos da loja no passo 2."; return; }
+  if(!ger.length){ st.textContent="Envie a foto gerada ou os prints do vídeo."; return; }
+  const max=state.maxImgs||4; const nLoja=Math.max(1,Math.min(state.files.length,Math.floor(max/2))); const nGer=Math.max(1,Math.min(ger.length,max-nLoja));
+  const imgs=[...state.files.slice(0,nLoja),...ger.slice(0,nGer)];
+  b.disabled=true; ver.hidden=true; lista.hidden=true; st.textContent="Comparando…";
+  const prompt="Você é a conferência de qualidade de um vídeo de produto do TikTok Shop. As "+nLoja+" primeiras imagens são as fotos REAIS do produto na loja. As "+nGer+" imagens seguintes foram geradas por IA e deveriam mostrar exatamente o mesmo produto. "+
+    "Compare o produto, e só o produto, entre os dois grupos. Seja rigoroso: o TikTok remove vídeos por diferenças pequenas. Confira cor, tecido, gola ou decote, manga ou alça, comprimento, fechamento, laços, rendas, costuras, estampa, proporção e tamanho em relação ao corpo ou à mão, e número de peças. "+
+    "Ficha do produto para apoio: "+JSON.stringify(produto())+". "+
+    'Responda só com JSON, em português: {"veredito":"igual"|"diferente","diferencas":[{"item":"","loja":"como é na foto real","gerado":"como saiu"}],"nao_deu_para_ver":["itens que as imagens não mostram"]}. '+
+    "Liste apenas diferenças que você realmente vê. Se não houver nenhuma, diferencas fica vazio e o veredito é igual.";
+  try{
+    const r=await state.sample.json(prompt,{images:imgs,modelTier:"complex",cache:false});
+    const difs=Array.isArray(r&&r.diferencas)?r.diferencas:[]; const cego=Array.isArray(r&&r.nao_deu_para_ver)?r.nao_deu_para_ver:[];
+    const ok=r&&r.veredito==="igual"&&!difs.length;
+    ver.className=ok?"ok":""; ver.textContent=ok?"Nenhuma diferença encontrada nas imagens enviadas.":("Refazer: "+difs.length+" diferença"+(difs.length===1?"":"s")+" encontrada"+(difs.length===1?"":"s")+".");
+    ver.hidden=false; lista.textContent="";
+    difs.forEach(d=>{ const li=document.createElement("li"); li.textContent=String(d.item||"Detalhe")+": na loja é "+String(d.loja||"?")+"; no gerado saiu "+String(d.gerado||"?")+"."; lista.append(li); });
+    cego.forEach(c=>{ const li=document.createElement("li"); li.textContent="Não deu para ver: "+String(c)+"."; lista.append(li); });
+    lista.hidden=!lista.children.length; st.textContent="";
+  }catch(e){ const m=ERRO(e&&e.code); st.textContent = m===null ? "Conferência por IA indisponível aqui. Use a lista abaixo." : m; }
+  b.disabled=false;
+}
+
+/* ---------- eventos ---------- */
+$("confBtn").addEventListener("click",conferir);
+$("gerados").addEventListener("change",e=>{ const t=$("thumbsGer"); t.textContent=""; [...e.target.files].forEach(f=>{ const i=document.createElement("img"); i.alt="Imagem gerada"; i.src=URL.createObjectURL(f); t.append(i); }); $("confVeredito").hidden=true; $("confLista").hidden=true; });
+function setProduto(o){ FIELDS.forEach(f=>{ const el=$("p_"+f); el.value = o[f]!=null ? o[f] : (f==="tipo"?"blusa":(f==="pecas"?"1":"")); }); }
+FIELDS.forEach(f=>{ const el=$("p_"+f); el.addEventListener("input",()=>{state.exemplo=false; render();}); el.addEventListener("change",()=>{state.exemplo=false; render();}); });
+$("limparBtn").addEventListener("click",()=>{ setProduto({}); state.exemplo=false; state.files=[]; $("fotos").value=""; $("thumbs").textContent=""; $("outLeg").value=""; $("lerStatus").textContent=""; checkKey=""; render(); $("p_nome").focus(); });
+$("fotos").addEventListener("change",e=>{ state.files=[...e.target.files]; const t=$("thumbs"); t.textContent="";
+  state.files.forEach(f=>{ const i=document.createElement("img"); i.alt="Foto do produto"; i.src=URL.createObjectURL(f); t.append(i); });
+  $("lerStatus").textContent = state.files.length&&!state.sample ? "" : ""; });
+document.querySelectorAll(".format").forEach(b=>b.addEventListener("click",()=>{ state.formato=b.dataset.f; render(); }));
+$("lerBtn").addEventListener("click",lerFotos); $("legBtn").addEventListener("click",legenda);
+$("salvarPerfil").addEventListener("click",salvarPerfil); $("cancelarPerfil").addEventListener("click",limparForm);
+document.querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click",async()=>{ const ta=$(b.dataset.copy); const old=b.textContent;
+  try{ await navigator.clipboard.writeText(ta.value); b.textContent="Copiado"; }catch(e){ ta.focus(); ta.select(); b.textContent="Selecionado, copie"; }
+  setTimeout(()=>b.textContent=old,1800); }));
+
+function rota(){ const h=(location.hash||"#criar").slice(1); const tab=["criar","perfis","regras"].includes(h)?h:"criar";
+  ["criar","perfis","regras"].forEach(t=>{ $("view-"+t).hidden = t!==tab; });
+  document.querySelectorAll("nav a").forEach(a=>{ if(a.dataset.tab===tab) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); }); }
+addEventListener("hashchange",rota);
+
+/* ---------- início ---------- */
+const KEY="appsara.perfis.v1";
+function persist(){ try{ localStorage.setItem(KEY,JSON.stringify(state.perfis)); }catch(e){ $("perfilStatus").textContent="Este celular não deixou salvar. Os perfis valem só até fechar o app."; } }
+function carregar(){ try{ const v=JSON.parse(localStorage.getItem(KEY)); if(Array.isArray(v)) return v; }catch(e){} return null; }
+function mostrarFotos(files){ state.files=files; const t=$("thumbs"); t.textContent="";
+  files.forEach(f=>{ const i=document.createElement("img"); i.alt="Foto do produto"; i.src=URL.createObjectURL(f); t.append(i); }); }
+async function fotosCompartilhadas(){
+  if(!/[?&]recebido=1/.test(location.search)||!("caches" in window)) return;
+  try{ const c=await caches.open("appsara-share"); const keys=await c.keys(); const files=[];
+    for(const k of keys){ const r=await c.match(k); const b=await r.blob(); files.push(new File([b],"foto-"+files.length+".jpg",{type:b.type})); await c.delete(k); }
+    if(files.length){ setProduto({}); state.exemplo=false; checkKey=""; mostrarFotos(files); render(); }
+    history.replaceState(null,"",location.pathname+location.hash);
+  }catch(e){}
+}
+state.perfis = carregar() || [{id:"exemplo",nome:"Closet da Mariana",arroba:"@mariana.tktk1",exemplo:true,
+  personagem:"Troque pela personagem real. Mulher brasileira de 35 anos, cabelo castanho na altura do ombro, maquiagem leve, expressão simpática.",
+  cenario:"Troque pelo cenário real. Quarto claro com espelho de corpo inteiro e arara de roupas, luz natural da janela.",
+  publico:"Troque pelo público real. Mulheres de 30 a 55 anos que compram roupa pelo TikTok Shop e gostam de looks elegantes e discretos."}];
+setProduto(EXEMPLO); rota(); renderPerfis(); fotosCompartilhadas();
+if("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(()=>{});
+</script>
+
+</body>
+</html>
