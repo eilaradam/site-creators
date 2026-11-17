@@ -117,7 +117,8 @@ a{color:var(--accent)}
   </header>
 
   <nav aria-label="Seções">
-    <a href="#criar" data-tab="criar">Novo vídeo</a>
+    <a href="#criar" data-tab="criar">Novo</a>
+    <a href="#prontos" data-tab="prontos">Prontos</a>
     <a href="#perfis" data-tab="perfis">Perfis</a>
     <a href="#regras" data-tab="regras">Regras</a>
   </nav>
@@ -186,7 +187,33 @@ a{color:var(--accent)}
     </div>
 
     <div class="step">
-      <div class="step-head"><span class="num">4</span><h2>Primeiro a foto</h2></div>
+      <div class="step-head"><span class="num">4</span><h2>Gerar o vídeo</h2></div>
+      <div class="panel" id="senhaBox" hidden>
+        <label>Senha do app<input type="password" id="senha" autocomplete="current-password"></label>
+        <div class="row"><button type="button" class="primary" id="entrarBtn">Entrar</button><span class="note" id="senhaStatus"></span></div>
+      </div>
+      <div class="panel" id="gerarBox" hidden>
+        <p class="note">O app envia as fotos do produto e a imagem da personagem do perfil. Se você já tem uma foto da cena aprovada, envie abaixo e o vídeo parte dela.</p>
+        <label>Foto da cena aprovada (opcional)
+          <input type="file" id="aprovada" accept="image/jpeg,image/png,image/webp">
+        </label>
+        <div class="grid2">
+          <label>Duração
+            <select id="g_seg"><option value="5">5 segundos</option><option value="8" selected>8 segundos</option><option value="10">10 segundos</option></select>
+          </label>
+          <label>Qualidade
+            <select id="g_res"><option value="720p" selected>Normal (720p)</option><option value="360p">Rascunho barato (360p)</option><option value="1080p">Alta (1080p)</option></select>
+          </label>
+        </div>
+        <div class="row"><button type="button" class="primary" id="gerarBtn">Gerar vídeo</button><span class="note" id="custoNota"></span></div>
+        <p class="note" id="gerarStatus"></p>
+        <video id="videoOut" controls playsinline hidden style="width:100%;border-radius:12px;background:#000;max-height:70vh"></video>
+        <div class="row" id="baixarRow" hidden><a id="baixarLink" class="chip" download="video.mp4">Baixar vídeo</a><span class="note">Depois confira no passo 7 antes de postar.</span></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head"><span class="num">5</span><h2>Ou primeiro a foto</h2></div>
       <p class="note">Cole este prompt junto com as fotos do produto e a imagem da personagem. Só siga para o vídeo quando a foto estiver igual à da loja.</p>
       <div class="panel">
         <div class="out-head"><h3>Prompt da foto</h3><button class="small" type="button" data-copy="outImg">Copiar</button></div>
@@ -195,7 +222,7 @@ a{color:var(--accent)}
     </div>
 
     <div class="step">
-      <div class="step-head"><span class="num">5</span><h2>Depois o vídeo</h2></div>
+      <div class="step-head"><span class="num">6</span><h2>Prompts para usar no Flow</h2></div>
       <p class="note">Use a foto aprovada como primeiro quadro. O vídeo começa com o produto certo e o prompt proíbe mudanças.</p>
       <div class="panel">
         <div class="out-head"><h3>Prompt do vídeo</h3><button class="small" type="button" data-copy="outVid">Copiar</button></div>
@@ -214,7 +241,7 @@ a{color:var(--accent)}
     </div>
 
     <div class="step">
-      <div class="step-head"><span class="num">6</span><h2>Conferir antes de postar</h2></div>
+      <div class="step-head"><span class="num">7</span><h2>Conferir antes de postar</h2></div>
       <div class="panel" id="autoPanel" hidden>
         <h3>Conferência automática</h3>
         <p class="note">Envie a foto gerada, ou prints do começo, meio e fim do vídeo. A IA compara com as fotos da loja do passo 2 e aponta cada diferença.</p>
@@ -234,6 +261,14 @@ a{color:var(--accent)}
     </div>
   </section>
 
+  <!-- PRONTOS -->
+  <section class="view" id="view-prontos" hidden>
+    <p class="note" id="prontosNota">Os vídeos gerados aparecem aqui. Baixe no mesmo dia: o Google apaga os arquivos depois de um tempo.</p>
+    <p class="note" id="gastoNota"></p>
+    <div id="prontosLista" style="display:flex;flex-direction:column;gap:12px"></div>
+    <div class="row"><button type="button" id="atualizarBtn">Atualizar lista</button></div>
+  </section>
+
   <!-- PERFIS -->
   <section class="view" id="view-perfis" hidden>
     <p class="note" id="perfisNota">Cada perfil guarda a personagem e o público. Eles entram sozinhos em todo prompt e ficam salvos neste celular.</p>
@@ -247,6 +282,10 @@ a{color:var(--accent)}
       <label>Personagem (idade, cabelo, pele, corpo, jeito)
         <textarea id="f_pers"></textarea>
       </label>
+      <label>Imagem da personagem (uma foto de rosto e corpo)
+        <input type="file" id="f_img" accept="image/jpeg,image/png,image/webp">
+      </label>
+      <div class="thumbs" id="f_imgPrev"></div>
       <label>Cenário de sempre
         <textarea id="f_cen"></textarea>
       </label>
@@ -357,7 +396,12 @@ fichaLinhas(p)+"\n\n"+
 "- Fabric moves naturally and lightly. The character never turns fully away from the camera.\n"+
 "- Same lighting and setting from start to end. No cuts.\n"+
 "- No on-screen text, no logos, no watermark.";
-  return {img,vid};
+  const direto =
+"Vertical 9:16 realistic smartphone video, soft natural light.\n\n"+
+img.split("\n\n").slice(1).join("\n\n")+"\n\n"+
+"MOVEMENT: "+mov+"\n\n"+
+"The product stays identical from the first to the last frame: no morphing, no new details, no detail disappearing, no change in size, length or number of pieces. One continuous shot, no cuts. No speech, soft ambient sound only. No on-screen text.";
+  return {img,vid,direto};
 }
 
 /* ---------- conferência ---------- */
@@ -417,6 +461,7 @@ function renderPerfis(){
     const h=document.createElement("div"); h.className="row"; const t=document.createElement("h2"); t.textContent=pf.nome||"Sem nome"; h.append(t);
     if(pf.exemplo){ const g=document.createElement("span"); g.className="tag"; g.textContent="Exemplo"; h.append(g); }
     const dl=document.createElement("dl");
+    if(pf.img){ const im=document.createElement("img"); im.src=pf.img; im.alt="Personagem"; im.style.cssText="width:72px;height:96px;object-fit:cover;border-radius:8px"; c.append(im); }
     [["@",pf.arroba],["Personagem",pf.personagem],["Cenário",pf.cenario],["Público",pf.publico]].forEach(([k,v])=>{ if(!v) return;
       const d=document.createElement("div"); const dt=document.createElement("dt"); dt.textContent=k; const dd=document.createElement("dd"); dd.textContent=v; d.append(dt,dd); dl.append(d); });
     const r=document.createElement("div"); r.className="row";
@@ -430,10 +475,10 @@ function renderPerfis(){
 
 /* ---------- perfis: salvar ---------- */
 function editar(pf){ state.editId=pf.id; $("f_nome").value=pf.nome||""; $("f_arroba").value=pf.arroba||""; $("f_pers").value=pf.personagem||""; $("f_cen").value=pf.cenario||""; $("f_pub").value=pf.publico||"";
-  $("formTitulo").textContent="Editar perfil"; $("cancelarPerfil").hidden=false; $("perfilForm").scrollIntoView({block:"start"}); }
-function limparForm(){ state.editId=null; ["f_nome","f_arroba","f_pers","f_cen","f_pub"].forEach(i=>$(i).value=""); $("formTitulo").textContent="Novo perfil"; $("cancelarPerfil").hidden=true; }
+  state.formImg=pf.img||null; prevImg(); $("formTitulo").textContent="Editar perfil"; $("cancelarPerfil").hidden=false; $("perfilForm").scrollIntoView({block:"start"}); }
+function limparForm(){ state.formImg=null; $("f_img").value=""; prevImg(); state.editId=null; ["f_nome","f_arroba","f_pers","f_cen","f_pub"].forEach(i=>$(i).value=""); $("formTitulo").textContent="Novo perfil"; $("cancelarPerfil").hidden=true; }
 async function salvarPerfil(){
-  const d={nome:$("f_nome").value.trim(),arroba:$("f_arroba").value.trim(),personagem:$("f_pers").value.trim(),cenario:$("f_cen").value.trim(),publico:$("f_pub").value.trim()};
+  const d={img:state.formImg||null,nome:$("f_nome").value.trim(),arroba:$("f_arroba").value.trim(),personagem:$("f_pers").value.trim(),cenario:$("f_cen").value.trim(),publico:$("f_pub").value.trim()};
   const st=$("perfilStatus");
   if(!d.nome||!d.personagem){ st.textContent="Preencha pelo menos o nome e a personagem."; return; }
   $("salvarPerfil").disabled=true; st.textContent="Salvando…";
@@ -528,10 +573,98 @@ document.querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click",a
   try{ await navigator.clipboard.writeText(ta.value); b.textContent="Copiado"; }catch(e){ ta.focus(); ta.select(); b.textContent="Selecionado, copie"; }
   setTimeout(()=>b.textContent=old,1800); }));
 
-function rota(){ const h=(location.hash||"#criar").slice(1); const tab=["criar","perfis","regras"].includes(h)?h:"criar";
-  ["criar","perfis","regras"].forEach(t=>{ $("view-"+t).hidden = t!==tab; });
+function rota(){ const h=(location.hash||"#criar").slice(1); const tab=["criar","prontos","perfis","regras"].includes(h)?h:"criar";
+  ["criar","prontos","perfis","regras"].forEach(t=>{ $("view-"+t).hidden = t!==tab; });
   document.querySelectorAll("nav a").forEach(a=>{ if(a.dataset.tab===tab) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); }); }
 addEventListener("hashchange",rota);
+
+/* ---------- gerar vídeo no servidor ---------- */
+const FN="https://mfrmnquvwwuxraqgemyh.supabase.co/functions/v1/appsara-video";
+const ANON="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mcm1ucXV2d3d1eHJhcWdlbXloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNDI1NDIsImV4cCI6MjA4NzYxODU0Mn0.zmsi08dV5L1IlXJSr34vOii71w0g0OsD5_5DKio5g-o";
+const SKEY="appsara.senha";
+const PRECO={"360p":0.023,"720p":0.07,"1080p":0.104};
+function senha(){ try{ return localStorage.getItem(SKEY)||""; }catch(e){ return state.senhaMem||""; } }
+function guardarSenha(v){ state.senhaMem=v; try{ localStorage.setItem(SKEY,v); }catch(e){} }
+async function api(acao,dados,cru){
+  const r=await fetch(FN,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+ANON,"apikey":ANON,"x-app-senha":senha()},body:JSON.stringify({acao,...(dados||{})})});
+  if(cru&&r.ok) return r.blob();
+  const j=await r.json().catch(()=>({erro:"O servidor respondeu de um jeito inesperado."}));
+  if(r.status===401){ guardarSenha(""); telaSenha(); }
+  if(!r.ok) throw new Error(j.erro||("Erro "+r.status));
+  return j;
+}
+function telaSenha(){ const tem=!!senha(); $("senhaBox").hidden=tem; $("gerarBox").hidden=!tem; }
+async function entrar(){ const v=$("senha").value.trim(); if(!v) return; guardarSenha(v); $("senhaStatus").textContent="Conferindo…";
+  try{ await api("entrar"); $("senhaStatus").textContent=""; $("senha").value=""; telaSenha(); }
+  catch(e){ guardarSenha(""); telaSenha(); $("senhaStatus").textContent=e.message; } }
+function reduzir(file,max){ return new Promise((ok,erro)=>{ const img=new Image(); const u=URL.createObjectURL(file);
+  img.onload=()=>{ const k=Math.min(1,max/Math.max(img.width,img.height)); const c=document.createElement("canvas"); c.width=Math.round(img.width*k); c.height=Math.round(img.height*k);
+    c.getContext("2d").drawImage(img,0,0,c.width,c.height); URL.revokeObjectURL(u); ok(c.toDataURL("image/jpeg",0.86)); };
+  img.onerror=()=>{ URL.revokeObjectURL(u); erro(new Error("Não deu para abrir uma das imagens.")); }; img.src=u; }); }
+const soB64=d=>({data:d.split(",")[1],mime:"image/jpeg"});
+function prevImg(){ const t=$("f_imgPrev"); t.textContent=""; if(state.formImg){ const i=document.createElement("img"); i.src=state.formImg; i.alt="Personagem"; t.append(i); } }
+function custoNota(){ const c=Number($("g_seg").value)*PRECO[$("g_res").value]; $("custoNota").textContent="Custa cerca de US$ "+c.toFixed(2)+"."; }
+let gerando=false;
+async function gerar(){
+  if(gerando) return; const st=$("gerarStatus"), b=$("gerarBtn"); const p=produto(), pf=perfilAtual(); const pr=buildPrompts();
+  const aprov=$("aprovada").files[0];
+  if(!aprov&&!state.files.length){ st.textContent="Envie as fotos do produto no passo 2 (ou uma foto da cena aprovada)."; return; }
+  if(state.exemplo){ st.textContent="A ficha ainda é a de exemplo. Preencha com o produto real antes de gerar."; return; }
+  gerando=true; b.disabled=true; $("videoOut").hidden=true; $("baixarRow").hidden=true; st.textContent="Preparando as imagens…";
+  try{
+    let imagens=[], prompt;
+    if(aprov){ imagens=[soB64(await reduzir(aprov,1280))]; prompt=pr.vid; }
+    else{
+      const fotos=state.files.slice(0,3); for(const f of fotos) imagens.push(soB64(await reduzir(f,1280)));
+      let intro="The first "+fotos.length+" image(s) are the REAL product photos: the only source of truth for the product. ";
+      if(pf&&pf.img){ imagens.push(soB64(pf.img)); intro+="The last image is the character: keep her face, hair and body identical. "; }
+      prompt=intro+"\n\n"+pr.direto;
+    }
+    st.textContent="Enviando o pedido…";
+    const r=await api("criar",{prompt,imagens,segundos:Number($("g_seg").value),resolucao:$("g_res").value,perfil:pf?pf.nome:"",produto:p.nome,formato:state.formato});
+    const t0=Date.now(); let pronto=false;
+    while(Date.now()-t0<12*60*1000){
+      st.textContent="Gerando o vídeo… "+Math.round((Date.now()-t0)/1000)+" s. Pode deixar o app aberto.";
+      await new Promise(x=>setTimeout(x,8000));
+      const s=await api("status",{id:r.id});
+      if(s.status==="pronto"){ pronto=true; break; }
+      if(s.status==="falhou") throw new Error(s.erro||"O vídeo falhou.");
+    }
+    if(!pronto) throw new Error("Demorou demais. Veja depois na aba Prontos.");
+    st.textContent="Baixando o vídeo…";
+    await mostrarVideo(r.id,$("videoOut"),$("baixarLink")); $("baixarRow").hidden=false;
+    st.textContent="Pronto. Confira com a foto da loja antes de postar.";
+  }catch(e){ st.textContent=e.message||"Não deu certo. Tente de novo."; }
+  gerando=false; b.disabled=false;
+}
+async function mostrarVideo(id,video,link){ const blob=await api("baixar",{id},true); const u=URL.createObjectURL(blob); video.src=u; video.hidden=false; if(link){ link.href=u; } return u; }
+async function carregarProntos(){
+  const box=$("prontosLista"), nota=$("gastoNota"); if(!senha()){ box.textContent=""; nota.textContent="Entre com a senha na aba Novo para ver os vídeos."; return; }
+  nota.textContent="Carregando…";
+  try{ const r=await api("lista"); nota.textContent="Gasto de hoje: US$ "+Number(r.gasto_hoje).toFixed(2)+" de US$ "+Number(r.teto).toFixed(2)+"."; box.textContent="";
+    if(!r.videos.length){ const s=document.createElement("p"); s.className="note"; s.textContent="Nenhum vídeo gerado ainda."; box.append(s); }
+    r.videos.forEach(v=>{ const c=document.createElement("div"); c.className="panel";
+      const h=document.createElement("h3"); h.textContent=(v.produto||"Sem nome")+" · "+(v.perfil||"");
+      const d=document.createElement("p"); d.className="note"; const q=new Date(v.criado_em);
+      const est={gerando:"Gerando",pronto:"Pronto",falhou:"Falhou"}[v.status]||v.status;
+      d.textContent=q.toLocaleDateString("pt-BR")+" "+q.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})+" · "+v.segundos+" s · "+est+(v.erro?(": "+v.erro):"");
+      c.append(h,d);
+      if(v.status==="pronto"||v.status==="gerando"){ const b=document.createElement("button"); b.type="button"; b.className="small"; b.textContent=v.status==="pronto"?"Abrir vídeo":"Ver se ficou pronto";
+        const vid=document.createElement("video"); vid.controls=true; vid.playsInline=true; vid.hidden=true; vid.style.cssText="width:100%;border-radius:12px;background:#000;max-height:70vh";
+        const a=document.createElement("a"); a.className="chip"; a.download="video.mp4"; a.textContent="Baixar vídeo"; a.hidden=true;
+        b.addEventListener("click",async()=>{ b.disabled=true; const old=b.textContent; b.textContent="Abrindo…";
+          try{ if(v.status==="gerando"){ const s=await api("status",{id:v.id}); if(s.status!=="pronto"){ b.textContent=s.status==="falhou"?"Falhou":"Ainda gerando"; b.disabled=s.status==="falhou"; return; } v.status="pronto"; }
+            await mostrarVideo(v.id,vid,a); a.hidden=false; b.hidden=true; }
+          catch(e){ b.textContent=old; b.disabled=false; d.textContent=e.message; } });
+        c.append(b,vid,a); }
+      box.append(c); });
+  }catch(e){ nota.textContent=e.message; }
+}
+$("entrarBtn").addEventListener("click",entrar); $("gerarBtn").addEventListener("click",gerar); $("atualizarBtn").addEventListener("click",carregarProntos);
+$("g_seg").addEventListener("change",custoNota); $("g_res").addEventListener("change",custoNota);
+$("f_img").addEventListener("change",async e=>{ const f=e.target.files[0]; if(!f) return; try{ state.formImg=await reduzir(f,768); prevImg(); }catch(err){ $("perfilStatus").textContent=err.message; } });
+addEventListener("hashchange",()=>{ if(location.hash==="#prontos") carregarProntos(); });
+telaSenha(); custoNota(); if(location.hash==="#prontos") carregarProntos();
 
 /* ---------- início ---------- */
 const KEY="appsara.perfis.v1";
