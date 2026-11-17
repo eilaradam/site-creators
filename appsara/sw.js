@@ -1,5 +1,5 @@
 /* Estúdio de Vídeos: funciona sem internet e recebe fotos pelo menu Compartilhar. */
-const CACHE = 'appsara-v2';
+const CACHE = 'appsara-v3';
 const SHARE = 'appsara-share';
 const FILES = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 

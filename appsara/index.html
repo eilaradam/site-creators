@@ -11,682 +11,428 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600&display=swap">
 <style>
-/* Layout: uma coluna de celular, como uma ficha técnica de confecção: etapas numeradas, campos curtos, resultado no fim. */
+/* Layout: app de uma coluna no celular. Topo vinho, abas fixas embaixo, cada tela é uma sequência curta de passos. */
 :root{
-  --bg:#f7f2f4; --surface:#ffffff; --ink:#2E0817; --muted:#72585f; --line:#e6d9de;
-  --accent:#8A1F4A; --accent-ink:#ffffff; --soft:#f4e3ea; --ok:#1f7a4d; --warn:#8a5200; --warn-bg:#fbf0d9;
-  --vinho:#5A1230; --lima:#DCFB4E; --lima-ink:#2E0817;
+  --bg:#f7f2f4; --surface:#ffffff; --ink:#2E0817; --muted-solid:#735961; --line:#eaddE2;
+  --vinho:#5A1230; --vinho-2:#8A1F4A; --lima:#DCFB4E; --lima-ink:#2E0817; --soft:#f6e6ed;
+  --ok:#17784a; --ok-bg:#e3f5ea; --warn:#8a5200; --warn-bg:#fdf1d8; --bad:#a3262a; --bad-bg:#fbe5e4;
   --display:"Bricolage Grotesque","Trebuchet MS",sans-serif;
   --body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
 }
-
 *{box-sizing:border-box}
-html{color-scheme:light}
-body{margin:0}
+html{color-scheme:light;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
 [hidden]{display:none!important}
-img{max-width:100%}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
-.wrap{max-width:640px;margin:0 auto;padding-block:16px 48px;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
-  display:flex;flex-direction:column;gap:20px}
-h1{font-family:var(--display);font-weight:700;font-size:1.7rem;line-height:1.1;margin:0;text-wrap:balance}
-h2{font-family:var(--display);font-weight:700;font-size:1.15rem;margin:0;text-wrap:balance}
-h3{font-size:.95rem;font-weight:600;margin:0}
+img,video{max-width:100%;display:block}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--vinho-2);outline-offset:2px}
+
+.topo{background:linear-gradient(135deg,var(--vinho),var(--vinho-2));color:#fff;
+  padding:calc(14px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px))}
+.topo-in{max-width:640px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.topo h1{font-family:var(--display);font-weight:800;font-size:1.35rem;margin:0;letter-spacing:-.01em}
+.gasto{font-size:.8rem;background:rgba(255,255,255,.14);border-radius:999px;padding:4px 10px;white-space:nowrap}
+
+main{max-width:640px;margin:0 auto;padding:18px max(16px,env(safe-area-inset-right,0px)) calc(96px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:22px}
+.tela{display:flex;flex-direction:column;gap:22px}
+
+.abas{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);z-index:5;
+  padding:6px max(10px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px))}
+.abas-in{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.abas a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border-radius:12px;text-decoration:none;color:var(--muted-solid);font-size:.78rem;font-weight:600}
+.abas a svg{width:22px;height:22px}
+.abas a[aria-current="page"]{background:var(--lima);color:var(--lima-ink)}
+.abas .bolinha{display:inline-block;min-width:18px;padding:0 5px;border-radius:999px;background:var(--vinho-2);color:#fff;font-size:.7rem;line-height:18px;margin-left:4px}
+
+h2{font-family:var(--display);font-weight:800;font-size:1.2rem;margin:0;line-height:1.2;text-wrap:balance}
+h3{font-size:1rem;font-weight:600;margin:0}
 p{margin:0}
-.sub{color:var(--muted);font-size:.92rem}
-header{display:flex;flex-direction:column;gap:6px;background:linear-gradient(135deg,#5A1230,#8A1F4A);color:#fff;border-radius:16px;padding:18px 16px}
-header .sub{color:#f1d9e3}
+.passo{display:flex;flex-direction:column;gap:12px}
+.passo-t{display:flex;align-items:baseline;gap:10px}
+.n{font-family:var(--display);font-weight:800;color:var(--vinho-2);font-size:1.2rem;font-variant-numeric:tabular-nums}
+.nota{color:var(--muted-solid);font-size:.9rem}
+.caixa{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:12px}
 
-nav{display:flex;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px}
-nav a{flex:1;text-align:center;padding:10px 6px;border-radius:9px;text-decoration:none;color:var(--muted);font-weight:600;font-size:.92rem}
-nav a[aria-current="page"]{background:var(--lima);color:var(--lima-ink)}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 16px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn.principal{background:var(--lima);border-color:var(--lima);color:var(--lima-ink);font-size:1.05rem;padding:15px 18px}
+.btn.cheio{width:100%}
+.btn.pq{padding:8px 12px;font-size:.88rem;border-radius:10px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.linha{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 
-section.view{display:flex;flex-direction:column;gap:22px}
-.step{display:flex;flex-direction:column;gap:12px}
-.step-head{display:flex;align-items:baseline;gap:10px}
-.num{font-family:var(--display);font-weight:700;color:var(--accent);font-size:1.15rem;font-variant-numeric:tabular-nums}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:12px}
+label.campo{display:flex;flex-direction:column;gap:5px;font-size:.85rem;font-weight:600;color:var(--muted-solid);min-width:0}
+input[type=text],input[type=password],textarea,select{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px;width:100%;min-width:0;font-size:1rem;color:var(--ink)}
+textarea{resize:vertical;min-height:80px}
 
-label{display:flex;flex-direction:column;gap:4px;font-size:.82rem;font-weight:600;color:var(--muted);min-width:0}
-input[type=text],input[type=number],select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:10px;width:100%;min-width:0}
-textarea{resize:vertical;min-height:72px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media (max-width:420px){.grid2{grid-template-columns:1fr}}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.envio{position:relative;border:2px dashed #d4b8c4;border-radius:16px;background:var(--soft);padding:22px 16px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
+.envio input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
+.envio b{font-family:var(--display);font-size:1.1rem}
+.miniaturas{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.miniaturas img{width:74px;height:98px;object-fit:cover;border-radius:10px;border:1px solid var(--line);flex:none;background:#fff}
 
-button{font:inherit;font-weight:600;border-radius:10px;padding:11px 14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
-button.primary{background:var(--lima);color:var(--lima-ink);border-color:var(--lima)}
-button.small{padding:7px 10px;font-size:.85rem}
-button:disabled{opacity:.5;cursor:not-allowed}
-.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.trilho{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scroll-snap-type:x mandatory}
+.cartao{flex:none;width:132px;scroll-snap-align:start;border:2px solid var(--line);border-radius:14px;background:var(--surface);padding:6px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:6px}
+.cartao img{width:100%;height:150px;object-fit:cover;border-radius:10px;background:var(--soft)}
+.cartao span{font-size:.85rem;font-weight:600;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cartao[aria-pressed="true"]{border-color:var(--vinho-2);box-shadow:0 0 0 3px var(--soft)}
+.cartao.novo{align-items:center;justify-content:center;color:var(--vinho-2);font-weight:600;min-height:190px;border-style:dashed}
 
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{padding:9px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:600;font-size:.92rem}
-.chip[aria-pressed="true"]{background:var(--soft);border-color:var(--accent);color:var(--accent)}
-.tag{display:inline-block;font-size:.72rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:6px;background:var(--warn-bg);color:var(--warn)}
+.ficha{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:.92rem;margin:0}
+.ficha dt{color:var(--muted-solid);font-weight:600}
+.ficha dd{margin:0;min-width:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:.8rem;padding:4px 10px;border-radius:999px;background:var(--soft);color:var(--vinho)}
+.alerta{border-radius:12px;padding:10px 12px;font-size:.9rem}
+.alerta.amarelo{background:var(--warn-bg);color:var(--warn)}
+.alerta.verde{background:var(--ok-bg);color:var(--ok)}
+.alerta.vermelho{background:var(--bad-bg);color:var(--bad)}
 
-.formats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-@media (max-width:480px){.formats{grid-template-columns:1fr}}
-.format{display:flex;flex-direction:column;gap:4px;text-align:left;padding:12px;border-radius:12px}
-.format small{font-weight:400;color:var(--muted);font-size:.82rem;line-height:1.35}
-.format[aria-pressed="true"]{background:var(--soft);border-color:var(--accent)}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px}
+.seg button{border:0;background:none;border-radius:10px;padding:10px 4px;font-weight:600;cursor:pointer;font-size:.92rem}
+.seg button[aria-pressed="true"]{background:var(--vinho);color:#fff}
+details summary{cursor:pointer;font-weight:600;color:var(--vinho-2)}
 
-.thumbs{display:flex;flex-wrap:wrap;gap:8px}
-.thumbs img{width:72px;height:96px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
-.note{font-size:.88rem;color:var(--muted)}
-.alert{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:10px 12px;font-size:.9rem}
+.video{display:flex;flex-direction:column;gap:10px}
+.video-topo{display:flex;gap:12px;align-items:flex-start}
+.video-topo img,.video-topo .vazio{width:64px;height:86px;object-fit:cover;border-radius:10px;flex:none;background:var(--soft)}
+.video-topo div{min-width:0}
+.etapas{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.etapas i{height:6px;border-radius:3px;background:var(--line)}
+.etapas i.feito{background:var(--vinho-2)}
+.etapas i.agora{background:linear-gradient(90deg,var(--vinho-2),var(--lima));animation:pulsa 1.4s ease-in-out infinite}
+@keyframes pulsa{50%{opacity:.45}}
+@media (prefers-reduced-motion:reduce){.etapas i.agora{animation:none}}
+.legenda{white-space:pre-wrap;font-size:.92rem;background:var(--bg);border-radius:12px;padding:10px 12px}
+video.player{width:100%;border-radius:12px;background:#000;max-height:72vh}
 
-.out-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
-textarea.prompt{font-family:var(--mono);font-size:.8rem;line-height:1.5;min-height:230px;background:var(--bg)}
-textarea.caption{min-height:110px}
-
-.check{display:flex;flex-direction:column;gap:2px}
-.check label{flex-direction:row;align-items:flex-start;gap:10px;font-size:.95rem;font-weight:400;color:var(--ink);padding:8px 0;border-bottom:1px solid var(--line)}
-.check label:last-child{border-bottom:0}
-.check input{width:20px;height:20px;margin-top:2px;accent-color:var(--accent);flex:none}
-#checkStatus{font-weight:600}
-#checkStatus.done{color:var(--ok)}
-#confVeredito{font-weight:600;padding:10px 12px;border-radius:10px;background:var(--warn-bg);color:var(--warn)}
-#confVeredito.ok{background:var(--soft);color:var(--ok)}
-#confLista{margin:0;padding-left:20px;font-size:.93rem}
-#confLista li{margin-bottom:6px}
-
-.perfil-card{display:flex;flex-direction:column;gap:6px}
-.perfil-card dl{margin:0;display:grid;gap:6px}
-.perfil-card dt{font-size:.75rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
-.perfil-card dd{margin:0;font-size:.93rem}
-
-.rules{display:flex;flex-direction:column;gap:10px}
-.rules li{margin-bottom:6px}
-.rules ul{margin:0;padding-left:20px}
-a{color:var(--accent)}
-.flow{display:grid;gap:8px;counter-reset:f}
-.flow div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:.93rem}
-.flow b{display:block}
+.entrar{max-width:420px;margin:12vh auto 0;display:flex;flex-direction:column;gap:14px;padding:0 16px}
+.entrar h1{font-family:var(--display);font-weight:800;font-size:1.8rem;margin:0;color:var(--vinho)}
+.vazio-t{text-align:center;padding:26px 10px;color:var(--muted-solid)}
+.pers{display:flex;gap:12px;align-items:flex-start}
+.pers img{width:72px;height:96px;object-fit:cover;border-radius:10px;flex:none;background:var(--soft)}
+.pers div{min-width:0;display:flex;flex-direction:column;gap:4px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(86px + env(safe-area-inset-bottom,0px));background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-size:.9rem;z-index:9;max-width:90vw}
 </style>
-
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>Estúdio de Vídeos</h1>
-    <p class="sub">Monta os prompts de cada vídeo com a ficha do produto travada, para a roupa sair igual à da loja.</p>
-  </header>
 
-  <nav aria-label="Seções">
-    <a href="#criar" data-tab="criar">Novo</a>
-    <a href="#prontos" data-tab="prontos">Prontos</a>
-    <a href="#perfis" data-tab="perfis">Perfis</a>
-    <a href="#regras" data-tab="regras">Regras</a>
-  </nav>
-
-  <!-- CRIAR -->
-  <section class="view" id="view-criar">
-    <div class="step">
-      <div class="step-head"><span class="num">1</span><h2>Qual perfil?</h2></div>
-      <div class="chips" id="perfilChips"><span class="note">Carregando perfis…</span></div>
-      <p class="note" id="perfilResumo"></p>
-    </div>
-
-    <div class="step">
-      <div class="step-head"><span class="num">2</span><h2>Ficha do produto</h2></div>
-      <div class="panel">
-        <div class="row">
-          <span class="tag" id="exemploTag">Exemplo</span>
-          <button class="small" id="limparBtn" type="button">Limpar e começar um produto novo</button>
-        </div>
-        <label>Fotos do produto (as mesmas da loja)
-          <input type="file" id="fotos" accept="image/jpeg,image/png,image/webp" multiple>
-        </label>
-        <div class="thumbs" id="thumbs"></div>
-        <div class="row">
-          <button type="button" id="lerBtn" hidden>Ler as fotos e preencher a ficha</button>
-          <span class="note" id="lerStatus"></span>
-        </div>
-        <div class="grid2">
-          <label>Nome do produto<input type="text" id="p_nome"></label>
-          <label>Tipo
-            <select id="p_tipo">
-              <option value="blusa">Blusa ou camisa</option>
-              <option value="vestido">Vestido</option>
-              <option value="conjunto">Conjunto</option>
-              <option value="calca">Calça ou saia</option>
-              <option value="intima">Roupa íntima</option>
-              <option value="calcado">Calçado</option>
-              <option value="acessorio">Acessório</option>
-            </select>
-          </label>
-          <label>Cor exata<input type="text" id="p_cor"></label>
-          <label>Tecido e textura<input type="text" id="p_tecido"></label>
-          <label>Gola ou decote<input type="text" id="p_gola"></label>
-          <label>Manga ou alça<input type="text" id="p_manga"></label>
-          <label>Comprimento (onde bate no corpo)<input type="text" id="p_comp"></label>
-          <label>Fechamento (botões, zíper)<input type="text" id="p_fecho"></label>
-        </div>
-        <label>Detalhes que não podem mudar (laço, renda, costura, estampa)
-          <textarea id="p_det"></textarea>
-        </label>
-        <div class="grid2">
-          <label>Quantas peças vêm no pedido<input type="number" id="p_pecas" min="1" max="20" inputmode="numeric"></label>
-          <label>Tamanho real (calçado e acessório)<input type="text" id="p_medida" placeholder="ex.: salto de 7 cm"></label>
-        </div>
-      </div>
-    </div>
-
-    <div class="step">
-      <div class="step-head"><span class="num">3</span><h2>Formato do vídeo</h2></div>
-      <div class="formats" id="formats">
-        <button type="button" class="format" data-f="pov"><span>POV na mão</span><small>A mão mostra a peça para a câmera.</small></button>
-        <button type="button" class="format" data-f="desfile"><span>Desfile</span><small>A personagem veste e caminha.</small></button>
-        <button type="button" class="format" data-f="misto"><span>Misto</span><small>Começa no detalhe e abre para o corpo todo.</small></button>
-      </div>
-      <p class="alert" id="intimaAviso" hidden>Roupa íntima fica só no formato na mão ou no cabide. Personagem vestindo roupa íntima é o tipo de vídeo com mais chance de ser removido.</p>
-    </div>
-
-    <div class="step">
-      <div class="step-head"><span class="num">4</span><h2>Gerar o vídeo</h2></div>
-      <div class="panel" id="senhaBox" hidden>
-        <label>Senha do app<input type="password" id="senha" autocomplete="current-password"></label>
-        <div class="row"><button type="button" class="primary" id="entrarBtn">Entrar</button><span class="note" id="senhaStatus"></span></div>
-      </div>
-      <div class="panel" id="gerarBox" hidden>
-        <p class="note">O app envia as fotos do produto e a imagem da personagem do perfil. Se você já tem uma foto da cena aprovada, envie abaixo e o vídeo parte dela.</p>
-        <label>Foto da cena aprovada (opcional)
-          <input type="file" id="aprovada" accept="image/jpeg,image/png,image/webp">
-        </label>
-        <div class="grid2">
-          <label>Duração
-            <select id="g_seg"><option value="5">5 segundos</option><option value="8" selected>8 segundos</option><option value="10">10 segundos</option></select>
-          </label>
-          <label>Qualidade
-            <select id="g_res"><option value="720p" selected>Normal (720p)</option><option value="360p">Rascunho barato (360p)</option><option value="1080p">Alta (1080p)</option></select>
-          </label>
-        </div>
-        <div class="row"><button type="button" class="primary" id="gerarBtn">Gerar vídeo</button><span class="note" id="custoNota"></span></div>
-        <p class="note" id="gerarStatus"></p>
-        <video id="videoOut" controls playsinline hidden style="width:100%;border-radius:12px;background:#000;max-height:70vh"></video>
-        <div class="row" id="baixarRow" hidden><a id="baixarLink" class="chip" download="video.mp4">Baixar vídeo</a><span class="note">Depois confira no passo 7 antes de postar.</span></div>
-      </div>
-    </div>
-
-    <div class="step">
-      <div class="step-head"><span class="num">5</span><h2>Ou primeiro a foto</h2></div>
-      <p class="note">Cole este prompt junto com as fotos do produto e a imagem da personagem. Só siga para o vídeo quando a foto estiver igual à da loja.</p>
-      <div class="panel">
-        <div class="out-head"><h3>Prompt da foto</h3><button class="small" type="button" data-copy="outImg">Copiar</button></div>
-        <textarea class="prompt" id="outImg" readonly></textarea>
-      </div>
-    </div>
-
-    <div class="step">
-      <div class="step-head"><span class="num">6</span><h2>Prompts para usar no Flow</h2></div>
-      <p class="note">Use a foto aprovada como primeiro quadro. O vídeo começa com o produto certo e o prompt proíbe mudanças.</p>
-      <div class="panel">
-        <div class="out-head"><h3>Prompt do vídeo</h3><button class="small" type="button" data-copy="outVid">Copiar</button></div>
-        <textarea class="prompt" id="outVid" readonly></textarea>
-      </div>
-      <div class="panel">
-        <div class="out-head"><h3>Legenda</h3>
-          <div class="row">
-            <button class="small" type="button" id="legBtn" hidden>Escrever legenda</button>
-            <button class="small" type="button" data-copy="outLeg">Copiar</button>
-          </div>
-        </div>
-        <textarea class="caption" id="outLeg" placeholder="Escreva a legenda aqui."></textarea>
-        <span class="note" id="legStatus"></span>
-      </div>
-    </div>
-
-    <div class="step">
-      <div class="step-head"><span class="num">7</span><h2>Conferir antes de postar</h2></div>
-      <div class="panel" id="autoPanel" hidden>
-        <h3>Conferência automática</h3>
-        <p class="note">Envie a foto gerada, ou prints do começo, meio e fim do vídeo. A IA compara com as fotos da loja do passo 2 e aponta cada diferença.</p>
-        <label>Foto gerada ou prints do vídeo
-          <input type="file" id="gerados" accept="image/jpeg,image/png,image/webp" multiple>
-        </label>
-        <div class="thumbs" id="thumbsGer"></div>
-        <div class="row"><button type="button" class="primary" id="confBtn">Conferir com a foto da loja</button><span class="note" id="confStatus"></span></div>
-        <p id="confVeredito" hidden></p>
-        <ul id="confLista" hidden></ul>
-      </div>
-      <p class="note">Lista para conferir à mão, item por item.</p>
-      <div class="panel">
-        <div class="check" id="check"></div>
-        <p id="checkStatus"></p>
-      </div>
-    </div>
-  </section>
-
-  <!-- PRONTOS -->
-  <section class="view" id="view-prontos" hidden>
-    <p class="note" id="prontosNota">Os vídeos gerados aparecem aqui. Baixe no mesmo dia: o Google apaga os arquivos depois de um tempo.</p>
-    <p class="note" id="gastoNota"></p>
-    <div id="prontosLista" style="display:flex;flex-direction:column;gap:12px"></div>
-    <div class="row"><button type="button" id="atualizarBtn">Atualizar lista</button></div>
-  </section>
-
-  <!-- PERFIS -->
-  <section class="view" id="view-perfis" hidden>
-    <p class="note" id="perfisNota">Cada perfil guarda a personagem e o público. Eles entram sozinhos em todo prompt e ficam salvos neste celular.</p>
-    <div id="perfisLista" style="display:flex;flex-direction:column;gap:12px"></div>
-    <div class="panel" id="perfilForm">
-      <h2 id="formTitulo">Novo perfil</h2>
-      <div class="grid2">
-        <label>Nome do perfil<input type="text" id="f_nome"></label>
-        <label>@ no TikTok<input type="text" id="f_arroba"></label>
-      </div>
-      <label>Personagem (idade, cabelo, pele, corpo, jeito)
-        <textarea id="f_pers"></textarea>
-      </label>
-      <label>Imagem da personagem (uma foto de rosto e corpo)
-        <input type="file" id="f_img" accept="image/jpeg,image/png,image/webp">
-      </label>
-      <div class="thumbs" id="f_imgPrev"></div>
-      <label>Cenário de sempre
-        <textarea id="f_cen"></textarea>
-      </label>
-      <label>Público-alvo
-        <textarea id="f_pub"></textarea>
-      </label>
-      <div class="row">
-        <button type="button" class="primary" id="salvarPerfil">Salvar perfil</button>
-        <button type="button" id="cancelarPerfil" hidden>Cancelar</button>
-        <span class="note" id="perfilStatus"></span>
-      </div>
-    </div>
-  </section>
-
-  <!-- REGRAS -->
-  <section class="view" id="view-regras" hidden>
-    <div class="rules">
-      <h2>O que o TikTok Shop cobra</h2>
-      <div class="panel">
-        <h3>Da política oficial de conteúdo (Brasil)</h3>
-        <ul>
-          <li>Vídeo feito com IA é permitido, desde que não engane quem assiste e não imite outra pessoa.</li>
-          <li>O criador não pode postar conteúdo diferente do produto anunciado: demonstração falsa, imagem ou atributo falso do produto.</li>
-          <li>O produto do vídeo precisa ser o mesmo da página para onde o link leva.</li>
-          <li>Punições: remoção do vídeo e suspensão temporária ou definitiva do acesso ao TikTok Shop. Dá para recorrer com documentos.</li>
-        </ul>
-        <p class="note"><a href="https://seller-br.tiktok.com/university/essay?knowledge_id=1413208980588305&lang=pt-BR" target="_blank" rel="noopener">Política de Conteúdo do TikTok Shop</a></p>
-      </div>
-      <div class="panel">
-        <h3>De guias de terceiros (ainda não conferido no texto oficial)</h3>
-        <ul>
-          <li>Ligar o rótulo de conteúdo gerado por IA em todo vídeo com personagem realista.</li>
-          <li>A IA não pode mudar tamanho, cor, material, quantidade de peças nem o que vem no kit.</li>
-          <li>O rótulo de IA sozinho não reduz o alcance de um vídeo que segue as regras.</li>
-        </ul>
-        <p class="note">O artigo oficial que detalha isso se chama Restrições e requisitos para conteúdo gerado por IA e fica na Central do Vendedor.</p>
-      </div>
-      <h2>Como o site completo funcionaria</h2>
-      <div class="flow">
-        <div><b>Hoje, neste app</b>Ela preenche a ficha, copia os prompts e gera a foto e o vídeo no Flow.</div>
-        <div><b>No site completo</b>O botão gera a foto ali mesmo, ela aprova ou refaz, e o vídeo sai da foto aprovada, sem copiar nada.</div>
-        <div><b>Conferência automática</b>Antes de liberar o vídeo, a IA compara os quadros com a foto da loja e aponta laço, costura ou tamanho diferente.</div>
-      </div>
-    </div>
-  </section>
+<div id="telaEntrar" class="entrar" hidden>
+  <h1>Estúdio de Vídeos</h1>
+  <p class="nota">Digite a senha do app. Você só faz isso uma vez neste celular.</p>
+  <label class="campo">Senha<input type="password" id="senha" autocomplete="current-password"></label>
+  <button class="btn principal" id="entrarBtn" type="button">Entrar</button>
+  <p class="nota" id="entrarMsg" role="status"></p>
 </div>
 
+<div id="app" hidden>
+<header class="topo"><div class="topo-in"><h1>Estúdio de Vídeos</h1><span class="gasto" id="gasto">Hoje: US$ 0,00</span></div></header>
+
+<main>
+  <!-- CRIAR -->
+  <section class="tela" id="tela-criar">
+    <div class="passo">
+      <div class="passo-t"><span class="n">1</span><h2>Qual produto?</h2></div>
+      <div class="trilho" id="produtosTrilho"></div>
+
+      <div class="caixa" id="novoProduto">
+        <div class="envio">
+          <input type="file" id="prints" accept="image/*" multiple aria-label="Enviar prints do anúncio">
+          <b>Enviar prints do anúncio</b>
+          <span class="nota">Tire print das fotos do produto e da parte "Detalhes do produto" no TikTok Shop. Quanto mais ângulos, melhor.</span>
+        </div>
+        <div class="miniaturas" id="printsPrev"></div>
+        <details>
+          <summary>Quer avisar algo para a IA?</summary>
+          <label class="campo" style="margin-top:8px">Aviso (opcional)<textarea id="aviso" placeholder="Ex.: o kit vem com 4 calcinhas, uma de cada cor"></textarea></label>
+        </details>
+        <button class="btn principal cheio" id="analisarBtn" type="button" disabled>Analisar produto</button>
+        <p class="nota" id="analisarMsg" role="status"></p>
+      </div>
+
+      <div class="caixa" id="produtoCard" hidden>
+        <div class="linha" style="justify-content:space-between"><h3 id="pNome"></h3><button class="btn pq" id="trocarProduto" type="button">Trocar</button></div>
+        <div class="miniaturas" id="pRefs"></div>
+        <p id="pResumo"></p>
+        <dl class="ficha" id="pFicha"></dl>
+        <div id="pNaoTem"></div>
+        <div id="pDuvidas"></div>
+        <details id="pCorrigirBox">
+          <summary>A IA errou alguma coisa? Corrigir</summary>
+          <label class="campo" style="margin-top:8px">O que está errado ou faltando<textarea id="pCorrecao" placeholder="Ex.: o laço é de cetim e fica do lado esquerdo"></textarea></label>
+          <button class="btn pq" id="pCorrigirBtn" type="button" style="margin-top:8px">Salvar correção</button>
+        </details>
+      </div>
+    </div>
+
+    <div class="passo">
+      <div class="passo-t"><span class="n">2</span><h2>Qual personagem?</h2></div>
+      <div class="trilho" id="persTrilho"></div>
+    </div>
+
+    <div class="passo">
+      <div class="passo-t"><span class="n">3</span><h2>Quantos vídeos?</h2></div>
+      <div class="seg" id="qtd"><button type="button" data-v="1">1</button><button type="button" data-v="2">2</button><button type="button" data-v="3" aria-pressed="true">3</button></div>
+      <div class="seg" id="formato">
+        <button type="button" data-v="auto" aria-pressed="true">Variados</button><button type="button" data-v="pov">Na mão</button><button type="button" data-v="desfile">Desfile</button><button type="button" data-v="misto">Misto</button>
+      </div>
+      <p class="nota" id="formatoNota">Variados faz um de cada: na mão, desfile e misto.</p>
+      <details>
+        <summary>Quero escrever o roteiro</summary>
+        <label class="campo" style="margin-top:8px">Roteiro ou ideia (opcional)<textarea id="roteiro" placeholder="Ex.: ela mostra o laço e fala: olha que delicada essa blusa"></textarea></label>
+      </details>
+      <button class="btn principal cheio" id="gerarBtn" type="button" disabled>Gerar vídeos</button>
+      <p class="nota" id="gerarMsg" role="status"></p>
+    </div>
+  </section>
+
+  <!-- VÍDEOS -->
+  <section class="tela" id="tela-videos" hidden>
+    <div class="linha" style="justify-content:space-between"><h2>Seus vídeos</h2><button class="btn pq" id="atualizarBtn" type="button">Atualizar</button></div>
+    <p class="nota">A IA confere cada cena e cada vídeo com as fotos da loja e refaz sozinha quando o produto sai diferente. Pode fechar o app: continua gerando. Baixe no mesmo dia.</p>
+    <div id="videosLista" style="display:flex;flex-direction:column;gap:14px"></div>
+  </section>
+
+  <!-- PERSONAGENS -->
+  <section class="tela" id="tela-personagens" hidden>
+    <h2>Personagens</h2>
+    <div id="persLista" style="display:flex;flex-direction:column;gap:12px"></div>
+    <div class="caixa" id="persForm">
+      <h3 id="persFormT">Nova personagem</h3>
+      <div class="envio" style="padding:16px">
+        <input type="file" id="persFoto" accept="image/*" aria-label="Foto da personagem">
+        <b>Foto da personagem</b><span class="nota">De frente, rosto e corpo aparecendo.</span>
+      </div>
+      <div class="miniaturas" id="persFotoPrev"></div>
+      <label class="campo">Nome<input type="text" id="persNome" placeholder="Ex.: Mariana"></label>
+      <label class="campo">Para quem ela vende<textarea id="persPublico" placeholder="Ex.: mulheres de 30 a 55 anos que gostam de looks elegantes e discretos"></textarea></label>
+      <div class="linha"><button class="btn principal" id="persSalvar" type="button">Salvar personagem</button><button class="btn" id="persCancelar" type="button" hidden>Cancelar</button></div>
+      <p class="nota" id="persMsg" role="status"></p>
+    </div>
+  </section>
+</main>
+
+<nav class="abas" aria-label="Telas"><div class="abas-in">
+  <a href="#criar" data-tab="criar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Criar</a>
+  <a href="#videos" data-tab="videos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10 9.5v5l4.5-2.5z" fill="currentColor"/></svg><span>Vídeos<span class="bolinha" id="ativosBolinha" hidden></span></span></a>
+  <a href="#personagens" data-tab="personagens"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Personagens</a>
+</div></nav>
+</div>
+
+<div class="toast" id="toast" hidden role="status"></div>
+
 <script>
+const FN = "https://mfrmnquvwwuxraqgemyh.supabase.co/functions/v1/appsara-video";
+const ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mcm1ucXV2d3d1eHJhcWdlbXloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNDI1NDIsImV4cCI6MjA4NzYxODU0Mn0.zmsi08dV5L1IlXJSr34vOii71w0g0OsD5_5DKio5g-o";
 const $ = id => document.getElementById(id);
-const FIELDS = ["nome","tipo","cor","tecido","gola","manga","comp","fecho","det","pecas","medida"];
-const EXEMPLO = {nome:"Blusa com laço na gola",tipo:"blusa",cor:"terracota fechado, sem brilho",tecido:"crepe leve, fosco, sem transparência",
-  gola:"gola alta com laço de duas pontas na frente",manga:"manga longa com punho de um botão",comp:"na altura do quadril",fecho:"três botões forrados no punho",
-  det:"Laço macio e caído, pontas até o meio do peito, um laço só. Costura reta no ombro. Sem estampa, sem bolso.",pecas:"1",medida:""};
+const S = { senha:"", produto:null, produtos:[], pers:[], persId:null, qtd:3, formato:"auto", arquivos:[], persFotoData:null, persEdit:null, videos:[], abertos:{} };
+const LS = { get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }, set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} } };
 
-const state = { perfis: [], perfilId: null, formato: "pov", exemplo: true, files: [], editId: null, db: null, sample: null, salvaLocal: false };
+function toast(t){ const el=$("toast"); el.textContent=t; el.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>el.hidden=true,2600); }
+function el(tag, props, ...kids){ const e=document.createElement(tag); if(props) for(const [k,v] of Object.entries(props)){ if(k==="class") e.className=v; else if(k==="text") e.textContent=v; else if(k.startsWith("on")) e.addEventListener(k.slice(2),v); else e.setAttribute(k,v); } for(const k of kids) if(k) e.append(k); return e; }
+const brl = v => "US$ "+Number(v||0).toFixed(2).replace(".",",");
 
-/* ---------- prompts ---------- */
-const TIPO_EN = {blusa:"blouse/shirt",vestido:"dress",conjunto:"two-piece set",calca:"pants/skirt",intima:"underwear set",calcado:"pair of shoes",acessorio:"accessory"};
-function produto(){ const p={}; FIELDS.forEach(f=>p[f]=$("p_"+f).value.trim()); return p; }
-function perfilAtual(){ return state.perfis.find(p=>p.id===state.perfilId) || null; }
-
-function fichaLinhas(p){
-  const L=[]; const add=(k,v)=>{ if(v) L.push("- "+k+": "+v); };
-  add("Color",p.cor); add("Fabric and texture",p.tecido); add("Collar / neckline",p.gola); add("Sleeves / straps",p.manga);
-  add("Length",p.comp?("hem falls exactly at: "+p.comp+" (do not shorten or lengthen)"):"");
-  add("Closure",p.fecho); add("Details that must stay identical",p.det);
-  const n=parseInt(p.pecas,10)||1;
-  L.push("- Pieces: exactly "+n+(n>1?" pieces, all visible, no more and no fewer":" piece"));
-  if(p.medida) L.push("- Real size: "+p.medida+" (keep true scale against the hand and body, not bigger, not smaller)");
-  return L.join("\n");
-}
-function buildPrompts(){
-  const p=produto(), pf=perfilAtual(), f=state.formato;
-  const pers = pf&&pf.personagem ? pf.personagem : "[personagem do perfil]";
-  const cen  = pf&&pf.cenario ? pf.cenario : "[cenário do perfil]";
-  const nome = p.nome || "[nome do produto]";
-  const det  = p.det ? p.det.split(/[.\n]/)[0].trim() : "main detail";
-  const intima = p.tipo==="intima";
-  const quadro = {
-    pov: intima
-      ? "First-person POV. The character's hands hold the pieces on a hanger (or laid flat on a bed) toward the camera. No body wearing the product. Product fills about half of the frame."
-      : "First-person POV. The character's hand holds the product toward the camera at chest height. Product fills about half of the frame; the hand gives true scale. Face not required.",
-    desfile: "Full-body shot, head to feet in frame. The character wears the product, standing, facing the camera.",
-    misto: "Waist-up shot. The character wears the product; the framing favors the detail ("+det+") while keeping the whole piece readable."
-  }[f];
-  const mov = {
-    pov: "The hand slowly tilts the product left and right, then fingers gently point at the detail ("+det+"). Handheld camera, minimal motion. Nothing else moves.",
-    desfile: "The character takes three slow steps toward the camera, stops, makes a soft quarter turn (max 45 degrees) to show the side, returns to front and lightly touches the detail ("+det+"). Camera fixed at chest height.",
-    misto: "The camera slowly pulls back from the waist-up framing to a full-body view while the character takes one small step and a soft quarter turn (max 45 degrees). No fast movement."
-  }[f];
-  const img =
-"Vertical 9:16 photo, realistic smartphone look, soft natural light.\n\n"+
-"CHARACTER: "+pers+"\nSETTING: "+cen+"\n\n"+
-"PRODUCT: "+nome+" ("+TIPO_EN[p.tipo]+"). The attached product photos are the only source of truth. Copy the product exactly as it appears in them:\n"+
-fichaLinhas(p)+"\n\n"+
-"FIDELITY RULES:\n"+
-"- Do not add, remove, move, resize or restyle any seam, bow, button, lace, trim, pocket or print.\n"+
-"- Same color in every part of the product. No extra pieces, no missing pieces.\n"+
-"- Real-life proportions: the product is the same size on the body as in the reference photos.\n"+
-"- No text, no logos, no watermark, no price tags.\n\n"+
-"FRAMING: "+quadro;
-  const vid =
-"Animate the attached approved image. Use it as the exact first frame. 8 seconds, vertical 9:16, realistic smartphone video.\n\n"+
-"MOVEMENT: "+mov+"\n\n"+
-"THE PRODUCT MUST STAY IDENTICAL TO THE FIRST FRAME IN EVERY FRAME:\n"+
-fichaLinhas(p)+"\n\n"+
-"- No morphing, no new details, no detail disappearing, no change in size, length or number of pieces.\n"+
-"- Fabric moves naturally and lightly. The character never turns fully away from the camera.\n"+
-"- Same lighting and setting from start to end. No cuts.\n"+
-"- No on-screen text, no logos, no watermark.";
-  const direto =
-"Vertical 9:16 realistic smartphone video, soft natural light.\n\n"+
-img.split("\n\n").slice(1).join("\n\n")+"\n\n"+
-"MOVEMENT: "+mov+"\n\n"+
-"The product stays identical from the first to the last frame: no morphing, no new details, no detail disappearing, no change in size, length or number of pieces. One continuous shot, no cuts. No speech, soft ambient sound only. No on-screen text.";
-  return {img,vid,direto};
+async function api(acao, dados, cru){
+  const r = await fetch(FN,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+ANON,"apikey":ANON,"x-app-senha":S.senha},body:JSON.stringify({acao,...(dados||{})})});
+  if(cru && r.ok) return r.blob();
+  const j = await r.json().catch(()=>({erro:"O servidor respondeu de um jeito inesperado. Tente de novo."}));
+  if(r.status===401){ S.senha=""; LS.set("appsara.senha",""); mostrarEntrar("A senha mudou. Digite de novo."); }
+  if(!r.ok) throw new Error(j.erro || ("Erro "+r.status));
+  return j;
 }
 
-/* ---------- conferência ---------- */
-function checkItens(){
-  const p=produto(); const n=parseInt(p.pecas,10)||1; const it=[];
-  it.push("A cor é a mesma da foto da loja"+(p.cor?" ("+p.cor+")":"")+".");
-  if(p.det) it.push("Os detalhes estão iguais, no mesmo lugar e do mesmo tamanho: "+p.det);
-  if(p.gola) it.push("Gola ou decote igual: "+p.gola+".");
-  if(p.manga) it.push("Manga ou alça igual: "+p.manga+".");
-  it.push("As costuras aparecem nos mesmos lugares e nenhuma costura nova surgiu.");
-  if(p.comp) it.push("O comprimento bate no mesmo ponto do corpo: "+p.comp+".");
-  if(p.medida) it.push("O tamanho parece o real: "+p.medida+".");
-  else it.push("A peça não ficou maior nem menor do que é de verdade.");
-  it.push(n>1?("Aparecem exatamente "+n+" peças, como no pedido."):"Aparece uma peça só, como no pedido.");
-  it.push("Do primeiro ao último segundo a peça não muda.");
-  it.push("O produto do vídeo é o mesmo do link que vai no post.");
-  it.push("O rótulo de conteúdo gerado por IA está ligado.");
-  return it;
+/* ---------- imagens ---------- */
+function abrirImagem(file){ return new Promise((ok,erro)=>{ const u=URL.createObjectURL(file); const i=new Image(); i.onload=()=>ok({img:i,url:u}); i.onerror=()=>{ URL.revokeObjectURL(u); erro(new Error("Não deu para abrir uma das imagens.")); }; i.src=u; }); }
+function desenhar(img, sx, sy, sw, sh, max){ const k=Math.min(1,max/Math.max(sw,sh)); const c=document.createElement("canvas"); c.width=Math.max(1,Math.round(sw*k)); c.height=Math.max(1,Math.round(sh*k)); c.getContext("2d").drawImage(img,sx,sy,sw,sh,0,0,c.width,c.height); return c.toDataURL("image/jpeg",0.86); }
+async function reduzir(file,max){ const {img,url}=await abrirImagem(file); const d=desenhar(img,0,0,img.naturalWidth,img.naturalHeight,max); URL.revokeObjectURL(url); return d; }
+async function recortar(file, caixa){ const {img,url}=await abrirImagem(file); const W=img.naturalWidth, H=img.naturalHeight;
+  let [y0,x0,y1,x1]=(Array.isArray(caixa)&&caixa.length===4?caixa:[0,0,1000,1000]).map(Number);
+  if(!(y1>y0&&x1>x0)) [y0,x0,y1,x1]=[0,0,1000,1000];
+  const pad=20; y0=Math.max(0,y0-pad); x0=Math.max(0,x0-pad); y1=Math.min(1000,y1+pad); x1=Math.min(1000,x1+pad);
+  const d=desenhar(img,x0/1000*W,y0/1000*H,(x1-x0)/1000*W,(y1-y0)/1000*H,1280); URL.revokeObjectURL(url); return d; }
+function miniaturas(box, fontes){ box.textContent=""; for(const f of fontes){ const i=el("img",{alt:""}); i.src=typeof f==="string"?f:URL.createObjectURL(f); box.append(i); } }
+
+/* ---------- entrar ---------- */
+function mostrarEntrar(msg){ $("app").hidden=true; $("telaEntrar").hidden=false; $("entrarMsg").textContent=msg||""; }
+async function entrar(){ const v=$("senha").value.trim(); if(!v) return; S.senha=v; $("entrarBtn").disabled=true; $("entrarMsg").textContent="Conferindo…";
+  try{ await api("entrar"); LS.set("appsara.senha",v); $("senha").value=""; iniciar(); }
+  catch(e){ S.senha=""; $("entrarMsg").textContent=e.message; }
+  $("entrarBtn").disabled=false; }
+
+/* ---------- produtos ---------- */
+async function carregarProdutos(){ try{ const r=await api("produtos"); S.produtos=r.produtos; desenharProdutos(); }catch(e){ toast(e.message); } }
+function desenharProdutos(){ const t=$("produtosTrilho"); t.textContent="";
+  const novo=el("button",{class:"cartao novo",type:"button","aria-pressed":String(!S.produto)},el("span",{text:"+ Produto novo"}));
+  novo.addEventListener("click",()=>{ S.produto=null; mostrarProduto(); });
+  t.append(novo);
+  for(const p of S.produtos){ const b=el("button",{class:"cartao",type:"button","aria-pressed":String(S.produto&&S.produto.id===p.id)});
+    const i=el("img",{alt:""}); if(p.capa) i.src=p.capa; b.append(i, el("span",{text:p.nome||"Produto"}));
+    b.addEventListener("click",()=>{ S.produto={id:p.id,nome:p.nome,ficha:p.ficha||{},resumo:p.resumo,refsUrls:p.capa?[p.capa]:[],observacao:p.observacao}; mostrarProduto(); });
+    t.append(b); }
+  t.hidden = !S.produtos.length;
 }
-let checkKey="";
-function renderCheck(){
-  const it=checkItens(); const key=it.join("|");
-  if(key!==checkKey){
-    checkKey=key; const box=$("check"); box.textContent="";
-    it.forEach((t,i)=>{ const l=document.createElement("label"); const c=document.createElement("input"); c.type="checkbox"; c.id="chk_"+i;
-      c.addEventListener("change",statusCheck); const s=document.createElement("span"); s.textContent=t; l.append(c,s); box.append(l); });
+const ROTULOS = [["tipo_peca","Peça"],["cores","Cores"],["material","Material"],["textura_brilho","Textura"],["transparencia","Transparência"],["caimento","Caimento"],["gola_decote","Gola/decote"],["alcas_mangas","Alças/mangas"],["comprimento","Comprimento"],["cintura","Cintura"],["fechamento","Fechamento"],["bolsos","Bolsos"],["costuras","Costuras"],["estampa","Estampa"],["medidas","Medidas"],["pecas_no_pedido","Peças no pedido"]];
+function vazio(v){ if(v==null) return true; const s=Array.isArray(v)?v.join(""):String(v); return !s.trim() || /^n[ãa]o aparece/i.test(s.trim()); }
+function mostrarProduto(){
+  const p=S.produto; $("novoProduto").hidden=!!p; $("produtoCard").hidden=!p; desenharProdutos();
+  if(p){
+    $("pNome").textContent=p.nome||"Produto"; $("pResumo").textContent=p.resumo||"";
+    miniaturas($("pRefs"),p.refsUrls||[]); $("pRefs").hidden=!(p.refsUrls||[]).length;
+    const dl=$("pFicha"); dl.textContent=""; const f=p.ficha||{};
+    for(const [k,r] of ROTULOS){ if(vazio(f[k])) continue; dl.append(el("dt",{text:r}), el("dd",{text:Array.isArray(f[k])?f[k].join(", "):String(f[k])})); }
+    if(!vazio(f.detalhes)) dl.append(el("dt",{text:"Detalhes"}), el("dd",{text:[].concat(f.detalhes).join("; ")}));
+    const nt=$("pNaoTem"); nt.textContent=""; if(!vazio(f.o_que_nao_tem)){ const c=el("div",{class:"chips"}); [].concat(f.o_que_nao_tem).forEach(x=>c.append(el("span",{class:"chip",text:x}))); nt.append(el("p",{class:"nota",text:"A IA vai evitar:"}),c); }
+    const du=$("pDuvidas"); du.textContent="";
+    if(f.categoria==="roupa_intima") du.append(el("p",{class:"alerta amarelo",text:"Roupa íntima: os vídeos mostram a peça só na mão, no cabide ou na cama, nunca vestida. É o formato com menos chance de remoção."}));
+    if(!vazio(f.duvidas)) du.append(el("p",{class:"alerta amarelo",text:"A IA não conseguiu confirmar: "+[].concat(f.duvidas).join("; ")+". Se souber, escreva em Corrigir."}));
+    $("pCorrecao").value=p.observacao||"";
   }
-  statusCheck();
+  atualizarGerar();
 }
-function statusCheck(){
-  const all=[...$("check").querySelectorAll("input")]; const ok=all.filter(c=>c.checked).length; const el=$("checkStatus");
-  el.className = ok===all.length ? "done" : "";
-  el.textContent = ok===all.length ? "Tudo conferido. Pode postar." : ("Faltam "+(all.length-ok)+" de "+all.length+". Se algum item não bater, refaça a foto antes de gerar outro vídeo.");
-}
-
-/* ---------- render ---------- */
-function render(){
-  const p=produto(); const intima=p.tipo==="intima";
-  if(intima && state.formato!=="pov") state.formato="pov";
-  $("intimaAviso").hidden=!intima;
-  document.querySelectorAll(".format").forEach(b=>{ b.setAttribute("aria-pressed", String(b.dataset.f===state.formato)); b.disabled = intima && b.dataset.f!=="pov"; });
-  const {img,vid}=buildPrompts(); $("outImg").value=img; $("outVid").value=vid;
-  $("exemploTag").hidden=!state.exemplo;
-  const pf=perfilAtual();
-  $("perfilResumo").textContent = pf ? ("Público: "+(pf.publico||"não preenchido")) : "";
-  renderCheck();
-}
-function renderPerfis(){
-  const chips=$("perfilChips"); chips.textContent="";
-  if(!state.perfis.length){ const s=document.createElement("span"); s.className="note"; s.textContent="Nenhum perfil ainda. Crie o primeiro na aba Perfis."; chips.append(s); }
-  if(!perfilAtual() && state.perfis.length) state.perfilId=state.perfis[0].id;
-  state.perfis.forEach(pf=>{ const b=document.createElement("button"); b.type="button"; b.className="chip"; b.textContent=pf.nome||"Sem nome";
-    b.setAttribute("aria-pressed",String(pf.id===state.perfilId)); b.addEventListener("click",()=>{state.perfilId=pf.id; renderPerfis(); render();}); chips.append(b); });
-  const lista=$("perfisLista"); lista.textContent="";
-  state.perfis.forEach(pf=>{
-    const c=document.createElement("div"); c.className="panel perfil-card";
-    const h=document.createElement("div"); h.className="row"; const t=document.createElement("h2"); t.textContent=pf.nome||"Sem nome"; h.append(t);
-    if(pf.exemplo){ const g=document.createElement("span"); g.className="tag"; g.textContent="Exemplo"; h.append(g); }
-    const dl=document.createElement("dl");
-    if(pf.img){ const im=document.createElement("img"); im.src=pf.img; im.alt="Personagem"; im.style.cssText="width:72px;height:96px;object-fit:cover;border-radius:8px"; c.append(im); }
-    [["@",pf.arroba],["Personagem",pf.personagem],["Cenário",pf.cenario],["Público",pf.publico]].forEach(([k,v])=>{ if(!v) return;
-      const d=document.createElement("div"); const dt=document.createElement("dt"); dt.textContent=k; const dd=document.createElement("dd"); dd.textContent=v; d.append(dt,dd); dl.append(d); });
-    const r=document.createElement("div"); r.className="row";
-    const e=document.createElement("button"); e.type="button"; e.className="small"; e.textContent="Editar"; e.addEventListener("click",()=>editar(pf));
-    const x=document.createElement("button"); x.type="button"; x.className="small"; x.textContent="Excluir";
-    x.addEventListener("click",()=>{ if(x.dataset.sure){ excluir(pf); } else { x.dataset.sure="1"; x.textContent="Excluir mesmo?"; setTimeout(()=>{delete x.dataset.sure; x.textContent="Excluir";},4000); } });
-    r.append(e,x); c.append(h,dl,r); lista.append(c);
-  });
-  render();
-}
-
-/* ---------- perfis: salvar ---------- */
-function editar(pf){ state.editId=pf.id; $("f_nome").value=pf.nome||""; $("f_arroba").value=pf.arroba||""; $("f_pers").value=pf.personagem||""; $("f_cen").value=pf.cenario||""; $("f_pub").value=pf.publico||"";
-  state.formImg=pf.img||null; prevImg(); $("formTitulo").textContent="Editar perfil"; $("cancelarPerfil").hidden=false; $("perfilForm").scrollIntoView({block:"start"}); }
-function limparForm(){ state.formImg=null; $("f_img").value=""; prevImg(); state.editId=null; ["f_nome","f_arroba","f_pers","f_cen","f_pub"].forEach(i=>$(i).value=""); $("formTitulo").textContent="Novo perfil"; $("cancelarPerfil").hidden=true; }
-async function salvarPerfil(){
-  const d={img:state.formImg||null,nome:$("f_nome").value.trim(),arroba:$("f_arroba").value.trim(),personagem:$("f_pers").value.trim(),cenario:$("f_cen").value.trim(),publico:$("f_pub").value.trim()};
-  const st=$("perfilStatus");
-  if(!d.nome||!d.personagem){ st.textContent="Preencha pelo menos o nome e a personagem."; return; }
-  $("salvarPerfil").disabled=true; st.textContent="Salvando…";
+async function analisar(){
+  const btn=$("analisarBtn"), msg=$("analisarMsg"); if(!S.arquivos.length) return;
+  btn.disabled=true; msg.textContent="Preparando as imagens…";
   try{
-    if(state.db){
-      const col=state.db.collection("perfis"); const ref=state.editId?col.doc(state.editId):col.doc();
-      await ref.set(d); st.textContent="Perfil salvo.";
-    } else {
-      const id=state.editId||("local"+Date.now()); const i=state.perfis.findIndex(p=>p.id===id);
-      if(i>=0) state.perfis[i]={id,...d}; else state.perfis.push({id,...d});
-      persist(); st.textContent="Perfil salvo."; renderPerfis();
-    }
-    limparForm();
-  }catch(e){ st.textContent = e&&e.code==="invalid_argument" ? "Você não tem permissão para salvar perfis nesta página." : "Não deu para salvar agora. Tente de novo."; }
-  $("salvarPerfil").disabled=false;
+    const arquivos=S.arquivos.slice(0,8); const fotos=[]; for(const f of arquivos) fotos.push(await reduzir(f,1600));
+    msg.textContent="A IA está lendo o anúncio. Leva uns 30 segundos…";
+    const r=await api("analisar",{fotos,observacao:$("aviso").value.trim()});
+    msg.textContent="Recortando as fotos do produto…";
+    const boas=(r.imagens||[]).filter(i=>i&&i.tipo==="foto_produto"&&arquivos[i.indice]).sort((a,b)=>(b.qualidade||0)-(a.qualidade||0)).slice(0,6);
+    const refs=[]; for(const i of boas) refs.push(await recortar(arquivos[i.indice],i.caixa));
+    await api("refs",{id:r.id,refs});
+    S.produto={id:r.id,nome:r.nome,ficha:r.ficha||{},resumo:r.resumo,refsUrls:refs.length?refs:fotos.slice(0,4),observacao:$("aviso").value.trim()};
+    S.arquivos=[]; $("prints").value=""; $("printsPrev").textContent=""; $("aviso").value=""; msg.textContent="";
+    mostrarProduto(); carregarProdutos(); atualizarGasto();
+  }catch(e){ msg.textContent=e.message; }
+  btn.disabled=!S.arquivos.length;
 }
-async function excluir(pf){
-  try{ if(state.db) await state.db.collection("perfis").doc(pf.id).delete(); else { state.perfis=state.perfis.filter(p=>p.id!==pf.id); persist(); renderPerfis(); } }
-  catch(e){ $("perfilStatus").textContent="Não deu para excluir agora."; }
-}
+async function corrigir(){ if(!S.produto) return; const v=$("pCorrecao").value.trim();
+  try{ await api("corrigir",{id:S.produto.id,observacao:v}); S.produto.observacao=v; toast("Correção salva. Ela entra em todos os próximos vídeos."); $("pCorrigirBox").open=false; }catch(e){ toast(e.message); } }
 
-/* ---------- Claude: ler fotos e legenda ---------- */
-const ERRO = c => ({not_granted:null,sampling_disabled:null,not_declared:null,capability_disabled:null,capability_removed:null,
-  rate_limited:"Muitos pedidos seguidos. Espere um pouco e tente de novo.",session_expired:"Entre na conta de novo para usar a IA.",
-  image_rejected:"A IA não aceitou essa foto. Use JPG, PNG ou WebP.",images_unavailable:"Leitura de foto não está disponível aqui. Preencha a ficha à mão.",
-  refused:"A IA não respondeu a esse pedido.",invalid_json:"A resposta veio incompleta. Tente de novo."}[c] ?? "A IA falhou agora. Tente de novo.");
-async function lerFotos(){
-  if(!state.sample||!state.files.length) return;
-  const st=$("lerStatus"), b=$("lerBtn"); b.disabled=true; st.textContent="Lendo as fotos…";
-  const prompt = "As imagens são fotos de um produto de moda vendido no TikTok Shop. Descreva o produto com precisão para que uma IA de vídeo o reproduza sem mudar nada. "+
-    "Responda só com um objeto JSON, em português, com estas chaves (string vazia quando não der para ver): "+
-    '{"nome":"","tipo":"blusa|vestido|conjunto|calca|intima|calcado|acessorio","cor":"","tecido":"","gola":"","manga":"","comp":"onde a barra bate no corpo","fecho":"","det":"laços, rendas, costuras aparentes, estampas, com posição e tamanho","pecas":"número de peças do pedido"}. '+
-    "Descreva apenas o que aparece nas fotos. Não invente.";
-  try{
-    const r = await state.sample.json(prompt,{images:state.files.slice(0,state.maxImgs||4)});
-    if(r&&typeof r==="object"){ FIELDS.forEach(f=>{ if(r[f]!=null&&String(r[f]).trim()){ const el=$("p_"+f); const v=String(r[f]).trim();
-      if(f==="tipo"){ if(TIPO_EN[v]) el.value=v; } else if(f==="pecas"){ const n=parseInt(v,10); if(n>0) el.value=n; } else el.value=v; } });
-      state.exemplo=false; st.textContent="Ficha preenchida. Confira cada campo com a foto antes de usar."; render(); }
-  }catch(e){ const m=ERRO(e&&e.code); if(m===null){ b.hidden=true; st.textContent="Leitura por IA indisponível aqui. Preencha a ficha à mão."; } else st.textContent=m; }
-  b.disabled=false;
+/* ---------- personagens ---------- */
+async function carregarPers(){ try{ const r=await api("personagens"); S.pers=r.personagens; if(!S.pers.find(p=>p.id===S.persId)) S.persId=(S.pers[0]||{}).id||null; desenharPers(); }catch(e){ toast(e.message); } }
+function desenharPers(){
+  const t=$("persTrilho"); t.textContent="";
+  for(const p of S.pers){ const b=el("button",{class:"cartao",type:"button","aria-pressed":String(p.id===S.persId)}); const i=el("img",{alt:""}); if(p.foto) i.src=p.foto; b.append(i,el("span",{text:p.nome}));
+    b.addEventListener("click",()=>{ S.persId=p.id; desenharPers(); }); t.append(b); }
+  const novo=el("a",{class:"cartao novo",href:"#personagens"},el("span",{text:"+ Nova personagem"})); t.append(novo);
+  const l=$("persLista"); l.textContent="";
+  if(!S.pers.length) l.append(el("p",{class:"vazio-t",text:"Nenhuma personagem ainda. Cadastre a primeira aqui embaixo."}));
+  for(const p of S.pers){ const i=el("img",{alt:""}); if(p.foto) i.src=p.foto;
+    const ed=el("button",{class:"btn pq",type:"button",text:"Editar"}); ed.addEventListener("click",()=>editarPers(p));
+    const ex=el("button",{class:"btn pq",type:"button",text:"Excluir"});
+    ex.addEventListener("click",async()=>{ if(!ex.dataset.ok){ ex.dataset.ok="1"; ex.textContent="Excluir mesmo?"; setTimeout(()=>{ delete ex.dataset.ok; ex.textContent="Excluir"; },4000); return; }
+      try{ await api("personagem_excluir",{id:p.id}); carregarPers(); }catch(e){ toast(e.message); } });
+    l.append(el("div",{class:"caixa"},el("div",{class:"pers"},i,el("div",null,el("h3",{text:p.nome}),el("p",{class:"nota",text:p.publico||"Público não preenchido"}),el("div",{class:"linha"},ed,ex))))); }
+  atualizarGerar();
 }
-async function legenda(){
-  if(!state.sample) return; const p=produto(), pf=perfilAtual(); const st=$("legStatus"), b=$("legBtn"); b.disabled=true; $("outLeg").value=""; st.textContent="Escrevendo…";
-  const prompt="Escreva uma legenda de TikTok em português do Brasil para um vídeo de produto do TikTok Shop. "+
-    "Formato: uma frase curta de abertura com um ou dois emojis, linha em branco, depois duas ou três frases descrevendo o produto. No máximo 350 caracteres. "+
-    "Fale só do que está na ficha. Não prometa resultado, não invente tecido, tamanho nem preço. Responda só com a legenda.\n\n"+
-    "Público: "+((pf&&pf.publico)||"mulheres que compram roupa online")+"\nFicha do produto:\n"+JSON.stringify(p);
-  try{ const {text}=await state.sample(prompt,{modelTier:"quick",cache:false,onText:({text})=>{$("outLeg").value=text; st.textContent="";}}); $("outLeg").value=text.trim(); st.textContent=""; }
-  catch(e){ const m=ERRO(e&&e.code); if(m===null){ b.hidden=true; st.textContent="Legenda por IA indisponível aqui. Escreva à mão."; } else st.textContent=m; }
-  b.disabled=false;
-}
+function editarPers(p){ S.persEdit=p.id; $("persNome").value=p.nome||""; $("persPublico").value=p.publico||""; S.persFotoData=null; miniaturas($("persFotoPrev"),p.foto?[p.foto]:[]);
+  $("persFormT").textContent="Editar "+p.nome; $("persCancelar").hidden=false; $("persForm").scrollIntoView({behavior:"smooth",block:"start"}); }
+function limparPers(){ S.persEdit=null; S.persFotoData=null; $("persNome").value=""; $("persPublico").value=""; $("persFoto").value=""; $("persFotoPrev").textContent=""; $("persFormT").textContent="Nova personagem"; $("persCancelar").hidden=true; }
+async function salvarPers(){ const msg=$("persMsg"), b=$("persSalvar"); const nome=$("persNome").value.trim();
+  if(!nome){ msg.textContent="Escreva o nome."; return; } if(!S.persEdit&&!S.persFotoData){ msg.textContent="Envie a foto da personagem."; return; }
+  b.disabled=true; msg.textContent=S.persFotoData?"Salvando e descrevendo a aparência dela…":"Salvando…";
+  try{ const r=await api("personagem_salvar",{id:S.persEdit||undefined,nome,publico:$("persPublico").value.trim(),foto:S.persFotoData||undefined});
+    S.persId=r.id; limparPers(); msg.textContent="Personagem salva."; await carregarPers(); }
+  catch(e){ msg.textContent=e.message; } b.disabled=false; }
 
-async function conferir(){
-  const st=$("confStatus"), b=$("confBtn"), ver=$("confVeredito"), lista=$("confLista");
-  const ger=[...$("gerados").files];
-  if(!state.files.length){ st.textContent="Envie antes as fotos da loja no passo 2."; return; }
-  if(!ger.length){ st.textContent="Envie a foto gerada ou os prints do vídeo."; return; }
-  const max=state.maxImgs||4; const nLoja=Math.max(1,Math.min(state.files.length,Math.floor(max/2))); const nGer=Math.max(1,Math.min(ger.length,max-nLoja));
-  const imgs=[...state.files.slice(0,nLoja),...ger.slice(0,nGer)];
-  b.disabled=true; ver.hidden=true; lista.hidden=true; st.textContent="Comparando…";
-  const prompt="Você é a conferência de qualidade de um vídeo de produto do TikTok Shop. As "+nLoja+" primeiras imagens são as fotos REAIS do produto na loja. As "+nGer+" imagens seguintes foram geradas por IA e deveriam mostrar exatamente o mesmo produto. "+
-    "Compare o produto, e só o produto, entre os dois grupos. Seja rigoroso: o TikTok remove vídeos por diferenças pequenas. Confira cor, tecido, gola ou decote, manga ou alça, comprimento, fechamento, laços, rendas, costuras, estampa, proporção e tamanho em relação ao corpo ou à mão, e número de peças. "+
-    "Ficha do produto para apoio: "+JSON.stringify(produto())+". "+
-    'Responda só com JSON, em português: {"veredito":"igual"|"diferente","diferencas":[{"item":"","loja":"como é na foto real","gerado":"como saiu"}],"nao_deu_para_ver":["itens que as imagens não mostram"]}. '+
-    "Liste apenas diferenças que você realmente vê. Se não houver nenhuma, diferencas fica vazio e o veredito é igual.";
-  try{
-    const r=await state.sample.json(prompt,{images:imgs,modelTier:"complex",cache:false});
-    const difs=Array.isArray(r&&r.diferencas)?r.diferencas:[]; const cego=Array.isArray(r&&r.nao_deu_para_ver)?r.nao_deu_para_ver:[];
-    const ok=r&&r.veredito==="igual"&&!difs.length;
-    ver.className=ok?"ok":""; ver.textContent=ok?"Nenhuma diferença encontrada nas imagens enviadas.":("Refazer: "+difs.length+" diferença"+(difs.length===1?"":"s")+" encontrada"+(difs.length===1?"":"s")+".");
-    ver.hidden=false; lista.textContent="";
-    difs.forEach(d=>{ const li=document.createElement("li"); li.textContent=String(d.item||"Detalhe")+": na loja é "+String(d.loja||"?")+"; no gerado saiu "+String(d.gerado||"?")+"."; lista.append(li); });
-    cego.forEach(c=>{ const li=document.createElement("li"); li.textContent="Não deu para ver: "+String(c)+"."; lista.append(li); });
-    lista.hidden=!lista.children.length; st.textContent="";
-  }catch(e){ const m=ERRO(e&&e.code); st.textContent = m===null ? "Conferência por IA indisponível aqui. Use a lista abaixo." : m; }
-  b.disabled=false;
+/* ---------- gerar ---------- */
+function atualizarGerar(){ const ok=!!(S.produto&&S.persId); $("gerarBtn").disabled=!ok;
+  $("gerarMsg").textContent = !S.produto ? "Escolha ou analise um produto." : (!S.persId ? "Escolha a personagem." : "Cada vídeo de 8 segundos custa cerca de US$ 0,65, já contando a conferência.");
+  const intima=S.produto&&S.produto.ficha&&S.produto.ficha.categoria==="roupa_intima";
+  document.querySelectorAll("#formato button").forEach(b=>{ b.disabled=intima&&b.dataset.v!=="pov"; });
+  if(intima&&S.formato!=="pov"){ S.formato="pov"; marcarSeg("formato","pov"); }
+  $("formatoNota").textContent = intima ? "Roupa íntima: só na mão, no cabide ou na cama." : ({auto:"Variados faz um de cada: na mão, desfile e misto.",pov:"A mão dela mostra a peça para a câmera.",desfile:"Ela veste e caminha até a câmera.",misto:"Começa no detalhe e abre para ela vestindo."}[S.formato]);
+}
+function marcarSeg(id,v){ document.querySelectorAll("#"+id+" button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===v))); }
+async function gerar(){ const b=$("gerarBtn"), msg=$("gerarMsg"); b.disabled=true; msg.textContent="Mandando para a fila…";
+  try{ await api("gerar",{produto_id:S.produto.id,personagem_id:S.persId,quantidade:S.qtd,formato:S.formato,roteiro:$("roteiro").value.trim()});
+    toast("Vídeos na fila. Acompanhe aqui."); location.hash="#videos"; api("tick").catch(()=>{}); }
+  catch(e){ msg.textContent=e.message; } b.disabled=false; }
+
+/* ---------- vídeos ---------- */
+const ORDEM=["fila","foto","conf_foto","video","conf_video"];
+const TEXTO={fila:"Escrevendo o roteiro e os prompts",foto:"Criando a cena com a personagem",conf_foto:"Conferindo a cena com as fotos da loja",video:"Gerando o vídeo (uns 2 a 4 minutos)",conf_video:"Conferindo o vídeo com as fotos da loja",pronto:"Pronto e conferido",reprovado:"Reprovado na conferência",erro:"Não deu certo"};
+const FMT={pov:"Na mão",desfile:"Desfile",misto:"Misto"};
+let timer=null, ultimoTick=0;
+async function carregarVideos(){
+  try{ const r=await api("lista"); S.videos=r.videos; desenharVideos(); mostrarGasto(r.gasto_hoje,r.teto);
+    const ativos=r.videos.filter(v=>ORDEM.includes(v.etapa)).length; const bol=$("ativosBolinha"); bol.hidden=!ativos; bol.textContent=ativos;
+    clearTimeout(timer); if(ativos){ timer=setTimeout(carregarVideos,15000); if(Date.now()-ultimoTick>30000){ ultimoTick=Date.now(); api("tick").catch(()=>{}); } } }
+  catch(e){ toast(e.message); }
+}
+function desenharVideos(){
+  const l=$("videosLista"); l.textContent="";
+  if(!S.videos.length){ l.append(el("p",{class:"vazio-t",text:"Nenhum vídeo ainda. Vá em Criar, escolha o produto e a personagem."})); return; }
+  for(const v of S.videos){
+    const c=el("div",{class:"caixa video"});
+    const th=v.cena?el("img",{alt:"Cena"}):el("div",{class:"vazio"}); if(v.cena) th.src=v.cena;
+    const info=el("div",null,el("h3",{text:v.produto||"Produto"}),el("p",{class:"nota",text:[v.personagem,FMT[v.formato]||"",v.custo?brl(v.custo):""].filter(Boolean).join(" · ")}));
+    c.append(el("div",{class:"video-topo"},th,info));
+    const idx=ORDEM.indexOf(v.etapa); const et=el("div",{class:"etapas","aria-hidden":"true"});
+    ORDEM.forEach((_,i)=>et.append(el("i",{class: v.etapa==="pronto"||v.etapa==="reprovado"||i<idx?"feito":(i===idx?"agora":"")})));
+    c.append(et);
+    let status=TEXTO[v.etapa]||v.etapa; if(v.tentativas&&ORDEM.includes(v.etapa)) status+=" · refazendo ("+v.tentativas+"ª correção)";
+    c.append(el("p",{class:"nota",text:status}));
+    if(v.aviso) c.append(el("p",{class:"alerta amarelo",text:v.aviso}));
+    if(v.etapa==="pronto") c.append(el("p",{class:"alerta verde",text:"Conferido pela IA: o produto está igual às fotos da loja."+(v.conferencia&&v.conferencia.nota?" Nota "+v.conferencia.nota+"/10.":"")}));
+    if(v.etapa==="reprovado"||v.etapa==="erro"){ const dif=(v.conferencia&&v.conferencia.diferencas)||[]; const d=dif.length&&!(v.erro||"").includes(dif[0])?" Diferenças: "+dif.join("; ")+".":""; c.append(el("p",{class:"alerta vermelho",text:(v.erro||"Não passou na conferência.")+(v.etapa==="reprovado"?d:"")})); }
+    else if(v.erro&&ORDEM.includes(v.etapa)) c.append(el("p",{class:"nota",text:"Tentando de novo: "+v.erro}));
+    if(v.tem_video){ const player=el("video",{class:"player",controls:"",playsinline:""}); player.hidden=true;
+      const baixar=el("a",{class:"btn",download:"video-"+v.id.slice(0,6)+".mp4",text:"Baixar vídeo"}); baixar.hidden=true;
+      const abrir=el("button",{class:"btn"+(v.etapa==="pronto"?" principal":""),type:"button",text:v.etapa==="pronto"?"Ver vídeo":"Ver mesmo assim"});
+      abrir.addEventListener("click",async()=>{ abrir.disabled=true; abrir.textContent="Abrindo…";
+        try{ let u=S.abertos[v.id]; if(!u){ const blob=await api("baixar",{id:v.id},true); u=URL.createObjectURL(blob); S.abertos[v.id]=u; }
+          player.src=u; player.hidden=false; baixar.href=u; baixar.hidden=false; abrir.hidden=true; }
+        catch(e){ abrir.disabled=false; abrir.textContent="Ver vídeo"; toast(e.message); } });
+      c.append(player, el("div",{class:"linha"},abrir,baixar)); }
+    if(v.legenda&&(v.etapa==="pronto"||v.etapa==="reprovado")){ const cp=el("button",{class:"btn pq",type:"button",text:"Copiar legenda"});
+      cp.addEventListener("click",async()=>{ try{ await navigator.clipboard.writeText(v.legenda); toast("Legenda copiada."); }catch(e){ toast("Não deu para copiar. Segure o texto para copiar."); } });
+      c.append(el("p",{class:"legenda",text:v.legenda}),el("div",{class:"linha"},cp)); }
+    if(v.etapa==="reprovado"||v.etapa==="erro"||v.etapa==="pronto"){ const rf=el("button",{class:"btn pq",type:"button",text:v.etapa==="pronto"?"Fazer outro igual":"Tentar de novo"});
+      rf.addEventListener("click",async()=>{ rf.disabled=true; try{ await api("refazer",{id:v.id}); toast("Novo vídeo na fila."); carregarVideos(); api("tick").catch(()=>{}); }catch(e){ toast(e.message); rf.disabled=false; } });
+      c.append(el("div",{class:"linha"},rf)); }
+    l.append(c);
+  }
+}
+function mostrarGasto(g,t){ $("gasto").textContent="Hoje: "+brl(g)+" de "+brl(t); }
+async function atualizarGasto(){ try{ const r=await api("lista"); mostrarGasto(r.gasto_hoje,r.teto); }catch(e){} }
+
+/* ---------- navegação ---------- */
+const TELAS=["criar","videos","personagens"];
+function rota(){ const h=(location.hash||"#criar").slice(1); const t=TELAS.includes(h)?h:"criar";
+  TELAS.forEach(x=>$("tela-"+x).hidden=x!==t);
+  document.querySelectorAll(".abas a").forEach(a=>a.dataset.tab===t?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"));
+  if(t==="videos") carregarVideos(); window.scrollTo(0,0); }
+
+/* ---------- compartilhar para o app ---------- */
+async function recebidos(){
+  if(!/[?&]recebido=1/.test(location.search)||!("caches" in window)) return;
+  try{ const c=await caches.open("appsara-share"); const files=[];
+    for(const k of await c.keys()){ const r=await c.match(k); const b=await r.blob(); files.push(new File([b],"print-"+files.length+".jpg",{type:b.type||"image/jpeg"})); await c.delete(k); }
+    history.replaceState(null,"",location.pathname+"#criar");
+    if(files.length){ S.produto=null; mostrarProduto(); S.arquivos=files; miniaturas($("printsPrev"),files); $("analisarBtn").disabled=false; toast(files.length+" imagem(ns) recebida(s). Toque em Analisar produto."); }
+  }catch(e){}
 }
 
 /* ---------- eventos ---------- */
-$("confBtn").addEventListener("click",conferir);
-$("gerados").addEventListener("change",e=>{ const t=$("thumbsGer"); t.textContent=""; [...e.target.files].forEach(f=>{ const i=document.createElement("img"); i.alt="Imagem gerada"; i.src=URL.createObjectURL(f); t.append(i); }); $("confVeredito").hidden=true; $("confLista").hidden=true; });
-function setProduto(o){ FIELDS.forEach(f=>{ const el=$("p_"+f); el.value = o[f]!=null ? o[f] : (f==="tipo"?"blusa":(f==="pecas"?"1":"")); }); }
-FIELDS.forEach(f=>{ const el=$("p_"+f); el.addEventListener("input",()=>{state.exemplo=false; render();}); el.addEventListener("change",()=>{state.exemplo=false; render();}); });
-$("limparBtn").addEventListener("click",()=>{ setProduto({}); state.exemplo=false; state.files=[]; $("fotos").value=""; $("thumbs").textContent=""; $("outLeg").value=""; $("lerStatus").textContent=""; checkKey=""; render(); $("p_nome").focus(); });
-$("fotos").addEventListener("change",e=>{ state.files=[...e.target.files]; const t=$("thumbs"); t.textContent="";
-  state.files.forEach(f=>{ const i=document.createElement("img"); i.alt="Foto do produto"; i.src=URL.createObjectURL(f); t.append(i); });
-  $("lerStatus").textContent = state.files.length&&!state.sample ? "" : ""; });
-document.querySelectorAll(".format").forEach(b=>b.addEventListener("click",()=>{ state.formato=b.dataset.f; render(); }));
-$("lerBtn").addEventListener("click",lerFotos); $("legBtn").addEventListener("click",legenda);
-$("salvarPerfil").addEventListener("click",salvarPerfil); $("cancelarPerfil").addEventListener("click",limparForm);
-document.querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click",async()=>{ const ta=$(b.dataset.copy); const old=b.textContent;
-  try{ await navigator.clipboard.writeText(ta.value); b.textContent="Copiado"; }catch(e){ ta.focus(); ta.select(); b.textContent="Selecionado, copie"; }
-  setTimeout(()=>b.textContent=old,1800); }));
-
-function rota(){ const h=(location.hash||"#criar").slice(1); const tab=["criar","prontos","perfis","regras"].includes(h)?h:"criar";
-  ["criar","prontos","perfis","regras"].forEach(t=>{ $("view-"+t).hidden = t!==tab; });
-  document.querySelectorAll("nav a").forEach(a=>{ if(a.dataset.tab===tab) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); }); }
+$("entrarBtn").addEventListener("click",entrar); $("senha").addEventListener("keydown",e=>{ if(e.key==="Enter") entrar(); });
+$("prints").addEventListener("change",e=>{ S.arquivos=[...e.target.files].slice(0,8); miniaturas($("printsPrev"),S.arquivos); $("analisarBtn").disabled=!S.arquivos.length; $("analisarMsg").textContent=e.target.files.length>8?"Usando as 8 primeiras imagens.":""; });
+$("analisarBtn").addEventListener("click",analisar);
+$("trocarProduto").addEventListener("click",()=>{ S.produto=null; mostrarProduto(); });
+$("pCorrigirBtn").addEventListener("click",corrigir);
+$("persFoto").addEventListener("change",async e=>{ const f=e.target.files[0]; if(!f) return; try{ S.persFotoData=await reduzir(f,1024); miniaturas($("persFotoPrev"),[S.persFotoData]); }catch(err){ $("persMsg").textContent=err.message; } });
+$("persSalvar").addEventListener("click",salvarPers); $("persCancelar").addEventListener("click",limparPers);
+document.querySelectorAll("#qtd button").forEach(b=>b.addEventListener("click",()=>{ S.qtd=Number(b.dataset.v); marcarSeg("qtd",b.dataset.v); }));
+document.querySelectorAll("#formato button").forEach(b=>b.addEventListener("click",()=>{ S.formato=b.dataset.v; marcarSeg("formato",b.dataset.v); atualizarGerar(); }));
+$("gerarBtn").addEventListener("click",gerar); $("atualizarBtn").addEventListener("click",carregarVideos);
 addEventListener("hashchange",rota);
 
-/* ---------- gerar vídeo no servidor ---------- */
-const FN="https://mfrmnquvwwuxraqgemyh.supabase.co/functions/v1/appsara-video";
-const ANON="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mcm1ucXV2d3d1eHJhcWdlbXloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNDI1NDIsImV4cCI6MjA4NzYxODU0Mn0.zmsi08dV5L1IlXJSr34vOii71w0g0OsD5_5DKio5g-o";
-const SKEY="appsara.senha";
-const PRECO={"360p":0.023,"720p":0.07,"1080p":0.104};
-function senha(){ try{ return localStorage.getItem(SKEY)||""; }catch(e){ return state.senhaMem||""; } }
-function guardarSenha(v){ state.senhaMem=v; try{ localStorage.setItem(SKEY,v); }catch(e){} }
-async function api(acao,dados,cru){
-  const r=await fetch(FN,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+ANON,"apikey":ANON,"x-app-senha":senha()},body:JSON.stringify({acao,...(dados||{})})});
-  if(cru&&r.ok) return r.blob();
-  const j=await r.json().catch(()=>({erro:"O servidor respondeu de um jeito inesperado."}));
-  if(r.status===401){ guardarSenha(""); telaSenha(); }
-  if(!r.ok) throw new Error(j.erro||("Erro "+r.status));
-  return j;
-}
-function telaSenha(){ const tem=!!senha(); $("senhaBox").hidden=tem; $("gerarBox").hidden=!tem; }
-async function entrar(){ const v=$("senha").value.trim(); if(!v) return; guardarSenha(v); $("senhaStatus").textContent="Conferindo…";
-  try{ await api("entrar"); $("senhaStatus").textContent=""; $("senha").value=""; telaSenha(); }
-  catch(e){ guardarSenha(""); telaSenha(); $("senhaStatus").textContent=e.message; } }
-function reduzir(file,max){ return new Promise((ok,erro)=>{ const img=new Image(); const u=URL.createObjectURL(file);
-  img.onload=()=>{ const k=Math.min(1,max/Math.max(img.width,img.height)); const c=document.createElement("canvas"); c.width=Math.round(img.width*k); c.height=Math.round(img.height*k);
-    c.getContext("2d").drawImage(img,0,0,c.width,c.height); URL.revokeObjectURL(u); ok(c.toDataURL("image/jpeg",0.86)); };
-  img.onerror=()=>{ URL.revokeObjectURL(u); erro(new Error("Não deu para abrir uma das imagens.")); }; img.src=u; }); }
-const soB64=d=>({data:d.split(",")[1],mime:"image/jpeg"});
-function prevImg(){ const t=$("f_imgPrev"); t.textContent=""; if(state.formImg){ const i=document.createElement("img"); i.src=state.formImg; i.alt="Personagem"; t.append(i); } }
-function custoNota(){ const c=Number($("g_seg").value)*PRECO[$("g_res").value]; $("custoNota").textContent="Custa cerca de US$ "+c.toFixed(2)+"."; }
-let gerando=false;
-async function gerar(){
-  if(gerando) return; const st=$("gerarStatus"), b=$("gerarBtn"); const p=produto(), pf=perfilAtual(); const pr=buildPrompts();
-  const aprov=$("aprovada").files[0];
-  if(!aprov&&!state.files.length){ st.textContent="Envie as fotos do produto no passo 2 (ou uma foto da cena aprovada)."; return; }
-  if(state.exemplo){ st.textContent="A ficha ainda é a de exemplo. Preencha com o produto real antes de gerar."; return; }
-  gerando=true; b.disabled=true; $("videoOut").hidden=true; $("baixarRow").hidden=true; st.textContent="Preparando as imagens…";
-  try{
-    let imagens=[], prompt;
-    if(aprov){ imagens=[soB64(await reduzir(aprov,1280))]; prompt=pr.vid; }
-    else{
-      const fotos=state.files.slice(0,3); for(const f of fotos) imagens.push(soB64(await reduzir(f,1280)));
-      let intro="The first "+fotos.length+" image(s) are the REAL product photos: the only source of truth for the product. ";
-      if(pf&&pf.img){ imagens.push(soB64(pf.img)); intro+="The last image is the character: keep her face, hair and body identical. "; }
-      prompt=intro+"\n\n"+pr.direto;
-    }
-    st.textContent="Enviando o pedido…";
-    const r=await api("criar",{prompt,imagens,segundos:Number($("g_seg").value),resolucao:$("g_res").value,perfil:pf?pf.nome:"",produto:p.nome,formato:state.formato});
-    const t0=Date.now(); let pronto=false;
-    while(Date.now()-t0<12*60*1000){
-      st.textContent="Gerando o vídeo… "+Math.round((Date.now()-t0)/1000)+" s. Pode deixar o app aberto.";
-      await new Promise(x=>setTimeout(x,8000));
-      const s=await api("status",{id:r.id});
-      if(s.status==="pronto"){ pronto=true; break; }
-      if(s.status==="falhou") throw new Error(s.erro||"O vídeo falhou.");
-    }
-    if(!pronto) throw new Error("Demorou demais. Veja depois na aba Prontos.");
-    st.textContent="Baixando o vídeo…";
-    await mostrarVideo(r.id,$("videoOut"),$("baixarLink")); $("baixarRow").hidden=false;
-    st.textContent="Pronto. Confira com a foto da loja antes de postar.";
-  }catch(e){ st.textContent=e.message||"Não deu certo. Tente de novo."; }
-  gerando=false; b.disabled=false;
-}
-async function mostrarVideo(id,video,link){ const blob=await api("baixar",{id},true); const u=URL.createObjectURL(blob); video.src=u; video.hidden=false; if(link){ link.href=u; } return u; }
-async function carregarProntos(){
-  const box=$("prontosLista"), nota=$("gastoNota"); if(!senha()){ box.textContent=""; nota.textContent="Entre com a senha na aba Novo para ver os vídeos."; return; }
-  nota.textContent="Carregando…";
-  try{ const r=await api("lista"); nota.textContent="Gasto de hoje: US$ "+Number(r.gasto_hoje).toFixed(2)+" de US$ "+Number(r.teto).toFixed(2)+"."; box.textContent="";
-    if(!r.videos.length){ const s=document.createElement("p"); s.className="note"; s.textContent="Nenhum vídeo gerado ainda."; box.append(s); }
-    r.videos.forEach(v=>{ const c=document.createElement("div"); c.className="panel";
-      const h=document.createElement("h3"); h.textContent=(v.produto||"Sem nome")+" · "+(v.perfil||"");
-      const d=document.createElement("p"); d.className="note"; const q=new Date(v.criado_em);
-      const est={gerando:"Gerando",pronto:"Pronto",falhou:"Falhou"}[v.status]||v.status;
-      d.textContent=q.toLocaleDateString("pt-BR")+" "+q.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})+" · "+v.segundos+" s · "+est+(v.erro?(": "+v.erro):"");
-      c.append(h,d);
-      if(v.status==="pronto"||v.status==="gerando"){ const b=document.createElement("button"); b.type="button"; b.className="small"; b.textContent=v.status==="pronto"?"Abrir vídeo":"Ver se ficou pronto";
-        const vid=document.createElement("video"); vid.controls=true; vid.playsInline=true; vid.hidden=true; vid.style.cssText="width:100%;border-radius:12px;background:#000;max-height:70vh";
-        const a=document.createElement("a"); a.className="chip"; a.download="video.mp4"; a.textContent="Baixar vídeo"; a.hidden=true;
-        b.addEventListener("click",async()=>{ b.disabled=true; const old=b.textContent; b.textContent="Abrindo…";
-          try{ if(v.status==="gerando"){ const s=await api("status",{id:v.id}); if(s.status!=="pronto"){ b.textContent=s.status==="falhou"?"Falhou":"Ainda gerando"; b.disabled=s.status==="falhou"; return; } v.status="pronto"; }
-            await mostrarVideo(v.id,vid,a); a.hidden=false; b.hidden=true; }
-          catch(e){ b.textContent=old; b.disabled=false; d.textContent=e.message; } });
-        c.append(b,vid,a); }
-      box.append(c); });
-  }catch(e){ nota.textContent=e.message; }
-}
-$("entrarBtn").addEventListener("click",entrar); $("gerarBtn").addEventListener("click",gerar); $("atualizarBtn").addEventListener("click",carregarProntos);
-$("g_seg").addEventListener("change",custoNota); $("g_res").addEventListener("change",custoNota);
-$("f_img").addEventListener("change",async e=>{ const f=e.target.files[0]; if(!f) return; try{ state.formImg=await reduzir(f,768); prevImg(); }catch(err){ $("perfilStatus").textContent=err.message; } });
-addEventListener("hashchange",()=>{ if(location.hash==="#prontos") carregarProntos(); });
-telaSenha(); custoNota(); if(location.hash==="#prontos") carregarProntos();
-
-/* ---------- início ---------- */
-const KEY="appsara.perfis.v1";
-function persist(){ try{ localStorage.setItem(KEY,JSON.stringify(state.perfis)); }catch(e){ $("perfilStatus").textContent="Este celular não deixou salvar. Os perfis valem só até fechar o app."; } }
-function carregar(){ try{ const v=JSON.parse(localStorage.getItem(KEY)); if(Array.isArray(v)) return v; }catch(e){} return null; }
-function mostrarFotos(files){ state.files=files; const t=$("thumbs"); t.textContent="";
-  files.forEach(f=>{ const i=document.createElement("img"); i.alt="Foto do produto"; i.src=URL.createObjectURL(f); t.append(i); }); }
-async function fotosCompartilhadas(){
-  if(!/[?&]recebido=1/.test(location.search)||!("caches" in window)) return;
-  try{ const c=await caches.open("appsara-share"); const keys=await c.keys(); const files=[];
-    for(const k of keys){ const r=await c.match(k); const b=await r.blob(); files.push(new File([b],"foto-"+files.length+".jpg",{type:b.type})); await c.delete(k); }
-    if(files.length){ setProduto({}); state.exemplo=false; checkKey=""; mostrarFotos(files); render(); }
-    history.replaceState(null,"",location.pathname+location.hash);
-  }catch(e){}
-}
-state.perfis = carregar() || [{id:"exemplo",nome:"Closet da Mariana",arroba:"@mariana.tktk1",exemplo:true,
-  personagem:"Troque pela personagem real. Mulher brasileira de 35 anos, cabelo castanho na altura do ombro, maquiagem leve, expressão simpática.",
-  cenario:"Troque pelo cenário real. Quarto claro com espelho de corpo inteiro e arara de roupas, luz natural da janela.",
-  publico:"Troque pelo público real. Mulheres de 30 a 55 anos que compram roupa pelo TikTok Shop e gostam de looks elegantes e discretos."}];
-setProduto(EXEMPLO); rota(); renderPerfis(); fotosCompartilhadas();
+function iniciar(){ $("telaEntrar").hidden=true; $("app").hidden=false; rota(); carregarProdutos(); carregarPers(); atualizarGasto(); mostrarProduto(); recebidos(); }
+S.senha = LS.get("appsara.senha") || "";
+if(S.senha) iniciar(); else mostrarEntrar();
 if("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(()=>{});
 </script>
-
 </body>
 </html>
