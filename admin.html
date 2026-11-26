@@ -5460,6 +5460,18 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
 
         <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;">
         <div style="flex:1.1;min-width:360px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;">
+            <div id="t05Box" style="margin-bottom:20px;padding:16px;border-radius:14px;background:var(--cream);border:1.5px solid var(--border);">
+                <div style="font-size:14px;font-weight:800;color:var(--text);">🎬 Boas-vindas da Turma 05 (Edição com Claude)</div>
+                <div style="font-size:12px;color:var(--text-muted);margin:3px 0 12px;line-height:1.45;">Preenche os links e clica em montar: escolhe as alunas da Turma 05, coloca o assunto e o e-mail pronto aqui embaixo. Depois é só mandar o teste e disparar.</div>
+                <label style="display:block;font-size:12px;font-weight:700;margin-bottom:4px;">Link da área de alunas (onde estão os módulos)</label>
+                <input id="t05Area" value="https://members.kiwify.com.br" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-family:inherit;font-size:13px;background:#fff;color:var(--text);margin-bottom:8px;">
+                <label style="display:block;font-size:12px;font-weight:700;margin-bottom:4px;">Link do grupo das alunas</label>
+                <input id="t05Grupo" placeholder="https://chat.whatsapp.com/..." style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-family:inherit;font-size:13px;background:#fff;color:var(--text);margin-bottom:8px;">
+                <label style="display:block;font-size:12px;font-weight:700;margin-bottom:4px;">Seu WhatsApp com DDD</label>
+                <input id="t05Zap" placeholder="(12) 99999-9999" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-family:inherit;font-size:13px;background:#fff;color:var(--text);margin-bottom:12px;">
+                <button type="button" onclick="t05MontarEmail()" style="width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;">🎬 Montar o e-mail de boas-vindas</button>
+                <div id="t05Msg" style="font-size:12.5px;margin-top:8px;line-height:1.45;"></div>
+            </div>
             <div style="margin-bottom:16px;">
                 <label style="display:block;font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;">Destinatários</label>
                 <select id="dispTarget" onchange="loadDisparo()" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;background:var(--cream);color:var(--text);outline:none;">
@@ -5471,6 +5483,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
                     <option value="imersao">🎓 Imersão — todas as alunas (Turma 1 + 2)</option>
                     <option value="imersao_t1">🎓 Imersão — só a Turma 1</option>
                     <option value="imersao_t2">🎓 Imersão — só as alunas da Turma 2</option>
+                    <option value="turma05">🎬 Edição Claude — alunas da Turma 05</option>
                     <option value="marcas_favoritas">⭐ Marcas — só as favoritas</option>
                     <option value="marcas">🏢 Marcas — todas com e-mail</option>
                     <option value="marcas_cliente">🏢 Marcas — só quem já foi cliente</option>
@@ -6814,6 +6827,18 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             });
             return saida;
         }
+        // Turma 05 do Edição com Claude: tabela própria (turma05_alunas, só admin lê). sql-turma05-alunas.sql
+        if (target === 'turma05') {
+            const { data, error } = await sb.from('turma05_alunas').select('nome,email').eq('ativo', true).limit(5000);
+            if (error) return null;
+            const vistos = new Set(), saida = [];
+            (data || []).forEach(a => {
+                const e = String(a.email || '').trim().toLowerCase();
+                if (!e.includes('@') || vistos.has(e)) return;
+                vistos.add(e); saida.push({ nome: a.nome || '', email: e });
+            });
+            return saida;
+        }
         // Lista da Imersao: tabela propria (imersao_alunas), nao mistura com a base de creators.
         if (target === 'imersao' || target === 'imersao_t1' || target === 'imersao_t2') {
             let qa = sb.from('imersao_alunas').select('nome,email').eq('ativo', true);
@@ -7021,6 +7046,7 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
             : 'Cole os e-mails na caixa acima, um por linha.';
         else if (target === 'espera_imersao') el.innerHTML = '<b style="color:var(--accent);">' + recs.length + '</b> pessoas da <b>lista de espera da imersão</b> vão receber este e-mail. (o filtro de estado não vale aqui)';
         else if (target === 'todos_sem_espera') el.innerHTML = '<b style="color:var(--accent);">' + recs.length + '</b> pessoas vão receber este e-mail: quem pegou os prompts, o widget, as aulas, alunas e compradoras (sem repetir). A base de creators, o casting e a lista de espera ficam de fora.';
+        else if (target === 'turma05') el.innerHTML = '<b style="color:var(--accent);">' + recs.length + '</b> alunas da <b>Turma 05 do Edição com Claude</b> vão receber este e-mail. (o filtro de estado não vale aqui)';
         else if (target.indexOf('imersao') === 0) {
             const qualTurma = target === 'imersao_t1' ? ' da <b>Turma 1</b>' : target === 'imersao_t2' ? ' da <b>Turma 2</b>' : '';
             el.innerHTML = '<b style="color:var(--accent);">' + recs.length + '</b> alunas da <b>Imersão</b>' + qualTurma + ' vão receber este e-mail. (o filtro de estado não vale aqui)';
@@ -7108,6 +7134,83 @@ body.ct-dragging { user-select:none; -webkit-user-select:none; cursor:grabbing; 
     }
     let dispMode = 'texto';
     function dispModeBtnStyle(active) { return 'padding:8px 15px;border-radius:9px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;' + (active ? 'background:var(--accent);color:#fff;border:1px solid var(--accent);' : 'background:var(--card);color:var(--text-soft);border:1px solid var(--border);'); }
+    /* ── Boas-vindas da Turma 05 (Edição com Claude): e-mail em HTML no visual da página de vendas ── */
+    function t05EmailHtml(area, grupo, zap) {
+        const esc = v => String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+        const F = "font-family:'Poppins',Helvetica,Arial,sans-serif;";
+        const botao = (txt, href, escuro) => '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="border-radius:999px;background:' + (escuro ? '#141414' : '#fdf6cf') + ';">'
+            + '<a href="' + esc(href) + '" target="_blank" style="display:inline-block;padding:15px 30px;' + F + 'font-size:15px;font-weight:700;color:' + (escuro ? '#ffffff' : '#141414') + ';text-decoration:none;border-radius:999px;">' + txt + '</a></td></tr></table>';
+        const modulo = (n, tag, titulo, tempo, txt) => '<tr><td style="padding:0 0 10px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f7f6f2;border-radius:16px;"><tr><td style="padding:16px 18px;' + F + '">'
+            + '<span style="font-size:20px;font-weight:800;color:#c4673f;">' + n + '</span>&nbsp;&nbsp;<span style="display:inline-block;background:#ffffff;border:1px solid #e4e2da;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:600;color:#141414;">' + tag + '</span>&nbsp;<span style="display:inline-block;background:#fdf6cf;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:600;color:#141414;">' + tempo + '</span>'
+            + '<div style="font-size:17px;font-weight:800;color:#141414;margin-top:8px;">' + titulo + '</div>'
+            + '<div style="font-size:14px;line-height:1.55;color:#55534e;margin-top:4px;">' + txt + '</div></td></tr></table></td></tr>';
+        const zapNum = String(zap || '').replace(/\D/g, '');
+        const zapLink = 'https://wa.me/' + (zapNum.length <= 11 ? '55' + zapNum : zapNum) + '?text=' + encodeURIComponent('Oi, Lara! Sou aluna da Turma 05 e tenho uma dúvida:');
+        return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bem-vinda à Turma 05</title></head>'
+            + '<body style="margin:0;padding:0;background:#f1f0ea;">'
+            + '<div style="display:none;max-height:0;overflow:hidden;opacity:0;">Seu acesso, o grupo das alunas e por onde começar.</div>'
+            + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f1f0ea;"><tr><td align="center" style="padding:28px 14px;">'
+            + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;">'
+            // topo
+            + '<tr><td style="padding:0 6px 18px;' + F + '"><span style="display:inline-block;background:#141414;color:#fdf6cf;border-radius:999px;padding:6px 14px;font-size:12px;font-weight:600;">Turma 05 · Edição com Claude</span>'
+            + '<div style="font-size:34px;line-height:1.05;font-weight:800;color:#141414;letter-spacing:-0.5px;margin-top:16px;">Seja muito <span style="color:#c4673f;">bem-vinda</span>, {{nome}}!</div>'
+            + '<div style="font-size:15.5px;line-height:1.6;color:#55534e;margin-top:12px;">Que alegria ter você aqui. A partir de agora, a ideia é você editar mais rápido, com a cara de cada marca e sem aquele jeito de vídeo feito por IA.</div></td></tr>'
+            // módulos
+            + '<tr><td style="background:#ffffff;border-radius:24px;padding:24px 20px 14px;">'
+            + '<div style="' + F + 'font-size:11.5px;font-weight:600;letter-spacing:1.6px;text-transform:uppercase;color:#c4673f;">// Já liberado</div>'
+            + '<div style="' + F + 'font-size:22px;font-weight:800;color:#141414;margin:6px 0 16px;">Os 2 primeiros módulos estão no ar</div>'
+            + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">'
+            + modulo('01', 'Claude e kit', 'Configurando seu Claude', '41 min', 'O plano certo, o kit instalado com um pedido só e como pedir pro Claude do jeito que funciona.')
+            + modulo('02', 'Conteúdo', 'Formatos que vendem', '1h54', 'Os 8 formatos validados no meu portfólio, com vídeo real de cada um, e o que a marca olha antes de te contratar.')
+            + '</table>'
+            + '<div style="' + F + 'font-size:14.5px;line-height:1.55;color:#141414;margin:8px 0 18px;text-align:center;">Comece pelo <b>Módulo 1</b>: é nele que você deixa tudo pronto pra editar.</div>'
+            + botao('Assistir o Módulo 1', area, true)
+            + '<div style="height:10px;line-height:10px;">&nbsp;</div></td></tr>'
+            + '<tr><td style="height:14px;line-height:14px;">&nbsp;</td></tr>'
+            // grupo
+            + '<tr><td style="background:#141414;border-radius:24px;padding:24px 20px;text-align:center;">'
+            + '<div style="' + F + 'font-size:11.5px;font-weight:600;letter-spacing:1.6px;text-transform:uppercase;color:#fdf6cf;">// Grupo das alunas</div>'
+            + '<div style="' + F + 'font-size:20px;font-weight:800;color:#ffffff;margin:6px 0 8px;">O grupo da turma já está aberto</div>'
+            + '<div style="' + F + 'font-size:14.5px;line-height:1.55;color:#d8d6cf;margin-bottom:18px;">É lá que eu aviso quando sai módulo novo e onde vocês trocam vídeos e dúvidas.</div>'
+            + botao('Entrar no grupo', grupo, false) + '</td></tr>'
+            + '<tr><td style="height:14px;line-height:14px;">&nbsp;</td></tr>'
+            // próximos passos
+            + '<tr><td style="background:#ffffff;border-radius:24px;padding:22px 20px;' + F + '">'
+            + '<div style="font-size:11.5px;font-weight:600;letter-spacing:1.6px;text-transform:uppercase;color:#c4673f;">// O que vem por aí</div>'
+            + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:10px;font-size:14.5px;line-height:1.5;color:#141414;">'
+            + '<tr><td style="padding:6px 0;"><b>Módulo 3 · Roteiro</b> e <b>Módulo 4 · Edição avançada</b>: nos próximos dias, eu aviso no grupo.</td></tr>'
+            + '<tr><td style="padding:6px 0;border-top:1px solid #e4e2da;"><b>Bônus · ID da marca</b>: libera até 01/12.</td></tr>'
+            + '<tr><td style="padding:6px 0;border-top:1px solid #e4e2da;"><b>Aula ao vivo comigo</b>: 03/12, às 20h. Chegue com um vídeo editado pra me mostrar.</td></tr>'
+            + '</table></td></tr>'
+            + '<tr><td style="height:14px;line-height:14px;">&nbsp;</td></tr>'
+            // dúvida
+            + '<tr><td style="background:#fdf6cf;border-radius:24px;padding:22px 20px;text-align:center;' + F + '">'
+            + '<div style="font-size:18px;font-weight:800;color:#141414;">Ficou com alguma dúvida?</div>'
+            + '<div style="font-size:14.5px;line-height:1.55;color:#55534e;margin:6px 0 16px;">Me chama direto no WhatsApp que eu te ajudo.</div>'
+            + botao('Falar comigo no WhatsApp', zapLink, true) + '</td></tr>'
+            // assinatura
+            + '<tr><td style="padding:24px 6px 6px;' + F + 'font-size:15px;line-height:1.6;color:#141414;">Um beijo,<br><b>Lara</b></td></tr>'
+            + '<tr><td style="padding:6px 6px 0;' + F + 'font-size:13.5px;line-height:1.55;color:#55534e;"><b>P.S.</b> Faça o Módulo 1 ainda essa semana. Assim, quando a aula ao vivo chegar, você já vai estar com o seu Claude configurado e editando.</td></tr>'
+            + '<tr><td style="padding:26px 6px 0;border-bottom:0;' + F + 'font-size:11.5px;color:#8d8b84;"><b style="color:#141414;">Lara Dam</b> · Turma 05 Edição com Claude · @eilaradam</td></tr>'
+            + '</table></td></tr></table></body></html>';
+    }
+    async function t05MontarEmail() {
+        const msg = document.getElementById('t05Msg');
+        const area = (document.getElementById('t05Area').value || '').trim();
+        const grupo = (document.getElementById('t05Grupo').value || '').trim();
+        const zap = (document.getElementById('t05Zap').value || '').trim();
+        const ok = u => /^https?:\/\/\S+\.\S+/.test(u);
+        if (!ok(area)) { msg.innerHTML = '<span style="color:var(--error);">Coloca o link da área de alunas (começando com https://).</span>'; return; }
+        if (!ok(grupo)) { msg.innerHTML = '<span style="color:var(--error);">Coloca o link do grupo das alunas (começando com https://).</span>'; return; }
+        if (zap.replace(/\D/g, '').length < 10) { msg.innerHTML = '<span style="color:var(--error);">Coloca o seu WhatsApp com DDD.</span>'; return; }
+        document.getElementById('dispTarget').value = 'turma05';
+        document.getElementById('dispSubject').value = 'Bem-vinda à Turma 05: 2 módulos já liberados';
+        setDispMode('html');
+        document.getElementById('dispHtml').value = t05EmailHtml(area, grupo, zap);
+        await loadDisparo();
+        renderDispPreview();
+        msg.innerHTML = '<span style="color:var(--success, #2a9d5c);">Pronto! Confere a prévia ao lado, manda o teste pra você e depois clica em disparar.</span>';
+    }
     function setDispMode(m) {
         dispMode = m;
         const tf = document.getElementById('dispTextoFields'), hf = document.getElementById('dispHtmlField');
